@@ -768,6 +768,34 @@
   .vol-campo { display:flex; gap:8px; align-items:center; justify-content:flex-end; }
   .vol-campo input[type="text"] { width:210px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none; }
   .vol-campo input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .vol-campo .acao-link { justify-content:flex-end; }
+  .vol-cancelar { font-size:12px; font-weight:700; color:var(--text); cursor:pointer; user-select:none; }
+  .vol-cancelar:hover { text-decoration:underline; }
+
+  /* Barra de salvar: a conta do que esta pendente mora nela. Botao de gravar sem
+     dizer quantos codigos mudaram obriga a rolar a tabela de volta para conferir. */
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+  .barra-info b { color:var(--text-heading); }
+  .barra-info.pendente b { color: var(--active-text); }
+
+  /* A FICHA DE RASTREIO IMPRESSA. Ela sai com o que o CLIENTE pode ver: os codigos,
+     a transportadora e os eventos publicos. Evento interno (Faturado, nota de quem
+     marcou entrega a mao) fica de fora — papel circula, e vocabulario de deposito
+     na mao do cliente vira duvida que alguem vai ter que responder no telefone. */
+  .rastreio-folha { display:none; font-family:Nunito, sans-serif; }
+  .rf-cabeca { border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:14px; }
+  .rf-titulo { font-size:19px; font-weight:800; }
+  .rf-sub { font-size:12px; font-weight:600; margin-top:3px; }
+  .rf-secao { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 7px; }
+  .rf-linha { display:grid; grid-template-columns:150px 1fr; gap:10px; padding:7px 0; border-bottom:1px solid #999; font-size:12.5px; }
+  .rf-linha b { font-weight:800; }
+  .rf-rodape { margin-top:18px; font-size:11px; font-weight:600; }
+  @media print {
+    body * { visibility:hidden; }
+    .rastreio-folha, .rastreio-folha * { visibility:visible; }
+    .rastreio-folha { display:block; position:absolute; left:0; top:0; width:100%; padding:24px; background:#fff; color:#000; }
+    .rastreio-folha.oculta { display:none; }
+  }
 
   /* ===== HISTORICO ===== */
   .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
@@ -1002,9 +1030,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
     <div class="header-acoes">
-      <button class="btn-primary" id="btnSalvarCodigos">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Salvar códigos
+      <button class="btn-ghost" id="btnImprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir a ficha
       </button>
       <button class="btn-secundario-topo" id="btnVoltar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1026,11 +1054,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">O pedido</div>
+    <!-- Este card respondia a "O pedido", que nao diz nada: todo card desta tela
+         e sobre o pedido. Sao duas perguntas diferentes e agora cada metade leva
+         o nome da sua — de onde a venda veio, e em que pe esta o prazo. -->
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Origem da venda</div>
     <div class="doc-grid">
       <div class="doc-item"><div class="doc-rotulo">Onde comprou</div><div class="doc-valor" id="docOnde">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Vendedor</div><div class="doc-valor" id="docVendedor">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Data da venda</div><div class="doc-valor" id="docVenda">—</div></div>
+    </div>
+    <div class="section-title">Prazo de entrega</div>
+    <div class="doc-grid">
       <div class="doc-item"><div class="doc-rotulo">Enviado em</div><div class="doc-valor" id="docEnviado">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Previsão de entrega</div><div class="doc-valor" id="docPrevisao">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Entrega</div><div class="doc-valor" id="docEntrega">—</div></div>
@@ -1089,7 +1123,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Quem tocou o pedido</div>
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Responsáveis por etapa</div>
     <!-- Trabalho de galpao nao pede senha — pede RASTRO. O nome de quem separou e
          de quem conferiu e o que transforma divergencia em conversa com alguem, em
          vez de discussao sobre o sistema. -->
@@ -1134,6 +1168,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="notaVitrine">—</span>
     </div>
   </div>
+
+  <!-- A acao de gravar sai do topo e vai para o rodape, como nas outras telas que
+       escrevem (Entrada de Notas, Conferencia de Saida, Expedicao): o botao fica
+       depois do que ele grava, nao antes. A barra e grudada no fim da janela, e
+       diz o que esta pendente — "Salvar" sem saber quantos codigos mudaram obriga
+       a pessoa a rolar a tabela de volta para conferir. -->
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvarCodigos">Salvar alterações</button>
+    <div class="drawer-link" id="btnVoltarRodape">Voltar para o rastreamento</div>
+    <div class="barra-info" id="infoPendente">—</div>
+  </div>
+
+<!-- FOLHA DE IMPRESSÃO: a ficha de rastreio do pedido -->
+<div class="rastreio-folha oculta" id="rastreioFolha"></div>
 
 <!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
@@ -1262,7 +1310,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'embalagens', nome:'Embalagens', onde:'Cadastros \u2192 Embalagens', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'departamentos', nome:'Departamento de Produtos', onde:'Cadastros \u2192 Departamento de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'secoes', nome:'Se\u00e7\u00e3o de Produtos', onde:'Cadastros \u2192 Se\u00e7\u00e3o de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
-    { base:'depositos', nome:'Dep\u00f3sitos', onde:'Cadastros \u2192 Dep\u00f3sitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'depositos', nome:'Depósitos', onde:'Cadastros \u2192 Depósitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'enderecos', nome:'Endere\u00e7os de Estoque', onde:'Cadastros \u2192 Endere\u00e7os de Estoque', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'lojas', nome:'Lojas Desk', onde:'Cadastros \u2192 Lojas Desk', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'vendedores', nome:'Vendedores', onde:'Cadastros \u2192 Vendedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
@@ -1315,8 +1363,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
     // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
     // avancar o funil nao pede senha e alterar a situacao a mao pede.
-    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioConfirma',      nome:'Confirmar o código de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um código de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
     { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
     { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
   ];
@@ -1522,12 +1570,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  // O mesmo pedido que a tela vai carregar: id fora da fila cai no primeiro, e
-  // o breadcrumb nao pode dizer outra coisa.
-  let path = ['Logística', 'Expedição', (function () {
-    const id = String(new URLSearchParams(window.location.search).get('id') || '').toUpperCase();
-    return ['ROM-0190', 'ROM-0192', 'ROM-0193'].indexOf(id) >= 0 ? id : 'ROM-0192';
-  })()];
+  // O caminho veio errado da copia: esta tela nasceu da Expedicao e continuou
+  // dizendo "Expedicao > ROM-0192" com um pedido de rastreio aberto. O ultimo
+  // crumb so ganha o numero depois que o pedido resolve (ver pintarTudo), porque
+  // ate la nao se sabe se o id da URL existe.
+  let path = ['Logística', 'Rastreamento de Pedidos', 'Pedido'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -2212,19 +2259,95 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       corpo.innerHTML = '<tr><td colspan="3"><span class="toque-vazio">Nenhum volume para este pedido.</span></td></tr>';
       return;
     }
-    corpo.innerHTML = PEDIDO.volumes.map(v => (
-      '<tr>' +
+    // O codigo aparece UMA vez. Antes a coluna do codigo mostrava o chip e a de
+    // acao mostrava o mesmo numero dentro de um campo sempre aberto: duas fontes
+    // para o mesmo dado, e nenhuma delas obviamente a verdadeira. Agora a linha
+    // tem dois estados — parada, com o chip; em edicao, com o campo no lugar dele.
+    corpo.innerHTML = PEDIDO.volumes.map(v => {
+      const editando = EDITANDO[v.id];
+      const rascunho = RASCUNHO[v.id] !== undefined ? RASCUNHO[v.id] : (v.codigo || '');
+      const celulaCodigo = editando
+        ? '<div class="vol-campo" style="justify-content:flex-start;">' +
+            '<input type="text" data-vol="' + v.id + '" value="' + rascunho + '" ' +
+              'placeholder="' + (v.codigo ? 'novo código' : 'código da transportadora') + '" autocomplete="off">' +
+          '</div>'
+        : (v.codigo
+            ? '<span class="cod-chip">' + v.codigo + '</span>'
+            : '<span class="cod-falta">sem código</span>');
+      const celulaAcao = editando
+        ? '<span class="vol-cancelar" data-cancelar="' + v.id + '">cancelar</span>'
+        : '<div class="acao-link" data-editar="' + v.id + '">' +
+            (v.codigo
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Alterar código'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Inserir código') +
+          '</div>';
+      return '<tr>' +
         '<td class="col-texto"><span class="vol-nome">' + v.etiqueta + '</span>' +
           '<span class="vol-sub">' + v.peso.toFixed(2).replace('.', ',') + ' kg</span></td>' +
-        '<td class="col-texto">' + (v.codigo
-          ? '<span class="cod-chip">' + v.codigo + '</span>'
-          : '<span class="cod-falta">sem código</span>') + '</td>' +
-        '<td class="vol-acao"><div class="vol-campo">' +
-          '<input type="text" data-vol="' + v.id + '" value="' + v.codigo + '" ' +
-            'placeholder="' + (v.codigo ? 'alterar o código' : 'inserir o código') + '" autocomplete="off">' +
-        '</div></td>' +
-      '</tr>'
-    )).join('');
+        '<td class="col-texto">' + celulaCodigo + '</td>' +
+        '<td class="vol-acao"><div class="vol-campo">' + celulaAcao + '</div></td>' +
+      '</tr>';
+    }).join('');
+    ligarLinhasVolume();
+    atualizarBarra();
+  }
+
+  // ===== EDICAO LINHA A LINHA =====
+  // EDITANDO: quais volumes estao com o campo aberto. RASCUNHO: o que foi digitado
+  // e ainda nao gravado. Os dois sao separados do dado porque o que a pessoa
+  // digitou nao pode sumir num re-render, e o que esta gravado e o que a vitrine
+  // ja esta mostrando ao cliente.
+  const EDITANDO = {}, RASCUNHO = {};
+
+  function abrirEdicao(id) {
+    const v = PEDIDO ? PEDIDO.volumes.filter(x => x.id === id)[0] : null;
+    if (!v) return;
+    EDITANDO[id] = true;
+    if (RASCUNHO[id] === undefined) RASCUNHO[id] = v.codigo || '';
+    pintarTransportadora();
+    const campo = document.querySelector('[data-vol="' + id + '"]');
+    if (campo) { campo.focus(); campo.select(); }
+  }
+
+  // Cancelar aqui e cancelar de verdade: fecha o campo e joga fora o que foi
+  // digitado. Diferente de cancelar no modal de confirmacao, que mantem o
+  // rascunho — la a pessoa recuou da gravacao, nao do que escreveu.
+  function cancelarEdicao(id) {
+    delete EDITANDO[id];
+    delete RASCUNHO[id];
+    pintarTransportadora();
+  }
+
+  function ligarLinhasVolume() {
+    const corpo = document.getElementById('corpoVolumes');
+    if (!corpo) return;
+    corpo.querySelectorAll('[data-editar]').forEach(el => {
+      el.addEventListener('click', () => abrirEdicao(el.getAttribute('data-editar')));
+    });
+    corpo.querySelectorAll('[data-cancelar]').forEach(el => {
+      el.addEventListener('click', () => cancelarEdicao(el.getAttribute('data-cancelar')));
+    });
+    corpo.querySelectorAll('input[data-vol]').forEach(el => {
+      const id = el.getAttribute('data-vol');
+      el.addEventListener('input', () => { RASCUNHO[id] = el.value; atualizarBarra(); });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); salvarCodigos(); }
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelarEdicao(id); }
+      });
+    });
+  }
+
+  function atualizarBarra() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const m = coletarMudancas();
+    const total = m.novos.length + m.alterados.length;
+    info.classList.toggle('pendente', total > 0);
+    if (!total) { info.innerHTML = 'Nenhuma alteração pendente.'; return; }
+    const partes = [];
+    if (m.novos.length) partes.push('<b>' + m.novos.length + '</b> a inserir');
+    if (m.alterados.length) partes.push('<b>' + m.alterados.length + '</b> a alterar');
+    info.innerHTML = partes.join(' · ') + ' — ainda não salvo.';
   }
 
   // ===== SALVAR OS CODIGOS =====
@@ -2236,9 +2359,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!PEDIDO) return { novos: [], alterados: [] };
     const novos = [], alterados = [];
     PEDIDO.volumes.forEach(v => {
-      const campo = document.querySelector('[data-vol="' + v.id + '"]');
-      if (!campo) return;
-      const valor = campo.value.trim();
+      if (RASCUNHO[v.id] === undefined) return;
+      const valor = String(RASCUNHO[v.id]).trim();
       if (valor === (v.codigo || '')) return;
       if (!valor) return;              // apagar codigo nao e caso desta tela
       (v.codigo ? alterados : novos).push({ vol: v, valor: valor });
@@ -2250,7 +2372,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!PEDIDO) { avisar('Não há pedido aberto para salvar.'); return; }
     const m = coletarMudancas();
     const total = m.novos.length + m.alterados.length;
-    if (!total) { avisar('Nenhum código novo para salvar. Digite o código no campo do volume.'); return; }
+    if (!total) {
+      avisar('Nenhum código novo para salvar. Abra "Inserir código" ou "Alterar código" na linha do volume.');
+      return;
+    }
 
     const chave = m.alterados.length ? 'rastreioAltera' : 'rastreioConfirma';
     let texto;
@@ -2265,7 +2390,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
 
     confirmarAcao(chave, texto, function () {
-      m.novos.concat(m.alterados).forEach(x => { x.vol.codigo = x.valor; });
+      m.novos.concat(m.alterados).forEach(x => {
+        x.vol.codigo = x.valor;
+        delete EDITANDO[x.vol.id];     // gravou: a linha volta ao estado parado
+        delete RASCUNHO[x.vol.id];
+      });
       // Sem modal de sucesso: a tela JA responde — o codigo vira chip, o campo
       // troca de placeholder e a linha de aviso do card se atualiza. Modal a cada
       // salvada vira ruido que a pessoa aprende a fechar sem ler, e aviso que
@@ -2321,9 +2450,60 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
   }
 
+  // ===== FICHA IMPRESSA =====
+  // Sai com o que o CLIENTE pode ver. Evento interno nao entra: papel circula, e
+  // "Faturado" na mao de quem comprou vira telefonema para perguntar o que e.
+  function montarFolha() {
+    if (!PEDIDO) return;
+    const tr = transpDe(PEDIDO.transp);
+    let vols = '';
+    if (!PEDIDO.volumes.length) {
+      vols = '<div class="rf-linha"><b>—</b><div>Nenhum volume gerado até agora.</div></div>';
+    } else {
+      PEDIDO.volumes.forEach(v => {
+        vols += '<div class="rf-linha"><b>' + v.etiqueta + '</b><div>' +
+                (v.codigo ? v.codigo : 'sem código até o momento') +
+                ' · ' + v.peso.toFixed(2).replace('.', ',') + ' kg</div></div>';
+      });
+    }
+    let hist = '';
+    eventosPublicos(PEDIDO).forEach(e => {
+      hist += '<div class="rf-linha"><b>' + fmtData(e.data) + '</b><div>' + ROTULO_VITRINE[e.sit] + '</div></div>';
+    });
+
+    document.getElementById('rastreioFolha').innerHTML =
+      '<div class="rf-cabeca">' +
+        '<div class="rf-titulo">Ficha de rastreio · Pedido ' + PEDIDO.numero + '</div>' +
+        '<div class="rf-sub">' + PEDIDO.cliente + ' · ' + PEDIDO.cidade + '/' + PEDIDO.uf + '</div>' +
+        '<div class="rf-sub">' + LOJAS[PEDIDO.loja] + ' · ' + PEDIDO.canal + ' · venda de ' + fmtData(PEDIDO.dataVenda) + '</div>' +
+        '<div class="rf-sub">' + tr.nome + ' · ' + tr.contato + '</div>' +
+      '</div>' +
+      '<div class="rf-secao">Volumes e códigos de rastreio</div>' + vols +
+      '<div class="rf-secao">Andamento</div>' + hist +
+      '<div class="rf-rodape">' +
+        (PEDIDO.previsao ? 'Previsão de entrega: ' + fmtData(PEDIDO.previsao) + '. ' : '') +
+        'Acompanhe pelo site da transportadora com o código do seu volume. ' +
+        'Impresso em ' + fmtData(HOJE) + '.</div>';
+  }
+
   // ===== AÇÕES =====
   const btnSalvar = document.getElementById('btnSalvarCodigos');
   if (btnSalvar) btnSalvar.addEventListener('click', salvarCodigos);
+
+  const btnImprimir = document.getElementById('btnImprimir');
+  if (btnImprimir) btnImprimir.addEventListener('click', function () {
+    if (!PEDIDO) { avisar('Não há pedido aberto para imprimir.'); return; }
+    montarFolha();
+    const folha = document.getElementById('rastreioFolha');
+    folha.classList.remove('oculta');
+    window.print();
+    folha.classList.add('oculta');
+  });
+
+  const btnVoltarRodape = document.getElementById('btnVoltarRodape');
+  if (btnVoltarRodape) btnVoltarRodape.addEventListener('click', function () {
+    window.location.href = 'pagina-logistica-rastreamento.html';
+  });
 
   const btnVoltar = document.getElementById('btnVoltar');
   if (btnVoltar) btnVoltar.addEventListener('click', function () {
@@ -2351,12 +2531,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function pintarTudo() {
     pintarCabecalho();
+    const barra = document.getElementById('barraSalvar');
     if (!PEDIDO) {
       // Sem pedido a tela nao finge ter conteudo: os cards saem e sobra a saida.
       document.querySelectorAll('.main .card').forEach(c => { c.style.display = 'none'; });
-      if (btnSalvar) btnSalvar.style.display = 'none';
+      if (barra) barra.style.display = 'none';
+      path[2] = 'Pedido não encontrado';
+      renderBreadcrumb();
       return;
     }
+    path[2] = PEDIDO.numero;
+    renderBreadcrumb();
     pintarPedido();
     pintarItens();
     pintarCliente();

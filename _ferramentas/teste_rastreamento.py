@@ -200,14 +200,23 @@ with sync_playwright() as p:
 
     print('\n[16] O detalhe mostra o pedido inteiro')
     corpo = pg.inner_text('.main').lower()
-    for rotulo in ['itens do pedido', 'cliente', 'pagamento', 'quem tocou o pedido',
+    for rotulo in ['origem da venda', 'prazo de entrega', 'itens do pedido', 'cliente',
+                   'pagamento', 'responsáveis por etapa',
                    'transportadora e códigos de rastreio', 'histórico']:
         ok(rotulo in corpo, 'tem o bloco "%s"' % rotulo)
     ok(pg.locator('#corpoItens tr').count() > 0, 'os itens do pedido aparecem (%d)' % pg.locator('#corpoItens tr').count())
     ok(pg.inner_text('#docOnde').strip() not in ('', '—'), 'onde comprou: %s' % pg.inner_text('#docOnde'))
     ok(pg.inner_text('#docVendedor').strip() not in ('', '—'), 'vendedor: %s' % pg.inner_text('#docVendedor'))
     ok(pg.inner_text('#docTranspContato').strip() not in ('', '—'), 'contato da transportadora: %s' % pg.inner_text('#docTranspContato'))
-    ok(pg.locator('#listaToques .toque-item').count() == 3, 'quem tocou tem as 3 etapas')
+    ok(pg.locator('#listaToques .toque-item').count() == 3, 'responsaveis tem as 3 etapas')
+    # O caminho desta tela nasceu copiado da Expedicao e dizia "Expedicao > ROM-0192"
+    # com um pedido de rastreio aberto. Breadcrumb errado e tela que mente sobre
+    # onde a pessoa esta.
+    bc = pg.inner_text('#breadcrumb').lower()
+    ok('rastreamento' in bc, 'o breadcrumb diz Rastreamento: %s' % bc.replace(chr(10), ' '))
+    ok('expedi' not in bc, 'o breadcrumb NAO fala em Expedicao')
+    ok('rom-' not in bc, 'o breadcrumb nao traz romaneio nenhum')
+    ok(pg.evaluate("PEDIDO.numero").lower() in bc, 'o ultimo passo e o numero do pedido')
 
     print('\n[17] Venda de vitrine diz que NAO teve vendedor, em vez de deixar vazio')
     semVend = pg.evaluate("PEDIDOS.filter(p => !p.vendedor)[0].id")
@@ -234,9 +243,20 @@ with sync_playwright() as p:
     # Mira o volume SEM codigo: preencher o de um volume que ja tem transforma
     # a acao em alteracao, que e outra chave e exige senha (ver [19b]).
     volVazio = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => !v.codigo)[0].id" % alvo)
+    # A linha nasce parada: o campo so aparece depois de "Inserir codigo". Antes
+    # o campo vivia aberto ao lado do chip, mostrando o MESMO numero duas vezes.
+    ok(pg.locator('#corpoVolumes input[data-vol]').count() == 0,
+       'nenhuma linha nasce com campo aberto')
+    botao = pg.locator('#corpoVolumes [data-editar="' + volVazio + '"]')
+    ok('inserir' in botao.inner_text().lower(),
+       'o volume sem codigo oferece INSERIR: %s' % botao.inner_text())
+    botao.click(); pg.wait_for_timeout(300)
     vazio = pg.locator('#corpoVolumes input[data-vol="' + volVazio + '"]')
-    ok(vazio.count() > 0, 'o volume sem codigo tem campo para inserir (%s)' % volVazio)
+    ok(vazio.count() == 1, 'abriu o campo da linha (%s)' % volVazio)
     vazio.fill('TESTE123456BR')
+    pg.wait_for_timeout(200)
+    ok('a inserir' in pg.inner_text('#infoPendente').lower(),
+       'o rodape conta o que esta pendente: %s' % pg.inner_text('#infoPendente'))
     pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(600)
     # Inserir e rotina: nao pede senha, entao grava direto.
     gravou = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.some(v => v.codigo === 'TESTE123456BR')" % alvo)
@@ -249,6 +269,10 @@ with sync_playwright() as p:
     # sozinha, ela para no modal de confirmacao.
     volCheio = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => v.codigo)[0].id" % alvo)
     antigo = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => v.id === '%s')[0].codigo" % (alvo, volCheio))
+    botaoCheio = pg.locator('#corpoVolumes [data-editar="' + volCheio + '"]')
+    ok('alterar' in botaoCheio.inner_text().lower(),
+       'o volume que JA tem codigo oferece ALTERAR: %s' % botaoCheio.inner_text())
+    botaoCheio.click(); pg.wait_for_timeout(300)
     campoCheio = pg.locator('#corpoVolumes input[data-vol="' + volCheio + '"]')
     campoCheio.fill('OUTROCODIGO999')
     pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(500)
@@ -267,6 +291,41 @@ with sync_playwright() as p:
     txt_modal = pg.inner_text('body').lower()
     ok('nenhum código novo' in txt_modal, 'avisa que nao ha o que salvar')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+    ok('nenhuma altera' in pg.inner_text('#infoPendente').lower(),
+       'o rodape diz que nao ha pendencia: %s' % pg.inner_text('#infoPendente'))
+
+    print('\n[20b] O numero do rastreio aparece UMA vez por linha')
+    # Bug visto no print de 07/out: a coluna do codigo mostrava o chip e a coluna
+    # de acao mostrava o mesmo numero num campo sempre aberto. Duas fontes para o
+    # mesmo dado, e nenhuma delas obviamente a verdadeira.
+    comCod = pg.evaluate("PEDIDOS.filter(p => p.volumes.every(v => v.codigo))[0].id")
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=' + str(comCod))
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    repete = pg.evaluate("""() => {
+      return Array.from(document.querySelectorAll('#corpoVolumes tr')).map(tr => {
+        const cod = tr.querySelector('.cod-chip');
+        if (!cod) return 0;
+        const alvo = cod.textContent.trim();
+        return (tr.innerText.split(alvo).length - 1) +
+               Array.from(tr.querySelectorAll('input')).filter(i => i.value.trim() === alvo).length;
+      }).filter(n => n > 1).length;
+    }""")
+    ok(repete == 0, 'nenhuma linha mostra o mesmo codigo duas vezes (%d repetem)' % repete)
+
+    print('\n[20c] Salvar saiu do topo; imprimir ficou no lugar')
+    # O botao de gravar agora fica DEPOIS do que ele grava, como nas outras telas
+    # que escrevem. O topo guarda o que nao muda nada: imprimir e as saidas.
+    noTopo = pg.evaluate("!!document.querySelector('.page-header #btnSalvarCodigos')")
+    ok(not noTopo, 'o salvar NAO esta mais no cabecalho')
+    ok(pg.locator('.barra-salvar #btnSalvarCodigos').count() == 1, 'o salvar esta na barra do rodape')
+    ok('salvar altera' in pg.inner_text('.barra-salvar #btnSalvarCodigos').lower(),
+       'ele se chama Salvar alteracoes')
+    ok(pg.locator('.page-header #btnImprimir').count() == 1, 'o cabecalho oferece imprimir')
+    ok(pg.evaluate("typeof montarFolha === 'function'"), 'a ficha impressa tem como ser montada')
+    folha = pg.evaluate("(montarFolha(), document.getElementById('rastreioFolha').innerText.toLowerCase())")
+    ok('ficha de rastreio' in folha, 'a folha traz o titulo')
+    ok(pg.evaluate("PEDIDO.numero").lower() in folha, 'a folha traz o numero do pedido')
+    ok('faturado' not in folha, 'a folha NAO leva evento interno para a mao do cliente')
 
     print('\n[21] Id invalido NAO inventa pedido')
     pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=99999')
