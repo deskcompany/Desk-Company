@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
+
+  :root {
+    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0;
+    --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
+    --brand-blue: #2563EB; --logo-color: #2979FF;
+    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
+    --chart-1: #0A4EE4; --chart-2: #6B93F2; --chart-3: #B7C7F5;
+    --card-bg: #FFFFFF;
+  }
+  body.dark {
+    --page-bg: #101010; --panel-bg: #101010; --border: #262626;
+    --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
+    --brand-blue: #2563EB; --logo-color: #FFFFFF;
+    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
+    --chart-1: #9DB8F0; --chart-2: #4C6FC4; --chart-3: #263A73;
+    --card-bg: #17181C;
+  }
+
+  html, body { min-height:100%; color: var(--text); transition: background .2s, color .2s; scrollbar-width: thin; scrollbar-color: var(--border) var(--page-bg); }
+  body { background: var(--page-bg); }
+  html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+  html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, *::-webkit-scrollbar-track { background: #FCFBF8 !important; }
+  html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb { background: #E9E7E0 !important; border-radius: 4px !important; }
+  html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover { background: #C7C5BE !important; }
+  html::-webkit-scrollbar-corner, body::-webkit-scrollbar-corner { background: #FCFBF8 !important; }
+
+  body.dark::-webkit-scrollbar-track, body.dark ::-webkit-scrollbar-track { background: #101010 !important; }
+  body.dark::-webkit-scrollbar-thumb, body.dark ::-webkit-scrollbar-thumb { background: #262626 !important; }
+  body.dark::-webkit-scrollbar-thumb:hover, body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3a3a !important; }
+  body.dark::-webkit-scrollbar-corner, body.dark ::-webkit-scrollbar-corner { background: #101010 !important; }
+
+  .main {
+    margin-left: 336px;
+    padding: 30px 40px;
+    min-height: 100vh;
+  }
+  .breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color: var(--text); margin-bottom:18px; }
+  .breadcrumb .crumb { cursor:pointer; }
+  .breadcrumb .crumb:hover { color: var(--active-text); text-decoration: underline; }
+  .breadcrumb .crumb.current { color: var(--text-heading); font-weight:700; cursor:default; }
+  .breadcrumb .crumb.current:hover { text-decoration:none; }
+  .breadcrumb .sep { color: var(--text); }
+
+  .main h1 { font-family:'Nunito',sans-serif; font-weight:800; font-size: 22px; color:var(--text-heading); margin-bottom:2px; }
+  .main .subtitle { font-size:13.5px; color: var(--text); max-width: 480px; }
+
+  /* ===== HEADER DA PÁGINA ===== */
+  .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; flex-wrap:wrap; gap:14px; }
+  .period-filters { display:flex; align-items:center; gap:8px; }
+  .pill-btn { font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--panel-bg); color:var(--text); cursor:pointer; user-select:none; transition: background .15s, color .15s; }
+  .pill-btn.active { background: var(--brand-blue); border-color: var(--brand-blue); color:#fff; }
+  .pill-btn:hover:not(.active) { background: rgba(120,120,140,0.08); }
+
+  .store-filter-wrap { position:relative; }
+  .store-filter-btn { display:flex; align-items:center; gap:7px; }
+  .store-menu { position:absolute; top:calc(100% + 8px); right:0; width:190px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 30px rgba(0,0,0,0.25); display:none; z-index:40; }
+  .store-menu.open { display:block; }
+  .store-menu-item { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px; color:var(--text); cursor:pointer; }
+  .store-menu-item:hover { background: var(--active-bg); color:var(--active-text); }
+  .store-menu-item.active { color:var(--active-text); background:var(--active-bg); }
+  .icon-btn { width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--panel-bg); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .icon-btn:hover { background: rgba(120,120,140,0.08); }
+  .icon-btn svg { width:16px; height:16px; }
+
+  .pill-btn-sm { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; padding:4px 9px; border-radius:14px; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; user-select:none; transition: background .15s, color .15s; }
+  .pill-btn-sm.active { background: var(--brand-blue); border-color: var(--brand-blue); color:#fff; }
+  .pill-btn-sm:hover:not(.active) { background: rgba(120,120,140,0.08); }
+  .qty-filter { display:flex; align-items:center; gap:5px; }
+
+  /* ===== CARDS / PAINÉIS GERAIS ===== */
+  .card { background: var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .card-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
+  .more-btn { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:var(--text); cursor:pointer; }
+  .more-btn:hover { background: rgba(120,120,140,0.1); }
+  .more-btn svg { width:16px; height:16px; }
+
+  /* ===== GRID PRINCIPAL ===== */
+  .grid-row { display:grid; gap:16px; margin-bottom:16px; }
+  .row-kpis { grid-template-columns: repeat(3, 1fr) 1.1fr; }
+  .row-mid { grid-template-columns: 1fr 1.5fr; }
+  .row-bottom { grid-template-columns: repeat(3, 1fr); }
+  .kpi-stack { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; grid-column: span 3; align-content:stretch; }
+
+  /* ===== KPI CARD ===== */
+  .kpi-card { border-left:3px solid; }
+  .kpi-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text); margin-bottom:10px; }
+  .kpi-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:var(--text-heading); margin-bottom:6px; }
+  .kpi-delta { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:4px; }
+  .kpi-delta.up { color: var(--success); }
+  .kpi-delta.down { color: var(--danger); }
+  .kpi-delta.neutral { color: var(--text); font-weight:500; }
+
+  /* ===== INSIGHT CARDS (Meta / Devolução / Giro) ===== */
+  .insight-card { border:1px solid var(--border); border-left:3px solid var(--border); }
+  .insight-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:19px; color:var(--text-heading); margin-bottom:2px; }
+  .insight-of { font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--text); }
+
+  /* ===== DONUT ===== */
+  .donut-card { display:flex; flex-direction:column; }
+  .donut-wrap { position:relative; width:170px; height:170px; margin: 6px auto 18px; }
+  .donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-center .lbl { font-size:11px; color:var(--text); font-weight:700; text-transform:uppercase; }
+  .donut-center .val { font-family:'Nunito',sans-serif; font-weight:900; font-size:19px; color:var(--text-heading); }
+  .legend-row { display:flex; align-items:center; justify-content:space-between; padding:9px 4px; border-top:1px solid var(--border); font-size:13px; }
+  .legend-row:first-of-type { border-top:none; }
+  .legend-name { display:flex; align-items:center; gap:8px; color:var(--text-heading); font-weight:600; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .legend-value { font-family:'Nunito',sans-serif; font-weight:800; color:var(--text-heading); }
+  .legend-delta { font-size:11.5px; font-weight:700; margin-left:6px; }
+
+  /* ===== TOP PRODUTOS ===== */
+  .rank-item { display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
+  .rank-item:first-of-type { border-top:none; }
+  .rank-num { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--active-text); color:var(--active-text); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0; }
+  .rank-info { flex:1; }
+  .rank-name { font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rank-store { font-size:12px; color:var(--text); }
+  .rank-right { text-align:right; }
+  .rank-value { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--active-text); }
+  .rank-units { font-size:11.5px; color:var(--text); }
+
+  /* ===== VENDAS DA SEMANA ===== */
+  .sales-total { font-family:'Nunito',sans-serif; font-weight:900; font-size:24px; color:var(--text-heading); margin: 2px 0 4px; }
+  .sales-delta { color:var(--success); font-weight:700; font-size:13px; }
+  .chart-legend { display:flex; gap:16px; font-size:12px; color:var(--text); margin-top:4px; }
+  .chart-legend span { display:flex; align-items:center; gap:6px; }
+  .legend-line { width:14px; height:2px; }
+
+  /* ===== COMPARATIVO / STATUS / ESTOQUE ===== */
+  .comp-item { padding:10px 0; border-top:1px solid var(--border); }
+  .comp-item:first-of-type { border-top:none; }
+  .comp-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .comp-name { display:flex; align-items:center; gap:8px; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .comp-value { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--text-heading); }
+  .progress-track { height:6px; border-radius:4px; background: rgba(120,120,140,0.15); overflow:hidden; margin-bottom:5px; }
+  .progress-fill { height:100%; border-radius:4px; }
+  .comp-sub { font-size:12.5px; color:var(--text); }
+
+  /* ===== METAS POR LOJA ===== */
+  .goal-bar-row { display:flex; align-items:center; gap:12px; padding:9px 0; }
+  .goal-bar-row.goal-bar-total { margin-top:4px; padding-top:14px; border-top:1px dashed var(--border); }
+  .goal-bar-name { width:100px; font-size:13px; font-weight:600; color:var(--text-heading); flex-shrink:0; }
+  .goal-bar-row.goal-bar-total .goal-bar-name { font-weight:800; }
+  .goal-bar-pct { width:42px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); text-align:right; flex-shrink:0; }
+  .goal-bar-track { flex:1; position:relative; height:16px; }
+  .goal-bar-track::before { content:''; position:absolute; inset:0; background:rgba(120,120,140,0.15); border-radius:4px; }
+  .goal-bar-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; }
+  .goal-bar-tick { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text); opacity:0.4; }
+  .goal-bar-value { width:80px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); text-align:right; flex-shrink:0; }
+
+  .status-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .status-item:first-of-type { border-top:none; }
+  .status-name { width:90px; font-size:13.5px; color:var(--text-heading); font-weight:700; }
+  .status-track { flex:1; height:6px; border-radius:4px; background: rgba(120,120,140,0.15); overflow:hidden; }
+  .status-fill { height:100%; border-radius:4px; }
+  .status-count { width:70px; text-align:right; font-size:12px; color:var(--text); }
+
+  .stock-total { font-size:12.5px; color:var(--text); }
+  .stock-total b { color:var(--active-text); font-family:'Nunito',sans-serif; }
+  .stock-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .stock-item:first-of-type { border-top:none; }
+  .stock-icon { width:30px; height:30px; border-radius:8px; background: rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .stock-icon svg { width:15px; height:15px; }
+  .stock-info { flex:1; }
+  .stock-name { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .stock-min { font-size:12px; color:var(--text); }
+  .stock-qty { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--danger); }
+
+  @media (max-width: 1200px) {
+    .row-kpis { grid-template-columns: repeat(3,1fr); }
+    .donut-card { grid-column: span 3; grid-row: auto; }
+    .row-mid, .row-bottom { grid-template-columns: 1fr; }
+  }
+
+  /* CARTÃO ÚNICO — sidebar + flyout juntos, sem vão */
+  .floating-card {
+    position: fixed;
+    top: 18px; left: 18px;
+    height: calc(100vh - 36px);
+    display:flex;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    overflow: hidden;
+    z-index: 30;
+    transition: width .2s ease;
+  }
+
+  .sidebar-col { width: 300px; padding: 18px 14px; display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; transition: width .2s ease, padding .2s ease; }
+  .sidebar-col.collapsed { width: 74px; padding: 18px 10px; }
+  .sidebar-col.collapsed .label-text,
+  .sidebar-col.collapsed .wordmark,
+  .sidebar-col.collapsed .fixar-text { display:none; }
+  .sidebar-col.collapsed .nav-item,
+  .sidebar-col.collapsed .bottom-item,
+  .sidebar-col.collapsed .fixar-row,
+  .sidebar-col.collapsed .logo { justify-content:center; }
+  .sidebar-col.collapsed .erp-label { text-align:center; }
+
+  .logo { padding: 0 8px 16px; display:flex; flex-direction:column; }
+  .wordmark { font-family:'Nunito',sans-serif; font-size: 26px; font-weight: 900; color: var(--logo-color); letter-spacing: -0.3px; line-height:1.15; user-select:none; }
+  .erp-label { font-family:'Nunito',sans-serif; font-size: 16px; font-weight: 400; color: var(--text-heading); margin-top: 10px; user-select:none; }
+
+  .nav-item {
+    display:flex; align-items:center; gap:13px; padding:8px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; color: var(--text); cursor:pointer; margin-bottom:1px;
+    user-select: none;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-item svg { width:18px; height:18px; flex-shrink:0; }
+  .nav-item.active { background: var(--active-bg); color: var(--active-text); font-weight:600; }
+  .nav-item:hover:not(.active) { background: rgba(120,120,140,0.08); }
+
+  .spacer { flex:1; }
+
+  .bottom-list { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  .bottom-item {
+    display:flex; align-items:center; gap:13px; padding:7px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:14px; color: var(--text); cursor:pointer; margin-bottom:1px;
+    user-select: none;
+    transition: background .15s ease, color .15s ease;
+  }
+  .bottom-item svg { width:16px; height:16px; flex-shrink:0; }
+  .bottom-item:hover, .bottom-item.active { background: var(--active-bg); color: var(--active-text); }
+
+  .fixar-row { display:flex; align-items:center; justify-content:space-between; padding: 10px 12px 2px; font-size:13px; color: var(--text); user-select:none; }
+  .switch { width:32px; height:18px; background: #9a9890; border-radius:20px; position:relative; cursor:pointer; transition: background .15s; flex-shrink:0; }
+  .switch.on { background: var(--brand-blue); }
+  .switch::after { content:''; position:absolute; width:14px; height:14px; background:#fff; border-radius:50%; top:2px; left:2px; transition: left .15s; }
+  .switch.on::after { left:16px; }
+
+  /* COLUNA FLYOUT — parte do mesmo cartão, só uma borda fina separando */
+  .flyout-col {
+    width: 0;
+    padding: 22px 0;
+    overflow: hidden;
+    border-left: 0px solid var(--border);
+    flex-shrink:0;
+    display:flex; flex-direction:column;
+    transition: width .2s ease, padding .2s ease, border-width .2s ease;
+  }
+  .flyout-col.open { width: 300px; padding: 22px 10px; border-left-width: 1px; }
+  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 12px 14px; white-space: nowrap; user-select:none; }
+
+  .flyout-body { overflow-y:auto; overflow-x:hidden; flex:1; }
+  .flyout-item {
+    display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:14.5px; color: var(--text); cursor:pointer;
+    white-space: nowrap; user-select: none;
+    transform: translateX(0);
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .flyout-item svg { width:17px; height:17px; flex-shrink:0; }
+  .flyout-item:hover { transform: translateX(6px); background: var(--active-bg); color: var(--active-text); }
+
+  .theme-picker { margin-top: auto; padding: 14px 12px 4px; border-top: 1px solid var(--border); }
+  .theme-picker .label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color: var(--text); font-weight:700; margin-bottom:10px; }
+  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 10px; padding:3px; }
+  .theme-seg button {
+    flex:1; border:none; background:transparent; color: var(--text); font-size:13px; padding:7px 0;
+    border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600;
+  }
+  .theme-seg button.active { background: var(--brand-blue); color:#fff; font-weight:600; }
+
+  /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
+  .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
+  .btn-primary:hover { opacity:0.88; }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-primary svg { width:14px; height:14px; }
+
+  .btn-ghost { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; text-decoration:none; }
+  .btn-ghost:hover { background: rgba(120,120,140,0.08); }
+  .btn-ghost svg { width:14px; height:14px; }
+
+  .header-actions { display:flex; align-items:center; gap:10px; }
+
+
+  .dropdown-select { position:relative; flex-shrink:0; }
+  .dropdown-select-btn.pill { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  .dropdown-select-btn.pill:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
+  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
+  .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu.open { display:block; }
+  .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
+  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== CADASTROS > MARCAS (listagem) ===== */
+  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
+  .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
+  .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
+
+  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .parent-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
+
+  .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
+  .selecao-bar.show { display:flex; }
+  .selecao-info { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .selecao-acoes { display:flex; align-items:center; gap:14px; margin-left:auto; }
+
+  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; }
+  .item-checkbox, .checkbox-todos {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .item-checkbox:checked, .checkbox-todos:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .item-checkbox:checked::after, .checkbox-todos:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  /* Terceiro estado: RESPONDIDO EM PARTE (tracinho, nao check). Marca cheia
+     diria "coletei tudo" e marca vazia diria "nem olhei" — as duas mentem
+     sobre um item que veio incompleto de proposito. */
+  .item-checkbox:indeterminate { background:var(--chart-2); border-color:var(--chart-2); }
+  .item-checkbox:indeterminate::after {
+    content:''; position:absolute; left:2px; top:5.5px; width:9px; height:2px;
+    background:#fff; border-radius:1px;
+  }
+
+  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .deposito-card:first-of-type { border-top:none; }
+  .deposito-card:hover { background: rgba(120,120,140,0.06); }
+  .deposito-info { flex:1; min-width:0; }
+  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
+  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+
+  .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
+  .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
+  .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
+  .empty-state-sub { font-size:12.5px; color:var(--text); }
+
+  .paginacao-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .paginacao-info { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); }
+  .paginacao-nav { display:flex; align-items:center; gap:10px; }
+  .paginacao-btn { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .paginacao-btn:hover:not(:disabled) { background: rgba(120,120,140,0.08); }
+  .paginacao-btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .paginacao-btn svg { width:14px; height:14px; }
+  .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
+
+  /* ===== PAINEL LATERAL: nova/editar ===== */
+  .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+  .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
+  .event-drawer.open { right:0; }
+  .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }
+  .drawer-close { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-close:hover { color:var(--text-heading); }
+  .drawer-close svg { width:15px; height:15px; }
+
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color: var(--danger); }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-link:hover { color: var(--text-heading); }
+
+  .excluir-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--danger); cursor:pointer; user-select:none; margin-top:26px; padding-top:18px; border-top:1px solid var(--border); }
+  .excluir-link:hover { opacity:0.8; }
+  .excluir-link svg { width:14px; height:14px; }
+
+  /* ===== MODAL: confirmação centralizada (excluir/inativar) ===== */
+  .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
+  .modal-card.open { transform:translateY(0); }
+  .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }
+  .confirm-texto { font-size:15px; color:var(--text-heading); line-height:1.5; margin-bottom:26px; }
+  .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
+  .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
+  .confirm-acoes { display:flex; align-items:center; gap:20px; }
+  .confirm-acoes button { padding:11px 26px; font-size:14px; }
+  .confirm-acoes button:disabled { opacity:0.4; cursor:not-allowed; }
+  .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
+  .btn-danger { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--danger-solid); color:#fff; cursor:pointer; user-select:none; }
+  .btn-danger:hover { opacity:0.88; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
+
+  /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
+     mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
+
+  /* ===== Filtro de situacao em abas (§7) ===== */
+  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
+  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
+  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
+  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
+     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
+     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
+  .av-geral           { background: var(--chart-2); color:#101010; }
+  .av-galpao          { background: var(--chart-3); color:#101010; }
+  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
+  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
+  .av-transito        { background: var(--warning); color:#101010; }
+  body.dark .av-geral           { color:#FFFFFF; }
+  body.dark .av-galpao          { color:#FFFFFF; }
+  body.dark .av-loja_fisica     { color:#101010; }
+  body.dark .av-trade_marketing { color:#101010; }
+  body.dark .av-transito        { color:#101010; }
+
+  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+
+  /* ===== Formulario em duas colunas dentro do drawer ===== */
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; min-width:120px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+
+  /* ===== Linha de interruptor dentro do formulario ===== */
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+
+
+  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
+  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 6px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th.col-texto { text-align:left; }
+  .estoque-table th.ordenavel { cursor:pointer; }
+  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
+  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
+  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado { color:var(--text-heading); }
+  .estoque-table td { padding:13px 6px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td.col-texto { text-align:left; }
+  .estoque-table tbody tr { cursor:pointer; }
+  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
+  .estoque-table tbody tr:last-child td { border-bottom:none; }
+  .col-produto { font-weight:700; }
+  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
+  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
+  .celula-reservada { color:var(--text); opacity:0.5; }
+  .saldo-critico { color:var(--danger); font-weight:800; }
+  .saldo-negativo { color:var(--danger); font-weight:800; }
+  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
+  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
+  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+  /* Estagios do saldo (item 19). Cores de tempo reaproveitadas de Enderecamento,
+     onde ja passaram pela medicao de contraste nos dois temas. */
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .dias-ok { font-weight:700; color:var(--text-heading); }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  .dias-critico { font-weight:800; color:#B91C1C; }
+  body.dark .dias-alerta { color:#F5A623; }
+  body.dark .dias-critico { color:#FCA5A5; }
+  .estagio-bloqueado { font-weight:800; color:#B91C1C; }
+  body.dark .estagio-bloqueado { color:#FCA5A5; }
+  /* "em conferencia" NAO e estoque (item 19) — marcador apagado, nunca numero de coluna */
+  .marcador-conferencia { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.62; margin-top:3px; letter-spacing:0.1px; }
+  .disponivel-travado { color:var(--text); opacity:0.55; font-weight:700; }
+
+  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
+  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
+  .estoque-total b { color:var(--active-text); font-weight:800; }
+
+  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
+  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
+  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
+  .btn-secundario-topo svg { width:14px; height:14px; }
+
+  /* extrato dentro do drawer */
+  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
+  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .extrato-linha:first-of-type { border-top:none; }
+  .extrato-rotulo { color:var(--text); }
+  .extrato-valor { font-weight:700; color:var(--text-heading); }
+  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
+  .mov-item:first-of-type { border-top:none; }
+  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mov-icone svg { width:13px; height:13px; }
+  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
+  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
+  .mov-qtd.entrada { color:var(--success); }
+  .mov-qtd.saida { color:var(--danger); }
+
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
+
+  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+
+  /* ===== DETALHE DO PRODUTO ===== */
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
+
+  /* Faixa de KPIs — e aqui que mora a quebra completa dos estagios (item 19),
+     por isso a listagem pode ficar rasa com 9 colunas. */
+  .kpi-faixa { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:4px 0; margin-bottom:16px; }
+  .kpi { flex:1 1 150px; min-width:140px; padding:14px 18px; border-right:1px solid var(--border); }
+  .kpi:last-child { border-right:none; }
+  .kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); line-height:1.15; }
+  .kpi-un { font-size:12px; font-weight:700; color:var(--text); margin-left:4px; }
+  .kpi-rotulo { font-size:11.5px; font-weight:700; color:var(--text); margin-top:3px; text-transform:lowercase; }
+  .kpi-nota { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.7; margin-top:2px; }
+  .kpi-fora { background:var(--page-bg); border-left:1px dashed var(--border); }
+  .kpi-fora .kpi-valor { color:var(--text); }
+  .kpi.destaque .kpi-valor { color:var(--active-text); }
+  .kpi-valor.travado { color:#B45309; }
+  body.dark .kpi-valor.travado { color:#F5A623; }
+  .kpi-valor.bloq { color:#B91C1C; }
+  body.dark .kpi-valor.bloq { color:#FCA5A5; }
+  .kpi-valor.apagado { color:var(--text); opacity:0.5; }
+
+  /* Abas do detalhe — mesmo componente das abas de situacao (§7.2) */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+
+  /* Ledger */
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .mov-obs { color:var(--text); font-size:12.5px; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+
+  /* Formulario do drawer de lancamento */
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
+
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
+  .previa-entrada.alerta { border-left-color:var(--danger-solid); }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-campo .dropdown-select { width:100%; }
+
+  /* ===== INVENTÁRIO: índice dos três caminhos ===== */
+  .caminhos { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:8px; }
+  .caminho { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:10px; }
+  .caminho-icone { width:38px; height:38px; border-radius:11px; background:var(--active-bg); color:var(--active-text); display:flex; align-items:center; justify-content:center; }
+  .caminho-icone svg { width:19px; height:19px; }
+  .caminho-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
+  .caminho-texto { font-size:12.5px; color:var(--text); line-height:1.5; flex:1; }
+  .caminho .btn-mini { align-self:flex-start; margin-top:4px; }
+
+  /* ===== INVENTÁRIO: aviso de depósito travado ===== */
+  /* Nome próprio de propósito: .nota-reservado já tem fundo definido na base e
+     sobrescrever só a cor herdaria o fundo errado (ver design-system §14). */
+  .nota-travada { border-left:3px solid var(--warning); }
+
+  /* ===== INVENTÁRIO: área de arquivo ===== */
+  .dropzone { border:1.5px dashed var(--border); border-radius:11px; padding:22px 14px; text-align:center; cursor:pointer; background:var(--page-bg); color:var(--text); }
+  .dropzone:hover { border-color:var(--chart-2); }
+  .dropzone svg { width:22px; height:22px; margin-bottom:8px; }
+  .dropzone-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .dropzone-sub { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .dropzone.tem-arquivo { border-style:solid; border-color:var(--brand-blue); }
+
+  /* ===== INVENTÁRIO: cabeçalho de grupo dentro do dropdown ===== */
+  .dropdown-grupo { padding:8px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); white-space:nowrap; }
+
+  /* ===== INVENTÁRIO: colunas de contagem ===== */
+  .estoque-table .col-qtde-inv { display:none; }
+  .estoque-table.mostrar-qtde .col-qtde-inv { display:table-cell; }
+  .estoque-table.sem-clique tbody tr { cursor:default; }
+  .input-qtde-inv { width:88px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; text-align:right; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; }
+  .input-qtde-inv:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  /* Só cor, sem fundo — o par .mov-entrada/.mov-saida da base é pílula com fundo
+     próprio e reaproveitar aquele nome pintava retângulo verde/vermelho. */
+  .inv-mais { color:var(--success); font-weight:700; }
+  .inv-menos { color:var(--danger); font-weight:700; }
+  .inv-igual { color:var(--text); }
+  /* Sem `opacity` de proposito: opacidade nao entra no calculo de contraste do
+     auditor (ele so pula quem esta abaixo de 0.3), entao texto apagado por
+     opacity passa na auditoria e reprova na regua de verdade — este mesmo
+     rotulo media 3.28:1 no escuro. Diferenciacao aqui e tamanho, nao brilho. */
+  .inv-nao-contado { color:var(--text); font-size:12px; }
+  /* O input de arquivo nativo fica escondido: quem aparece é a .dropzone (§9 —
+     nada de controle nativo na tela). */
+  #inputArquivo { display:none; }
+
+  /* Imprimir a lista de contagem: só a tabela, em papel branco. */
+  @media print {
+    body { background:#fff; }
+    .sidebar-col, .flyout-col, .topbar, .page-header .header-acoes,
+    .estoque-toolbar, .nota-reservado, .event-drawer, .drawer-backdrop,
+    .modal-card, .breadcrumb { display:none !important; }
+    .card { border:none; box-shadow:none; }
+    .estoque-table th, .estoque-table td { color:#101010; }
+  }
+
+
+  /* ===== HUB DE CONFIGURAÇÕES ===== */
+  .cfg-busca { max-width:600px; margin-bottom:22px; }
+  .cfg-busca .search-wrap { max-width:none; }
+
+  /* Banner informativo da aba (o da RTC tem texto legal; os outros, contexto) */
+  .cfg-banner { display:flex; gap:13px; align-items:flex-start; background:var(--active-bg);
+                border:1px solid var(--border); border-radius:12px; padding:15px 17px; margin-bottom:22px; }
+  .cfg-banner-ico { width:30px; height:30px; border-radius:50%; background:var(--card-bg);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--active-text); }
+  .cfg-banner-ico svg { width:15px; height:15px; }
+  .cfg-banner-txt { font-size:12.5px; color:var(--text-heading); line-height:1.55; }
+  .cfg-banner-txt b { font-weight:800; }
+
+  /* Cabeçalho de subgrupo dentro da aba ("Outras configurações", "Reforma Tributária") */
+  .cfg-grupo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading);
+               margin:26px 0 2px; padding-top:20px; border-top:1px solid var(--border); }
+  .cfg-grupo:first-child { margin-top:0; padding-top:0; border-top:none; }
+
+  /* A lista de links — o corpo da aba */
+  .cfg-lista { display:flex; flex-direction:column; }
+  .cfg-item { display:flex; align-items:center; gap:10px; padding:15px 2px;
+              border-bottom:1px solid var(--border); cursor:pointer; }
+  .cfg-item:hover .cfg-item-nome { color:var(--active-text); }
+  .cfg-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); }
+  .cfg-item-ajuda { width:14px; height:14px; color:var(--text); flex-shrink:0; }
+  .cfg-item-seta { margin-left:auto; width:14px; height:14px; color:var(--text); flex-shrink:0; }
+
+  /* Badge de estado no próprio item — o índice diz o que falta, sem entrar na tela */
+  .cfg-badge { font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:lowercase;
+               letter-spacing:0.2px; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .cfg-badge-atencao { background:rgba(245,166,35,0.16); color:#B45309; }
+  body.dark .cfg-badge-atencao { color:#F5A623; }
+  .cfg-badge-neutro  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .cfg-badge-novo    { background:var(--active-bg); color:var(--active-text); }
+
+  /* Resultado de busca: o nome da aba aparece como origem do item */
+  .cfg-origem { font-size:11.5px; font-weight:700; color:var(--text); margin-left:2px; }
+
+  .cfg-vazio { padding:40px 0; text-align:center; }
+  .cfg-vazio-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-bottom:5px; }
+  .cfg-vazio-sub { font-size:12.5px; color:var(--text); }
+
+
+  /* ===== TELA DE CONFIGURAÇÃO: campo à esquerda, explicação à direita ===== */
+  /* Formato roubado da tela da GNRE do Olist. O `field-hint` embaixo do campo
+     serve para uma linha; parâmetro precisa de parágrafo, e parágrafo embaixo
+     do campo empurra o formulário todo pra baixo. */
+  .par-secao { background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+               padding:22px 24px; margin-bottom:18px; }
+  .par-secao-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+                      color:var(--text-heading); margin-bottom:4px; }
+  .par-secao-sub { font-size:12.5px; color:var(--text); line-height:1.5; margin-bottom:20px; max-width:620px; }
+
+  .par-linha { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:34px;
+               padding:18px 0; border-top:1px solid var(--border); align-items:start; }
+  .par-linha:first-of-type { border-top:none; padding-top:0; }
+  .par-exp { font-size:12.5px; color:var(--text); line-height:1.55; padding-top:2px; }
+  .par-exp b { color:var(--text-heading); font-weight:700; }
+  .par-onde { display:block; margin-top:7px; font-size:11.5px; color:var(--text); }
+  .par-onde b { color:var(--active-text); font-weight:700; }
+
+  .par-campos { display:flex; gap:14px; flex-wrap:wrap; }
+  .par-campo { display:flex; flex-direction:column; gap:6px; }
+  .par-campo label { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
+  .par-num { display:flex; align-items:center; gap:0; }
+  .par-num input { width:78px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+                   text-align:right; color:var(--text-heading); background:var(--page-bg);
+                   border:1px solid var(--border); border-right:none; border-radius:9px 0 0 9px;
+                   padding:9px 10px; outline:none; }
+  .par-num input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .par-num-sufixo { font-size:12px; font-weight:700; color:var(--text); background:var(--page-bg);
+                    border:1px solid var(--border); border-left:none; border-radius:0 9px 9px 0;
+                    padding:10px 12px; }
+  .par-campo.has-error input, .par-campo.has-error .par-num-sufixo { border-color:var(--danger); }
+  .par-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); }
+  .par-campo.has-error .par-erro { display:block; }
+
+  /* Pré-visualização: o efeito do número na fila de hoje, medido no mock */
+  .par-previa { margin-top:14px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
+                border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px;
+                color:var(--text); line-height:1.5; }
+  .par-previa b { color:var(--text-heading); }
+  .par-previa.alerta { border-left-color:var(--danger-solid); }
+
+  /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
+  .par-barra { position:sticky; bottom:0; display:flex; align-items:center; gap:18px;
+               background:var(--page-bg); border-top:1px solid var(--border);
+               padding:14px 0 6px; margin-top:4px; }
+  .par-barra-nota { font-size:11.5px; color:var(--text); }
+
+  /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
+  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
+  .radio-nota { font-size:11.5px; color:var(--text); margin:2px 0 0 26px; }
+
+  /* Bloco do que ainda nao esta na tela — some no print, mas nao no protótipo */
+  .par-futuro { opacity:1; }
+  .par-futuro .par-secao-titulo { color:var(--text); }
+
+  /* ===== Confirmações por senha: linha de ação ===== */
+  /* Reusa .switch-row (§6) — nao inventa componente. So acrescenta o estado
+     "travado", que precisa existir sem apagar texto com opacity (§14). */
+  /* Acao de tela inexistente nao ganha interruptor: controle que nao controla
+     nada mente. Ganha um cadeado, que diz "isto e assim e nao se mexe aqui". */
+  .conf-cadeado { width:17px; height:17px; color:var(--text); flex-shrink:0; margin-right:2px; }
+  .conf-estado { font-size:11.5px; font-weight:700; margin-top:5px; }
+  .conf-estado.exige { color: var(--active-text); }
+  .conf-estado.livre { color: var(--danger); }
+  .conf-estado.indisponivel { color: var(--text); }
+
+  /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
+  /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
+     no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
+  .confirm-senha-row { display:none; margin:2px 0 14px; }
+  .confirm-senha-row.on { display:block; }
+  .confirm-senha-row label { display:block; font-family:'Nunito',sans-serif; font-weight:700;
+                             font-size:12px; color:var(--text); margin-bottom:6px; }
+  /* O modal e uma folha que ocupa a largura toda (bottom sheet, §8). Campo de
+     senha a 100% dessa largura vira uma faixa de 1400px para 12 caracteres. */
+  .confirm-senha-row input { width:100%; max-width:420px; box-sizing:border-box; font-family:'Nunito',sans-serif;
+                             font-size:13.5px; color:var(--text-heading); background:var(--page-bg);
+                             border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .confirm-senha-row input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .confirm-senha-row.has-error input { border-color:var(--danger); }
+  .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
+  .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+  /* ===== Matriz módulo × verbo (Confirmações por senha / Permissões) ===== */
+  .mtz { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:4px; }
+  .mtz-linha { display:grid; grid-template-columns:minmax(0,1fr) 92px 92px 92px; align-items:center;
+               gap:10px; padding:12px 14px; border-top:1px solid var(--border); }
+  .mtz-linha:first-child { border-top:none; }
+  .mtz-cab { background:var(--page-bg); padding-top:9px; padding-bottom:9px; }
+  .mtz-cab-verbo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                   letter-spacing:0.5px; color:var(--text); text-align:center; }
+  .mtz-cab-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                    letter-spacing:0.5px; color:var(--text); }
+  .mtz-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .mtz-onde { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mtz-cel { display:flex; justify-content:center; align-items:center; }
+  .mtz-legenda { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text); margin:10px 2px 18px; }
+  .mtz-legenda .conf-cadeado { width:14px; height:14px; }
+
+</style>
+</head>
+<body class="dark">
+<script>/* Tema salvo aplicado antes da pintura: sem isto a tela pisca no tema errado. Fonte: Configuracoes > Interface do usuario. */
+try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema==="light")document.body.classList.remove("dark");else if(_dp.tema==="auto")document.body.classList.toggle("dark",window.matchMedia("(prefers-color-scheme: dark)").matches);}catch(e){}</script>
+
+<div class="floating-card" id="card">
+  <div class="sidebar-col" id="sidebarCol">
+    <div class="logo">
+      <div class="wordmark">Desk Company</div>
+      <div class="erp-label">ERP System</div>
+    </div>
+
+    <div class="nav-item" data-id="inicio" data-label="Início">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span class="label-text">Início</span>
+    </div>
+    <div class="nav-item" data-id="cadastros" data-label="Cadastros">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
+      <span class="label-text">Cadastros</span>
+    </div>
+    <div class="nav-item" data-id="estoque" data-label="Estoque">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 7l3-4h14l3 4"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      <span class="label-text">Estoque</span>
+    </div>
+    <div class="nav-item" data-id="vendas" data-label="Vendas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="label-text">Vendas</span>
+    </div>
+    <div class="nav-item" data-id="logistica" data-label="Logística">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <span class="label-text">Logística</span>
+    </div>
+    <div class="nav-item" data-id="financas" data-label="Finanças">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a1.75 1.75 0 1 1 0 3.5h-2a1.75 1.75 0 1 0 0 3.5h3.5"/></svg>
+      <span class="label-text">Finanças</span>
+    </div>
+    <div class="nav-item" data-id="operacional" data-label="Operacional">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      <span class="label-text">Operacional</span>
+    </div>
+    <div class="nav-item" data-id="integracoes" data-label="Integrações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
+      <span class="label-text">Integrações</span>
+    </div>
+    <div class="nav-item active" data-id="config" data-label="Configurações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="label-text">Configurações</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="bottom-list">
+      <div class="bottom-item" data-id="notificacoes" data-label="Notificações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="label-text">Notificações</span>
+      </div>
+      <div class="bottom-item" data-id="suporte" data-label="Central de Suporte">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="label-text">Central de Suporte</span>
+      </div>
+
+      <div class="fixar-row">
+        <span class="fixar-text">Fixar menu</span>
+        <div class="switch on" id="fixarSwitch"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Início -->
+  <div class="flyout-col" id="flyout-inicio">
+    <h4>Início</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Dashboard KPIs" data-href="pagina-dashboard-kpis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg>Dashboard KPIs</div>
+      <div class="flyout-item" data-label="Agenda" data-href="pagina-inicio-agenda.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Agenda</div>
+      <div class="flyout-item" data-label="Minha Conta" data-href="pagina-inicio-minha-conta.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Minha Conta</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Cadastros -->
+  <div class="flyout-col" id="flyout-cadastros">
+    <h4>Cadastros</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Clientes" data-href="pagina-cadastros-clientes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Clientes</div>
+      <div class="flyout-item" data-label="Fornecedores" data-href="pagina-cadastros-fornecedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v18"/><path d="M2 22h20"/><line x1="9" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="15" y2="8"/><line x1="9" y1="13" x2="10" y2="13"/><line x1="14" y1="13" x2="15" y2="13"/></svg>Fornecedores</div>
+      <div class="flyout-item" data-label="Produtos" data-href="pagina-cadastros-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v10l10 5 10-5V7z"/><path d="M2 7l10 5 10-5"/><line x1="12" y1="22" x2="12" y2="12"/></svg>Produtos</div>
+      <div class="flyout-item" data-label="Vendedores" data-href="pagina-cadastros-vendedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M23 21v-1a4 4 0 0 0-3-3.87"/></svg>Vendedores</div>
+      <div class="flyout-item" data-label="Embalagens" data-href="pagina-cadastros-embalagens.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/><line x1="10" y1="16" x2="14" y2="16"/></svg>Embalagens</div>
+      <div class="flyout-item" data-label="Lojas Desk" data-href="pagina-cadastros-lojas-desk.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>Lojas Desk</div>
+      <div class="flyout-item" data-label="Depósitos" data-href="pagina-cadastros-depositos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20V10l10-6 10 6v10"/><path d="M2 20h20"/><rect x="7" y="14" width="4" height="6"/><rect x="13" y="14" width="4" height="6"/></svg>Depósitos</div>
+      <div class="flyout-item" data-label="Endereços de Estoque" data-href="pagina-cadastros-enderecos-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/></svg>Endereços de Estoque</div>
+      <div class="flyout-item" data-label="Marcas de Produtos" data-href="pagina-cadastros-marcas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82z"/><circle cx="8" cy="8" r="1.5"/></svg>Marcas de Produtos</div>
+      <div class="flyout-item" data-label="Departamento de Produtos" data-href="pagina-cadastros-departamento-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Departamento de Produtos</div>
+      <div class="flyout-item" data-label="Seção de Produtos" data-href="pagina-cadastros-secao-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Seção de Produtos</div>
+      <div class="flyout-item" data-label="Categorias" data-href="pagina-cadastros-categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Categorias</div>
+      <div class="flyout-item" data-label="Relatórios de Cadastros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Cadastros</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Estoque -->
+  <div class="flyout-col" id="flyout-estoque">
+    <h4>Estoque</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Controle de Estoques" data-href="pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
+      <div class="flyout-item" data-label="Entrada de Notas" data-href="pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
+      <div class="flyout-item" data-label="Conferência de Compra" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Compra</div>
+      <div class="flyout-item" data-label="Endereçamento" data-href="pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
+      <div class="flyout-item" data-label="Reposição" data-href="pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
+      <div class="flyout-item" data-label="Ordens de Compra" data-href="pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
+      <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
+      <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
+      <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Acerto de Estoque" data-href="pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
+      <div class="flyout-item" data-label="Inventário" data-href="pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
+      <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Vendas -->
+  <div class="flyout-col" id="flyout-vendas">
+    <h4>Vendas</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Pedidos de Venda" data-href="pagina-vendas-pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Pedidos de Venda</div>
+      <div class="flyout-item" data-label="CRM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M23 21v-1a4 4 0 0 0-3-3.87"/></svg>CRM</div>
+      <div class="flyout-item" data-label="PDV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
+      <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
+      <div class="flyout-item" data-label="Vendas Afiliados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Vendas Afiliados</div>
+      <div class="flyout-item" data-label="Performance de Vendas" data-href="pagina-vendas-performance-vendas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Performance de Vendas</div>
+      <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
+      <div class="flyout-item" data-label="Custos do E-commerce"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
+      <div class="flyout-item" data-label="Relatórios de Vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Vendas</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Logística -->
+  <div class="flyout-col" id="flyout-logistica">
+    <h4>Logística</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Separação" data-href="pagina-logistica-separacao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14l-1.5 12a2 2 0 0 1-2 1.8H8.5a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Separação</div>
+      <div class="flyout-item" data-label="Conferência de Saída" data-href="pagina-logistica-conferencia-saida.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Conferência de Saída</div>
+      <div class="flyout-item" data-label="Expedição" data-href="pagina-logistica-expedicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Expedição</div>
+      <div class="flyout-item" data-label="Rastreamento de Pedidos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Rastreamento de Pedidos</div>
+      <div class="flyout-item" data-label="Devolução"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>Devolução</div>
+      <div class="flyout-item" data-label="Relatórios de Logística"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Logística</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Finanças -->
+  <div class="flyout-col" id="flyout-financas">
+    <h4>Finanças</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Caixa" data-href="pagina-financas-caixa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>Caixa</div>
+      <div class="flyout-item" data-label="Contas a Pagar" data-href="pagina-financas-contas-pagar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="8"/><polyline points="8 12 12 8 16 12"/></svg>Contas a Pagar</div>
+      <div class="flyout-item" data-label="Contas a Receber" data-href="pagina-financas-contas-receber.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><polyline points="8 12 12 16 16 12"/></svg>Contas a Receber</div>
+      <div class="flyout-item" data-label="Comissões Afiliados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
+      <div class="flyout-item" data-label="Relatórios Finanças"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Finanças</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Operacional -->
+  <div class="flyout-col" id="flyout-operacional">
+    <h4>Operacional</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Transportadoras" data-href="pagina-operacional-transportadoras.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Transportadoras</div>
+      <div class="flyout-item" data-label="Formas de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Formas de Pagamento</div>
+      <div class="flyout-item" data-label="Cupons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2,2"/></svg>Cupons</div>
+      <div class="flyout-item" data-label="Motivos de Devolução"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>Motivos de Devolução</div>
+      <div class="flyout-item" data-label="Motivos de Perda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 6 8.5 13.5 13.5 8.5 23 18"/><polyline points="17 18 23 18 23 12"/></svg>Motivos de Perda</div>
+      <div class="flyout-item" data-label="Relatórios Operacional"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Operacional</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Integrações -->
+  <div class="flyout-col" id="flyout-integracoes">
+    <h4>Integrações</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Lojas Desk" data-href="pagina-cadastros-lojas-desk.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Lojas Desk</div>
+      <div class="flyout-item" data-label="Depósitos" data-href="pagina-cadastros-depositos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20V10l10-6 10 6v10"/><path d="M2 20h20"/><rect x="7" y="14" width="4" height="6"/><rect x="13" y="14" width="4" height="6"/></svg>Depósitos</div>
+      <div class="flyout-item" data-label="Endereços de Estoque" data-href="pagina-cadastros-enderecos-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/></svg>Endereços de Estoque</div>
+      <div class="flyout-item" data-label="Marketplaces e Hubs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Marketplaces e Hubs</div>
+      <div class="flyout-item" data-label="Emissão de Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Emissão de Notas Fiscais</div>
+      <div class="flyout-item" data-label="Gateways de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
+      <div class="flyout-item" data-label="Relatórios de Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Integrações</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Configurações -->
+  <!-- Deixou de listar paginas: agora e um atalho unico pro hub de Configuracoes,
+       mais as Preferencias (tema), que sao do usuario e nao do sistema. -->
+  <div class="flyout-col" id="flyout-config">
+    <h4>Configurações</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Configurações ERP" data-href="pagina-configuracoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.62.77 1.06 1.42 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações ERP</div>
+    </div>
+    <div class="theme-picker">
+      <div class="label">Preferências · Tema</div>
+      <div class="theme-seg">
+        <button data-theme="auto">Auto</button>
+        <button data-theme="light">Claro</button>
+        <button data-theme="dark" class="active">Escuro</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="main">
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <div class="page-header">
+    <div>
+      <h1>Confirmações por senha</h1>
+      <div class="subtitle">Quais ações exigem que a pessoa digite a própria senha antes de acontecer.</div>
+    </div>
+  </div>
+
+  <div class="nota-reservado">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>Senha responde <b>"é você mesmo fazendo isto?"</b>. Não é a mesma pergunta que permissão — <i>"você pode fazer isto?"</i> —, que vive em <b>Permissões de usuários</b>. A mesma ação aparece nas duas telas: aqui se decide <b>se ela pede senha</b>; lá, <b>quem pode confirmar</b>.</span>
+  </div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Ações do sistema</div>
+    <div class="par-secao-sub">A grade é o catálogo do sistema, não uma lista digitada aqui: módulo novo aparece sozinho no dia em que é construído. <b>Criar</b> e <b>editar</b> nascem desligados; <b>excluir</b> nasce ligado. Célula com cadeado é ação que a tela ainda não verifica — aparece assim em vez de virar um interruptor que não faz nada.</div>
+
+    <div id="listaAcoes"></div>
+    <div class="par-previa" id="previaAcoes"></div>
+  </div>
+
+  <div class="par-secao par-futuro">
+    <div class="par-secao-titulo">Ainda não estão nesta tela</div>
+    <div class="par-secao-sub">Duas peças do modelo de autorização que dependem de módulo que ainda não existe.</div>
+
+    <div class="par-linha">
+      <div class="par-exp">
+        <b>Quem pode confirmar cada ação.</b> É a outra metade da pergunta, e ela pertence a <b>Permissões de usuários</b>. Enquanto essa tela não existe, o checklist mora na aba <b>Acesso e Permissões</b> do cadastro de Vendedores — lendo <b>este mesmo catálogo</b>, não uma cópia.
+      </div>
+      <div class="par-exp">
+        <b>Código de liberação de desconto.</b> É um mecanismo <b>diferente</b> de senha: a senha confirma <i>quem é você</i>; o código libera <i>uma exceção pontual</i> — o gerente autoriza um desconto acima do limite sem virar o dono da venda. Entra junto com Vendas.
+      </div>
+    </div>
+  </div>
+
+  <div class="par-barra">
+    <button class="btn-primary" id="btnSalvarParam">Salvar confirmações</button>
+    <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
+    <span class="par-barra-nota" id="notaBarra"></span>
+  </div>
+</div>
+
+<!-- MODAL: aviso (telas ainda não construídas) -->
+<div class="drawer-backdrop" id="avisoBackdrop"></div>
+<div class="modal-card" id="avisoModal">
+  <div class="confirm-titulo">Confirmação</div>
+  <div class="confirm-texto" id="avisoTexto">Confirma esta ação?</div>
+  <div class="confirm-acoes">
+    <button class="btn-primary" id="btnAvisoOk">Entendi</button>
+    <div class="drawer-link" id="btnAvisoFechar">Fechar <span class="esc-hint">ESC</span></div>
+  </div>
+</div>
+
+
+
+<!-- MODAL: confirmação centralizada (reutilizável — excluir/inativar, individual e em massa) -->
+<div class="drawer-backdrop" id="confirmModalBackdrop"></div>
+<div class="modal-card" id="confirmModal">
+  <div class="confirm-titulo">Confirmação</div>
+  <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
+  <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
+    <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
+    Estou ciente destas ações e desejo continuar.
+  </label>
+  <div class="confirm-senha-row" id="campoSenhaModal">
+    <label>Sua senha</label>
+    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+  </div>
+  <div class="confirm-acoes">
+    <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
+    <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+  </div>
+</div>
+
+<script>
+  // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
+  // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
+  // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o
+  // Esc quando havia mesmo um menu aberto: assim o que esta por CIMA fecha primeiro,
+  // e o handler de modal/drawer de cada tela continua valendo quando nao ha dropdown.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const abertos = document.querySelectorAll('.dropdown-select-menu.open');
+    if (!abertos.length) return;
+    abertos.forEach(m => m.classList.remove('open'));
+    e.stopPropagation();
+  }, true);
+
+
+  // ===== PARÂMETROS DO SISTEMA =====
+  // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
+  // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
+  // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
+  // navegador: e o unico jeito de a tela de configuracao ter efeito de verdade
+  // nas outras. Navegador que bloqueia armazenamento cai no padrao de fabrica e
+  // nada quebra.
+  const PARAM_PADRAO = {
+    // empresa
+    conferenciaCompraAlerta: 1,
+    conferenciaCompraCritico: 3,
+    enderecamentoAlerta: 2,
+    enderecamentoCritico: 7,
+    estoqueZeroLimite: 7,
+    conferenciaCega: true,
+    ocultarItensFila: false,
+    ocultarVolumesFila: false,
+    casasQuantidade: 2,
+    casasPreco: 2,
+    permitirDocDuplicado: false,
+    mostrarObservacoesCliente: true,
+    // por usuario
+    registrosPorPagina: 10,
+    aoSalvar: 'listagem',
+    aoAbrirCadastro: 'leitura',
+    tema: 'dark'
+  };
+  function lerParametros() {
+    try {
+      const bruto = localStorage.getItem('deskParametros');
+      return Object.assign({}, PARAM_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, PARAM_PADRAO); }
+  }
+  function gravarParametros(p) {
+    try { localStorage.setItem('deskParametros', JSON.stringify(p)); return true; }
+    catch (e) { return false; }
+  }
+  const PARAM = lerParametros();
+
+  // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
+  // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
+  // que nenhum verbo descreve. Decidido nas barganhas de 18 e 21/set/2026.
+  //
+  // DUAS telas leem este catálogo e fazem perguntas DIFERENTES sobre a MESMA
+  // célula: Configuracoes > Confirmacoes por senha pergunta "a acao exige
+  // senha?"; Permissoes de Usuarios (hoje espelhada em Vendedores > Acesso e
+  // Permissoes) pergunta "este perfil pode?". Uma lista so — duas copias
+  // divergiriam, e uma acao acabaria existindo numa tela e nao na outra.
+  //
+  // A trava nasce COM a tela: modulo novo entra aqui no mesmo passo em que e
+  // construido, e a celula aparece sozinha nas duas telas.
+  //
+  // `ligado` e o campo que impede a matriz de mentir: diz se a TELA daquele
+  // modulo ja chama a verificacao naquele verbo. Celula nao ligada aparece com
+  // CADEADO e o motivo — nunca como interruptor que nao faz nada. Hoje so
+  // `excluir` esta ligado nos 24 pontos de exclusao; criar e editar sao ligados
+  // modulo a modulo, conforme cada tela e revisitada.
+  const VERBOS_SENHA = [
+    { id:'criar',   sufixo:'Criar',  rotulo:'Criar',   exigePadrao:false },
+    { id:'editar',  sufixo:'Editar', rotulo:'Editar',  exigePadrao:false },
+    { id:'excluir', sufixo:'Exclui', rotulo:'Excluir', exigePadrao:true  }
+  ];
+  const MODULOS_SENHA = [
+    { base:'clientes', nome:'Clientes', onde:'Cadastros \u2192 Clientes', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'fornecedores', nome:'Fornecedores', onde:'Cadastros \u2192 Fornecedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'produtos', nome:'Produtos', onde:'Cadastros \u2192 Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'categorias', nome:'Categorias', onde:'Cadastros \u2192 Categorias', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'marcas', nome:'Marcas', onde:'Cadastros \u2192 Marcas', grupo:'Cadastros', ligado:{ criar:true,  editar:true,  excluir:true } },   // piloto: 1a tela com os tres verbos ligados
+    { base:'embalagens', nome:'Embalagens', onde:'Cadastros \u2192 Embalagens', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'departamentos', nome:'Departamento de Produtos', onde:'Cadastros \u2192 Departamento de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'secoes', nome:'Se\u00e7\u00e3o de Produtos', onde:'Cadastros \u2192 Se\u00e7\u00e3o de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'depositos', nome:'Dep\u00f3sitos', onde:'Cadastros \u2192 Dep\u00f3sitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'enderecos', nome:'Endere\u00e7os de Estoque', onde:'Cadastros \u2192 Endere\u00e7os de Estoque', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'lojas', nome:'Lojas Desk', onde:'Cadastros \u2192 Lojas Desk', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'vendedores', nome:'Vendedores', onde:'Cadastros \u2192 Vendedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'notasEntrada', nome:'Entrada de Notas', onde:'Estoque \u2192 Entrada de Notas', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
+    // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
+    // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
+    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
+    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configura\u00e7\u00f5es \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
+    // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
+    { base:'transportadoras', nome:'Transportadoras', onde:'Operacional \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+  ];
+  // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
+  const ACOES_ESPECIFICAS = [
+    { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
+    { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
+    // registrado: e o momento em que a contagem deixa de ser independente.
+    // Nasce com senha desligada e log ligado — prova de que o registro grava as
+    // duas coisas.
+    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
+    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true }
+  ];
+  // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
+  // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
+  const ACOES_SENHA = [];
+  MODULOS_SENHA.forEach(m => {
+    VERBOS_SENHA.forEach(v => {
+      ACOES_SENHA.push({
+        chave: m.base + v.sufixo, nome: v.rotulo + ' \u00b7 ' + m.nome, onde: m.onde,
+        modulo: m.grupo, grupo: m.grupo, base: m.base, verbo: v.id,
+        pronto: true, ligado: !!m.ligado[v.id], exigePadrao: v.exigePadrao
+      });
+    });
+  });
+  ACOES_ESPECIFICAS.forEach(a => {
+    ACOES_SENHA.push({
+      chave:a.chave, nome:a.nome, onde:a.onde, modulo:a.grupo, grupo:a.grupo,
+      base:null, verbo:null, pronto:a.pronto, ligado:a.pronto, exigePadrao:a.exigePadrao
+    });
+  });
+
+  // Ausente = vale o padrao do catalogo. Nunca `|| true` solto: isso faria uma
+  // acao desligada de proposito voltar a pedir senha sozinha.
+  function exigeSenha(chave) {
+    const salvo = (PARAM.confirmacoes || {})[chave];
+    if (typeof salvo === 'boolean') return salvo;
+    const a = ACOES_SENHA.filter(x => x.chave === chave)[0];
+    return a ? a.exigePadrao : true;
+  }
+  // Mostra ou esconde o campo de senha do painel de confirmacao. O painel continua
+  // abrindo mesmo sem exigencia: o resumo do que vai acontecer e o motivo dele
+  // existir; a senha e so a trava. Some o campo, nunca a conferencia.
+  function aplicarExigenciaSenha(chave, idCampo) {
+    const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
+    if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
+  }
+
+  // ===== MODAL DE CONFIRMAÇÃO (reutilizável — excluir/inativar, individual e em massa) =====
+  // Esta tela tinha um modal de AVISO com os ids do de confirmacao. Eram coisas
+  // diferentes usando o mesmo nome — e o resultado era que `confirmarAcao` nao
+  // achava `abrirModalConfirmacao` e falhava fechada. O aviso agora e #avisoModal.
+  let confirmAoConfirmarCallback = null;
+
+  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    const cienteRow = document.getElementById('confirmCienteRow');
+    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
+    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+    cienteCheckbox.checked = false;
+    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
+    if (quantidade > 1) {
+      cienteRow.style.display = 'flex';
+      btnConfirmar.disabled = true;
+    } else {
+      cienteRow.style.display = 'none';
+      btnConfirmar.disabled = false;
+    }
+    confirmAoConfirmarCallback = aoConfirmar;
+    document.getElementById('confirmModalBackdrop').classList.add('open');
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  function fecharModalConfirmacao() {
+    document.getElementById('confirmModalBackdrop').classList.remove('open');
+    document.getElementById('confirmModal').classList.remove('open');
+    confirmAoConfirmarCallback = null;
+  }
+  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
+    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  });
+  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
+    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
+    const callback = confirmAoConfirmarCallback;
+    fecharModalConfirmacao();
+    if (callback) callback();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
+      fecharModalConfirmacao();
+    }
+  });
+
+  // ----- Senha dentro do modal de confirmacao compartilhado -----
+  // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
+  // (texto,qtd,cb) / (texto,qtd,cor,cb) / (texto,qtd,cor,cb,modo). Mudar a
+  // assinatura em todos seria trocar 24 chamadas por um bug. Em vez disso, quem
+  // vai excluir arma a senha numa linha antes de abrir o modal:
+  //     armarSenhaModal('clientesExclui'); abrirModalConfirmacao(...)
+  // O envelope abaixo mostra ou esconde o campo na abertura, e a trava roda na
+  // FASE DE CAPTURA — antes do handler de cada tela — e cancela a confirmacao se
+  // a senha estiver vazia. Nenhuma tela precisou mudar de assinatura.
+  let _senhaPendente = null, _senhaAtiva = null, _acaoPendente = null, _acaoAtiva = null;
+  // `_acao*` guarda a acao SEMPRE; `_senha*` so quando ela exige senha. Sao coisas
+  // diferentes: o registro de atividades grava a acao tenha havido senha ou nao.
+  function armarSenhaModal(chave) { _senhaPendente = chave; _acaoPendente = chave; }
+  if (typeof abrirModalConfirmacao === 'function') {
+    const _abrirOriginal = abrirModalConfirmacao;
+    const _envelopeSenha = function () {
+      _senhaAtiva = (_senhaPendente && exigeSenha(_senhaPendente)) ? _senhaPendente : null;
+      _acaoAtiva = _acaoPendente;
+      _senhaPendente = null; _acaoPendente = null;
+      const row = document.getElementById('campoSenhaModal');
+      if (row) {
+        row.classList.toggle('on', !!_senhaAtiva);
+        row.classList.remove('has-error');
+        const inp = document.getElementById('inputSenhaModal');
+        if (inp) inp.value = '';
+      }
+      return _abrirOriginal.apply(this, arguments);
+    };
+    // O envelope PRECISA herdar a aridade do original. `confirmarAcao` escolhe
+    // COMO chamar o modal lendo `.length` — e funcao declarada sem parametros
+    // tem length 0, o que jogava TODA chamada no ramo de 3 argumentos. Nas
+    // telas de 4 ou 5 parametros o callback caia na posicao da cor e a acao
+    // simplesmente nao acontecia depois de confirmar. Copiar a aridade mantem o
+    // despacho honesto sem precisar reescrever as tres assinaturas do sistema.
+    Object.defineProperty(_envelopeSenha, 'length', { value: _abrirOriginal.length, configurable: true });
+    abrirModalConfirmacao = _envelopeSenha;
+  }
+  // ===== REGISTRO DE ATIVIDADES =====
+  // Toda acao do catalogo grava aqui — com ou sem senha. O catalogo deixa de ser
+  // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
+  // passa a ser uma COLUNA do registro, nao o motivo dele existir.
+  // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
+  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
+  const LOG_MAX = 300;
+  // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
+  // existia na Agenda com outro significado, e o `const` duplicado derrubava a
+  // tela inteira. Bloco que vive em 41 arquivos nao usa nome generico.
+  const USUARIO_SESSAO = { nome: 'Administrador Desk', perfil: 'Owner' };
+  function lerLog() {
+    try { const b = localStorage.getItem('deskLog'); return b ? JSON.parse(b) : []; }
+    catch (e) { return []; }
+  }
+  function registrarLog(chave, detalhe, comSenha) {
+    if (!chave) return;
+    const a = ACOES_SENHA.filter(x => x.chave === chave)[0];
+    try {
+      const log = lerLog();
+      log.unshift({
+        ts: Date.now(), chave: chave,
+        acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
+        usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
+        senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180)
+      });
+      localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
+    } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
+  }
+
+  // Executa uma acao passando pela confirmacao por senha quando o catalogo exigir.
+  // Se nao exigir, executa direto — sem modal, sem atrito. A acao acontece SO
+  // dentro do callback: cancelar nao grava nada.
+  // O modal compartilhado tem tres assinaturas no sistema; o despacho le
+  // `.length` da funcao em vez de adivinhar — e o unico jeito seguro de chamar
+  // as tres sem reescrever 24 arquivos.
+  function confirmarAcao(chave, texto, executar) {
+    if (!exigeSenha(chave)) { registrarLog(chave, texto, false); executar(); return; }
+    // Tela sem modal de confirmacao: a acao que EXIGE senha NAO acontece. Antes
+    // esta linha executava direto — a trava sumia em silencio e a acao nem ia
+    // para o registro de atividades. Falhar fechado e barulhento e melhor que
+    // destravar calado: quem puser uma acao com trava numa tela sem modal ve o
+    // erro na hora, em vez de descobrir na auditoria que a senha nunca foi pedida.
+    if (typeof abrirModalConfirmacao !== 'function') {
+      console.error('[desk] Acao "' + chave + '" exige senha e esta tela nao tem o modal de confirmacao. Acao cancelada.');
+      return;
+    }
+    armarSenhaModal(chave);
+    if (abrirModalConfirmacao.length >= 4) abrirModalConfirmacao(texto, 1, 'primary', executar);
+    else abrirModalConfirmacao(texto, 1, executar);
+  }
+
+  (function travaSenhaModal() {
+    const btn = document.getElementById('btnConfirmModalConfirmar');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      if (_senhaAtiva) {
+        const inp = document.getElementById('inputSenhaModal');
+        if (inp && !inp.value.trim()) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          document.getElementById('campoSenhaModal').classList.add('has-error');
+          return;
+        }
+      }
+      // Passou: a acao vai acontecer. Registra aqui, num lugar so, em vez de em
+      // cada uma das 24 telas — e por isso nenhuma delas precisou saber que o
+      // registro de atividades existe.
+      if (_acaoAtiva) {
+        const txt = document.getElementById('confirmModalTexto');
+        registrarLog(_acaoAtiva, txt ? txt.textContent : '', !!_senhaAtiva);
+        _acaoAtiva = null;
+      }
+    }, true);
+  })();
+
+  // O tema ja foi aplicado na abertura da pagina (script do topo, antes da
+  // pintura); aqui so marcamos o botao certo no seletor do menu, senao o rodape
+  // mostra "Escuro" com a tela clara.
+  document.querySelectorAll('.theme-picker .theme-seg button').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-theme') === PARAM.tema);
+  });
+
+  // Casas decimais da QUANTIDADE (Configuracoes > cadastros > Cadastro de
+  // produtos). Nao vale para dinheiro: moeda tem as casas da moeda, e `fmtNum`
+  // de cada tela formata os dois — por isso a quantidade ganhou funcao propria
+  // em vez de o parametro entrar la e mexer em preco junto.
+  function fmtQtdNum(n) {
+    const c = PARAM.casasQuantidade;
+    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+  // Casas decimais do PRECO UNITARIO (0 a 10). Total e subtotal continuam em
+  // moeda; isto e a precisao do preco de tabela, onde centavo de centavo existe.
+  function fmtPrecoNum(n) {
+    const c = PARAM.casasPreco;
+    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+
+  // Padrao de abertura das listagens (Interface do usuario). O seletor do rodape
+  // sobrepoe enquanto durar a sessao e nao volta pra ca — regra B, 18/set/2026.
+  function aplicarPaginacaoPadrao() {
+    const raiz = document.getElementById('itensPorPagina');
+    if (!raiz) return;
+    const valor = String(PARAM.registrosPorPagina);
+    const item = raiz.querySelector('.dropdown-select-item[data-value="' + valor + '"]');
+    if (!item) return;
+    raiz.setAttribute('data-value', valor);
+    raiz.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    if (rotulo) rotulo.textContent = valor;
+  }
+  aplicarPaginacaoPadrao();
+
+  // Onde parar depois de salvar um cadastro (Interface do usuario). A tela de
+  // detalhe nao decide mais sozinha: ela informa qual e a listagem dela.
+  function aoSalvarCadastro(listagem, botao) {
+    if (PARAM.aoSalvar !== 'ficar') { window.location.href = listagem; return; }
+    if (!botao || botao.dataset.confirmando) return;
+    const rotulo = botao.textContent;
+    botao.dataset.confirmando = '1';
+    botao.textContent = 'Salvo ✓';
+    setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
+  }
+
+
+
+
+  const card = document.getElementById('card');
+  const sidebarCol = document.getElementById('sidebarCol');
+  const fixarSwitch = document.getElementById('fixarSwitch');
+  let openId = null;
+  let path = ['Estoque', 'Controle de Estoques'];
+  // Qual modulo teve o painel aberto por ultimo — usado so para montar o
+  // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
+  let moduloDoFlyout = null;
+  function setMainTitle(t) { const el = document.getElementById('mainTitle'); if (el) el.textContent = t; }
+
+  function closeAll() {
+    document.querySelectorAll('.flyout-col').forEach(f => f.classList.remove('open'));
+    openId = null;
+  }
+
+  function openFlyout(id) {
+    const flyout = document.getElementById('flyout-' + id);
+    if (!flyout) { closeAll(); return; }
+    closeAll();
+    flyout.classList.add('open');
+    openId = id;
+  }
+
+  function renderBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    bc.innerHTML = '';
+    path.forEach((label, i) => {
+      const span = document.createElement('span');
+      span.textContent = label;
+      span.className = 'crumb' + (i === path.length - 1 ? ' current' : '');
+      span.addEventListener('click', () => {
+        if (i === path.length - 1) return;
+        // O primeiro crumb e "Inicio" e agora LEVA ao Inicio. Antes ele so abria o
+        // flyout e trocava o titulo: um caminho que nao chega em lugar nenhum e um
+        // caminho que mente. Na propria tela de Inicio ele nao recarrega a pagina.
+        if (i === 0) {
+          const destino = 'pagina-inicio-boas-vindas.html';
+          if (!window.location.pathname.endsWith(destino)) { window.location.href = destino; return; }
+        }
+        path = path.slice(0, i + 1);
+        renderBreadcrumb();
+        setMainTitle(path[path.length - 1]);
+        if (path.length === 1) { setActiveById('inicio'); openFlyout('inicio'); }
+        else { setActiveById(idFromLabel(path[1])); openFlyout(idFromLabel(path[1])); }
+      });
+      bc.appendChild(span);
+      if (i < path.length - 1) {
+        const sep = document.createElement('span');
+        sep.className = 'sep'; sep.textContent = '›';
+        bc.appendChild(sep);
+      }
+    });
+  }
+
+  function idFromLabel(label) {
+    const el = document.querySelector('[data-label="' + label + '"]');
+    return el ? el.getAttribute('data-id') : null;
+  }
+
+  function setActiveById(id) {
+    document.querySelectorAll('.nav-item, .bottom-item').forEach(n => n.classList.remove('active'));
+    const el = document.querySelector('.nav-item[data-id="' + id + '"], .bottom-item[data-id="' + id + '"]');
+    if (el) el.classList.add('active');
+  }
+
+  document.querySelectorAll('.nav-item[data-id], .bottom-item[data-id]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = item.getAttribute('data-id');
+      const label = item.getAttribute('data-label');
+      setActiveById(id);
+      // ABRIR O MENU NAO E NAVEGAR. Antes isto reescrevia o breadcrumb: clicar em
+      // "Configurações" so para ver o painel deixava a tela de Controle de Estoques
+      // com o caminho "Configurações" no topo — o breadcrumb passava a mentir sobre
+      // onde voce esta. Ele so muda quando a tela muda.
+      moduloDoFlyout = label;
+      openFlyout(id);
+    });
+  });
+
+  document.querySelectorAll('.flyout-item[data-label]').forEach(sub => {
+    sub.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Item de menu com destino navega de verdade. Os demais so movem o breadcrumb,
+      // porque no prototipo cada tela e um arquivo solto.
+      const destino = sub.getAttribute('data-href');
+      if (destino) { window.location.href = destino; return; }
+      path = [moduloDoFlyout || path[0], sub.getAttribute('data-label')];
+      renderBreadcrumb();
+      setMainTitle(sub.getAttribute('data-label'));
+      closeAll();
+    });
+  });
+
+  // Clicar fora do cartão fecha o flyout
+  document.addEventListener('click', (e) => {
+    if (!card.contains(e.target) && openId) {
+      closeAll();
+      // fechou sem escolher: o destaque volta para o modulo da tela em que se esta
+      moduloDoFlyout = null;
+      setActiveById(idFromLabel(path[0]));
+    }
+  });
+  card.addEventListener('click', (e) => e.stopPropagation());
+
+  // Fixar menu — recolher pra ícones (mantém "ERP", esconde "Desk")
+  fixarSwitch.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fixarSwitch.classList.toggle('on');
+    sidebarCol.classList.toggle('collapsed');
+  });
+
+  // Seletor de tema dentro de Configurações.
+  // Escopado a ".theme-picker .theme-seg button" (nunca ".theme-seg button" sozinho): a classe
+  // visual .theme-seg é reaproveitada por outros toggles do sistema (Tipo Pessoa, Tipo de Loja,
+  // modo de meta...). Sem o escopo, clicar num desses toggles caía neste listener, e como eles
+  // não têm data-theme o "mode" vinha null e o código entrava no ramo "auto", trocando o tema
+  // claro/escuro da tela inteira sem o usuário pedir (bug real — ver design-system §14).
+  document.querySelectorAll('.theme-picker .theme-seg button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.theme-picker .theme-seg button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.getAttribute('data-theme');
+      if (mode === 'dark') document.body.classList.add('dark');
+      else if (mode === 'light') document.body.classList.remove('dark');
+      else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.toggle('dark', prefersDark);
+      }
+      // Tema e preferencia do usuario, nao do arquivo: grava para as outras telas
+      // abrirem no mesmo tema. Antes disto, trocar de tela voltava pro escuro.
+      PARAM.tema = mode; gravarParametros(PARAM);
+    });
+  });
+
+
+
+  renderBreadcrumb();
+
+
+
+  // ===== MODAL DE AVISO =====
+  const avisoModal = document.getElementById('avisoModal');
+  const avisoBackdrop = document.getElementById('avisoBackdrop');
+
+  function avisar(texto) {
+    document.getElementById('avisoTexto').textContent = texto;
+    avisoBackdrop.classList.add('open');
+    avisoModal.classList.add('open');
+  }
+  function fecharAviso() {
+    avisoBackdrop.classList.remove('open');
+    avisoModal.classList.remove('open');
+  }
+  document.getElementById('btnAvisoOk').addEventListener('click', fecharAviso);
+  document.getElementById('btnAvisoFechar').addEventListener('click', fecharAviso);
+  avisoBackdrop.addEventListener('click', fecharAviso);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (avisoModal.classList.contains('open')) fecharAviso();
+    }
+  });
+
+  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
+  function inicializarDropdownSelect(raiz, aoMudar) {
+    const btn = raiz.querySelector('.dropdown-select-btn');
+    const menu = raiz.querySelector('.dropdown-select-menu');
+    const label = raiz.querySelector('.dropdown-select-label');
+    if (!btn || !menu) return;
+    // O callback mora no ELEMENTO: a ultima chamada manda, sem empilhar listener.
+    raiz._aoMudarDropdown = aoMudar || function () {};
+    if (!raiz.dataset.dropdownInit) {
+      raiz.dataset.dropdownInit = '1';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+        const vaiAbrir = !menu.classList.contains('open');
+        if (vaiAbrir) {
+          menu.style.visibility = 'hidden';
+          menu.style.display = 'block';
+          const alturaMenu = menu.offsetHeight;
+          menu.style.display = '';
+          menu.style.visibility = '';
+          const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
+          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+        }
+        menu.classList.toggle('open');
+      });
+
+      // Delegacao: o clique e ouvido no MENU, nao em cada item. Assim o
+      // comportamento sobrevive a refazer o conteudo do menu com innerHTML, e
+      // chamar esta funcao de novo nao acumula listener.
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest ? e.target.closest('.dropdown-select-item') : null;
+        if (!item || !menu.contains(item)) return;
+        e.stopPropagation();
+        menu.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        if (label) label.textContent = item.textContent;
+        raiz.setAttribute('data-value', item.getAttribute('data-value'));
+        menu.classList.remove('open');
+        if (raiz._aoMudarDropdown) raiz._aoMudarDropdown(item.getAttribute('data-value'));
+      });
+    }
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
+
+  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio, sem
+  // passar pelo inicializarDropdownSelect (que marcaria item .active e trocaria o rotulo).
+  (function bindMenuAcoes() {
+    const raiz = document.getElementById('menuMaisAcoes');
+    if (!raiz) return;   // esta tela nao tem menu "Mais acoes"
+    const btn = raiz.querySelector('.dropdown-select-btn');
+    const menu = raiz.querySelector('.dropdown-select-menu');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+      const vaiAbrir = !menu.classList.contains('open');
+      if (vaiAbrir) {
+        menu.style.visibility = 'hidden'; menu.style.display = 'block';
+        const alturaMenu = menu.offsetHeight;
+        menu.style.display = ''; menu.style.visibility = '';
+        const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
+        menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+      }
+      menu.classList.toggle('open');
+    });
+    menu.querySelectorAll('.dropdown-select-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.remove('open');
+        const acao = item.getAttribute('data-acao');
+        if (acao === 'inventario') { window.location.href = 'pagina-estoque-inventario.html'; return; }
+        avisar('Impressão de relatório entra junto com o módulo de Relatórios.');
+      });
+    });
+  })();
+
+  // ===== CONFIRMAÇÕES POR SENHA =====
+  // A tela nao tem lista propria: ela edita o catalogo compartilhado ACOES_SENHA
+  // (topo do script), o mesmo que as telas que pedem senha leem e que o checklist
+  // do perfil em Vendedores mostra. No Lovable, `acoes_confirmacao` (catalogo) e
+  // `parametros.confirmacoes` (o que a empresa ligou ou desligou).
+  // E configuracao DA EMPRESA, nao do usuario: `usuario_id` nulo.
+
+  const elNota = document.getElementById('notaBarra');
+  // Estado em edicao, comecando do que esta salvo. So vira PARAM no Salvar.
+  let edicao = {};
+  ACOES_SENHA.forEach(a => { edicao[a.chave] = exigeSenha(a.chave); });
+
+  function render() {
+    // A grade sai do catalogo, nao de uma lista escrita aqui: modulo novo aparece
+    // sozinho no dia em que entra no catalogo. Cada grupo traz a matriz de verbos
+    // e, embaixo, as acoes que verbo nenhum descreve.
+    const grupos = [];
+    MODULOS_SENHA.forEach(m => {
+      let g = grupos.filter(x => x.nome === m.grupo)[0];
+      if (!g) { g = { nome:m.grupo, modulos:[], especificas:[] }; grupos.push(g); }
+      g.modulos.push(m);
+    });
+    ACOES_ESPECIFICAS.forEach(a => {
+      let g = grupos.filter(x => x.nome === a.grupo)[0];
+      if (!g) { g = { nome:a.grupo, modulos:[], especificas:[] }; grupos.push(g); }
+      g.especificas.push(a);
+    });
+
+    const cadeado = '<svg class="conf-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+    document.getElementById('listaAcoes').innerHTML = grupos.map(g => {
+      const cabecalho =
+        '<div class="mtz-linha mtz-cab">' +
+          '<div class="mtz-cab-titulo">M\u00f3dulo</div>' +
+          VERBOS_SENHA.map(v => '<div class="mtz-cab-verbo">' + v.rotulo + '</div>').join('') +
+        '</div>';
+
+      const linhas = g.modulos.map(m =>
+        '<div class="mtz-linha">' +
+          '<div><div class="mtz-nome">' + m.nome + '</div><div class="mtz-onde">' + m.onde + '</div></div>' +
+          VERBOS_SENHA.map(v => {
+            const chave = m.base + v.sufixo;
+            if (!m.ligado[v.id]) {
+              return '<div class="mtz-cel" title="A tela de ' + m.nome + ' ainda n\u00e3o pede confirma\u00e7\u00e3o ao ' +
+                     v.rotulo.toLowerCase() + '. O interruptor aparece quando ela for ligada.">' + cadeado + '</div>';
+            }
+            return '<div class="mtz-cel"><div class="switch' + (edicao[chave] ? ' on' : '') +
+                   '" data-chave="' + chave + '" role="switch" title="' + v.rotulo + ' ' + m.nome + '"></div></div>';
+          }).join('') +
+        '</div>').join('');
+
+      const especificas = g.especificas.map(a => {
+        const exige = edicao[a.chave];
+        const travado = !a.pronto;
+        const estado = travado
+          ? '<div class="conf-estado indisponivel">tela ainda n\u00e3o constru\u00edda \u00b7 nasce exigindo senha</div>'
+          : (exige ? '<div class="conf-estado exige">exige senha</div>'
+                   : '<div class="conf-estado livre">acontece sem confirma\u00e7\u00e3o</div>');
+        return '<div class="switch-row">' +
+          '<div class="switch-row-texto">' +
+            '<div class="switch-row-titulo">' + a.nome + '</div>' +
+            '<div class="field-hint">' + a.onde + '</div>' + estado +
+          '</div>' +
+          (travado ? cadeado
+                   : '<div class="switch' + (exige ? ' on' : '') + '" data-chave="' + a.chave + '" role="switch"></div>') +
+        '</div>';
+      }).join('');
+
+      return '<div class="section-title">' + g.nome + '</div>' +
+             '<div class="mtz">' + cabecalho + linhas + '</div>' +
+             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda n\u00e3o pede confirma\u00e7\u00e3o nessa a\u00e7\u00e3o. O interruptor nasce junto com ela.</div>' +
+             especificas;
+    }).join('');
+
+    document.querySelectorAll('#listaAcoes .switch[role="switch"]').forEach(sw => {
+      sw.addEventListener('click', () => {
+        const k = sw.getAttribute('data-chave');
+        edicao[k] = !edicao[k];
+        render();
+      });
+    });
+
+    atualizarPrevia();
+    contarMudancas();
+  }
+
+  // A previa nao repete o obvio ("3 ligadas"): ela nomeia o que fica SEM trava,
+  // porque desligar aqui e sempre uma reducao de seguranca e tem de estar escrito.
+  function atualizarPrevia() {
+    // Conta so o que esta LIGADO: celula com cadeado nao pede senha hoje e nao
+    // pode entrar na conta como se pedisse.
+    // O VERMELHO e reservado a protecao RETIRADA — acao cujo padrao e exigir
+    // senha e que foi desligada aqui. Criar e editar nascem desligados de
+    // proposito; pinta-los de alerta ensinaria o usuario a ignorar a cor, que e
+    // o mesmo erro ja corrigido na previa de Parametros de estoque.
+    const ligadas   = ACOES_SENHA.filter(a => a.pronto && a.ligado);
+    const exigindo  = ligadas.filter(a => edicao[a.chave]);
+    const retiradas = ligadas.filter(a => !edicao[a.chave] && a.exigePadrao);
+    const el = document.getElementById('previaAcoes');
+    el.classList.toggle('alerta', retiradas.length > 0);
+
+    const base = '<b>' + exigindo.length + ' de ' + ligadas.length + '</b> a\u00e7\u00f5es ligadas pedem senha hoje.';
+    if (retiradas.length === 0) {
+      el.innerHTML = base + ' <b>Nenhuma prote\u00e7\u00e3o de f\u00e1brica foi retirada</b> \u2014 o que est\u00e1 desligado nasceu assim.';
+      return;
+    }
+    const exclusoes = retiradas.filter(a => a.verbo === 'excluir');
+    const lista = retiradas.length <= 4
+      ? retiradas.map(a => a.nome.toLowerCase()).join('; ')
+      : (exclusoes.length ? '<b>' + exclusoes.length + '</b> delas s\u00e3o exclus\u00f5es de cadastro' : 'v\u00e1rias de uma vez');
+    el.innerHTML = base + ' <b>' + plural(retiradas.length, 'prote\u00e7\u00e3o retirada', 'prote\u00e7\u00f5es retiradas') +
+      '</b> em rela\u00e7\u00e3o ao padr\u00e3o: ' + lista +
+      '. Quem alcan\u00e7ar a tela executa direto, e o hist\u00f3rico n\u00e3o guarda quem autorizou.';
+  }
+
+  const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
+
+  function contarMudancas() {
+    const dif = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave)).length;
+    elNota.textContent = dif ? plural(dif, 'a\u00e7\u00e3o alterada', 'a\u00e7\u00f5es alteradas') + ', ainda n\u00e3o salva' + (dif > 1 ? 's' : '') : '';
+  }
+
+  document.getElementById('btnSalvarParam').addEventListener('click', () => {
+    const mudadas = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave));
+    if (mudadas.length === 0) { avisar('Nenhuma confirma\u00e7\u00e3o mudou.'); return; }
+    const desligadas = mudadas.filter(a => !edicao[a.chave]);
+    PARAM.confirmacoes = Object.assign({}, PARAM.confirmacoes, edicao);
+    const gravou = gravarParametros(PARAM);
+    contarMudancas();
+    avisar(plural(mudadas.length, 'a\u00e7\u00e3o salva', 'a\u00e7\u00f5es salvas') + '. ' +
+      (desligadas.length
+        ? desligadas.length === 1
+          ? 'O painel de confirma\u00e7\u00e3o continua abrindo em "' + desligadas[0].nome.toLowerCase() + '" \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
+          : 'Os pain\u00e9is de confirma\u00e7\u00e3o continuam abrindo \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
+        : 'As telas afetadas voltam a pedir senha na pr\u00f3xima abertura.') +
+      (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, ent\u00e3o isto vale s\u00f3 nesta aba.)'));
+  });
+
+  document.getElementById('btnRestaurarParam').addEventListener('click', () => {
+    ACOES_SENHA.forEach(a => { edicao[a.chave] = a.exigePadrao; });   // inclui as travadas: o padrao delas vale quando forem ligadas
+    render();
+    avisar('Padr\u00e3o de f\u00e1brica restaurado na tela: toda a\u00e7\u00e3o do cat\u00e1logo exige senha. Clique em "Salvar confirma\u00e7\u00f5es" para valer.');
+  });
+
+  render();
+
+  path = ['Configurações', 'Configurações ERP', 'Confirmações por senha'];
+  renderBreadcrumb();
+  setMainTitle('Confirmações por senha');
+
+  // O renderBreadcrumb compartilhado so mexe no flyout; o crumb do meio precisa
+  // voltar pro hub de verdade. Listener local, pra nao mexer no bloco dos 40.
+  document.querySelectorAll('#breadcrumb .crumb').forEach(c => {
+    if (c.textContent.trim() === 'Configurações ERP') {
+      c.addEventListener('click', () => { window.location.href = 'pagina-configuracoes.html'; });
+    }
+  });
+
+  // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
+  // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
+  // chips). A cor de fundo desses elementos vem de mapa em JS, por style inline,
+  // onde CSS nenhum alcanca. Entao a regra vira medicao: le a luminancia do fundo
+  // que ficou aplicado, calcula o contraste com a tinta atual e, SO se reprovar em
+  // 4.5:1, troca pela tinta que passa. Elemento que ja passa nao e tocado — isso
+  // preserva texto colorido proposital e mexe unicamente no que estava ilegivel.
+  (function tintaAutomatica() {
+    var ALVOS = '.profile-avatar, .origem-badge, .parent-badge, .tipo-badge, .estoque-badge,' +
+                '.status-badge, .tag-principal, .role-badge, .day-number, .avatar-mini,' +
+                '[data-tinta-auto], [style*="background"]';
+    var CLARA = [255, 255, 255], ESCURA = [16, 16, 16];
+    function canal(c) { c = c / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+    function lum(p) { return 0.2126 * canal(p[0]) + 0.7152 * canal(p[1]) + 0.0722 * canal(p[2]); }
+    function razao(a, b) {
+      var la = lum(a), lb = lum(b), hi = Math.max(la, lb), lo = Math.min(la, lb);
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    function cor(txt) {
+      var m = (txt || '').match(/[\d.]+/g);
+      if (!m || m.length < 3) return null;
+      if (m.length > 3 && parseFloat(m[3]) < 0.6) return null;   // fundo translucido: herda do pai
+      return [+m[0], +m[1], +m[2]];
+    }
+    function aplicar(el) {
+      var cs = getComputedStyle(el);
+      var fundo = cor(cs.backgroundColor), tinta = cor(cs.color);
+      if (!fundo || !tinta) return;
+      if (razao(tinta, fundo) >= 4.5) return;                    // ja passa: nao mexe
+      el.style.color = razao(CLARA, fundo) >= razao(ESCURA, fundo) ? '#FFFFFF' : '#101010';
+    }
+    function varrer(raiz) {
+      if (raiz.nodeType !== 1) return;
+      if (raiz.matches && raiz.matches(ALVOS)) aplicar(raiz);
+      if (raiz.querySelectorAll) raiz.querySelectorAll(ALVOS).forEach(aplicar);
+    }
+    function tudo() { varrer(document.body); }
+    tudo();
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        if (m.type === 'attributes') { tudo(); return; }         // trocou de tema: refaz
+        m.addedNodes.forEach(varrer);                            // render novo: so o que entrou
+      });
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  })();
+
+
+</script>
+</body>
+</html>
