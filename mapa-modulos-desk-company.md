@@ -109,7 +109,9 @@
 | ✅ | Configurações da conferência · do cadastro de produtos · do cadastro de clientes |
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
 
-> **Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações. É o mesmo erro de `reservaExpiraDias`, que foi pago em 05/out. Fecha junto com a F4.
+> ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
+>
+> **PAGA — conferido em 06/out/2026, no código, não de memória.** Os seis estão em tela: `expedicaoAlertaHoras`, `expedicaoCriticoHoras` e `expedicaoDesvioPesoPct` como campos rotulados na seção **"Expedição e romaneio"** de `pagina-configuracoes-parametros-estoque.html`; `romaneioSugereAutomatico` em `pagina-configuracoes-conferencia.html`; e `mdfeRegraUF` + `mdfeRegraPadrao` no **editor de mapa por UF** da mesma tela de parâmetros (`MDFE_MAPA`), com o aviso de que a Expedição alerta mas não emite. Todos gravam de volta no `PARAM`.
 
 ---
 
