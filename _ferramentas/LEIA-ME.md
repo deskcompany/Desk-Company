@@ -61,6 +61,91 @@ Se a pasta estiver em outro lugar: `DESK_PASTA=/caminho/para/a/pasta python3 tes
 
 Precisa de `playwright` instalado (`pip install playwright`) e de um Chromium. Se não houver um em `/opt/pw-browsers`, o script usa o que o Playwright trouxer.
 
+## Rodando no Windows (06/out/2026)
+
+A pasta passou a ser trabalhada direto no Windows, do Antigravity, em vez de numa cópia
+stageada no Linux do app da Claude. **O comando é `python`, não `python3`.**
+
+Instalar não bastou. A suíte nasceu no Linux e tinha quatro coisas que só funcionavam lá —
+nenhuma delas aparecia como "falta Python", todas apareciam como teste vermelho ou traceback:
+
+| onde | o que quebrava | conserto |
+|---|---|---|
+| `auditoria.py` | `/tmp/` cravado → `FileNotFoundError` na primeira tela | `tempfile.gettempdir()` |
+| `selo.py`, 3 chamadas | invocava `python3`, que no Windows cai no stub da Microsoft Store | `sys.executable` |
+| `selo.py`, auditoria oficial | `/root/.claude/...` cravado | sai de `~/.claude` com glob da geração do plugin |
+| `selo.py`, `gravar_selo()` | gravava o selo com o fim de linha da plataforma | `newline='\n'` |
+
+O glob do `/opt/pw-browsers` nas 21 suítes **não precisou mudar**: ele volta vazio, `CHROME`
+fica `None` e o Playwright usa o navegador dele. Era o comportamento já previsto acima.
+
+### O encoding derrubou 6 suítes verdes, e isso é a lição
+
+Numa rodada completa, 7 suítes ficaram vermelhas. Rodadas **à mão, uma por uma, passavam**.
+A causa não estava em nenhuma delas: estava no `roda()` do `selo.py`, nas duas pontas do pipe.
+O filho escrevia em cp1252 e **morria no primeiro caractere fora dele** — um sinal de menos
+numa mensagem matou uma suíte de 24 asserções inteira. E o pai decodificava em cp1252, o que
+fazia "asserções" chegar como `asser��es`: o mesmo texto de onde o selo **mede** o veredito e
+conta as asserções.
+
+Vale o mesmo que o resto deste arquivo prega: **teste vermelho nem sempre acusa a tela.** Antes
+de caçar o bug na página, rode a suíte sozinha — se ela passar fora do selo e falhar dentro
+dele, o defeito é do runner. Corrigido com `PYTHONIOENCODING=utf-8` no ambiente do filho e
+`encoding='utf-8'` explícito na leitura do pai.
+
+### O que foi medido aqui, e não herdado do Linux
+
+Selo verde é promessa sobre a máquina que o selou. Vindo do Linux, ele dizia "21 seladas" numa
+máquina que ainda não tinha navegador — **selo herdado é falsa segurança**. Por isso a
+migração foi fechada com `--rodar --tudo`, ignorando o selo. A auditoria oficial da skill
+(seções 5 e 6: runtime no navegador, contraste WCAG e layout nos dois temas a 1440px) passou
+com **tudo limpo** nas 64 telas.
+
+**A auditoria oficial vive no plugin**, em `~/.claude/plugins/synced/`, e lá ela também tinha
+`/tmp` cravado. Foi corrigida nas duas gerações instaladas, com um `.linux.bak` ao lado — mas
+**um re-sync do plugin reverte isso**. O conserto durável é atualizar o plugin na origem. Se a
+auditoria oficial voltar a falhar com `FileNotFoundError: '/tmp/_aud.js'`, é isso.
+
+### A URL que se monta não é a URL que o navegador devolve
+
+`'file://' + PASTA` funciona no `goto` — o Chromium normaliza o que recebe. Mas o que ele
+**devolve** em `pg.url` tem barras para frente, três barras depois do esquema e espaço como
+`%20`. Em `/home/claude/desk-company` as duas formas coincidiam; em `C:\Claude AI\Desk Company`
+não, e o `destino()` do `teste_becos` (um `pg.url.replace(URL, '')`) parou de casar: **20
+falhas, todas em botões que levavam ao destino certo**. O conserto é montar a base com
+`Path(PASTA).as_uri()`, que dá a forma do navegador nas duas plataformas.
+
+O `varredura_cliques.py` tinha a versão pior do mesmo problema: além de nem iniciar
+(`glob(...)[0]` de lista vazia → `IndexError`, enquanto as 21 suítes usam `[0] if lista else
+None`), ela convertia URL em caminho com `.replace('file://', '')`. Num caminho com espaço isso
+devolve `/C:/Claude%20AI/...`, e `os.path.exists` reprovaria **toda** navegação — a ferramenta
+passaria a acusar beco sem saída em cada clique. Agora usa `url2pathname` + `urlparse`.
+
+**Quem só faz `goto` não precisou mudar** e não mudou: o navegador normaliza a entrada, e as
+suítes que montam `'file://' + abspath(...)` sem comparar continuam corretas. A regra de
+propagar correção vale para o defeito, e aqui o defeito é a **comparação**, não a concatenação.
+
+### Exit code virou contrato nas 7 suítes que mentiam
+
+O `teste_becos` imprimia `FALHAS: 20` e **saía 0**. Conferir pelo exit code o dava verde; só o
+selo pegava, porque ele lê o texto. Sete suítes estavam assim (as de Logística, Pedidos,
+Receber, Transportadoras e o próprio becos) — todas as mais novas, nenhuma com `sys.exit`.
+
+Agora terminam com `raise SystemExit(1 if falhas else 0)`, o mesmo contrato que a
+`auditoria.py` já tinha. Provado nos dois sentidos: defeito injetado numa cópia descartável sai
+**1**, arquivo real limpo sai **0**.
+
+**A lição é mais ampla que o conserto:** teste que não propaga falha é pior que teste ausente,
+porque o verde dele é afirmativo. Quando entrar suíte nova, confira o exit code nos dois
+sentidos antes de confiar nela.
+
+### Tolerância em pixel não atravessa plataforma de graça
+
+O `teste_pos.py` exige que o calendário fique a `0..12px` do ícone. No Windows mede **14px** —
+reprova por 2px, sem defeito visível nenhum. A folga foi calibrada no Linux. Tolerância
+apertada é boa enquanto o chão não muda; quando muda, ela acusa o chão e não a tela. Ao
+alargar uma dessas, registre **por que** o número novo ainda protege algo.
+
 ## O que cada um cobre
 
 | arquivo | o que verifica | asserções |
@@ -84,7 +169,7 @@ Precisa de `playwright` instalado (`pip install playwright`) e de um Chromium. S
 | `teste_becos.py` | **(29/set, noite)** nenhuma tela diz que outra tela "ainda não existe" ou que "a navegação só funciona no Lovable" (varre as 54); 20 botões levam ao destino certo; `?receber=1`, `?clonar=1` e `?nota=` chegam certos; os 5 cadastros abrem em edição pelo Incluir e pelo Editar, e em leitura (ou conforme a preferência) na consulta; a senha fica no modal que **exclui**, nunca no aviso de que nada pode ser excluído (OC, Depósitos, Endereços); cancelar OC recebida pede senha; competência em massa no Caixa; hub sem marcadores | 110 |
 | `teste_pedidos.py` | **(30/set)** Pedidos de Venda, listagem e página do pedido — o que ele protege são as **decisões da barganha de 30/set**, não o desenho: as 11 abas cabem numa linha só e o que sobra vai para "mais"; contador e rodapé contam a mesma coisa e o cancelado fica fora do total; a reserva nasce com o pedido e volta no cancelamento; pedido expedido não se exclui; pedido sem saldo não nasce, e a mensagem diz **quanto existe**; os dois níveis de desconto, cada um na sua base; a loja escolhe o depósito; cadastro rápido nasce incompleto; comissão liberada no faturamento; campos fiscais visíveis e desabilitados. **(02/out)** mais 6 seções: o funil anda um passo por vez na ordem certa e termina em Entregue; avançar NÃO pede senha e alterar situação à mão PEDE; clonar abre o pedido preenchido com a data de hoje; os painéis de últimas vendas e de limite de crédito abrem sem sair do pedido; o limite bloqueia em boleto e deixa passar em Pix; e nenhum item do menu voltou a ser promessa vazia. **(02/out, noite)** situação virou filtro suspenso: as 10 opções abrem todas visíveis, os contadores acompanham os outros filtros, e devolução não é mais situação de pedido | 256 |
 
-Total: **2.996 asserções** sob selo *(a contagem passou a ser medida pelo `selo.py` a cada rodada verde, em vez de somada à mão — os números antigos por suíte estavam defasados)*.
+Total: **3.906 asserções** sob selo *(a contagem passou a ser medida pelo `selo.py` a cada rodada verde, em vez de somada à mão — os números antigos por suíte estavam defasados)*. Eram 2.996 até 02/out; a diferença é Separação, Conferência de Saída, Expedição e Transportadoras, mais o `teste_becos` que voltou a contar as 242 dele quando a comparação de URL foi consertada.
 
 ## Varredura de cliques (29/set/2026) — ferramenta de fechamento de módulo
 

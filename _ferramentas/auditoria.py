@@ -1,4 +1,4 @@
-import re, sys, os, subprocess, collections
+import re, sys, os, subprocess, collections, tempfile
 
 # ---------------------------------------------------------------- utilitarios
 # Quatro checagens erravam por olhar o texto cru. Elas agora olham o texto
@@ -174,7 +174,7 @@ def audita(caminho):
     # 6 sintaxe JS
     for i, m in enumerate(re.finditer(r'<script[^>]*>(.*?)</script>', txt, re.S)):
         js = m.group(1)
-        f = '/tmp/_aud_%s_%d.js' % (nome.replace('.', '_'), i)
+        f = os.path.join(tempfile.gettempdir(), '_aud_%s_%d.js' % (nome.replace('.', '_'), i))
         open(f, 'w', encoding='utf-8').write(js)
         r = subprocess.run(['node', '--check', f], capture_output=True, text=True)
         if r.returncode != 0:

@@ -15,11 +15,12 @@
 #   os parametros do modulo tem tela, e o catalogo existe em quem o LE
 from playwright.sync_api import sync_playwright
 import os, glob
+import pathlib as _pathlib
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
 CHROME = _ch[0] if _ch else None
-URL = 'file://' + PASTA + '/'
+URL = _pathlib.Path(PASTA).as_uri() + '/'   # forma do navegador: barras e %20
 FILA = 'pagina-logistica-conferencia-saida.html'
 BANCADA = 'pagina-logistica-conferencia-saida-detalhe.html'
 PARAMS = 'pagina-configuracoes-parametros-estoque.html'
@@ -319,3 +320,8 @@ with sync_playwright() as pw:
 
 print('\nFALHAS: ' + str(len(falhas)))
 for f in falhas: print('  - ' + f)
+
+# O codigo de saida e contrato, como ja valia para a auditoria.py: o selo le o
+# texto, mas quem roda na mao (ou um script futuro) le o codigo. Sem isto a
+# suite saia 0 com 20 falhas impressas, e um teste por exit code a dava verde.
+raise SystemExit(1 if falhas else 0)

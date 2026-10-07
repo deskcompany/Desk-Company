@@ -10,11 +10,32 @@
 import os, sys, json, glob, re
 from multiprocessing import Pool
 from playwright.sync_api import sync_playwright
+import pathlib as _pathlib
+from urllib.parse import urlparse as _urlparse
+from urllib.request import url2pathname as _url2path
 
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CH = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome')[0]
+_ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome')
+CH = _ch[0] if _ch else None      # None = o Playwright usa o navegador dele
 import tempfile
 SAIDA = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] != '-' else os.path.join(tempfile.gettempdir(), 'varredura_cliques.json')
+
+# A URL que o navegador devolve nao e a que se monta com concatenacao: ela tem
+# barras para frente, tres barras depois do esquema e espaco como %20. Num
+# caminho sem espaco (o /home/claude/desk-company do Linux) a diferenca nao
+# aparecia; em "C:\Claude AI\Desk Company" ela quebra toda comparacao.
+BASE = _pathlib.Path(PASTA).as_uri() + '/'
+
+
+def _caminho(u):
+    """URL do navegador -> caminho de arquivo real, sem query."""
+    return _url2path(_urlparse(u.split('?')[0]).path)
+
+
+def _relativo(u):
+    """URL do navegador -> nome do arquivo relativo a pasta do projeto."""
+    return u[len(BASE):] if u.startswith(BASE) else u
+
 
 HOOK = r"""
 (() => {
@@ -64,7 +85,7 @@ def pega(pg, i):
 
 def varre(arq):
     res = {'arq': arq, 'itens': [], 'erro_carga': []}
-    url = 'file://' + os.path.join(PASTA, arq)
+    url = BASE + arq
     with sync_playwright() as p:
         b = p.chromium.launch(executable_path=CH)
         ctx = b.new_context(viewport={'width': 1440, 'height': 900})
@@ -100,8 +121,8 @@ def varre(arq):
                 except Exception: pass
                 nav = None
                 if depois != antes:
-                    alvo = depois.split('?')[0].replace('file://', '')
-                    nav = {'url': depois.replace('file://' + PASTA + '/', ''), 'existe': os.path.exists(alvo)}
+                    alvo = _caminho(depois)
+                    nav = {'url': _relativo(depois), 'existe': os.path.exists(alvo)}
                 res['itens'].append({**c, 'nav': nav, 'avisos': av, 'erros': list(erros)})
             except Exception as e:
                 res['itens'].append({**c, 'falha_clique': str(e).split('\n')[0][:160], 'erros': list(erros)})
@@ -114,7 +135,7 @@ def varre(arq):
                 pg.locator('[data-crawl-linha]').first.click(timeout=1500); pg.wait_for_timeout(250)
                 depois_linha = pg.url
                 novos = [c for c in pg.evaluate(LISTA) if c['vis'] and c['i'] not in vis0 and not c['dis']]
-                res['linha_nav'] = depois_linha.replace('file://' + PASTA + '/', '') if depois_linha != url else None
+                res['linha_nav'] = _relativo(depois_linha) if depois_linha != url else None
                 for c in novos:
                     erros.clear()
                     try:
@@ -129,8 +150,8 @@ def varre(arq):
                         av = pg.evaluate("window.__avisos || []") if pg.url == antes else []
                         nav = None
                         if pg.url != antes:
-                            alvo = pg.url.split('?')[0].replace('file://', '')
-                            nav = {'url': pg.url.replace('file://' + PASTA + '/', ''), 'existe': os.path.exists(alvo)}
+                            alvo = _caminho(pg.url)
+                            nav = {'url': _relativo(pg.url), 'existe': os.path.exists(alvo)}
                         res['itens'].append({**c, 'fase': 'linha', 'nav': nav, 'avisos': av, 'erros': list(erros)})
                     except Exception as e:
                         res['itens'].append({**c, 'fase': 'linha', 'falha_clique': str(e).split('\n')[0][:160], 'erros': list(erros)})

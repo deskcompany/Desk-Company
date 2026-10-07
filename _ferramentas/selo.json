@@ -67,12 +67,12 @@
     "pagina-vendas-pedidos.html": "fa089cb014ef08bc",
     "pagina-vendas-performance-vendas.html": "1ab4524419e8b417"
    },
-   "script_sha": "89faeed9a90683b5",
+   "script_sha": "ce13a708b613ecc7",
    "selado_em": "2026-10-06"
   },
   "oficial": {
    "conjunto": "45b0c5b24b7f3df0",
-   "script_sha": "92a91ba697cbe716",
+   "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-06"
   }
  },
@@ -159,7 +159,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "348d20d99f607af3"
+   "teste_sha": "2ea41a5101c6637f"
   },
   "teste_caixa.py": {
    "asseracoes": 108,
@@ -185,7 +185,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "b69e9b5e635c7a7e"
+   "teste_sha": "b9bb0cce947baaa9"
   },
   "teste_confirma_senha.py": {
    "asseracoes": 1660,
@@ -509,7 +509,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "bf71a97d1ab22900"
+   "teste_sha": "e41601466e44519c"
   },
   "teste_integra.py": {
    "asseracoes": 28,
@@ -641,7 +641,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "a3e8115e4bc93226"
+   "teste_sha": "0c78192ba7bc64a6"
   },
   "teste_pos.py": {
    "asseracoes": 14,
@@ -725,7 +725,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "6dc902771a140898"
+   "teste_sha": "db537917eea88b17"
   },
   "teste_recibo_clone.py": {
    "asseracoes": 60,
@@ -749,7 +749,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "8088a36ecdab8eea"
+   "teste_sha": "1c15e472c2cc9cf6"
   },
   "teste_transportadoras.py": {
    "asseracoes": 166,
@@ -822,7 +822,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-06",
-   "teste_sha": "3e7bf10d813c2fd8"
+   "teste_sha": "f95ff4d6a7379d6b"
   }
  },
  "versao": 1

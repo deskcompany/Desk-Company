@@ -33,6 +33,7 @@
 #
 # O selo vive em `selo.json`, do lado deste arquivo, e vai para a pasta do
 # usuario junto com o resto — sessao nova ja abre sabendo o que esta provado.
+import glob
 import hashlib
 import json
 import os
@@ -40,6 +41,12 @@ import re
 import subprocess
 import sys
 import time
+
+# A saida deste script tambem e lida por gente e por outro script. Sem isto ela
+# sai no encoding da plataforma, e um relatorio salvo no Windows nao reabre como
+# utf-8 depois — aconteceu ao reler a rodada da migracao.
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(AQUI)
@@ -49,10 +56,15 @@ VERSAO = 1
 # Auditoria oficial da skill: e a autoridade, e nao aceita lista de arquivos —
 # ela varre a pasta inteira. Entao ela e selada no conjunto: se NENHUMA tela
 # mudou, pula; se qualquer uma mudou, roda inteira.
-AUDITORIA_OFICIAL = os.environ.get('DESK_AUDITORIA_OFICIAL') or (
-    '/root/.claude/plugins/synced/44dd30e4-8853-45a7-867a-c1c780abb4a1_'
-    '7e3124fd-8416-4980-a388-94ccf3f7a041/desk-company-erp/skills/'
-    'desk-company-erp/assets/auditoria.py')
+# O caminho sai de ~/.claude: era /root/.claude cravado, que so existia no
+# Linux do app da Claude. O glob aceita qualquer bucket e qualquer geracao do
+# plugin (desk-company-erp, ~g2, ~g3...) — as versoes instaladas hoje sao
+# byte-identicas, entao a primeira serve.
+_REL_OFICIAL = os.path.join('.claude', 'plugins', 'synced', '*',
+                            'desk-company-erp*', 'skills', 'desk-company-erp',
+                            'assets', 'auditoria.py')
+AUDITORIA_OFICIAL = os.environ.get('DESK_AUDITORIA_OFICIAL') or next(
+    iter(sorted(glob.glob(os.path.join(os.path.expanduser('~'), _REL_OFICIAL)))), '')
 
 
 # ---------------------------------------------------------------- utilitarios
@@ -98,7 +110,10 @@ def ler_selo():
 
 def gravar_selo(d):
     d['versao'] = VERSAO
-    json.dump(d, open(SELO, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, sort_keys=True)
+    # O selo e versionado. Sem fim de linha fixo ele alterna LF/CRLF conforme
+    # a plataforma que rodou: 1656 linhas de diff com zero mudanca de conteudo.
+    with open(SELO, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(d, f, ensure_ascii=False, indent=1, sort_keys=True)
 
 
 # ------------------------------------------------------------------ diagnostico
@@ -161,10 +176,16 @@ def estado():
 def roda(cmd, env=None, limite=900):
     amb = dict(os.environ)
     amb.setdefault('DESK_PASTA', PASTA)
+    # Sem isto o filho escreve no pipe em cp1252 e morre no primeiro caractere
+    # fora dele: o sinal de menos de uma mensagem derrubou uma suite inteira.
+    amb.setdefault('PYTHONIOENCODING', 'utf-8')
     if env:
         amb.update(env)
     t0 = time.time()
-    p = subprocess.run(cmd, cwd=AQUI, env=amb, capture_output=True, text=True, timeout=limite)
+    # encoding explicito nas DUAS pontas: sem ele o pai decodifica em cp1252 e
+    # 'asserções' chega corrompido, o que tambem embaralha o que se mede do texto.
+    p = subprocess.run(cmd, cwd=AQUI, env=amb, capture_output=True, text=True,
+                       encoding='utf-8', errors='replace', timeout=limite)
     return p.returncode, (p.stdout or '') + (p.stderr or ''), time.time() - t0
 
 
@@ -228,7 +249,7 @@ def principal():
     for s, motivo, alvos, varre, cob in rodar:
         restrita = bool(alvos and varre and not tudo and len(alvos) < len(cob))
         env = {'DESK_ALVOS': ','.join(alvos)} if restrita else {'DESK_ALVOS': ''}
-        cod, saida, seg = roda(['python3', s], env)
+        cod, saida, seg = roda([sys.executable, s], env)
         verde = cod == 0 and verde_suite(saida)
         n = asseracoes(saida)
         print('  %-26s %s  %5.1fs  %s' % (s, 'ok   ' if verde else 'FALHOU', seg,
@@ -255,7 +276,7 @@ def principal():
             continue
         if nome == 'estrita':
             alvo = [os.path.join(PASTA, t) for t in (alvos if (alvos and not tudo) else hoje)]
-            cod, saida, seg = roda(['python3', 'auditoria.py'] + alvo)
+            cod, saida, seg = roda([sys.executable, 'auditoria.py'] + alvo)
             # Codigo de saida PRIMEIRO: e o contrato que nao depende de formato
             # de texto. A linha de resumo fica como segunda confirmacao.
             verde = cod == 0 and re.search(r'\n0 arquivo\(s\) com falha real', saida) is not None
@@ -269,7 +290,7 @@ def principal():
             if not os.path.exists(AUDITORIA_OFICIAL):
                 print('  %-26s pulada (a skill nao esta montada nesta sessao)' % 'auditoria oficial')
                 continue
-            cod, saida, seg = roda(['python3', AUDITORIA_OFICIAL, PASTA])
+            cod, saida, seg = roda([sys.executable, AUDITORIA_OFICIAL, PASTA])
             verde = 'tudo limpo' in saida
             print('  %-26s %s  %5.1fs' % ('auditoria oficial', 'ok   ' if verde else 'FALHOU', seg))
             if verde:
