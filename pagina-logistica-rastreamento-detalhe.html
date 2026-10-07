@@ -754,19 +754,36 @@
   .toque-vazio { font-size:13px; font-weight:600; color:var(--text); font-style:italic; }
 
   /* VOLUMES E CODIGOS — a unica parte editavel da tela. */
-  .vol-tabela { width:100%; border-collapse:collapse; }
+  .vol-tabela-wrap { overflow:visible; }
+  /* table-layout fixo porque a largura NAO pode depender do estado da linha: sem
+     isto a coluna encolhia quando o chip virava campo e a tabela inteira dançava
+     a cada clique. Com as larguras declaradas, abrir a edicao nao move nada. */
+  .vol-tabela { width:100%; border-collapse:collapse; table-layout:fixed; }
   .vol-tabela th { text-align:left; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:0 10px 8px 0; border-bottom:1px solid var(--border); }
   .vol-tabela td { padding:11px 10px 11px 0; border-bottom:1px solid var(--border); vertical-align:middle; }
   .vol-tabela tr:last-child td { border-bottom:none; }
   .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
   .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .vol-acao { text-align:right; }
+  /* O cabecalho "ACAO" ficava solto a esquerda enquanto os botoes iam para a
+     direita: a coluna parecia vazia e o titulo parecia de outra coluna. A regra
+     .vol-tabela th vence .vol-acao por especificidade, entao a excecao precisa
+     citar as duas. */
+  /* A coluna de acao e CENTRADA: o titulo fica em cima dos botoes, nao solto na
+     borda. Antes o cabecalho herdava o text-align:left de .vol-tabela th e
+     parecia titulo de outra coluna. */
+  .vol-acao { text-align:center; }
+  .vol-tabela th.vol-acao { text-align:center; }
+  .vol-prazo-valor { font-size:12.5px; font-weight:800; color:var(--text-heading); }
+  .vol-prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .vol-campo input.campo-data { width:100%; max-width:150px; }
+  .vol-campo .date-field { width:100%; max-width:150px; }
+  .vol-botoes { display:flex; gap:8px; align-items:center; justify-content:center; }
 
   /* Campo do codigo dentro da linha do volume. Segue o input de formulario do
      sistema; sem isto o campo cai no estilo nativo do navegador e vaza fundo
      claro no tema escuro (bug real do input de senha, §14). */
   .vol-campo { display:flex; gap:8px; align-items:center; justify-content:flex-end; }
-  .vol-campo input[type="text"] { width:210px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none; }
+  .vol-campo input[type="text"] { width:100%; max-width:230px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none; }
   .vol-campo input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .vol-campo .acao-link { justify-content:flex-end; }
   .vol-cancelar { font-size:12px; font-weight:700; color:var(--text); cursor:pointer; user-select:none; }
@@ -796,6 +813,42 @@
     .rastreio-folha { display:block; position:absolute; left:0; top:0; width:100%; padding:24px; background:#fff; color:#000; }
     .rastreio-folha.oculta { display:none; }
   }
+
+
+  /* ===== Campo de data com mini calendário (componente compartilhado) ===== */
+  .date-field { position:relative; }
+  .date-field input[type="text"] { padding-right:34px; }
+  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
+              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
+              color:var(--text); cursor:pointer; }
+  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
+  .date-btn svg { width:13px; height:13px; }
+  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
+     o campo esta no topo da tela e nao ha espaco acima. */
+  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
+              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
+  .date-pop.open { display:block; }
+  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
+  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
+  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
+              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
+  .date-nav:hover { background: rgba(120,120,140,0.12); }
+  .date-nav svg { width:11px; height:11px; }
+  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
+             padding-bottom:4px; text-transform:uppercase; }
+  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
+              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
+  .date-dia:hover { background: rgba(120,120,140,0.14); }
+  .date-dia.vazio { cursor:default; }
+  .date-dia.vazio:hover { background:transparent; }
+  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
+  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off:hover { background:transparent; }
+  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
+  .date-rodape b { color:var(--text-heading); }
 
   /* ===== HISTORICO ===== */
   .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
@@ -1146,12 +1199,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="avisoCodigosTexto"></span>
     </div>
 
-    <div class="itens-table-wrap">
+    <!-- Wrapper proprio, sem overflow. O .itens-table-wrap tem overflow-x:auto e,
+         por regra do CSS, isso faz o eixo Y virar auto junto: o calendario do
+         campo de data saia CORTADO dentro dele. Esta tabela tem 4 colunas curtas
+         e cabe sem rolagem na largura de referencia. -->
+    <div class="vol-tabela-wrap">
       <table class="vol-tabela">
+        <colgroup>
+          <col style="width:24%"><col style="width:26%"><col style="width:22%"><col style="width:28%">
+        </colgroup>
         <thead>
           <tr>
             <th class="col-texto">Volume</th>
             <th class="col-texto">Código de rastreio</th>
+            <th class="col-texto">Previsão de entrega</th>
             <th class="vol-acao">Ação</th>
           </tr>
         </thead>
@@ -1366,6 +1427,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'rastreioConfirma',      nome:'Confirmar o código de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'rastreioAltera',        nome:'Alterar um código de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
     { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
@@ -1744,11 +1806,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'cancelado',        rotulo: 'Cancelado',            fase: 'cancelado'   }
   ];
 
+  // Decisao de 07/out, revista no mesmo dia: a nota fiscal DEIXA de ser interna.
+  // O argumento que venceu e simples — o cliente vai precisar do numero da NF de
+  // qualquer forma (garantia, troca, contabilidade), e esconder o que ele vai ter
+  // que pedir no telefone nao protege ninguem. Agora todo EVENTO e publico; o que
+  // pode ficar dentro e a NOTA de operacao (romaneio, quem marcou a mao).
   const ROTULO_VITRINE = {
-    aberto: 'Pedido recebido', aprovado: 'Pagamento confirmado', separacao: 'Em preparação',
-    conferenciasaida: 'Pedido embalado', faturado: null, prontoenvio: 'Pronto para envio',
+    aberto: 'Pedido recebido', aprovado: 'Pagamento confirmado',
+    separacao: 'Em preparação', conferenciasaida: 'Pedido embalado',
+    faturado: 'Nota fiscal emitida', prontoenvio: 'Pronto para envio',
     enviado: 'Enviado', entregue: 'Entregue', cancelado: 'Pedido cancelado'
   };
+
+  // Evento que NAO e passo do funil. Ele nao entra em SITUACOES porque SITUACOES
+  // alimenta filtro e KPI, e uma data nova nao move o pedido de fase: muda o que
+  // o cliente esta esperando.
+  const AVISOS = {
+    previsao: { rotulo: 'Previsão de entrega atualizada', fase: 'transito',
+                vitrine: 'Nova previsão de entrega' }
+  };
+  function faseDoEvento(e)   { return e.aviso ? AVISOS[e.aviso].fase    : situacaoDe(e.sit).fase; }
+  function rotuloDoEvento(e) { return e.aviso ? AVISOS[e.aviso].rotulo  : situacaoDe(e.sit).rotulo; }
+  function vitrineDoEvento(e){ return e.aviso ? AVISOS[e.aviso].vitrine : ROTULO_VITRINE[e.sit]; }
 
   const PAGAMENTOS = [
     { id: 'pago', rotulo: 'Pago' }, { id: 'parcial', rotulo: 'Parcial' },
@@ -1789,11 +1868,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                 despachou: { quem: 3, quando: '2026-10-02 09:10' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 3', peso: 12.5, codigo: 'RS2026100201' },
                  { id: 'V2', etiqueta: 'Caixa 2 de 3', peso: 11.8, codigo: 'RS2026100202' },
-                 { id: 'V3', etiqueta: 'Caixa 3 de 3', peso: 9.2,  codigo: '' } ],
+                 { id: 'V3', etiqueta: 'Caixa 3 de 3', peso: 9.2,  codigo: '', previsao: '2026-10-09' } ],
       eventos: [ { data: '2026-09-29', sit: 'aberto' }, { data: '2026-09-30', sit: 'aprovado' },
                  { data: '2026-10-01', sit: 'separacao' }, { data: '2026-10-01', sit: 'conferenciasaida' },
                  { data: '2026-10-02', sit: 'faturado', nota: 'NF-e 118512 emitida' },
-                 { data: '2026-10-02', sit: 'enviado', nota: 'Romaneio RM-220 · coleta RotaSul' } ] },
+                 { data: '2026-10-02', sit: 'enviado', interna: true, nota: 'Romaneio RM-220 · coleta RotaSul' } ] },
 
     { id: 3, numero: 'PV-4840', vitrine: 'DS-90163', loja: 1, canal: 'Vitrine Desk Shope',
       cliente: 'Henrique Salles', doc: '044.219.336-08', contato: '(31) 99120-5567 · hsalles@email.com',
@@ -1857,7 +1936,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 7.5, codigo: '' } ],
       eventos: [ { data: '2026-10-04', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
                  { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
-                 { data: '2026-10-06', sit: 'prontoenvio', nota: 'Aguardando coleta da Frota Desk' } ] },
+                 { data: '2026-10-06', sit: 'prontoenvio', interna: true, nota: 'Aguardando coleta da Frota Desk' } ] },
 
     { id: 7, numero: 'PV-4862', vitrine: 'DS-90199', loja: 3, canal: 'Vitrine Desk Tech',
       cliente: 'Distribuidora Norte Sul', doc: '33.209.887/0001-19', contato: '(81) 3444-2211 · compras@nortesul.com.br',
@@ -1992,7 +2071,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (p.entregaEm) return 'ok';
     return diasEntre(HOJE, p.previsao) <= 1 ? 'atencao' : 'ok';
   }
-  function eventosPublicos(p) { return p.eventos.filter(e => !!ROTULO_VITRINE[e.sit]); }
+  function eventosPublicos(p) { return p.eventos.filter(e => !!vitrineDoEvento(e)); }
+  // A nota e o detalhe de operacao da linha. Ela acompanha o evento publico, a nao
+  // ser que diga o contrario: "Romaneio RM-220" e "marcado a mao por fulano" sao
+  // conversa de deposito e param aqui.
+  function notaPublica(e) { return e.nota && !e.interna ? e.nota : null; }
+
+  // Previsao do PEDIDO = a mais distante das previsoes dos volumes, porque e
+  // quando o pedido inteiro terá chegado. Fica derivada para que KPI, filtro e
+  // card continuem lendo p.previsao sem saber que agora a data nasce no volume.
+  function sincronizarPrevisao(p) {
+    const ds = p.volumes.map(v => v.previsao).filter(Boolean).sort();
+    if (ds.length) p.previsao = ds[ds.length - 1];
+  }
+  PEDIDOS.forEach(p => {
+    p.volumes.forEach(v => { if (v.previsao === undefined) v.previsao = p.previsao || ''; });
+    sincronizarPrevisao(p);
+  });
 
   // ===== MODAL =====
   const confirmModal = document.getElementById('confirmModal');
@@ -2256,7 +2351,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const corpo = document.getElementById('corpoVolumes');
     if (!corpo) return;
     if (!PEDIDO.volumes.length) {
-      corpo.innerHTML = '<tr><td colspan="3"><span class="toque-vazio">Nenhum volume para este pedido.</span></td></tr>';
+      corpo.innerHTML = '<tr><td colspan="4"><span class="toque-vazio">Nenhum volume para este pedido.</span></td></tr>';
       return;
     }
     // O codigo aparece UMA vez. Antes a coluna do codigo mostrava o chip e a de
@@ -2264,32 +2359,178 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // para o mesmo dado, e nenhuma delas obviamente a verdadeira. Agora a linha
     // tem dois estados — parada, com o chip; em edicao, com o campo no lugar dele.
     corpo.innerHTML = PEDIDO.volumes.map(v => {
-      const editando = EDITANDO[v.id];
-      const rascunho = RASCUNHO[v.id] !== undefined ? RASCUNHO[v.id] : (v.codigo || '');
-      const celulaCodigo = editando
+      const edCod = EDITANDO[v.id], edDt = EDITANDO_DATA[v.id];
+      const rasc = RASCUNHO[v.id] !== undefined ? RASCUNHO[v.id] : (v.codigo || '');
+      const rascDt = RASCUNHO_DATA[v.id] !== undefined ? RASCUNHO_DATA[v.id] : fmtData(v.previsao);
+
+      const celCodigo = edCod
         ? '<div class="vol-campo" style="justify-content:flex-start;">' +
-            '<input type="text" data-vol="' + v.id + '" value="' + rascunho + '" ' +
+            '<input type="text" data-vol="' + v.id + '" value="' + rasc + '" ' +
               'placeholder="' + (v.codigo ? 'novo código' : 'código da transportadora') + '" autocomplete="off">' +
           '</div>'
         : (v.codigo
             ? '<span class="cod-chip">' + v.codigo + '</span>'
             : '<span class="cod-falta">sem código</span>');
-      const celulaAcao = editando
-        ? '<span class="vol-cancelar" data-cancelar="' + v.id + '">cancelar</span>'
-        : '<div class="acao-link" data-editar="' + v.id + '">' +
-            (v.codigo
-              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Alterar código'
-              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Inserir código') +
-          '</div>';
+
+      // A previsao e POR VOLUME pela mesma razao que o codigo e: tres caixas podem
+      // sair em tres coletas e chegar em tres dias. Repetir a data do pedido em
+      // toda linha seria mostrar o mesmo dado tres vezes.
+      const celPrazo = edDt
+        ? '<div class="vol-campo" style="justify-content:flex-start;">' +
+            '<div class="date-field" data-df="' + v.id + '">' +
+              '<input type="text" class="campo-data" data-data="' + v.id + '" value="' + rascDt + '" ' +
+                'placeholder="dd/mm/aaaa" autocomplete="off">' +
+              '<button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>' +
+              '<div class="date-pop"></div>' +
+            '</div>' +
+          '</div>'
+        : (v.previsao
+            ? '<span class="vol-prazo-valor">' + fmtData(v.previsao) + '</span>' +
+              (v.previsaoOriginal && v.previsaoOriginal !== v.previsao
+                ? '<span class="vol-prazo-sub">antes era ' + fmtData(v.previsaoOriginal) + '</span>'
+                : '')
+            : '<span class="vol-prazo-sub">definida no envio</span>');
+
+      let acoes;
+      if (edCod || edDt) {
+        // Mesmo par de botoes do resto do sistema. Antes a linha em edicao
+        // trocava os botoes por um "cancelar" em texto: o padrao mudava no meio
+        // da acao, e a saida parecia ter mais peso que a conclusao.
+        acoes = '<button type="button" class="btn-mini destaque" data-salvar="' + v.id + '">Salvar</button>' +
+                '<button type="button" class="btn-mini" data-cancelar="' + v.id + '">Cancelar</button>';
+      } else {
+        acoes =
+          '<button type="button" class="btn-mini' + (v.codigo ? '' : ' destaque') +
+            '" data-editar="' + v.id + '">' + (v.codigo ? 'Alterar código' : 'Inserir código') + '</button>' +
+          (v.previsao
+            ? '<button type="button" class="btn-mini" data-editar-data="' + v.id + '">Alterar data</button>'
+            : '');
+      }
+
       return '<tr>' +
         '<td class="col-texto"><span class="vol-nome">' + v.etiqueta + '</span>' +
           '<span class="vol-sub">' + v.peso.toFixed(2).replace('.', ',') + ' kg</span></td>' +
-        '<td class="col-texto">' + celulaCodigo + '</td>' +
-        '<td class="vol-acao"><div class="vol-campo">' + celulaAcao + '</div></td>' +
+        '<td class="col-texto">' + celCodigo + '</td>' +
+        '<td class="col-texto">' + celPrazo + '</td>' +
+        '<td class="vol-acao"><div class="vol-botoes">' + acoes + '</div></td>' +
       '</tr>';
     }).join('');
     ligarLinhasVolume();
     atualizarBarra();
+  }
+
+  // ===== COMPONENTE: campo de data com mini calendário =====
+  // Decidido na barganha de 22/set/2026. O campo continua aceitando DIGITACAO —
+  // quem sabe a data digita mais rapido — e ganha o icone que abre o calendario,
+  // para quem nao lembra o dia. Os dois caminhos, como no Olist.
+  //
+  // O motivo que nao e estetico: e no calendario que a TRAVA FICA VISIVEL. Dia
+  // dentro de periodo financeiro fechado aparece desabilitado, com o motivo no
+  // `title`, em vez de o usuario digitar, mandar salvar e so entao descobrir.
+  // Trava que aparece antes do clique e informacao; depois, e punicao.
+  //
+  // `min` e `max` aceitam string ISO ou FUNCAO — precisam ser funcao quando o
+  // limite muda durante a sessao, que e o caso do fechamento financeiro.
+  const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const MESES_NOME = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  function inicializarDataField(raiz, opcoes) {
+    if (!raiz || raiz.dataset.dateInit) return;
+    raiz.dataset.dateInit = '1';
+    const op = opcoes || {};
+    const input = raiz.querySelector('input');
+    const btn = raiz.querySelector('.date-btn');
+    const pop = raiz.querySelector('.date-pop');
+    if (!input || !btn || !pop) return;
+    let mesVisivel = null;
+
+    const limite = (v) => (typeof v === 'function' ? v() : v) || null;
+    const isoDoInput = () => {
+      const m = String(input.value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return null;
+      const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+      return m[3] + '-' + m[2] + '-' + m[1];
+    };
+
+    function desenhar() {
+      const sel = isoDoInput();
+      const base = mesVisivel || (sel ? new Date(Number(sel.slice(0, 4)), Number(sel.slice(5, 7)) - 1, 1) : new Date());
+      base.setDate(1);
+      mesVisivel = base;
+      const ano = base.getFullYear(), mes = base.getMonth();
+      const primeiro = new Date(ano, mes, 1).getDay();
+      const ultimo = new Date(ano, mes + 1, 0).getDate();
+      const min = limite(op.min), max = limite(op.max);
+      const hojeIso = (function () { const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); })();
+
+      let celulas = '';
+      for (let i = 0; i < primeiro; i++) celulas += '<div class="date-dia vazio"></div>';
+      for (let d = 1; d <= ultimo; d++) {
+        const isoD = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const fora = (min && isoD < min) || (max && isoD > max);
+        const classes = 'date-dia' + (fora ? ' off' : '') + (isoD === sel ? ' sel' : '') + (isoD === hojeIso ? ' hoje' : '');
+        const txt = (v, padrao) => (typeof v === 'function' ? v() : v) || padrao;
+        const motivo = fora ? ' title="' + ((min && isoD < min) ? txt(op.motivoMin, 'Data anterior ao permitido.') : txt(op.motivoMax, 'Data posterior ao permitido.')) + '"' : '';
+        celulas += '<div class="' + classes + '"' + (fora ? '' : ' data-iso="' + isoD + '"') + motivo + '>' + d + '</div>';
+      }
+      pop.innerHTML =
+        '<div class="date-cab">' +
+          '<button type="button" class="date-nav" data-passo="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+          '<span class="date-mes">' + MESES_NOME[mes] + ' ' + ano + '</span>' +
+          '<button type="button" class="date-nav" data-passo="1" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>' +
+        '<div class="date-grade">' + DIAS_SEMANA.map(s => '<div class="date-ds">' + s + '</div>').join('') + celulas + '</div>' +
+        (op.rodape ? '<div class="date-rodape">' + op.rodape() + '</div>' : '');
+
+      pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mesVisivel = new Date(ano, mes + Number(b.getAttribute('data-passo')), 1);
+        desenhar();
+      }));
+      pop.querySelectorAll('.date-dia[data-iso]').forEach(c => c.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = c.getAttribute('data-iso');
+        input.value = v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
+        fechar();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        if (op.aoMudar) op.aoMudar(v);
+      }));
+    }
+
+    function abrir() {
+      document.querySelectorAll('.date-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+      mesVisivel = null;
+      desenhar();
+      // POSICAO: colado no icone, e ACIMA por padrao.
+      //  - Horizontal: o popover alinha pela DIREITA, que e onde o icone fica.
+      //    Abrindo pela esquerda, o mouse atravessa o campo inteiro para chegar
+      //    no dia — foi o que o print de 22/set mostrou.
+      //  - Vertical: para cima. Num formulario preenchido de cima para baixo,
+      //    quando se chega na data os campos de cima ja foram resolvidos; o que
+      //    esta ABAIXO e o proximo passo e o botao de salvar. Cobrir o que ja
+      //    passou custa menos que cobrir o que vem.
+      //  - Desce so quando nao ha espaco acima (campo no topo da tela).
+      pop.style.visibility = 'hidden'; pop.style.display = 'block';
+      const alturaPop = pop.offsetHeight;
+      pop.style.display = ''; pop.style.visibility = '';
+      const caixaBtn = btn.getBoundingClientRect();
+      const espacoAcima = caixaBtn.top;
+      const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
+      pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
+      pop.classList.add('open');
+    }
+    function fechar() { pop.classList.remove('open'); }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pop.classList.contains('open')) fechar(); else abrir();
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', () => { if (pop.classList.contains('open')) { mesVisivel = null; desenhar(); } });
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
   }
 
   // ===== EDICAO LINHA A LINHA =====
@@ -2298,6 +2539,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // digitou nao pode sumir num re-render, e o que esta gravado e o que a vitrine
   // ja esta mostrando ao cliente.
   const EDITANDO = {}, RASCUNHO = {};
+  const EDITANDO_DATA = {}, RASCUNHO_DATA = {};
+
+  // dd/mm/aaaa -> aaaa-mm-dd. Devolve '' no que nao for data de verdade: 31/02
+  // nao vira 02/03, ela e recusada. Data inventada aqui vira promessa ao cliente.
+  function dataISO(txt) {
+    const m = String(txt || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return '';
+    const iso = m[3] + '-' + m[2] + '-' + m[1];
+    const d = new Date(iso + 'T12:00:00');
+    if (isNaN(d.getTime())) return '';
+    return (d.getMonth() + 1) === +m[2] && d.getDate() === +m[1] ? iso : '';
+  }
 
   function abrirEdicao(id) {
     const v = PEDIDO ? PEDIDO.volumes.filter(x => x.id === id)[0] : null;
@@ -2315,7 +2568,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function cancelarEdicao(id) {
     delete EDITANDO[id];
     delete RASCUNHO[id];
+    delete EDITANDO_DATA[id];
+    delete RASCUNHO_DATA[id];
     pintarTransportadora();
+  }
+
+  function abrirEdicaoData(id) {
+    const v = PEDIDO ? PEDIDO.volumes.filter(x => x.id === id)[0] : null;
+    if (!v) return;
+    EDITANDO_DATA[id] = true;
+    if (RASCUNHO_DATA[id] === undefined) RASCUNHO_DATA[id] = fmtData(v.previsao);
+    pintarTransportadora();
+    const campo = document.querySelector('[data-data="' + id + '"]');
+    if (campo) { campo.focus(); campo.select(); }
   }
 
   function ligarLinhasVolume() {
@@ -2324,8 +2589,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     corpo.querySelectorAll('[data-editar]').forEach(el => {
       el.addEventListener('click', () => abrirEdicao(el.getAttribute('data-editar')));
     });
+    corpo.querySelectorAll('[data-editar-data]').forEach(el => {
+      el.addEventListener('click', () => abrirEdicaoData(el.getAttribute('data-editar-data')));
+    });
+    corpo.querySelectorAll('input[data-data]').forEach(el => {
+      const id = el.getAttribute('data-data');
+      el.addEventListener('input', () => { RASCUNHO_DATA[id] = el.value; atualizarBarra(); });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); salvarCodigos(); }
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelarEdicao(id); }
+      });
+    });
+    // O calendario e o mesmo componente das outras telas (22/set). Vem junto com
+    // ele a parte que importa aqui: a TRAVA FICA VISIVEL. Dia anterior ao embarque
+    // aparece riscado, com o motivo no hover, em vez de a pessoa digitar, mandar
+    // salvar e so entao descobrir que nao podia.
+    corpo.querySelectorAll('.date-field[data-df]').forEach(df => {
+      const id = df.getAttribute('data-df');
+      inicializarDataField(df, {
+        min: function () { return PEDIDO ? (PEDIDO.enviadoEm || '') : ''; },
+        motivoMin: 'Antes do dia em que o pedido saiu. Previsão não anda para trás do embarque.',
+        aoMudar: function (valor) { RASCUNHO_DATA[id] = valor; atualizarBarra(); }
+      });
+    });
     corpo.querySelectorAll('[data-cancelar]').forEach(el => {
       el.addEventListener('click', () => cancelarEdicao(el.getAttribute('data-cancelar')));
+    });
+    // O Salvar da linha e atalho para o mesmo salvar do rodape, nao uma segunda
+    // regra de gravacao: duas portas que gravam diferente e a origem certa de um
+    // "mas eu salvei" que ninguem consegue reproduzir.
+    corpo.querySelectorAll('[data-salvar]').forEach(el => {
+      el.addEventListener('click', salvarCodigos);
     });
     corpo.querySelectorAll('input[data-vol]').forEach(el => {
       const id = el.getAttribute('data-vol');
@@ -2341,12 +2635,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const info = document.getElementById('infoPendente');
     if (!info) return;
     const m = coletarMudancas();
-    const total = m.novos.length + m.alterados.length;
+    const total = m.novos.length + m.alterados.length + m.datas.length;
     info.classList.toggle('pendente', total > 0);
     if (!total) { info.innerHTML = 'Nenhuma alteração pendente.'; return; }
     const partes = [];
-    if (m.novos.length) partes.push('<b>' + m.novos.length + '</b> a inserir');
-    if (m.alterados.length) partes.push('<b>' + m.alterados.length + '</b> a alterar');
+    if (m.novos.length) partes.push('<b>' + m.novos.length + '</b> código(s) a inserir');
+    if (m.alterados.length) partes.push('<b>' + m.alterados.length + '</b> código(s) a alterar');
+    if (m.datas.length) partes.push('<b>' + m.datas.length + '</b> data(s) a alterar');
     info.innerHTML = partes.join(' · ') + ' — ainda não salvo.';
   }
 
@@ -2356,8 +2651,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // chave e outra, e ela exige senha. Numa salvada com os dois tipos vale a mais
   // estrita: trava mais fraca escolhida por conveniencia e trava que nao existe.
   function coletarMudancas() {
-    if (!PEDIDO) return { novos: [], alterados: [] };
-    const novos = [], alterados = [];
+    if (!PEDIDO) return { novos: [], alterados: [], datas: [] };
+    const novos = [], alterados = [], datas = [];
     PEDIDO.volumes.forEach(v => {
       if (RASCUNHO[v.id] === undefined) return;
       const valor = String(RASCUNHO[v.id]).trim();
@@ -2365,29 +2660,58 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!valor) return;              // apagar codigo nao e caso desta tela
       (v.codigo ? alterados : novos).push({ vol: v, valor: valor });
     });
-    return { novos: novos, alterados: alterados };
+    PEDIDO.volumes.forEach(v => {
+      if (RASCUNHO_DATA[v.id] === undefined) return;
+      const iso = dataISO(RASCUNHO_DATA[v.id]);
+      if (!iso || iso === v.previsao) return;
+      datas.push({ vol: v, valor: iso, texto: String(RASCUNHO_DATA[v.id]).trim() });
+    });
+    return { novos: novos, alterados: alterados, datas: datas };
   }
 
   function salvarCodigos() {
     if (!PEDIDO) { avisar('Não há pedido aberto para salvar.'); return; }
-    const m = coletarMudancas();
-    const total = m.novos.length + m.alterados.length;
-    if (!total) {
-      avisar('Nenhum código novo para salvar. Abra "Inserir código" ou "Alterar código" na linha do volume.');
+
+    // Data digitada que nao e data nenhuma para aqui. Se passasse, viraria uma
+    // promessa ao cliente construida em cima de "31/02".
+    const ruins = PEDIDO.volumes.filter(v => RASCUNHO_DATA[v.id] !== undefined &&
+                                             !dataISO(RASCUNHO_DATA[v.id]));
+    if (ruins.length) {
+      avisar('Data inválida em ' + ruins.map(v => v.etiqueta).join(', ') +
+             '. Use o formato dd/mm/aaaa, com um dia que exista no calendário.');
+      return;
+    }
+    // Previsao antes do embarque nao e previsao, e erro de digitacao.
+    const antes = PEDIDO.enviadoEm
+      ? PEDIDO.volumes.filter(v => RASCUNHO_DATA[v.id] !== undefined &&
+                                   dataISO(RASCUNHO_DATA[v.id]) &&
+                                   dataISO(RASCUNHO_DATA[v.id]) < PEDIDO.enviadoEm)
+      : [];
+    if (antes.length) {
+      avisar('A nova previsão de ' + antes.map(v => v.etiqueta).join(', ') +
+             ' cai antes de ' + fmtData(PEDIDO.enviadoEm) + ', o dia em que o pedido saiu.');
       return;
     }
 
-    const chave = m.alterados.length ? 'rastreioAltera' : 'rastreioConfirma';
-    let texto;
-    if (m.alterados.length && m.novos.length) {
-      texto = 'Salvar ' + total + ' códigos do pedido ' + PEDIDO.numero + ': ' + m.novos.length +
-              ' novo(s) e ' + m.alterados.length + ' alterado(s). O cliente já pode estar acompanhando pelos antigos.';
-    } else if (m.alterados.length) {
-      texto = 'Alterar ' + m.alterados.length + ' código(s) de rastreio do pedido ' + PEDIDO.numero +
-              '. O cliente já pode estar acompanhando pelos antigos.';
-    } else {
-      texto = 'Confirmar ' + m.novos.length + ' código(s) de rastreio do pedido ' + PEDIDO.numero + '.';
+    const m = coletarMudancas();
+    const total = m.novos.length + m.alterados.length + m.datas.length;
+    if (!total) {
+      avisar('Nenhuma alteração para salvar. Use os botões da linha do volume para inserir ou alterar.');
+      return;
     }
+
+    // Numa salvada com tipos diferentes vale a mais estrita: trava mais fraca
+    // escolhida por conveniencia e trava que nao existe. Mexer na data que o
+    // cliente ja viu pesa igual a trocar o codigo que ele ja recebeu.
+    const chave = m.alterados.length ? 'rastreioAltera'
+                : (m.datas.length ? 'rastreioAlteraPrevisao' : 'rastreioConfirma');
+    const partes = [];
+    if (m.novos.length) partes.push(m.novos.length + ' código(s) novo(s)');
+    if (m.alterados.length) partes.push(m.alterados.length + ' código(s) alterado(s)');
+    if (m.datas.length) partes.push(m.datas.length + ' previsão(ões) de entrega');
+    let texto = 'Salvar no pedido ' + PEDIDO.numero + ': ' + partes.join(', ') + '.';
+    if (m.alterados.length) texto += ' O cliente já pode estar acompanhando pelos códigos antigos.';
+    if (m.datas.length) texto += ' A nova data entra no histórico e aparece para o cliente na vitrine.';
 
     confirmarAcao(chave, texto, function () {
       m.novos.concat(m.alterados).forEach(x => {
@@ -2395,11 +2719,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         delete EDITANDO[x.vol.id];     // gravou: a linha volta ao estado parado
         delete RASCUNHO[x.vol.id];
       });
-      // Sem modal de sucesso: a tela JA responde — o codigo vira chip, o campo
-      // troca de placeholder e a linha de aviso do card se atualiza. Modal a cada
-      // salvada vira ruido que a pessoa aprende a fechar sem ler, e aviso que
-      // ninguem le e o mesmo que aviso que nao existe.
-      pintarTransportadora();
+      m.datas.forEach(x => {
+        // Guarda a data que o cliente viu primeiro: a linha passa a mostrar as
+        // duas, e "antes era" e o que responde a pergunta que ele vai fazer.
+        if (!x.vol.previsaoOriginal) x.vol.previsaoOriginal = x.vol.previsao;
+        x.vol.previsao = x.valor;
+        delete EDITANDO_DATA[x.vol.id];
+        delete RASCUNHO_DATA[x.vol.id];
+      });
+      if (m.datas.length) {
+        sincronizarPrevisao(PEDIDO);
+        // Um evento por salvada, nao um por caixa: tres caixas remarcadas no
+        // mesmo ato sao um aviso so para quem comprou.
+        PEDIDO.eventos.push({
+          data: HOJE, aviso: 'previsao',
+          nota: m.datas.map(x => x.vol.etiqueta + ' para ' + fmtData(x.valor)).join(' · ')
+        });
+      }
+      // Sem modal de sucesso: a tela JA responde — o codigo vira chip, a data
+      // nova aparece com o "antes era" embaixo e a barra do rodape zera. Modal a
+      // cada salvada vira ruido que a pessoa aprende a fechar sem ler, e aviso
+      // que ninguem le e o mesmo que aviso que nao existe.
+      pintarTudo();
       if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
     });
   }
@@ -2408,24 +2749,32 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function pintarEventos() {
     const lista = document.getElementById('listaEventos');
     if (!lista || !PEDIDO) return;
+    // O marcador saiu do EVENTO e foi para a NOTA. Depois que a nota fiscal
+    // passou a ser publica nao sobrou evento escondido, e "o cliente ve" em
+    // todas as linhas nao informava mais nada. O que ainda para aqui dentro e a
+    // nota de operacao — romaneio, quem marcou a mao.
     lista.innerHTML = PEDIDO.eventos.slice().reverse().map(e => {
-      const es = situacaoDe(e.sit);
-      const publico = ROTULO_VITRINE[e.sit];
+      const publico = vitrineDoEvento(e);
       return '<div class="ev-item">' +
                '<div class="ev-linha"></div>' +
-               '<div class="ev-marco ' + CLS_PONTO[es.fase] + '"></div>' +
+               '<div class="ev-marco ' + CLS_PONTO[faseDoEvento(e)] + '"></div>' +
                '<div>' +
-                 '<div class="ev-rotulo">' + es.rotulo +
-                   '<span class="ev-visto">' + (publico ? 'o cliente vê' : 'só interno') + '</span></div>' +
+                 '<div class="ev-rotulo">' + rotuloDoEvento(e) + '</div>' +
                  '<div class="ev-quando">' + fmtData(e.data) +
                    (publico ? ' · na vitrine: ' + publico : '') + '</div>' +
-                 (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
+                 (e.nota
+                   ? '<div class="ev-interno-nota">' + e.nota +
+                       (e.interna ? '<span class="ev-visto">só interno</span>' : '') + '</div>'
+                   : '') +
                '</div>' +
              '</div>';
     }).join('');
-    const pub = eventosPublicos(PEDIDO).length;
-    texto('notaVitrine', 'A vitrine mostra ' + pub + ' de ' + PEDIDO.eventos.length +
-          ' eventos deste pedido. O resto é vocabulário de depósito e fica aqui dentro.');
+    const internas = PEDIDO.eventos.filter(e => e.nota && e.interna).length;
+    texto('notaVitrine', 'A vitrine mostra os ' + PEDIDO.eventos.length +
+          ' eventos deste pedido, a nota fiscal inclusive. ' +
+          (internas
+            ? 'Só ' + internas + (internas === 1 ? ' nota de operação fica' : ' notas de operação ficam') + ' aqui dentro.'
+            : 'Nenhuma nota de operação ficou de fora.'));
   }
 
   // ===== ENTREGA À MÃO =====
@@ -2445,7 +2794,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       function () {
         PEDIDO.situacao = 'entregue';
         PEDIDO.entregaEm = HOJE;
-        PEDIDO.eventos.push({ data: HOJE, sit: 'entregue', nota: 'Marcado à mão por ' + OPERADORES[EU] });
+        PEDIDO.eventos.push({ data: HOJE, sit: 'entregue', interna: true,
+                              nota: 'Marcado à mão por ' + OPERADORES[EU] });
         pintarTudo();
       });
   }
@@ -2463,12 +2813,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       PEDIDO.volumes.forEach(v => {
         vols += '<div class="rf-linha"><b>' + v.etiqueta + '</b><div>' +
                 (v.codigo ? v.codigo : 'sem código até o momento') +
-                ' · ' + v.peso.toFixed(2).replace('.', ',') + ' kg</div></div>';
+                ' · ' + v.peso.toFixed(2).replace('.', ',') + ' kg' +
+                (v.previsao ? ' · previsão ' + fmtData(v.previsao) : '') + '</div></div>';
       });
     }
     let hist = '';
     eventosPublicos(PEDIDO).forEach(e => {
-      hist += '<div class="rf-linha"><b>' + fmtData(e.data) + '</b><div>' + ROTULO_VITRINE[e.sit] + '</div></div>';
+      const extra = notaPublica(e);
+      hist += '<div class="rf-linha"><b>' + fmtData(e.data) + '</b><div>' + vitrineDoEvento(e) +
+              (extra ? ' · ' + extra : '') + '</div></div>';
     });
 
     document.getElementById('rastreioFolha').innerHTML =

@@ -98,15 +98,35 @@ with sync_playwright() as p:
     ok('lido de contas a receber' in corpo, 'o painel diz que o pagamento vem de Contas a Receber')
 
     print('\n[7] O historico separa o que o cliente ve do que e interno')
+    # Abre um pedido que TENHA nota de operacao: num pedido sem nota nenhuma a
+    # assercao passaria por ausencia, que e o jeito mais facil de um teste mentir.
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    comNota = pg.evaluate("PEDIDOS.filter(p => p.eventos.some(e => e.nota && e.interna))[0].id")
+    pg.evaluate("abrirPedido(" + str(comNota) + ")"); pg.wait_for_timeout(400)
     marcas = pg.evaluate("""() => {
       const t = Array.from(document.querySelectorAll('#drawerCorpo .ev-visto')).map(e => e.textContent.trim());
       return { total: t.length, publicos: t.filter(x => x.indexOf('cliente') >= 0).length,
                internos: t.filter(x => x.indexOf('interno') >= 0).length };
     }""")
-    ok(marcas['total'] > 0, 'todo evento carrega o marcador de quem o ve (%d)' % marcas['total'])
-    ok(marcas['publicos'] > 0, 'ha evento que o cliente ve (%d)' % marcas['publicos'])
-    vit = pg.evaluate("ROTULO_VITRINE['faturado'] === null && ROTULO_VITRINE['conferenciasaida'] === 'Pedido embalado'")
-    ok(vit, 'Faturado e interno e Conferencia de saida vira "Pedido embalado" para o cliente')
+    # Revisao de 07/out: a NOTA FISCAL deixou de ser interna. O cliente vai
+    # precisar do numero dela de qualquer jeito — garantia, troca, contabilidade.
+    # Agora todo EVENTO e publico e o marcador passou a viver na NOTA de operacao.
+    vit = pg.evaluate("ROTULO_VITRINE['faturado'] === 'Nota fiscal emitida'")
+    ok(vit, 'a nota fiscal chega ao cliente, com rotulo proprio')
+    semNulo = pg.evaluate("Object.keys(ROTULO_VITRINE).filter(k => !ROTULO_VITRINE[k]).length")
+    ok(semNulo == 0, 'nenhum passo do funil fica escondido do cliente (%d escondidos)' % semNulo)
+    ok(pg.evaluate("ROTULO_VITRINE['conferenciasaida'] === 'Pedido embalado'"),
+       'Conferencia de saida continua virando "Pedido embalado": o rotulo proprio nao se perdeu')
+    ok(marcas['internos'] > 0, 'o marcador "so interno" sobrou nas notas de operacao (%d)' % marcas['internos'])
+    ok(marcas['total'] == marcas['internos'],
+       'e SO nelas: marcador em evento publico nao informa nada (%d marcas, %d internas)'
+       % (marcas['total'], marcas['internos']))
+    nf = pg.evaluate("""() => {
+      const p = PEDIDOS.filter(x => x.eventos.some(e => e.sit === 'faturado' && e.nota))[0];
+      const e = p.eventos.filter(e => e.sit === 'faturado')[0];
+      return { nota: e.nota, interna: !!e.interna };
+    }""")
+    ok(not nf['interna'], 'o numero da NF viaja junto com o evento: %s' % nf['nota'])
 
     print('\n[8] O painel MOSTRA o codigo de quem ja tem')
     # Confirmar aqui deixou de existir em 07/out (ver [14]). O que o painel
@@ -128,7 +148,7 @@ with sync_playwright() as p:
     ok(pg.evaluate("exigeSenha('rastreioAltera')") is True,
        'ALTERAR codigo ja confirmado exige senha (o cliente ja viu o antigo)')
     cat = pg.evaluate("ACOES_ESPECIFICAS.filter(a => a.chave.indexOf('rastreio') === 0).length")
-    ok(cat == 4, 'as 4 acoes de rastreamento estao no catalogo (%d)' % cat)
+    ok(cat == 5, 'as 5 acoes de rastreamento estao no catalogo (%d)' % cat)
 
     print('\n[10] Filtros, contadores e KPIs falam da MESMA lista')
     pg.evaluate("estado.situacao='enviado'; estado.pagina=1; render();")
@@ -289,7 +309,7 @@ with sync_playwright() as p:
     pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
     pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(450)
     txt_modal = pg.inner_text('body').lower()
-    ok('nenhum código novo' in txt_modal, 'avisa que nao ha o que salvar')
+    ok('nenhuma alteração para salvar' in txt_modal, 'avisa que nao ha o que salvar')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
     ok('nenhuma altera' in pg.inner_text('#infoPendente').lower(),
        'o rodape diz que nao ha pendencia: %s' % pg.inner_text('#infoPendente'))
@@ -325,7 +345,101 @@ with sync_playwright() as p:
     folha = pg.evaluate("(montarFolha(), document.getElementById('rastreioFolha').innerText.toLowerCase())")
     ok('ficha de rastreio' in folha, 'a folha traz o titulo')
     ok(pg.evaluate("PEDIDO.numero").lower() in folha, 'a folha traz o numero do pedido')
-    ok('faturado' not in folha, 'a folha NAO leva evento interno para a mao do cliente')
+    ok('nota fiscal' in folha, 'a folha leva a nota fiscal, que o cliente vai precisar')
+    ok('romaneio' not in folha, 'a folha NAO leva nota de operacao (romaneio, coleta)')
+
+
+    print('\n[23] A previsao e POR VOLUME, e alterar ela pede senha')
+    # Uma caixa pode sair em outra coleta e chegar noutro dia, pela mesma razao
+    # que cada uma tem seu codigo. Repetir a data do pedido em toda linha seria
+    # mostrar o mesmo dado tres vezes.
+    alvoD = pg.evaluate("PEDIDOS.filter(p => p.volumes.length > 1)[0].id")
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=' + str(alvoD))
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    ok(pg.locator('#corpoVolumes [data-editar-data]').count() > 0,
+       'cada volume oferece alterar a propria data')
+    divergem = pg.evaluate("new Set(PEDIDOS.filter(p => p.id === %d)[0].volumes.map(v => v.previsao)).size" % alvoD)
+    ok(divergem > 1, 'o mock tem volume com data propria: sem isso a coluna parece decoracao')
+    maior = pg.evaluate("(p => p.volumes.map(v => v.previsao).filter(Boolean).sort().pop() === p.previsao)"
+                        "(PEDIDOS.filter(p => p.id === %d)[0])" % alvoD)
+    ok(maior, 'a previsao do PEDIDO e a mais distante das previsoes dos volumes')
+
+    volD = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].id" % alvoD)
+    antesD = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].previsao" % alvoD)
+    pg.locator('#corpoVolumes [data-editar-data=\"' + volD + '\"]').click()
+    pg.wait_for_timeout(300)
+    campoD = pg.locator('#corpoVolumes input[data-data=\"' + volD + '\"]')
+    ok(campoD.count() == 1, 'abriu o campo de data da linha')
+    campoD.fill('31/02/2026')
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(400)
+    ok('inv' in pg.inner_text('body').lower().split('data ')[-1][:10] or
+       'data inv' in pg.inner_text('body').lower(), 'data que nao existe no calendario e recusada')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+    ok(pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].previsao" % alvoD) == antesD,
+       'e nada foi gravado: a data segue %s' % antesD)
+
+    campoD = pg.locator('#corpoVolumes input[data-data=\"' + volD + '\"]')
+    campoD.fill('20/12/2026')
+    pg.wait_for_timeout(200)
+    ok('data' in pg.inner_text('#infoPendente').lower(),
+       'o rodape conta a data pendente: %s' % pg.inner_text('#infoPendente'))
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(450)
+    ok(pg.locator('#confirmModal.open').count() == 1, 'alterar a data para no modal')
+    ok(pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].previsao" % alvoD) == antesD,
+       'a data que o cliente ja viu nao muda sozinha')
+    chave = pg.evaluate("ACOES_ESPECIFICAS.filter(a => a.chave === 'rastreioAlteraPrevisao')[0]")
+    ok(chave is not None, 'a acao existe no catalogo de senhas')
+    ok(chave['exigePadrao'] is True, 'e nasce exigindo senha, como alterar codigo')
+
+    print('\n[24] A data alterada vira evento, e o cliente ve')
+    # A acao exige senha por catalogo: confirmar e preencher e clicar, como no
+    # resto do sistema. O prototipo aceita qualquer senha nao vazia.
+    pg.fill('#inputSenhaModal', 'senha-de-teste')
+    pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
+    agora = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].previsao" % alvoD)
+    ok(agora == '2026-12-20', 'confirmado, a data grava: %s' % agora)
+    ev = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].eventos.filter(e => e.aviso === 'previsao').length" % alvoD)
+    ok(ev == 1, 'uma salvada gera UM evento, nao um por caixa (%d)' % ev)
+    corpoH = pg.inner_text('#listaEventos').lower()
+    ok('previs' in corpoH and 'atualizada' in corpoH, 'o evento aparece no historico da tela')
+    ok('nova previs' in corpoH, 'com o rotulo que o cliente le na vitrine')
+    ok('antes era' in pg.inner_text('#corpoVolumes').lower(),
+       'a linha guarda a data anterior: e a pergunta que o cliente vai fazer')
+    naVitrine = pg.evaluate("eventosPublicos(PEDIDO).some(e => e.aviso === 'previsao')")
+    ok(naVitrine, 'o evento da data nova e publico')
+
+
+    print('\n[25] A linha em edicao mantem o padrao, e a tabela nao se mexe')
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=2')
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+    antesL = pg.evaluate("Array.from(document.querySelectorAll('#corpoVolumes tr:first-child td')).map(td => Math.round(td.getBoundingClientRect().width))")
+    ok(pg.locator('#corpoVolumes .btn-mini').count() > 0,
+       'a acao da linha e botao, nao link de texto (%d botoes)' % pg.locator('#corpoVolumes .btn-mini').count())
+    pg.locator('#corpoVolumes [data-editar]').first.click(); pg.wait_for_timeout(350)
+    depoisL = pg.evaluate("Array.from(document.querySelectorAll('#corpoVolumes tr:first-child td')).map(td => Math.round(td.getBoundingClientRect().width))")
+    # Largura que depende do estado da linha faz a tabela inteira dançar a
+    # cada clique, e o olho perde o lugar onde estava.
+    ok(antesL == depoisL, 'as colunas nao mudam de largura ao abrir a edicao: %s' % depoisL)
+    ok(pg.locator('#corpoVolumes [data-salvar]').count() == 1, 'a linha aberta oferece Salvar')
+    ok(pg.locator('#corpoVolumes [data-cancelar]').count() == 1, 'e Cancelar')
+    tipos = pg.evaluate("""() => {
+      const c = document.querySelectorAll('#corpoVolumes [data-salvar], #corpoVolumes [data-cancelar]');
+      return Array.from(c).filter(e => e.tagName === 'BUTTON' && e.classList.contains('btn-mini')).length;
+    }""")
+    ok(tipos == 2, 'os dois sao botao no mesmo padrao do resto da tela (%d de 2)' % tipos)
+    # O titulo da coluna precisa ficar EM CIMA dos botoes. Solto na borda ele
+    # parecia titulo de outra coluna, e a coluna parecia vazia.
+    cen = pg.evaluate("""() => {
+      const th = document.querySelector('.vol-tabela th.vol-acao');
+      const box = document.querySelector('#corpoVolumes .vol-botoes');
+      if (!th || !box) return 999;
+      const a = th.getBoundingClientRect(), b = box.getBoundingClientRect();
+      return Math.abs((a.left + a.width / 2) - (b.left + b.width / 2));
+    }""")
+    ok(cen <= 12, 'o titulo ACAO fica sobre os botoes (%.1fpx de desvio)' % cen)
+    pg.locator('#corpoVolumes [data-cancelar]').click(); pg.wait_for_timeout(300)
+    ok(pg.locator('#corpoVolumes input[data-vol]').count() == 0, 'Cancelar fecha a linha')
+    ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoVolumes tr:first-child td')).map(td => Math.round(td.getBoundingClientRect().width))") == antesL, 'e a tabela volta exatamente ao que era')
 
     print('\n[21] Id invalido NAO inventa pedido')
     pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=99999')
