@@ -97,14 +97,16 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 ## Estado atual (06/out/2026)
 
-**63 telas construídas**, 43 entradas de menu, 25 submódulos a fazer. F2 (Cadastros) e F5
+**65 telas construídas**, 44 entradas de menu, 24 submódulos a fazer. F2 (Cadastros) e F5
 (Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística** — Separação, Conferência de
-Saída e Expedição prontas; faltam Rastreamento de Pedidos e Devolução.
+Saída, Expedição e Rastreamento de Pedidos (listagem + detalhe) prontas; falta **Devolução**, e
+com ela o cadastro de **Motivos de Devolução** em Operacional, de que ela depende.
 
-**Dívida conhecida:** os seis parâmetros da Expedição (`expedicaoAlertaHoras`,
-`expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF`,
-`mdfeRegraPadrao`) existem no código e **não aparecem em tela nenhuma** de Configurações. É o
-mesmo erro de `reservaExpiraDias`, pago em 05/out. Fecha junto com a F4.
+A dívida dos seis parâmetros da Expedição (`expedicaoAlertaHoras`, `expedicaoCriticoHoras`,
+`romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF`, `mdfeRegraPadrao`) está
+**paga** — conferido no código e registrado no commit `c14c911`. O padrão que ela deixou vale:
+parâmetro que nasce no código sem tela de Configurações é dívida, e já custou isso duas vezes
+(`reservaExpiraDias` em 05/out foi a primeira).
 
 O estado real está sempre em [mapa-modulos-desk-company.md](mapa-modulos-desk-company.md), que
 é lido do próprio menu do sistema. Confie nele, não em memória de sessão.

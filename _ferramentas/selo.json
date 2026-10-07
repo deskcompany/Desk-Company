@@ -58,7 +58,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -72,7 +73,7 @@
    "selado_em": "2026-10-07"
   },
   "oficial": {
-   "conjunto": "e2c2f4afa8e897a9",
+   "conjunto": "e71c43441e3c038c",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-07"
   }
@@ -149,7 +150,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -249,7 +251,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -355,7 +358,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -429,7 +433,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -503,7 +508,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -625,7 +631,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -662,14 +669,15 @@
    "teste_sha": "2f135b2379b421c1"
   },
   "teste_rastreamento.py": {
-   "asseracoes": 39,
+   "asseracoes": 71,
    "asseracoes_de": "rodada completa 07/10",
    "cobertura": {
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22"
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f"
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-07",
-   "teste_sha": "4027fb2c02d4dd23"
+   "teste_sha": "59961fe8ee0fbf9d"
   },
   "teste_receber.py": {
    "asseracoes": 61,
@@ -731,7 +739,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",
@@ -829,7 +838,8 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "a010701828918065",
     "pagina-logistica-expedicao.html": "9c11a4914edf9ec5",
-    "pagina-logistica-rastreamento.html": "d1c25cf537555f22",
+    "pagina-logistica-rastreamento-detalhe.html": "149517be071c134d",
+    "pagina-logistica-rastreamento.html": "1ad04428daf5498f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
     "pagina-molde-referencia.html": "ff9ce8a3c5986d6b",

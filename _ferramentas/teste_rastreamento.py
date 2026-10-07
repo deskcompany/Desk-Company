@@ -108,20 +108,16 @@ with sync_playwright() as p:
     vit = pg.evaluate("ROTULO_VITRINE['faturado'] === null && ROTULO_VITRINE['conferenciasaida'] === 'Pedido embalado'")
     ok(vit, 'Faturado e interno e Conferencia de saida vira "Pedido embalado" para o cliente')
 
-    print('\n[8] Confirmar codigo de um volume')
-    antes = pg.evaluate("PEDIDOS.filter(p => p.volumes.some(v => !v.codigo)).length")
-    alvo = pg.locator('#drawerCorpo [data-confirmar]')
-    if alvo.count() == 0:
-        pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
-        pg.evaluate("abrirPedido(PEDIDOS.filter(p => p.volumes.some(v => !v.codigo))[0].id)")
-        pg.wait_for_timeout(350)
-        alvo = pg.locator('#drawerCorpo [data-confirmar]')
-    ok(alvo.count() > 0, 'o volume sem codigo oferece "confirmar codigo"')
-    alvo.first.click(); pg.wait_for_timeout(400)
-    depois = pg.evaluate("PEDIDOS.filter(p => p.volumes.some(v => !v.codigo)).length")
-    gravou = pg.evaluate("PEDIDOS.some(p => p.volumes.some(v => v.codigo))")
-    ok(gravou, 'o codigo foi gravado no volume')
-    ok(pg.locator('#drawerCorpo .cod-chip').count() > 0, 'o codigo aparece no painel depois de confirmado')
+    print('\n[8] O painel MOSTRA o codigo de quem ja tem')
+    # Confirmar aqui deixou de existir em 07/out (ver [14]). O que o painel
+    # ainda precisa fazer e deixar o codigo visivel de relance, sem navegar.
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    comCod = pg.evaluate("PEDIDOS.filter(p => p.volumes.some(v => v.codigo))[0].id")
+    pg.evaluate("abrirPedido(" + str(comCod) + ")"); pg.wait_for_timeout(350)
+    ok(pg.locator('#drawerCorpo .cod-chip').count() > 0, 'o codigo ja confirmado aparece no painel')
+    semCod = pg.evaluate("PEDIDOS.filter(p => p.volumes.some(v => !v.codigo))[0].id")
+    pg.evaluate("abrirPedido(" + str(semCod) + ")"); pg.wait_for_timeout(350)
+    ok(pg.locator('#drawerCorpo .cod-falta').count() > 0, 'o volume sem codigo aparece como falta, nao em branco')
 
     print('\n[9] Entrega a mao PEDE confirmacao, como alterar situacao em Pedidos')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
@@ -181,8 +177,118 @@ with sync_playwright() as p:
         ok('unito' in est['fonte'], 'tema %s: a fonte e Nunito' % tema)
         ok(est['fundo'] != 'rgba(0, 0, 0, 0)', 'tema %s: o body tem fundo solido' % tema)
 
-    print('\n[13] Nenhum erro de JS no caminho todo')
-    ok(not erros, 'sem erro de JS: %s' % erros[:2])
+    print('\n[13] Nenhum erro de JS na listagem')
+    ok(not erros, 'sem erro de JS na listagem: %s' % erros[:2])
+
+    print('\n[14] O painel da listagem SO MOSTRA')
+    # Decisao de 07/out: confirmar codigo sem ver o pedido inteiro — itens, cliente,
+    # vendedor, quem separou — e decidir no escuro o que o cliente vai acompanhar.
+    # A acao migrou para o detalhe; o painel vira resumo e porta de entrada.
+    pg.goto(ARQ); pg.wait_for_timeout(450)
+    pg.locator('#corpoTabela tr').first.click(); pg.wait_for_timeout(350)
+    ok(pg.locator('#drawerCorpo [data-confirmar]').count() == 0, 'o painel NAO oferece confirmar codigo')
+    ok(pg.locator('#drawerCorpo [data-alterar]').count() == 0, 'o painel NAO oferece alterar codigo')
+    ok(pg.locator('#drawerCorpo [data-abrir-detalhe]').count() == 1, 'o painel oferece abrir o pedido')
+    ok('só consulta' in pg.inner_text('#drawerCorpo').lower(), 'o painel diz que e so consulta')
+
+    print('\n[15] O painel leva ao detalhe, pelo ?id=')
+    pg.locator('#drawerCorpo [data-abrir-detalhe]').click()
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+    ok('pagina-logistica-rastreamento-detalhe.html' in pg.url, 'navegou para a tela de detalhe')
+    ok('?id=' in pg.url, 'levou o id na URL, como as outras telas de detalhe')
+    ok('Pedido PV-' in pg.inner_text('#tituloPedido'), 'o titulo traz o pedido: %s' % pg.inner_text('#tituloPedido'))
+
+    print('\n[16] O detalhe mostra o pedido inteiro')
+    corpo = pg.inner_text('.main').lower()
+    for rotulo in ['itens do pedido', 'cliente', 'pagamento', 'quem tocou o pedido',
+                   'transportadora e códigos de rastreio', 'histórico']:
+        ok(rotulo in corpo, 'tem o bloco "%s"' % rotulo)
+    ok(pg.locator('#corpoItens tr').count() > 0, 'os itens do pedido aparecem (%d)' % pg.locator('#corpoItens tr').count())
+    ok(pg.inner_text('#docOnde').strip() not in ('', '—'), 'onde comprou: %s' % pg.inner_text('#docOnde'))
+    ok(pg.inner_text('#docVendedor').strip() not in ('', '—'), 'vendedor: %s' % pg.inner_text('#docVendedor'))
+    ok(pg.inner_text('#docTranspContato').strip() not in ('', '—'), 'contato da transportadora: %s' % pg.inner_text('#docTranspContato'))
+    ok(pg.locator('#listaToques .toque-item').count() == 3, 'quem tocou tem as 3 etapas')
+
+    print('\n[17] Venda de vitrine diz que NAO teve vendedor, em vez de deixar vazio')
+    semVend = pg.evaluate("PEDIDOS.filter(p => !p.vendedor)[0].id")
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=' + str(semVend))
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    ok('sem vendedor' in pg.inner_text('#docVendedor').lower(),
+       'diz "Sem vendedor", nao deixa em branco: %s' % pg.inner_text('#docVendedor'))
+
+    print('\n[18] Pagamento no detalhe tambem e SO LEITURA')
+    ok('contas a receber' in pg.inner_text('.main').lower(), 'o detalhe diz de onde vem o pagamento')
+    campos_pg = pg.evaluate("""() => {
+      const ids = ['docPgSituacao','docPgForma','docPgParcelas','docPgValor','docPgRecebido','docPgSaldo'];
+      return ids.filter(i => {
+        const e = document.getElementById(i);
+        return e && e.querySelector('input, textarea, select');
+      }).length;
+    }""")
+    ok(campos_pg == 0, 'nenhum campo de pagamento e editavel nesta tela')
+
+    print('\n[19] Inserir codigo: a tela de detalhe e a UNICA que escreve')
+    alvo = pg.evaluate("PEDIDOS.filter(p => p.volumes.some(v => !v.codigo))[0].id")
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=' + str(alvo))
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    # Mira o volume SEM codigo: preencher o de um volume que ja tem transforma
+    # a acao em alteracao, que e outra chave e exige senha (ver [19b]).
+    volVazio = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => !v.codigo)[0].id" % alvo)
+    vazio = pg.locator('#corpoVolumes input[data-vol="' + volVazio + '"]')
+    ok(vazio.count() > 0, 'o volume sem codigo tem campo para inserir (%s)' % volVazio)
+    vazio.fill('TESTE123456BR')
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(600)
+    # Inserir e rotina: nao pede senha, entao grava direto.
+    gravou = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.some(v => v.codigo === 'TESTE123456BR')" % alvo)
+    ok(gravou, 'o codigo novo foi gravado no volume')
+
+
+    print('\n[19b] ALTERAR um codigo ja confirmado para e pede senha')
+    # O cliente ja recebeu o codigo antigo e pode estar acompanhando por ele.
+    # Por isso alterar e outra chave, com exigePadrao true: a acao nao acontece
+    # sozinha, ela para no modal de confirmacao.
+    volCheio = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => v.codigo)[0].id" % alvo)
+    antigo = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => v.id === '%s')[0].codigo" % (alvo, volCheio))
+    campoCheio = pg.locator('#corpoVolumes input[data-vol="' + volCheio + '"]')
+    campoCheio.fill('OUTROCODIGO999')
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(500)
+    travou = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes.filter(v => v.id === '%s')[0].codigo" % (alvo, volCheio))
+    ok(travou == antigo, 'a alteracao NAO acontece sozinha: o codigo segue %s' % travou)
+    ok(pg.locator('#confirmModal.open').count() == 1, 'ela para no modal de confirmacao')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+
+    print('\n[20] Salvar sem mexer em nada avisa, em vez de fingir que salvou')
+    # Recarrega: depois do Esc da [19b] o campo ainda tem o rascunho digitado, e
+    # isso e proposital — o chip mostra o que esta SALVO e o campo e rascunho.
+    # Para testar "nao ha o que salvar" e preciso partir de uma tela sem rascunho.
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=' + str(alvo))
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(450)
+    txt_modal = pg.inner_text('body').lower()
+    ok('nenhum código novo' in txt_modal, 'avisa que nao ha o que salvar')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+
+    print('\n[21] Id invalido NAO inventa pedido')
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=99999')
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    ok('não encontrado' in pg.inner_text('#tituloPedido').lower(), 'diz que nao encontrou')
+    visiveis = pg.evaluate("Array.from(document.querySelectorAll('.main .card')).filter(c => c.offsetParent !== null).length")
+    ok(visiveis == 0, 'nao mostra card nenhum com dado de outro pedido (%d visiveis)' % visiveis)
+
+    print('\n[22] O detalhe nos dois temas, sem erro de JS')
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=2')
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    for tema in ['claro', 'escuro']:
+        pg.evaluate("document.body.classList.%s('dark')" % ('remove' if tema == 'claro' else 'add'))
+        pg.wait_for_timeout(220)
+        est = pg.evaluate("""() => ({
+          fonte: getComputedStyle(document.body).fontFamily,
+          fundo: getComputedStyle(document.body).backgroundColor,
+          larg: document.documentElement.scrollWidth
+        })""")
+        ok('unito' in est['fonte'], 'detalhe tema %s: fonte Nunito' % tema)
+        ok(est['larg'] <= 1440, 'detalhe tema %s: nao estoura em 1440 (%d)' % (tema, est['larg']))
+    ok(not erros, 'sem erro de JS no detalhe: %s' % erros[:2])
 
     b.close()
 

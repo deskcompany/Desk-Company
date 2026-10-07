@@ -377,11 +377,12 @@
 
   .form-field { margin-bottom:18px; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:78px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
   .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color: var(--danger); }
+  .form-field.has-error input, .form-field.has-error textarea { border-color: var(--danger); }
   .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
@@ -519,6 +520,59 @@
   .periodo-op:hover { background:rgba(120,120,140,0.08); }
   .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
 
+
+  /* ===== Detalhe da Ordem de Compra ===== */
+  .oc-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+  .oc-titulo-bloco { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  .linha-links { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:8px; }
+  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-inline:hover { text-decoration:underline; }
+  .bloco-expansivel { display:none; margin-top:14px; padding:14px 16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .bloco-expansivel.open { display:block; }
+  .dado-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:7px 0; font-size:12.5px; }
+  .dado-rotulo { color:var(--text); }
+  .dado-valor { font-weight:700; color:var(--text-heading); }
+
+  /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
+  .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
+  .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .itens-table th.col-texto { text-align:left; }
+  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
+  .itens-table td.col-texto { text-align:left; }
+  .itens-table tbody tr:last-child td { border-bottom:none; }
+  .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
+  .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .itens-table input.col-texto-input { text-align:left; }
+  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
+  .item-remover:hover { opacity:0.75; }
+  .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
+  .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .acao-link:hover { text-decoration:underline; }
+  .acao-link svg { width:14px; height:14px; }
+
+  .totais-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; }
+  .total-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .total-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
+  .total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-top:4px; }
+  .total-item.destaque .total-valor { color:var(--active-text); font-size:17px; }
+  .total-item input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); background:transparent; border:none; border-bottom:1px dashed var(--border); padding:2px 0; margin-top:4px; outline:none; }
+  .total-item input[type="text"]:focus { border-bottom-color: var(--chart-2); }
+
+  .parcelas-table { width:100%; border-collapse:collapse; }
+  .parcelas-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .parcelas-table th.col-texto { text-align:left; }
+  .parcelas-table td { padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; }
+  .parcelas-table td.col-texto { text-align:left; }
+  .parcelas-table tbody tr:last-child td { border-bottom:none; }
+  .parcelas-vazio { font-size:12.5px; color:var(--text); padding:14px 0; }
+
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+
+  .fiscal-ativo-hint { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .fiscal-ativo-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
   .oc-numero { font-weight:800; color:var(--active-text); }
   .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
 
@@ -564,162 +618,63 @@
   }
   .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
-  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
-     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
-  .sit-aconferir     { background:#B45309; }
-  .sit-emconferencia { background:#0A4EE4; }
-  .sit-divergencia   { background:#B91C1C; }
-  .sit-lancada       { background:#15803D; }
-  .sit-recusada      { background:#6B7280; }
-  body.dark .sit-aconferir     { background:#F5A623; }
-  body.dark .sit-emconferencia { background:#9DB8F0; }
-  body.dark .sit-divergencia   { background:#FCA5A5; }
-  body.dark .sit-lancada       { background:#4ADE80; }
-  body.dark .sit-recusada      { background:#9CA3AF; }
-
-  .bs-aconferir     { color:#B45309; }
+  /* ===== ESTOQUE > CONFERÊNCIA ===== */
+  /* Situacoes herdadas da Entrada de Notas: mesmo par claro/escuro aferido por
+     contraste, porque e o mesmo documento mudando de estado. */
   .bs-emconferencia { color:#0A4EE4; }
   .bs-divergencia   { color:#B91C1C; }
   .bs-lancada       { color:#15803D; }
-  .bs-recusada      { color:#6B7280; }
-  body.dark .bs-aconferir     { color:#F5A623; }
   body.dark .bs-emconferencia { color:#9DB8F0; }
   body.dark .bs-divergencia   { color:#FCA5A5; }
   body.dark .bs-lancada       { color:#4ADE80; }
-  body.dark .bs-recusada      { color:#9CA3AF; }
 
-  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
-  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
-  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
-  .mde-prazo.alerta { color:#B45309; }
-  body.dark .mde-prazo.alerta { color:#F5A623; }
-  .mde-pendente      { color:#6B7280; }
-  .mde-ciencia       { color:#B45309; }
-  .mde-confirmada    { color:#15803D; }
-  .mde-naorealizada  { color:#B91C1C; }
-  .mde-desconhecida  { color:#B91C1C; }
-  body.dark .mde-pendente     { color:#9CA3AF; }
-  body.dark .mde-ciencia      { color:#F5A623; }
-  body.dark .mde-confirmada   { color:#4ADE80; }
-  body.dark .mde-naorealizada { color:#FCA5A5; }
-  body.dark .mde-desconhecida { color:#FCA5A5; }
-  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
-  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
+  .doc-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+  .doc-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .doc-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
+  .doc-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); margin-top:4px; }
 
-  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .dif-divergente { color:#B91C1C; }
-  body.dark .dif-divergente { color:#FCA5A5; }
-  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
-  body.dark .pend-tag { color:#FCA5A5; }
+  #tabelaItens { min-width:820px; }
+  #tabelaItens .cel-nota, #tabelaItens .cel-dif { white-space:nowrap; }
+  #tabelaItens .cel-motivo { min-width:210px; }
+  #tabelaItens td { vertical-align:top; padding-top:12px; }
+  .item-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
+  .item-sku { font-size:11px; color:var(--text); margin-top:2px; }
+  .qtd-input { max-width:110px; }
 
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
-     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
+  /* Conferencia cega: a quantidade da nota fica oculta ate o item ser contado */
+  .qtd-oculta { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); opacity:0.7; }
+  .dif-neutra { color:var(--text); }
+  .dif-ok { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#15803D; }
+  body.dark .dif-ok { color:#4ADE80; }
+  .dif-erro { font-size:14px; color:#B91C1C; }
+  body.dark .dif-erro { color:#FCA5A5; }
+  .motivo-vazio { color:var(--text); }
 
-  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (o que acontece depois da doca) ===== */
-  /* As situacoes daqui sao as do PEDIDO DE VENDA — o mesmo funil de 9 passos da
-     barganha de 02/out, nao um funil proprio. Esta tela nao inventa status: ela
-     mostra o que o pedido ja diz e acrescenta o que so existe depois do envio
-     (codigo de rastreio, previsao congelada, eventos). Devolucao continua fora:
-     e documento proprio, e o pedido devolvido mantem a situacao dele. */
+  /* Divergencia ainda nao confirmada: a tela diz que existe, nunca quanto e */
+  .dif-cega { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B45309; border:1px solid currentColor; border-radius:20px; padding:2px 9px; white-space:nowrap; }
+  body.dark .dif-cega { color:#F5A623; }
+  .validar-bloco { display:flex; flex-direction:column; gap:6px; }
+  .validar-hint { font-size:11px; color:var(--text); }
+  .validar-botoes { display:flex; flex-wrap:wrap; gap:6px; }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background: rgba(120,120,140,0.08); }
+  .btn-mini.destaque { color:#fff; background:var(--brand-blue); border-color:var(--brand-blue); }
+  .btn-mini.destaque:hover { opacity:0.9; }
+  .valor-oculto { font-size:12.5px; font-weight:700; color:var(--text); }
 
-  /* O ponto colore a FASE, nao a situacao. Nove cores ninguem memoriza, e nove
-     cores no tema claro e campo minado de contraste; o rotulo ao lado ja diz a
-     situacao exata. Tres fases + cancelado dao a leitura de relance que o
-     galpao precisa: "ainda esta aqui", "esta na rua", "acabou". */
-  .fase-processando { background:#B45309; }
-  .fase-transito    { background:#0A4EE4; }
-  .fase-final       { background:#15803D; }
-  .fase-cancelado   { background:#DC2626; }
-  body.dark .fase-processando { background:#F5A623; }
-  body.dark .fase-transito    { background:#9DB8F0; }
-  body.dark .fase-final       { background:#4ADE80; }
-  body.dark .fase-cancelado   { background:#EF4444; }
+  /* Campo que a divergencia tornou obrigatorio e ainda esta vazio */
+  .campo-pendente .dropdown-select-btn { border-color:#B91C1C; }
+  body.dark .campo-pendente .dropdown-select-btn { border-color:#FCA5A5; }
+  .motivo-select .dropdown-select-btn, .destino-select .dropdown-select-btn { font-size:12.5px; padding:7px 10px; }
+  .destino-select .dropdown-select-menu { min-width:260px; }
 
-  .tx-processando { color:#B45309; }
-  .tx-transito    { color:#0A4EE4; }
-  .tx-final       { color:#15803D; }
-  .tx-cancelado   { color:#DC2626; }
-  body.dark .tx-processando { color:#F5A623; }
-  body.dark .tx-transito    { color:#9DB8F0; }
-  body.dark .tx-final       { color:#4ADE80; }
-  body.dark .tx-cancelado   { color:#EF4444; }
+  .comunicado-box { font-family:'Nunito',sans-serif; font-size:12px; line-height:1.55; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 13px; white-space:pre-wrap; word-break:break-word; margin:0; }
+  .conf-fechada { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch.travado { opacity:0.5; pointer-events:none; }
 
-  /* PAGAMENTO E EIXO SEPARADO (barganha de 07/out), nao passo do funil. Boleto de
-     30 dias fica enviado e nao pago; Pix fica pago ainda em aberto. Quem manda
-     aqui e Financas > Contas a Receber: esta coluna LE, nunca escreve. */
-  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
-  .pg-pago       { color:#15803D; border-color:#15803D; }
-  .pg-parcial    { color:#B45309; border-color:#B45309; }
-  .pg-aguardando { color:var(--text); }
-  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
-  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
-  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
-  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
-
-  /* A PREVISAO E CONGELADA NO ENVIO (barganha de 07/out): gravada a partir do prazo
-     da transportadora no momento do despacho, nunca recalculada. Mudar o prazo no
-     cadastro depois NAO reescreve se um pedido antigo atrasou — historico que muda
-     sozinho e historico que mente. */
-  .prazo-ok       { font-weight:700; color:var(--text-heading); }
-  .prazo-atencao  { font-weight:800; color:#B45309; }
-  .prazo-atrasado { font-weight:800; color:#DC2626; }
-  body.dark .prazo-atencao  { color:#F5A623; }
-  body.dark .prazo-atrasado { color:#EF4444; }
-  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-
-  /* CODIGO DE RASTREIO E POR VOLUME (barganha de 07/out). Os volumes ja nascem na
-     Conferencia de Saida; um pedido de 3 caixas que chegam em dias diferentes tem
-     3 codigos. A celula resume e o painel mostra um por um. */
-  .cod-resumo { font-weight:700; color:var(--text-heading); }
-  .cod-falta { font-weight:800; color:#B45309; }
-  body.dark .cod-falta { color:#F5A623; }
-  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-family:inherit; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
-
-  .cliente-nome { font-weight:700; color:var(--text-heading); }
-  .cliente-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-
-  /* ===== O HISTORICO, DENTRO DO PAINEL ===== */
-  /* Cada evento carrega um rotulo PROPRIO para o cliente e um marcador de quem o
-     ve (barganha de 07/out). "Conferencia de saida" e vocabulario de deposito:
-     o cliente le "Pedido embalado". A vitrine consome so os publicos. */
-  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
-  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
-  .ev-item:last-child { padding-bottom:2px; }
-  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
-  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
-  .ev-item:last-child .ev-linha { display:none; }
-  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
-  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
-  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
-  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
-
-  /* Volume dentro do painel: uma linha por caixa, com o campo do codigo. */
-  .vol-linha { display:grid; grid-template-columns:1fr 210px; gap:11px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
-  .vol-linha:last-child { border-bottom:none; }
-  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
-  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-
-  /* Vinham do bloco da Expedicao, que esta tela substituiu. Classe usada sem CSS
-     e o "componente copiado pela metade" que a auditoria pega na secao 3. */
-  .transp-nome { font-weight:700; color:var(--text-heading); }
-  .transp-tipo { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
-  .dropdown-select-item.item-perigo { color: var(--danger); }
-
-  /* A linha inteira abre o painel, entao o cursor precisa dizer isso. */
-  .estoque-table tbody tr.linha-clicavel { cursor:pointer; }
-
-  /* Painel: linha de rotulo e valor usando o par canonico chave-rotulo /
-     chave-valor, mais o titulo que separa os blocos. */
-  .rt-linha { display:grid; grid-template-columns:150px 1fr; gap:11px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
-  .rt-linha:last-child { border-bottom:none; }
-  .rt-sub { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:17px 0 7px; }
+  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -737,6 +692,94 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
+
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (a página do pedido) ===== */
+  /* Esta tela e a UNICA que escreve codigo de rastreio (decisao de 07/out). O
+     painel lateral da listagem so mostra: confirmar um codigo sem ver o pedido
+     inteiro — itens, cliente, vendedor, quem separou, quem conferiu — e decidir
+     no escuro o que o cliente vai acompanhar. */
+
+  /* Mesma leitura de fase da listagem: o ponto colore a FASE, o rotulo diz a
+     situacao exata. Nove cores ninguem memoriza, e nove cores no tema claro e
+     campo minado de contraste. */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
+
+  .bs-processando { color:#B45309; }
+  .bs-transito    { color:#0A4EE4; }
+  .bs-final       { color:#15803D; }
+  .bs-cancelado   { color:#DC2626; }
+  body.dark .bs-processando { color:#F5A623; }
+  body.dark .bs-transito    { color:#9DB8F0; }
+  body.dark .bs-final       { color:#4ADE80; }
+  body.dark .bs-cancelado   { color:#EF4444; }
+
+  /* Pagamento e eixo separado e esta tela tambem so LE: quem manda e Financas. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+
+  /* QUEM TOCOU O PEDIDO. Trabalho de galpao nao pede senha — pede RASTRO. O nome
+     de quem separou e de quem conferiu e o que transforma divergencia em conversa
+     com alguem, em vez de em discussao sobre o sistema. */
+  .toque-lista { display:flex; flex-direction:column; gap:0; }
+  .toque-item { display:grid; grid-template-columns:150px 1fr auto; gap:12px; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--border); }
+  .toque-item:last-child { border-bottom:none; }
+  .toque-etapa { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
+  .toque-quem { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .toque-quando { font-size:11.5px; font-weight:600; color:var(--text); }
+  .toque-vazio { font-size:13px; font-weight:600; color:var(--text); font-style:italic; }
+
+  /* VOLUMES E CODIGOS — a unica parte editavel da tela. */
+  .vol-tabela { width:100%; border-collapse:collapse; }
+  .vol-tabela th { text-align:left; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:0 10px 8px 0; border-bottom:1px solid var(--border); }
+  .vol-tabela td { padding:11px 10px 11px 0; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .vol-tabela tr:last-child td { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .vol-acao { text-align:right; }
+
+  /* Campo do codigo dentro da linha do volume. Segue o input de formulario do
+     sistema; sem isto o campo cai no estilo nativo do navegador e vaza fundo
+     claro no tema escuro (bug real do input de senha, §14). */
+  .vol-campo { display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+  .vol-campo input[type="text"] { width:210px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none; }
+  .vol-campo input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+
+  /* ===== HISTORICO ===== */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
 </style>
 </head>
 <body class="dark">
@@ -943,181 +986,154 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 
+
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
-    <div>
-      <h1>Rastreamento de Pedidos</h1>
-      <div class="subtitle">O que já saiu: onde está, se chega no prazo e o que o cliente consegue ver</div>
+    <div class="oc-topo" style="flex:1;">
+      <div>
+        <div class="oc-titulo-bloco">
+          <h1 id="tituloPedido">Pedido</h1>
+          <span class="badge-situacao bs-processando" id="badgeSituacao"><span class="sit-dot fase-processando"></span>—</span>
+          <span class="pg-chip pg-aguardando" id="badgePagamento">—</span>
+        </div>
+        <div class="subtitle" id="subtituloPedido">—</div>
+      </div>
     </div>
     <div class="header-acoes">
-      <button class="btn-primary" id="btnProximoSemCodigo">
+      <button class="btn-primary" id="btnSalvarCodigos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Confirmar códigos
+        Salvar códigos
+      </button>
+      <button class="btn-secundario-topo" id="btnVoltar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar ao rastreamento
       </button>
       <div class="dropdown-select" id="menuMaisAcoes">
         <button type="button" class="btn-ghost dropdown-select-btn">
           <span class="dropdown-select-label">Mais ações</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:340px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="expedicao">Abrir Expedição</div>
-          <div class="dropdown-select-item" data-acao="transportadoras">Abrir Transportadoras</div>
-          <div class="dropdown-select-item" data-acao="copiarpublico">Copiar o que a vitrine mostra</div>
-          <div class="dropdown-select-item" data-acao="exportar">Exportar rastreamento para planilha</div>
-          <div class="dropdown-select-item item-perigo" data-acao="entregamanual">Marcar entrega manualmente</div>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:320px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="pedido">Abrir o pedido de venda</div>
+          <div class="dropdown-select-item" data-acao="cliente">Abrir o cadastro do cliente</div>
+          <div class="dropdown-select-item" data-acao="transportadora">Abrir a transportadora</div>
+          <div class="dropdown-select-item item-perigo" data-acao="entregamanual" id="itemEntregaManual">Marcar entrega à mão</div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
-      <div class="kpi-label">Em trânsito</div>
-      <div class="kpi-value" id="kpiTransito">0</div>
-      <div class="kpi-delta neutral" id="kpiTransitoSub">—</div>
-    </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
-      <div class="kpi-label">Atrasados</div>
-      <div class="kpi-value" id="kpiAtrasados">0</div>
-      <div class="kpi-delta neutral" id="kpiAtrasadosSub">—</div>
-    </div>
-    <div class="card kpi-card" style="border-left-color:var(--success)">
-      <div class="kpi-label">Entregues no prazo</div>
-      <div class="kpi-value" id="kpiNoPrazo">0</div>
-      <div class="kpi-delta neutral" id="kpiNoPrazoSub">—</div>
-    </div>
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
-      <div class="kpi-label">Sem código de rastreio</div>
-      <div class="kpi-value" id="kpiSemCodigo">0</div>
-      <div class="kpi-delta neutral" id="kpiSemCodigoSub">—</div>
-    </div>
-  </div>
-
-  <div class="estoque-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Pesquise por pedido, cliente, código de rastreio ou transportadora">
-    </div>
-
-    <div class="periodo-wrap" id="periodoWrap">
-      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="rotuloPeriodo">Sem filtro de período</span>
-      </button>
-      <div class="periodo-menu" id="periodoMenu">
-        <div class="periodo-titulo">Enviado nos últimos</div>
-        <div class="periodo-opcoes" id="periodoOpcoes">
-          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
-          <button class="periodo-op" data-periodo="7">7 dias</button>
-          <button class="periodo-op" data-periodo="15">15 dias</button>
-          <button class="periodo-op" data-periodo="30">30 dias</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Situacao e filtro suspenso, nao abas contadoras: sao 9 situacoes, e a
-         medicao de 02/out em Pedidos de Venda mostrou que esse numero de abas nao
-         cabe a 1440px. Os contadores vivem dentro da lista e acompanham os outros
-         filtros, como la. -->
-    <div class="dropdown-select" id="filtroSituacao" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todas as situações</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroSituacao" style="max-height:300px; overflow-y:auto;"></div>
-    </div>
-
-    <div class="dropdown-select" id="filtroTransp" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todas as transportadoras</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroTransp"></div>
-    </div>
-
-    <div class="dropdown-select" id="filtroPagamento" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Qualquer pagamento</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroPagamento"></div>
     </div>
   </div>
 
   <div class="card">
-    <!-- A pergunta que o atendimento faz todo dia e "o pedido do fulano chega
-         quando?". Sem codigo confirmado a vitrine nao responde nada, e o cliente
-         liga. Por isso o que falta codigo aparece escrito, nao deduzido. -->
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">O pedido</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Onde comprou</div><div class="doc-valor" id="docOnde">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Vendedor</div><div class="doc-valor" id="docVendedor">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Data da venda</div><div class="doc-valor" id="docVenda">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Enviado em</div><div class="doc-valor" id="docEnviado">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Previsão de entrega</div><div class="doc-valor" id="docPrevisao">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Entrega</div><div class="doc-valor" id="docEntrega">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Itens do pedido</div>
+    <div class="itens-table-wrap">
+      <table class="itens-table">
+        <thead>
+          <tr>
+            <th class="col-texto">SKU</th>
+            <th class="col-texto">Produto</th>
+            <th>Qtd</th>
+            <th>Unitário</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="corpoItens"></tbody>
+      </table>
+    </div>
+    <div class="estoque-rodape">
+      <span id="contagemItens">0 itens</span>
+      <span class="estoque-total">Total do pedido: <b id="totalPedido">—</b></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Cliente</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Nome</div><div class="doc-valor" id="docCliente">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Documento</div><div class="doc-valor" id="docDocumento">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Contato</div><div class="doc-valor" id="docContato">—</div></div>
+      <div class="doc-item" style="grid-column:span 3;"><div class="doc-rotulo">Entregar em</div><div class="doc-valor" id="docEndereco">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Pagamento</div>
+    <!-- Pagamento e eixo SEPARADO do funil (barganha de 07/out) e esta tela so LE.
+         Quem escreve e Financas > Contas a Receber: baixa, estorno e taxa retida
+         acontecem la. Escrever daqui criaria dois donos para o mesmo numero. -->
+    <div class="nota-reservado">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span>Estes números vêm de <b>Finanças · Contas a Receber</b> e aqui são só leitura. Pagamento não é passo do funil: um boleto de 30 dias fica <b>enviado e não pago</b>, e um Pix fica <b>pago antes da separação</b>.</span>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Situação</div><div class="doc-valor" id="docPgSituacao">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Forma</div><div class="doc-valor" id="docPgForma">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Parcelas</div><div class="doc-valor" id="docPgParcelas">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Valor do pedido</div><div class="doc-valor" id="docPgValor">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Recebido</div><div class="doc-valor" id="docPgRecebido">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Saldo</div><div class="doc-valor" id="docPgSaldo">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Quem tocou o pedido</div>
+    <!-- Trabalho de galpao nao pede senha — pede RASTRO. O nome de quem separou e
+         de quem conferiu e o que transforma divergencia em conversa com alguem, em
+         vez de discussao sobre o sistema. -->
+    <div class="toque-lista" id="listaToques"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Transportadora e códigos de rastreio</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Transportadora</div><div class="doc-valor" id="docTransp">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Contato</div><div class="doc-valor" id="docTranspContato">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Prazo do cadastro</div><div class="doc-valor" id="docTranspPrazo">—</div></div>
+    </div>
+
+    <!-- O codigo e POR VOLUME (barganha de 07/out): os volumes nascem na
+         Conferencia de Saida e um pedido de 3 caixas tem 3 codigos, que podem
+         chegar em dias diferentes. Esta e a UNICA tela que escreve isto. -->
     <div class="nota-reservado" id="avisoCodigos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
       <span id="avisoCodigosTexto"></span>
     </div>
 
-    <div class="estoque-table-wrap">
-      <table class="estoque-table">
+    <div class="itens-table-wrap">
+      <table class="vol-tabela">
         <thead>
           <tr>
-            <th class="col-texto ordenavel" data-ordem="pedido">Pedido <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="cliente">Cliente <span class="seta">▲</span></th>
-            <th class="col-texto">Situação</th>
-            <th class="col-texto" title="Vem de Finanças &gt; Contas a Receber — esta tela só lê">Pagamento</th>
-            <th class="col-texto ordenavel" data-ordem="transp">Transportadora <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="codigos" title="Códigos confirmados · volumes do pedido">Rastreio <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="previsao" title="Previsão congelada no envio; a entrega realizada aparece embaixo">Prazo de entrega <span class="seta">▲</span></th>
+            <th class="col-texto">Volume</th>
+            <th class="col-texto">Código de rastreio</th>
+            <th class="vol-acao">Ação</th>
           </tr>
         </thead>
-        <tbody id="corpoTabela"></tbody>
+        <tbody id="corpoVolumes"></tbody>
       </table>
     </div>
-
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="empty-state-title">Nenhum pedido neste filtro</div>
-      <div class="empty-state-sub">Com os filtros atuais, não há pedido para acompanhar.</div>
-      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
-    </div>
-
-    <div class="estoque-rodape">
-      <span id="contagemPedidos">0 pedidos</span>
-      <span class="estoque-total">Atrasado há mais tempo: <b id="maiorAtraso">—</b></span>
-    </div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
-          </div>
-        </div>
-      </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-      </div>
-    </div>
   </div>
 
-<!-- PAINEL LATERAL: o rastreamento por dentro, sem sair da lista -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="eventDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="drawerTitulo">Rastreamento do pedido</div>
-    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Histórico</div>
+    <div class="ev-lista" id="listaEventos"></div>
+    <div class="nota-reservado" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span id="notaVitrine">—</span>
+    </div>
   </div>
-  <div id="drawerCorpo"></div>
-</div>
 
 <!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
@@ -1175,12 +1191,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     expedicaoAlertaHoras: 8,
     expedicaoCriticoHoras: 24,
     romaneioSugereAutomatico: true,
-    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
-    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
-    // no padrao conservador. Valores: intermunicipal | interestadual |
-    // interestadualMulti.
+    // Quanto o peso da balanca pode fugir da soma dos volumes antes de a tela
+    // avisar. Nao e trava: pallet, filme e caixa-mae pesam, e so quem esta na
+    // doca sabe se a diferenca faz sentido. Numero que decide alerta nunca
+    // nasce dentro de um `if`.
+    expedicaoDesvioPesoPct: 15,
     mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
     mdfeRegraPadrao: 'interestadual',
+    conferenciaSaidaCega: true,
+    conferenciaSaidaAlertaHoras: 4,
+    conferenciaSaidaCriticoHoras: 12,
+    sugerirEmbalagem: true,
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -1265,8 +1286,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
     // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
-    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    // quem concluiu e, principalmente, quem registrou falta.
     { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
@@ -1498,12 +1518,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
   }
 
-
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Logística', 'Expedição'];
+  // O mesmo pedido que a tela vai carregar: id fora da fila cai no primeiro, e
+  // o breadcrumb nao pode dizer outra coisa.
+  let path = ['Logística', 'Expedição', (function () {
+    const id = String(new URLSearchParams(window.location.search).get('id') || '').toUpperCase();
+    return ['ROM-0190', 'ROM-0192', 'ROM-0193'].indexOf(id) >= 0 ? id : 'ROM-0192';
+  })()];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1640,32 +1664,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== DADOS (mock) =====
-  // ATENCAO ao ler: no prototipo cada tela e um arquivo solto e carrega o proprio
-  // mock. No Lovable esta tela NAO tem tabela propria de pedidos — ela le os
-  // mesmos `pedidos` de Vendas e acrescenta tres coisas que so existem depois do
-  // envio:
-  //   `pedido_volumes`     um registro por caixa, com o codigo de rastreio;
-  //   `pedido_eventos`     a linha do tempo, com o marcador de quem ve cada evento;
-  //   `pedidos.previsao_*` a previsao CONGELADA no despacho (ver abaixo).
-  // `transportadoras` continua sendo o cadastro de Operacional, lido por join.
+  // ATENCAO ao ler: no prototipo cada tela carrega o proprio mock. No Lovable
+  // esta pagina NAO tem tabela propria — ela e um JOIN de coisas que ja existem:
+  //   pedidos / pedido_itens      de Vendas;
+  //   clientes / vendedores       de Cadastros;
+  //   contas_receber              de Financas, SO LEITURA aqui;
+  //   separacoes / conferencias   de Logistica, de onde sai "quem tocou";
+  //   transportadoras             de Operacional;
+  //   pedido_volumes              a UNICA coisa que esta tela escreve.
   const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
   const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius' };
-  const EU = 3;   // usuario logado — no Lovable vem da sessao
+  const EU = 3;
 
-  // Espelho do cadastro Operacional > Transportadoras. `prazo` em dias e o campo
-  // que ja existe la (8, 3, 5, 4...) e e o unico que esta tela consome dele.
   const TRANSPORTADORAS = {
-    1: { nome: 'Correios · PAC',        tipo: 'correios',       prazo: 8 },
-    2: { nome: 'Correios · SEDEX',      tipo: 'correios',       prazo: 3 },
-    3: { nome: 'RotaSul Transportes',   tipo: 'transportadora', prazo: 5 },
-    4: { nome: 'Jaguar Cargas',         tipo: 'transportadora', prazo: 4 },
-    6: { nome: 'Moto Express Capital',  tipo: 'transportadora', prazo: 1 },
-    7: { nome: 'Frota Desk',            tipo: 'frota',          prazo: 2 }
+    1: { nome: 'Correios · PAC',       tipo: 'correios',       prazo: 8, contato: '0800 725 7282 · atendimento@correios.com.br' },
+    2: { nome: 'Correios · SEDEX',     tipo: 'correios',       prazo: 3, contato: '0800 725 7282 · atendimento@correios.com.br' },
+    3: { nome: 'RotaSul Transportes',  tipo: 'transportadora', prazo: 5, contato: '(11) 4002-8922 · operacional@rotasul.com.br' },
+    4: { nome: 'Jaguar Cargas',        tipo: 'transportadora', prazo: 4, contato: '(11) 3344-1180 · cargas@jaguar.com.br' },
+    6: { nome: 'Moto Express Capital', tipo: 'transportadora', prazo: 1, contato: '(11) 97722-3310 · central@motoexpress.com.br' },
+    7: { nome: 'Frota Desk',           tipo: 'frota',          prazo: 2, contato: 'Interno · ramal 240' }
   };
 
-  // O FUNIL E O DO PEDIDO DE VENDA, nao um funil desta tela (barganha de 02/out,
-  // em Pedidos). Copiar a lista para ca e deixar as duas divergirem — no Lovable
-  // isto e um enum unico no banco.
   const SITUACOES = [
     { id: 'aberto',           rotulo: 'Em aberto',            fase: 'processando' },
     { id: 'aprovado',         rotulo: 'Aprovado',             fase: 'processando' },
@@ -1678,272 +1697,255 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'cancelado',        rotulo: 'Cancelado',            fase: 'cancelado'   }
   ];
 
-  // Os rotulos que o CLIENTE le. Nao e traducao enfeitada: "Conferência de saída"
-  // e vocabulario de deposito, e "Faturado" e informacao fiscal que nao diz nada
-  // a quem comprou. Cada evento carrega o par — interno e publico — e a vitrine
-  // consome SO os publicos (barganha de 07/out).
   const ROTULO_VITRINE = {
-    aberto:           'Pedido recebido',
-    aprovado:         'Pagamento confirmado',
-    separacao:        'Em preparação',
-    conferenciasaida: 'Pedido embalado',
-    faturado:         null,                  // null = evento interno, a vitrine nao mostra
-    prontoenvio:      'Pronto para envio',
-    enviado:          'Enviado',
-    entregue:         'Entregue',
-    cancelado:        'Pedido cancelado'
+    aberto: 'Pedido recebido', aprovado: 'Pagamento confirmado', separacao: 'Em preparação',
+    conferenciasaida: 'Pedido embalado', faturado: null, prontoenvio: 'Pronto para envio',
+    enviado: 'Enviado', entregue: 'Entregue', cancelado: 'Pedido cancelado'
   };
 
-  // PAGAMENTO E EIXO SEPARADO (barganha de 07/out). O dado nasce em Financas >
-  // Contas a Receber e esta tela so LE: boleto de 30 dias fica enviado e nao pago,
-  // Pix fica pago ainda em aberto. Enfiar isto no funil quebraria o passo unico.
   const PAGAMENTOS = [
-    { id: 'pago',       rotulo: 'Pago' },
-    { id: 'parcial',    rotulo: 'Parcial' },
-    { id: 'aguardando', rotulo: 'Aguardando' },
-    { id: 'vencido',    rotulo: 'Vencido' }
+    { id: 'pago', rotulo: 'Pago' }, { id: 'parcial', rotulo: 'Parcial' },
+    { id: 'aguardando', rotulo: 'Aguardando' }, { id: 'vencido', rotulo: 'Vencido' }
   ];
 
   const HOJE = '2026-10-07';
 
-  // Cada pedido traz:
-  //   previsao      data CONGELADA no despacho — nunca recalculada;
-  //   prazoUsado    o prazo que a transportadora tinha NAQUELE dia. Fica gravado
-  //                 junto de proposito: e o que permite auditar a previsao depois,
-  //                 e e a prova de que ela nao veio do cadastro de hoje;
-  //   volumes       uma caixa por linha, com o codigo (vazio = ainda nao confirmado);
-  //   eventos       a linha do tempo. `vitrine` diz se o cliente ve.
   const PEDIDOS = [
-    { id: 1, numero: 'PV-4821', vitrine: 'DS-90142', cliente: 'Marina Albuquerque', cidade: 'Campinas', uf: 'SP',
-      loja: 1, situacao: 'entregue', transp: 2, pagamento: 'pago',
+    { id: 1, numero: 'PV-4821', vitrine: 'DS-90142', loja: 1, canal: 'Vitrine Desk Shope',
+      cliente: 'Marina Albuquerque', doc: '318.442.907-55', contato: '(19) 98871-2204 · marina.alb@email.com',
+      endereco: 'Rua das Acácias, 412 · Jardim Proença · Campinas/SP · 13026-100',
+      cidade: 'Campinas', uf: 'SP', vendedor: null, dataVenda: '2026-09-25',
+      situacao: 'entregue', transp: 2, pagamento: 'pago', forma: 'Pix', parcelas: '1x',
+      valor: 489.90, recebido: 489.90,
       enviadoEm: '2026-09-28', prazoUsado: 3, previsao: '2026-10-01', entregaEm: '2026-09-30',
+      itens: [ { sku: 'TEC-0431', nome: 'Teclado mecânico compacto 60%', qtd: 1, unit: 329.90 },
+               { sku: 'ACS-1180', nome: 'Apoio de punho em espuma', qtd: 2, unit: 80.00 } ],
+      toques: { separou: { quem: 1, quando: '2026-09-26 09:14' }, conferiu: { quem: 2, quando: '2026-09-27 14:02' },
+                despachou: { quem: 3, quando: '2026-09-28 08:40' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 1.4, codigo: 'BR748219045SE' } ],
-      eventos: [
-        { data: '2026-09-25', sit: 'aberto' }, { data: '2026-09-25', sit: 'aprovado' },
-        { data: '2026-09-26', sit: 'separacao' }, { data: '2026-09-27', sit: 'conferenciasaida' },
-        { data: '2026-09-27', sit: 'faturado', nota: 'NF-e 118440 emitida' },
-        { data: '2026-09-28', sit: 'enviado' }, { data: '2026-09-30', sit: 'entregue' }
-      ] },
+      eventos: [ { data: '2026-09-25', sit: 'aberto' }, { data: '2026-09-25', sit: 'aprovado' },
+                 { data: '2026-09-26', sit: 'separacao' }, { data: '2026-09-27', sit: 'conferenciasaida' },
+                 { data: '2026-09-27', sit: 'faturado', nota: 'NF-e 118440 emitida' },
+                 { data: '2026-09-28', sit: 'enviado' }, { data: '2026-09-30', sit: 'entregue' } ] },
 
-    { id: 2, numero: 'PV-4833', vitrine: 'DS-90158', cliente: 'Construtora Veredas Ltda', cidade: 'Ribeirão Preto', uf: 'SP',
-      loja: 2, situacao: 'enviado', transp: 3, pagamento: 'aguardando',
+    { id: 2, numero: 'PV-4833', vitrine: 'DS-90158', loja: 2, canal: 'Venda interna · telefone',
+      cliente: 'Construtora Veredas Ltda', doc: '12.884.330/0001-47', contato: '(16) 3620-7788 · compras@veredas.com.br',
+      endereco: 'Av. Independência, 2.870 · Alto da Boa Vista · Ribeirão Preto/SP · 14025-390',
+      cidade: 'Ribeirão Preto', uf: 'SP', vendedor: 2, dataVenda: '2026-09-29',
+      situacao: 'enviado', transp: 3, pagamento: 'aguardando', forma: 'Boleto', parcelas: '3x',
+      valor: 7840.00, recebido: 0,
       enviadoEm: '2026-10-02', prazoUsado: 5, previsao: '2026-10-07', entregaEm: null,
+      itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtd: 6, unit: 540.00 },
+               { sku: 'FER-3310', nome: 'Jogo de brocas aço rápido 19 peças', qtd: 10, unit: 189.00 },
+               { sku: 'EPI-0044', nome: 'Capacete de segurança classe B', qtd: 24, unit: 112.50 } ],
+      toques: { separou: { quem: 3, quando: '2026-10-01 07:55' }, conferiu: { quem: 1, quando: '2026-10-01 16:30' },
+                despachou: { quem: 3, quando: '2026-10-02 09:10' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 3', peso: 12.5, codigo: 'RS2026100201' },
                  { id: 'V2', etiqueta: 'Caixa 2 de 3', peso: 11.8, codigo: 'RS2026100202' },
                  { id: 'V3', etiqueta: 'Caixa 3 de 3', peso: 9.2,  codigo: '' } ],
-      eventos: [
-        { data: '2026-09-29', sit: 'aberto' }, { data: '2026-09-30', sit: 'aprovado' },
-        { data: '2026-10-01', sit: 'separacao' }, { data: '2026-10-01', sit: 'conferenciasaida' },
-        { data: '2026-10-02', sit: 'faturado', nota: 'NF-e 118512 emitida' },
-        { data: '2026-10-02', sit: 'enviado', nota: 'Romaneio RM-220 · coleta RotaSul' }
-      ] },
+      eventos: [ { data: '2026-09-29', sit: 'aberto' }, { data: '2026-09-30', sit: 'aprovado' },
+                 { data: '2026-10-01', sit: 'separacao' }, { data: '2026-10-01', sit: 'conferenciasaida' },
+                 { data: '2026-10-02', sit: 'faturado', nota: 'NF-e 118512 emitida' },
+                 { data: '2026-10-02', sit: 'enviado', nota: 'Romaneio RM-220 · coleta RotaSul' } ] },
 
-    { id: 3, numero: 'PV-4840', vitrine: 'DS-90163', cliente: 'Henrique Salles', cidade: 'Belo Horizonte', uf: 'MG',
-      loja: 1, situacao: 'enviado', transp: 1, pagamento: 'pago',
+    { id: 3, numero: 'PV-4840', vitrine: 'DS-90163', loja: 1, canal: 'Vitrine Desk Shope',
+      cliente: 'Henrique Salles', doc: '044.219.336-08', contato: '(31) 99120-5567 · hsalles@email.com',
+      endereco: 'Rua Pium-í, 905 · Cruzeiro · Belo Horizonte/MG · 30310-080',
+      cidade: 'Belo Horizonte', uf: 'MG', vendedor: null, dataVenda: '2026-09-22',
+      situacao: 'enviado', transp: 1, pagamento: 'pago', forma: 'Cartão de crédito', parcelas: '2x',
+      valor: 268.70, recebido: 268.70,
       enviadoEm: '2026-09-24', prazoUsado: 8, previsao: '2026-10-02', entregaEm: null,
+      itens: [ { sku: 'ACS-0990', nome: 'Mochila para notebook 15,6"', qtd: 1, unit: 268.70 } ],
+      toques: { separou: { quem: 2, quando: '2026-09-23 10:20' }, conferiu: { quem: 2, quando: '2026-09-23 15:44' },
+                despachou: { quem: 1, quando: '2026-09-24 08:05' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 2.1, codigo: 'BR748400112PA' } ],
-      eventos: [
-        { data: '2026-09-22', sit: 'aberto' }, { data: '2026-09-22', sit: 'aprovado' },
-        { data: '2026-09-23', sit: 'separacao' }, { data: '2026-09-23', sit: 'conferenciasaida' },
-        { data: '2026-09-24', sit: 'faturado' }, { data: '2026-09-24', sit: 'enviado' }
-      ] },
+      eventos: [ { data: '2026-09-22', sit: 'aberto' }, { data: '2026-09-22', sit: 'aprovado' },
+                 { data: '2026-09-23', sit: 'separacao' }, { data: '2026-09-23', sit: 'conferenciasaida' },
+                 { data: '2026-09-24', sit: 'faturado' }, { data: '2026-09-24', sit: 'enviado' } ] },
 
-    { id: 4, numero: 'PV-4846', vitrine: 'DS-90171', cliente: 'Padaria Bom Dia ME', cidade: 'São Paulo', uf: 'SP',
-      loja: 3, situacao: 'enviado', transp: 6, pagamento: 'pago',
+    { id: 4, numero: 'PV-4846', vitrine: 'DS-90171', loja: 3, canal: 'Vitrine Desk Tech',
+      cliente: 'Padaria Bom Dia ME', doc: '29.330.118/0001-02', contato: '(11) 2255-0147 · bomdia.adm@email.com',
+      endereco: 'Rua Ipiranga, 77 · Brás · São Paulo/SP · 03042-000',
+      cidade: 'São Paulo', uf: 'SP', vendedor: 1, dataVenda: '2026-10-05',
+      situacao: 'enviado', transp: 6, pagamento: 'pago', forma: 'Pix', parcelas: '1x',
+      valor: 1240.00, recebido: 1240.00,
       enviadoEm: '2026-10-06', prazoUsado: 1, previsao: '2026-10-07', entregaEm: null,
+      itens: [ { sku: 'EMB-0310', nome: 'Embalagem kraft 18x12 (cento)', qtd: 8, unit: 95.00 },
+               { sku: 'EMB-0455', nome: 'Etiqueta térmica 60x40 (rolo)', qtd: 4, unit: 120.00 } ],
+      toques: { separou: { quem: 1, quando: '2026-10-06 06:40' }, conferiu: { quem: 3, quando: '2026-10-06 10:12' },
+                despachou: { quem: 3, quando: '2026-10-06 11:30' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 2', peso: 4.0, codigo: '' },
                  { id: 'V2', etiqueta: 'Caixa 2 de 2', peso: 3.6, codigo: '' } ],
-      eventos: [
-        { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
-        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
-        { data: '2026-10-06', sit: 'faturado' }, { data: '2026-10-06', sit: 'enviado' }
-      ] },
+      eventos: [ { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+                 { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+                 { data: '2026-10-06', sit: 'faturado' }, { data: '2026-10-06', sit: 'enviado' } ] },
 
-    { id: 5, numero: 'PV-4851', vitrine: 'DS-90180', cliente: 'Eliane Moraes Prado', cidade: 'Curitiba', uf: 'PR',
-      loja: 1, situacao: 'entregue', transp: 4, pagamento: 'pago',
+    { id: 5, numero: 'PV-4851', vitrine: 'DS-90180', loja: 1, canal: 'Vitrine Desk Shope',
+      cliente: 'Eliane Moraes Prado', doc: '702.118.449-21', contato: '(41) 99808-4412 · eliane.prado@email.com',
+      endereco: 'Rua Mateus Leme, 1.520 · Centro Cívico · Curitiba/PR · 80530-010',
+      cidade: 'Curitiba', uf: 'PR', vendedor: null, dataVenda: '2026-09-24',
+      situacao: 'entregue', transp: 4, pagamento: 'pago', forma: 'Cartão de crédito', parcelas: '4x',
+      valor: 2180.00, recebido: 2180.00,
       enviadoEm: '2026-09-26', prazoUsado: 4, previsao: '2026-09-30', entregaEm: '2026-10-03',
+      itens: [ { sku: 'MOV-1120', nome: 'Cadeira de escritório com apoio lombar', qtd: 2, unit: 1090.00 } ],
+      toques: { separou: { quem: 3, quando: '2026-09-25 08:30' }, conferiu: { quem: 1, quando: '2026-09-25 13:15' },
+                despachou: { quem: 2, quando: '2026-09-26 07:50' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 18.0, codigo: 'JG5520260926' } ],
-      eventos: [
-        { data: '2026-09-24', sit: 'aberto' }, { data: '2026-09-24', sit: 'aprovado' },
-        { data: '2026-09-25', sit: 'separacao' }, { data: '2026-09-25', sit: 'conferenciasaida' },
-        { data: '2026-09-26', sit: 'faturado' }, { data: '2026-09-26', sit: 'enviado' },
-        { data: '2026-10-03', sit: 'entregue', nota: 'Entregue 3 dias depois da previsão' }
-      ] },
+      eventos: [ { data: '2026-09-24', sit: 'aberto' }, { data: '2026-09-24', sit: 'aprovado' },
+                 { data: '2026-09-25', sit: 'separacao' }, { data: '2026-09-25', sit: 'conferenciasaida' },
+                 { data: '2026-09-26', sit: 'faturado' }, { data: '2026-09-26', sit: 'enviado' },
+                 { data: '2026-10-03', sit: 'entregue', nota: 'Entregue 3 dias depois da previsão' } ] },
 
-    { id: 6, numero: 'PV-4858', vitrine: 'DS-90191', cliente: 'Oficina Mecânica Torque', cidade: 'Santo André', uf: 'SP',
-      loja: 2, situacao: 'prontoenvio', transp: 7, pagamento: 'parcial',
+    { id: 6, numero: 'PV-4858', vitrine: 'DS-90191', loja: 2, canal: 'Venda interna · balcão',
+      cliente: 'Oficina Mecânica Torque', doc: '18.447.209/0001-66', contato: '(11) 4455-9080 · torque.oficina@email.com',
+      endereco: 'Av. Industrial, 3.140 · Santo André/SP · 09080-510',
+      cidade: 'Santo André', uf: 'SP', vendedor: 3, dataVenda: '2026-10-04',
+      situacao: 'prontoenvio', transp: 7, pagamento: 'parcial', forma: 'Boleto', parcelas: '2x',
+      valor: 3300.00, recebido: 1650.00,
       enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      itens: [ { sku: 'FER-5500', nome: 'Compressor de ar 50L', qtd: 1, unit: 2400.00 },
+               { sku: 'FER-5512', nome: 'Mangueira pneumática 15m', qtd: 3, unit: 300.00 } ],
+      toques: { separou: { quem: 1, quando: '2026-10-06 09:00' }, conferiu: { quem: 2, quando: '2026-10-06 15:20' },
+                despachou: null },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 7.5, codigo: '' } ],
-      eventos: [
-        { data: '2026-10-04', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
-        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
-        { data: '2026-10-06', sit: 'prontoenvio', nota: 'Aguardando coleta da Frota Desk' }
-      ] },
+      eventos: [ { data: '2026-10-04', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+                 { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+                 { data: '2026-10-06', sit: 'prontoenvio', nota: 'Aguardando coleta da Frota Desk' } ] },
 
-    { id: 7, numero: 'PV-4862', vitrine: 'DS-90199', cliente: 'Distribuidora Norte Sul', cidade: 'Recife', uf: 'PE',
-      loja: 3, situacao: 'enviado', transp: 3, pagamento: 'vencido',
+    { id: 7, numero: 'PV-4862', vitrine: 'DS-90199', loja: 3, canal: 'Vitrine Desk Tech',
+      cliente: 'Distribuidora Norte Sul', doc: '33.209.887/0001-19', contato: '(81) 3444-2211 · compras@nortesul.com.br',
+      endereco: 'Rua do Apolo, 220 · Recife Antigo · Recife/PE · 50030-220',
+      cidade: 'Recife', uf: 'PE', vendedor: 2, dataVenda: '2026-09-15',
+      situacao: 'enviado', transp: 3, pagamento: 'vencido', forma: 'Boleto', parcelas: '1x',
+      valor: 9120.00, recebido: 0,
       enviadoEm: '2026-09-18', prazoUsado: 5, previsao: '2026-09-23', entregaEm: null,
+      itens: [ { sku: 'ELE-7700', nome: 'Monitor 27" IPS 100Hz', qtd: 12, unit: 760.00 } ],
+      toques: { separou: { quem: 2, quando: '2026-09-17 08:10' }, conferiu: { quem: 3, quando: '2026-09-17 17:05' },
+                despachou: { quem: 1, quando: '2026-09-18 07:40' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 2', peso: 22.0, codigo: 'RS2026091801' },
                  { id: 'V2', etiqueta: 'Caixa 2 de 2', peso: 19.4, codigo: 'RS2026091802' } ],
-      eventos: [
-        { data: '2026-09-15', sit: 'aberto' }, { data: '2026-09-16', sit: 'aprovado' },
-        { data: '2026-09-17', sit: 'separacao' }, { data: '2026-09-17', sit: 'conferenciasaida' },
-        { data: '2026-09-18', sit: 'faturado' }, { data: '2026-09-18', sit: 'enviado' }
-      ] },
+      eventos: [ { data: '2026-09-15', sit: 'aberto' }, { data: '2026-09-16', sit: 'aprovado' },
+                 { data: '2026-09-17', sit: 'separacao' }, { data: '2026-09-17', sit: 'conferenciasaida' },
+                 { data: '2026-09-18', sit: 'faturado' }, { data: '2026-09-18', sit: 'enviado' } ] },
 
-    { id: 8, numero: 'PV-4869', vitrine: 'DS-90204', cliente: 'Tatiana Vilela', cidade: 'Niterói', uf: 'RJ',
-      loja: 1, situacao: 'separacao', transp: 2, pagamento: 'pago',
+    { id: 8, numero: 'PV-4869', vitrine: 'DS-90204', loja: 1, canal: 'Vitrine Desk Shope',
+      cliente: 'Tatiana Vilela', doc: '155.903.228-70', contato: '(21) 98444-7719 · tati.vilela@email.com',
+      endereco: 'Rua Lopes Trovão, 88 · Icaraí · Niterói/RJ · 24220-071',
+      cidade: 'Niterói', uf: 'RJ', vendedor: null, dataVenda: '2026-10-06',
+      situacao: 'separacao', transp: 2, pagamento: 'pago', forma: 'Pix', parcelas: '1x',
+      valor: 159.90, recebido: 159.90,
       enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      itens: [ { sku: 'ACS-0221', nome: 'Suporte articulado para monitor', qtd: 1, unit: 159.90 } ],
+      toques: { separou: { quem: 3, quando: '2026-10-07 08:05' }, conferiu: null, despachou: null },
       volumes: [],
-      eventos: [
-        { data: '2026-10-06', sit: 'aberto' }, { data: '2026-10-06', sit: 'aprovado' },
-        { data: '2026-10-07', sit: 'separacao' }
-      ] },
+      eventos: [ { data: '2026-10-06', sit: 'aberto' }, { data: '2026-10-06', sit: 'aprovado' },
+                 { data: '2026-10-07', sit: 'separacao' } ] },
 
-    { id: 9, numero: 'PV-4871', vitrine: 'DS-90211', cliente: 'Mercado Central Paulista', cidade: 'São Paulo', uf: 'SP',
-      loja: 2, situacao: 'cancelado', transp: 4, pagamento: 'aguardando',
+    { id: 9, numero: 'PV-4871', vitrine: 'DS-90211', loja: 2, canal: 'Venda interna · telefone',
+      cliente: 'Mercado Central Paulista', doc: '41.778.330/0001-88', contato: '(11) 3277-6600 · mcp.compras@email.com',
+      endereco: 'Rua da Cantareira, 306 · Centro · São Paulo/SP · 01024-900',
+      cidade: 'São Paulo', uf: 'SP', vendedor: 1, dataVenda: '2026-10-03',
+      situacao: 'cancelado', transp: 4, pagamento: 'aguardando', forma: 'Boleto', parcelas: '1x',
+      valor: 1875.00, recebido: 0,
       enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      itens: [ { sku: 'EMB-0310', nome: 'Embalagem kraft 18x12 (cento)', qtd: 15, unit: 125.00 } ],
+      toques: { separou: null, conferiu: null, despachou: null },
       volumes: [],
-      eventos: [
-        { data: '2026-10-03', sit: 'aberto' },
-        { data: '2026-10-04', sit: 'cancelado', nota: 'Cliente desistiu antes da separação' }
-      ] },
+      eventos: [ { data: '2026-10-03', sit: 'aberto' },
+                 { data: '2026-10-04', sit: 'cancelado', nota: 'Cliente desistiu antes da separação' } ] },
 
-    { id: 10, numero: 'PV-4875', vitrine: 'DS-90218', cliente: 'Clínica Vida Plena', cidade: 'Goiânia', uf: 'GO',
-      loja: 3, situacao: 'entregue', transp: 1, pagamento: 'pago',
+    { id: 10, numero: 'PV-4875', vitrine: 'DS-90218', loja: 3, canal: 'Vitrine Desk Tech',
+      cliente: 'Clínica Vida Plena', doc: '27.001.554/0001-30', contato: '(62) 3255-1180 · adm@vidaplena.com.br',
+      endereco: 'Av. T-9, 1.200 · Jardim América · Goiânia/GO · 74255-220',
+      cidade: 'Goiânia', uf: 'GO', vendedor: 3, dataVenda: '2026-09-18',
+      situacao: 'entregue', transp: 1, pagamento: 'pago', forma: 'Cartão de crédito', parcelas: '3x',
+      valor: 940.00, recebido: 940.00,
       enviadoEm: '2026-09-20', prazoUsado: 8, previsao: '2026-09-28', entregaEm: '2026-09-27',
+      itens: [ { sku: 'ELE-3300', nome: 'Impressora térmica de etiquetas', qtd: 1, unit: 940.00 } ],
+      toques: { separou: { quem: 1, quando: '2026-09-19 09:25' }, conferiu: { quem: 2, quando: '2026-09-19 14:00' },
+                despachou: { quem: 2, quando: '2026-09-20 08:15' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 3.3, codigo: 'BR748750033PA' } ],
-      eventos: [
-        { data: '2026-09-18', sit: 'aberto' }, { data: '2026-09-18', sit: 'aprovado' },
-        { data: '2026-09-19', sit: 'separacao' }, { data: '2026-09-19', sit: 'conferenciasaida' },
-        { data: '2026-09-20', sit: 'faturado' }, { data: '2026-09-20', sit: 'enviado' },
-        { data: '2026-09-27', sit: 'entregue' }
-      ] },
+      eventos: [ { data: '2026-09-18', sit: 'aberto' }, { data: '2026-09-18', sit: 'aprovado' },
+                 { data: '2026-09-19', sit: 'separacao' }, { data: '2026-09-19', sit: 'conferenciasaida' },
+                 { data: '2026-09-20', sit: 'faturado' }, { data: '2026-09-20', sit: 'enviado' },
+                 { data: '2026-09-27', sit: 'entregue' } ] },
 
-    { id: 11, numero: 'PV-4880', vitrine: 'DS-90225', cliente: 'Rogério Pacheco Filho', cidade: 'Sorocaba', uf: 'SP',
-      loja: 1, situacao: 'enviado', transp: 6, pagamento: 'pago',
+    { id: 11, numero: 'PV-4880', vitrine: 'DS-90225', loja: 1, canal: 'Vitrine Desk Shope',
+      cliente: 'Rogério Pacheco Filho', doc: '890.337.201-14', contato: '(15) 99661-2048 · rogerio.pf@email.com',
+      endereco: 'Rua da Penha, 640 · Centro · Sorocaba/SP · 18010-002',
+      cidade: 'Sorocaba', uf: 'SP', vendedor: null, dataVenda: '2026-10-02',
+      situacao: 'enviado', transp: 6, pagamento: 'pago', forma: 'Pix', parcelas: '1x',
+      valor: 89.90, recebido: 89.90,
       enviadoEm: '2026-10-03', prazoUsado: 1, previsao: '2026-10-04', entregaEm: null,
+      itens: [ { sku: 'ACS-1180', nome: 'Apoio de punho em espuma', qtd: 1, unit: 89.90 } ],
+      toques: { separou: { quem: 2, quando: '2026-10-03 07:30' }, conferiu: { quem: 2, quando: '2026-10-03 10:45' },
+                despachou: { quem: 3, quando: '2026-10-03 12:00' } },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 0.9, codigo: 'MX100320261' } ],
-      eventos: [
-        { data: '2026-10-02', sit: 'aberto' }, { data: '2026-10-02', sit: 'aprovado' },
-        { data: '2026-10-03', sit: 'separacao' }, { data: '2026-10-03', sit: 'conferenciasaida' },
-        { data: '2026-10-03', sit: 'faturado' }, { data: '2026-10-03', sit: 'enviado' }
-      ] },
+      eventos: [ { data: '2026-10-02', sit: 'aberto' }, { data: '2026-10-02', sit: 'aprovado' },
+                 { data: '2026-10-03', sit: 'separacao' }, { data: '2026-10-03', sit: 'conferenciasaida' },
+                 { data: '2026-10-03', sit: 'faturado' }, { data: '2026-10-03', sit: 'enviado' } ] },
 
-    { id: 12, numero: 'PV-4884', vitrine: 'DS-90231', cliente: 'Supermercados Lagoa', cidade: 'Belo Horizonte', uf: 'MG',
-      loja: 2, situacao: 'faturado', transp: 3, pagamento: 'parcial',
+    { id: 12, numero: 'PV-4884', vitrine: 'DS-90231', loja: 2, canal: 'Venda interna · balcão',
+      cliente: 'Supermercados Lagoa', doc: '55.120.884/0001-71', contato: '(31) 3444-9900 · suprimentos@lagoa.com.br',
+      endereco: 'Av. Amazonas, 4.455 · Gameleira · Belo Horizonte/MG · 30510-000',
+      cidade: 'Belo Horizonte', uf: 'MG', vendedor: 2, dataVenda: '2026-10-05',
+      situacao: 'faturado', transp: 3, pagamento: 'parcial', forma: 'Boleto', parcelas: '4x',
+      valor: 14800.00, recebido: 3700.00,
       enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      itens: [ { sku: 'EMB-0310', nome: 'Embalagem kraft 18x12 (cento)', qtd: 40, unit: 125.00 },
+               { sku: 'EMB-0455', nome: 'Etiqueta térmica 60x40 (rolo)', qtd: 30, unit: 120.00 },
+               { sku: 'EMB-0700', nome: 'Filme stretch 500mm (bobina)', qtd: 25, unit: 248.00 } ],
+      toques: { separou: { quem: 3, quando: '2026-10-06 08:00' }, conferiu: { quem: 1, quando: '2026-10-06 16:40' },
+                despachou: null },
       volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 4', peso: 15.0, codigo: '' },
                  { id: 'V2', etiqueta: 'Caixa 2 de 4', peso: 14.2, codigo: '' },
                  { id: 'V3', etiqueta: 'Caixa 3 de 4', peso: 16.1, codigo: '' },
                  { id: 'V4', etiqueta: 'Caixa 4 de 4', peso: 13.7, codigo: '' } ],
-      eventos: [
-        { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
-        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
-        { data: '2026-10-07', sit: 'faturado', nota: 'NF-e 118604 emitida' }
-      ] }
+      eventos: [ { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+                 { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+                 { data: '2026-10-07', sit: 'faturado', nota: 'NF-e 118604 emitida' } ] }
   ];
 
+  const VENDEDORES = { 1: 'Camila Nogueira', 2: 'Rafael Tenório', 3: 'Bianca Duarte' };
+
   // ===== REGRAS DE DOMINIO =====
-  function fmtData(s) {
+  function fmtData(s) { if (!s) return '—'; const p = String(s).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function fmtDataHora(s) {
     if (!s) return '—';
-    const p = String(s).split('-');
-    return p[2] + '/' + p[1] + '/' + p[0];
+    const p = String(s).split(' ');
+    return fmtData(p[0]) + (p[1] ? ' às ' + p[1] : '');
   }
   function deYmd(s) { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function diasEntre(a, b) { return Math.round((deYmd(b) - deYmd(a)) / 86400000); }
-
-  // Nome de classe COMPLETO num mapa, nunca 'fase-' + fase. A concatenacao deixa
-  // o literal "fase-" no HTML e a auditoria reprova — com razao: ninguem prova por
-  // leitura que a concatenacao gera um nome que existe. Com o mapa, valor
-  // inesperado vira undefined e aparece, em vez de virar classe morta calada.
-  const CLS_PONTO = { processando:'fase-processando', transito:'fase-transito', final:'fase-final', cancelado:'fase-cancelado' };
-  const CLS_TEXTO = { processando:'tx-processando', transito:'tx-transito', final:'tx-final', cancelado:'tx-cancelado' };
-  const CLS_PAGTO = { pago:'pg-pago', parcial:'pg-parcial', aguardando:'pg-aguardando', vencido:'pg-vencido' };
+  function moeda(v) {
+    return 'R$ ' + Number(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
   function situacaoDe(id) { return SITUACOES.filter(s => s.id === id)[0] || SITUACOES[0]; }
   function pagamentoDe(id) { return PAGAMENTOS.filter(p => p.id === id)[0] || PAGAMENTOS[2]; }
-  function transpDe(id) { return TRANSPORTADORAS[id] || { nome: '—', tipo: '—', prazo: null }; }
+  function transpDe(id) { return TRANSPORTADORAS[id] || { nome: '—', tipo: '—', prazo: null, contato: '—' }; }
+
+  const CLS_PONTO = { processando:'fase-processando', transito:'fase-transito', final:'fase-final', cancelado:'fase-cancelado' };
+  const CLS_BADGE = { processando:'bs-processando', transito:'bs-transito', final:'bs-final', cancelado:'bs-cancelado' };
+  const CLS_PAGTO = { pago:'pg-pago', parcial:'pg-parcial', aguardando:'pg-aguardando', vencido:'pg-vencido' };
 
   function volumesComCodigo(p) { return p.volumes.filter(v => v.codigo).length; }
   function faltaCodigo(p) {
-    // So cobra codigo de quem JA SAIU. Pedido em separacao nao tem o que rastrear,
-    // e cobrar dele encheria o aviso de ruido que ninguem pode resolver ainda.
     if (p.situacao !== 'enviado' && p.situacao !== 'entregue') return 0;
     return p.volumes.length - volumesComCodigo(p);
   }
-
-  // Atraso e medido contra a previsao CONGELADA, e para quem ja foi entregue ele
-  // olha a data da entrega, nao hoje — senao todo pedido antigo entregue com
-  // atraso apareceria como "atrasado ha 40 dias" para sempre.
   function diasDeAtraso(p) {
     if (!p.previsao) return null;
-    const fim = p.entregaEm || HOJE;
-    const d = diasEntre(p.previsao, fim);
+    const d = diasEntre(p.previsao, p.entregaEm || HOJE);
     return d > 0 ? d : 0;
   }
   function estadoPrazo(p) {
     if (!p.previsao) return 'sem';
-    const atraso = diasDeAtraso(p);
-    if (atraso > 0) return 'atrasado';
+    if (diasDeAtraso(p) > 0) return 'atrasado';
     if (p.entregaEm) return 'ok';
     return diasEntre(HOJE, p.previsao) <= 1 ? 'atencao' : 'ok';
   }
-
-  // A linha do tempo que a VITRINE enxerga. Evento sem rotulo publico fica fora —
-  // e por isso o rotulo publico e `null` em vez de ausente: a ausencia poderia ser
-  // esquecimento, o `null` e decisao.
-  function eventosPublicos(p) {
-    return p.eventos.filter(e => !!ROTULO_VITRINE[e.sit]);
-  }
-
-  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
-  function inicializarDropdownSelect(raiz, aoMudar) {
-    const btn = raiz.querySelector('.dropdown-select-btn');
-    const menu = raiz.querySelector('.dropdown-select-menu');
-    const label = raiz.querySelector('.dropdown-select-label');
-    if (!btn || !menu) return;
-    // O callback mora no ELEMENTO: a ultima chamada manda, sem empilhar listener.
-    raiz._aoMudarDropdown = aoMudar || function () {};
-    if (!raiz.dataset.dropdownInit) {
-      raiz.dataset.dropdownInit = '1';
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (btn.disabled) return;
-        document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-        const vaiAbrir = !menu.classList.contains('open');
-        if (vaiAbrir) {
-          menu.style.visibility = 'hidden';
-          menu.style.display = 'block';
-          const alturaMenu = menu.offsetHeight;
-          menu.style.display = '';
-          menu.style.visibility = '';
-          const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
-        }
-        menu.classList.toggle('open');
-      });
-
-      // Delegacao: o clique e ouvido no MENU, nao em cada item. Assim o
-      // comportamento sobrevive a refazer o conteudo do menu com innerHTML, e
-      // chamar esta funcao de novo nao acumula listener.
-      menu.addEventListener('click', (e) => {
-        const item = e.target.closest ? e.target.closest('.dropdown-select-item') : null;
-        if (!item || !menu.contains(item)) return;
-        e.stopPropagation();
-        menu.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        if (label) label.textContent = item.textContent;
-        raiz.setAttribute('data-value', item.getAttribute('data-value'));
-        menu.classList.remove('open');
-        if (raiz._aoMudarDropdown) raiz._aoMudarDropdown(item.getAttribute('data-value'));
-      });
-    }
-  }
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.remove('open');
-  });
+  function eventosPublicos(p) { return p.eventos.filter(e => !!ROTULO_VITRINE[e.sit]); }
 
   // ===== MODAL =====
   const confirmModal = document.getElementById('confirmModal');
@@ -1989,480 +1991,345 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      else if (eventDrawer.classList.contains('open')) fecharDrawer();
-      else document.getElementById('periodoMenu').classList.remove('open');
     }
   });
 
-
-  // ===== FILTROS, ORDEM E PAGINACAO =====
-  const estado = { busca: '', periodo: 'todos', situacao: 'todos', transp: 'todos',
-                   pagamento: 'todos', ordem: 'previsao', asc: true, pagina: 1, porPagina: 10 };
-
-  const corpoTabela = document.getElementById('corpoTabela');
-  const emptyState = document.getElementById('emptyState');
-
-  // Os filtros sao aplicados em duas etapas de proposito: `semSituacao` serve aos
-  // CONTADORES do filtro de situacao, que precisam acompanhar os outros filtros
-  // sem se filtrar por si mesmos. E a mesma mecanica de Pedidos de Venda.
-  function semSituacao() {
-    const q = estado.busca.trim().toLowerCase();
-    return PEDIDOS.filter(p => {
-      if (estado.transp !== 'todos' && String(p.transp) !== estado.transp) return false;
-      if (estado.pagamento !== 'todos' && p.pagamento !== estado.pagamento) return false;
-      if (estado.periodo !== 'todos') {
-        if (!p.enviadoEm) return false;
-        if (diasEntre(p.enviadoEm, HOJE) > +estado.periodo) return false;
-      }
-      if (q) {
-        const alvo = [p.numero, p.vitrine, p.cliente, p.cidade, p.uf, transpDe(p.transp).nome]
-          .concat(p.volumes.map(v => v.codigo)).join(' ').toLowerCase();
-        if (alvo.indexOf(q) === -1) return false;
-      }
-      return true;
-    });
-  }
-
-  function filtrados() {
-    let lista = semSituacao();
-    if (estado.situacao !== 'todos') lista = lista.filter(p => p.situacao === estado.situacao);
-
-    const dir = estado.asc ? 1 : -1;
-    const chave = {
-      pedido:   p => p.numero,
-      cliente:  p => p.cliente,
-      transp:   p => transpDe(p.transp).nome,
-      codigos:  p => volumesComCodigo(p) - p.volumes.length,
-      previsao: p => p.previsao || '9999-12-31'
-    }[estado.ordem] || (p => p.numero);
-
-    return lista.slice().sort((a, b) => {
-      const x = chave(a), y = chave(b);
-      if (x < y) return -1 * dir;
-      if (x > y) return 1 * dir;
-      return a.numero < b.numero ? -1 : 1;
-    });
-  }
-
-  function popularFiltros() {
-    const base = semSituacao();
-    const menuSit = document.getElementById('menuFiltroSituacao');
-    if (menuSit) {
-      let h = '<div class="dropdown-select-item' + (estado.situacao === 'todos' ? ' active' : '') +
-              '" data-value="todos">Todas as situações (' + base.length + ')</div>';
-      SITUACOES.forEach(s => {
-        const n = base.filter(p => p.situacao === s.id).length;
-        h += '<div class="dropdown-select-item' + (estado.situacao === s.id ? ' active' : '') +
-             '" data-value="' + s.id + '">' + s.rotulo + ' (' + n + ')</div>';
+  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
+  function inicializarDropdownSelect(raiz, aoMudar) {
+    const btn = raiz.querySelector('.dropdown-select-btn');
+    const menu = raiz.querySelector('.dropdown-select-menu');
+    const label = raiz.querySelector('.dropdown-select-label');
+    if (!btn || !menu) return;
+    // O callback mora no ELEMENTO: a ultima chamada manda, sem empilhar listener.
+    raiz._aoMudarDropdown = aoMudar || function () {};
+    if (!raiz.dataset.dropdownInit) {
+      raiz.dataset.dropdownInit = '1';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btn.disabled) return;
+        document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+        const vaiAbrir = !menu.classList.contains('open');
+        if (vaiAbrir) {
+          menu.style.visibility = 'hidden';
+          menu.style.display = 'block';
+          const alturaMenu = menu.offsetHeight;
+          menu.style.display = '';
+          menu.style.visibility = '';
+          const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
+          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+        }
+        menu.classList.toggle('open');
       });
-      menuSit.innerHTML = h;
-    }
 
-    const menuTransp = document.getElementById('menuFiltroTransp');
-    if (menuTransp) {
-      let h = '<div class="dropdown-select-item' + (estado.transp === 'todos' ? ' active' : '') +
-              '" data-value="todos">Todas as transportadoras</div>';
-      Object.keys(TRANSPORTADORAS).forEach(k => {
-        h += '<div class="dropdown-select-item' + (estado.transp === k ? ' active' : '') +
-             '" data-value="' + k + '">' + TRANSPORTADORAS[k].nome + '</div>';
+      // Delegacao: o clique e ouvido no MENU, nao em cada item. Assim o
+      // comportamento sobrevive a refazer o conteudo do menu com innerHTML, e
+      // chamar esta funcao de novo nao acumula listener.
+      menu.addEventListener('click', (e) => {
+        const item = e.target.closest ? e.target.closest('.dropdown-select-item') : null;
+        if (!item || !menu.contains(item)) return;
+        e.stopPropagation();
+        menu.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        if (label) label.textContent = item.textContent;
+        raiz.setAttribute('data-value', item.getAttribute('data-value'));
+        menu.classList.remove('open');
+        if (raiz._aoMudarDropdown) raiz._aoMudarDropdown(item.getAttribute('data-value'));
       });
-      menuTransp.innerHTML = h;
-    }
-
-    const menuPg = document.getElementById('menuFiltroPagamento');
-    if (menuPg) {
-      let h = '<div class="dropdown-select-item' + (estado.pagamento === 'todos' ? ' active' : '') +
-              '" data-value="todos">Qualquer pagamento</div>';
-      PAGAMENTOS.forEach(p => {
-        h += '<div class="dropdown-select-item' + (estado.pagamento === p.id ? ' active' : '') +
-             '" data-value="' + p.id + '">' + p.rotulo + '</div>';
-      });
-      menuPg.innerHTML = h;
     }
   }
+  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // ===== DESENHO DA LISTA =====
-  function celulaSituacao(p) {
-    const s = situacaoDe(p.situacao);
-    return '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' +
-           '<span class="' + CLS_TEXTO[s.fase] + '" style="font-weight:700">' + s.rotulo + '</span>';
-  }
+  // ===== CABEÇALHO =====
+  // O id vem na URL, como nas outras telas de detalhe do sistema (?id=).
+  const ID_URL = (new URLSearchParams(window.location.search).get('id') || '').trim();
+  let PEDIDO = PEDIDOS.filter(p => String(p.id) === ID_URL || p.numero === ID_URL)[0] || null;
 
-  function celulaPagamento(p) {
-    const pg = pagamentoDe(p.pagamento);
-    return '<span class="pg-chip ' + CLS_PAGTO[pg.id] + '">' + pg.rotulo + '</span>';
-  }
+  // Sem id valido a tela nao inventa um pedido: ela diz que nao achou e oferece a
+  // volta. Abrir "o primeiro da lista" calado faria alguem conferir codigo do
+  // pedido errado achando que esta no que pediu.
+  const SEM_PEDIDO = !PEDIDO;
+  if (SEM_PEDIDO) PEDIDO = null;
 
-  function celulaRastreio(p) {
-    if (!p.volumes.length) return '<span class="un-sufixo">sem volume</span>';
-    const com = volumesComCodigo(p), total = p.volumes.length;
-    if (com === total) return '<span class="cod-resumo">' + com + ' de ' + total + '</span>';
-    const falta = total - com;
-    const cobra = (p.situacao === 'enviado' || p.situacao === 'entregue');
-    return '<span class="' + (cobra ? 'cod-falta' : 'cod-resumo') + '">' + com + ' de ' + total + '</span>' +
-           (cobra ? '<span class="prazo-sub">falta ' + falta + '</span>' : '');
-  }
-
-  // UMA coluna para previsto e realizado. Eram duas, e a tabela estourava o card
-  // em 88px a 1440px — e o design system e explicito: antes de espremer, meca; se
-  // a folga depender de encurtar rotulo, o componente esta errado para o lugar.
-  // Previsao e entrega sao o mesmo fato em dois tempos, e a sub-linha ja existia.
-  function celulaPrazo(p) {
-    if (!p.previsao) return '<span class="un-sufixo">não enviado</span>';
-    const est = estadoPrazo(p);
-    const cls = est === 'atrasado' ? 'prazo-atrasado' : (est === 'atencao' ? 'prazo-atencao' : 'prazo-ok');
-    const atraso = diasDeAtraso(p);
-    let sub;
-    if (p.entregaEm) sub = 'entregue ' + fmtData(p.entregaEm) + (atraso > 0 ? ' · fora do prazo' : ' · no prazo');
-    else if (est === 'atrasado') sub = 'atrasado ' + atraso + (atraso === 1 ? ' dia' : ' dias');
-    else if (est === 'atencao') sub = 'chega hoje ou amanhã';
-    else sub = 'prazo de ' + p.prazoUsado + (p.prazoUsado === 1 ? ' dia' : ' dias');
-    return '<span class="' + cls + '">' + fmtData(p.previsao) + '</span><span class="prazo-sub">' + sub + '</span>';
-  }
-
-  function render() {
-    popularFiltros();
-    const lista = filtrados();
-
-    const porPagina = estado.porPagina;
-    const totalPaginas = Math.max(1, Math.ceil(lista.length / porPagina));
-    if (estado.pagina > totalPaginas) estado.pagina = totalPaginas;
-    const ini = (estado.pagina - 1) * porPagina;
-    const pagina = lista.slice(ini, ini + porPagina);
-
-    corpoTabela.innerHTML = pagina.map(p => (
-      '<tr data-id="' + p.id + '" class="linha-clicavel">' +
-        '<td class="col-texto"><span class="cliente-nome">' + p.numero + '</span>' +
-          '<span class="pedido-vitrine">vitrine ' + p.vitrine + '</span></td>' +
-        '<td class="col-texto"><span class="cliente-nome">' + p.cliente + '</span>' +
-          '<span class="cliente-sub">' + p.cidade + ' · ' + p.uf + '</span></td>' +
-        '<td class="col-texto">' + celulaSituacao(p) + '</td>' +
-        '<td class="col-texto">' + celulaPagamento(p) + '</td>' +
-        '<td class="col-texto"><span class="transp-nome">' + transpDe(p.transp).nome + '</span>' +
-          '<span class="transp-tipo">' + LOJAS[p.loja] + '</span></td>' +
-        '<td>' + celulaRastreio(p) + '</td>' +
-        '<td>' + celulaPrazo(p) + '</td>' +
-      '</tr>'
-    )).join('');
-
-    emptyState.style.display = lista.length ? 'none' : '';
-    const wrap = document.querySelector('.estoque-table-wrap');
-    if (wrap) wrap.style.display = lista.length ? '' : 'none';
-
-    const cont = document.getElementById('contagemPedidos');
-    if (cont) cont.textContent = lista.length + (lista.length === 1 ? ' pedido' : ' pedidos');
-
-    const atrasados = lista.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm);
-    const pior = atrasados.slice().sort((a, b) => diasDeAtraso(b) - diasDeAtraso(a))[0];
-    const maior = document.getElementById('maiorAtraso');
-    if (maior) maior.textContent = pior ? (pior.numero + ' · ' + diasDeAtraso(pior) +
-      (diasDeAtraso(pior) === 1 ? ' dia' : ' dias')) : '—';
-
-    const resumo = document.getElementById('paginacaoResumo');
-    if (resumo) resumo.textContent = lista.length
-      ? 'Mostrando ' + (ini + 1) + '–' + Math.min(ini + porPagina, lista.length) + ' de ' + lista.length
-      : 'Nada para mostrar';
-    const pags = document.getElementById('paginacaoPaginas');
-    if (pags) pags.textContent = 'Página ' + estado.pagina + ' de ' + totalPaginas;
-    const btnAnt = document.getElementById('btnPaginaAnterior');
-    const btnProx = document.getElementById('btnPaginaProxima');
-    if (btnAnt) btnAnt.disabled = estado.pagina <= 1;
-    if (btnProx) btnProx.disabled = estado.pagina >= totalPaginas;
-
-    desenharKpis();
-    desenharAviso();
-    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
-  }
-
-  // Os KPIs leem a MESMA lista filtrada da tela. Numero de topo que ignora o
-  // filtro aberto embaixo e numero que mente com cara de verdade — e o rodape do
-  // Caixa ja ensinou isso (§14 do design system).
-  function desenharKpis() {
-    const lista = filtrados();
-    const transito = lista.filter(p => p.situacao === 'enviado');
-    const atrasados = lista.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm);
-    const entregues = lista.filter(p => p.situacao === 'entregue');
-    const noPrazo = entregues.filter(p => diasDeAtraso(p) === 0);
-    const semCod = lista.filter(p => faltaCodigo(p) > 0);
-
-    const por = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    por('kpiTransito', transito.length);
-    por('kpiTransitoSub', transito.length ? transito.length + ' a caminho do cliente' : 'nada na rua');
-    por('kpiAtrasados', atrasados.length);
-    por('kpiAtrasadosSub', atrasados.length ? 'passaram da previsão congelada' : 'nenhum passou da previsão');
-    por('kpiNoPrazo', noPrazo.length);
-    por('kpiNoPrazoSub', entregues.length ? noPrazo.length + ' de ' + entregues.length + ' entregas' : 'sem entrega no filtro');
-    por('kpiSemCodigo', semCod.length);
-    por('kpiSemCodigoSub', semCod.length ? 'a vitrine não responde por eles' : 'todos com código');
-  }
-
-  function desenharAviso() {
-    const aviso = document.getElementById('avisoCodigos');
-    const txt = document.getElementById('avisoCodigosTexto');
-    if (!aviso || !txt) return;
-    const pendentes = PEDIDOS.filter(p => faltaCodigo(p) > 0);
-    if (!pendentes.length) {
-      aviso.style.display = 'none';
+  function pintarCabecalho() {
+    const tit = document.getElementById('tituloPedido');
+    const sub = document.getElementById('subtituloPedido');
+    const bSit = document.getElementById('badgeSituacao');
+    const bPg = document.getElementById('badgePagamento');
+    if (!PEDIDO) {
+      if (tit) tit.textContent = 'Pedido não encontrado';
+      if (sub) sub.textContent = ID_URL
+        ? 'Nenhum pedido com o identificador "' + ID_URL + '". Volte ao rastreamento e abra pela lista.'
+        : 'Abra esta tela a partir da lista de rastreamento.';
+      if (bSit) bSit.style.display = 'none';
+      if (bPg) bPg.style.display = 'none';
       return;
     }
-    const volumes = pendentes.reduce((s, p) => s + faltaCodigo(p), 0);
-    aviso.style.display = '';
-    txt.textContent = pendentes.length + (pendentes.length === 1 ? ' pedido já enviado está' : ' pedidos já enviados estão') +
-      ' sem código de rastreio em ' + volumes + (volumes === 1 ? ' volume' : ' volumes') +
-      '. Enquanto o código não entra, a vitrine não tem o que mostrar ao cliente.';
+    const s = situacaoDe(PEDIDO.situacao);
+    const pg = pagamentoDe(PEDIDO.pagamento);
+    if (tit) tit.textContent = 'Pedido ' + PEDIDO.numero;
+    if (sub) sub.textContent = PEDIDO.cliente + ' · ' + PEDIDO.cidade + '/' + PEDIDO.uf +
+                               ' · vitrine ' + PEDIDO.vitrine;
+    if (bSit) {
+      bSit.className = 'badge-situacao ' + CLS_BADGE[s.fase];
+      bSit.innerHTML = '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' + s.rotulo;
+    }
+    if (bPg) {
+      bPg.className = 'pg-chip ' + CLS_PAGTO[pg.id];
+      bPg.textContent = pg.rotulo;
+    }
   }
 
-  // ===== PAINEL: o rastreamento por dentro, sem sair da lista =====
-  const eventDrawer = document.getElementById('eventDrawer');
-  const drawerBackdrop = document.getElementById('drawerBackdrop');
-  let pedidoAberto = null;
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
 
-  function pedidoPor(id) { return PEDIDOS.filter(p => p.id === +id)[0]; }
+  // ===== O PEDIDO =====
+  function pintarPedido() {
+    if (!PEDIDO) return;
+    texto('docOnde', LOJAS[PEDIDO.loja] + ' · ' + PEDIDO.canal);
+    // "Sem vendedor" nao e falta de dado: venda de vitrine nao tem vendedor, e
+    // dizer isso evita alguem sair procurando o nome que nunca existiu.
+    texto('docVendedor', PEDIDO.vendedor ? VENDEDORES[PEDIDO.vendedor] : 'Sem vendedor — venda de vitrine');
+    texto('docVenda', fmtData(PEDIDO.dataVenda));
+    texto('docEnviado', PEDIDO.enviadoEm ? fmtData(PEDIDO.enviadoEm) : 'ainda não saiu');
 
-  function corpoDrawer(p) {
-    const s = situacaoDe(p.situacao);
-    const tr = transpDe(p.transp);
-
-    let h = '<div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Cliente</span><span class="chave-valor">' +
-         p.cliente + ' · ' + p.cidade + '/' + p.uf + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Situação</span><span class="chave-valor">' +
-         celulaSituacao(p) + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Pagamento</span><span class="chave-valor">' +
-         celulaPagamento(p) + ' <span class="un-sufixo">lido de Contas a Receber</span></span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Transportadora</span><span class="chave-valor">' +
-         tr.nome + '</span></div>';
-    if (p.previsao) {
-      h += '<div class="rt-linha"><span class="chave-rotulo">Previsão</span><span class="chave-valor">' +
-           fmtData(p.previsao) + ' <span class="un-sufixo">congelada no envio de ' + fmtData(p.enviadoEm) +
-           ', com o prazo de ' + p.prazoUsado + (p.prazoUsado === 1 ? ' dia' : ' dias') +
-           ' que a transportadora tinha naquele dia</span></span></div>';
-    }
-    h += '</div>';
-
-    // VOLUMES — um codigo por caixa (barganha de 07/out)
-    h += '<div class="rt-sub">Volumes e códigos de rastreio</div>';
-    if (!p.volumes.length) {
-      h += '<div class="nota-reservado"><span>Este pedido ainda não tem volume: os volumes nascem na Conferência de Saída.</span></div>';
+    if (!PEDIDO.previsao) {
+      texto('docPrevisao', 'definida no envio');
     } else {
-      h += '<div>';
-      p.volumes.forEach(v => {
-        h += '<div class="vol-linha">' +
-               '<div><span class="vol-nome">' + v.etiqueta + '</span>' +
-                 '<span class="vol-sub">' + v.peso.toFixed(2).replace('.', ',') + ' kg</span></div>' +
-               '<div>' + (v.codigo
-                 ? '<span class="cod-chip">' + v.codigo + '</span>'
-                 : '<span class="cod-falta">sem código</span>') +
-               '</div>' +
-             '</div>';
-      });
-      h += '</div>';
+      const est = estadoPrazo(PEDIDO);
+      const cls = est === 'atrasado' ? 'prazo-atrasado' : (est === 'atencao' ? 'prazo-atencao' : 'prazo-ok');
+      html('docPrevisao', '<span class="' + cls + '">' + fmtData(PEDIDO.previsao) + '</span>' +
+        '<span class="prazo-sub">congelada no envio, com o prazo de ' + PEDIDO.prazoUsado +
+        (PEDIDO.prazoUsado === 1 ? ' dia' : ' dias') + ' que a transportadora tinha naquele dia</span>');
     }
 
-    // COMPROVANTE DE ENTREGA — reservado, conforme a regra fiscal do projeto.
-    // O canhoto de papel acabou em 01/12/2021 (Ajuste SINIEF 38/2021) e o evento
-    // da NF-e o substituiu, com guarda de 5 anos. Quem emite e o modulo fiscal,
-    // nao esta tela — entao o campo existe, visivel, e nao promete o que nao faz.
-    h += '<div class="rt-sub">Comprovante de entrega</div>';
-    h += '<div class="nota-reservado"><span>Reservado — usado quando a emissão de NF-e for habilitada. ' +
-         'O comprovante é o evento de entrega da NF-e (Ajuste SINIEF 38/2021), com guarda de 5 anos, ' +
-         'e quem emite é o módulo fiscal.</span></div>';
+    if (PEDIDO.entregaEm) {
+      const atraso = diasDeAtraso(PEDIDO);
+      html('docEntrega', '<span class="prazo-ok">' + fmtData(PEDIDO.entregaEm) + '</span>' +
+        '<span class="prazo-sub">' + (atraso > 0 ? 'fora do prazo, ' + atraso +
+        (atraso === 1 ? ' dia' : ' dias') + ' depois' : 'no prazo') + '</span>');
+    } else if (estadoPrazo(PEDIDO) === 'atrasado') {
+      const atraso = diasDeAtraso(PEDIDO);
+      html('docEntrega', '<span class="prazo-atrasado">não entregue</span>' +
+        '<span class="prazo-sub">atrasado ' + atraso + (atraso === 1 ? ' dia' : ' dias') + '</span>');
+    } else {
+      texto('docEntrega', '—');
+    }
+  }
 
-    // HISTORICO
-    h += '<div class="rt-sub">Histórico</div>';
-    h += '<div class="ev-lista">';
-    p.eventos.slice().reverse().forEach(e => {
+  // ===== ITENS =====
+  function pintarItens() {
+    const corpo = document.getElementById('corpoItens');
+    if (!corpo || !PEDIDO) return;
+    corpo.innerHTML = PEDIDO.itens.map(i => (
+      '<tr>' +
+        '<td class="col-texto">' + i.sku + '</td>' +
+        '<td class="col-texto">' + i.nome + '</td>' +
+        '<td>' + i.qtd + '</td>' +
+        '<td>' + moeda(i.unit) + '</td>' +
+        '<td>' + moeda(i.qtd * i.unit) + '</td>' +
+      '</tr>'
+    )).join('');
+    const pecas = PEDIDO.itens.reduce((s, i) => s + i.qtd, 0);
+    texto('contagemItens', PEDIDO.itens.length + (PEDIDO.itens.length === 1 ? ' item' : ' itens') +
+          ' · ' + pecas + (pecas === 1 ? ' peça' : ' peças'));
+    texto('totalPedido', moeda(PEDIDO.itens.reduce((s, i) => s + i.qtd * i.unit, 0)));
+  }
+
+  // ===== CLIENTE =====
+  function pintarCliente() {
+    if (!PEDIDO) return;
+    texto('docCliente', PEDIDO.cliente);
+    texto('docDocumento', PEDIDO.doc);
+    texto('docContato', PEDIDO.contato);
+    texto('docEndereco', PEDIDO.endereco);
+  }
+
+  // ===== PAGAMENTO (so leitura) =====
+  function pintarPagamento() {
+    if (!PEDIDO) return;
+    const pg = pagamentoDe(PEDIDO.pagamento);
+    html('docPgSituacao', '<span class="pg-chip ' + CLS_PAGTO[pg.id] + '">' + pg.rotulo + '</span>');
+    texto('docPgForma', PEDIDO.forma);
+    texto('docPgParcelas', PEDIDO.parcelas);
+    texto('docPgValor', moeda(PEDIDO.valor));
+    texto('docPgRecebido', moeda(PEDIDO.recebido));
+    const saldo = PEDIDO.valor - PEDIDO.recebido;
+    html('docPgSaldo', saldo > 0
+      ? '<span class="prazo-atencao">' + moeda(saldo) + '</span><span class="prazo-sub">em aberto</span>'
+      : '<span class="prazo-ok">' + moeda(0) + '</span><span class="prazo-sub">quitado</span>');
+  }
+
+  // ===== QUEM TOCOU =====
+  function pintarToques() {
+    const lista = document.getElementById('listaToques');
+    if (!lista || !PEDIDO) return;
+    const etapas = [
+      { rot: 'Separou', dado: PEDIDO.toques.separou, vazio: 'ainda não separado' },
+      { rot: 'Conferiu na saída', dado: PEDIDO.toques.conferiu, vazio: 'ainda não conferido' },
+      { rot: 'Despachou', dado: PEDIDO.toques.despachou, vazio: 'ainda não despachado' }
+    ];
+    lista.innerHTML = etapas.map(e => (
+      '<div class="toque-item">' +
+        '<div class="toque-etapa">' + e.rot + '</div>' +
+        '<div>' + (e.dado
+          ? '<span class="toque-quem">' + OPERADORES[e.dado.quem] + '</span>'
+          : '<span class="toque-vazio">' + e.vazio + '</span>') + '</div>' +
+        '<div class="toque-quando">' + (e.dado ? fmtDataHora(e.dado.quando) : '—') + '</div>' +
+      '</div>'
+    )).join('');
+  }
+
+  // ===== TRANSPORTADORA E CODIGOS — a unica parte que ESCREVE =====
+  function pintarTransportadora() {
+    if (!PEDIDO) return;
+    const tr = transpDe(PEDIDO.transp);
+    texto('docTransp', tr.nome);
+    texto('docTranspContato', tr.contato);
+    // O prazo mostrado aqui e o do CADASTRO, hoje. Ele pode nao ser o que gerou a
+    // previsao deste pedido — e por isso a previsao diz qual prazo usou.
+    texto('docTranspPrazo', tr.prazo + (tr.prazo === 1 ? ' dia' : ' dias') +
+          (PEDIDO.prazoUsado && PEDIDO.prazoUsado !== tr.prazo
+            ? ' · este pedido saiu com ' + PEDIDO.prazoUsado : ''));
+
+    const aviso = document.getElementById('avisoCodigos');
+    const avisoTxt = document.getElementById('avisoCodigosTexto');
+    const falta = faltaCodigo(PEDIDO);
+    if (aviso && avisoTxt) {
+      if (!PEDIDO.volumes.length) {
+        avisoTxt.textContent = 'Este pedido ainda não tem volume. Os volumes nascem na Conferência de Saída, ' +
+          'e é lá que a caixa passa a existir para o rastreio.';
+      } else if (falta > 0) {
+        avisoTxt.textContent = falta + (falta === 1 ? ' volume está' : ' volumes estão') +
+          ' sem código. Enquanto o código não entra, a vitrine não tem o que mostrar ao cliente.';
+      } else {
+        avisoTxt.textContent = 'Todos os volumes têm código. O cliente consegue acompanhar pela vitrine.';
+      }
+    }
+
+    const corpo = document.getElementById('corpoVolumes');
+    if (!corpo) return;
+    if (!PEDIDO.volumes.length) {
+      corpo.innerHTML = '<tr><td colspan="3"><span class="toque-vazio">Nenhum volume para este pedido.</span></td></tr>';
+      return;
+    }
+    corpo.innerHTML = PEDIDO.volumes.map(v => (
+      '<tr>' +
+        '<td class="col-texto"><span class="vol-nome">' + v.etiqueta + '</span>' +
+          '<span class="vol-sub">' + v.peso.toFixed(2).replace('.', ',') + ' kg</span></td>' +
+        '<td class="col-texto">' + (v.codigo
+          ? '<span class="cod-chip">' + v.codigo + '</span>'
+          : '<span class="cod-falta">sem código</span>') + '</td>' +
+        '<td class="vol-acao"><div class="vol-campo">' +
+          '<input type="text" data-vol="' + v.id + '" value="' + v.codigo + '" ' +
+            'placeholder="' + (v.codigo ? 'alterar o código' : 'inserir o código') + '" autocomplete="off">' +
+        '</div></td>' +
+      '</tr>'
+    )).join('');
+  }
+
+  // ===== SALVAR OS CODIGOS =====
+  // Inserir e rotina e pede rastro. ALTERAR um codigo ja confirmado e outra coisa:
+  // o cliente ja recebeu o antigo e pode estar acompanhando por ele — por isso a
+  // chave e outra, e ela exige senha. Numa salvada com os dois tipos vale a mais
+  // estrita: trava mais fraca escolhida por conveniencia e trava que nao existe.
+  function coletarMudancas() {
+    if (!PEDIDO) return { novos: [], alterados: [] };
+    const novos = [], alterados = [];
+    PEDIDO.volumes.forEach(v => {
+      const campo = document.querySelector('[data-vol="' + v.id + '"]');
+      if (!campo) return;
+      const valor = campo.value.trim();
+      if (valor === (v.codigo || '')) return;
+      if (!valor) return;              // apagar codigo nao e caso desta tela
+      (v.codigo ? alterados : novos).push({ vol: v, valor: valor });
+    });
+    return { novos: novos, alterados: alterados };
+  }
+
+  function salvarCodigos() {
+    if (!PEDIDO) { avisar('Não há pedido aberto para salvar.'); return; }
+    const m = coletarMudancas();
+    const total = m.novos.length + m.alterados.length;
+    if (!total) { avisar('Nenhum código novo para salvar. Digite o código no campo do volume.'); return; }
+
+    const chave = m.alterados.length ? 'rastreioAltera' : 'rastreioConfirma';
+    let texto;
+    if (m.alterados.length && m.novos.length) {
+      texto = 'Salvar ' + total + ' códigos do pedido ' + PEDIDO.numero + ': ' + m.novos.length +
+              ' novo(s) e ' + m.alterados.length + ' alterado(s). O cliente já pode estar acompanhando pelos antigos.';
+    } else if (m.alterados.length) {
+      texto = 'Alterar ' + m.alterados.length + ' código(s) de rastreio do pedido ' + PEDIDO.numero +
+              '. O cliente já pode estar acompanhando pelos antigos.';
+    } else {
+      texto = 'Confirmar ' + m.novos.length + ' código(s) de rastreio do pedido ' + PEDIDO.numero + '.';
+    }
+
+    confirmarAcao(chave, texto, function () {
+      m.novos.concat(m.alterados).forEach(x => { x.vol.codigo = x.valor; });
+      // Sem modal de sucesso: a tela JA responde — o codigo vira chip, o campo
+      // troca de placeholder e a linha de aviso do card se atualiza. Modal a cada
+      // salvada vira ruido que a pessoa aprende a fechar sem ler, e aviso que
+      // ninguem le e o mesmo que aviso que nao existe.
+      pintarTransportadora();
+      if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
+    });
+  }
+
+  // ===== HISTORICO =====
+  function pintarEventos() {
+    const lista = document.getElementById('listaEventos');
+    if (!lista || !PEDIDO) return;
+    lista.innerHTML = PEDIDO.eventos.slice().reverse().map(e => {
       const es = situacaoDe(e.sit);
       const publico = ROTULO_VITRINE[e.sit];
-      h += '<div class="ev-item">' +
-             '<div class="ev-linha"></div>' +
-             '<div class="ev-marco ' + CLS_PONTO[es.fase] + '"></div>' +
-             '<div>' +
-               '<div class="ev-rotulo">' + es.rotulo +
-                 '<span class="ev-visto">' + (publico ? 'o cliente vê' : 'só interno') + '</span>' +
+      return '<div class="ev-item">' +
+               '<div class="ev-linha"></div>' +
+               '<div class="ev-marco ' + CLS_PONTO[es.fase] + '"></div>' +
+               '<div>' +
+                 '<div class="ev-rotulo">' + es.rotulo +
+                   '<span class="ev-visto">' + (publico ? 'o cliente vê' : 'só interno') + '</span></div>' +
+                 '<div class="ev-quando">' + fmtData(e.data) +
+                   (publico ? ' · na vitrine: ' + publico : '') + '</div>' +
+                 (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
                '</div>' +
-               '<div class="ev-quando">' + fmtData(e.data) +
-                 (publico ? ' · na vitrine: ' + publico : '') + '</div>' +
-               (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
-             '</div>' +
-           '</div>';
-    });
-    h += '</div>';
-
-    const pub = eventosPublicos(p).length;
-    h += '<div class="nota-reservado" style="margin-top:12px;"><span>A vitrine mostra ' + pub +
-         ' de ' + p.eventos.length + ' eventos. O resto é vocabulário de depósito e fica aqui dentro.</span></div>';
-
-    // Este painel SO MOSTRA. Inserir ou alterar codigo exige ver o pedido inteiro
-    // — itens, cliente, vendedor, quem separou, quem conferiu — e isso nao cabe
-    // num resumo lateral. A acao mora na tela de detalhe.
-    h += '<div class="nota-reservado" style="margin-top:12px;"><span>Este painel é só consulta. ' +
-         'Para inserir ou alterar código de rastreio, abra o pedido.</span></div>';
-    h += '<div style="margin-top:14px;">' +
-           '<button class="btn-primary" data-abrir-detalhe="' + p.id + '">' +
-             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
-             '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>' +
-             '<polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-             'Abrir o pedido' +
-           '</button>' +
-         '</div>';
-
-    return h;
+             '</div>';
+    }).join('');
+    const pub = eventosPublicos(PEDIDO).length;
+    texto('notaVitrine', 'A vitrine mostra ' + pub + ' de ' + PEDIDO.eventos.length +
+          ' eventos deste pedido. O resto é vocabulário de depósito e fica aqui dentro.');
   }
 
-  function abrirPedido(id) {
-    const p = pedidoPor(id);
-    if (!p) return;
-    pedidoAberto = p.id;
-    const tit = document.getElementById('drawerTitulo');
-    if (tit) tit.textContent = 'Rastreamento · ' + p.numero;
-    const corpo = document.getElementById('drawerCorpo');
-    if (corpo) corpo.innerHTML = corpoDrawer(p);
-    drawerBackdrop.classList.add('open');
-    eventDrawer.classList.add('open');
-    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
-  }
-
-  function fecharDrawer() {
-    drawerBackdrop.classList.remove('open');
-    eventDrawer.classList.remove('open');
-    pedidoAberto = null;
-  }
-
-  const drawerClose = document.getElementById('drawerClose');
-  if (drawerClose) drawerClose.addEventListener('click', fecharDrawer);
-  drawerBackdrop.addEventListener('click', fecharDrawer);
-
-  // ===== A PORTA PARA O DETALHE =====
-  // Inserir e alterar codigo vivem na tela de detalhe, nao aqui: la o pedido
-  // aparece inteiro — itens, cliente, vendedor, quem separou, quem conferiu —
-  // e so com isso na frente faz sentido mexer no que o cliente vai acompanhar.
-  function abrirDetalhe(id) {
-    window.location.href = 'pagina-logistica-rastreamento-detalhe.html?id=' + id;
-  }
-
-  document.addEventListener('click', function (ev) {
-    const ab = ev.target.closest('[data-abrir-detalhe]');
-    if (ab) { abrirDetalhe(ab.getAttribute('data-abrir-detalhe')); return; }
-  });
-
-  // ===== ORDENACAO, BUSCA E PAGINACAO =====
-  document.querySelectorAll('th.ordenavel').forEach(th => {
-    th.addEventListener('click', function () {
-      const o = th.getAttribute('data-ordem');
-      if (estado.ordem === o) estado.asc = !estado.asc;
-      else { estado.ordem = o; estado.asc = true; }
-      document.querySelectorAll('th.ordenavel .seta').forEach(s => { s.textContent = '▲'; });
-      const seta = th.querySelector('.seta');
-      if (seta) seta.textContent = estado.asc ? '▲' : '▼';
-      render();
-    });
-  });
-
-  corpoTabela.addEventListener('click', function (ev) {
-    const tr = ev.target.closest('tr[data-id]');
-    if (tr) abrirPedido(tr.getAttribute('data-id'));
-  });
-
-  const campoBusca = document.getElementById('campoBusca');
-  if (campoBusca) campoBusca.addEventListener('input', function () {
-    estado.busca = campoBusca.value; estado.pagina = 1; render();
-  });
-
-  const btnAnterior = document.getElementById('btnPaginaAnterior');
-  if (btnAnterior) btnAnterior.addEventListener('click', function () {
-    if (estado.pagina > 1) { estado.pagina--; render(); }
-  });
-  const btnProxima = document.getElementById('btnPaginaProxima');
-  if (btnProxima) btnProxima.addEventListener('click', function () {
-    estado.pagina++; render();
-  });
-
-  const btnLimpar = document.getElementById('btnLimparFiltros');
-  if (btnLimpar) btnLimpar.addEventListener('click', function () {
-    estado.busca = ''; estado.periodo = 'todos'; estado.situacao = 'todos';
-    estado.transp = 'todos'; estado.pagamento = 'todos'; estado.pagina = 1;
-    if (campoBusca) campoBusca.value = '';
-    const rot = document.getElementById('rotuloPeriodo');
-    if (rot) rot.textContent = 'Sem filtro de período';
-    document.querySelectorAll('.periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === 'todos'));
-    ['filtroSituacao', 'filtroTransp', 'filtroPagamento'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.setAttribute('data-value', 'todos');
-    });
-    rotularFiltros();
-    render();
-  });
-
-  function rotularFiltros() {
-    const porId = {
-      filtroSituacao: estado.situacao === 'todos' ? 'Todas as situações' : situacaoDe(estado.situacao).rotulo,
-      filtroTransp: estado.transp === 'todos' ? 'Todas as transportadoras' : transpDe(estado.transp).nome,
-      filtroPagamento: estado.pagamento === 'todos' ? 'Qualquer pagamento' : pagamentoDe(estado.pagamento).rotulo
-    };
-    Object.keys(porId).forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const lab = el.querySelector('.dropdown-select-label');
-      if (lab) lab.textContent = porId[id];
-    });
-  }
-
-  // ===== DROPDOWNS DE FILTRO =====
-  [['filtroSituacao', 'situacao'], ['filtroTransp', 'transp'], ['filtroPagamento', 'pagamento']].forEach(par => {
-    const el = document.getElementById(par[0]);
-    if (!el) return;
-    inicializarDropdownSelect(el, function (valor) {
-      estado[par[1]] = valor;
-      estado.pagina = 1;
-      rotularFiltros();
-      render();
-    });
-  });
-
-  const itensPorPagina = document.getElementById('itensPorPagina');
-  if (itensPorPagina) inicializarDropdownSelect(itensPorPagina, function (valor) {
-    estado.porPagina = +valor; estado.pagina = 1; render();
-  });
-
-  // ===== FILTRO DE PERIODO =====
-  const periodoWrap = document.getElementById('periodoWrap');
-  const periodoMenu = document.getElementById('periodoMenu');
-  const btnPeriodo = document.getElementById('btnPeriodo');
-  if (btnPeriodo && periodoMenu) {
-    btnPeriodo.addEventListener('click', function (ev) {
-      ev.stopPropagation();
-      document.querySelectorAll('.dropdown-select.open').forEach(d => d.classList.remove('open'));
-      periodoMenu.classList.toggle('open');
-    });
-    document.addEventListener('click', function (ev) {
-      if (periodoWrap && !periodoWrap.contains(ev.target)) periodoMenu.classList.remove('open');
-    });
-    document.querySelectorAll('.periodo-op').forEach(b => {
-      b.addEventListener('click', function () {
-        estado.periodo = b.getAttribute('data-periodo');
-        estado.pagina = 1;
-        document.querySelectorAll('.periodo-op').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        const rot = document.getElementById('rotuloPeriodo');
-        if (rot) rot.textContent = estado.periodo === 'todos'
-          ? 'Sem filtro de período' : 'Enviado nos últimos ' + estado.periodo + ' dias';
-        periodoMenu.classList.remove('open');
-        render();
+  // ===== ENTREGA À MÃO =====
+  // Mesma regra de Pedidos de Venda: avancar o funil no fluxo normal nao pede
+  // senha; alterar a situacao a mao pede. Aqui pular o evento da transportadora e
+  // exatamente isso.
+  function entregaManual() {
+    if (!PEDIDO) { avisar('Não há pedido aberto.'); return; }
+    if (PEDIDO.situacao === 'entregue') { avisar('O pedido ' + PEDIDO.numero + ' já está entregue.'); return; }
+    if (PEDIDO.situacao !== 'enviado') {
+      avisar('Só pedido enviado pode ser marcado como entregue. O ' + PEDIDO.numero + ' está em ' +
+             situacaoDe(PEDIDO.situacao).rotulo + '.');
+      return;
+    }
+    confirmarAcao('rastreioEntregaManual',
+      'Marcar o pedido ' + PEDIDO.numero + ' como entregue sem evento da transportadora. Fica registrado quem marcou.',
+      function () {
+        PEDIDO.situacao = 'entregue';
+        PEDIDO.entregaEm = HOJE;
+        PEDIDO.eventos.push({ data: HOJE, sit: 'entregue', nota: 'Marcado à mão por ' + OPERADORES[EU] });
+        pintarTudo();
       });
-    });
   }
 
-  // ===== CONFIRMAR CODIGOS: ABRE O PROXIMO QUE FALTA =====
-  const btnProximo = document.getElementById('btnProximoSemCodigo');
-  if (btnProximo) btnProximo.addEventListener('click', function () {
-    const alvo = PEDIDOS.filter(p => faltaCodigo(p) > 0)
-      .sort((a, b) => (a.enviadoEm || '') < (b.enviadoEm || '') ? -1 : 1)[0];
-    if (!alvo) { avisar('Nenhum pedido enviado está sem código de rastreio.'); return; }
-    abrirDetalhe(alvo.id);
+  // ===== AÇÕES =====
+  const btnSalvar = document.getElementById('btnSalvarCodigos');
+  if (btnSalvar) btnSalvar.addEventListener('click', salvarCodigos);
+
+  const btnVoltar = document.getElementById('btnVoltar');
+  if (btnVoltar) btnVoltar.addEventListener('click', function () {
+    window.location.href = 'pagina-logistica-rastreamento.html';
   });
 
-  // ===== MAIS AÇÕES =====
   const menuMais = document.getElementById('menuMaisAcoes');
   if (menuMais) {
     inicializarDropdownSelect(menuMais, null);
@@ -2470,32 +2337,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       item.addEventListener('click', function () {
         menuMais.classList.remove('open');
         const acao = item.getAttribute('data-acao');
-        if (acao === 'expedicao') { window.location.href = 'pagina-logistica-expedicao.html'; return; }
-        if (acao === 'transportadoras') { window.location.href = 'pagina-operacional-transportadoras.html'; return; }
-        if (acao === 'copiarpublico') {
-          const n = PEDIDOS.reduce((s, p) => s + eventosPublicos(p).length, 0);
-          avisar('A vitrine mostra ' + n + ' eventos destes ' + PEDIDOS.length +
-                 ' pedidos. No sistema em produção isto vira a cópia da linha do tempo pública, para conferir o que o cliente lê.');
+        if (acao === 'pedido') {
+          if (!PEDIDO) { avisar('Não há pedido aberto.'); return; }
+          window.location.href = 'pagina-vendas-pedidos-detalhe.html?id=' + PEDIDO.id;
           return;
         }
-        if (acao === 'exportar') {
-          avisar('A exportação do rastreamento entra junto com Relatórios de Logística, que ainda não existe.');
-          return;
-        }
-        if (acao === 'entregamanual') {
-          // Marcar entrega a mao tambem e edicao, e edicao mora no detalhe. Daqui
-          // so se chega la — com o pedido aberto na frente de quem vai marcar.
-          const alvo = pedidoAberto ? pedidoPor(pedidoAberto) : null;
-          if (!alvo) { avisar('Abra um pedido na lista antes de marcar a entrega à mão.'); return; }
-          abrirDetalhe(alvo.id);
-          return;
-        }
+        if (acao === 'cliente') { window.location.href = 'pagina-cadastros-clientes.html'; return; }
+        if (acao === 'transportadora') { window.location.href = 'pagina-operacional-transportadoras.html'; return; }
+        if (acao === 'entregamanual') { entregaManual(); return; }
       });
     });
   }
 
-  rotularFiltros();
-  render();
+  function pintarTudo() {
+    pintarCabecalho();
+    if (!PEDIDO) {
+      // Sem pedido a tela nao finge ter conteudo: os cards saem e sobra a saida.
+      document.querySelectorAll('.main .card').forEach(c => { c.style.display = 'none'; });
+      if (btnSalvar) btnSalvar.style.display = 'none';
+      return;
+    }
+    pintarPedido();
+    pintarItens();
+    pintarCliente();
+    pintarPagamento();
+    pintarToques();
+    pintarTransportadora();
+    pintarEventos();
+    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
+  }
+
+  pintarTudo();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -2542,7 +2414,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
-
 
 </script>
 

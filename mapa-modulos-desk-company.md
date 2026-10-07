@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
 *Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída e em 06/out com a Expedição e o cadastro de Transportadoras. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**64 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**65 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 ---
 
@@ -68,7 +68,7 @@
 | ✅ | Separação *(+ ficha do pedido e folha de impressão)* |
 | ✅ | Conferência de Saída *(+ bancada, volumes e etiquetas; era "Etiquetagem")* |
 | ✅ | Expedição *(+ o romaneio, com conferência de volumes e impressão em duas vias)* |
-| ✅ | Rastreamento de Pedidos *(o que acontece depois da doca: situação, pagamento, códigos por volume, previsão congelada e o histórico que a vitrine consome)* |
+| ✅ | Rastreamento de Pedidos *(o que acontece depois da doca: situação, pagamento, códigos por volume, previsão congelada e o histórico que a vitrine consome; **+ detalhe do pedido**, a única tela que escreve código — a listagem só lê)* |
 | ❌ | Devolução |
 | ❌ | Relatórios de Logística |
 
@@ -128,6 +128,6 @@
 | **Operacional** | **1** | **5** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **44 entradas de menu · 64 telas** | **24** |
+| **Total** | **44 entradas de menu · 65 telas** | **24** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística**, com Separação, Conferência de Saída, Expedição e Rastreamento de Pedidos prontas; falta **Devolução** — e com ela o cadastro de **Motivos de Devolução**, em Operacional, de que ela depende.
