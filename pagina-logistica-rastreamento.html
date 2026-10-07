@@ -377,12 +377,11 @@
 
   .form-field { margin-bottom:18px; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:78px; }
-  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
   .field-error-msg.show { display:block; }
-  .form-field.has-error input, .form-field.has-error textarea { border-color: var(--danger); }
+  .form-field.has-error input { border-color: var(--danger); }
   .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
@@ -520,59 +519,6 @@
   .periodo-op:hover { background:rgba(120,120,140,0.08); }
   .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
 
-
-  /* ===== Detalhe da Ordem de Compra ===== */
-  .oc-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
-  .oc-titulo-bloco { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-
-  .linha-links { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:8px; }
-  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
-  .link-inline:hover { text-decoration:underline; }
-  .bloco-expansivel { display:none; margin-top:14px; padding:14px 16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
-  .bloco-expansivel.open { display:block; }
-  .dado-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:7px 0; font-size:12.5px; }
-  .dado-rotulo { color:var(--text); }
-  .dado-valor { font-weight:700; color:var(--text-heading); }
-
-  /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
-  .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
-  .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
-  .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
-  .itens-table th.col-texto { text-align:left; }
-  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
-  .itens-table td.col-texto { text-align:left; }
-  .itens-table tbody tr:last-child td { border-bottom:none; }
-  .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
-  .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .itens-table input.col-texto-input { text-align:left; }
-  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
-  .item-remover:hover { opacity:0.75; }
-  .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
-  .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
-  .acao-link:hover { text-decoration:underline; }
-  .acao-link svg { width:14px; height:14px; }
-
-  .totais-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; }
-  .total-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
-  .total-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
-  .total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-top:4px; }
-  .total-item.destaque .total-valor { color:var(--active-text); font-size:17px; }
-  .total-item input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); background:transparent; border:none; border-bottom:1px dashed var(--border); padding:2px 0; margin-top:4px; outline:none; }
-  .total-item input[type="text"]:focus { border-bottom-color: var(--chart-2); }
-
-  .parcelas-table { width:100%; border-collapse:collapse; }
-  .parcelas-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
-  .parcelas-table th.col-texto { text-align:left; }
-  .parcelas-table td { padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; }
-  .parcelas-table td.col-texto { text-align:left; }
-  .parcelas-table tbody tr:last-child td { border-bottom:none; }
-  .parcelas-vazio { font-size:12.5px; color:var(--text); padding:14px 0; }
-
-  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
-
-  .fiscal-ativo-hint { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
-  .fiscal-ativo-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-
   .oc-numero { font-weight:800; color:var(--active-text); }
   .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
 
@@ -618,63 +564,162 @@
   }
   .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  /* ===== ESTOQUE > CONFERÊNCIA ===== */
-  /* Situacoes herdadas da Entrada de Notas: mesmo par claro/escuro aferido por
-     contraste, porque e o mesmo documento mudando de estado. */
+  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
+  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
+     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
+  .sit-aconferir     { background:#B45309; }
+  .sit-emconferencia { background:#0A4EE4; }
+  .sit-divergencia   { background:#B91C1C; }
+  .sit-lancada       { background:#15803D; }
+  .sit-recusada      { background:#6B7280; }
+  body.dark .sit-aconferir     { background:#F5A623; }
+  body.dark .sit-emconferencia { background:#9DB8F0; }
+  body.dark .sit-divergencia   { background:#FCA5A5; }
+  body.dark .sit-lancada       { background:#4ADE80; }
+  body.dark .sit-recusada      { background:#9CA3AF; }
+
+  .bs-aconferir     { color:#B45309; }
   .bs-emconferencia { color:#0A4EE4; }
   .bs-divergencia   { color:#B91C1C; }
   .bs-lancada       { color:#15803D; }
+  .bs-recusada      { color:#6B7280; }
+  body.dark .bs-aconferir     { color:#F5A623; }
   body.dark .bs-emconferencia { color:#9DB8F0; }
   body.dark .bs-divergencia   { color:#FCA5A5; }
   body.dark .bs-lancada       { color:#4ADE80; }
+  body.dark .bs-recusada      { color:#9CA3AF; }
 
-  .doc-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
-  .doc-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
-  .doc-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
-  .doc-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); margin-top:4px; }
+  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
+  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
+  .mde-prazo.alerta { color:#B45309; }
+  body.dark .mde-prazo.alerta { color:#F5A623; }
+  .mde-pendente      { color:#6B7280; }
+  .mde-ciencia       { color:#B45309; }
+  .mde-confirmada    { color:#15803D; }
+  .mde-naorealizada  { color:#B91C1C; }
+  .mde-desconhecida  { color:#B91C1C; }
+  body.dark .mde-pendente     { color:#9CA3AF; }
+  body.dark .mde-ciencia      { color:#F5A623; }
+  body.dark .mde-confirmada   { color:#4ADE80; }
+  body.dark .mde-naorealizada { color:#FCA5A5; }
+  body.dark .mde-desconhecida { color:#FCA5A5; }
+  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
 
-  #tabelaItens { min-width:820px; }
-  #tabelaItens .cel-nota, #tabelaItens .cel-dif { white-space:nowrap; }
-  #tabelaItens .cel-motivo { min-width:210px; }
-  #tabelaItens td { vertical-align:top; padding-top:12px; }
-  .item-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
-  .item-sku { font-size:11px; color:var(--text); margin-top:2px; }
-  .qtd-input { max-width:110px; }
+  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .dif-divergente { color:#B91C1C; }
+  body.dark .dif-divergente { color:#FCA5A5; }
+  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
+  body.dark .pend-tag { color:#FCA5A5; }
 
-  /* Conferencia cega: a quantidade da nota fica oculta ate o item ser contado */
-  .qtd-oculta { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); opacity:0.7; }
-  .dif-neutra { color:var(--text); }
-  .dif-ok { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#15803D; }
-  body.dark .dif-ok { color:#4ADE80; }
-  .dif-erro { font-size:14px; color:#B91C1C; }
-  body.dark .dif-erro { color:#FCA5A5; }
-  .motivo-vazio { color:var(--text); }
+  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
+     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
+  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
+  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
+  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
 
-  /* Divergencia ainda nao confirmada: a tela diz que existe, nunca quanto e */
-  .dif-cega { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B45309; border:1px solid currentColor; border-radius:20px; padding:2px 9px; white-space:nowrap; }
-  body.dark .dif-cega { color:#F5A623; }
-  .validar-bloco { display:flex; flex-direction:column; gap:6px; }
-  .validar-hint { font-size:11px; color:var(--text); }
-  .validar-botoes { display:flex; flex-wrap:wrap; gap:6px; }
-  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
-  .btn-mini:hover { background: rgba(120,120,140,0.08); }
-  .btn-mini.destaque { color:#fff; background:var(--brand-blue); border-color:var(--brand-blue); }
-  .btn-mini.destaque:hover { opacity:0.9; }
-  .valor-oculto { font-size:12.5px; font-weight:700; color:var(--text); }
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (o que acontece depois da doca) ===== */
+  /* As situacoes daqui sao as do PEDIDO DE VENDA — o mesmo funil de 9 passos da
+     barganha de 02/out, nao um funil proprio. Esta tela nao inventa status: ela
+     mostra o que o pedido ja diz e acrescenta o que so existe depois do envio
+     (codigo de rastreio, previsao congelada, eventos). Devolucao continua fora:
+     e documento proprio, e o pedido devolvido mantem a situacao dele. */
 
-  /* Campo que a divergencia tornou obrigatorio e ainda esta vazio */
-  .campo-pendente .dropdown-select-btn { border-color:#B91C1C; }
-  body.dark .campo-pendente .dropdown-select-btn { border-color:#FCA5A5; }
-  .motivo-select .dropdown-select-btn, .destino-select .dropdown-select-btn { font-size:12.5px; padding:7px 10px; }
-  .destino-select .dropdown-select-menu { min-width:260px; }
+  /* O ponto colore a FASE, nao a situacao. Nove cores ninguem memoriza, e nove
+     cores no tema claro e campo minado de contraste; o rotulo ao lado ja diz a
+     situacao exata. Tres fases + cancelado dao a leitura de relance que o
+     galpao precisa: "ainda esta aqui", "esta na rua", "acabou". */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
 
-  .comunicado-box { font-family:'Nunito',sans-serif; font-size:12px; line-height:1.55; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 13px; white-space:pre-wrap; word-break:break-word; margin:0; }
-  .conf-fechada { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .switch.travado { opacity:0.5; pointer-events:none; }
+  .tx-processando { color:#B45309; }
+  .tx-transito    { color:#0A4EE4; }
+  .tx-final       { color:#15803D; }
+  .tx-cancelado   { color:#DC2626; }
+  body.dark .tx-processando { color:#F5A623; }
+  body.dark .tx-transito    { color:#9DB8F0; }
+  body.dark .tx-final       { color:#4ADE80; }
+  body.dark .tx-cancelado   { color:#EF4444; }
 
-  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
-  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* PAGAMENTO E EIXO SEPARADO (barganha de 07/out), nao passo do funil. Boleto de
+     30 dias fica enviado e nao pago; Pix fica pago ainda em aberto. Quem manda
+     aqui e Financas > Contas a Receber: esta coluna LE, nunca escreve. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  /* A PREVISAO E CONGELADA NO ENVIO (barganha de 07/out): gravada a partir do prazo
+     da transportadora no momento do despacho, nunca recalculada. Mudar o prazo no
+     cadastro depois NAO reescreve se um pedido antigo atrasou — historico que muda
+     sozinho e historico que mente. */
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* CODIGO DE RASTREIO E POR VOLUME (barganha de 07/out). Os volumes ja nascem na
+     Conferencia de Saida; um pedido de 3 caixas que chegam em dias diferentes tem
+     3 codigos. A celula resume e o painel mostra um por um. */
+  .cod-resumo { font-weight:700; color:var(--text-heading); }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-family:inherit; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+
+  .cliente-nome { font-weight:700; color:var(--text-heading); }
+  .cliente-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* ===== O HISTORICO, DENTRO DO PAINEL ===== */
+  /* Cada evento carrega um rotulo PROPRIO para o cliente e um marcador de quem o
+     ve (barganha de 07/out). "Conferencia de saida" e vocabulario de deposito:
+     o cliente le "Pedido embalado". A vitrine consome so os publicos. */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
+
+  /* Volume dentro do painel: uma linha por caixa, com o campo do codigo. */
+  .vol-linha { display:grid; grid-template-columns:1fr 210px; gap:11px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
+  .vol-linha:last-child { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* Vinham do bloco da Expedicao, que esta tela substituiu. Classe usada sem CSS
+     e o "componente copiado pela metade" que a auditoria pega na secao 3. */
+  .transp-nome { font-weight:700; color:var(--text-heading); }
+  .transp-tipo { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+
+  /* A linha inteira abre o painel, entao o cursor precisa dizer isso. */
+  .estoque-table tbody tr.linha-clicavel { cursor:pointer; }
+
+  /* Painel: linha de rotulo e valor usando o par canonico chave-rotulo /
+     chave-valor, mais o titulo que separa os blocos. */
+  .rt-linha { display:grid; grid-template-columns:150px 1fr; gap:11px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
+  .rt-linha:last-child { border-bottom:none; }
+  .rt-sub { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:17px 0 7px; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -692,113 +737,6 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
-
-  /* ===== LOGÍSTICA > EXPEDIÇÃO (o romaneio) ===== */
-  .sit-montagem    { background:#B45309; }
-  .sit-conferindo  { background:#0A4EE4; }
-  .sit-despachado  { background:#15803D; }
-  body.dark .sit-montagem   { background:#F5A623; }
-  body.dark .sit-conferindo { background:#9DB8F0; }
-  body.dark .sit-despachado { background:#4ADE80; }
-  .bs-montagem    { color:#B45309; }
-  .bs-conferindo  { color:#0A4EE4; }
-  .bs-despachado  { color:#15803D; }
-  body.dark .bs-montagem   { color:#F5A623; }
-  body.dark .bs-conferindo { color:#9DB8F0; }
-  body.dark .bs-despachado { color:#4ADE80; }
-
-  .marca-mdfe { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid #B45309; color:#B45309; }
-  body.dark .marca-mdfe { border-color:#F5A623; color:#F5A623; }
-  .marca-sugerido { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
-
-  /* Bipar: na doca a pessoa esta com a caixa na mao e o leitor na outra. Cada
-     leitura marca UM volume — e e por isso que a conferencia aqui e por volume
-     e nao por item: item ja foi conferido na bancada; o que esta em jogo agora
-     e a caixa que sobe no caminhao errado. */
-  .sep-bipar { display:flex; align-items:center; gap:10px; padding:12px 14px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:11px; }
-  .sep-bipar svg { width:17px; height:17px; flex-shrink:0; color:var(--text); }
-  .sep-bipar input { flex:1; background:transparent; border:none; outline:none; font-family:inherit; font-size:13.5px; font-weight:600; color:var(--text-heading); }
-  .sep-bipar input::placeholder { color:var(--text); font-weight:500; }
-  .sep-bipar-eco { font-size:11.5px; font-weight:700; color:var(--text); white-space:nowrap; }
-  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
-
-  /* Um volume por linha. A etiqueta e a CHAVE: e ela que o leitor le, e e ela
-     que diferencia "1 de 4" de "2 de 4" do mesmo pedido. */
-  .vol-item { display:grid; grid-template-columns:26px 124px 1fr 212px 92px; gap:12px; align-items:center; padding:12px 4px; border-bottom:1px solid var(--border); }
-  .vol-item:last-of-type { border-bottom:none; }
-  .vol-item.conferido { opacity:0.62; }
-  .vol-item.conferido .vol-etiqueta, .vol-item.conferido .vol-pedido { text-decoration:line-through; }
-  .vol-etiqueta { font-size:12.5px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; letter-spacing:0.4px; }
-  .vol-seq { display:block; font-size:10.5px; font-weight:600; color:var(--text); letter-spacing:0; }
-  .vol-pedido { font-size:12.5px; font-weight:700; color:var(--text-heading); }
-  .vol-cliente { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .vol-emb { font-size:11.5px; font-weight:600; color:var(--text); }
-  .vol-peso { font-size:12.5px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; text-align:right; }
-  .vol-peso .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
-
-  /* Pedido incompleto: a conferencia e por VOLUME, mas a carga e por PEDIDO.
-     Caixa 2 de 4 sozinha no caminhao nao e meia entrega — e um pedido quebrado
-     no meio do caminho. Por isso a marca fica no pedido, nao no volume. */
-  .pedido-bloco { border:1px solid var(--border); border-radius:11px; margin-bottom:12px; overflow:hidden; }
-  .pedido-cab { display:flex; align-items:center; gap:10px; padding:11px 13px; background:var(--page-bg); border-bottom:1px solid var(--border); }
-  .pedido-cab-nome { font-size:13px; font-weight:800; color:var(--text-heading); }
-  .pedido-cab-meta { font-size:11px; font-weight:600; color:var(--text); margin-left:auto; white-space:nowrap; }
-  .pedido-corpo { padding:0 13px; }
-  .marca-parcial { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid #B45309; color:#B45309; }
-  body.dark .marca-parcial { border-color:#F5A623; color:#F5A623; }
-  .marca-completo { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid #15803D; color:#15803D; }
-  body.dark .marca-completo { border-color:#4ADE80; color:#4ADE80; }
-  .pedido-tirar { font-size:11.5px; font-weight:700; color:var(--text); background:transparent; border:none; cursor:pointer; font-family:'Nunito',sans-serif; padding:0; }
-  .pedido-tirar:hover { color:var(--danger); }
-
-  /* Peso e saida: o unico numero bloqueante do romaneio nasce aqui, porque e
-     aqui que a balanca esta. */
-  .saida-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
-  .saida-campo label { display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:5px; }
-  .saida-campo input { width:100%; box-sizing:border-box; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .saida-campo input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .saida-campo.has-error input { border-color:var(--danger); }
-  .saida-dica { font-size:11px; font-weight:600; color:var(--text); margin-top:5px; }
-  .saida-dica.alerta { color:#B45309; font-weight:700; }
-  body.dark .saida-dica.alerta { color:#F5A623; }
-
-  .total-item.alerta .total-valor { color:#B45309; }
-  body.dark .total-item.alerta .total-valor { color:#F5A623; }
-
-  .aviso-box { padding:13px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid #B45309; border-radius:10px; margin-top:18px; }
-  body.dark .aviso-box { border-left-color:#F5A623; }
-  .aviso-titulo { font-size:13px; font-weight:800; color:var(--text-heading); margin-bottom:5px; }
-  .aviso-texto { font-size:11.5px; font-weight:600; color:var(--text); line-height:1.5; }
-
-  /* O romaneio impresso. DUAS VIAS, com assinatura: o transportador confere,
-     assina e devolve uma — e e essa via carimbada que serve de comprovante de
-     postagem quando a carga some. Nao e documento fiscal: e controle interno,
-     e por isso o formato e nosso. */
-  .rom-folha { display:none; font-family:Nunito, sans-serif; }
-  .rom-folha.oculta { display:none; }
-  .rom-via { border:2px solid #000; padding:18px; margin-bottom:16px; page-break-inside:avoid; }
-  .rom-via + .rom-via { page-break-before:always; }
-  .rom-topo { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1.5px solid #000; padding-bottom:8px; margin-bottom:10px; }
-  .rom-id { font-size:21px; font-weight:800; }
-  .rom-via-nome { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:1px; }
-  .rom-linha { font-size:12.5px; margin-bottom:4px; }
-  .rom-linha b { font-size:13.5px; }
-  .rom-tabela { width:100%; border-collapse:collapse; margin:10px 0; font-size:11.5px; }
-  .rom-tabela th, .rom-tabela td { border:1px solid #000; padding:5px 7px; text-align:left; }
-  .rom-tabela th { font-weight:800; }
-  .rom-assina { margin-top:26px; display:flex; gap:28px; }
-  .rom-assina div { flex:1; border-top:1px solid #000; padding-top:5px; font-size:11px; }
-  .rom-rodape { margin-top:10px; padding-top:8px; border-top:1px dashed #666; font-size:10.5px; }
-  @media print {
-    body * { visibility:hidden; }
-    .rom-folha, .rom-folha * { visibility:visible; }
-    .rom-folha { display:block; position:absolute; left:0; top:0; width:100%; padding:20px; background:#fff; color:#000; }
-    .rom-folha.oculta { display:none; }
-  }
-
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12.5px; font-weight:700; color:var(--text-heading); line-height:1.5; }
 </style>
 </head>
 <body class="dark">
@@ -1005,154 +943,181 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 
-
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
-    <div class="oc-topo" style="flex:1;">
-      <div>
-        <div class="oc-titulo-bloco">
-          <h1 id="tituloRom">Romaneio</h1>
-          <span class="badge-situacao bs-montagem" id="badgeSituacao"><span class="sit-dot"></span>Em montagem</span>
-          <span class="marca-sugerido" id="marcaSugerido" style="display:none;">sugerido</span>
-          <span class="marca-mdfe" id="marcaMdfe" style="display:none;">MDF-e</span>
-        </div>
-        <div class="subtitle" id="subtituloRom">—</div>
-      </div>
+    <div>
+      <h1>Rastreamento de Pedidos</h1>
+      <div class="subtitle">O que já saiu: onde está, se chega no prazo e o que o cliente consegue ver</div>
     </div>
     <div class="header-acoes">
-      <button class="btn-primary" id="btnDespachar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        Despachar a carga
-      </button>
-      <button class="btn-secundario-topo" id="btnImprimirRomaneio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Imprimir em duas vias
+      <button class="btn-primary" id="btnProximoSemCodigo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Confirmar códigos
       </button>
       <div class="dropdown-select" id="menuMaisAcoes">
         <button type="button" class="btn-ghost dropdown-select-btn">
           <span class="dropdown-select-label">Mais ações</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:300px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="fila">Abrir a fila da Expedição</div>
-          <div class="dropdown-select-item" data-acao="transportadora">Abrir a transportadora</div>
-          <div class="dropdown-select-item" data-acao="reabrir" id="itemReabrir">Reabrir o romaneio</div>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:340px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="expedicao">Abrir Expedição</div>
+          <div class="dropdown-select-item" data-acao="transportadoras">Abrir Transportadoras</div>
+          <div class="dropdown-select-item" data-acao="copiarpublico">Copiar o que a vitrine mostra</div>
+          <div class="dropdown-select-item" data-acao="exportar">Exportar rastreamento para planilha</div>
+          <div class="dropdown-select-item item-perigo" data-acao="entregamanual">Marcar entrega manualmente</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">A carga</div>
-    <div class="doc-grid">
-      <div class="doc-item"><div class="doc-rotulo">Forma de envio</div><div class="doc-valor" id="docTransp">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Coleta</div><div class="doc-valor" id="docColeta">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Horário de corte</div><div class="doc-valor" id="docCorte">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Montador</div><div class="doc-valor" id="docMontador">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Pedidos · volumes</div><div class="doc-valor" id="docCarga">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Esperando há</div><div class="doc-valor" id="docEspera">—</div></div>
+  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
+    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Em trânsito</div>
+      <div class="kpi-value" id="kpiTransito">0</div>
+      <div class="kpi-delta neutral" id="kpiTransitoSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Atrasados</div>
+      <div class="kpi-value" id="kpiAtrasados">0</div>
+      <div class="kpi-delta neutral" id="kpiAtrasadosSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--success)">
+      <div class="kpi-label">Entregues no prazo</div>
+      <div class="kpi-value" id="kpiNoPrazo">0</div>
+      <div class="kpi-delta neutral" id="kpiNoPrazoSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Sem código de rastreio</div>
+      <div class="kpi-value" id="kpiSemCodigo">0</div>
+      <div class="kpi-delta neutral" id="kpiSemCodigoSub">—</div>
+    </div>
+  </div>
+
+  <div class="estoque-toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="campoBusca" placeholder="Pesquise por pedido, cliente, código de rastreio ou transportadora">
+    </div>
+
+    <div class="periodo-wrap" id="periodoWrap">
+      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="rotuloPeriodo">Sem filtro de período</span>
+      </button>
+      <div class="periodo-menu" id="periodoMenu">
+        <div class="periodo-titulo">Enviado nos últimos</div>
+        <div class="periodo-opcoes" id="periodoOpcoes">
+          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
+          <button class="periodo-op" data-periodo="7">7 dias</button>
+          <button class="periodo-op" data-periodo="15">15 dias</button>
+          <button class="periodo-op" data-periodo="30">30 dias</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Situacao e filtro suspenso, nao abas contadoras: sao 9 situacoes, e a
+         medicao de 02/out em Pedidos de Venda mostrou que esse numero de abas nao
+         cabe a 1440px. Os contadores vivem dentro da lista e acompanham os outros
+         filtros, como la. -->
+    <div class="dropdown-select" id="filtroSituacao" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todas as situações</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroSituacao" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroTransp" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todas as transportadoras</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroTransp"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroPagamento" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Qualquer pagamento</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroPagamento"></div>
     </div>
   </div>
 
   <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Conferência dos volumes</div>
-
-    <div class="nota-reservado">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/></svg>
-      <span>Aqui a conferência é por <b>volume</b>, não por item — item já foi contado na bancada. O que esta etapa pega é <b>a caixa que subiu no caminhão errado</b>. A conferência é por volume, mas <b>a carga é por pedido</b>: pedido com volume faltando não embarca pela metade, ele volta para a fila.</span>
+    <!-- A pergunta que o atendimento faz todo dia e "o pedido do fulano chega
+         quando?". Sem codigo confirmado a vitrine nao responde nada, e o cliente
+         liga. Por isso o que falta codigo aparece escrito, nao deduzido. -->
+    <div class="nota-reservado" id="avisoCodigos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoCodigosTexto"></span>
     </div>
 
-    <div class="sep-bipar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5v14"/><path d="M7 5v14"/><path d="M11 5v14"/><path d="M15 5v14"/><path d="M19 5v14"/></svg>
-      <input type="text" id="campoBipar" placeholder="Bipe a etiqueta de cada volume — ex: VOL-0026-1" autocomplete="off">
-      <span class="sep-bipar-eco" id="ecoBipar"></span>
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto ordenavel" data-ordem="pedido">Pedido <span class="seta">▲</span></th>
+            <th class="col-texto ordenavel" data-ordem="cliente">Cliente <span class="seta">▲</span></th>
+            <th class="col-texto">Situação</th>
+            <th class="col-texto" title="Vem de Finanças &gt; Contas a Receber — esta tela só lê">Pagamento</th>
+            <th class="col-texto ordenavel" data-ordem="transp">Transportadora <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="codigos" title="Códigos confirmados · volumes do pedido">Rastreio <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="previsao" title="Previsão congelada no envio; a entrega realizada aparece embaixo">Prazo de entrega <span class="seta">▲</span></th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabela"></tbody>
+      </table>
     </div>
 
-    <div id="listaPedidos"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="empty-state-title">Nenhum pedido neste filtro</div>
+      <div class="empty-state-sub">Com os filtros atuais, não há pedido para acompanhar.</div>
+      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
+    </div>
 
-    <div class="itens-acoes">
-      <div class="acao-link" id="btnLimparConferencia">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-        Limpar conferência
+    <div class="estoque-rodape">
+      <span id="contagemPedidos">0 pedidos</span>
+      <span class="estoque-total">Atrasado há mais tempo: <b id="maiorAtraso">—</b></span>
+    </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Peso e saída</div>
-
-    <div class="nota-reservado">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-      <span>O <b>peso bruto é o único número que trava o despacho</b>, e ele nasce aqui porque é aqui que a balança está. É ele que vai no romaneio e é por ele que a transportadora cobra.</span>
-    </div>
-
-    <div class="saida-grid">
-      <div class="saida-campo" id="campoPesoBruto">
-        <label>Peso bruto da carga (kg)</label>
-        <input type="text" id="inputPesoBruto" placeholder="0,00" autocomplete="off">
-        <div class="saida-dica" id="dicaPeso">—</div>
-      </div>
-      <div class="saida-campo">
-        <label>Motorista</label>
-        <input type="text" id="inputMotorista" placeholder="Quem assina a retirada" autocomplete="off">
-        <div class="saida-dica">Vai impresso nas duas vias do romaneio.</div>
-      </div>
-      <div class="saida-campo">
-        <label>Placa do veículo</label>
-        <input type="text" id="inputPlaca" placeholder="AAA0A00" autocomplete="off">
-        <div class="saida-dica">Opcional. Ajuda a achar a carga depois.</div>
-      </div>
-    </div>
+<!-- PAINEL LATERAL: o rastreamento por dentro, sem sair da lista -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitulo">Rastreamento do pedido</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
-
-  <div class="card">
-    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Resumo da saída</div>
-
-    <div class="totais-grid">
-      <div class="total-item">
-        <div class="total-rotulo">Volumes conferidos</div>
-        <div class="total-valor" id="totVolumes">0 de 0</div>
-      </div>
-      <div class="total-item">
-        <div class="total-rotulo">Pedidos completos</div>
-        <div class="total-valor" id="totPedidos">0 de 0</div>
-      </div>
-      <div class="total-item">
-        <div class="total-rotulo">Peso dos volumes</div>
-        <div class="total-valor" id="totPesoVolumes">0 kg</div>
-      </div>
-      <div class="total-item destaque">
-        <div class="total-rotulo">Peso bruto na balança</div>
-        <div class="total-valor" id="totPesoBruto">—</div>
-      </div>
-    </div>
-
-    <div class="aviso-box" id="blocoParcial" style="display:none;">
-      <div class="aviso-titulo">Esta carga vai sair incompleta</div>
-      <div class="aviso-texto" id="textoParcial">—</div>
-    </div>
-
-    <div class="aviso-box" id="blocoMdfe" style="display:none;">
-      <div class="aviso-titulo">MDF-e</div>
-      <div class="aviso-texto" id="textoMdfe">—</div>
-    </div>
-
-    <div class="aviso-box" id="blocoPesoVolume" style="display:none;">
-      <div class="aviso-titulo">Peso por volume acima do limite da transportadora</div>
-      <div class="aviso-texto" id="textoPesoVolume">—</div>
-    </div>
-  </div>
-
-  <div class="barra-salvar">
-    <button class="btn-primary" id="btnDespacharRodape">Despachar a carga</button>
-    <button class="btn-secundario" id="btnSalvarParcial">Salvar e continuar depois</button>
-    <div class="drawer-link" id="btnVoltarFila">Voltar para a fila</div>
-  </div>
-
-<!-- FOLHA DE IMPRESSÃO: o romaneio em duas vias, com assinatura -->
-<div class="rom-folha oculta" id="romFolha"></div>
+  <div id="drawerCorpo"></div>
+</div>
 
 <!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
@@ -1210,17 +1175,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     expedicaoAlertaHoras: 8,
     expedicaoCriticoHoras: 24,
     romaneioSugereAutomatico: true,
-    // Quanto o peso da balanca pode fugir da soma dos volumes antes de a tela
-    // avisar. Nao e trava: pallet, filme e caixa-mae pesam, e so quem esta na
-    // doca sabe se a diferenca faz sentido. Numero que decide alerta nunca
-    // nasce dentro de um `if`.
-    expedicaoDesvioPesoPct: 15,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
     mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
     mdfeRegraPadrao: 'interestadual',
-    conferenciaSaidaCega: true,
-    conferenciaSaidaAlertaHoras: 4,
-    conferenciaSaidaCriticoHoras: 12,
-    sugerirEmbalagem: true,
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -1305,7 +1265,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
     // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta.
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
     { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
@@ -1537,16 +1498,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
   }
 
+
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  // O mesmo pedido que a tela vai carregar: id fora da fila cai no primeiro, e
-  // o breadcrumb nao pode dizer outra coisa.
-  let path = ['Logística', 'Expedição', (function () {
-    const id = String(new URLSearchParams(window.location.search).get('id') || '').toUpperCase();
-    return ['ROM-0190', 'ROM-0192', 'ROM-0193'].indexOf(id) >= 0 ? id : 'ROM-0192';
-  })()];
+  let path = ['Logística', 'Expedição'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1683,184 +1640,262 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== DADOS (mock) =====
-  // No Lovable esta tela le UM romaneio: `romaneios`, `romaneio_pedidos` e os
-  // `volumes` que a Conferencia de Saida fechou e etiquetou. Nada aqui cria
-  // volume — eles chegam prontos da bancada, e e isso que torna a conferencia
-  // da doca honesta: ela compara o que esta no caminhao com o que a bancada
-  // disse que existia.
+  // ATENCAO ao ler: no prototipo cada tela e um arquivo solto e carrega o proprio
+  // mock. No Lovable esta tela NAO tem tabela propria de pedidos — ela le os
+  // mesmos `pedidos` de Vendas e acrescenta tres coisas que so existem depois do
+  // envio:
+  //   `pedido_volumes`     um registro por caixa, com o codigo de rastreio;
+  //   `pedido_eventos`     a linha do tempo, com o marcador de quem ve cada evento;
+  //   `pedidos.previsao_*` a previsao CONGELADA no despacho (ver abaixo).
+  // `transportadoras` continua sendo o cadastro de Operacional, lido por join.
   const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
   const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius' };
-  const EU = 3;
+  const EU = 3;   // usuario logado — no Lovable vem da sessao
 
+  // Espelho do cadastro Operacional > Transportadoras. `prazo` em dias e o campo
+  // que ja existe la (8, 3, 5, 4...) e e o unico que esta tela consome dele.
   const TRANSPORTADORAS = {
-    1: { nome: 'Correios · PAC',   tipo: 'correios',       dias: ['seg','ter','qua','qui','sex'], corte: '16:00', pesoMax: 30,  uf: 'SP' },
-    3: { nome: 'RotaSul Transportes',   tipo: 'transportadora', dias: ['ter','qui'],                   corte: '14:00', pesoMax: 200, uf: 'SP' },
-    8: { nome: 'Frota Desk · Sul', tipo: 'frota',          dias: ['ter','qui'],                   corte: '10:00', pesoMax: 80,  uf: 'RS' }
-  };
-  const TIPO_ROTULO = { correios: 'Correios', transportadora: 'Transportadora', frota: 'Frota própria', retirada: 'Retirada no balcão' };
-  const SITUACAO_LABEL  = { montagem: 'Em montagem', conferindo: 'Conferindo na doca', despachado: 'Despachado' };
-  const SITUACAO_CLASSE = { montagem: 'bs-montagem', conferindo: 'bs-conferindo', despachado: 'bs-despachado' };
-
-  const AGORA = new Date('2026-10-06T15:20:00');
-
-  // A etiqueta e a CHAVE do volume: e ela que o leitor le na doca e e ela que
-  // separa "1 de 4" de "2 de 4" do mesmo pedido.
-  function vols(numPedido, lista) {
-    return lista.map((v, i) => ({
-      etiqueta: 'VOL-' + String(numPedido).padStart(4, '0') + '-' + (i + 1),
-      seq: i + 1, de: lista.length, emb: v[0], peso: v[1], conferido: false
-    }));
-  }
-
-  const ROMANEIOS = {
-    'ROM-0192': {
-      id: 'ROM-0192', transp: 3, coleta: '2026-10-06', situacao: 'conferindo', sugerido: true, montador: 3,
-      pesoBruto: null, motorista: '', placa: '',
-      pedidos: [
-        { numero: 26, cliente: 'Hotel Serra Azul', loja: 1, nf: '000.015.881', destino: 'Açailândia/MA', prontoHa: 5,
-          volumes: vols(26, [['Caixa de Encomenda Flex G', 28.0], ['Caixa de Encomenda Flex G', 26.5], ['Caixa de Encomenda Flex G', 24.0],
-                             ['Caixa de Encomenda Flex M', 18.5], ['Caixa de Encomenda Flex M', 19.0], ['Caixa de Encomenda Flex M', 16.0]]) },
-        { numero: 25, cliente: 'Marcenaria Horizonte', loja: 2, nf: '000.015.883', destino: 'Imperatriz/MA', prontoHa: 2,
-          volumes: vols(25, [['Caixa de Encomenda Flex G', 24.0], ['Caixa de Encomenda Flex G', 22.0],
-                             ['Caixa de Encomenda Flex M', 20.0], ['Caixa de Encomenda Flex M', 20.0]]) }
-      ]
-    },
-    'ROM-0193': {
-      id: 'ROM-0193', transp: 8, coleta: '2026-10-06', situacao: 'montagem', sugerido: true, montador: null,
-      pesoBruto: null, motorista: '', placa: '',
-      pedidos: [
-        { numero: 28, cliente: 'Depósito Vale Verde', loja: 2, nf: '000.015.879', destino: 'Porto Alegre/RS', prontoHa: 7,
-          volumes: vols(28, [['Caixa de Encomenda Flex G', 21.0], ['Caixa de Encomenda Flex G', 18.0], ['Caixa de Encomenda Flex M', 15.0]]) }
-      ]
-    },
-    'ROM-0190': {
-      id: 'ROM-0190', transp: 1, coleta: '2026-10-06', situacao: 'montagem', sugerido: true, montador: null,
-      pesoBruto: null, motorista: '', placa: '',
-      pedidos: [
-        { numero: 5,  cliente: 'Camila Rêgo',      loja: 1, nf: '000.015.874', destino: 'Imperatriz/MA', prontoHa: 6,
-          volumes: vols(5,  [['Envelope de Segurança G', 1.8]]) },
-        { numero: 20, cliente: 'Ricardo Teixeira', loja: 1, nf: '000.015.877', destino: 'Imperatriz/MA', prontoHa: 4,
-          volumes: vols(20, [['Caixa de Encomenda Flex M', 6.5], ['Caixa de Encomenda Flex P', 5.0]]) }
-      ]
-    }
+    1: { nome: 'Correios · PAC',        tipo: 'correios',       prazo: 8 },
+    2: { nome: 'Correios · SEDEX',      tipo: 'correios',       prazo: 3 },
+    3: { nome: 'RotaSul Transportes',   tipo: 'transportadora', prazo: 5 },
+    4: { nome: 'Jaguar Cargas',         tipo: 'transportadora', prazo: 4 },
+    6: { nome: 'Moto Express Capital',  tipo: 'transportadora', prazo: 1 },
+    7: { nome: 'Frota Desk',            tipo: 'frota',          prazo: 2 }
   };
 
-  const ID_PEDIDO = String(new URLSearchParams(window.location.search).get('id') || '').toUpperCase();
-  const ROM_INEXISTENTE = !!ID_PEDIDO && !ROMANEIOS[ID_PEDIDO];
-  const ROM = ROMANEIOS[ID_PEDIDO] || ROMANEIOS['ROM-0192'];
-  const TRANSP = TRANSPORTADORAS[ROM.transp] || {};
-  const CARGA_PROPRIA = TRANSP.tipo === 'frota';
+  // O FUNIL E O DO PEDIDO DE VENDA, nao um funil desta tela (barganha de 02/out,
+  // em Pedidos). Copiar a lista para ca e deixar as duas divergirem — no Lovable
+  // isto e um enum unico no banco.
+  const SITUACOES = [
+    { id: 'aberto',           rotulo: 'Em aberto',            fase: 'processando' },
+    { id: 'aprovado',         rotulo: 'Aprovado',             fase: 'processando' },
+    { id: 'separacao',        rotulo: 'Separação',            fase: 'processando' },
+    { id: 'conferenciasaida', rotulo: 'Conferência de saída', fase: 'processando' },
+    { id: 'faturado',         rotulo: 'Faturado',             fase: 'processando' },
+    { id: 'prontoenvio',      rotulo: 'Pronto para envio',    fase: 'processando' },
+    { id: 'enviado',          rotulo: 'Enviado',              fase: 'transito'    },
+    { id: 'entregue',         rotulo: 'Entregue',             fase: 'final'       },
+    { id: 'cancelado',        rotulo: 'Cancelado',            fase: 'cancelado'   }
+  ];
 
-  // ===== DERIVADOS =====
-  const z2 = (n) => String(n).padStart(2, '0');
-  const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-  function deYmd(s) { const p = String(s).split('-'); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
-  function fmtData(s) { const p = String(s).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
-  function diaDe(s) { return DIAS_NOME[deYmd(s).getDay()]; }
-  function fmtPeso(n) { return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 }); }
-  function textoEspera(h) {
-    if (h < 0) return '—';
-    if (h < 1) return 'agora';
-    if (h < 24) return h + (h === 1 ? ' hora' : ' horas');
-    const d = Math.floor(h / 24);
-    return d + (d === 1 ? ' dia' : ' dias');
-  }
-
-  function todosVolumes() {
-    const fora = [];
-    ROM.pedidos.forEach(p => p.volumes.forEach(v => fora.push({ ped: p, vol: v })));
-    return fora;
-  }
-  function completo(p) { return p.volumes.length > 0 && p.volumes.every(v => v.conferido); }
-  function parcial(p) { return p.volumes.some(v => v.conferido) && !completo(p); }
-  function pedidosCompletos() { return ROM.pedidos.filter(completo); }
-  function pedidosIncompletos() { return ROM.pedidos.filter(p => !completo(p)); }
-  function volumesConferidos() { return todosVolumes().filter(x => x.vol.conferido).length; }
-  function pesoDosVolumes() { return todosVolumes().reduce((s, x) => s + x.vol.peso, 0); }
-  function pesoConferido() { return todosVolumes().filter(x => x.vol.conferido).reduce((s, x) => s + x.vol.peso, 0); }
-  // A balanca pesa o que SUBIU no veiculo, nao o que o romaneio sonhava levar.
-  // Enquanto nada foi bipado a referencia e o romaneio inteiro; a partir da
-  // primeira leitura ela passa a ser o que esta bipado — senao a tela acusaria
-  // 37% de desvio justamente quando um pedido fica para tras de proposito.
-  function pesoDeReferencia() {
-    const conf = pesoConferido();
-    return conf > 0 ? { valor: conf, rotulo: 'Soma dos volumes bipados' }
-                    : { valor: pesoDosVolumes(), rotulo: 'Soma dos volumes do romaneio' };
-  }
-  function esperaDoRomaneio() {
-    return ROM.situacao === 'despachado' ? -1 : ROM.pedidos.reduce((m, p) => Math.max(m, p.prontoHa), 0);
-  }
-  function fechado() { return ROM.situacao === 'despachado'; }
-
-  // Numero digitado vira numero de verdade, ou NaN. Vazio e nulo, nao zero:
-  // "nao pesei ainda" e "pesou zero" sao coisas diferentes, e so uma trava.
-  function numeroDe(texto) {
-    const limpo = String(texto).trim().replace(/\./g, '').replace(',', '.');
-    if (limpo === '') return null;
-    if (!/^\d+(\.\d{1,3})?$/.test(limpo)) return NaN;
-    return Number(limpo);
-  }
-
-  // ===== MDF-e: AVISO, NUNCA TRAVA =====
-  const MDFE_TEXTO = {
-    intermunicipal:     'exige MDF-e também no intermunicipal, e até quando a viagem leva uma nota só',
-    interestadual:      'exige MDF-e no interestadual com veículo próprio',
-    interestadualMulti: 'exige MDF-e no interestadual com veículo próprio quando a viagem leva mais de uma NF-e'
+  // Os rotulos que o CLIENTE le. Nao e traducao enfeitada: "Conferência de saída"
+  // e vocabulario de deposito, e "Faturado" e informacao fiscal que nao diz nada
+  // a quem comprou. Cada evento carrega o par — interno e publico — e a vitrine
+  // consome SO os publicos (barganha de 07/out).
+  const ROTULO_VITRINE = {
+    aberto:           'Pedido recebido',
+    aprovado:         'Pagamento confirmado',
+    separacao:        'Em preparação',
+    conferenciasaida: 'Pedido embalado',
+    faturado:         null,                  // null = evento interno, a vitrine nao mostra
+    prontoenvio:      'Pronto para envio',
+    enviado:          'Enviado',
+    entregue:         'Entregue',
+    cancelado:        'Pedido cancelado'
   };
-  function regraMdfe(uf) { return (PARAM.mdfeRegraUF || {})[uf] || PARAM.mdfeRegraPadrao; }
-  function textoMdfePara(uf, notas) {
-    const corpo = MDFE_TEXTO[regraMdfe(uf)] || MDFE_TEXTO.interestadual;
-    return 'Carga própria saindo de ' + uf + ': pelo parâmetro configurado, ' + uf + ' ' + corpo + '. '
-         + 'Esta carga leva ' + notas + (notas === 1 ? ' nota fiscal' : ' notas fiscais') + '. '
-         + 'Entrega dentro do mesmo município não exige. A Expedição avisa; quem emite o documento é o módulo fiscal, '
-         + 'antes de o veículo sair.';
-  }
-  // ===== MODAL =====
-  const confirmModal = document.getElementById('confirmModal');
-  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
-  const confirmCienteRow = document.getElementById('confirmCienteRow');
-  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
-  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-  let acaoConfirmada = null;
 
-  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    acaoConfirmada = aoConfirmar || null;
-    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
-    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
-    const precisaCiente = qtd >= 2 && modo !== 'aviso';
-    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
-    confirmCienteCheckbox.checked = false;
-    btnConfirmar.disabled = precisaCiente;
-    confirmModalBackdrop.classList.add('open');
-    confirmModal.classList.add('open');
+  // PAGAMENTO E EIXO SEPARADO (barganha de 07/out). O dado nasce em Financas >
+  // Contas a Receber e esta tela so LE: boleto de 30 dias fica enviado e nao pago,
+  // Pix fica pago ainda em aberto. Enfiar isto no funil quebraria o passo unico.
+  const PAGAMENTOS = [
+    { id: 'pago',       rotulo: 'Pago' },
+    { id: 'parcial',    rotulo: 'Parcial' },
+    { id: 'aguardando', rotulo: 'Aguardando' },
+    { id: 'vencido',    rotulo: 'Vencido' }
+  ];
+
+  const HOJE = '2026-10-07';
+
+  // Cada pedido traz:
+  //   previsao      data CONGELADA no despacho — nunca recalculada;
+  //   prazoUsado    o prazo que a transportadora tinha NAQUELE dia. Fica gravado
+  //                 junto de proposito: e o que permite auditar a previsao depois,
+  //                 e e a prova de que ela nao veio do cadastro de hoje;
+  //   volumes       uma caixa por linha, com o codigo (vazio = ainda nao confirmado);
+  //   eventos       a linha do tempo. `vitrine` diz se o cliente ve.
+  const PEDIDOS = [
+    { id: 1, numero: 'PV-4821', vitrine: 'DS-90142', cliente: 'Marina Albuquerque', cidade: 'Campinas', uf: 'SP',
+      loja: 1, situacao: 'entregue', transp: 2, pagamento: 'pago',
+      enviadoEm: '2026-09-28', prazoUsado: 3, previsao: '2026-10-01', entregaEm: '2026-09-30',
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 1.4, codigo: 'BR748219045SE' } ],
+      eventos: [
+        { data: '2026-09-25', sit: 'aberto' }, { data: '2026-09-25', sit: 'aprovado' },
+        { data: '2026-09-26', sit: 'separacao' }, { data: '2026-09-27', sit: 'conferenciasaida' },
+        { data: '2026-09-27', sit: 'faturado', nota: 'NF-e 118440 emitida' },
+        { data: '2026-09-28', sit: 'enviado' }, { data: '2026-09-30', sit: 'entregue' }
+      ] },
+
+    { id: 2, numero: 'PV-4833', vitrine: 'DS-90158', cliente: 'Construtora Veredas Ltda', cidade: 'Ribeirão Preto', uf: 'SP',
+      loja: 2, situacao: 'enviado', transp: 3, pagamento: 'aguardando',
+      enviadoEm: '2026-10-02', prazoUsado: 5, previsao: '2026-10-07', entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 3', peso: 12.5, codigo: 'RS2026100201' },
+                 { id: 'V2', etiqueta: 'Caixa 2 de 3', peso: 11.8, codigo: 'RS2026100202' },
+                 { id: 'V3', etiqueta: 'Caixa 3 de 3', peso: 9.2,  codigo: '' } ],
+      eventos: [
+        { data: '2026-09-29', sit: 'aberto' }, { data: '2026-09-30', sit: 'aprovado' },
+        { data: '2026-10-01', sit: 'separacao' }, { data: '2026-10-01', sit: 'conferenciasaida' },
+        { data: '2026-10-02', sit: 'faturado', nota: 'NF-e 118512 emitida' },
+        { data: '2026-10-02', sit: 'enviado', nota: 'Romaneio RM-220 · coleta RotaSul' }
+      ] },
+
+    { id: 3, numero: 'PV-4840', vitrine: 'DS-90163', cliente: 'Henrique Salles', cidade: 'Belo Horizonte', uf: 'MG',
+      loja: 1, situacao: 'enviado', transp: 1, pagamento: 'pago',
+      enviadoEm: '2026-09-24', prazoUsado: 8, previsao: '2026-10-02', entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 2.1, codigo: 'BR748400112PA' } ],
+      eventos: [
+        { data: '2026-09-22', sit: 'aberto' }, { data: '2026-09-22', sit: 'aprovado' },
+        { data: '2026-09-23', sit: 'separacao' }, { data: '2026-09-23', sit: 'conferenciasaida' },
+        { data: '2026-09-24', sit: 'faturado' }, { data: '2026-09-24', sit: 'enviado' }
+      ] },
+
+    { id: 4, numero: 'PV-4846', vitrine: 'DS-90171', cliente: 'Padaria Bom Dia ME', cidade: 'São Paulo', uf: 'SP',
+      loja: 3, situacao: 'enviado', transp: 6, pagamento: 'pago',
+      enviadoEm: '2026-10-06', prazoUsado: 1, previsao: '2026-10-07', entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 2', peso: 4.0, codigo: '' },
+                 { id: 'V2', etiqueta: 'Caixa 2 de 2', peso: 3.6, codigo: '' } ],
+      eventos: [
+        { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+        { data: '2026-10-06', sit: 'faturado' }, { data: '2026-10-06', sit: 'enviado' }
+      ] },
+
+    { id: 5, numero: 'PV-4851', vitrine: 'DS-90180', cliente: 'Eliane Moraes Prado', cidade: 'Curitiba', uf: 'PR',
+      loja: 1, situacao: 'entregue', transp: 4, pagamento: 'pago',
+      enviadoEm: '2026-09-26', prazoUsado: 4, previsao: '2026-09-30', entregaEm: '2026-10-03',
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 18.0, codigo: 'JG5520260926' } ],
+      eventos: [
+        { data: '2026-09-24', sit: 'aberto' }, { data: '2026-09-24', sit: 'aprovado' },
+        { data: '2026-09-25', sit: 'separacao' }, { data: '2026-09-25', sit: 'conferenciasaida' },
+        { data: '2026-09-26', sit: 'faturado' }, { data: '2026-09-26', sit: 'enviado' },
+        { data: '2026-10-03', sit: 'entregue', nota: 'Entregue 3 dias depois da previsão' }
+      ] },
+
+    { id: 6, numero: 'PV-4858', vitrine: 'DS-90191', cliente: 'Oficina Mecânica Torque', cidade: 'Santo André', uf: 'SP',
+      loja: 2, situacao: 'prontoenvio', transp: 7, pagamento: 'parcial',
+      enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 7.5, codigo: '' } ],
+      eventos: [
+        { data: '2026-10-04', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+        { data: '2026-10-06', sit: 'prontoenvio', nota: 'Aguardando coleta da Frota Desk' }
+      ] },
+
+    { id: 7, numero: 'PV-4862', vitrine: 'DS-90199', cliente: 'Distribuidora Norte Sul', cidade: 'Recife', uf: 'PE',
+      loja: 3, situacao: 'enviado', transp: 3, pagamento: 'vencido',
+      enviadoEm: '2026-09-18', prazoUsado: 5, previsao: '2026-09-23', entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 2', peso: 22.0, codigo: 'RS2026091801' },
+                 { id: 'V2', etiqueta: 'Caixa 2 de 2', peso: 19.4, codigo: 'RS2026091802' } ],
+      eventos: [
+        { data: '2026-09-15', sit: 'aberto' }, { data: '2026-09-16', sit: 'aprovado' },
+        { data: '2026-09-17', sit: 'separacao' }, { data: '2026-09-17', sit: 'conferenciasaida' },
+        { data: '2026-09-18', sit: 'faturado' }, { data: '2026-09-18', sit: 'enviado' }
+      ] },
+
+    { id: 8, numero: 'PV-4869', vitrine: 'DS-90204', cliente: 'Tatiana Vilela', cidade: 'Niterói', uf: 'RJ',
+      loja: 1, situacao: 'separacao', transp: 2, pagamento: 'pago',
+      enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      volumes: [],
+      eventos: [
+        { data: '2026-10-06', sit: 'aberto' }, { data: '2026-10-06', sit: 'aprovado' },
+        { data: '2026-10-07', sit: 'separacao' }
+      ] },
+
+    { id: 9, numero: 'PV-4871', vitrine: 'DS-90211', cliente: 'Mercado Central Paulista', cidade: 'São Paulo', uf: 'SP',
+      loja: 2, situacao: 'cancelado', transp: 4, pagamento: 'aguardando',
+      enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      volumes: [],
+      eventos: [
+        { data: '2026-10-03', sit: 'aberto' },
+        { data: '2026-10-04', sit: 'cancelado', nota: 'Cliente desistiu antes da separação' }
+      ] },
+
+    { id: 10, numero: 'PV-4875', vitrine: 'DS-90218', cliente: 'Clínica Vida Plena', cidade: 'Goiânia', uf: 'GO',
+      loja: 3, situacao: 'entregue', transp: 1, pagamento: 'pago',
+      enviadoEm: '2026-09-20', prazoUsado: 8, previsao: '2026-09-28', entregaEm: '2026-09-27',
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 3.3, codigo: 'BR748750033PA' } ],
+      eventos: [
+        { data: '2026-09-18', sit: 'aberto' }, { data: '2026-09-18', sit: 'aprovado' },
+        { data: '2026-09-19', sit: 'separacao' }, { data: '2026-09-19', sit: 'conferenciasaida' },
+        { data: '2026-09-20', sit: 'faturado' }, { data: '2026-09-20', sit: 'enviado' },
+        { data: '2026-09-27', sit: 'entregue' }
+      ] },
+
+    { id: 11, numero: 'PV-4880', vitrine: 'DS-90225', cliente: 'Rogério Pacheco Filho', cidade: 'Sorocaba', uf: 'SP',
+      loja: 1, situacao: 'enviado', transp: 6, pagamento: 'pago',
+      enviadoEm: '2026-10-03', prazoUsado: 1, previsao: '2026-10-04', entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 1', peso: 0.9, codigo: 'MX100320261' } ],
+      eventos: [
+        { data: '2026-10-02', sit: 'aberto' }, { data: '2026-10-02', sit: 'aprovado' },
+        { data: '2026-10-03', sit: 'separacao' }, { data: '2026-10-03', sit: 'conferenciasaida' },
+        { data: '2026-10-03', sit: 'faturado' }, { data: '2026-10-03', sit: 'enviado' }
+      ] },
+
+    { id: 12, numero: 'PV-4884', vitrine: 'DS-90231', cliente: 'Supermercados Lagoa', cidade: 'Belo Horizonte', uf: 'MG',
+      loja: 2, situacao: 'faturado', transp: 3, pagamento: 'parcial',
+      enviadoEm: null, prazoUsado: null, previsao: null, entregaEm: null,
+      volumes: [ { id: 'V1', etiqueta: 'Caixa 1 de 4', peso: 15.0, codigo: '' },
+                 { id: 'V2', etiqueta: 'Caixa 2 de 4', peso: 14.2, codigo: '' },
+                 { id: 'V3', etiqueta: 'Caixa 3 de 4', peso: 16.1, codigo: '' },
+                 { id: 'V4', etiqueta: 'Caixa 4 de 4', peso: 13.7, codigo: '' } ],
+      eventos: [
+        { data: '2026-10-05', sit: 'aberto' }, { data: '2026-10-05', sit: 'aprovado' },
+        { data: '2026-10-06', sit: 'separacao' }, { data: '2026-10-06', sit: 'conferenciasaida' },
+        { data: '2026-10-07', sit: 'faturado', nota: 'NF-e 118604 emitida' }
+      ] }
+  ];
+
+  // ===== REGRAS DE DOMINIO =====
+  function fmtData(s) {
+    if (!s) return '—';
+    const p = String(s).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
   }
-  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
-  function fecharModalConfirmacao() {
-    confirmModalBackdrop.classList.remove('open');
-    confirmModal.classList.remove('open');
-    acaoConfirmada = null;
+  function deYmd(s) { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function diasEntre(a, b) { return Math.round((deYmd(b) - deYmd(a)) / 86400000); }
+
+  // Nome de classe COMPLETO num mapa, nunca 'fase-' + fase. A concatenacao deixa
+  // o literal "fase-" no HTML e a auditoria reprova — com razao: ninguem prova por
+  // leitura que a concatenacao gera um nome que existe. Com o mapa, valor
+  // inesperado vira undefined e aparece, em vez de virar classe morta calada.
+  const CLS_PONTO = { processando:'fase-processando', transito:'fase-transito', final:'fase-final', cancelado:'fase-cancelado' };
+  const CLS_TEXTO = { processando:'tx-processando', transito:'tx-transito', final:'tx-final', cancelado:'tx-cancelado' };
+  const CLS_PAGTO = { pago:'pg-pago', parcial:'pg-parcial', aguardando:'pg-aguardando', vencido:'pg-vencido' };
+
+  function situacaoDe(id) { return SITUACOES.filter(s => s.id === id)[0] || SITUACOES[0]; }
+  function pagamentoDe(id) { return PAGAMENTOS.filter(p => p.id === id)[0] || PAGAMENTOS[2]; }
+  function transpDe(id) { return TRANSPORTADORAS[id] || { nome: '—', tipo: '—', prazo: null }; }
+
+  function volumesComCodigo(p) { return p.volumes.filter(v => v.codigo).length; }
+  function faltaCodigo(p) {
+    // So cobra codigo de quem JA SAIU. Pedido em separacao nao tem o que rastrear,
+    // e cobrar dele encheria o aviso de ruido que ninguem pode resolver ainda.
+    if (p.situacao !== 'enviado' && p.situacao !== 'entregue') return 0;
+    return p.volumes.length - volumesComCodigo(p);
   }
-  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
-  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
-  // Antes isto executava o callback e so depois fechava. Callback que termina
-  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
-  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
-  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
-  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
-  // liberada" nunca apareceu para ninguem.
-  btnConfirmar.addEventListener('click', () => {
-    const executar = acaoConfirmada;
-    fecharModalConfirmacao();
-    if (executar) executar();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-    }
-  });
+
+  // Atraso e medido contra a previsao CONGELADA, e para quem ja foi entregue ele
+  // olha a data da entrega, nao hoje — senao todo pedido antigo entregue com
+  // atraso apareceria como "atrasado ha 40 dias" para sempre.
+  function diasDeAtraso(p) {
+    if (!p.previsao) return null;
+    const fim = p.entregaEm || HOJE;
+    const d = diasEntre(p.previsao, fim);
+    return d > 0 ? d : 0;
+  }
+  function estadoPrazo(p) {
+    if (!p.previsao) return 'sem';
+    const atraso = diasDeAtraso(p);
+    if (atraso > 0) return 'atrasado';
+    if (p.entregaEm) return 'ok';
+    return diasEntre(HOJE, p.previsao) <= 1 ? 'atencao' : 'ok';
+  }
+
+  // A linha do tempo que a VITRINE enxerga. Evento sem rotulo publico fica fora —
+  // e por isso o rotulo publico e `null` em vez de ausente: a ausencia poderia ser
+  // esquecimento, o `null` e decisao.
+  function eventosPublicos(p) {
+    return p.eventos.filter(e => !!ROTULO_VITRINE[e.sit]);
+  }
 
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
@@ -1905,393 +1940,585 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
-  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
-
-  // ===== CABEÇALHO =====
-  function pintarCabecalho() {
-    document.getElementById('tituloRom').textContent = 'Romaneio ' + ROM.id;
-    const badge = document.getElementById('badgeSituacao');
-    badge.className = 'badge-situacao ' + SITUACAO_CLASSE[ROM.situacao];
-    badge.innerHTML = '<span class="sit-dot"></span>' + SITUACAO_LABEL[ROM.situacao];
-    document.getElementById('marcaSugerido').style.display =
-      (ROM.sugerido && ROM.situacao !== 'despachado') ? '' : 'none';
-    document.getElementById('marcaMdfe').style.display = CARGA_PROPRIA ? '' : 'none';
-
-    const nv = todosVolumes().length;
-    document.getElementById('subtituloRom').textContent =
-      TRANSP.nome + ' · coleta ' + fmtData(ROM.coleta) + ' (' + diaDe(ROM.coleta) + ') · ' +
-      ROM.pedidos.length + (ROM.pedidos.length === 1 ? ' pedido' : ' pedidos') + ' · ' +
-      nv + (nv === 1 ? ' volume' : ' volumes');
-
-    document.getElementById('docTransp').textContent = TRANSP.nome + ' · ' + (TIPO_ROTULO[TRANSP.tipo] || '—');
-    document.getElementById('docColeta').textContent = fmtData(ROM.coleta) + ' · ' + diaDe(ROM.coleta);
-    document.getElementById('docCorte').textContent = TRANSP.corte || '—';
-    document.getElementById('docMontador').textContent = ROM.montador ? (OPERADORES[ROM.montador] || '—') : 'ninguém pegou ainda';
-    document.getElementById('docCarga').textContent = ROM.pedidos.length + ' · ' + nv;
-    document.getElementById('docEspera').textContent = textoEspera(esperaDoRomaneio());
-
-    const item = document.getElementById('itemReabrir');
-    if (item) item.style.display = fechado() ? '' : 'none';
-    document.getElementById('btnDespachar').style.display = fechado() ? 'none' : '';
-    document.getElementById('btnDespacharRodape').style.display = fechado() ? 'none' : '';
-    document.getElementById('btnSalvarParcial').style.display = fechado() ? 'none' : '';
-    document.getElementById('campoBipar').disabled = fechado();
-    document.getElementById('inputPesoBruto').disabled = fechado();
-    document.getElementById('inputMotorista').disabled = fechado();
-    document.getElementById('inputPlaca').disabled = fechado();
-  }
-
-  // ===== VOLUMES, AGRUPADOS POR PEDIDO =====
-  // A conferencia e por volume; a CARGA e por pedido. Por isso o volume mora
-  // dentro do bloco do pedido, e e o bloco que diz se aquele pedido embarca.
-  function pintarVolumes() {
-    const alvo = document.getElementById('listaPedidos');
-    alvo.innerHTML = '';
-    ROM.pedidos.forEach((p, idx) => {
-      const bloco = document.createElement('div');
-      bloco.className = 'pedido-bloco';
-      const conf = p.volumes.filter(v => v.conferido).length;
-      const marca = completo(p) ? '<span class="marca-completo">completo</span>'
-                  : (parcial(p) ? '<span class="marca-parcial">incompleto</span>' : '');
-      bloco.innerHTML =
-        '<div class="pedido-cab">' +
-          '<span class="pedido-cab-nome">#' + p.numero + ' · ' + p.cliente + '</span>' + marca +
-          '<span class="pedido-cab-meta">NF ' + p.nf + ' · ' + LOJAS[p.loja] + ' · ' + p.destino +
-          ' · ' + conf + ' de ' + p.volumes.length + ' volumes' + '</span>' +
-          (fechado() ? '' : '<button type="button" class="pedido-tirar" data-tirar="' + idx + '">tirar do romaneio</button>') +
-        '</div>' +
-        '<div class="pedido-corpo">' + p.volumes.map((v, vi) =>
-          '<div class="vol-item' + (v.conferido ? ' conferido' : '') + '">' +
-            '<input type="checkbox" class="item-checkbox" data-vol="' + idx + '-' + vi + '"' +
-              (v.conferido ? ' checked' : '') + (fechado() ? ' disabled' : '') + '>' +
-            '<div class="vol-etiqueta">' + v.etiqueta + '<span class="vol-seq">' + v.seq + ' de ' + v.de + '</span></div>' +
-            '<div><span class="vol-pedido">#' + p.numero + '</span><span class="vol-cliente">' + p.cliente + '</span></div>' +
-            '<div class="vol-emb">' + v.emb + '</div>' +
-            '<div class="vol-peso">' + fmtPeso(v.peso) + ' <span class="un-sufixo">kg</span></div>' +
-          '</div>').join('') + '</div>';
-      alvo.appendChild(bloco);
-    });
-
-    alvo.querySelectorAll('[data-vol]').forEach(cb => {
-      cb.addEventListener('change', (e) => {
-        const par = e.target.getAttribute('data-vol').split('-');
-        ROM.pedidos[Number(par[0])].volumes[Number(par[1])].conferido = e.target.checked;
-        marcarConferindo();
-        pintarTudo();
-      });
-    });
-    alvo.querySelectorAll('[data-tirar]').forEach(btn => {
-      btn.addEventListener('click', () => tirarPedido(Number(btn.getAttribute('data-tirar'))));
-    });
-  }
-
-  // Bipar o primeiro volume ja move o romaneio de "em montagem" para
-  // "conferindo": a situacao acompanha o trabalho, nao um botao que alguem
-  // precisa lembrar de apertar.
-  function marcarConferindo() {
-    if (ROM.situacao === 'montagem' && volumesConferidos() > 0) {
-      ROM.situacao = 'conferindo';
-      if (!ROM.montador) ROM.montador = EU;
-    }
-  }
-
-  // ===== BIPAR =====
-  // Uma leitura marca UM volume. Etiqueta ja bipada avisa em vez de desmarcar:
-  // na doca o leitor dispara duas vezes com facilidade, e desmarcar calado
-  // faria a caixa conferida virar caixa esquecida.
-  function biparEtiqueta(bruto) {
-    const eco = document.getElementById('ecoBipar');
-    const codigo = String(bruto).trim().toUpperCase();
-    if (!codigo) return;
-    const achado = todosVolumes().filter(x => x.vol.etiqueta === codigo ||
-      x.vol.etiqueta.slice(-String(codigo).length) === codigo)[0];
-    if (!achado) {
-      eco.textContent = 'etiqueta ' + codigo + ' não é deste romaneio';
-      avisar('A etiqueta ' + codigo + ' não pertence a este romaneio. Confira se esse volume é de outra carga — é exatamente isso que esta conferência existe para pegar.');
-      return;
-    }
-    if (achado.vol.conferido) {
-      eco.textContent = achado.vol.etiqueta + ' já estava conferido';
-      return;
-    }
-    achado.vol.conferido = true;
-    marcarConferindo();
-    eco.textContent = achado.vol.etiqueta + ' · #' + achado.ped.numero + ' · volume ' + achado.vol.seq + ' de ' + achado.vol.de;
-    pintarTudo();
-  }
-  document.getElementById('campoBipar').addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    biparEtiqueta(e.target.value);
-    e.target.value = '';
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
+    document.getElementById('periodoMenu').classList.remove('open');
   });
 
-  document.getElementById('btnLimparConferencia').addEventListener('click', () => {
-    if (fechado()) return;
-    abrirModalConfirmacao('Limpar a conferência de volumes deste romaneio? As ' + volumesConferidos() +
-      ' leituras já feitas são apagadas e a contagem recomeça do zero.', 1, 'danger', () => {
-      ROM.pedidos.forEach(p => p.volumes.forEach(v => { v.conferido = false; }));
-      ROM.situacao = 'montagem';
-      document.getElementById('ecoBipar').textContent = '';
-      pintarTudo();
-    });
+  // ===== MODAL =====
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+  const confirmCienteRow = document.getElementById('confirmCienteRow');
+  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
+
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() {
+    confirmModalBackdrop.classList.remove('open');
+    confirmModal.classList.remove('open');
+    acaoConfirmada = null;
+  }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
+  // Antes isto executava o callback e so depois fechava. Callback que termina
+  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
+  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
+  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
+  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
+  // liberada" nunca apareceu para ninguem.
+  btnConfirmar.addEventListener('click', () => {
+    const executar = acaoConfirmada;
+    fecharModalConfirmacao();
+    if (executar) executar();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
+      else if (eventDrawer.classList.contains('open')) fecharDrawer();
+      else document.getElementById('periodoMenu').classList.remove('open');
+    }
   });
 
-  // ===== TIRAR UM PEDIDO =====
-  // Nada e estornado: a baixa do estoque so acontece no despacho, entao o
-  // pedido volta inteiro para a fila de prontos e pode entrar em outra carga.
-  function tirarPedido(idx) {
-    const p = ROM.pedidos[idx];
-    if (!p || fechado()) return;
-    armarSenhaModal('expedicaoTiraPedido');
-    abrirModalConfirmacao('Tirar o pedido #' + p.numero + ' (' + p.cliente + ') deste romaneio? Ele volta para a fila de prontos e pode entrar em outra carga. Nada é estornado: a baixa do estoque só acontece no despacho.',
-      1, 'danger', () => {
-        ROM.pedidos.splice(idx, 1);
-        pintarTudo();
-        avisar('Pedido #' + p.numero + ' saiu do romaneio ' + ROM.id + ' e voltou para a fila de prontos.');
+
+  // ===== FILTROS, ORDEM E PAGINACAO =====
+  const estado = { busca: '', periodo: 'todos', situacao: 'todos', transp: 'todos',
+                   pagamento: 'todos', ordem: 'previsao', asc: true, pagina: 1, porPagina: 10 };
+
+  const corpoTabela = document.getElementById('corpoTabela');
+  const emptyState = document.getElementById('emptyState');
+
+  // Os filtros sao aplicados em duas etapas de proposito: `semSituacao` serve aos
+  // CONTADORES do filtro de situacao, que precisam acompanhar os outros filtros
+  // sem se filtrar por si mesmos. E a mesma mecanica de Pedidos de Venda.
+  function semSituacao() {
+    const q = estado.busca.trim().toLowerCase();
+    return PEDIDOS.filter(p => {
+      if (estado.transp !== 'todos' && String(p.transp) !== estado.transp) return false;
+      if (estado.pagamento !== 'todos' && p.pagamento !== estado.pagamento) return false;
+      if (estado.periodo !== 'todos') {
+        if (!p.enviadoEm) return false;
+        if (diasEntre(p.enviadoEm, HOJE) > +estado.periodo) return false;
+      }
+      if (q) {
+        const alvo = [p.numero, p.vitrine, p.cliente, p.cidade, p.uf, transpDe(p.transp).nome]
+          .concat(p.volumes.map(v => v.codigo)).join(' ').toLowerCase();
+        if (alvo.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function filtrados() {
+    let lista = semSituacao();
+    if (estado.situacao !== 'todos') lista = lista.filter(p => p.situacao === estado.situacao);
+
+    const dir = estado.asc ? 1 : -1;
+    const chave = {
+      pedido:   p => p.numero,
+      cliente:  p => p.cliente,
+      transp:   p => transpDe(p.transp).nome,
+      codigos:  p => volumesComCodigo(p) - p.volumes.length,
+      previsao: p => p.previsao || '9999-12-31'
+    }[estado.ordem] || (p => p.numero);
+
+    return lista.slice().sort((a, b) => {
+      const x = chave(a), y = chave(b);
+      if (x < y) return -1 * dir;
+      if (x > y) return 1 * dir;
+      return a.numero < b.numero ? -1 : 1;
+    });
+  }
+
+  function popularFiltros() {
+    const base = semSituacao();
+    const menuSit = document.getElementById('menuFiltroSituacao');
+    if (menuSit) {
+      let h = '<div class="dropdown-select-item' + (estado.situacao === 'todos' ? ' active' : '') +
+              '" data-value="todos">Todas as situações (' + base.length + ')</div>';
+      SITUACOES.forEach(s => {
+        const n = base.filter(p => p.situacao === s.id).length;
+        h += '<div class="dropdown-select-item' + (estado.situacao === s.id ? ' active' : '') +
+             '" data-value="' + s.id + '">' + s.rotulo + ' (' + n + ')</div>';
       });
+      menuSit.innerHTML = h;
+    }
+
+    const menuTransp = document.getElementById('menuFiltroTransp');
+    if (menuTransp) {
+      let h = '<div class="dropdown-select-item' + (estado.transp === 'todos' ? ' active' : '') +
+              '" data-value="todos">Todas as transportadoras</div>';
+      Object.keys(TRANSPORTADORAS).forEach(k => {
+        h += '<div class="dropdown-select-item' + (estado.transp === k ? ' active' : '') +
+             '" data-value="' + k + '">' + TRANSPORTADORAS[k].nome + '</div>';
+      });
+      menuTransp.innerHTML = h;
+    }
+
+    const menuPg = document.getElementById('menuFiltroPagamento');
+    if (menuPg) {
+      let h = '<div class="dropdown-select-item' + (estado.pagamento === 'todos' ? ' active' : '') +
+              '" data-value="todos">Qualquer pagamento</div>';
+      PAGAMENTOS.forEach(p => {
+        h += '<div class="dropdown-select-item' + (estado.pagamento === p.id ? ' active' : '') +
+             '" data-value="' + p.id + '">' + p.rotulo + '</div>';
+      });
+      menuPg.innerHTML = h;
+    }
   }
 
-  // ===== RESUMO =====
-  function pintarResumo() {
-    const vs = todosVolumes();
-    const conf = volumesConferidos();
-    document.getElementById('totVolumes').textContent = conf + ' de ' + vs.length;
-    document.getElementById('totPedidos').textContent = pedidosCompletos().length + ' de ' + ROM.pedidos.length;
-    document.getElementById('totPesoVolumes').textContent = fmtPeso(pesoDosVolumes()) + ' kg';
-    document.getElementById('totPesoBruto').textContent = ROM.pesoBruto === null ? '—' : fmtPeso(ROM.pesoBruto) + ' kg';
-    document.querySelector('#totVolumes').parentElement.classList.toggle('alerta', conf < vs.length);
-
-    // Carga parcial: fecha com o que saiu, o resto volta para a fila. A tela
-    // diz os numeros ANTES de alguem apertar o botao.
-    const faltam = pedidosIncompletos();
-    const bloco = document.getElementById('blocoParcial');
-    if (faltam.length && !fechado()) {
-      bloco.style.display = '';
-      document.getElementById('textoParcial').textContent =
-        faltam.length + (faltam.length === 1 ? ' pedido ainda não teve todos os volumes bipados' : ' pedidos ainda não tiveram todos os volumes bipados') +
-        ' (' + faltam.map(p => '#' + p.numero).join(', ') + '). Se o romaneio for despachado assim, ' +
-        (faltam.length === 1 ? 'ele volta inteiro' : 'eles voltam inteiros') +
-        ' para a fila de prontos — pedido não embarca pela metade.';
-    } else { bloco.style.display = 'none'; }
-
-    const bm = document.getElementById('blocoMdfe');
-    if (CARGA_PROPRIA) {
-      bm.style.display = '';
-      document.getElementById('textoMdfe').textContent = textoMdfePara(TRANSP.uf || 'SP', ROM.pedidos.length);
-    } else { bm.style.display = 'none'; }
-
-    // Peso por volume acima do limite da transportadora: aviso, nao trava —
-    // quem decide se a caixa vai assim e quem esta olhando para ela.
-    const acima = vs.filter(x => TRANSP.pesoMax > 0 && x.vol.peso > TRANSP.pesoMax);
-    const bp = document.getElementById('blocoPesoVolume');
-    if (acima.length) {
-      bp.style.display = '';
-      document.getElementById('textoPesoVolume').textContent =
-        acima.length + (acima.length === 1 ? ' volume passa' : ' volumes passam') + ' do limite de ' +
-        fmtPeso(TRANSP.pesoMax) + ' kg por volume de ' + TRANSP.nome + ' (' +
-        acima.map(x => x.vol.etiqueta).join(', ') + '). A transportadora pode recusar na coleta.';
-    } else { bp.style.display = 'none'; }
+  // ===== DESENHO DA LISTA =====
+  function celulaSituacao(p) {
+    const s = situacaoDe(p.situacao);
+    return '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' +
+           '<span class="' + CLS_TEXTO[s.fase] + '" style="font-weight:700">' + s.rotulo + '</span>';
   }
 
-  // ===== PESO BRUTO =====
-  // A soma dos volumes e referencia, nao verdade: pallet, filme e caixa-mae
-  // pesam. Por isso a tela compara e AVISA quando a diferenca passa do que o
-  // parametro aceita — e nao impede nada.
-  function pintarPeso() {
-    const campo = document.getElementById('campoPesoBruto');
-    const dica = document.getElementById('dicaPeso');
-    const ref = pesoDeReferencia();
-    campo.classList.remove('has-error');
-    dica.classList.remove('alerta');
-    if (ROM.pesoBruto === null) {
-      dica.textContent = ref.rotulo + ': ' + fmtPeso(ref.valor) + ' kg. Sem o peso bruto o romaneio não fecha.';
+  function celulaPagamento(p) {
+    const pg = pagamentoDe(p.pagamento);
+    return '<span class="pg-chip ' + CLS_PAGTO[pg.id] + '">' + pg.rotulo + '</span>';
+  }
+
+  function celulaRastreio(p) {
+    if (!p.volumes.length) return '<span class="un-sufixo">sem volume</span>';
+    const com = volumesComCodigo(p), total = p.volumes.length;
+    if (com === total) return '<span class="cod-resumo">' + com + ' de ' + total + '</span>';
+    const falta = total - com;
+    const cobra = (p.situacao === 'enviado' || p.situacao === 'entregue');
+    return '<span class="' + (cobra ? 'cod-falta' : 'cod-resumo') + '">' + com + ' de ' + total + '</span>' +
+           (cobra ? '<span class="prazo-sub">falta ' + falta + '</span>' : '');
+  }
+
+  // UMA coluna para previsto e realizado. Eram duas, e a tabela estourava o card
+  // em 88px a 1440px — e o design system e explicito: antes de espremer, meca; se
+  // a folga depender de encurtar rotulo, o componente esta errado para o lugar.
+  // Previsao e entrega sao o mesmo fato em dois tempos, e a sub-linha ja existia.
+  function celulaPrazo(p) {
+    if (!p.previsao) return '<span class="un-sufixo">não enviado</span>';
+    const est = estadoPrazo(p);
+    const cls = est === 'atrasado' ? 'prazo-atrasado' : (est === 'atencao' ? 'prazo-atencao' : 'prazo-ok');
+    const atraso = diasDeAtraso(p);
+    let sub;
+    if (p.entregaEm) sub = 'entregue ' + fmtData(p.entregaEm) + (atraso > 0 ? ' · fora do prazo' : ' · no prazo');
+    else if (est === 'atrasado') sub = 'atrasado ' + atraso + (atraso === 1 ? ' dia' : ' dias');
+    else if (est === 'atencao') sub = 'chega hoje ou amanhã';
+    else sub = 'prazo de ' + p.prazoUsado + (p.prazoUsado === 1 ? ' dia' : ' dias');
+    return '<span class="' + cls + '">' + fmtData(p.previsao) + '</span><span class="prazo-sub">' + sub + '</span>';
+  }
+
+  function render() {
+    popularFiltros();
+    const lista = filtrados();
+
+    const porPagina = estado.porPagina;
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / porPagina));
+    if (estado.pagina > totalPaginas) estado.pagina = totalPaginas;
+    const ini = (estado.pagina - 1) * porPagina;
+    const pagina = lista.slice(ini, ini + porPagina);
+
+    corpoTabela.innerHTML = pagina.map(p => (
+      '<tr data-id="' + p.id + '" class="linha-clicavel">' +
+        '<td class="col-texto"><span class="cliente-nome">' + p.numero + '</span>' +
+          '<span class="pedido-vitrine">vitrine ' + p.vitrine + '</span></td>' +
+        '<td class="col-texto"><span class="cliente-nome">' + p.cliente + '</span>' +
+          '<span class="cliente-sub">' + p.cidade + ' · ' + p.uf + '</span></td>' +
+        '<td class="col-texto">' + celulaSituacao(p) + '</td>' +
+        '<td class="col-texto">' + celulaPagamento(p) + '</td>' +
+        '<td class="col-texto"><span class="transp-nome">' + transpDe(p.transp).nome + '</span>' +
+          '<span class="transp-tipo">' + LOJAS[p.loja] + '</span></td>' +
+        '<td>' + celulaRastreio(p) + '</td>' +
+        '<td>' + celulaPrazo(p) + '</td>' +
+      '</tr>'
+    )).join('');
+
+    emptyState.style.display = lista.length ? 'none' : '';
+    const wrap = document.querySelector('.estoque-table-wrap');
+    if (wrap) wrap.style.display = lista.length ? '' : 'none';
+
+    const cont = document.getElementById('contagemPedidos');
+    if (cont) cont.textContent = lista.length + (lista.length === 1 ? ' pedido' : ' pedidos');
+
+    const atrasados = lista.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm);
+    const pior = atrasados.slice().sort((a, b) => diasDeAtraso(b) - diasDeAtraso(a))[0];
+    const maior = document.getElementById('maiorAtraso');
+    if (maior) maior.textContent = pior ? (pior.numero + ' · ' + diasDeAtraso(pior) +
+      (diasDeAtraso(pior) === 1 ? ' dia' : ' dias')) : '—';
+
+    const resumo = document.getElementById('paginacaoResumo');
+    if (resumo) resumo.textContent = lista.length
+      ? 'Mostrando ' + (ini + 1) + '–' + Math.min(ini + porPagina, lista.length) + ' de ' + lista.length
+      : 'Nada para mostrar';
+    const pags = document.getElementById('paginacaoPaginas');
+    if (pags) pags.textContent = 'Página ' + estado.pagina + ' de ' + totalPaginas;
+    const btnAnt = document.getElementById('btnPaginaAnterior');
+    const btnProx = document.getElementById('btnPaginaProxima');
+    if (btnAnt) btnAnt.disabled = estado.pagina <= 1;
+    if (btnProx) btnProx.disabled = estado.pagina >= totalPaginas;
+
+    desenharKpis();
+    desenharAviso();
+    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
+  }
+
+  // Os KPIs leem a MESMA lista filtrada da tela. Numero de topo que ignora o
+  // filtro aberto embaixo e numero que mente com cara de verdade — e o rodape do
+  // Caixa ja ensinou isso (§14 do design system).
+  function desenharKpis() {
+    const lista = filtrados();
+    const transito = lista.filter(p => p.situacao === 'enviado');
+    const atrasados = lista.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm);
+    const entregues = lista.filter(p => p.situacao === 'entregue');
+    const noPrazo = entregues.filter(p => diasDeAtraso(p) === 0);
+    const semCod = lista.filter(p => faltaCodigo(p) > 0);
+
+    const por = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    por('kpiTransito', transito.length);
+    por('kpiTransitoSub', transito.length ? transito.length + ' a caminho do cliente' : 'nada na rua');
+    por('kpiAtrasados', atrasados.length);
+    por('kpiAtrasadosSub', atrasados.length ? 'passaram da previsão congelada' : 'nenhum passou da previsão');
+    por('kpiNoPrazo', noPrazo.length);
+    por('kpiNoPrazoSub', entregues.length ? noPrazo.length + ' de ' + entregues.length + ' entregas' : 'sem entrega no filtro');
+    por('kpiSemCodigo', semCod.length);
+    por('kpiSemCodigoSub', semCod.length ? 'a vitrine não responde por eles' : 'todos com código');
+  }
+
+  function desenharAviso() {
+    const aviso = document.getElementById('avisoCodigos');
+    const txt = document.getElementById('avisoCodigosTexto');
+    if (!aviso || !txt) return;
+    const pendentes = PEDIDOS.filter(p => faltaCodigo(p) > 0);
+    if (!pendentes.length) {
+      aviso.style.display = 'none';
       return;
     }
-    const desvio = ref.valor > 0 ? Math.abs(ROM.pesoBruto - ref.valor) / ref.valor * 100 : 0;
-    if (desvio > PARAM.expedicaoDesvioPesoPct) {
-      dica.classList.add('alerta');
-      dica.textContent = ref.rotulo + ': ' + fmtPeso(ref.valor) + ' kg — a balança ficou ' +
-        Math.round(desvio) + '% fora. Confira se não subiu (ou ficou) volume na doca.';
+    const volumes = pendentes.reduce((s, p) => s + faltaCodigo(p), 0);
+    aviso.style.display = '';
+    txt.textContent = pendentes.length + (pendentes.length === 1 ? ' pedido já enviado está' : ' pedidos já enviados estão') +
+      ' sem código de rastreio em ' + volumes + (volumes === 1 ? ' volume' : ' volumes') +
+      '. Enquanto o código não entra, a vitrine não tem o que mostrar ao cliente.';
+  }
+
+  // ===== PAINEL: o rastreamento por dentro, sem sair da lista =====
+  const eventDrawer = document.getElementById('eventDrawer');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  let pedidoAberto = null;
+
+  function pedidoPor(id) { return PEDIDOS.filter(p => p.id === +id)[0]; }
+
+  function corpoDrawer(p) {
+    const s = situacaoDe(p.situacao);
+    const tr = transpDe(p.transp);
+
+    let h = '<div>';
+    h += '<div class="rt-linha"><span class="chave-rotulo">Cliente</span><span class="chave-valor">' +
+         p.cliente + ' · ' + p.cidade + '/' + p.uf + '</span></div>';
+    h += '<div class="rt-linha"><span class="chave-rotulo">Situação</span><span class="chave-valor">' +
+         celulaSituacao(p) + '</span></div>';
+    h += '<div class="rt-linha"><span class="chave-rotulo">Pagamento</span><span class="chave-valor">' +
+         celulaPagamento(p) + ' <span class="un-sufixo">lido de Contas a Receber</span></span></div>';
+    h += '<div class="rt-linha"><span class="chave-rotulo">Transportadora</span><span class="chave-valor">' +
+         tr.nome + '</span></div>';
+    if (p.previsao) {
+      h += '<div class="rt-linha"><span class="chave-rotulo">Previsão</span><span class="chave-valor">' +
+           fmtData(p.previsao) + ' <span class="un-sufixo">congelada no envio de ' + fmtData(p.enviadoEm) +
+           ', com o prazo de ' + p.prazoUsado + (p.prazoUsado === 1 ? ' dia' : ' dias') +
+           ' que a transportadora tinha naquele dia</span></span></div>';
+    }
+    h += '</div>';
+
+    // VOLUMES — um codigo por caixa (barganha de 07/out)
+    h += '<div class="rt-sub">Volumes e códigos de rastreio</div>';
+    if (!p.volumes.length) {
+      h += '<div class="nota-reservado"><span>Este pedido ainda não tem volume: os volumes nascem na Conferência de Saída.</span></div>';
     } else {
-      dica.textContent = ref.rotulo + ': ' + fmtPeso(ref.valor) + ' kg. Diferença dentro do esperado.';
+      h += '<div>';
+      p.volumes.forEach(v => {
+        h += '<div class="vol-linha">' +
+               '<div><span class="vol-nome">' + v.etiqueta + '</span>' +
+                 '<span class="vol-sub">' + v.peso.toFixed(2).replace('.', ',') + ' kg</span></div>' +
+               '<div>' + (v.codigo
+                 ? '<span class="cod-chip">' + v.codigo + '</span>' +
+                   '<div class="drawer-link" data-alterar="' + v.id + '" style="margin-top:5px;">alterar</div>'
+                 : '<div class="drawer-link" data-confirmar="' + v.id + '">confirmar código</div>') +
+               '</div>' +
+             '</div>';
+      });
+      h += '</div>';
     }
+
+    // COMPROVANTE DE ENTREGA — reservado, conforme a regra fiscal do projeto.
+    // O canhoto de papel acabou em 01/12/2021 (Ajuste SINIEF 38/2021) e o evento
+    // da NF-e o substituiu, com guarda de 5 anos. Quem emite e o modulo fiscal,
+    // nao esta tela — entao o campo existe, visivel, e nao promete o que nao faz.
+    h += '<div class="rt-sub">Comprovante de entrega</div>';
+    h += '<div class="nota-reservado"><span>Reservado — usado quando a emissão de NF-e for habilitada. ' +
+         'O comprovante é o evento de entrega da NF-e (Ajuste SINIEF 38/2021), com guarda de 5 anos, ' +
+         'e quem emite é o módulo fiscal.</span></div>';
+
+    // HISTORICO
+    h += '<div class="rt-sub">Histórico</div>';
+    h += '<div class="ev-lista">';
+    p.eventos.slice().reverse().forEach(e => {
+      const es = situacaoDe(e.sit);
+      const publico = ROTULO_VITRINE[e.sit];
+      h += '<div class="ev-item">' +
+             '<div class="ev-linha"></div>' +
+             '<div class="ev-marco ' + CLS_PONTO[es.fase] + '"></div>' +
+             '<div>' +
+               '<div class="ev-rotulo">' + es.rotulo +
+                 '<span class="ev-visto">' + (publico ? 'o cliente vê' : 'só interno') + '</span>' +
+               '</div>' +
+               '<div class="ev-quando">' + fmtData(e.data) +
+                 (publico ? ' · na vitrine: ' + publico : '') + '</div>' +
+               (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
+             '</div>' +
+           '</div>';
+    });
+    h += '</div>';
+
+    const pub = eventosPublicos(p).length;
+    h += '<div class="nota-reservado" style="margin-top:12px;"><span>A vitrine mostra ' + pub +
+         ' de ' + p.eventos.length + ' eventos. O resto é vocabulário de depósito e fica aqui dentro.</span></div>';
+
+    return h;
   }
-  document.getElementById('inputPesoBruto').addEventListener('input', (e) => {
-    const n = numeroDe(e.target.value);
-    ROM.pesoBruto = (n === null || isNaN(n)) ? null : n;
-    document.getElementById('campoPesoBruto').classList.toggle('has-error', isNaN(n));
-    pintarResumo();
-    pintarPeso();
-  });
-  document.getElementById('inputMotorista').addEventListener('input', (e) => { ROM.motorista = e.target.value; });
-  document.getElementById('inputPlaca').addEventListener('input', (e) => { ROM.placa = e.target.value.toUpperCase(); });
 
-  function pintarTudo() {
-    pintarCabecalho();
-    pintarVolumes();
-    pintarResumo();
-    pintarPeso();
+  function abrirPedido(id) {
+    const p = pedidoPor(id);
+    if (!p) return;
+    pedidoAberto = p.id;
+    const tit = document.getElementById('drawerTitulo');
+    if (tit) tit.textContent = 'Rastreamento · ' + p.numero;
+    const corpo = document.getElementById('drawerCorpo');
+    if (corpo) corpo.innerHTML = corpoDrawer(p);
+    drawerBackdrop.classList.add('open');
+    eventDrawer.classList.add('open');
+    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
   }
 
-  // ===== DESPACHAR =====
-  // Duas travas, e so duas:
-  //   peso bruto informado — e aqui que a balanca esta, e e por ele que a
-  //   transportadora cobra;
-  //   pelo menos um pedido COMPLETO — romaneio sem carga nao e despacho.
-  // O resto e aviso. E o despacho e o momento em que o estoque fisico some:
-  // a nota ja saiu na Conferencia de Saida, entao aqui nao ha documento a
-  // emitir junto — por isso confirmar a saida e baixar o estoque sao UM evento
-  // so, e pedido que volta da doca nao precisa de estorno nenhum (§14.26).
-  function despachar() {
-    if (fechado()) return;
-    if (ROM.pesoBruto === null) {
-      document.getElementById('campoPesoBruto').classList.add('has-error');
-      document.getElementById('inputPesoBruto').focus();
-      avisar('Informe o peso bruto da carga antes de despachar. É o número que vai no romaneio e é por ele que a transportadora cobra — sem ele a carga sai sem o que a conferência da coleta vai pedir.');
-      return;
-    }
-    const vao = pedidosCompletos();
-    const ficam = pedidosIncompletos();
-    if (!vao.length) {
-      avisar('Nenhum pedido teve todos os volumes bipados, então não há carga para despachar. Bipe as etiquetas dos volumes que subiram no veículo.');
-      return;
-    }
+  function fecharDrawer() {
+    drawerBackdrop.classList.remove('open');
+    eventDrawer.classList.remove('open');
+    pedidoAberto = null;
+  }
 
-    let texto = 'Despachar o romaneio ' + ROM.id + ' com ' + vao.length +
-      (vao.length === 1 ? ' pedido' : ' pedidos') + ' (' + vao.map(p => '#' + p.numero).join(', ') + '), ' +
-      vao.reduce((s, p) => s + p.volumes.length, 0) + ' volumes e ' + fmtPeso(ROM.pesoBruto) + ' kg de peso bruto? ' +
-      'O estoque físico desses pedidos é baixado agora.';
-    if (ficam.length) {
-      texto += ' ' + ficam.length + (ficam.length === 1 ? ' pedido incompleto volta' : ' pedidos incompletos voltam') +
-        ' para a fila de prontos (' + ficam.map(p => '#' + p.numero).join(', ') + ') — nada é estornado, porque a baixa deles ainda não aconteceu.';
-    }
-    if (CARGA_PROPRIA) {
-      texto += ' Carga própria: confira com o módulo fiscal se esta viagem precisa de MDF-e antes de o veículo sair.';
-    }
+  const drawerClose = document.getElementById('drawerClose');
+  if (drawerClose) drawerClose.addEventListener('click', fecharDrawer);
+  drawerBackdrop.addEventListener('click', fecharDrawer);
 
-    armarSenhaModal('expedicaoDespacha');
-    abrirModalConfirmacao(texto, 1, 'primary', () => {
-      ROM.pedidos = vao;
-      ROM.situacao = 'despachado';
-      ROM.despachadoEm = z2(AGORA.getDate()) + '/' + z2(AGORA.getMonth() + 1) + '/' + AGORA.getFullYear() +
-                         ' ' + z2(AGORA.getHours()) + ':' + z2(AGORA.getMinutes());
-      if (!ROM.montador) ROM.montador = EU;
-      pintarTudo();
-      avisar('Romaneio ' + ROM.id + ' despachado. O estoque físico ' +
-        (vao.length === 1 ? 'do pedido foi baixado' : 'dos ' + vao.length + ' pedidos foi baixado') +
-        (ficam.length ? ' e ' + ficam.length + (ficam.length === 1 ? ' pedido voltou' : ' pedidos voltaram') + ' para a fila' : '') +
-        '. Imprima as duas vias: a que o transportador assina e devolve é o comprovante de que a carga saiu.');
+  // ===== CONFIRMAR E ALTERAR CODIGO =====
+  // Confirmar e rotina: pede rastro, nao senha. ALTERAR um codigo ja confirmado e
+  // outra coisa — o cliente ja recebeu o antigo e pode estar acompanhando por ele.
+  // As duas chaves estao no catalogo, com `exigePadrao` diferente.
+  function pedirCodigo(volId, alterando) {
+    const p = pedidoPor(pedidoAberto);
+    if (!p) return;
+    const v = p.volumes.filter(x => x.id === volId)[0];
+    if (!v) return;
+
+    const chave = alterando ? 'rastreioAltera' : 'rastreioConfirma';
+    const texto = alterando
+      ? 'Alterar o código de rastreio de ' + v.etiqueta + ' do pedido ' + p.numero +
+        '. O cliente já pode estar acompanhando pelo código antigo.'
+      : 'Confirmar o código de rastreio de ' + v.etiqueta + ' do pedido ' + p.numero + '.';
+
+    confirmarAcao(chave, texto, function () {
+      // No Lovable o codigo vem digitado ou bipado; no prototipo ele e gerado a
+      // partir da transportadora, so para o fluxo poder ser percorrido inteiro.
+      const pre = { correios: 'BR', transportadora: 'TR', frota: 'FD' }[transpDe(p.transp).tipo] || 'XX';
+      v.codigo = pre + String(p.numero).replace(/\D/g, '') + volId;
+      render();
+      if (pedidoAberto) abrirPedido(pedidoAberto);
     });
   }
-  document.getElementById('btnDespachar').addEventListener('click', despachar);
-  document.getElementById('btnDespacharRodape').addEventListener('click', despachar);
 
-  document.getElementById('btnSalvarParcial').addEventListener('click', () => {
-    if (fechado()) return;
-    const conf = volumesConferidos();
-    abrirModalConfirmacao('Guardar este romaneio como está, com ' + conf +
-      (conf === 1 ? ' volume bipado' : ' volumes bipados') + ', e voltar depois? Nenhum pedido sai da carga e nada é despachado.',
-      1, 'primary', () => {
-        marcarConferindo();
-        avisar('Romaneio ' + ROM.id + ' guardado. Ele continua na doca, com as leituras já feitas, esperando você voltar.');
-      });
+  document.addEventListener('click', function (ev) {
+    const cf = ev.target.closest('[data-confirmar]');
+    if (cf) { pedirCodigo(cf.getAttribute('data-confirmar'), false); return; }
+    const al = ev.target.closest('[data-alterar]');
+    if (al) { pedirCodigo(al.getAttribute('data-alterar'), true); return; }
   });
 
-  document.getElementById('btnVoltarFila').addEventListener('click', () => {
-    window.location.href = 'pagina-logistica-expedicao.html';
+  // ===== ORDENACAO, BUSCA E PAGINACAO =====
+  document.querySelectorAll('th.ordenavel').forEach(th => {
+    th.addEventListener('click', function () {
+      const o = th.getAttribute('data-ordem');
+      if (estado.ordem === o) estado.asc = !estado.asc;
+      else { estado.ordem = o; estado.asc = true; }
+      document.querySelectorAll('th.ordenavel .seta').forEach(s => { s.textContent = '▲'; });
+      const seta = th.querySelector('.seta');
+      if (seta) seta.textContent = estado.asc ? '▲' : '▼';
+      render();
+    });
   });
 
-  function reabrir() {
-    if (!fechado()) return;
-    armarSenhaModal('expedicaoReabre');
-    abrirModalConfirmacao('Reabrir o romaneio ' + ROM.id + '? Ele já foi despachado: reabrir devolve ao estoque as peças desta carga, depois de o veículo ter saído. Use só quando a carga não saiu de fato.',
-      1, 'danger', () => {
-        ROM.situacao = 'conferindo';
-        ROM.despachadoEm = null;
-        pintarTudo();
-        avisar('Romaneio ' + ROM.id + ' reaberto. As peças voltaram ao estoque e a carga está de novo na doca.');
+  corpoTabela.addEventListener('click', function (ev) {
+    const tr = ev.target.closest('tr[data-id]');
+    if (tr) abrirPedido(tr.getAttribute('data-id'));
+  });
+
+  const campoBusca = document.getElementById('campoBusca');
+  if (campoBusca) campoBusca.addEventListener('input', function () {
+    estado.busca = campoBusca.value; estado.pagina = 1; render();
+  });
+
+  const btnAnterior = document.getElementById('btnPaginaAnterior');
+  if (btnAnterior) btnAnterior.addEventListener('click', function () {
+    if (estado.pagina > 1) { estado.pagina--; render(); }
+  });
+  const btnProxima = document.getElementById('btnPaginaProxima');
+  if (btnProxima) btnProxima.addEventListener('click', function () {
+    estado.pagina++; render();
+  });
+
+  const btnLimpar = document.getElementById('btnLimparFiltros');
+  if (btnLimpar) btnLimpar.addEventListener('click', function () {
+    estado.busca = ''; estado.periodo = 'todos'; estado.situacao = 'todos';
+    estado.transp = 'todos'; estado.pagamento = 'todos'; estado.pagina = 1;
+    if (campoBusca) campoBusca.value = '';
+    const rot = document.getElementById('rotuloPeriodo');
+    if (rot) rot.textContent = 'Sem filtro de período';
+    document.querySelectorAll('.periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === 'todos'));
+    ['filtroSituacao', 'filtroTransp', 'filtroPagamento'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.setAttribute('data-value', 'todos');
+    });
+    rotularFiltros();
+    render();
+  });
+
+  function rotularFiltros() {
+    const porId = {
+      filtroSituacao: estado.situacao === 'todos' ? 'Todas as situações' : situacaoDe(estado.situacao).rotulo,
+      filtroTransp: estado.transp === 'todos' ? 'Todas as transportadoras' : transpDe(estado.transp).nome,
+      filtroPagamento: estado.pagamento === 'todos' ? 'Qualquer pagamento' : pagamentoDe(estado.pagamento).rotulo
+    };
+    Object.keys(porId).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const lab = el.querySelector('.dropdown-select-label');
+      if (lab) lab.textContent = porId[id];
+    });
+  }
+
+  // ===== DROPDOWNS DE FILTRO =====
+  [['filtroSituacao', 'situacao'], ['filtroTransp', 'transp'], ['filtroPagamento', 'pagamento']].forEach(par => {
+    const el = document.getElementById(par[0]);
+    if (!el) return;
+    inicializarDropdownSelect(el, function (valor) {
+      estado[par[1]] = valor;
+      estado.pagina = 1;
+      rotularFiltros();
+      render();
+    });
+  });
+
+  const itensPorPagina = document.getElementById('itensPorPagina');
+  if (itensPorPagina) inicializarDropdownSelect(itensPorPagina, function (valor) {
+    estado.porPagina = +valor; estado.pagina = 1; render();
+  });
+
+  // ===== FILTRO DE PERIODO =====
+  const periodoWrap = document.getElementById('periodoWrap');
+  const periodoMenu = document.getElementById('periodoMenu');
+  const btnPeriodo = document.getElementById('btnPeriodo');
+  if (btnPeriodo && periodoMenu) {
+    btnPeriodo.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      document.querySelectorAll('.dropdown-select.open').forEach(d => d.classList.remove('open'));
+      periodoMenu.classList.toggle('open');
+    });
+    document.addEventListener('click', function (ev) {
+      if (periodoWrap && !periodoWrap.contains(ev.target)) periodoMenu.classList.remove('open');
+    });
+    document.querySelectorAll('.periodo-op').forEach(b => {
+      b.addEventListener('click', function () {
+        estado.periodo = b.getAttribute('data-periodo');
+        estado.pagina = 1;
+        document.querySelectorAll('.periodo-op').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const rot = document.getElementById('rotuloPeriodo');
+        if (rot) rot.textContent = estado.periodo === 'todos'
+          ? 'Sem filtro de período' : 'Enviado nos últimos ' + estado.periodo + ' dias';
+        periodoMenu.classList.remove('open');
+        render();
       });
+    });
   }
 
-  // ===== IMPRIMIR: DUAS VIAS, COM ASSINATURA =====
-  // O transportador confere, assina e devolve uma via — e e essa via carimbada
-  // que serve de comprovante quando a carga some. O romaneio NAO e documento
-  // fiscal: e controle interno, e por isso o formato e nosso.
-  function montarFolha() {
-    const vs = todosVolumes();
-    // Antes do despacho a folha e RASCUNHO, e rascunho que mente e pior que
-    // rascunho nenhum: a coluna mostra quantos volumes ja foram bipados de
-    // quantos, e o pedido incompleto sai marcado. Depois do despacho so existe
-    // o que saiu, entao a coluna volta a ser o numero seco.
-    const linhas = ROM.pedidos.map(p => {
-      const conf = p.volumes.filter(v => v.conferido).length;
-      const col = fechado() ? String(p.volumes.length) : conf + ' de ' + p.volumes.length;
-      const marca = (!fechado() && !completo(p)) ? ' — NÃO EMBARCA' : '';
-      return '<tr><td>#' + p.numero + marca + '</td><td>' + p.cliente + '</td><td>' + p.nf + '</td><td>' +
-        p.destino + '</td><td>' + col + '</td><td>' +
-        fmtPeso(p.volumes.reduce((s, v) => s + v.peso, 0)) + ' kg</td></tr>';
-    }).join('');
-    const incompletos = fechado() ? [] : pedidosIncompletos();
-
-    function via(nome) {
-      return '<div class="rom-via">' +
-        '<div class="rom-topo"><span class="rom-id">' + ROM.id + '</span>' +
-        '<span class="rom-via-nome">' + nome + '</span></div>' +
-        '<div class="rom-linha"><b>' + TRANSP.nome + '</b> · ' + (TIPO_ROTULO[TRANSP.tipo] || '') + '</div>' +
-        '<div class="rom-linha">Coleta: ' + fmtData(ROM.coleta) + ' (' + diaDe(ROM.coleta) + ')' +
-          (ROM.despachadoEm ? ' · Despachado em ' + ROM.despachadoEm : '') + '</div>' +
-        '<div class="rom-linha">Motorista: ' + (ROM.motorista || '____________________') +
-          ' · Placa: ' + (ROM.placa || '__________') + '</div>' +
-        '<table class="rom-tabela"><thead><tr><th>Pedido</th><th>Cliente</th><th>NF-e</th><th>Destino</th><th>Volumes</th><th>Peso</th></tr></thead>' +
-        '<tbody>' + linhas + '</tbody></table>' +
-        '<div class="rom-linha"><b>' + ROM.pedidos.length + (ROM.pedidos.length === 1 ? ' pedido' : ' pedidos') +
-          ' · ' + vs.length + (vs.length === 1 ? ' volume' : ' volumes') +
-          ' · peso bruto ' + (ROM.pesoBruto === null ? '________' : fmtPeso(ROM.pesoBruto) + ' kg') + '</b></div>' +
-        (incompletos.length ? '<div class="rom-linha">Rascunho: ' + incompletos.length +
-          (incompletos.length === 1 ? ' pedido ainda não teve todos os volumes bipados e não embarca nesta carga ('
-                                    : ' pedidos ainda não tiveram todos os volumes bipados e não embarcam nesta carga (') +
-          incompletos.map(p => '#' + p.numero).join(', ') + ').</div>' : '') +
-        '<div class="rom-assina"><div>Entregue por (Desk Company)</div><div>Recebido por (transportador) — nome, documento e data</div></div>' +
-        '<div class="rom-rodape">Romaneio de carga — documento de controle interno, sem validade fiscal. ' +
-          'A via do transportador, assinada, comprova a entrega da carga ao transporte.</div>' +
-      '</div>';
-    }
-    document.getElementById('romFolha').innerHTML = via('Via do galpão') + via('Via do transportador');
-  }
-
-  document.getElementById('btnImprimirRomaneio').addEventListener('click', () => {
-    if (!ROM.pedidos.length) { avisar('Este romaneio está sem pedidos — não há carga para imprimir.'); return; }
-    montarFolha();
-    const folha = document.getElementById('romFolha');
-    folha.classList.remove('oculta');
-    window.print();
-    setTimeout(() => folha.classList.add('oculta'), 400);
+  // ===== CONFIRMAR CODIGOS: ABRE O PROXIMO QUE FALTA =====
+  const btnProximo = document.getElementById('btnProximoSemCodigo');
+  if (btnProximo) btnProximo.addEventListener('click', function () {
+    const alvo = PEDIDOS.filter(p => faltaCodigo(p) > 0)
+      .sort((a, b) => (a.enviadoEm || '') < (b.enviadoEm || '') ? -1 : 1)[0];
+    if (!alvo) { avisar('Nenhum pedido enviado está sem código de rastreio.'); return; }
+    abrirPedido(alvo.id);
   });
 
   // ===== MAIS AÇÕES =====
-  (function bindMenuAcoes() {
-    const raiz = document.getElementById('menuMaisAcoes');
-    if (!raiz) return;
-    inicializarDropdownSelect(raiz, null);
-    raiz.querySelectorAll('.dropdown-select-item').forEach(item => {
-      item.addEventListener('click', () => {
+  const menuMais = document.getElementById('menuMaisAcoes');
+  if (menuMais) {
+    inicializarDropdownSelect(menuMais, null);
+    menuMais.querySelectorAll('.dropdown-select-item').forEach(item => {
+      item.addEventListener('click', function () {
+        menuMais.classList.remove('open');
         const acao = item.getAttribute('data-acao');
-        if (acao === 'fila') { window.location.href = 'pagina-logistica-expedicao.html'; return; }
-        if (acao === 'transportadora') { window.location.href = 'pagina-operacional-transportadoras.html'; return; }
-        if (acao === 'reabrir') { reabrir(); }
+        if (acao === 'expedicao') { window.location.href = 'pagina-logistica-expedicao.html'; return; }
+        if (acao === 'transportadoras') { window.location.href = 'pagina-operacional-transportadoras.html'; return; }
+        if (acao === 'copiarpublico') {
+          const n = PEDIDOS.reduce((s, p) => s + eventosPublicos(p).length, 0);
+          avisar('A vitrine mostra ' + n + ' eventos destes ' + PEDIDOS.length +
+                 ' pedidos. No sistema em produção isto vira a cópia da linha do tempo pública, para conferir o que o cliente lê.');
+          return;
+        }
+        if (acao === 'exportar') {
+          avisar('A exportação do rastreamento entra junto com Relatórios de Logística, que ainda não existe.');
+          return;
+        }
+        if (acao === 'entregamanual') {
+          // Marcar entrega a mao pula o evento da transportadora. E a mesma regra
+          // de Pedidos: avancar o funil nao pede senha, alterar a situacao a mao pede.
+          const alvo = pedidoAberto ? pedidoPor(pedidoAberto) : null;
+          if (!alvo) { avisar('Abra um pedido na lista antes de marcar a entrega à mão.'); return; }
+          if (alvo.situacao === 'entregue') { avisar('O pedido ' + alvo.numero + ' já está entregue.'); return; }
+          if (alvo.situacao !== 'enviado') {
+            avisar('Só pedido enviado pode ser marcado como entregue. O ' + alvo.numero + ' está em ' +
+                   situacaoDe(alvo.situacao).rotulo + '.');
+            return;
+          }
+          confirmarAcao('rastreioEntregaManual',
+            'Marcar o pedido ' + alvo.numero + ' como entregue sem evento da transportadora. ' +
+            'Fica registrado quem marcou.',
+            function () {
+              alvo.situacao = 'entregue';
+              alvo.entregaEm = HOJE;
+              alvo.eventos.push({ data: HOJE, sit: 'entregue', nota: 'Marcado à mão por ' + OPERADORES[EU] });
+              render();
+              abrirPedido(alvo.id);
+            });
+          return;
+        }
       });
     });
-  })();
-
-  pintarTudo();
-
-  // Link que pede um romaneio que nao existe nao pode abrir uma tela em branco
-  // nem fingir que o pedido era outro: a tela abre no romaneio padrao e DIZ que
-  // fez isso.
-  if (ROM_INEXISTENTE) {
-    avisar('O romaneio que o link pedia não existe nesta fila — ele pode já ter sido despachado ou cancelado. Esta tela abriu no romaneio ' + ROM.id + '.');
   }
+
+  rotularFiltros();
+  render();
+
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
   // chips). A cor de fundo desses elementos vem de mapa em JS, por style inline,
@@ -2337,6 +2564,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
+
 
 </script>
 
