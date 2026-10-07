@@ -97,10 +97,15 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 ## Estado atual (06/out/2026)
 
-**65 telas construídas**, 44 entradas de menu, 24 submódulos a fazer. F2 (Cadastros) e F5
-(Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística** — Separação, Conferência de
-Saída, Expedição e Rastreamento de Pedidos (listagem + detalhe) prontas; falta **Devolução**, e
-com ela o cadastro de **Motivos de Devolução** em Operacional, de que ela depende.
+**68 telas construídas**, 46 entradas de menu, 22 submódulos a fazer. F2 (Cadastros), F5
+(Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
+Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
+mais o cadastro de **Motivos de Devolução** em Operacional. De Logística falta só
+Relatórios, que entra junto com os dos outros módulos.
+
+**Padrão que vale para tudo que vier:** cadastro de que a tela depende nasce **antes** dela,
+e parâmetro nasce **no mesmo dia** que o código que o lê — as duas regras vieram de bugs
+pagos aqui. E desde o Rastreamento: **a listagem lê, o detalhe escreve**.
 
 A dívida dos seis parâmetros da Expedição (`expedicaoAlertaHoras`, `expedicaoCriticoHoras`,
 `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF`, `mdfeRegraPadrao`) está

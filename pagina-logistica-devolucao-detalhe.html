@@ -307,7 +307,8 @@
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
   /* ===== CADASTROS > MARCAS (listagem) ===== */
-  .marcas-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
   .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
@@ -340,14 +341,14 @@
     background:#fff; border-radius:1px;
   }
 
-  .marcas-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
-  .marcas-card:first-of-type { border-top:none; }
-  .marcas-card:hover { background: rgba(120,120,140,0.06); }
-  .marcas-info { flex:1; min-width:0; }
-  .marcas-nome-row { display:flex; align-items:center; gap:8px; }
-  .marcas-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .marcas-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
-  .marcas-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .deposito-card:first-of-type { border-top:none; }
+  .deposito-card:hover { background: rgba(120,120,140,0.06); }
+  .deposito-info { flex:1; min-width:0; }
+  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
+  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
   .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
@@ -376,11 +377,12 @@
 
   .form-field { margin-bottom:18px; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:78px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
   .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color: var(--danger); }
+  .form-field.has-error input, .form-field.has-error textarea { border-color: var(--danger); }
   .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
@@ -409,40 +411,45 @@
 
   /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
      mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
-  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
-  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
-  .dropdown-multi-item input[type="checkbox"] {
-    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
-    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
-    position:relative; transition:background .15s, border-color .15s;
-  }
-  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
-  .dropdown-multi-item input[type="checkbox"]:checked::after {
-    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
-    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
-  }
-  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
-  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
-  /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
-  /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
-     no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
-  .confirm-senha-row { display:none; margin:2px 0 14px; }
-  .confirm-senha-row.on { display:block; }
-  .confirm-senha-row label { display:block; font-family:'Nunito',sans-serif; font-weight:700;
-                             font-size:12px; color:var(--text); margin-bottom:6px; }
-  /* O modal e uma folha que ocupa a largura toda (bottom sheet, §8). Campo de
-     senha a 100% dessa largura vira uma faixa de 1400px para 12 caracteres. */
-  .confirm-senha-row input { width:100%; max-width:420px; box-sizing:border-box; font-family:'Nunito',sans-serif;
-                             font-size:13.5px; color:var(--text-heading); background:var(--page-bg);
-                             border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .confirm-senha-row input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .confirm-senha-row.has-error input { border-color:var(--danger); }
-  .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
-  .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+  /* ===== Filtro de situacao em abas (§7) ===== */
+  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
+  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
 
+  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
+  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
+  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
+     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
+     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
+  .av-geral           { background: var(--chart-2); color:#101010; }
+  .av-galpao          { background: var(--chart-3); color:#101010; }
+  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
+  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
+  .av-transito        { background: var(--warning); color:#101010; }
+  body.dark .av-geral           { color:#FFFFFF; }
+  body.dark .av-galpao          { color:#FFFFFF; }
+  body.dark .av-loja_fisica     { color:#101010; }
+  body.dark .av-trade_marketing { color:#101010; }
+  body.dark .av-transito        { color:#101010; }
+
+  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+
+  /* ===== Formulario em duas colunas dentro do drawer ===== */
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; min-width:120px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+
+  /* ===== Linha de interruptor dentro do formulario ===== */
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+
+
+  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
@@ -466,123 +473,374 @@
   .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
   .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
   .col-localizacao-vazia { color:var(--text); opacity:0.5; }
-  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
-  .switch-row-texto { flex:1; min-width:0; }
-  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .switch-row .field-hint { margin-top:4px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .cf-nota { display:none; margin:16px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
-             border-left:3px solid var(--danger-solid); border-radius:9px; font-size:12px; color:var(--text); line-height:1.55; }
-  .cf-nota b { color:var(--text-heading); }
+
+  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
+  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
+  .estoque-total b { color:var(--active-text); font-weight:800; }
+
+  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
+
+  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
+  .sit-aberto      { background:#B45309; }
+  .sit-andamento   { background:#0A4EE4; }
+  .sit-atendida    { background:#15803D; }
+  .sit-cancelada   { background:#6B7280; }
+  body.dark .sit-aberto    { background:#F5A623; }
+  body.dark .sit-andamento { background:#9DB8F0; }
+  body.dark .sit-atendida  { background:#4ADE80; }
+  body.dark .sit-cancelada { background:#9CA3AF; }
+
+  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
+  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .bs-aberto      { color:#B45309; }
+  .bs-andamento   { color:#0A4EE4; }
+  .bs-atendida    { color:#15803D; }
+  .bs-cancelada   { color:#6B7280; }
+  body.dark .bs-aberto    { color:#F5A623; }
+  body.dark .bs-andamento { color:#9DB8F0; }
+  body.dark .bs-atendida  { color:#4ADE80; }
+  body.dark .bs-cancelada { color:#9CA3AF; }
+
+  /* filtro de periodo em popover */
+  .periodo-wrap { position:relative; flex-shrink:0; }
+  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
+  .periodo-menu.open { display:block; }
+  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
+  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
+  .periodo-op:hover { background:rgba(120,120,140,0.08); }
+  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
 
 
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; min-width:120px; }
+  /* ===== Detalhe da Ordem de Compra ===== */
+  .oc-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+  .oc-titulo-bloco { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  .linha-links { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:8px; }
+  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-inline:hover { text-decoration:underline; }
+  .bloco-expansivel { display:none; margin-top:14px; padding:14px 16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .bloco-expansivel.open { display:block; }
+  .dado-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:7px 0; font-size:12.5px; }
+  .dado-rotulo { color:var(--text); }
+  .dado-valor { font-weight:700; color:var(--text-heading); }
+
+  /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
+  .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
+  .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .itens-table th.col-texto { text-align:left; }
+  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
+  .itens-table td.col-texto { text-align:left; }
+  .itens-table tbody tr:last-child td { border-bottom:none; }
+  .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
+  .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .itens-table input.col-texto-input { text-align:left; }
+  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
+  .item-remover:hover { opacity:0.75; }
+  .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
+  .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .acao-link:hover { text-decoration:underline; }
+  .acao-link svg { width:14px; height:14px; }
+
+  .totais-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; }
+  .total-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .total-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
+  .total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-top:4px; }
+  .total-item.destaque .total-valor { color:var(--active-text); font-size:17px; }
+  .total-item input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); background:transparent; border:none; border-bottom:1px dashed var(--border); padding:2px 0; margin-top:4px; outline:none; }
+  .total-item input[type="text"]:focus { border-bottom-color: var(--chart-2); }
+
+  .parcelas-table { width:100%; border-collapse:collapse; }
+  .parcelas-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .parcelas-table th.col-texto { text-align:left; }
+  .parcelas-table td { padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; }
+  .parcelas-table td.col-texto { text-align:left; }
+  .parcelas-table tbody tr:last-child td { border-bottom:none; }
+  .parcelas-vazio { font-size:12.5px; color:var(--text); padding:14px 0; }
+
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+
+  .fiscal-ativo-hint { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .fiscal-ativo-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  .oc-numero { font-weight:800; color:var(--active-text); }
+  .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
+
   .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
   .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
 
-  /* ===== Contas bancárias ===== */
-  .cb-banco { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cb-desc { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .cb-num { font-variant-numeric:tabular-nums; }
-  .cb-vinc { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--active-text); }
-  .cb-sem-vinc { font-size:12.5px; color:var(--danger); font-weight:700; }
-
-  /* ===== Contas financeiras ===== */
-  .cf-kpi { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:16px;
-            padding:14px 16px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; }
-  .cf-kpi-rotulo { font-size:12.5px; color:var(--text); }
-  .cf-kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .cf-kpi-nota { font-size:11.5px; color:var(--text); }
-  .cf-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cf-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
-  .cf-chip { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;
-             padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap; }
-  .cf-chip.pref  { color:#1E6B2E; }
-  .cf-chip.fora  { color:#B45309; }
-  .cf-chip.banco { color:var(--active-text); }
-  body.dark .cf-chip.pref { color:#6FCF97; }
-  body.dark .cf-chip.fora { color:#F5A623; }
-  .cf-cadeado { width:14px; height:14px; color:var(--text); vertical-align:-2px; margin-right:6px; }
-  .cf-contabil { font-variant-numeric:tabular-nums; }
-  .cf-vazio { color:var(--text); }
-
-  /* ===== Categorias financeiras ===== */
-  .visao-tabs { display:flex; gap:6px; margin-bottom:16px; }
-  .visao-tab { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); background:var(--card-bg);
-               border:1px solid var(--border); border-radius:20px; padding:8px 16px; cursor:pointer; }
-  .visao-tab:hover { color:var(--text-heading); }
-  .visao-tab.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
-  .link-perigo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--danger); cursor:pointer; user-select:none; }
-  .link-perigo:hover { opacity:0.8; }
-  .link-perigo.desabilitado { color:var(--text); cursor:default; }
-  .link-perigo.desabilitado:hover { opacity:1; }
-  .selecao-aviso { color:var(--danger); font-weight:700; }
-  .col-check { width:34px; }
-  .cat-grupo-row { cursor:default; }
-  .cat-grupo-row td { background:var(--page-bg); font-family:'Nunito',sans-serif; font-weight:800; font-size:11px;
-                      text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:9px 8px;
-                      text-align:left; }   /* a regra geral da tabela alinha td a direita; cabecalho de grupo e texto */
-  .cat-grupo-row:hover td { background:var(--page-bg); }
-  .cat-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cat-sub { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; color:var(--text); margin-top:3px; }
-  .cat-chip { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
-              border-radius:20px; border:1px solid currentColor; white-space:nowrap; color:var(--active-text); }
-  .cat-dre { font-size:12.5px; color:var(--text-heading); }
-  .cat-dre.nao { color:var(--text); }
-
-  /* ===== Caixa e Bancos ===== */
-  .btn-secundario-topo { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700;
-                         font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border);
-                         background:var(--card-bg); color:var(--text-heading); cursor:pointer; user-select:none; }
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
   .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo svg { width:14px; height:14px; }
-  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; }
-  .link-inline:hover { color:var(--text-heading); }
-  .cx-acoes-topo { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 
-  .cx-conta-bar { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-bottom:16px; padding:14px 16px;
-                  background:var(--card-bg); border:1px solid var(--border); border-radius:12px; }
-  .cx-saldo { display:flex; align-items:baseline; gap:8px; }
-  .cx-saldo-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); font-variant-numeric:tabular-nums; }
-  .cx-saldo-valor.neg { color:var(--danger); }
-  .cx-saldo-rotulo { font-size:12px; color:var(--text); }
-  .cx-saldo-nota { display:none; flex:1; min-width:220px; font-size:11.5px; color:var(--text); }
-  .cx-saldo-nota b { color:var(--text-heading); }
+  /* extrato dentro do drawer */
+  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
+  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .extrato-linha:first-of-type { border-top:none; }
+  .extrato-rotulo { color:var(--text); }
+  .extrato-valor { font-weight:700; color:var(--text-heading); }
+  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
+  .mov-item:first-of-type { border-top:none; }
+  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mov-icone svg { width:13px; height:13px; }
+  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
+  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
+  .mov-qtd.entrada { color:var(--success); }
+  .mov-qtd.saida { color:var(--danger); }
 
-  .cx-table { min-width:900px; }
-  .cx-saldo-row { cursor:default; }
-  .cx-saldo-row td { background:var(--page-bg); text-align:left; font-size:12px; color:var(--text); padding:10px 8px; }
-  .cx-saldo-row td b { color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:800; font-variant-numeric:tabular-nums; }
-  .cx-saldo-row:hover td { background:var(--page-bg); }
-  .cx-data { font-variant-numeric:tabular-nums; font-size:12.5px; white-space:nowrap; }
-  .cx-hist { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cx-sub { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .cx-cat { font-size:12.5px; }
-  .cx-num { font-variant-numeric:tabular-nums; font-size:13px; }
-  .cx-origem { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
-               border-radius:20px; border:1px solid currentColor; color:var(--active-text); white-space:nowrap; }
-  .cx-alerta-comp { color:var(--active-text); font-weight:800; margin-left:4px; cursor:help; }
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  .cx-totais { display:flex; align-items:center; justify-content:flex-end; gap:26px; flex-wrap:wrap;
-               padding:14px 4px 2px; border-top:1px solid var(--border); margin-top:6px; }
-  .cx-total-item { text-align:right; }
-  .cx-total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); font-variant-numeric:tabular-nums; }
-  .cx-total-valor.neg { color:var(--danger); }
-  .cx-total-valor.sel { color:var(--active-text); }
-  .cx-total-rotulo { font-size:11px; color:var(--text); margin-top:2px; }
-  .cx-fechado .cx-total-valor { color:var(--active-text); }
-  .cx-total-aviso { flex-basis:100%; text-align:right; font-size:11.5px; color:var(--text); margin-top:8px; }
-  .cx-total-aviso b { color:var(--text-heading); }
+  /* ===== ESTOQUE > CONFERÊNCIA ===== */
+  /* Situacoes herdadas da Entrada de Notas: mesmo par claro/escuro aferido por
+     contraste, porque e o mesmo documento mudando de estado. */
+  .bs-emconferencia { color:#0A4EE4; }
+  .bs-divergencia   { color:#B91C1C; }
+  .bs-lancada       { color:#15803D; }
+  body.dark .bs-emconferencia { color:#9DB8F0; }
+  body.dark .bs-divergencia   { color:#FCA5A5; }
+  body.dark .bs-lancada       { color:#4ADE80; }
 
-  .cx-ro { font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text); background:var(--page-bg);
-           border:1px solid var(--border); border-radius:9px; padding:9px 11px; }
-  .cx-texto { font-size:12.5px; color:var(--text); line-height:1.55; margin-bottom:16px; }
-  .cx-texto b { color:var(--text-heading); }
-  .cx-bloq { padding:11px 0; border-bottom:1px solid var(--border); }
+  .doc-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+  .doc-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .doc-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
+  .doc-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); margin-top:4px; }
 
-  .dropdown-grupo { padding:9px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px;
-                    text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
+  #tabelaItens { min-width:820px; }
+  #tabelaItens .cel-nota, #tabelaItens .cel-dif { white-space:nowrap; }
+  #tabelaItens .cel-motivo { min-width:210px; }
+  #tabelaItens td { vertical-align:top; padding-top:12px; }
+  .item-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
+  .item-sku { font-size:11px; color:var(--text); margin-top:2px; }
+  .qtd-input { max-width:110px; }
+
+  /* Conferencia cega: a quantidade da nota fica oculta ate o item ser contado */
+  .qtd-oculta { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); opacity:0.7; }
+  .dif-neutra { color:var(--text); }
+  .dif-ok { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#15803D; }
+  body.dark .dif-ok { color:#4ADE80; }
+  .dif-erro { font-size:14px; color:#B91C1C; }
+  body.dark .dif-erro { color:#FCA5A5; }
+  .motivo-vazio { color:var(--text); }
+
+  /* Divergencia ainda nao confirmada: a tela diz que existe, nunca quanto e */
+  .dif-cega { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B45309; border:1px solid currentColor; border-radius:20px; padding:2px 9px; white-space:nowrap; }
+  body.dark .dif-cega { color:#F5A623; }
+  .validar-bloco { display:flex; flex-direction:column; gap:6px; }
+  .validar-hint { font-size:11px; color:var(--text); }
+  .validar-botoes { display:flex; flex-wrap:wrap; gap:6px; }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background: rgba(120,120,140,0.08); }
+  .btn-mini.destaque { color:#fff; background:var(--brand-blue); border-color:var(--brand-blue); }
+  .btn-mini.destaque:hover { opacity:0.9; }
+  .valor-oculto { font-size:12.5px; font-weight:700; color:var(--text); }
+
+  /* Campo que a divergencia tornou obrigatorio e ainda esta vazio */
+  .campo-pendente .dropdown-select-btn { border-color:#B91C1C; }
+  body.dark .campo-pendente .dropdown-select-btn { border-color:#FCA5A5; }
+  .motivo-select .dropdown-select-btn, .destino-select .dropdown-select-btn { font-size:12.5px; padding:7px 10px; }
+  .destino-select .dropdown-select-menu { min-width:260px; }
+
+  .comunicado-box { font-family:'Nunito',sans-serif; font-size:12px; line-height:1.55; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 13px; white-space:pre-wrap; word-break:break-word; margin:0; }
+  .conf-fechada { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch.travado { opacity:0.5; pointer-events:none; }
+
+  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
+  /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
+     no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
+  .confirm-senha-row { display:none; margin:2px 0 14px; }
+  .confirm-senha-row.on { display:block; }
+  .confirm-senha-row label { display:block; font-family:'Nunito',sans-serif; font-weight:700;
+                             font-size:12px; color:var(--text); margin-bottom:6px; }
+  /* O modal e uma folha que ocupa a largura toda (bottom sheet, §8). Campo de
+     senha a 100% dessa largura vira uma faixa de 1400px para 12 caracteres. */
+  .confirm-senha-row input { width:100%; max-width:420px; box-sizing:border-box; font-family:'Nunito',sans-serif;
+                             font-size:13.5px; color:var(--text-heading); background:var(--page-bg);
+                             border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .confirm-senha-row input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .confirm-senha-row.has-error input { border-color:var(--danger); }
+  .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
+  .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (a página do pedido) ===== */
+  /* Esta tela e a UNICA que escreve codigo de rastreio (decisao de 07/out). O
+     painel lateral da listagem so mostra: confirmar um codigo sem ver o pedido
+     inteiro — itens, cliente, vendedor, quem separou, quem conferiu — e decidir
+     no escuro o que o cliente vai acompanhar. */
+
+  /* Mesma leitura de fase da listagem: o ponto colore a FASE, o rotulo diz a
+     situacao exata. Nove cores ninguem memoriza, e nove cores no tema claro e
+     campo minado de contraste. */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
+
+  .bs-processando { color:#B45309; }
+  .bs-transito    { color:#0A4EE4; }
+  .bs-final       { color:#15803D; }
+  .bs-cancelado   { color:#DC2626; }
+  body.dark .bs-processando { color:#F5A623; }
+  body.dark .bs-transito    { color:#9DB8F0; }
+  body.dark .bs-final       { color:#4ADE80; }
+  body.dark .bs-cancelado   { color:#EF4444; }
+
+  /* Pagamento e eixo separado e esta tela tambem so LE: quem manda e Financas. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+
+  /* QUEM TOCOU O PEDIDO. Trabalho de galpao nao pede senha — pede RASTRO. O nome
+     de quem separou e de quem conferiu e o que transforma divergencia em conversa
+     com alguem, em vez de em discussao sobre o sistema. */
+  .toque-lista { display:flex; flex-direction:column; gap:0; }
+  .toque-item { display:grid; grid-template-columns:150px 1fr auto; gap:12px; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--border); }
+  .toque-item:last-child { border-bottom:none; }
+  .toque-etapa { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
+  .toque-quem { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .toque-quando { font-size:11.5px; font-weight:600; color:var(--text); }
+  .toque-vazio { font-size:13px; font-weight:600; color:var(--text); font-style:italic; }
+
+  /* VOLUMES E CODIGOS — a unica parte editavel da tela. */
+  /* Cores das situacoes da devolucao, aferidas contra o fundo nos dois temas. */
+  .dev-aberta     { background:#B45309; }
+  .dev-andamento  { background:#0A4EE4; }
+  .dev-finalizada { background:#15803D; }
+  .dev-cancelada  { background:#6B7280; }
+  body.dark .dev-aberta     { background:#F5A623; }
+  body.dark .dev-andamento  { background:#4D8DFF; }
+  body.dark .dev-finalizada { background:#34C759; }
+  body.dark .dev-cancelada  { background:#9AA0A6; }
+
+  .bd-aberta     { background:rgba(180,83,9,0.12);  color:#B45309; }
+  .bd-andamento  { background:var(--active-bg);     color:var(--active-text); }
+  .bd-finalizada { background:rgba(21,128,61,0.12); color:#15803D; }
+  .bd-cancelada  { background:rgba(107,114,128,0.14); color:#6B7280; }
+  body.dark .bd-aberta     { background:rgba(245,166,35,0.16); color:#F5A623; }
+  body.dark .bd-finalizada { background:rgba(52,199,89,0.16);  color:#34C759; }
+  body.dark .bd-cancelada  { background:rgba(154,160,166,0.18); color:#C7CBD1; }
+
+  .chip-parcial, .chip-prazo { display:inline-flex; align-items:center; font-size:10.5px; font-weight:800;
+                               text-transform:uppercase; letter-spacing:0.3px; padding:2px 9px; border-radius:20px;
+                               border:1px solid var(--border); color:var(--text); }
+  .chip-prazo { border-color:#B45309; color:#B45309; }
+  body.dark .chip-prazo { border-color:#F5A623; color:#F5A623; }
+
+  .vol-tabela-wrap { overflow:visible; }
+  /* table-layout fixo porque a largura NAO pode depender do estado da linha: sem
+     isto a coluna encolhia quando o chip virava campo e a tabela inteira dançava
+     a cada clique. Com as larguras declaradas, abrir a edicao nao move nada. */
+  .vol-tabela { width:100%; border-collapse:collapse; table-layout:fixed; }
+  .vol-tabela th { text-align:left; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:0 10px 8px 0; border-bottom:1px solid var(--border); }
+  .vol-tabela td { padding:11px 10px 11px 0; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .vol-tabela tr:last-child td { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  /* O cabecalho "ACAO" ficava solto a esquerda enquanto os botoes iam para a
+     direita: a coluna parecia vazia e o titulo parecia de outra coluna. A regra
+     .vol-tabela th vence .vol-acao por especificidade, entao a excecao precisa
+     citar as duas. */
+  /* A coluna de acao e CENTRADA: o titulo fica em cima dos botoes, nao solto na
+     borda. Antes o cabecalho herdava o text-align:left de .vol-tabela th e
+     parecia titulo de outra coluna. */
+  .vol-acao { text-align:center; }
+  .vol-tabela th.vol-acao { text-align:center; }
+  .vol-prazo-valor { font-size:12.5px; font-weight:800; color:var(--text-heading); }
+  .vol-prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .vol-campo input.campo-data { width:100%; max-width:150px; }
+  .vol-campo .date-field { width:100%; max-width:150px; }
+  /* Quantidade e numero curto: a coluna tem 14% da tabela, e o campo largo
+     herdado do codigo de rastreio nao cabe nela. */
+  .vol-campo input.campo-qtd { width:100%; max-width:90px; text-align:center; }
+  .vol-botoes { display:flex; gap:8px; align-items:center; justify-content:center; }
+
+  /* Campo do codigo dentro da linha do volume. Segue o input de formulario do
+     sistema; sem isto o campo cai no estilo nativo do navegador e vaza fundo
+     claro no tema escuro (bug real do input de senha, §14). */
+  .vol-campo { display:flex; gap:8px; align-items:center; justify-content:flex-end; }
+  .vol-campo input[type="text"] { width:100%; max-width:230px; font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 10px; outline:none; }
+  .vol-campo input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .vol-campo .acao-link { justify-content:flex-end; }
+  .vol-cancelar { font-size:12px; font-weight:700; color:var(--text); cursor:pointer; user-select:none; }
+  .vol-cancelar:hover { text-decoration:underline; }
+
+  /* Barra de salvar: a conta do que esta pendente mora nela. Botao de gravar sem
+     dizer quantos codigos mudaram obriga a rolar a tabela de volta para conferir. */
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+  .barra-info b { color:var(--text-heading); }
+  .barra-info.pendente b { color: var(--active-text); }
+
+  /* A FICHA DE RASTREIO IMPRESSA. Ela sai com o que o CLIENTE pode ver: os codigos,
+     a transportadora e os eventos publicos. Evento interno (Faturado, nota de quem
+     marcou entrega a mao) fica de fora — papel circula, e vocabulario de deposito
+     na mao do cliente vira duvida que alguem vai ter que responder no telefone. */
+  .rastreio-folha { display:none; font-family:Nunito, sans-serif; }
+  .rf-cabeca { border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:14px; }
+  .rf-titulo { font-size:19px; font-weight:800; }
+  .rf-sub { font-size:12px; font-weight:600; margin-top:3px; }
+  .rf-secao { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 7px; }
+  .rf-linha { display:grid; grid-template-columns:150px 1fr; gap:10px; padding:7px 0; border-bottom:1px solid #999; font-size:12.5px; }
+  .rf-linha b { font-weight:800; }
+  .rf-rodape { margin-top:18px; font-size:11px; font-weight:600; }
+  @media print {
+    body * { visibility:hidden; }
+    .rastreio-folha, .rastreio-folha * { visibility:visible; }
+    .rastreio-folha { display:block; position:absolute; left:0; top:0; width:100%; padding:24px; background:#fff; color:#000; }
+    .rastreio-folha.oculta { display:none; }
+  }
+
 
   /* ===== Campo de data com mini calendário (componente compartilhado) ===== */
   .date-field { position:relative; }
@@ -619,63 +877,17 @@
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
 
-  /* ===== Contas a Receber ===== */
-  .sit-tabs { display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
-  .sit-tab { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px;
-             color:var(--text); background:transparent; border:none; border-bottom:2px solid transparent;
-             padding:8px 14px 10px; cursor:pointer; margin-bottom:-1px; }
-  .sit-tab:hover { color:var(--text-heading); }
-  .sit-tab.on { color:var(--active-text); border-bottom-color:var(--active-text); }
-  .sit-cont { font-variant-numeric:tabular-nums; font-size:12px; opacity:0.75; }
-  .sit-bola { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; background:var(--text); }
-  .sit-bola.aberta { background:#2E9E5B; }
-  .sit-bola.atrasada { background:var(--danger); }
-  .sit-bola.recebida { background:#9a9890; }
-  /* Documento Origem clicavel e Valor liquido com taxa: os dois unicos sinais
-     visuais que o a receber tem e o a pagar nao. */
-  .tit-origem { color:var(--active-text); cursor:pointer; font-weight:700; }
-  .tit-origem:hover { text-decoration:underline; }
-  .tit-liquido { border-bottom:1px dashed var(--border); cursor:help; }
-  .sit-bola.cancelada { background:#4b4b52; }
-
-  /* O painel de Recebimento trouxe um textarea, e o CSS dele NAO veio junto — a
-     tela nasceu do extrato, que nao tinha nenhum. Sem isto o campo fica com o
-     estilo nativo do navegador: fundo claro vazando no tema escuro. Achado pela
-     auditoria que mede estilo computado, nao por leitura de codigo. */
-  .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading);
-                         background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px;
-                         outline:none; resize:vertical; min-height:72px; }
-  .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-
-  .tit-repete { display:inline-block; font-size:12px; color:var(--active-text); font-weight:700; cursor:help; }
-
-  .cp-table { min-width:900px; }
-  .tit-parcial { color:var(--active-text); font-weight:700; }
-  .tit-venc-atraso { color:var(--danger); font-weight:700; }
-  .tit-exp { text-align:center; }
-  .tit-chevron { display:inline-block; width:22px; height:22px; line-height:20px; text-align:center; border-radius:7px;
-                 color:var(--text); cursor:pointer; font-size:13px; }
-  .tit-chevron:hover { background: rgba(120,120,140,0.14); color:var(--text-heading); }
-  .tit-detalhe { cursor:default; }
-  .tit-detalhe:hover td { background:var(--page-bg); }
-  .tit-detalhe td { background:var(--page-bg); padding:12px 8px 14px; text-align:left; }
-  .tit-det-grid { display:flex; gap:28px; flex-wrap:wrap; }
-  .tit-det-grid div { display:flex; flex-direction:column; gap:3px; }
-  .tit-det-grid span { font-size:10.5px; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
-  .tit-det-grid b { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); }
-
-  .cx-previa { margin:18px 0 4px; padding:12px 14px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
-  .cx-previa-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
-                      letter-spacing:0.4px; color:var(--text); margin-bottom:7px; }
-  .cx-previa-linha { font-size:12.5px; color:var(--text); line-height:1.6; }
-  .cx-previa-linha b { color:var(--text-heading); }
-
-  .aviso-baixa { display:none; align-items:center; gap:8px; padding:12px 14px; margin-bottom:16px; border-radius:10px;
-                 background:var(--card-bg); border:1px solid var(--active-text); font-size:12.5px; color:var(--text); }
-  .aviso-baixa.show { display:flex; }
-  .aviso-baixa b { color:var(--text-heading); }
-  .aviso-baixa a { color:var(--active-text); font-weight:700; text-decoration:none; margin-left:auto; white-space:nowrap; }
-
+  /* ===== HISTORICO ===== */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
 </style>
 </head>
 <body class="dark">
@@ -705,11 +917,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       <span class="label-text">Vendas</span>
     </div>
-    <div class="nav-item" data-id="logistica" data-label="Logística">
+    <div class="nav-item active" data-id="logistica" data-label="Logística">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       <span class="label-text">Logística</span>
     </div>
-    <div class="nav-item active" data-id="financas" data-label="Finanças">
+    <div class="nav-item" data-id="financas" data-label="Finanças">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a1.75 1.75 0 1 1 0 3.5h-2a1.75 1.75 0 1 0 0 3.5h3.5"/></svg>
       <span class="label-text">Finanças</span>
     </div>
@@ -840,7 +1052,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <h4>Operacional</h4>
     <div class="flyout-body">
       <div class="flyout-item" data-label="Transportadoras" data-href="pagina-operacional-transportadoras.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Transportadoras</div>
-      <div class="flyout-item" data-label="Formas de Recebimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Formas de Recebimento</div>
+      <div class="flyout-item" data-label="Formas de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Formas de Pagamento</div>
       <div class="flyout-item" data-label="Cupons"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2,2"/></svg>Cupons</div>
       <div class="flyout-item" data-label="Motivos de Devolução" data-href="pagina-operacional-motivos-devolucao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>Motivos de Devolução</div>
       <div class="flyout-item" data-label="Motivos de Perda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 6 8.5 13.5 13.5 8.5 23 18"/><polyline points="17 18 23 18 23 12"/></svg>Motivos de Perda</div>
@@ -857,7 +1069,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Endereços de Estoque" data-href="pagina-cadastros-enderecos-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/></svg>Endereços de Estoque</div>
       <div class="flyout-item" data-label="Marketplaces e Hubs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Marketplaces e Hubs</div>
       <div class="flyout-item" data-label="Emissão de Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Emissão de Notas Fiscais</div>
-      <div class="flyout-item" data-label="Gateways de Recebimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Recebimento</div>
+      <div class="flyout-item" data-label="Gateways de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
       <div class="flyout-item" data-label="Relatórios de Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Integrações</div>
     </div>
   </div>
@@ -881,220 +1093,222 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
+
+
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
-    <div>
-      <h1>Contas a Receber</h1>
-      <div class="subtitle">O que os clientes devem, com data marcada. A conta nasce do pedido de venda; receber aqui escreve no Caixa.</div>
-    </div>
-    <div class="cx-acoes-topo">
-      <button class="btn-primary" id="btnNovoTitulo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Incluir conta a receber
-      </button>
-    </div>
-  </div>
-
-  <div class="nota-reservado">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-    <span>A conta a receber <b>nasce do pedido de venda</b> — a coluna <i>Origem</i> leva até ele. Cada linha tem <b>quatro valores</b>, e eles não são o mesmo número: <b>Valor</b> é o que o cliente deve, <b>Líquido</b> é o que de fato cai na conta depois das taxas do cartão ou do marketplace, <b>Recebido</b> é o que já entrou e <b>Saldo</b> é o que falta. <b>Atrasada não é situação gravada</b>: é conta em aberto cujo vencimento já passou.</span>
-  </div>
-
-  <div class="aviso-baixa" id="avisoBaixa"></div>
-
-
-  <div class="marcas-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Buscar por cliente, nº do documento ou histórico...">
-    </div>
-
-    <div class="dropdown-select" id="filtroPeriodo" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Sem filtro de período</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Sem filtro de período</div>
-        <div class="dropdown-select-item" data-value="vencidas">Vencidas até hoje</div>
-        <div class="dropdown-select-item" data-value="7">Vencem nos próximos 7 dias</div>
-        <div class="dropdown-select-item" data-value="30">Vencem nos próximos 30 dias</div>
-        <div class="dropdown-select-item" data-value="mes">Vencem neste mês</div>
+    <div class="oc-topo" style="flex:1;">
+      <div>
+        <div class="oc-titulo-bloco">
+          <h1 id="tituloDev">Devolução</h1>
+          <span class="badge-situacao bd-aberta" id="badgeSituacao"><span class="sit-dot dev-aberta"></span>—</span>
+          <span class="chip-parcial" id="chipParcial" style="display:none;">devolução parcial</span>
+          <span class="chip-prazo" id="chipPrazo" style="display:none;">fora do prazo</span>
+        </div>
+        <div class="subtitle" id="subtituloDev">—</div>
       </div>
     </div>
-
-    <div class="dropdown-select" id="filtroBase" data-value="vencimento">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">por vencimento</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="header-acoes">
+      <button class="btn-ghost" id="btnImprimir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir a ficha
       </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="vencimento">por vencimento</div>
-        <div class="dropdown-select-item" data-value="competencia">por competência</div>
+      <button class="btn-secundario-topo" id="btnVoltar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar às devoluções
+      </button>
+      <div class="dropdown-select" id="menuMaisAcoes">
+        <button type="button" class="btn-ghost dropdown-select-btn">
+          <span class="dropdown-select-label">Mais ações</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:330px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="pedido">Abrir o pedido de venda</div>
+          <div class="dropdown-select-item" data-acao="cliente">Abrir o cadastro do cliente</div>
+          <div class="dropdown-select-item" data-acao="motivos">Abrir Motivos de Devolução</div>
+          <div class="dropdown-select-item" data-acao="finalizar">Finalizar a devolução</div>
+          <div class="dropdown-select-item item-perigo" data-acao="cancelar">Cancelar a devolução</div>
+        </div>
       </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroCategoria" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todas as categorias</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroCategoria"></div>
-    </div>
-
-    <div class="link-inline" id="limparFiltros">Limpar filtros</div>
-  </div>
-
-  <!-- Ordem canonica das duas linhas (02/out): FILTROS em cima, abas de
-       SITUACAO embaixo. As telas de Estoque ja faziam assim; as duas de
-       contas estavam invertidas, e o mesmo par de linhas trocava de lugar
-       conforme o modulo. -->
-  <div class="sit-tabs" id="sitTabs"></div>
-
-  <div class="selecao-bar" id="barraSelecao">
-    <div class="selecao-info" id="selecaoInfo">0 selecionadas</div>
-    <div class="selecao-acoes">
-      <button class="btn-secundario-topo" id="btnReceberSelecionadas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Receber selecionadas
-      </button>
-      <div class="drawer-link" id="linkCancelarSelecionadas">Cancelar contas</div>
-      <div class="link-perigo" id="linkExcluirSelecionadas">Excluir selecionadas</div>
-      <div class="drawer-link" id="linkLimparSelecao">Limpar seleção</div>
     </div>
   </div>
 
   <div class="card">
-    <div id="listaTitulos"></div>
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <div class="empty-state-title" id="emptyTitulo">Nenhuma conta nesta situação</div>
-      <div class="empty-state-sub">Troque a aba, o período ou limpe os filtros.</div>
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Origem da venda</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Pedido</div><div class="doc-valor" id="docPedido">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Onde comprou</div><div class="doc-valor" id="docOnde">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Vendedor</div><div class="doc-valor" id="docVendedor">—</div></div>
     </div>
-
-    <div class="cx-totais" id="barraTotais"></div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 0 de 0</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
-          </div>
-        </div>
-      </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-      </div>
+    <div class="section-title">Datas</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Data da venda</div><div class="doc-valor" id="docVenda">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Entregue em</div><div class="doc-valor" id="docEntrega">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Devolução aberta em</div><div class="doc-valor" id="docAberta">—</div></div>
+    </div>
+    <!-- `origem` nasce aqui mesmo sem o Help Desk existir: a devolucao vai ter
+         duas portas (pedido e chamado) e o campo e barato agora, caro depois. -->
+    <div class="nota-reservado" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="notaOrigem">—</span>
     </div>
   </div>
 
-<!-- PAINEL LATERAL: recebimento -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="drawerRecebimento">
-  <div class="drawer-header">
-    <div class="drawer-title">Recebimento</div>
-    <div class="drawer-close" id="fecharRecebimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Cliente</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Nome</div><div class="doc-valor" id="docCliente">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Documento</div><div class="doc-valor" id="docDocumento">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Contato</div><div class="doc-valor" id="docContato">—</div></div>
+      <div class="doc-item" style="grid-column:1 / -1;"><div class="doc-rotulo">Coletar em</div><div class="doc-valor" id="docEndereco">—</div></div>
+    </div>
   </div>
 
-  <div class="cf-nota" id="notaRecebimento" style="display:block;"></div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Itens devolvidos</div>
+    <!-- O ESTADO E POR ITEM (barganha de 07/out): uma caixa de tres itens com um
+         amassado nao cabe num estado so, e devolucao avariada lancada como
+         revendavel vira saldo que mente. O motivo SUGERE; quem recebe CONFIRMA. -->
+    <div class="nota-reservado" id="avisoItens">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoItensTexto"></span>
+    </div>
+    <div class="vol-tabela-wrap">
+      <table class="vol-tabela">
+        <colgroup>
+          <col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:16%"><col style="width:22%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-texto">Produto</th>
+            <th class="col-texto">Vendido</th>
+            <th class="col-texto">Devolvido</th>
+            <th class="col-texto">Total</th>
+            <th class="vol-acao">Estado da mercadoria</th>
+          </tr>
+        </thead>
+        <tbody id="corpoItens"></tbody>
+      </table>
+    </div>
+    <div class="estoque-rodape">
+      <span id="contagemItens">—</span>
+      <span class="estoque-total">Itens devolvidos: <b id="totalItens">—</b></span>
+    </div>
+  </div>
 
-  <div class="form-row">
-    <div class="form-field" id="campoOrigem">
-      <label>Destino</label>
-      <div class="dropdown-select" id="ddDestino" data-value="1">
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Motivo</div>
+    <div class="form-field" style="max-width:420px;">
+      <label>Por que a mercadoria voltou</label>
+      <div class="dropdown-select" id="inputMotivo" data-value="1">
         <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Caixa</span>
+          <span class="dropdown-select-label">—</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" id="menuOrigem"></div>
+        <div class="dropdown-select-menu" id="menuMotivo" style="max-height:280px; overflow-y:auto;"></div>
       </div>
-      <div class="field-hint">Em qual conta financeira o dinheiro entra.</div>
+      <div class="field-hint" id="hintMotivo">—</div>
     </div>
-    <div class="form-field" id="campoDataReceb">
-      <label>Data do recebimento</label>
-      <div class="date-field" id="dfDataReceb">
-        <input type="text" id="inputDataReceb" placeholder="dd/mm/aaaa" autocomplete="off">
-        <button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
-        <div class="date-pop"></div>
-      </div>
-      <div class="field-error-msg" id="erroDataReceb">Data inválida ou dentro do período financeiro fechado.</div>
+    <div class="form-field" id="campoDescricao" style="margin-top:14px;">
+      <label>O que aconteceu</label>
+      <textarea id="inputDescricao" placeholder="Descreva o que o cliente relatou."></textarea>
+      <div class="field-error-msg" id="erroDescricao">Este motivo exige que se escreva o que aconteceu.</div>
+      <div class="field-hint" id="hintDescricao">Vai junto na ficha impressa e no histórico.</div>
     </div>
   </div>
 
-  <div class="form-field">
-    <label>Histórico</label>
-    <textarea id="inputHistReceb" rows="2"></textarea>
-    <div class="field-hint">É este texto que vai aparecer no extrato do Caixa.</div>
-  </div>
-
-  <div class="form-field">
-    <label>Categoria</label>
-    <div class="dropdown-select" id="ddCatReceb" data-value="">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Selecione</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuCatReceb"></div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Valores e forma de devolução</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Itens devolvidos</div><div class="doc-valor" id="docValItens">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Frete devolvido</div><div class="doc-valor" id="docValFrete">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Total a devolver</div><div class="doc-valor" id="docValTotal">—</div></div>
     </div>
-    <div class="field-hint">Vem da conta, e pode mudar só neste recebimento.</div>
-  </div>
-
-  <div class="form-field">
-    <label>Valor do título</label>
-    <div class="cx-ro" id="roValorTitulo">R$ 0,00</div>
-  </div>
-
-  <div class="link-inline" id="linkMaisOpcoes" style="margin:-4px 0 16px;">mais opções ▾</div>
-
-  <div id="blocoMaisOpcoes" style="display:none;">
-    <div class="form-row">
-      <div class="form-field" id="campoValorReceb">
-        <label>Valor recebido</label>
-        <input type="text" id="inputValorRecebido" placeholder="0,00">
-        <div class="field-error-msg" id="erroValorReceb">Informe um valor maior que zero e não maior que o saldo.</div>
-        <div class="field-hint">Menor que o saldo, a conta fica <b>parcial</b> e continua em aberto.</div>
+    <div class="form-field" style="max-width:420px; margin-top:16px;">
+      <label>Como o dinheiro volta</label>
+      <div class="dropdown-select" id="inputForma" data-value="sem">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Sem pagamento</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuForma"></div>
       </div>
-      <div class="form-field">
-        <label>Juros e multa</label>
-        <input type="text" id="inputJuros" placeholder="0,00">
-        <div class="field-hint">Lança <b>separado</b>, na categoria de juros.</div>
-      </div>
+      <div class="field-hint" id="hintForma">—</div>
     </div>
-    <div class="form-row">
-      <div class="form-field">
-        <label>Desconto</label>
-        <input type="text" id="inputDesconto" placeholder="0,00">
-      </div>
-      <div class="form-field">
-        <label>Taxas retidas</label>
-        <input type="text" id="inputTaxas" placeholder="0,00">
-        <div class="field-hint">Comissão do marketplace ou taxa do gateway. <b>Quita o título junto com o valor recebido</b> — sem isto, receber o líquido deixaria a diferença como saldo eterno.</div>
-      </div>
+    <!-- Vale-troca fica VISIVEL e DESABILITADO, como campo fiscal: oferecer um
+         credito que nao gera documento nenhum seria prometer o que ninguem
+         consegue usar. -->
+    <div class="nota-reservado" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span>Reservado — <b>Vale-troca</b> fica disponível quando o submódulo de Vales-troca existir. Até lá o crédito se resolve por Dinheiro ou Contas a pagar.</span>
     </div>
   </div>
 
-  <div class="cx-previa" id="previaRecebimento"></div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnConfirmarRecebimento">Receber</button>
-    <div class="drawer-link" id="btnCancelarRecebimento">Cancelar</div>
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Logística reversa</div>
+    <!-- O codigo da reversa mora AQUI, nao no Rastreamento (barganha de 07/out):
+         o Rastreamento e a ida, com nove situacoes, previsao congelada e KPI de
+         atraso. A volta e outro movimento e caberia mal naquele funil. -->
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Transportadora</div><div class="doc-valor" id="docRevTransp">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Código da reversa</div><div class="doc-valor" id="docRevCodigo">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Solicitada em</div><div class="doc-valor" id="docRevData">—</div></div>
+    </div>
+    <div class="vol-botoes" style="justify-content:flex-start; margin-top:14px;">
+      <button type="button" class="btn-mini destaque" id="btnReversa">Solicitar logística reversa</button>
+    </div>
   </div>
-</div>
 
-<!-- MODAL: confirmação centralizada -->
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Estoque</div>
+    <!-- Lancar o estoque e ACAO EXPLICITA (barganha de 07/out). No Olist o saldo
+         entra sozinho quando a SEFAZ autoriza a nota; nos nao temos NF-e, e a
+         devolucao pode ser autorizada hoje com a caixa chegando em oito dias.
+         Quem recebeu a mercadoria e que lanca. -->
+    <div class="nota-reservado" id="avisoEstoque">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoEstoqueTexto"></span>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Depósito de destino</div><div class="doc-valor" id="docEstDeposito">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Lançado em</div><div class="doc-valor" id="docEstQuando">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Lançado por</div><div class="doc-valor" id="docEstQuem">—</div></div>
+    </div>
+    <div class="vol-botoes" style="justify-content:flex-start; margin-top:14px;">
+      <button type="button" class="btn-mini destaque" id="btnLancarEstoque">Lançar estoque</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Nota fiscal de devolução</div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Nota de devolução</div><div class="doc-valor">Reservado</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Chave de acesso</div><div class="doc-valor">Reservado</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Situação na SEFAZ</div><div class="doc-valor">Reservado</div></div>
+    </div>
+    <div class="nota-reservado" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span>Reservado — usado quando a emissão de NF-e for habilitada. No Olist é a autorização na SEFAZ que finaliza a devolução sozinha; aqui quem finaliza é uma pessoa, porque esse gatilho ainda não existe.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Histórico</div>
+    <div class="ev-lista" id="listaEventos"></div>
+  </div>
+
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvar">Salvar alterações</button>
+    <div class="drawer-link" id="btnVoltarRodape">Voltar às devoluções</div>
+    <div class="barra-info" id="infoPendente">—</div>
+  </div>
+
+<!-- FOLHA DE IMPRESSÃO: a ficha da devolução -->
+<div class="rastreio-folha oculta" id="rastreioFolha"></div>
+
+<!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -1106,7 +1320,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
   </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
@@ -1115,6 +1329,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 </div>
+
 <script>
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
@@ -1143,6 +1358,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // empresa
     conferenciaCompraAlerta: 1,
     conferenciaCompraCritico: 3,
+    separacaoAlertaHoras: 4,
+    separacaoCriticoHoras: 12,
+    separacaoOrdemPorEndereco: true,
+    expedicaoAlertaHoras: 8,
+    expedicaoCriticoHoras: 24,
+    romaneioSugereAutomatico: true,
+    // Quanto o peso da balanca pode fugir da soma dos volumes antes de a tela
+    // avisar. Nao e trava: pallet, filme e caixa-mae pesam, e so quem esta na
+    // doca sabe se a diferenca faz sentido. Numero que decide alerta nunca
+    // nasce dentro de um `if`.
+    expedicaoDesvioPesoPct: 15,
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
+    conferenciaSaidaCega: true,
+    conferenciaSaidaAlertaHoras: 4,
+    conferenciaSaidaCriticoHoras: 12,
+    sugerirEmbalagem: true,
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -1196,14 +1428,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
   const MODULOS_SENHA = [
     { base:'clientes', nome:'Clientes', onde:'Cadastros \u2192 Clientes', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
-    { base:'clientes', nome:'Clientes', onde:'Cadastros \u2192 Clientes', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'fornecedores', nome:'Fornecedores', onde:'Cadastros \u2192 Fornecedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'produtos', nome:'Produtos', onde:'Cadastros \u2192 Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'categorias', nome:'Categorias', onde:'Cadastros \u2192 Categorias', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'marcas', nome:'Marcas', onde:'Cadastros \u2192 Marcas', grupo:'Cadastros', ligado:{ criar:true,  editar:true,  excluir:true } },   // piloto: 1a tela com os tres verbos ligados
     { base:'embalagens', nome:'Embalagens', onde:'Cadastros \u2192 Embalagens', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'departamentos', nome:'Departamento de Produtos', onde:'Cadastros \u2192 Departamento de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'secoes', nome:'Se\u00e7\u00e3o de Produtos', onde:'Cadastros \u2192 Se\u00e7\u00e3o de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
-    { base:'depositos', nome:'Dep\u00f3sitos', onde:'Cadastros \u2192 Dep\u00f3sitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'depositos', nome:'Depósitos', onde:'Cadastros \u2192 Depósitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'enderecos', nome:'Endere\u00e7os de Estoque', onde:'Cadastros \u2192 Endere\u00e7os de Estoque', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'lojas', nome:'Lojas Desk', onde:'Cadastros \u2192 Lojas Desk', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
     { base:'vendedores', nome:'Vendedores', onde:'Cadastros \u2192 Vendedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
@@ -1213,11 +1445,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
     { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
-    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configura\u00e7\u00f5es \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasReceber', nome:'Contas a Receber', onde:'Finan\u00e7as \u2192 Contas a Receber', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1230,20 +1457,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    // Mudar a conta de um lancamento move dinheiro entre dois saldos de uma vez.
-    // Nasce SEM senha (e correcao de erro de digitacao, nao ato destrutivo) mas
-    // SEMPRE registrada — e quem quiser pedir senha liga na matriz.
-    { chave:'contasReceberCancela', nome:'Cancelar ou reativar conta a receber', onde:'Finan\u00e7as \u2192 Contas a Receber', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    // Dar baixa NAO nasce pedindo senha: e a operacao do dia, feita muitas vezes.
-    // Mas vai para o Registro de atividades sempre, porque escreve no Caixa.
-    { chave:'contasReceberBaixa', nome:'Dar baixa em conta a receber', onde:'Finan\u00e7as \u2192 Contas a Receber', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    // Estornar desfaz o movimento no Caixa: nasce exigindo senha.
-    { chave:'contasReceberEstorna', nome:'Estornar baixa de conta a receber', onde:'Finan\u00e7as \u2192 Contas a Receber', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
-    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    // Fechar o periodo trava TODO MUNDO, inclusive lancamento automatico. Nasce
-    // exigindo senha.
-    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
+    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
+    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
+    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
+    // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoLancaEstoque', nome:'Lançar no estoque a mercadoria devolvida',        onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'rastreioConfirma',      nome:'Confirmar o código de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um código de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1447,7 +1701,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Cadastros', 'Marcas'];
+  // O caminho veio errado da copia: esta tela nasceu da Expedicao e continuou
+  // dizendo "Expedicao > ROM-0192" com um pedido de rastreio aberto. O ultimo
+  // crumb so ganha o numero depois que o pedido resolve (ver pintarTudo), porque
+  // ate la nao se sabe se o id da URL existe.
+  let path = ['Logística', 'Devolução', 'Devolução'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1583,10 +1841,231 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== DADOS (mock) =====
+  // Mesmo conjunto da listagem: as duas telas tem de contar a mesma historia
+  // quando alguem navegar de uma para a outra.
+  const SIT_DEV = [
+    { id: 'aberta',     rotulo: 'Em aberto',    fase: 'aberta' },
+    { id: 'andamento',  rotulo: 'Em andamento', fase: 'andamento' },
+    { id: 'finalizada', rotulo: 'Finalizada',   fase: 'finalizada' },
+    { id: 'cancelada',  rotulo: 'Cancelada',    fase: 'cancelada' }
+  ];
+  const FORMAS = [
+    { id: 'sem',         rotulo: 'Sem pagamento',  nota: 'não gera crédito ao cliente' },
+    { id: 'dinheiro',    rotulo: 'Dinheiro',       nota: 'lança a saída no Caixa, em Finanças' },
+    { id: 'valetroca',   rotulo: 'Vale-troca',     nota: 'gera um código para nova compra', reservado: true },
+    { id: 'contaspagar', rotulo: 'Contas a pagar', nota: 'gera a conta com o valor devolvido, em Finanças' }
+  ];
+  const ESTADOS_ITEM = {
+    revendavel: { rotulo: 'Volta revendável', destino: 'segue a regra de entrada' },
+    avaria:     { rotulo: 'Avariado',         destino: 'Avaria, bloqueado' },
+    nenhum:     { rotulo: 'Não voltou',       destino: 'nada entra no saldo' }
+  };
+  const MOTIVOS = {
+    1: { nome: 'Produto com defeito de fábrica', grupo: 'nossa',      destino: 'avaria',     exigeObs: false },
+    2: { nome: 'Produto errado enviado',         grupo: 'nossa',      destino: 'revendavel', exigeObs: false },
+    3: { nome: 'Avaria no transporte',           grupo: 'transporte', destino: 'avaria',     exigeObs: true },
+    4: { nome: 'Extravio na entrega',            grupo: 'transporte', destino: 'nenhum',     exigeObs: true },
+    5: { nome: 'Arrependimento em até 7 dias',   grupo: 'cliente',    destino: 'revendavel', exigeObs: false },
+    6: { nome: 'Cliente comprou o item errado',  grupo: 'cliente',    destino: 'revendavel', exigeObs: false },
+    7: { nome: 'Recusa no ato da entrega',       grupo: 'cliente',    destino: 'revendavel', exigeObs: true },
+    8: { nome: 'Erro de emissão da nota',        grupo: 'fiscal',     destino: 'revendavel', exigeObs: true },
+    9: { nome: 'Outro',                          grupo: 'nossa',      destino: 'revendavel', exigeObs: true }
+  };
+  const GRUPOS = { nossa: 'Nossa operação', transporte: 'Transporte', cliente: 'Cliente', fiscal: 'Fiscal' };
+  const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech', 4: 'Desk Flash' };
+  const DEPOSITOS = { 1: 'Galpão Centro', 2: 'Bancada Desk Tech', 3: 'Geral' };
+  const OPERADORES = { 1: 'Camila Nogueira', 2: 'Marcos Vinícius', 3: 'Elaine Castro', 4: 'Jonas Ribeiro' };
+  const TRANSPORTADORAS = ['Correios · PAC', 'Correios · SEDEX', 'RotaSul Transportes', 'Frota Desk'];
+  const EU = 2;
+  const HOJE = '2026-10-07';
 
-  // ===== COMPONENTE: dropdown customizado (substitui o select nativo) =====
-  // Tag literal dentro de comentario ja reprovou 40 arquivos numa auditoria: o
-  // contador de tags le o texto do arquivo, nao o HTML. Aqui vai sem os sinais.
+  const VENDAS = [
+    { id: 1, numero: 'PV-4821', cliente: 'Mariana Rocha',          doc: '328.114.907-55', loja: 3, canal: 'Vitrine Desk Tech',
+      contato: '(11) 98844-2210', endereco: 'Rua das Acácias, 120 · Vila Mariana · São Paulo/SP · 04117-000',
+      dataVenda: '2026-09-25', entregaEm: '2026-09-30', vendedor: null, dep: 2, total: 1480.00,
+      itens: [ { sku: 'TEC-0912', nome: 'Headset gamer Desk Pro', qtd: 1, unit: 1480.00 } ] },
+    { id: 2, numero: 'PV-4862', cliente: 'Construtora Veredas Ltda', doc: '12.884.330/0001-47', loja: 2, canal: 'Venda interna · telefone',
+      contato: '(16) 3620-7788', endereco: 'Av. Independência, 2.870 · Alto da Boa Vista · Ribeirão Preto/SP · 14025-390',
+      dataVenda: '2026-09-29', entregaEm: null, vendedor: 'Rafael Tenório', dep: 1, total: 7830.00,
+      itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtd: 6, unit: 540.00 },
+               { sku: 'FER-3310', nome: 'Jogo de brocas aço rápido 19 peças', qtd: 10, unit: 189.00 },
+               { sku: 'EPI-0044', nome: 'Capacete de segurança classe B', qtd: 24, unit: 112.50 } ] },
+    { id: 3, numero: 'PV-4790', cliente: 'Ateliê Boa Forma ME',     doc: '09.221.455/0001-02', loja: 2, canal: 'Vitrine Desk Brands',
+      contato: '(81) 99912-4410', endereco: 'Rua do Sol, 88 · Boa Viagem · Recife/PE · 51020-100',
+      dataVenda: '2026-09-20', entregaEm: '2026-09-28', vendedor: 'Bianca Duarte', dep: 1, total: 2240.00,
+      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtd: 2, unit: 1120.00 } ] },
+    { id: 4, numero: 'PV-4903', cliente: 'Pedro Antunes',           doc: '771.209.338-10', loja: 1, canal: 'Vitrine Desk Shope',
+      contato: '(21) 98110-7755', endereco: 'Rua Haddock Lobo, 45 · Tijuca · Rio de Janeiro/RJ · 20260-140',
+      dataVenda: '2026-10-02', entregaEm: '2026-10-05', vendedor: null, dep: 3, total: 389.90,
+      itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtd: 1, unit: 389.90 } ] },
+    { id: 5, numero: 'PV-4845', cliente: 'Supermercados Lemos S/A', doc: '44.102.771/0001-88', loja: 4, canal: 'Venda interna · representante',
+      contato: '(62) 3255-9001', endereco: 'BR-153, km 12 · Distrito Industrial · Goiânia/GO · 74775-000',
+      dataVenda: '2026-09-27', entregaEm: '2026-10-01', vendedor: 'Camila Nogueira', dep: 1, total: 15600.00,
+      itens: [ { sku: 'FLA-0301', nome: 'Carrinho plataforma 300kg', qtd: 12, unit: 1300.00 } ] }
+  ];
+
+  const DEVOLUCOES = [
+    { id: 1, numero: 'DV-0012', origem: 'pedido', chamadoId: null, vendaId: 2,
+      abertaEm: '2026-10-06', situacao: 'aberta', motivoId: 3,
+      descricao: 'Duas caixas chegaram com a lateral amassada; o cliente mandou foto no mesmo dia.',
+      itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtdVendida: 6, qtd: 2, unit: 540.00, estado: 'avaria' } ],
+      frete: 0, desconto: 0, forma: 'contaspagar', reversa: null, estoque: null,
+      eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4862.' } ] },
+    { id: 2, numero: 'DV-0011', origem: 'pedido', chamadoId: null, vendaId: 1,
+      abertaEm: '2026-10-03', situacao: 'andamento', motivoId: 5, descricao: '',
+      itens: [ { sku: 'TEC-0912', nome: 'Headset gamer Desk Pro', qtdVendida: 1, qtd: 1, unit: 1480.00, estado: 'revendavel' } ],
+      frete: 0, desconto: 0, forma: 'dinheiro',
+      reversa: { transp: 'Correios · PAC', codigo: 'LR884471029BR', solicitadaEm: '2026-10-04' }, estoque: null,
+      eventos: [ { data: '2026-10-03', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4821.' },
+                 { data: '2026-10-04', tipo: 'reversa', nota: 'Logística reversa solicitada: Correios · PAC, código LR884471029BR.' } ] },
+    { id: 3, numero: 'DV-0010', origem: 'pedido', chamadoId: null, vendaId: 3,
+      abertaEm: '2026-09-29', situacao: 'finalizada', motivoId: 2,
+      descricao: 'Saiu o expositor de 1,20m no lugar do de 1,80m.',
+      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtdVendida: 2, qtd: 1, unit: 1120.00, estado: 'revendavel' } ],
+      frete: 0, desconto: 0, forma: 'sem',
+      reversa: { transp: 'RotaSul Transportes', codigo: 'RS2026092811', solicitadaEm: '2026-09-29' },
+      estoque: { em: '2026-10-02', por: 3, dep: 1 },
+      eventos: [ { data: '2026-09-29', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
+                 { data: '2026-09-29', tipo: 'reversa', nota: 'Logística reversa solicitada: RotaSul Transportes.' },
+                 { data: '2026-10-02', tipo: 'estoque', nota: '1 peça devolvida ao Galpão Centro, revendável.' },
+                 { data: '2026-10-02', tipo: 'finalizou', nota: 'Devolução finalizada sem crédito: o cliente ficou com o item certo.' } ] },
+    { id: 4, numero: 'DV-0009', origem: 'pedido', chamadoId: null, vendaId: 4,
+      abertaEm: '2026-10-06', situacao: 'aberta', motivoId: 4,
+      descricao: 'Transportadora confirmou o extravio por escrito.',
+      itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtdVendida: 1, qtd: 1, unit: 389.90, estado: 'nenhum' } ],
+      frete: 24.90, desconto: 0, forma: 'dinheiro', reversa: null, estoque: null,
+      eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4903.' } ] },
+    { id: 5, numero: 'DV-0008', origem: 'pedido', chamadoId: null, vendaId: 5,
+      abertaEm: '2026-08-12', situacao: 'finalizada', motivoId: 6,
+      descricao: 'Pediram a plataforma de 300kg e precisavam da de 500kg.',
+      itens: [ { sku: 'FLA-0301', nome: 'Carrinho plataforma 300kg', qtdVendida: 12, qtd: 4, unit: 1300.00, estado: 'revendavel' } ],
+      frete: 0, desconto: 0, forma: 'contaspagar',
+      reversa: { transp: 'Frota Desk', codigo: '', solicitadaEm: '2026-08-13' },
+      estoque: { em: '2026-08-20', por: 4, dep: 1 },
+      eventos: [ { data: '2026-08-12', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4845.' },
+                 { data: '2026-08-20', tipo: 'estoque', nota: '4 peças devolvidas ao Galpão Centro, revendáveis.' },
+                 { data: '2026-08-21', tipo: 'finalizou', nota: 'Conta a pagar gerada em Finanças.' } ] },
+    { id: 6, numero: 'DV-0007', origem: 'pedido', chamadoId: null, vendaId: 3,
+      abertaEm: '2026-09-22', situacao: 'cancelada', motivoId: 9,
+      descricao: 'Aberta por engano no pedido errado.',
+      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtdVendida: 2, qtd: 1, unit: 1120.00, estado: 'revendavel' } ],
+      frete: 0, desconto: 0, forma: 'sem', reversa: null, estoque: null,
+      eventos: [ { data: '2026-09-22', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
+                 { data: '2026-09-22', tipo: 'cancelou', nota: 'Cancelada: aberta no pedido errado.' } ] }
+  ];
+
+  const ROTULO_EVENTO = {
+    abriu: 'Devolução aberta', reversa: 'Logística reversa solicitada',
+    estoque: 'Estoque lançado', finalizou: 'Devolução finalizada',
+    cancelou: 'Devolução cancelada', editou: 'Devolução alterada'
+  };
+
+  // ===== REGRAS DE DOMINIO =====
+  function fmtData(s) {
+    if (!s) return '—';
+    const p = String(s).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function deYmd(s) { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function diasEntre(a, b) { return Math.round((deYmd(b) - deYmd(a)) / 86400000); }
+  function moeda(v) {
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+
+  const CLS_PONTO = { aberta:'dev-aberta', andamento:'dev-andamento', finalizada:'dev-finalizada', cancelada:'dev-cancelada' };
+  const CLS_BADGE = { aberta:'bd-aberta', andamento:'bd-andamento', finalizada:'bd-finalizada', cancelada:'bd-cancelada' };
+
+  function situacaoDe(id) { return SIT_DEV.filter(s => s.id === id)[0] || SIT_DEV[0]; }
+  function formaDe(id) { return FORMAS.filter(f => f.id === id)[0] || FORMAS[0]; }
+  function motivoDe(id) { return MOTIVOS[id] || MOTIVOS[9]; }
+  function vendaDe(id) { return VENDAS.filter(v => v.id === id)[0] || null; }
+
+  function totalItensDev(d) { return d.itens.reduce((s, i) => s + i.qtd * i.unit, 0); }
+  function totalDevolver(d) { return totalItensDev(d) + (d.frete || 0) - (d.desconto || 0); }
+  function pecasDe(d) { return d.itens.reduce((s, i) => s + i.qtd, 0); }
+  function ehParcial(d) {
+    const v = vendaDe(d.vendaId);
+    return d.itens.some(i => i.qtd < i.qtdVendida) || (v && d.itens.length < v.itens.length);
+  }
+
+  const PRAZO_DEV = Number(PARAM.devolucaoPrazoDias || 7);
+  function diasDesdeEntrega(d) {
+    const v = vendaDe(d.vendaId);
+    if (!v || !v.entregaEm) return null;
+    return diasEntre(v.entregaEm, d.abertaEm);
+  }
+  function foraDoPrazo(d) {
+    const dias = diasDesdeEntrega(d);
+    return dias !== null && dias > PRAZO_DEV;
+  }
+
+  // O deposito vem do parametro; o ENDERECO dentro dele continua sendo a regra de
+  // entrada que ja vale em cinco telas. Item avariado ignora as duas e cai em
+  // Avaria, bloqueado — por isso o destino e por item, nao da devolucao inteira.
+  function depositoDestino(d) {
+    const regra = PARAM.devolucaoDeposito || 'vendaMesmo';
+    const v = vendaDe(d.vendaId);
+    if (regra === 'geral') return 3;
+    if (regra === 'padrao') return 1;
+    return v ? v.dep : 3;
+  }
+  function podeLancarEstoque(d) {
+    if (d.situacao === 'cancelada') return false;
+    if (d.estoque) return false;
+    return d.itens.some(i => i.estado !== 'nenhum');
+  }
+
+  // ===== MODAL =====
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+  const confirmCienteRow = document.getElementById('confirmCienteRow');
+  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
+
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() {
+    confirmModalBackdrop.classList.remove('open');
+    confirmModal.classList.remove('open');
+    acaoConfirmada = null;
+  }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
+  // Antes isto executava o callback e so depois fechava. Callback que termina
+  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
+  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
+  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
+  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
+  // liberada" nunca apareceu para ninguem.
+  btnConfirmar.addEventListener('click', () => {
+    const executar = acaoConfirmada;
+    fecharModalConfirmacao();
+    if (executar) executar();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
+    }
+  });
+
+  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
@@ -1630,6 +2109,276 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
+
+  // ===== CABEÇALHO =====
+  // Dois caminhos de entrada, como as outras telas de detalhe: `?id=` abre uma
+  // devolucao que existe, `?venda=` comeca uma nova a partir de uma venda.
+  const Q = new URLSearchParams(window.location.search);
+  const ID_URL = (Q.get('id') || '').trim();
+  const VENDA_URL = (Q.get('venda') || '').trim();
+
+  let DEV = null, NOVA = false;
+  if (ID_URL) {
+    DEV = DEVOLUCOES.filter(d => String(d.id) === ID_URL || d.numero === ID_URL)[0] || null;
+  } else if (VENDA_URL) {
+    const v = vendaDe(Number(VENDA_URL));
+    if (v) {
+      NOVA = true;
+      // A devolucao nasce com TUDO o que foi vendido e o motivo generico. Quem
+      // esta olhando a mercadoria tira o que nao voltou — e mais seguro comecar
+      // com o todo e reduzir do que comecar vazio e esquecer um item.
+      DEV = {
+        id: 0, numero: 'nova', origem: 'pedido', chamadoId: null, vendaId: v.id,
+        abertaEm: HOJE, situacao: 'aberta', motivoId: 9, descricao: '',
+        itens: v.itens.map(i => ({ sku: i.sku, nome: i.nome, qtdVendida: i.qtd, qtd: i.qtd,
+                                   unit: i.unit, estado: 'revendavel' })),
+        frete: 0, desconto: 0, forma: 'sem', reversa: null, estoque: null,
+        eventos: []
+      };
+    }
+  }
+  const SEM_DEV = !DEV;
+
+  function pintarCabecalho() {
+    const tit = document.getElementById('tituloDev');
+    const sub = document.getElementById('subtituloDev');
+    const bSit = document.getElementById('badgeSituacao');
+    const chipP = document.getElementById('chipParcial');
+    const chipPz = document.getElementById('chipPrazo');
+    if (!DEV) {
+      if (tit) tit.textContent = 'Devolução não encontrada';
+      if (sub) sub.textContent = ID_URL || VENDA_URL
+        ? 'Nenhuma devolução ou venda com este identificador. Volte à lista e abra por lá.'
+        : 'Abra esta tela a partir da lista de devoluções.';
+      if (bSit) bSit.style.display = 'none';
+      if (chipP) chipP.style.display = 'none';
+      if (chipPz) chipPz.style.display = 'none';
+      return;
+    }
+    const v = vendaDe(DEV.vendaId) || { numero: '—', cliente: '—', loja: 1 };
+    const s = situacaoDe(DEV.situacao);
+    if (tit) tit.textContent = NOVA ? 'Nova devolução' : 'Devolução ' + DEV.numero;
+    if (sub) sub.textContent = v.cliente + ' · pedido ' + v.numero + ' · ' + LOJAS[v.loja];
+    if (bSit) {
+      bSit.className = 'badge-situacao ' + CLS_BADGE[s.fase];
+      bSit.innerHTML = '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' + s.rotulo;
+    }
+    if (chipP) chipP.style.display = ehParcial(DEV) ? '' : 'none';
+    if (chipPz) chipPz.style.display = foraDoPrazo(DEV) ? '' : 'none';
+  }
+
+  // ===== ORIGEM E CLIENTE =====
+  function pintarOrigem() {
+    if (!DEV) return;
+    const v = vendaDe(DEV.vendaId);
+    if (!v) return;
+    texto('docPedido', v.numero);
+    texto('docOnde', LOJAS[v.loja] + ' · ' + v.canal);
+    // "Sem vendedor" nao e falta de dado: venda de vitrine nao tem vendedor, e
+    // dizer isso evita alguem sair procurando o nome que nunca existiu.
+    texto('docVendedor', v.vendedor || 'Sem vendedor — venda de vitrine');
+    texto('docVenda', fmtData(v.dataVenda));
+    texto('docEntrega', v.entregaEm ? fmtData(v.entregaEm) : 'ainda não entregue');
+    const dias = diasDesdeEntrega(DEV);
+    html('docAberta', fmtData(DEV.abertaEm) +
+      (dias !== null
+        ? '<span class="prazo-sub">' + dias + (dias === 1 ? ' dia' : ' dias') + ' após a entrega' +
+          (foraDoPrazo(DEV) ? ', fora do prazo de ' + PRAZO_DEV : '') + '</span>'
+        : '<span class="prazo-sub">o pedido ainda não foi entregue</span>'));
+    texto('notaOrigem', DEV.origem === 'chamado'
+      ? 'Esta devolução nasceu de um chamado do cliente.'
+      : 'Esta devolução nasceu do pedido de venda. Quando o atendimento ao cliente existir, ela vai poder nascer de um chamado também — e continuará sendo esta mesma tela.');
+
+    texto('docCliente', v.cliente);
+    texto('docDocumento', v.doc);
+    texto('docContato', v.contato);
+    texto('docEndereco', v.endereco);
+  }
+
+  // ===== ITENS: a quantidade e o estado sao do DETALHE =====
+  function pintarItens() {
+    if (!DEV) return;
+    const corpo = document.getElementById('corpoItens');
+    if (!corpo) return;
+    const travado = DEV.situacao === 'cancelada' || DEV.situacao === 'finalizada' || !!DEV.estoque;
+
+    corpo.innerHTML = DEV.itens.map((i, n) => {
+      const est = ESTADOS_ITEM[i.estado] || ESTADOS_ITEM.revendavel;
+      const celEstado = travado
+        ? '<span class="vol-prazo-valor">' + est.rotulo + '</span>' +
+          '<span class="vol-prazo-sub">' + est.destino + '</span>'
+        : '<div class="dropdown-select" data-estado="' + n + '" data-value="' + i.estado + '">' +
+            '<button type="button" class="dropdown-select-btn form-style" style="min-width:170px;">' +
+              '<span class="dropdown-select-label">' + est.rotulo + '</span>' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</button>' +
+            '<div class="dropdown-select-menu">' +
+              Object.keys(ESTADOS_ITEM).map(k =>
+                '<div class="dropdown-select-item' + (k === i.estado ? ' active' : '') +
+                '" data-value="' + k + '">' + ESTADOS_ITEM[k].rotulo + '</div>').join('') +
+            '</div>' +
+          '</div>';
+      const celQtd = travado
+        ? '<span class="vol-prazo-valor">' + i.qtd + '</span>'
+        : '<div class="vol-campo" style="justify-content:flex-start;">' +
+            '<input type="text" class="campo-qtd" data-qtd="' + n + '" value="' + i.qtd + '" autocomplete="off">' +
+          '</div>';
+      return '<tr>' +
+        '<td class="col-texto"><span class="vol-nome">' + i.nome + '</span>' +
+          '<span class="vol-sub">' + i.sku + ' · ' + moeda(i.unit) + ' cada</span></td>' +
+        '<td class="col-texto"><span class="vol-prazo-valor">' + i.qtdVendida + '</span></td>' +
+        '<td class="col-texto">' + celQtd + '</td>' +
+        '<td class="col-texto"><span class="vol-prazo-valor">' + moeda(i.qtd * i.unit) + '</span></td>' +
+        '<td class="vol-acao"><div class="vol-botoes" style="justify-content:flex-start;">' + celEstado + '</div></td>' +
+      '</tr>';
+    }).join('');
+
+    ligarItens();
+
+    const pecas = pecasDe(DEV);
+    const vendidas = DEV.itens.reduce((s, i) => s + i.qtdVendida, 0);
+    texto('contagemItens', DEV.itens.length + (DEV.itens.length === 1 ? ' item' : ' itens') +
+          ' · ' + pecas + (pecas === 1 ? ' peça de ' : ' peças de ') + vendidas + ' vendidas');
+    texto('totalItens', moeda(totalItensDev(DEV)));
+
+    const avariados = DEV.itens.filter(i => i.estado === 'avaria').length;
+    const fora = DEV.itens.filter(i => i.estado === 'nenhum').length;
+    const partes = [];
+    if (avariados) partes.push('<b>' + avariados + '</b> vai para Avaria, com saldo bloqueado');
+    if (fora) partes.push('<b>' + fora + '</b> não volta ao estoque');
+    html('avisoItensTexto', partes.length
+      ? partes.join(' · ') + '. O resto entra no saldo pela regra de entrada: com base de picking vai para disponível, sem base vai para a endereçar.'
+      : 'Tudo volta revendável e entra pela regra de entrada: com base de picking vai para disponível, sem base vai para a endereçar.');
+  }
+
+  function ligarItens() {
+    const corpo = document.getElementById('corpoItens');
+    if (!corpo) return;
+    corpo.querySelectorAll('input[data-qtd]').forEach(el => {
+      const n = Number(el.getAttribute('data-qtd'));
+      el.addEventListener('input', () => { RASCUNHO.qtd[n] = el.value; atualizarBarra(); });
+    });
+    corpo.querySelectorAll('[data-estado]').forEach(raiz => {
+      const n = Number(raiz.getAttribute('data-estado'));
+      inicializarDropdownSelect(raiz, (v) => {
+        raiz.setAttribute('data-value', v);
+        const rot = raiz.querySelector('.dropdown-select-label');
+        raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+          const ativo = it.getAttribute('data-value') === v;
+          it.classList.toggle('active', ativo);
+          if (ativo && rot) rot.textContent = it.textContent;
+        });
+        RASCUNHO.estado[n] = v;
+        atualizarBarra();
+      });
+    });
+  }
+
+  // ===== MOTIVO =====
+  function montarMenuMotivo() {
+    document.getElementById('menuMotivo').innerHTML = Object.keys(MOTIVOS).map(k => (
+      '<div class="dropdown-select-item' + (DEV && String(DEV.motivoId) === k ? ' active' : '') +
+      '" data-value="' + k + '">' + MOTIVOS[k].nome + '</div>'
+    )).join('');
+  }
+  function pintarMotivo() {
+    if (!DEV) return;
+    const id = RASCUNHO.motivo !== null ? RASCUNHO.motivo : String(DEV.motivoId);
+    const m = motivoDe(id);
+    const raiz = document.getElementById('inputMotivo');
+    raiz.setAttribute('data-value', id);
+    const rot = raiz.querySelector('.dropdown-select-label');
+    if (rot) rot.textContent = m.nome;
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-value') === String(id));
+    });
+    texto('hintMotivo', 'De quem é a conta: ' + GRUPOS[m.grupo] +
+          '. O cadastro sugere ' + ESTADOS_ITEM[m.destino].rotulo.toLowerCase() +
+          ' — é sugestão, e cada item pode dizer outra coisa.');
+    texto('hintDescricao', m.exigeObs
+      ? 'Este motivo exige a descrição: sem ela a devolução não salva.'
+      : 'Opcional. Vai junto na ficha impressa e no histórico.');
+  }
+
+  // ===== VALORES E FORMA =====
+  function montarMenuForma() {
+    document.getElementById('menuForma').innerHTML = FORMAS.map(f => (
+      '<div class="dropdown-select-item' + (DEV && DEV.forma === f.id ? ' active' : '') +
+      (f.reservado ? ' item-reservado' : '') + '" data-value="' + f.id + '">' + f.rotulo +
+      (f.reservado ? ' · reservado' : '') + '</div>'
+    )).join('');
+  }
+  function pintarValores() {
+    if (!DEV) return;
+    texto('docValItens', moeda(totalItensDev(DEV)));
+    texto('docValFrete', DEV.frete ? moeda(DEV.frete) : 'não devolvido');
+    html('docValTotal', '<b>' + moeda(totalDevolver(DEV)) + '</b>');
+
+    const idF = RASCUNHO.forma !== null ? RASCUNHO.forma : DEV.forma;
+    const f = formaDe(idF);
+    const raiz = document.getElementById('inputForma');
+    raiz.setAttribute('data-value', idF);
+    const rot = raiz.querySelector('.dropdown-select-label');
+    if (rot) rot.textContent = f.rotulo;
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      it.classList.toggle('active', it.getAttribute('data-value') === idF);
+    });
+    texto('hintForma', f.rotulo + ': ' + f.nota + '.');
+  }
+
+  // ===== REVERSA E ESTOQUE =====
+  function pintarReversa() {
+    if (!DEV) return;
+    const r = DEV.reversa;
+    texto('docRevTransp', r ? r.transp : 'não solicitada');
+    texto('docRevCodigo', r ? (r.codigo || 'sem código ainda') : '—');
+    texto('docRevData', r ? fmtData(r.solicitadaEm) : '—');
+    const btn = document.getElementById('btnReversa');
+    if (btn) {
+      const bloqueado = !!r || DEV.situacao === 'cancelada' || DEV.situacao === 'finalizada';
+      btn.style.display = bloqueado ? 'none' : '';
+    }
+  }
+
+  function pintarEstoque() {
+    if (!DEV) return;
+    const dep = depositoDestino(DEV);
+    const volta = DEV.itens.filter(i => i.estado !== 'nenhum').reduce((s, i) => s + i.qtd, 0);
+    texto('docEstDeposito', DEPOSITOS[dep] + (DEV.estoque ? '' : ' · pelo parâmetro de Configurações'));
+    texto('docEstQuando', DEV.estoque ? fmtData(DEV.estoque.em) : 'ainda não lançado');
+    texto('docEstQuem', DEV.estoque ? OPERADORES[DEV.estoque.por] : '—');
+
+    html('avisoEstoqueTexto', DEV.estoque
+      ? '<b>' + volta + (volta === 1 ? ' peça já entrou' : ' peças já entraram') + '</b> no saldo. Lançar de novo duplicaria a entrada, por isso o botão sai da tela.'
+      : (volta
+          ? '<b>' + volta + (volta === 1 ? ' peça entra' : ' peças entram') + '</b> no saldo quando alguém lançar. Até lá o saldo conta uma mercadoria que já voltou — e por isso o lançamento é ato de quem recebeu a caixa, não consequência automática de abrir a devolução.'
+          : 'Nada entra no saldo: nenhum item desta devolução volta ao estoque.'));
+
+    const btn = document.getElementById('btnLancarEstoque');
+    if (btn) btn.style.display = podeLancarEstoque(DEV) ? '' : 'none';
+  }
+
+  // ===== HISTORICO =====
+  function pintarEventos() {
+    if (!DEV) return;
+    const lista = document.getElementById('listaEventos');
+    if (!lista) return;
+    if (!DEV.eventos.length) {
+      lista.innerHTML = '<div class="toque-vazio">Ainda não há histórico: esta devolução nem foi salva.</div>';
+      return;
+    }
+    const s = situacaoDe(DEV.situacao);
+    lista.innerHTML = DEV.eventos.slice().reverse().map(e => (
+      '<div class="ev-item">' +
+        '<div class="ev-linha"></div>' +
+        '<div class="ev-marco ' + CLS_PONTO[s.fase] + '"></div>' +
+        '<div><div class="ev-rotulo">' + (ROTULO_EVENTO[e.tipo] || 'Movimento') + '</div>' +
+          '<div class="ev-quando">' + fmtData(e.data) + '</div>' +
+          (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
+        '</div>' +
+      '</div>'
+    )).join('');
+  }
 
   // ===== COMPONENTE: campo de data com mini calendário =====
   // Decidido na barganha de 22/set/2026. O campo continua aceitando DIGITACAO —
@@ -1745,903 +2494,338 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
   }
 
-  // ===== MODAL DE CONFIRMAÇÃO (reutilizável) =====
-  // Mesmo bloco das listagens de cadastro. Aqui ele atende exclusao individual,
-  // exclusao em massa (com a caixa "estou ciente") e a troca de grupo em massa.
-  let confirmAoConfirmarCallback = null;
-  function abrirModalConfirmacao(texto, quantidade, aoConfirmar) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    const cienteRow = document.getElementById('confirmCienteRow');
-    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
-    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-    cienteCheckbox.checked = false;
-    if (quantidade > 1) { cienteRow.style.display = 'flex'; btnConfirmar.disabled = true; }
-    else { cienteRow.style.display = 'none'; btnConfirmar.disabled = false; }
-    confirmAoConfirmarCallback = aoConfirmar;
-    document.getElementById('confirmModalBackdrop').classList.add('open');
-    document.getElementById('confirmModal').classList.add('open');
-  }
-  function fecharModalConfirmacao() {
-    document.getElementById('confirmModalBackdrop').classList.remove('open');
-    document.getElementById('confirmModal').classList.remove('open');
-    confirmAoConfirmarCallback = null;
-  }
-  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
-    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
-  });
-  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
-    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
-    const callback = confirmAoConfirmarCallback;
-    fecharModalConfirmacao();
-    if (callback) callback();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
-      fecharModalConfirmacao();
-    }
-  });
+  // ===== RASCUNHO =====
+  // O que foi mexido e ainda nao gravado fica separado do dado: o que esta
+  // gravado e o que a operacao ja considera verdade, e um re-render nao pode
+  // apagar o que a pessoa digitou.
+  const RASCUNHO = { qtd: {}, estado: {}, motivo: null, forma: null, descricao: null };
 
-  // ===== CAIXA E BANCOS =====
-  // Extrato de UMA conta financeira. Fontes: prints de 16/set (lote 1) e de
-  // 22/set (lote 2, com dado real, tres contas e o periodo fechado), mais a
-  // documentacao do Olist em `gestao-financeira/caixa`.
-  //
-  // Tres decisoes de estrutura que os prints confirmaram:
-  //  1. A tela NAO e lista de lancamentos, e EXTRATO: a primeira linha e o saldo
-  //     anterior ao periodo e o rodape fecha com saldo inicial, entradas, saidas
-  //     e saldo final. Por isso a ordem e CRESCENTE por data — extrato se le de
-  //     cima para baixo, do saldo antigo para o atual.
-  //  2. Entrada e saida sao DUAS colunas, nao um valor com sinal.
-  //  3. Data e competencia sao campos diferentes, e o filtro de periodo escolhe
-  //     por qual dos dois esta filtrando (regime de caixa x regime de competencia).
-  //
-  // Divergencia deliberada do print: la existe uma coluna Cliente propria. Aqui
-  // ela e a segunda linha da celula de Historico, porque com a coluna separada a
-  // tabela passava de 1040px na largura de referencia e a rolagem horizontal
-  // esconderia justamente Entradas e Saidas. Coluna que carrega a informacao
-  // principal tem de caber.
-
-  const HOJE = new Date(); HOJE.setHours(0, 0, 0, 0);
-  function dAtras(n) { const d = new Date(HOJE); d.setDate(d.getDate() - n); return d; }
-  function iso(d) {
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function fmtData(s) { const p = String(s).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
-  function fmtComp(s) { const p = String(s).split('-'); return p[1] + '/' + p[0]; }
-  function parseData(txt) {
-    const m = String(txt || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!m) return null;
-    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
-    if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
-    return iso(d);
-  }
-  // Dinheiro tem casas de MOEDA, sempre duas — nao usa PARAM.casasPreco, que e a
-  // precisao do preco de tabela do produto. Erro facil, ja registrado no design
-  // system: um parametro so mexendo em quantidade e em dinheiro.
-  function fmtDin(n) {
-    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  function compDaData(isoData, offMeses) {
-    const p = isoData.split('-');
-    const d = new Date(Number(p[0]), Number(p[1]) - 1 + (offMeses || 0), 1);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  function valorQtd(n) {
+    const bruto = RASCUNHO.qtd[n] !== undefined ? RASCUNHO.qtd[n] : DEV.itens[n].qtd;
+    const num = Number(String(bruto).replace(',', '.'));
+    return isNaN(num) ? null : num;
   }
 
-  // Espelho do cadastro de Contas financeiras — mesmos ids, mesmos nomes. No
-  // Lovable e a mesma tabela; aqui cada tela e um arquivo solto.
-  // `saldoAbertura` e o saldo antes do primeiro movimento deste mock: sem ele a
-  // linha de saldo anterior abriria sempre em zero e nao provaria nada.
-  const CONTAS_FIN = [
-    { id:1, nome:'Caixa',                      saldoAbertura: 820.00,   ativo:true,  foraFluxo:false, sistema:true },
-    { id:2, nome:'Banco Inter — conta corrente', saldoAbertura: 12480.00, ativo:true,  foraFluxo:false, sistema:false },
-    { id:3, nome:'Mercado Pago',               saldoAbertura: 0.00,     ativo:true,  foraFluxo:false, sistema:false },
-    { id:4, nome:'Cofre da loja',              saldoAbertura: 1500.00,  ativo:true,  foraFluxo:true,  sistema:false },
-    { id:5, nome:'Conta antiga Bradesco',      saldoAbertura: 0.00,     ativo:false, foraFluxo:false, sistema:false },
-    { id:6, nome:'Conta teste',                saldoAbertura: 0.00,     ativo:true,  foraFluxo:false, sistema:false }
-  ];
-
-  // Espelho de Configuracoes > Categorias financeiras (mesmos ids e grupos).
-  const CATS_FIN = [
-    { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
-    { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
-    { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
-    { id:10, nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
-    { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
-    { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
-    { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
-    { id:0,  nome:'Sem categoria',                     grupo:'' }
-  ];
-
-
-
-  // O estado desta tela e declarado junto com ela, mais abaixo.
-
-  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const contaDe = (id) => CONTAS_FIN.filter(c => c.id === id)[0] || null;
-  const catDe = (id) => CATS_FIN.filter(c => c.id === id)[0] || CATS_FIN[CATS_FIN.length - 1];
-  const movDe = (id) => MOVIMENTOS.filter(m => m.id === id)[0] || null;
-  // Saldo de uma conta ate uma data (inclusive). Com `null`, saldo total.
-  // Mora aqui, entre os utilitarios, e nao dentro do extrato: a tela de
-  // lancamento tambem precisa dele para o tipo Saldo.
-  function saldoAte(contaId, limite) {
-    const c = contaDe(contaId);
-    let s = c ? c.saldoAbertura : 0;
-    MOVIMENTOS.forEach(m => {
-      if (m.contaId !== contaId) return;
-      if (limite && m.data > limite) return;
-      s += (m.tipo === 'entrada' ? m.valor : -m.valor);
+  function coletarMudancas() {
+    if (!DEV) return { qtd: [], estado: [], campos: [] };
+    const qtd = [], estado = [], campos = [];
+    DEV.itens.forEach((i, n) => {
+      if (RASCUNHO.qtd[n] !== undefined) {
+        const v = valorQtd(n);
+        if (v !== null && v !== i.qtd) qtd.push({ n: n, valor: v });
+      }
+      if (RASCUNHO.estado[n] !== undefined && RASCUNHO.estado[n] !== i.estado) {
+        estado.push({ n: n, valor: RASCUNHO.estado[n] });
+      }
     });
-    return s;
+    if (RASCUNHO.motivo !== null && String(RASCUNHO.motivo) !== String(DEV.motivoId)) campos.push('motivo');
+    if (RASCUNHO.forma !== null && RASCUNHO.forma !== DEV.forma) campos.push('forma');
+    if (RASCUNHO.descricao !== null && RASCUNHO.descricao !== DEV.descricao) campos.push('descrição');
+    return { qtd: qtd, estado: estado, campos: campos };
   }
 
-  // ===== FECHAMENTO FINANCEIRO =====
-  // Uma data so, gravada junto com os demais parametros. Nao entra no
-  // PARAM_PADRAO pelo mesmo motivo de `confirmacoes`: e escrita por UMA tela e
-  // lida com defesa (`|| ''`) por quem precisa — parametro de fabrica ela nao e.
-  function lerFechamento() {
-    try { return (JSON.parse(localStorage.getItem('deskParametros') || '{}') || {}).fechamentoFinanceiro || ''; }
-    catch (e) { return ''; }
-  }
-  function gravarFechamento(dataIso) {
-    try {
-      const p = JSON.parse(localStorage.getItem('deskParametros') || '{}') || {};
-      p.fechamentoFinanceiro = dataIso;
-      localStorage.setItem('deskParametros', JSON.stringify(p));
-    } catch (e) {}
-  }
-  function dataBloqueada(dataIso) {
-    const f = lerFechamento();
-    return !!f && dataIso <= f;
-  }
-
-  // ===== CONTAS A RECEBER =====
-  // Construida a partir dos onze prints do Olist em uso (22/set/2026), que
-  // responderam as quatro perguntas em aberto. O que veio de la:
-  //  - QUATRO valores por linha: Valor · Líquido · Saldo · Recebido. E o que sustenta o
-  //    recebimento parcial, e e o "Valor x Valor liquido x Recebido" do §11.
-  //  - Abas de situacao com contador e bolinha colorida.
-  //  - A linha EXPANDE no lugar, mostrando o que nao cabe na largura.
-  //  - Recorrencia mensal gera DOZE titulos com o MESMO valor (repete, nao
-  //    divide) e com `dia_vencimento` proprio: o primeiro vence na data digitada,
-  //    os seguintes no dia escolhido.
-  //  - O painel chama-se Recebimento e tem Origem (conta financeira), Data,
-  //    Historico ja preenchido, Categoria herdada e o valor do titulo travado.
-  //
-  // DIVERGENCIA DELIBERADA: juros/multa e desconto sao campos proprios da baixa.
-  // La so existe "valor recebido", e quem recebe 1.050 numa conta de 1.000 esconde o
-  // juro dentro da categoria do titulo. Criamos a categoria "Juros e multas
-  // pagos" justamente para o juro virar linha de receita financeira no DRE.
-  //
-  // E "ATRASADA" NAO E SITUACAO GRAVADA: e conta em aberto cujo vencimento
-  // passou. Gravar seria criar um estado que envelhece sozinho e precisa de
-  // rotina para se manter verdadeiro.
-
-  const CLIENTES = [
-    { id:1, nome:'Tech Solutions Imperatriz Ltda', fantasia:'Tech Solutions' },
-    { id:2, nome:'Papelaria Central Ltda',         fantasia:'Papelaria Central' },
-    { id:3, nome:'Marina Duarte',                  fantasia:'' },
-    { id:4, nome:'Auto Peças Imperatriz Ltda',     fantasia:'Auto Peças IMP' },
-    { id:5, nome:'Bruno Carvalho',                 fantasia:'' },
-    { id:6, nome:'Distribuidora Nordeste Ltda',    fantasia:'Dist. Nordeste' },
-    { id:7, nome:'Consumidor Final',               fantasia:'' }
-  ];
-  // A lista COMPLETA do filtro do Olist (§11 do roadmap). A do cadastro dele tem
-  // so duas opcoes — inconsistencia da ferramenta, nao modelo a copiar: conta
-  // vinda de pedido traz o meio real, conta digitada a mao oferece o que da para
-  // digitar. `Vale-troca` e `Crediario` ficam: sao meios que a Desk usa e que
-  // NAO sao dinheiro entrando de fato.
-  const FORMAS = ['Dinheiro', 'Pix', 'Cartão de crédito', 'Cartão de débito', 'Boleto',
-                  'Cheque', 'Depósito', 'Crediário', 'Vale-troca', 'Não informada'];
-  const OCORRENCIAS = ['Única', 'Semanal', 'Mensal', 'Trimestral', 'Semestral', 'Anual', 'Parcelada'];
-
-  // `venc` e `emis` sao em DIAS a partir de hoje: positivo = passado.
-  // Os titulos. O que muda do a pagar nao e o nome: e que AQUI a conta nasce do
-  // PEDIDO (§11 do roadmap — "Documento Origem = Pedido 1"), e que o valor tem
-  // tres numeros diferentes (§12.4):
-  //
-  //   valor    — o que foi vendido
-  //   taxas    — o que o marketplace/gateway desconta
-  //   liquido  — o que de fato cai na conta, GRAVADO e nao calculado: a taxa vem
-  //              do extrato e diverge da conta mais vezes do que bate
-  //   recebido — somado das baixas · saldo — derivado
-  //
-  // `venc` e `emis` sao em DIAS a partir de hoje: positivo = passado.
-  const TITULOS = [
-    { id:1,  cliId:1, doc:'PV 2',  pedido:2,  venc:12,  emis:14, catId:1, valor:6064.77, recebido:6064.77, taxas:0,      liquido:6064.77, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 2',  ocorrencia:'Única', cancelado:false },
-    { id:2,  cliId:2, doc:'PV 14', pedido:14, venc:8,   emis:11, catId:1, valor:640.00,  recebido:640.00,  taxas:0,      liquido:640.00,  forma:'Pix',              hist:'Ref. ao pedido de venda nº 14', ocorrencia:'Única', cancelado:false },
-    { id:3,  cliId:6, doc:'PV 13', pedido:13, venc:5,   emis:9,  catId:1, valor:8975.30, recebido:0,       taxas:807.78, liquido:8167.52, forma:'Cartão de crédito', hist:'Ref. ao pedido de venda nº 13', ocorrencia:'Única', antecipado:true, cancelado:false },
-    { id:4,  cliId:4, doc:'PV 10', pedido:10, venc:3,   emis:8,  catId:1, valor:3260.75, recebido:0,       taxas:0,      liquido:3260.75, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 10', ocorrencia:'Única', cancelado:false },
-    { id:5,  cliId:5, doc:'PV 11', pedido:11, venc:1,   emis:6,  catId:1, valor:219.90,  recebido:100.00,  taxas:0,      liquido:219.90,  forma:'Dinheiro',         hist:'Ref. ao pedido de venda nº 11', ocorrencia:'Única', cancelado:false },
-    { id:6,  cliId:1, doc:'PV 9',  pedido:9,  venc:-6,  emis:1,  catId:1, valor:4820.00, recebido:0,       taxas:0,      liquido:4820.00, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 9',  ocorrencia:'Única', cancelado:false },
-    { id:7,  cliId:3, doc:'PV 15', pedido:15, venc:-9,  emis:-2, catId:1, valor:189.90,  recebido:0,       taxas:11.39,  liquido:178.51,  forma:'Cartão de débito', hist:'Ref. ao pedido de venda nº 15', ocorrencia:'Única', cancelado:false },
-    { id:8,  cliId:7, doc:'',      venc:-14, emis:-4, catId:2, valor:450.00,  recebido:0,       taxas:0,      liquido:450.00,  forma:'Crediário',        hist:'Venda de balcão sem pedido — lançada à mão', ocorrencia:'Única', cancelado:false },
-    { id:9,  cliId:2, doc:'PV 7',  pedido:7,  venc:-22, emis:-12, catId:1, valor:1024.00, recebido:0,       taxas:0,      liquido:1024.00, forma:'Vale-troca',       hist:'Ref. ao pedido de venda nº 7',  ocorrencia:'Única', cancelado:false },
-    { id:10, cliId:6, doc:'PV 5',  pedido:5,  venc:20,  emis:30, catId:1, valor:2340.00, recebido:0,       taxas:0,      liquido:2340.00, forma:'Boleto',           hist:'Pedido cancelado pelo cliente', ocorrencia:'Única', cancelado:true }
-  ];
-
-  // As PARCELAS de um pedido a prazo, geradas como a tela gera — tres titulos do
-  // mesmo pedido, com o mesmo grupo. Escrever as tres a mao no mock esconderia o
-  // erro de arredondamento que a divisao produz: 1.000,00 em 3x nao da 333,33
-  // tres vezes, e a diferenca TEM de cair na primeira parcela. Gerar aqui e o
-  // proprio teste dessa regra (decisao de 02/out: o pedido define as parcelas).
-  const VENDA_PARCELADA = { cliId:4, pedido:16, catId:1, valor:5890.00, parcelas:3, forma:'Boleto', hist:'Ref. ao pedido de venda nº 16' };
-  (function gerarParcelas() {
-    const v = VENDA_PARCELADA;
-    const centavos = Math.round(v.valor * 100);
-    const base = Math.floor(centavos / v.parcelas);
-    const sobra = centavos - base * v.parcelas;
-    let id = 100;
-    for (let i = 0; i < v.parcelas; i++) {
-      const d = new Date(HOJE.getFullYear(), HOJE.getMonth() + i, HOJE.getDate());
-      // A sobra vai TODA para a primeira parcela, nunca espalhada: parcela
-      // quebrada em centavos diferentes confunde o cliente e o extrato.
-      const valor = (base + (i === 0 ? sobra : 0)) / 100;
-      TITULOS.push({
-        id: id++, cliId: v.cliId, doc: 'PV ' + v.pedido, pedido: v.pedido, vencIso: iso(d), emis: 2,
-        catId: v.catId, valor: valor, recebido: 0, taxas: 0, liquido: valor,
-        forma: v.forma, hist: v.hist + ' — parcela ' + (i + 1) + '/' + v.parcelas,
-        ocorrencia: 'Parcelada', grupo: 'PARC-' + v.pedido, parcela: i + 1, deParcelas: v.parcelas,
-        cancelado: false
-      });
+  function atualizarBarra() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    if (NOVA) {
+      info.classList.add('pendente');
+      info.innerHTML = 'Esta devolução <b>ainda não existe</b>. Salvar é o que abre ela.';
+      return;
     }
-  })();
+    const m = coletarMudancas();
+    const total = m.qtd.length + m.estado.length + m.campos.length;
+    info.classList.toggle('pendente', total > 0);
+    if (!total) { info.innerHTML = 'Nenhuma alteração pendente.'; return; }
+    const partes = [];
+    if (m.qtd.length) partes.push('<b>' + m.qtd.length + '</b> quantidade(s)');
+    if (m.estado.length) partes.push('<b>' + m.estado.length + '</b> estado(s)');
+    if (m.campos.length) partes.push(m.campos.join(' e '));
+    info.innerHTML = partes.join(' · ') + ' — ainda não salvo.';
+  }
 
-  TITULOS.forEach(t => {
-    // Campos de valor do §12.4: `liquido` e GRAVADO (default = o valor cheio
-    // quando nao ha taxa); `saldo` e `recebido` sao derivados.
-    if (t.taxas === undefined) t.taxas = 0;
-    if (t.liquido === undefined) t.liquido = t.valor - t.taxas;
-    if (t.antecipado === undefined) t.antecipado = false;
-    if (!t.vencIso) t.vencIso = iso(dAtras(t.venc));
-    t.emisIso = iso(dAtras(t.emis === undefined ? 20 : t.emis));
-    t.comp = compDaData(t.vencIso, t.compOff || 0);
-    t.recebimentos = t.recebimentos || [];
-    // Titulo que ja nasce recebido precisa do recebimento que o quitou. Conta recebida sem
-    // linha de recebimento e conta que nao se explica — e, pior, que nao se
-    // estorna: o estorno trabalha em cima do recebimento, nao do campo `recebido`.
-    if (t.recebido > 0 && !t.recebimentos.length) {
-      t.recebimentos.push({
-        data: t.vencIso, valor: t.recebido, juros: 0, desconto: 0,
-        contaId: (t.forma === 'Dinheiro' || t.forma === 'Cartão de débito') ? 1 : 2
-      });
+  // ===== SALVAR =====
+  function validar() {
+    const campo = document.getElementById('campoDescricao');
+    const erro = document.getElementById('erroDescricao');
+    if (campo) campo.classList.remove('has-error');
+    if (erro) erro.classList.remove('show');
+
+    for (let n = 0; n < DEV.itens.length; n++) {
+      if (RASCUNHO.qtd[n] === undefined) continue;
+      const v = valorQtd(n);
+      if (v === null || v < 1 || Math.floor(v) !== v) {
+        avisar('A quantidade devolvida de "' + DEV.itens[n].nome + '" precisa ser um número inteiro de 1 para cima. Item que não volta se resolve no estado da linha, não zerando a quantidade.');
+        return false;
+      }
+      // Devolver mais do que foi vendido nao e devolucao: e entrada de
+      // mercadoria que nunca saiu, e o saldo pagaria por ela.
+      if (v > DEV.itens[n].qtdVendida) {
+        avisar('Não dá para devolver ' + v + ' de "' + DEV.itens[n].nome + '": foram vendidas ' + DEV.itens[n].qtdVendida + '.');
+        return false;
+      }
     }
-  });
 
-  const HOJE_ISO = iso(HOJE);
-  const cliDe = (id) => CLIENTES.filter(f => f.id === id)[0] || { nome:'—', fantasia:'' };
-  const saldoDe = (t) => Math.max(0, t.valor - t.recebido);
-  function situacaoDe(t) {
-    if (t.cancelado) return 'cancelada';
-    if (t.recebido >= t.valor - 0.005) return 'recebida';
-    if (t.vencIso < HOJE_ISO) return 'atrasada';
-    return 'aberta';
-  }
-  const SIT_ROTULO = { aberta:'em aberto', atrasada:'atrasada', recebida:'recebida', cancelada:'cancelada' };
-
-  const ABAS = [
-    { id:'todas',     nome:'todas' },
-    { id:'aberta',    nome:'em aberto' },
-    { id:'atrasada',  nome:'atrasadas' },
-    { id:'recebida',  nome:'recebidas' },
-    { id:'cancelada', nome:'canceladas' }
-  ];
-
-  let abaAtual = 'todas';
-  // Aqui nasce SEM filtro de periodo, ao contrario do a pagar. A pergunta das
-  // duas telas e diferente: "o que eu pago agora" se responde com o mes; "o que
-  // eu tenho a receber" nao, porque conta vencida ha dois meses continua sendo
-  // dinheiro a cobrar e sumiria da tela. Esconder cobranca atrasada e o pior
-  // default possivel numa tela de receber.
-  let periodoAtual = 'todos';
-  let baseDataAtual = 'vencimento';
-  let filtroCatAtual = 'todos';
-  let buscaAtual = '';
-  let selTit = [];
-  let expandidos = [];
-  let paginaAtual = 1;
-  let itensPorPaginaAtual = PARAM.registrosPorPagina;
-  let emRecebimento = [];            // ids que o painel de recebimento vai baixar
-
-  const titDe = (id) => TITULOS.filter(t => t.id === id)[0] || null;
-
-  // Clicar no Documento Origem abre a venda. Delegado no corpo da tabela porque
-  // as linhas sao remontadas a cada render — listener preso na linha morreria
-  // junto com ela. `stopPropagation` para nao expandir a linha no mesmo clique.
-  document.addEventListener('click', (e) => {
-    const org = e.target.closest ? e.target.closest('.tit-origem') : null;
-    if (!org) return;
-    e.stopPropagation();
-    window.location.href = 'pagina-vendas-pedidos-detalhe.html?id=' + org.getAttribute('data-pedido');
-  });
-
-  function dentroDoPeriodo(t) {
-    const chave = baseDataAtual === 'competencia' ? t.comp : t.vencIso;
-    const hoje = baseDataAtual === 'competencia' ? HOJE_ISO.slice(0, 7) : HOJE_ISO;
-    if (periodoAtual === 'todos') return true;
-    if (periodoAtual === 'vencidas') return chave < hoje;
-    if (periodoAtual === 'mes') return chave.slice(0, 7) === HOJE_ISO.slice(0, 7);
-    const limite = new Date(HOJE); limite.setDate(limite.getDate() + Number(periodoAtual));
-    const limiteChave = baseDataAtual === 'competencia' ? iso(limite).slice(0, 7) : iso(limite);
-    return chave >= hoje && chave <= limiteChave;
+    const idM = RASCUNHO.motivo !== null ? RASCUNHO.motivo : String(DEV.motivoId);
+    const texto = RASCUNHO.descricao !== null ? RASCUNHO.descricao : (DEV.descricao || '');
+    if (motivoDe(idM).exigeObs && !texto.trim()) {
+      if (campo) campo.classList.add('has-error');
+      if (erro) erro.classList.add('show');
+      avisar('O motivo "' + motivoDe(idM).nome + '" exige que se escreva o que aconteceu. Sem o texto, seis meses depois ninguém sabe o que houve.');
+      return false;
+    }
+    return true;
   }
 
-  // A base da lista SEM o filtro de aba — e sobre ela que os contadores contam.
-  // §7.2: o contador ignora a aba selecionada e RESPEITA todos os outros filtros.
-  // Contava sobre TITULOS inteiro, entao com a lista abrindo no mes corrente ele
-  // anunciava "em aberto 07" enquanto a tela mostrava zero: o numero era do ano
-  // todo, a lista era do mes. Contador que discorda da lista e pior que contador
-  // nenhum — e este so aparecia em certas datas, quando o vencimento virava.
-  function listaSemAba() {
-    const b = semAcento(buscaAtual);
-    return TITULOS.filter(t => {
-      if (!dentroDoPeriodo(t)) return false;
-      if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
-      if (b !== '' && semAcento(cliDe(t.cliId).nome + ' ' + t.doc + ' ' + t.hist + ' ' + catDe(t.catId).nome).indexOf(b) === -1) return false;
-      return true;
+  function aplicarRascunho() {
+    Object.keys(RASCUNHO.qtd).forEach(n => {
+      const v = valorQtd(Number(n));
+      if (v !== null) DEV.itens[Number(n)].qtd = v;
     });
+    Object.keys(RASCUNHO.estado).forEach(n => { DEV.itens[Number(n)].estado = RASCUNHO.estado[n]; });
+    if (RASCUNHO.motivo !== null) DEV.motivoId = Number(RASCUNHO.motivo);
+    if (RASCUNHO.forma !== null) DEV.forma = RASCUNHO.forma;
+    if (RASCUNHO.descricao !== null) DEV.descricao = RASCUNHO.descricao;
+    RASCUNHO.qtd = {}; RASCUNHO.estado = {};
+    RASCUNHO.motivo = null; RASCUNHO.forma = null; RASCUNHO.descricao = null;
   }
 
-  function listaFiltrada() {
-    const b = semAcento(buscaAtual);
-    return TITULOS.filter(t => {
-      if (abaAtual !== 'todas' && situacaoDe(t) !== abaAtual) return false;
-      if (!dentroDoPeriodo(t)) return false;
-      if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
-      if (b !== '' && semAcento(cliDe(t.cliId).nome + ' ' + t.doc + ' ' + t.hist + ' ' + catDe(t.catId).nome).indexOf(b) === -1) return false;
-      return true;
-    }).sort((x, y) => x.vencIso === y.vencIso ? x.id - y.id : (x.vencIso < y.vencIso ? -1 : 1));
-  }
+  function salvar() {
+    if (!DEV) { avisar('Não há devolução aberta.'); return; }
+    if (DEV.situacao === 'cancelada') { avisar('Devolução cancelada não se altera.'); return; }
+    if (!validar()) return;
 
-  function caixaSel(idTit, marcada) {
-    return '<input type="checkbox" class="item-checkbox" data-check="titulo" id="chkTit' + idTit + '"' +
-           ' data-id="' + idTit + '"' + (marcada ? ' checked' : '') + '>';
-  }
-
-  // Menu de categorias agrupado — o mesmo do Caixa.
-  function itensCategoria(incluirTodas, incluirSem) {
-    const grupos = [];
-    CATS_FIN.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
-    let html = incluirTodas ? '<div class="dropdown-select-item" data-value="todos">Todas as categorias</div>' : '';
-    grupos.forEach(g => {
-      html += '<div class="dropdown-grupo">' + g + '</div>';
-      CATS_FIN.filter(c => c.grupo === g).forEach(c => {
-        html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
-      });
-    });
-    CATS_FIN.filter(c => !c.grupo && c.id !== 0).forEach(c => {
-      html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
-    });
-    if (incluirSem) html += '<div class="dropdown-select-item" data-value="0">Sem categoria</div>';
-    return html;
-  }
-
-  function renderAbas() {
-    document.getElementById('sitTabs').innerHTML = ABAS.map(a => {
-      const base = listaSemAba();
-      const n = a.id === 'todas' ? base.length : base.filter(t => situacaoDe(t) === a.id).length;
-      return '<button type="button" class="sit-tab' + (abaAtual === a.id ? ' on' : '') + '" data-aba="' + a.id + '">' +
-             (a.id === 'todas' ? '' : '<span class="sit-bola ' + a.id + '"></span>') +
-             a.nome + '<span class="sit-cont">' + String(n).padStart(2, '0') + '</span></button>';
-    }).join('');
-    document.querySelectorAll('.sit-tab').forEach(b => b.addEventListener('click', () => {
-      abaAtual = b.getAttribute('data-aba'); paginaAtual = 1; selTit = []; render();
-    }));
-  }
-
-  function render() {
-    renderAbas();
-    const cx = document.getElementById('listaTitulos');
-    const vazio = document.getElementById('emptyState');
-    const completa = listaFiltrada();
-    const totalPaginas = Math.max(1, Math.ceil(completa.length / itensPorPaginaAtual));
-    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
-    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
-    const fim = Math.min(inicio + itensPorPaginaAtual, completa.length);
-    const lista = completa.slice(inicio, fim);
-
-    if (completa.length === 0) {
-      cx.innerHTML = ''; vazio.style.display = 'flex';
-    } else {
-      vazio.style.display = 'none';
-      const idsPagina = lista.map(t => t.id);
-      const todasMarcadas = idsPagina.length > 0 && idsPagina.every(id => selTit.indexOf(id) !== -1);
-      let corpo = '';
-      lista.forEach(t => {
-        const sit = situacaoDe(t);
-        const f = cliDe(t.cliId);
-        const parcial = t.recebido > 0 && t.recebido < t.valor - 0.005;
-        corpo += '<tr data-id="' + t.id + '" data-linha="titulo">' +
-          '<td class="col-texto col-check">' + caixaSel(t.id, selTit.indexOf(t.id) !== -1) + '</td>' +
-          '<td class="col-texto"><div class="cx-hist">' + f.nome + '</div>' +
-            '<div class="cx-sub">' + (t.hist || '—') +
-            // Sem "3/12": com horizonte no lugar de contagem o numero nao diz nada.
-            // O icone diz que a conta se repete; o mes dela esta na competencia.
-            (t.grupo ? ' <span class="tit-repete" title="conta que se repete — ' + t.ocorrencia.toLowerCase() + '">⟳</span>' : '') +
-            (parcial ? ' · <span class="tit-parcial">parcial</span>' : '') + '</div></td>' +
-          // Documento Origem e LINK: a conta nasceu do pedido, e quem olha a
-          // conta quase sempre quer ver a venda. Conta digitada a mao nao tem
-          // link nenhum, e isso tambem e informacao.
-          '<td class="col-texto cx-data">' + (t.pedido
-              ? '<span class="tit-origem" data-pedido="' + t.pedido + '">Pedido ' + t.pedido + '</span>'
-              : '<span class="cf-vazio">à mão</span>') + '</td>' +
-          '<td class="col-texto cx-data' + (sit === 'atrasada' ? ' tit-venc-atraso' : '') + '">' + fmtData(t.vencIso) + '</td>' +
-          '<td class="cx-num">' + fmtDin(t.valor) + '</td>' +
-          '<td class="cx-num">' + (t.taxas > 0
-              ? '<span class="tit-liquido" title="taxas de ' + fmtDin(t.taxas) + '">' + fmtDin(t.liquido) + '</span>'
-              : '<span class="cf-vazio">' + fmtDin(t.liquido) + '</span>') + '</td>' +
-          '<td class="cx-num">' + (saldoDe(t) > 0 ? fmtDin(saldoDe(t)) : '<span class="cf-vazio">0,00</span>') + '</td>' +
-          '<td class="cx-num">' + (t.recebido > 0 ? fmtDin(t.recebido) : '<span class="cf-vazio">0,00</span>') + '</td>' +
-          '<td class="col-texto"><span class="sit-bola ' + sit + '" title="' + SIT_ROTULO[sit] + '"></span></td>' +
-          '<td class="col-texto tit-exp"><span class="tit-chevron" data-exp="' + t.id + '">' +
-            (expandidos.indexOf(t.id) !== -1 ? '⌃' : '⌄') + '</span></td>' +
-        '</tr>';
-        if (expandidos.indexOf(t.id) !== -1) {
-          corpo += '<tr class="tit-detalhe"><td colspan="10">' +
-            '<div class="tit-det-grid">' +
-              '<div><span>Nome fantasia</span><b>' + (f.fantasia || '—') + '</b></div>' +
-              '<div><span>Categoria</span><b>' + catDe(t.catId).nome + '</b></div>' +
-              '<div><span>Forma de recebimento</span><b>' + t.forma + '</b></div>' +
-              '<div><span>Taxas</span><b>' + (t.taxas > 0 ? fmtDin(t.taxas) : '—') + '</b></div>' +
-              '<div><span>Valor líquido</span><b>' + fmtDin(t.liquido) + '</b></div>' +
-              '<div><span>Antecipado</span><b>' + (t.antecipado ? 'sim' : 'não') + '</b></div>' +
-              '<div><span>Emissão</span><b>' + fmtData(t.emisIso) + '</b></div>' +
-              '<div><span>Competência</span><b>' + fmtComp(t.comp) + '</b></div>' +
-              '<div><span>Ocorrência</span><b>' + t.ocorrencia + (t.diaVencimento ? ' · dia ' + t.diaVencimento : '') +
-                (t.grupo ? ' · ' + TITULOS.filter(x => x.grupo === t.grupo).length + ' no grupo' : '') + '</b></div>' +
-            '</div></td></tr>';
-        }
-      });
-      cx.innerHTML =
-        '<div class="estoque-table-wrap"><table class="estoque-table cp-table"><thead><tr>' +
-          '<th class="col-texto col-check"><input type="checkbox" class="checkbox-todos" id="chkTodos"' + (todasMarcadas ? ' checked' : '') + '></th>' +
-          '<th class="col-texto">Cliente</th>' +
-          '<th class="col-texto" style="width:96px;">Origem</th>' +
-          '<th class="col-texto" style="width:98px;">Vencimento</th>' +
-          '<th style="width:98px;">Valor</th>' +
-          '<th style="width:98px;" title="O que de fato cai na conta, já descontadas as taxas">Líquido</th>' +
-          '<th style="width:92px;">Saldo</th>' +
-          '<th style="width:92px;">Recebido</th>' +
-          '<th class="col-texto" style="width:40px;" title="Situação">Sit.</th>' +
-          '<th class="col-texto" style="width:34px;"></th>' +
-        '</tr></thead><tbody>' + corpo + '</tbody></table></div>';
-
-      cx.querySelectorAll('tbody tr[data-linha="titulo"]').forEach(tr => {
-        tr.addEventListener('click', () => {
-          window.location.href = 'pagina-financas-contas-receber-detalhe.html?id=' + tr.getAttribute('data-id');
+    if (NOVA) {
+      confirmarAcao('devolucaoCria',
+        'Abrir a devolução do pedido ' + (vendaDe(DEV.vendaId) || {}).numero + ', com ' +
+        pecasDe(DEV) + ' peça(s) e ' + moeda(totalDevolver(DEV)) + ' a devolver?',
+        function () {
+          aplicarRascunho();
+          DEV.id = Math.max.apply(null, DEVOLUCOES.map(d => d.id)) + 1;
+          DEV.numero = 'DV-' + String(13 + DEVOLUCOES.length).padStart(4, '0');
+          DEV.eventos.push({ data: HOJE, tipo: 'abriu',
+            nota: 'Aberta a partir do pedido ' + (vendaDe(DEV.vendaId) || {}).numero + '.' });
+          DEVOLUCOES.push(DEV);
+          NOVA = false;
+          pintarTudo();
         });
-      });
-      cx.querySelectorAll('.tit-chevron').forEach(ch => {
-        ch.addEventListener('click', (e) => {
-          e.stopPropagation();   // expandir e ver mais, nao abrir o titulo
-          const id = Number(ch.getAttribute('data-exp'));
-          const i = expandidos.indexOf(id);
-          if (i === -1) expandidos.push(id); else expandidos.splice(i, 1);
-          render();
-        });
-      });
-      cx.querySelectorAll('[data-check="titulo"]').forEach(c => {
-        c.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const id = Number(c.getAttribute('data-id'));
-          const i = selTit.indexOf(id);
-          if (c.checked && i === -1) selTit.push(id);
-          if (!c.checked && i !== -1) selTit.splice(i, 1);
-          const todos = document.getElementById('chkTodos');
-          if (todos) todos.checked = idsPagina.every(x => selTit.indexOf(x) !== -1);
-          atualizarBarraSelecao(); renderTotais(completa);
-        });
-      });
-      const chkTodos = document.getElementById('chkTodos');
-      if (chkTodos) chkTodos.addEventListener('click', (e) => {
-        e.stopPropagation();
-        idsPagina.forEach(id => {
-          const i = selTit.indexOf(id);
-          if (chkTodos.checked && i === -1) selTit.push(id);
-          if (!chkTodos.checked && i !== -1) selTit.splice(i, 1);
-        });
-        cx.querySelectorAll('[data-check="titulo"]').forEach(c => { c.checked = chkTodos.checked; });
-        atualizarBarraSelecao(); renderTotais(completa);
-      });
+      return;
     }
 
-    renderTotais(completa);
-    atualizarBarraSelecao();
-    document.getElementById('paginacaoResumo').textContent = completa.length === 0
-      ? 'Mostrando 0 de 0'
-      : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + completa.length + (completa.length === 1 ? ' conta' : ' contas');
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
-    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
+    const m = coletarMudancas();
+    if (!m.qtd.length && !m.estado.length && !m.campos.length) {
+      avisar('Nenhuma alteração para salvar.');
+      return;
+    }
+    const partes = [];
+    if (m.qtd.length) partes.push(m.qtd.length + ' quantidade(s)');
+    if (m.estado.length) partes.push(m.estado.length + ' estado(s) de mercadoria');
+    if (m.campos.length) partes.push(m.campos.join(' e '));
+    confirmarAcao('devolucaoCria',
+      'Salvar na devolução ' + DEV.numero + ': ' + partes.join(', ') + '.',
+      function () {
+        aplicarRascunho();
+        DEV.eventos.push({ data: HOJE, tipo: 'editou', nota: 'Alterado: ' + partes.join(', ') + '.' });
+        pintarTudo();
+      });
   }
 
-  function renderTotais(lista) {
-    const total = lista.reduce((s, t) => s + t.valor, 0);
-    const recebido = lista.reduce((s, t) => s + t.recebido, 0);
-    const saldo = lista.filter(t => !t.cancelado).reduce((s, t) => s + saldoDe(t), 0);
-    const selecionado = selTit.map(titDe).filter(Boolean).reduce((s, t) => s + saldoDe(t), 0);
-    const bloco = (v, r, c) => '<div class="cx-total-item"><div class="cx-total-valor' + (c ? ' ' + c : '') + '">' + v + '</div><div class="cx-total-rotulo">' + r + '</div></div>';
-    let html = '';
-    if (selTit.length) html += bloco('R$ ' + fmtDin(selecionado), selTit.length + (selTit.length === 1 ? ' selecionada' : ' selecionadas'), 'sel');
-    html += bloco(String(lista.length), lista.length === 1 ? 'conta' : 'contas');
-    html += bloco('R$ ' + fmtDin(total), 'valor total');
-    html += bloco('R$ ' + fmtDin(recebido), 'recebido');
-    html += bloco('R$ ' + fmtDin(saldo), 'em aberto', saldo > 0 ? 'neg' : '');
-    document.getElementById('barraTotais').innerHTML = html;
+  // ===== LANCAR ESTOQUE =====
+  function lancarEstoque() {
+    if (!DEV || NOVA) { avisar('Salve a devolução antes de lançar o estoque.'); return; }
+    if (!podeLancarEstoque(DEV)) { avisar('Não há o que lançar nesta devolução.'); return; }
+    const m = coletarMudancas();
+    if (m.qtd.length || m.estado.length) {
+      // Lancar com alteracao pendente lancaria o numero antigo, e o saldo ficaria
+      // diferente do que a tela mostra.
+      avisar('Há alteração de quantidade ou de estado ainda não salva. Salve antes de lançar, senão o estoque recebe o número antigo.');
+      return;
+    }
+    const dep = depositoDestino(DEV);
+    const rev = DEV.itens.filter(i => i.estado === 'revendavel').reduce((s, i) => s + i.qtd, 0);
+    const avr = DEV.itens.filter(i => i.estado === 'avaria').reduce((s, i) => s + i.qtd, 0);
+    const detalhe = [];
+    if (rev) detalhe.push(rev + ' peça(s) revendável(is)');
+    if (avr) detalhe.push(avr + ' peça(s) em Avaria, bloqueada(s)');
+
+    confirmarAcao('devolucaoLancaEstoque',
+      'Lançar no ' + DEPOSITOS[dep] + ': ' + detalhe.join(' e ') +
+      '. Depois disto o saldo muda, e desfazer é acerto de estoque.',
+      function () {
+        DEV.estoque = { em: HOJE, por: EU, dep: dep };
+        DEV.eventos.push({ data: HOJE, tipo: 'estoque',
+          nota: detalhe.join(' e ') + ' no ' + DEPOSITOS[dep] + '.' });
+        if (DEV.situacao === 'aberta') DEV.situacao = 'andamento';
+        pintarTudo();
+      });
   }
 
-  function atualizarBarraSelecao() {
-    const bar = document.getElementById('barraSelecao');
-    const n = selTit.length;
-    bar.classList.toggle('show', n > 0);
-    if (n === 0) return;
-    const pagaveis = selTit.map(titDe).filter(t => t && !t.cancelado && saldoDe(t) > 0).length;
-    const fora = n - pagaveis;
-    document.getElementById('selecaoInfo').innerHTML =
-      '<b>' + n + '</b> ' + (n === 1 ? 'conta selecionada' : 'contas selecionadas') +
-      (fora > 0 ? ' · <span class="selecao-aviso">' + fora + ' já ' + (fora === 1 ? 'está recebida ou cancelada' : 'estão recebidas ou canceladas') + '</span>' : '');
-    const btn = document.getElementById('btnReceberSelecionadas');
-    btn.disabled = pagaveis === 0;
-    btn.style.opacity = pagaveis === 0 ? '0.5' : '';
-    // O link de cancelar troca de rotulo com a selecao: com tudo cancelado ele
-    // desfaz. Mesma acao de ida e de volta, um controle so.
-    const semReceb = selTit.map(id => titDe(id)).filter(x => x && x.recebido === 0);
-    const link = document.getElementById('linkCancelarSelecionadas');
-    const voltando = semReceb.length > 0 && semReceb.every(x => x.cancelado);
-    link.textContent = voltando ? 'Reativar contas' : 'Cancelar contas';
-    link.style.display = semReceb.length ? 'block' : 'none';
+  // ===== LOGISTICA REVERSA =====
+  function solicitarReversa() {
+    if (!DEV || NOVA) { avisar('Salve a devolução antes de pedir a logística reversa.'); return; }
+    if (DEV.reversa) { avisar('A logística reversa desta devolução já foi solicitada.'); return; }
+    const v = vendaDe(DEV.vendaId) || {};
+    confirmarAcao('devolucaoReversa',
+      'Solicitar a coleta em ' + (v.endereco || 'endereço do cliente') +
+      '. O código da reversa é desta devolução, não entra no Rastreamento do pedido — lá é a ida.',
+      function () {
+        DEV.reversa = { transp: TRANSPORTADORAS[0], codigo: '', solicitadaEm: HOJE };
+        DEV.situacao = 'andamento';
+        DEV.eventos.push({ data: HOJE, tipo: 'reversa',
+          nota: 'Logística reversa solicitada: ' + TRANSPORTADORAS[0] + '. Código entra quando a transportadora devolver.' });
+        pintarTudo();
+      });
   }
 
-  function limparSelecao() { selTit = []; render(); }
-
-  // ===== PAINEL DE PAGAMENTO =====
-  const backdrop = document.getElementById('drawerBackdrop');
-  function fecharDrawers() {
-    document.getElementById('drawerRecebimento').classList.remove('open');
-    backdrop.classList.remove('open');
+  // ===== FINALIZAR E CANCELAR =====
+  function finalizar() {
+    if (!DEV || NOVA) { avisar('Salve a devolução antes de finalizar.'); return; }
+    if (DEV.situacao === 'finalizada') { avisar('A devolução ' + DEV.numero + ' já está finalizada.'); return; }
+    if (DEV.situacao === 'cancelada') { avisar('Devolução cancelada não se finaliza.'); return; }
+    if (podeLancarEstoque(DEV)) {
+      // Finalizar com estoque pendente deixaria mercadoria fisicamente no galpao
+      // e invisivel no saldo, sem nenhuma tela cobrando a diferenca depois.
+      avisar('Esta devolução ainda tem mercadoria para lançar no estoque. Finalizar agora deixaria a caixa no galpão e fora do saldo, sem ninguém cobrando a diferença depois.');
+      return;
+    }
+    const f = formaDe(DEV.forma);
+    confirmarAcao('devolucaoFinaliza',
+      'Finalizar a devolução ' + DEV.numero + '. Forma: ' + f.rotulo + ' — ' + f.nota + '.',
+      function () {
+        DEV.situacao = 'finalizada';
+        DEV.eventos.push({ data: HOJE, tipo: 'finalizou', nota: 'Finalizada. ' + f.rotulo + ': ' + f.nota + '.' });
+        pintarTudo();
+      });
   }
-  backdrop.addEventListener('click', fecharDrawers);
-  document.getElementById('fecharRecebimento').addEventListener('click', fecharDrawers);
-  document.getElementById('btnCancelarRecebimento').addEventListener('click', fecharDrawers);
 
-  function rotuloDropdown(id, texto, valor) {
-    const raiz = document.getElementById(id);
-    raiz.setAttribute('data-value', valor == null ? '' : String(valor));
-    raiz.querySelector('.dropdown-select-label').textContent = texto;
-    raiz.querySelectorAll('.dropdown-select-item').forEach(i => {
-      i.classList.toggle('active', i.getAttribute('data-value') === String(valor == null ? '' : valor));
+  function cancelar() {
+    if (!DEV || NOVA) { avisar('Esta devolução ainda não existe para ser cancelada.'); return; }
+    if (DEV.situacao === 'cancelada') { avisar('A devolução ' + DEV.numero + ' já está cancelada.'); return; }
+    if (DEV.estoque) {
+      avisar('O estoque desta devolução já foi lançado. Cancelar agora deixaria o saldo com mercadoria de uma devolução que não existe — a saída é um acerto de estoque.');
+      return;
+    }
+    confirmarAcao('devolucaoCancela',
+      'Cancelar a devolução ' + DEV.numero + '? Ela continua na lista, marcada como cancelada — some ninguém entende o que houve.',
+      function () {
+        DEV.situacao = 'cancelada';
+        DEV.eventos.push({ data: HOJE, tipo: 'cancelou', nota: 'Cancelada por ' + OPERADORES[EU] + '.' });
+        pintarTudo();
+      });
+  }
+
+  // ===== FICHA IMPRESSA =====
+  function montarFolha() {
+    if (!DEV) return;
+    const v = vendaDe(DEV.vendaId) || {};
+    const m = motivoDe(DEV.motivoId);
+    let linhas = '';
+    DEV.itens.forEach(i => {
+      linhas += '<div class="rf-linha"><b>' + i.sku + '</b><div>' + i.nome + ' · ' + i.qtd +
+                ' de ' + i.qtdVendida + ' · ' + ESTADOS_ITEM[i.estado].rotulo +
+                ' · ' + moeda(i.qtd * i.unit) + '</div></div>';
     });
-  }
-  // O controle tem de dizer o estado em que a tela ABRIU. A pill nascia com
-  // "Sem filtro de período" enquanto a lista ja vinha filtrada pelo mes
-  // corrente: a tela escondia linhas e o controle jurava que nao escondia
-  // nenhuma. Quem nao confere o resultado contra o filtro nunca descobre.
-  // Achado em 02/out, ao clonar esta tela para Contas a Receber.
-  (function sincronizarPillDePeriodo() {
-    const raiz = document.getElementById('filtroPeriodo');
-    if (!raiz) return;
-    const item = raiz.querySelector('.dropdown-select-item[data-value="' + periodoAtual + '"]');
-    if (item) rotuloDropdown('filtroPeriodo', item.textContent.trim(), periodoAtual);
-  })();
-  function marcarErro(campo, erro, mostrar) {
-    document.getElementById(campo).classList.toggle('has-error', mostrar);
-    document.getElementById(erro).classList.toggle('show', mostrar);
-  }
-  const num = (txt) => {
-    const s = String(txt || '').trim();
-    if (s === '') return 0;
-    const n = Number(s.replace(/\./g, '').replace(',', '.'));
-    return isNaN(n) ? 0 : n;
-  };
-
-  function abrirRecebimento(ids) {
-    emRecebimento = ids.filter(id => { const t = titDe(id); return t && !t.cancelado && saldoDe(t) > 0; });
-    if (!emRecebimento.length) return;
-    const varios = emRecebimento.length > 1;
-    const t0 = titDe(emRecebimento[0]);
-    const soma = emRecebimento.reduce((s, id) => s + saldoDe(titDe(id)), 0);
-
-    document.getElementById('notaRecebimento').innerHTML = varios
-      ? 'Baixando <b>' + emRecebimento.length + ' contas</b> de uma vez. Cada uma vira <b>um lançamento próprio</b> no Caixa, com a categoria dela — um movimento somado esconderia o que foi pago a quem.'
-      : 'Esta baixa <b>escreve no Caixa</b>: vira uma entrada na conta escolhida, com este histórico e esta categoria, e a origem apontando para esta conta a receber.';
-    document.getElementById('inputDataReceb').value = fmtData(HOJE_ISO);
-    document.getElementById('inputHistReceb').value = varios
-      ? 'Liquidação de contas a receber'
-      : 'Liquidação de conta a receber — ' + cliDe(t0.cliId).nome;
-    rotuloDropdown('ddDestino', (contaDe(1) || {}).nome || 'Caixa', 1);
-    rotuloDropdown('ddCatReceb', varios ? 'Cada uma com a sua' : catDe(t0.catId).nome, varios ? '' : t0.catId);
-    document.getElementById('roValorTitulo').textContent = 'R$ ' + fmtDin(soma) + (varios ? ' (soma de ' + emRecebimento.length + ')' : '');
-    document.getElementById('inputValorRecebido').value = '';
-    document.getElementById('inputJuros').value = '';
-    document.getElementById('inputDesconto').value = '';
-    document.getElementById('inputTaxas').value = '';
-    document.getElementById('blocoMaisOpcoes').style.display = 'none';
-    document.getElementById('linkMaisOpcoes').textContent = 'mais opções ▾';
-    // recebimento parcial so faz sentido em UMA conta
-    document.getElementById('campoValorReceb').style.display = varios ? 'none' : '';
-    marcarErro('campoDataReceb', 'erroDataReceb', false);
-    marcarErro('campoValorReceb', 'erroValorReceb', false);
-    atualizarPrevia();
-    document.getElementById('drawerRecebimento').classList.add('open');
-    backdrop.classList.add('open');
+    document.getElementById('rastreioFolha').innerHTML =
+      '<div class="rf-cabeca">' +
+        '<div class="rf-titulo">Devolução ' + DEV.numero + ' · pedido ' + (v.numero || '—') + '</div>' +
+        '<div class="rf-sub">' + (v.cliente || '—') + ' · ' + (v.doc || '') + '</div>' +
+        '<div class="rf-sub">' + (v.endereco || '') + '</div>' +
+        '<div class="rf-sub">Aberta em ' + fmtData(DEV.abertaEm) + ' · ' + situacaoDe(DEV.situacao).rotulo + '</div>' +
+      '</div>' +
+      '<div class="rf-secao">Motivo</div>' +
+      '<div class="rf-linha"><b>' + m.nome + '</b><div>' + (DEV.descricao || 'sem descrição') + '</div></div>' +
+      '<div class="rf-secao">Itens devolvidos</div>' + linhas +
+      '<div class="rf-secao">Valores</div>' +
+      '<div class="rf-linha"><b>Itens</b><div>' + moeda(totalItensDev(DEV)) + '</div></div>' +
+      '<div class="rf-linha"><b>Frete</b><div>' + moeda(DEV.frete) + '</div></div>' +
+      '<div class="rf-linha"><b>Total a devolver</b><div>' + moeda(totalDevolver(DEV)) + '</div></div>' +
+      '<div class="rf-linha"><b>Forma</b><div>' + formaDe(DEV.forma).rotulo + '</div></div>' +
+      '<div class="rf-rodape">Recebido por: ______________________________ &nbsp;&nbsp; Data: ______ / ______ / __________<br><br>' +
+        'Esta ficha acompanha a mercadoria na volta. Impressa em ' + fmtData(HOJE) + '.</div>';
   }
 
-  function montarMenuOrigem() {
-    document.getElementById('menuOrigem').innerHTML = CONTAS_FIN.filter(c => c.ativo)
-      .map(c => '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>').join('');
-    inicializarDropdownSelect(document.getElementById('ddDestino'), () => atualizarPrevia());
-  }
-  function montarMenuCatReceb() {
-    document.getElementById('menuCatReceb').innerHTML = itensCategoria(false, true);
-    inicializarDropdownSelect(document.getElementById('ddCatReceb'), () => atualizarPrevia());
-  }
-
-  document.getElementById('linkMaisOpcoes').addEventListener('click', () => {
-    const b = document.getElementById('blocoMaisOpcoes');
-    const aberto = b.style.display !== 'none';
-    b.style.display = aberto ? 'none' : 'block';
-    document.getElementById('linkMaisOpcoes').textContent = aberto ? 'mais opções ▾' : 'menos opções ▴';
-  });
-  ['inputValorRecebido', 'inputJuros', 'inputDesconto', 'inputTaxas', 'inputDataReceb'].forEach(id => {
-    document.getElementById(id).addEventListener('input', atualizarPrevia);
-  });
-
-  // A previa diz, ANTES do clique, exatamente quantos lancamentos vao nascer no
-  // Caixa e com que categoria. Juro e desconto sao lancamentos proprios — e a
-  // previa e o lugar onde isso fica evidente, em vez de virar surpresa no extrato.
-  function atualizarPrevia() {
-    const el = document.getElementById('previaRecebimento');
-    if (!emRecebimento.length) { el.innerHTML = ''; return; }
-    const varios = emRecebimento.length > 1;
-    const soma = emRecebimento.reduce((s, id) => s + saldoDe(titDe(id)), 0);
-    const recebido = varios ? soma : (num(document.getElementById('inputValorRecebido').value) || soma);
-    const taxas = num(document.getElementById('inputTaxas').value);
-    const juros = num(document.getElementById('inputJuros').value);
-    const desc = num(document.getElementById('inputDesconto').value);
-    const conta = contaDe(Number(document.getElementById('ddDestino').getAttribute('data-value') || 1));
-    const linhas = [];
-    linhas.push('<b>' + (varios ? emRecebimento.length : 1) + '</b> ' + (varios ? 'entradas' : 'entrada') + ' de <b>R$ ' + fmtDin(recebido - desc) + '</b> em <b>' + (conta ? conta.nome : '—') + '</b>');
-    if (juros > 0) linhas.push('mais <b>1 entrada de R$ ' + fmtDin(juros) + '</b> na categoria <b>Juros e multas recebidos</b> — separada de propósito, para o juro aparecer como receita financeira no DRE, e não misturado na venda');
-    if (desc > 0) linhas.push('o desconto de R$ ' + fmtDin(desc) + ' <b>não vira lançamento</b>: ele reduz o que entra no caixa');
-    if (taxas > 0) linhas.push('a taxa retida de R$ ' + fmtDin(taxas) + ' <b>quita o título mas não entra no caixa</b> — é o que o cartão ou o marketplace ficou');
-    if (!varios) {
-      const t = titDe(emRecebimento[0]);
-      const resta = saldoDe(t) - recebido - taxas;
-      if (resta > 0.005) linhas.push('a conta fica <b>parcial</b>, com R$ ' + fmtDin(resta) + ' ainda em aberto');
-      else linhas.push('a conta fica <b>recebida</b>');
+  // ===== PINTAR TUDO =====
+  function pintarTudo() {
+    pintarCabecalho();
+    const barra = document.getElementById('barraSalvar');
+    if (!DEV) {
+      document.querySelectorAll('.main .card').forEach(c => { c.style.display = 'none'; });
+      if (barra) barra.style.display = 'none';
+      path[2] = 'Devolução não encontrada';
+      renderBreadcrumb();
+      return;
     }
-    el.innerHTML = '<div class="cx-previa-titulo">O que vai acontecer</div>' + linhas.map(l => '<div class="cx-previa-linha">• ' + l + '</div>').join('');
+    path[2] = NOVA ? 'Nova devolução' : DEV.numero;
+    renderBreadcrumb();
+    pintarOrigem();
+    pintarItens();
+    pintarMotivo();
+    pintarValores();
+    pintarReversa();
+    pintarEstoque();
+    pintarEventos();
+    atualizarBarra();
+    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
   }
 
-  // ===== A RECORRÊNCIA QUE TERMINA VIRA AVISO NA AGENDA =====
-  // Com HORIZONTE em vez de contagem, a recorrencia acaba — e sem aviso o aluguel
-  // simplesmente desaparece da lista em janeiro e ninguem percebe. O aviso nao
-  // precisou de maquina nova: ele vai para o mesmo tipo de deposito compartilhado
-  // do `deskCaixaExtras`, e a Agenda le de la.
-  //
-  // `deskAvisos` e proposital como MECANISMO GERAL, nao como campo desta tela:
-  // estoque minimo, contas a receber e conferencia vao querer o mesmo. E um mapa
-  // com chave por origem, entao recarregar a tela reescreve em vez de duplicar.
-  // No Lovable isto nao e tabela escrita por tela: e uma CONSULTA — "grupos cuja
-  // ultima conta vence nos proximos 90 dias e nao foram renovados".
-  const AVISOS = 'deskAvisos';
-  // 90 dias: contrato de aluguel se renegocia com meses de antecedencia, nao com
-  // dias. Menos que isso o aviso chega tarde para servir de alguma coisa.
-  const DIAS_AVISO_RENOVACAO = 90;
-  (function avisarRenovacoes() {
-    try {
-      const mapa = JSON.parse(localStorage.getItem(AVISOS) || '{}') || {};
-      const limite = new Date(HOJE); limite.setDate(limite.getDate() + DIAS_AVISO_RENOVACAO);
-      const limiteIso = iso(limite);
-      const grupos = {};
-      TITULOS.forEach(x => {
-        if (!x.grupo || x.cancelado) return;
-        if (!grupos[x.grupo] || x.vencIso > grupos[x.grupo].vencIso) grupos[x.grupo] = x;
-      });
-      Object.keys(grupos).forEach(g => {
-        const ultima = grupos[g];
-        const chave = 'renovar-' + g;
-        // Parcelada nao se renova: ela acaba porque a compra acabou. Quem se
-        // renova e a receita recorrente.
-        if (ultima.ocorrencia === 'Parcelada') { delete mapa[chave]; return; }
-        if (ultima.vencIso < iso(HOJE) || ultima.vencIso > limiteIso) { delete mapa[chave]; return; }
-        mapa[chave] = {
-          data: ultima.vencIso, hora: '09:00', tipo: 'financeiro',
-          titulo: 'Renovar ' + ultima.hist.toLowerCase() + ' — última conta vence em ' + fmtData(ultima.vencIso),
-          meta: 'Finanças → Contas a Receber · ' + cliDe(ultima.cliId).nome,
-          usuario: 'Desk Company',
-          href: 'pagina-financas-contas-receber-detalhe.html?id=' + ultima.id + '&renovar=1'
-        };
-      });
-      localStorage.setItem(AVISOS, JSON.stringify(mapa));
-    } catch (e) {}
-  })();
-
-  // ===== A BAIXA ESCREVE NO CAIXA =====
-  // O extrato e outro arquivo, com o mock dele. Para a integracao ser REAL no
-  // prototipo — e nao um texto dizendo que seria —, a baixa grava o movimento
-  // num deposito compartilhado no navegador, e o Caixa le esse deposito junto
-  // com o mock dele. Mesma ideia do `deskParametros` e do `deskLog`.
-  const CAIXA_EXTRAS = 'deskCaixaExtras';
-  function gravarNoCaixa(movs) {
-    try {
-      const atual = JSON.parse(localStorage.getItem(CAIXA_EXTRAS) || '[]');
-      movs.forEach(m => atual.push(m));
-      localStorage.setItem(CAIXA_EXTRAS, JSON.stringify(atual.slice(-300)));
-    } catch (e) {}
-  }
-
-  document.getElementById('btnConfirmarRecebimento').addEventListener('click', () => {
-    const dataIso = parseData(document.getElementById('inputDataReceb').value);
-    const dataRuim = !dataIso || dataBloqueada(dataIso);
-    marcarErro('campoDataReceb', 'erroDataReceb', dataRuim);
-    if (dataRuim) return;
-
-    const varios = emRecebimento.length > 1;
-    const conta = Number(document.getElementById('ddDestino').getAttribute('data-value') || 1);
-    const hist = document.getElementById('inputHistReceb').value.trim() || 'Liquidação de conta a receber';
-    const juros = num(document.getElementById('inputJuros').value);
-    const desc = num(document.getElementById('inputDesconto').value);
-    // A taxa retida QUITA o titulo e NAO entra no caixa: receber o liquido sem
-    // ela deixaria a diferenca como saldo eterno numa conta que ja acabou.
-    const taxas = num(document.getElementById('inputTaxas').value);
-    const catEscolhida = document.getElementById('ddCatReceb').getAttribute('data-value');
-
-    let valorReceb = 0;
-    if (!varios) {
-      const t = titDe(emRecebimento[0]);
-      valorReceb = num(document.getElementById('inputValorRecebido').value) || saldoDe(t);
-      const ruim = !(valorReceb > 0) || valorReceb + taxas > saldoDe(t) + 0.005;
-      marcarErro('campoValorReceb', 'erroValorReceb', ruim);
-      if (ruim) { document.getElementById('blocoMaisOpcoes').style.display = 'block'; return; }
+  // ===== AÇÕES =====
+  if (DEV) {
+    montarMenuMotivo();
+    montarMenuForma();
+    inicializarDropdownSelect(document.getElementById('inputMotivo'), (v) => {
+      RASCUNHO.motivo = v; pintarMotivo(); atualizarBarra();
+    });
+    inicializarDropdownSelect(document.getElementById('inputForma'), (v) => {
+      if (formaDe(v).reservado) {
+        avisar('Vale-troca fica disponível quando o submódulo de Vales-troca existir. Oferecer um crédito que não gera documento nenhum seria prometer o que ninguém consegue usar.');
+        pintarValores();
+        return;
+      }
+      RASCUNHO.forma = v; pintarValores(); atualizarBarra();
+    });
+    const ta = document.getElementById('inputDescricao');
+    if (ta) {
+      ta.value = DEV.descricao || '';
+      ta.addEventListener('input', () => { RASCUNHO.descricao = ta.value; atualizarBarra(); });
     }
-
-    const total = varios ? emRecebimento.reduce((s, id) => s + saldoDe(titDe(id)), 0) : valorReceb;
-    confirmarAcao('contasReceberBaixa',
-      'Receber ' + (varios ? emRecebimento.length + ' contas' : '"' + cliDe(titDe(emRecebimento[0]).cliId).nome + '"') +
-      ', somando R$ ' + fmtDin(total - desc + juros) + ', com entrada de "' + contaDe(conta).nome + '" em ' + fmtData(dataIso) + '?',
-      () => {
-        const movs = [];
-        emRecebimento.forEach(id => {
-          const t = titDe(id);
-          const v = varios ? saldoDe(t) : valorReceb;
-          t.recebido = Math.min(t.valor, t.recebido + v + (varios ? 0 : taxas));
-          t.recebimentos.push({ data: dataIso, valor: v, contaId: conta, juros: varios ? 0 : juros, desconto: varios ? 0 : desc, taxas: varios ? 0 : taxas });
-          movs.push({
-            contaId: conta, data: dataIso, comp: t.comp, hist: hist,
-            pessoa: cliDe(t.cliId).nome, catId: Number(varios ? t.catId : (catEscolhida || t.catId)),
-            tipo: 'entrada', valor: v - (varios ? 0 : desc), origem: 'CR ' + t.id
-          });
-        });
-        if (juros > 0) {
-          movs.push({
-            contaId: conta, data: dataIso, comp: compDaData(dataIso, 0),
-            hist: 'Juros e multa — ' + hist, pessoa: cliDe(titDe(emRecebimento[0]).cliId).nome,
-            catId: 21, tipo: 'entrada', valor: juros, origem: 'CR ' + emRecebimento[0]
-          });
-        }
-        gravarNoCaixa(movs);
-        selTit = [];
-        fecharDrawers();
-        render();
-        avisarBaixa(movs.length);
-      });
-  });
-
-  function avisarBaixa(n) {
-    const el = document.getElementById('avisoBaixa');
-    el.innerHTML = '<b>' + n + '</b> ' + (n === 1 ? 'lançamento foi' : 'lançamentos foram') +
-      ' para o extrato do <b>Caixa</b>, com a origem apontando para esta tela. ' +
-      '<a href="pagina-financas-caixa.html">Abrir o Caixa</a>';
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 9000);
   }
 
-  document.getElementById('btnReceberSelecionadas').addEventListener('click', () => {
-    if (selTit.length) abrirRecebimento(selTit.slice());
+  document.getElementById('btnSalvar').addEventListener('click', salvar);
+  document.getElementById('btnLancarEstoque').addEventListener('click', lancarEstoque);
+  document.getElementById('btnReversa').addEventListener('click', solicitarReversa);
+  document.getElementById('btnVoltar').addEventListener('click', () => {
+    window.location.href = 'pagina-logistica-devolucao.html';
+  });
+  document.getElementById('btnVoltarRodape').addEventListener('click', () => {
+    window.location.href = 'pagina-logistica-devolucao.html';
+  });
+  document.getElementById('btnImprimir').addEventListener('click', () => {
+    if (!DEV) { avisar('Não há devolução aberta para imprimir.'); return; }
+    montarFolha();
+    const folha = document.getElementById('rastreioFolha');
+    folha.classList.remove('oculta');
+    window.print();
+    folha.classList.add('oculta');
   });
 
-  // Cancelar NAO e excluir. Cancelar = a conta nao vai ser recebida, mas fica no
-  // historico (o cliente cancelou o pedido); excluir = foi erro de digitacao.
-  // A aba "canceladas" existia desde o inicio sem que ninguem pudesse chegar
-  // nesse estado — falha corrigida em 23/set/2026.
-  document.getElementById('linkCancelarSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0; });
-    if (!podem.length) return;
-    // Se a selecao e toda de canceladas, o link desfaz em vez de fazer: pedido
-    // cancelado as vezes e retomado.
-    const voltando = podem.every(id => titDe(id).cancelado);
-    const fora = selTit.length - podem.length;
-    confirmarAcao('contasReceberCancela',
-      (voltando ? 'Reativar ' : 'Cancelar ') + podem.length + ' ' + (podem.length === 1 ? 'conta' : 'contas') + '? ' +
-      (voltando ? 'Elas voltam para em aberto e para o total a receber.' : 'Elas saem do a receber e ficam no histórico.') +
-      (fora > 0 ? ' ' + fora + ' com recebimento fica' + (fora === 1 ? '' : 'm') + ' de fora — estorne antes.' : ''),
-      () => {
-        podem.forEach(id => { titDe(id).cancelado = !voltando; });
-        selTit = [];
-        render();
-      });
+  const menuMais = document.getElementById('menuMaisAcoes');
+  inicializarDropdownSelect(menuMais, null);
+  menuMais.querySelectorAll('.dropdown-select-item').forEach(item => {
+    item.addEventListener('click', () => {
+      menuMais.classList.remove('open');
+      const acao = item.getAttribute('data-acao');
+      if (acao === 'pedido') {
+        if (!DEV) { avisar('Não há devolução aberta.'); return; }
+        window.location.href = 'pagina-vendas-pedidos-detalhe.html?id=' + DEV.vendaId;
+        return;
+      }
+      if (acao === 'cliente') { window.location.href = 'pagina-cadastros-clientes.html'; return; }
+      if (acao === 'motivos') { window.location.href = 'pagina-operacional-motivos-devolucao.html'; return; }
+      if (acao === 'finalizar') { finalizar(); return; }
+      if (acao === 'cancelar') { cancelar(); return; }
+    });
   });
 
-  document.getElementById('linkExcluirSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0; });
-    if (!podem.length) return;
-    const fora = selTit.length - podem.length;
-    armarSenhaModal('contasReceberExclui');
-    abrirModalConfirmacao(
-      'Confirma exclusão de ' + podem.length + ' ' + (podem.length === 1 ? 'conta' : 'contas') + '?' +
-      (fora > 0 ? ' ' + fora + ' já ' + (fora === 1 ? 'tem recebimento e fica' : 'têm recebimento e ficam') + ' como ' + (fora === 1 ? 'está' : 'estão') + ' — apagar conta paga deixaria o lançamento do Caixa órfão.' : ''),
-      podem.length, () => {
-        podem.forEach(id => {
-          const i = TITULOS.findIndex(t => t.id === id);
-          if (i !== -1) TITULOS.splice(i, 1);
-        });
-        selTit = [];
-        render();
-      });
-  });
-  document.getElementById('linkLimparSelecao').addEventListener('click', limparSelecao);
-
-  // Os menus do painel de Recebimento sao montados junto com a TELA, nao a cada
-  // abertura: painel fechado tambem e parte da pagina, e dropdown que so ganha
-  // comportamento quando o painel abre e botao mudo no carregamento — a auditoria
-  // mede isso. De tabela, para de religar os listeners dos itens em cada abertura.
-  montarMenuOrigem();
-  montarMenuCatReceb();
-
-  // ===== FILTROS E PAGINAÇÃO =====
-  document.getElementById('menuFiltroCategoria').innerHTML = itensCategoria(true, true);
-  document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (v) => { periodoAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroBase'), (v) => { baseDataAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroCategoria'), (v) => { filtroCatAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
-  document.getElementById('limparFiltros').addEventListener('click', () => {
-    buscaAtual = ''; filtroCatAtual = 'todos'; periodoAtual = 'todos'; baseDataAtual = 'vencimento'; paginaAtual = 1;
-    document.getElementById('campoBusca').value = '';
-    rotuloDropdown('filtroCategoria', 'Todas as categorias', 'todos');
-    rotuloDropdown('filtroPeriodo', 'Sem filtro de período', 'todos');
-    rotuloDropdown('filtroBase', 'por vencimento', 'vencimento');
-    render();
-  });
-  document.getElementById('btnNovoTitulo').addEventListener('click', () => {
-    window.location.href = 'pagina-financas-contas-receber-detalhe.html';
-  });
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; render(); } });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; render(); });
-
-  inicializarDataField(document.getElementById('dfDataReceb'), {
-    min: () => {
-      const f = lerFechamento();
-      if (!f) return null;
-      const d = new Date(f + 'T00:00:00');
-      d.setDate(d.getDate() + 1);
-      return iso(d);
-    },
-    motivoMin: () => 'Período financeiro fechado até ' + fmtData(lerFechamento()) + '.',
-    rodape: () => {
-      const f = lerFechamento();
-      return f ? 'Fechado até <b>' + fmtData(f) + '</b> — dias riscados não aceitam baixa.' : 'Nenhum período fechado.';
-    },
-    aoMudar: () => atualizarPrevia()
-  });
-
-  render();
-
-  path = ['Finanças', 'Contas a Receber'];
-  renderBreadcrumb();
-  setMainTitle('Contas a Receber');
+  pintarTudo();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

@@ -62,14 +62,14 @@
 
 > **Metas** existe e funciona, mas **não tem item no menu** — só se chega por Lojas Desk, Vendedores ou Performance. Vale colocar no menu de Vendas.
 
-## 🚚 Logística — 4 de 6
+## 🚚 Logística — 5 de 6
 | | Submódulo |
 |---|---|
 | ✅ | Separação *(+ ficha do pedido e folha de impressão)* |
 | ✅ | Conferência de Saída *(+ bancada, volumes e etiquetas; era "Etiquetagem")* |
 | ✅ | Expedição *(+ o romaneio, com conferência de volumes e impressão em duas vias)* |
 | ✅ | Rastreamento de Pedidos *(o que acontece depois da doca: situação, pagamento, códigos por volume, previsão congelada e o histórico que a vitrine consome; **+ detalhe do pedido**, a única tela que escreve código — a listagem só lê)* |
-| ❌ | Devolução |
+| ✅ | Devolução *(+ detalhe; documento próprio que aponta para o pedido, estado por item, estoque lançado à mão e código da reversa próprio)* |
 | ❌ | Relatórios de Logística |
 
 ## 💰 Finanças — 3 de 5
@@ -123,11 +123,11 @@
 | Cadastros | 12 | 1 |
 | Estoque | 9 | 3 |
 | Vendas | 2 | 7 |
-| **Logística** | **4** | **2** |
+| **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | **Operacional** | **2** | **4** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **45 entradas de menu · 66 telas** | **23** |
+| **Total** | **46 entradas de menu · 68 telas** | **22** |
 
-**Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística**, com Separação, Conferência de Saída, Expedição e Rastreamento de Pedidos prontas; falta **Devolução**. O cadastro de **Motivos de Devolução** de que ela depende **já existe** (07/out).
+**Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
