@@ -139,12 +139,40 @@ Agora terminam com `raise SystemExit(1 if falhas else 0)`, o mesmo contrato que 
 porque o verde dele é afirmativo. Quando entrar suíte nova, confira o exit code nos dois
 sentidos antes de confiar nela.
 
-### Tolerância em pixel não atravessa plataforma de graça
+### A medição dependia de ter rede, e ninguém sabia
 
-O `teste_pos.py` exige que o calendário fique a `0..12px` do ícone. No Windows mede **14px** —
-reprova por 2px, sem defeito visível nenhum. A folga foi calibrada no Linux. Tolerância
-apertada é boa enquanto o chão não muda; quando muda, ela acusa o chão e não a tela. Ao
-alargar uma dessas, registre **por que** o número novo ainda protege algo.
+O `teste_pos.py` exigia o calendário a `0..12px` do **ícone** e no Windows media 13,5 —
+reprovava por 1,5px, sem defeito visível. A tentação era alargar para 16. Medir o mecanismo
+mostrou que alargar seria passar a borracha na coisa errada.
+
+O CSS é `.date-pop { bottom: calc(100% + 6px) }` e o containing block é o `.date-field`. Então
+**o contrato é 6px acima do CAMPO**, e ele é entregue exato em toda plataforma. A folga até o
+*ícone* é `6 + o recuo do ícone dentro do campo` — e esse recuo sai da métrica da fonte, porque
+o input **não tem altura fixa** (`padding:9px 11px` + `font-size:13.5px`).
+
+A Nunito vem do Google Fonts **pela rede**. Medido nas duas pontas, na mesma tela:
+
+| | altura do campo | recuo do ícone | campo → popup | ícone → popup |
+|---|---|---|---|---|
+| Nunito carregada | 39px | 7,5px | **6,00px** | 13,5px → reprovava |
+| fonte em fallback | 35px | 5,5px | **6,00px** | 11,5px → passava |
+
+Ou seja: a faixa `0..12` foi calibrada no Linux **sem rede**, contra uma renderização que o
+usuário nunca vê. O vermelho no Windows estava mais perto da verdade de produção que o verde
+de lá. A asserção passou a medir `campo → popup == 6px`: igualdade contra o contrato do CSS, não
+faixa de tolerância — mais forte, e indiferente a fonte e plataforma. Provada nos dois sentidos,
+com regressão de 20px injetada por `add_style_tag` numa cópia descartável.
+
+**Duas regras saem daí.** A primeira: **meça contra o que o CSS promete, não contra o que estava
+na tela no dia** — asserção ancorada no contrato é exata; ancorada no resultado observado, ela
+só registra a plataforma de quem a escreveu. A segunda: **medição que depende de rede não é
+medição.** A boa notícia é que a auditoria oficial foi rodada aqui **com** a Nunito real e passou
+limpa nas 64 telas — como a Nunito é mais alta que o fallback, o estouro de largura medido no
+Linux era, se algo, otimista, e com a fonte real as telas continuam limpas.
+
+**Dívida aberta:** embarcar a Nunito local (`.woff2` + `@font-face`) em vez de depender do Google
+Fonts tornaria toda medição determinística, eliminaria o FOUT e faria as telas abrirem offline.
+Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 
 ## O que cada um cobre
 

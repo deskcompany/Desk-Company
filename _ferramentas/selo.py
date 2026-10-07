@@ -195,7 +195,23 @@ def verde_suite(saida):
 
 
 def asseracoes(saida):
-    return saida.count('  ok   ') + saida.count('  ok ')
+    # Errava nas DUAS direcoes (corrigido em 06/out/2026).
+    #
+    # Dobrava: era count('  ok   ') + count('  ok '), e '  ok   ' CONTEM
+    # '  ok ' como substring — toda assercao entrava duas vezes. O teste_cp
+    # aparecia com 106 para as 53 reais.
+    #
+    # Zerava: suite que nao imprime linha de ok nao contava nada. A do Esc so
+    # imprime FALHA e declara o proprio total numa linha de resumo; ela entrava
+    # como 0 tendo 120 assercoes.
+    #
+    # O total publicado era o saldo liquido dos dois erros, ou seja, nao media
+    # nada. Agora: quem declara o proprio total manda; o resto tem as linhas de
+    # ok contadas uma vez.
+    m = re.search(r'(\d+)\s+asserç[õo]es', saida)
+    if m:
+        return int(m.group(1))
+    return sum(1 for l in saida.splitlines() if l.startswith('  ok'))
 
 
 def principal():

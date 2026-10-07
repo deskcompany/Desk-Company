@@ -25,13 +25,26 @@ with sync_playwright() as p:
       const btn = document.querySelector('#dfLancData .date-btn').getBoundingClientRect();
       const pop = document.querySelector('#dfLancData .date-pop').getBoundingClientRect();
       const campo = document.querySelector('#dfLancData').getBoundingClientRect();
-      return {btnR: btn.right, btnT: btn.top, popR: pop.right, popL: pop.left, popB: pop.bottom, campoL: campo.left};
+      return {btnR: btn.right, btnT: btn.top, popR: pop.right, popL: pop.left, popB: pop.bottom, campoL: campo.left, campoT: campo.top};
     })()""")
     ok(abs(m['popR'] - m['btnR']) <= 10, 'o calendario alinha pela DIREITA, junto do icone (pop %.0f x icone %.0f)' % (m['popR'], m['btnR']))
     ok(m['popL'] > m['campoL'] + 50, 'nao abre mais na ponta esquerda do campo (pop %.0f x campo %.0f)' % (m['popL'], m['campoL']))
     ok(m['popB'] <= m['btnT'] + 2, 'abre ACIMA do icone (base do pop %.0f x topo do icone %.0f)' % (m['popB'], m['btnT']))
-    dist = m['btnT'] - m['popB']
-    ok(0 <= dist <= 12, 'colado no icone: %.0fpx de distancia' % dist)
+    # A folga e medida contra o CAMPO, nao contra o icone (06/out/2026).
+    #
+    # O CSS e ".date-pop { bottom: calc(100% + 6px) }" e o containing block e o
+    # .date-field: 6px e o CONTRATO, e vale exato em qualquer plataforma. Medida
+    # contra o icone, a folga virava 6 + o recuo do icone dentro do campo — e esse
+    # recuo sai da metrica da fonte, porque o input nao tem altura fixa (padding
+    # 9px + font-size 13.5px, §371 da tela).
+    #
+    # Com a Nunito do Google Fonts carregada o campo da 39px e a folga ate o icone
+    # da 13.5; sem rede, no fallback, da 35px e 11.5. A faixa antiga (0..12) tinha
+    # sido calibrada no Linux sem rede, ou seja, contra uma renderizacao que o
+    # usuario nunca ve — e reprovava a renderizacao real. Igualdade contra o
+    # contrato do CSS e mais forte que faixa de tolerancia, e nao depende de rede.
+    folga = m['campoT'] - m['popB']
+    ok(abs(folga - 6) <= 0.5, 'colado no campo: %.1fpx de folga (o CSS promete 6)' % folga)
     pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
 
     print('campo no topo da tela desce, em vez de sair pra fora')
