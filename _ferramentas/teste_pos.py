@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 import os, sys
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
-import os as _os, glob as _g
+import os as _os, glob as _g, tempfile as _tempfile
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -60,7 +60,7 @@ with sync_playwright() as p:
     ok(m2['popT'] >= -1, 'o calendario nao sai pela borda de cima (topo %.0f)' % m2['popT'])
     ok(m2['abaixo'] == (m2['popT'] > m2['btnT']), 'a classe combina com a posicao real (abaixo=%s)' % m2['abaixo'])
     ok(not erros, 'sem erro de JS: %s' % erros[:2])
-    pg.screenshot(path='qa-pos-transf.png')
+    pg.screenshot(path=_os.path.join(_tempfile.gettempdir(), 'qa-pos-transf.png'))  # no temp: a raiz do projeto nao e deposito de artefato
     pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
     pg.click('#btnCancelarTransferencia'); pg.wait_for_timeout(200)
     b.close()

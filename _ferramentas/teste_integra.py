@@ -3,7 +3,7 @@
 from playwright.sync_api import sync_playwright
 import os, sys
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
-import os as _os, glob as _g
+import os as _os, glob as _g, tempfile as _tempfile
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -77,7 +77,7 @@ with sync_playwright() as p:
     ok(pg.evaluate("MOVIMENTOS.filter(function(m){return m.id>=900000}).length") == 2, 'continua 2 depois do reload')
     ok(pg.eval_on_selector_all('tbody tr[data-id]', 'e => e.length') > 0, 'o extrato continua renderizando')
     ok(not erros, 'nenhum erro de JS no caminho todo: %s' % erros[:3])
-    pg.screenshot(path='qa-integracao-caixa.png')
+    pg.screenshot(path=_os.path.join(_tempfile.gettempdir(), 'qa-integracao-caixa.png'))  # no temp: a raiz do projeto nao e deposito de artefato
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

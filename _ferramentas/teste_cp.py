@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 import os, sys, json, re, re
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
-import os as _os, glob as _g
+import os as _os, glob as _g, tempfile as _tempfile
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -202,7 +202,7 @@ with sync_playwright() as p:
     doc = pg.evaluate('[document.documentElement.scrollWidth, document.documentElement.clientWidth]')
     ok(doc[0] <= doc[1] + 1, 'pagina nao estoura em 1440: %s' % doc)
     ok(not erros, 'nenhum erro de JS no caminho todo: %s' % erros[:4])
-    pg.screenshot(path='qa-contas-pagar.png')
+    pg.screenshot(path=_os.path.join(_tempfile.gettempdir(), 'qa-contas-pagar.png'))  # no temp: a raiz do projeto nao e deposito de artefato
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

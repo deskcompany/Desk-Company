@@ -61,6 +61,13 @@ Se a pasta estiver em outro lugar: `DESK_PASTA=/caminho/para/a/pasta python3 tes
 
 Precisa de `playwright` instalado (`pip install playwright`) e de um Chromium. Se não houver um em `/opt/pw-browsers`, o script usa o que o Playwright trouxer.
 
+**Os screenshots vão para o diretório temporário, não para a pasta do projeto** (06/out/2026).
+Seis suítes tiram um `qa-*.png` no fim; com caminho relativo depois do `os.chdir(PASTA)`, elas
+largavam 800 KB na raiz **a cada rodada** — e apagar à mão é tarefa que volta. Agora usam
+`tempfile.gettempdir()`, a mesma convenção que o `varredura_cliques.py` já seguia para o JSON
+dele. O `qa-*.png` continua no `.gitignore` como rede de segurança, para o caso de uma suíte
+nova nascer gravando na raiz.
+
 ## Rodando no Windows (06/out/2026)
 
 A pasta passou a ser trabalhada direto no Windows, do Antigravity, em vez de numa cópia
