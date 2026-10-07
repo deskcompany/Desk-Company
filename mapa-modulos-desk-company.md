@@ -81,13 +81,13 @@
 | ❌ | Comissões Afiliados |
 | ❌ | Relatórios Finanças |
 
-## 🔧 Operacional — 1 de 6
+## 🔧 Operacional — 2 de 6
 | | Submódulo |
 |---|---|
 | ✅ | Transportadoras |
 | ❌ | Formas de Pagamento |
 | ❌ | Cupons |
-| ❌ | Motivos de Devolução |
+| ✅ | Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque; nasceu antes da Devolução usá-lo)* |
 | ❌ | Motivos de Perda |
 | ❌ | Relatórios Operacional |
 
@@ -125,9 +125,9 @@
 | Vendas | 2 | 7 |
 | **Logística** | **4** | **2** |
 | Finanças | 3 | 2 |
-| **Operacional** | **1** | **5** |
+| **Operacional** | **2** | **4** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **44 entradas de menu · 65 telas** | **24** |
+| **Total** | **45 entradas de menu · 66 telas** | **23** |
 
-**Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística**, com Separação, Conferência de Saída, Expedição e Rastreamento de Pedidos prontas; falta **Devolução** — e com ela o cadastro de **Motivos de Devolução**, em Operacional, de que ela depende.
+**Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **Em andamento: F4 — Logística**, com Separação, Conferência de Saída, Expedição e Rastreamento de Pedidos prontas; falta **Devolução**. O cadastro de **Motivos de Devolução** de que ela depende **já existe** (07/out).

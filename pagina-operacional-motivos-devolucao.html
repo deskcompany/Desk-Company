@@ -19,7 +19,7 @@
     --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0;
     --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
     --brand-blue: #2563EB; --logo-color: #2979FF;
-    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623; --negativo: #9F1239;
+    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
     --chart-1: #0A4EE4; --chart-2: #6B93F2; --chart-3: #B7C7F5;
     --card-bg: #FFFFFF;
   }
@@ -27,7 +27,7 @@
     --page-bg: #101010; --panel-bg: #101010; --border: #262626;
     --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
     --brand-blue: #2563EB; --logo-color: #FFFFFF;
-    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623; --negativo: #D96B80;
+    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
     --chart-1: #9DB8F0; --chart-2: #4C6FC4; --chart-3: #263A73;
     --card-bg: #17181C;
   }
@@ -280,145 +280,163 @@
   }
   .theme-seg button.active { background: var(--brand-blue); color:#fff; font-weight:600; }
 
-  /* ===== CADASTROS > LOJAS DESK (detalhe) ===== */
-  .dropdown-select { position:relative; }
-  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
-  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
-  .dropdown-select-btn svg { width:13px; height:13px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
-  .dropdown-select-menu.open { display:block; }
-  .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
-  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13.5px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; }
-  .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
-  .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
-
+  /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
   .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
   .btn-primary:hover { opacity:0.88; }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
   .btn-primary svg { width:14px; height:14px; }
 
   .btn-ghost { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; text-decoration:none; }
   .btn-ghost:hover { background: rgba(120,120,140,0.08); }
   .btn-ghost svg { width:14px; height:14px; }
 
-  .voltar-link { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); text-decoration:none; margin-bottom:14px; }
-  .voltar-link:hover { color:var(--text-heading); }
-  .voltar-link svg { width:14px; height:14px; }
+  .header-actions { display:flex; align-items:center; gap:10px; }
 
-  .status-badge { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; padding:4px 11px; border-radius:20px; text-transform:uppercase; letter-spacing:0.3px; }
 
-  .tabs-row { display:flex; gap:26px; border-bottom:1px solid var(--border); margin:20px 0 22px; }
-  .tab-item { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text); padding:0 0 12px; cursor:pointer; user-select:none; border-bottom:2px solid transparent; margin-bottom:-1px; }
-  .tab-item:hover { color: var(--text-heading); }
-  .tab-item.active { color: var(--active-text); border-bottom-color: var(--active-text); }
-  .tab-panel { display:none; }
-  .tab-panel.active { display:block; }
+  .dropdown-select { position:relative; flex-shrink:0; }
+  .dropdown-select-btn.pill { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  .dropdown-select-btn.pill:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
+  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
+  .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu.open { display:block; }
+  .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
+  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
-  .contato-row { display:flex; gap:10px; align-items:flex-end; margin-bottom:12px; }
-  .contato-row .form-field { margin-bottom:0; }
-  .remove-contato-btn { width:38px; height:38px; border-radius:9px; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .remove-contato-btn:hover { background: rgba(120,120,140,0.08); }
-  .remove-contato-btn svg { width:14px; height:14px; }
-  .add-contato-link { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; margin-bottom:20px; }
-  .add-contato-link:hover { text-decoration:underline; }
-  .add-contato-link svg { width:14px; height:14px; }
 
-  .historico-table { width:100%; border-collapse:collapse; }
-  .historico-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px 20px; border-bottom:1px solid var(--border); }
-  .historico-table th:first-child, .historico-table th:nth-child(2) { text-align:left; padding-left:8px; }
-  .historico-table td { padding:14px 8px 14px 20px; border-bottom:1px solid var(--border); font-size:13.5px; color:var(--text-heading); }
-  .historico-table td:first-child, .historico-table td:nth-child(2) { padding-left:8px; }
-  .historico-table td.valor { font-weight:700; }
-  .historico-table tfoot td { padding:14px 8px 8px 20px; border-top:2px solid var(--border); border-bottom:none; font-weight:800; font-family:'Nunito',sans-serif; }
-  .historico-table tfoot td:first-child { padding-left:8px; }
+  /* ===== CADASTROS > MOTIVOS (listagem) ===== */
+  .motivo-check-row { display:flex; align-items:center; gap:10px; font-family:'Nunito',sans-serif; font-weight:700;
+                      font-size:13px; color:var(--text-heading); cursor:pointer; user-select:none; margin:4px 0 12px; }
+  .motivo-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
+  .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
+  .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
 
-  .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
-  .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
-  .empty-state-sub { font-size:12.5px; color:var(--text); }
+  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .tipo-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
 
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
-  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
+  .selecao-bar.show { display:flex; }
+  .selecao-info { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .selecao-acoes { display:flex; align-items:center; gap:14px; margin-left:auto; }
 
-  .theme-seg.tipo-pessoa-toggle { margin-bottom:20px; max-width:340px; }
-  .theme-seg.tipo-loja-toggle { margin-bottom:20px; max-width:480px; }
-
-  .form-row { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
-  .form-field { flex:1; min-width:140px; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field input[type="password"], .form-field select, .form-field textarea {
-    width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg);
-    border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none;
-  }
-  .form-field input[type="text"]:focus, .form-field input[type="password"]:focus, .form-field select:focus, .form-field textarea:focus {
-    border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px;
-  }
-  .form-field input[readonly], .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-field select { cursor:pointer; }
-  .form-field textarea { resize:vertical; min-height:80px; font-family:'Nunito',sans-serif; }
-  .form-field .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input[type="text"], .form-field.has-error input[type="password"] { border-color: var(--danger); }
-
-  .form-footer-bar { position:sticky; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:16px; margin-top:26px; padding:16px 0 4px; background:var(--page-bg); border-top:1px solid var(--border); }
-  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
-  .drawer-link:hover { color: var(--text-heading); }
-
-  /* ===== Checkbox customizado (checklist de módulos, restrições de acesso — §8) ===== */
-  .item-checkbox {
+  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; }
+  .item-checkbox, .checkbox-todos {
     appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
     border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
     position:relative; transition:background .15s, border-color .15s;
   }
-  .item-checkbox:checked { background:var(--chart-2); border-color:var(--chart-2); }
-  .item-checkbox:checked::after {
+  .item-checkbox:checked, .checkbox-todos:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .item-checkbox:checked::after, .checkbox-todos:checked::after {
     content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
     border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
   }
-  /* Terceiro estado: RESPONDIDO EM PARTE (tracinho, nao check). Marca cheia
-     diria "coletei tudo" e marca vazia diria "nem olhei" — as duas mentem
-     sobre um item que veio incompleto de proposito. */
-  .item-checkbox:indeterminate { background:var(--chart-2); border-color:var(--chart-2); }
-  .item-checkbox:indeterminate::after {
-    content:''; position:absolute; left:2px; top:5.5px; width:9px; height:2px;
-    background:#fff; border-radius:1px;
-  }
-  .checklist-row { display:flex; align-items:center; gap:10px; padding:8px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; }
-  .checklist-row label { cursor:pointer; user-select:none; }
-  .checklist-row.checklist-pendente { opacity:0.55; }
-  .checklist-row.checklist-pendente label { cursor:not-allowed; }
-  .conf-onde { display:block; font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
 
-  /* ===== Radio customizado (Comissão com alíquota fixa / conforme descontos) ===== */
-  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
-  .radio-option input[type="radio"] {
-    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
-  }
-  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
-  .radio-option input[type="radio"]:checked::after {
-    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
-  }
+  .motivo-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .motivo-card:first-of-type { border-top:none; }
+  .motivo-card:hover { background: rgba(120,120,140,0.06); }
+  .motivo-info { flex:1; min-width:0; }
+  .motivo-nome-row { display:flex; align-items:center; gap:8px; }
+  .motivo-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .motivo-meta { font-size:12px; color:var(--text); margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .motivo-meta .sep-ponto { opacity:0.55; }
+  /* Numero em coluna de lista alinha por tabela, nao por fonte monoespacada:
+     a familia continua sendo UMA (Nunito, §2). */
+  .motivo-num { font-variant-numeric: tabular-nums; letter-spacing:0.2px; }
+  .motivo-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
-  /* ===== Input com sufixo % (Alíquota de comissão) ===== */
-  .input-percent { position:relative; }
-  .input-percent input[type="text"] { padding-right:34px; }
-  .input-percent .suffix { position:absolute; right:11px; top:50%; transform:translateY(-50%); font-size:12.5px; font-weight:700; color:var(--text); pointer-events:none; }
+  .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
+  .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
+  .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
+  .empty-state-sub { font-size:12.5px; color:var(--text); }
 
-  /* ===== Input de senha com olhinho (mostrar/ocultar) ===== */
-  .input-senha { position:relative; }
-  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
-  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
-  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
-  .toggle-senha-btn svg { width:17px; height:17px; }
-  /* Evita o navegador forçar fundo claro no autofill de senha salva, quebrando o tema escuro */
-  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-heading);
-    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
-    transition: background-color 9999s ease-in-out 0s;
+  .paginacao-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .paginacao-info { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); }
+  .paginacao-nav { display:flex; align-items:center; gap:10px; }
+  .paginacao-btn { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .paginacao-btn:hover:not(:disabled) { background: rgba(120,120,140,0.08); }
+  .paginacao-btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .paginacao-btn svg { width:14px; height:14px; }
+  .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
+
+  /* ===== FORMULARIO DA TRANSPORTADORA ===== */
+  /* Dois campos curtos lado a lado. Hora de corte e prazo sao numeros de tres
+     digitos: campo de largura total ali e espaco gasto sem ganho de leitura. */
+  .form-duo { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-duo .form-field { margin-bottom:0; }
+  .form-field textarea {
+    width:100%; min-height:62px; resize:vertical; font-family:'Nunito',sans-serif; font-size:13.5px;
+    color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border);
+    border-radius:9px; padding:9px 11px; outline:none;
   }
+  .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field.has-error textarea { border-color: var(--danger); }
 
-  /* ===== Dropdown multi-seleção (checkboxes dentro do menu — §9.1) ===== */
+  /* Separador de secao dentro do painel: o formulario tem quatro assuntos
+     (identificacao, coleta, limites, contato) e sem titulo eles viram uma
+     coluna de dezoito campos iguais. */
+  .form-secao { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:0.6px;
+                text-transform:uppercase; color:var(--text); margin:24px 0 12px; padding-top:16px;
+                border-top:1px solid var(--border); }
+  .form-secao.primeira { margin-top:0; padding-top:0; border-top:none; }
+
+  /* Caixa de explicacao do painel. NAO e aviso de erro: e o texto que diz o que
+     a Expedicao vai fazer com o que esta sendo cadastrado aqui. */
+  .nota-box { border:1px solid var(--border); background:var(--page-bg); border-radius:10px; padding:11px 13px; margin-bottom:18px; }
+  .nota-box-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .nota-box-titulo svg { width:13px; height:13px; flex-shrink:0; }
+  .nota-box-texto { font-size:11.5px; color:var(--text); line-height:1.5; }
+  .nota-box.atencao { border-color: var(--warning); }
+  .nota-box.atencao .nota-box-titulo { color: var(--warning); }
+  /* ===== PAINEL LATERAL: nova/editar ===== */
+  .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+  .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
+  .event-drawer.open { right:0; }
+  .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }
+  .drawer-close { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-close:hover { color:var(--text-heading); }
+  .drawer-close svg { width:15px; height:15px; }
+
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color: var(--danger); }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-link:hover { color: var(--text-heading); }
+
+  .excluir-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--danger); cursor:pointer; user-select:none; margin-top:26px; padding-top:18px; border-top:1px solid var(--border); }
+  .excluir-link:hover { opacity:0.8; }
+  .excluir-link svg { width:14px; height:14px; }
+
+  /* ===== MODAL: confirmação centralizada (excluir/inativar) ===== */
+  .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
+  .modal-card.open { transform:translateY(0); }
+  .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }
+  .confirm-texto { font-size:15px; color:var(--text-heading); line-height:1.5; margin-bottom:26px; }
+  .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
+  .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
+  .confirm-acoes { display:flex; align-items:center; gap:20px; }
+  .confirm-acoes button { padding:11px 26px; font-size:14px; }
+  .confirm-acoes button:disabled { opacity:0.4; cursor:not-allowed; }
+  .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
+  .btn-danger { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--danger-solid); color:#fff; cursor:pointer; user-select:none; }
+  .btn-danger:hover { opacity:0.88; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
+
+  /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
+     mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
   .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
   .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-multi-item input[type="checkbox"] {
@@ -431,32 +449,7 @@
     content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
     border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
   }
-
-  /* ===== PAINEL LATERAL: Criar/alterar senha de acesso (mocado — §10) ===== */
-  .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
-  .drawer-backdrop.open { opacity:1; pointer-events:auto; }
-  .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
-  .event-drawer.open { right:0; }
-  .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-  .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }
-  .drawer-close { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
-  .drawer-close:hover { color:var(--text-heading); }
-  .drawer-close svg { width:15px; height:15px; }
-  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
-  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
-  .drawer-footer { display:flex; justify-content:flex-end; margin-top:22px; }
-
-  /* ===== MODAL: confirmação centralizada (excluir vendedor) ===== */
-  .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
-  .modal-card.open { transform:translateY(0); }
-  .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }
-  .confirm-texto { font-size:15px; color:var(--text-heading); line-height:1.5; margin-bottom:26px; }
-  .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
-  .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
-  .confirm-acoes { display:flex; align-items:center; gap:20px; }
-  .confirm-acoes .btn-primary, .confirm-acoes .btn-danger { padding:11px 26px; font-size:14px; }
-  .confirm-acoes .btn-primary:disabled, .confirm-acoes .btn-danger:disabled { opacity:0.4; cursor:not-allowed; }
-  .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
@@ -478,59 +471,6 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
-  /* ===== Matriz módulo × verbo dentro do perfil (mesma grade de Configurações) ===== */
-  .mtz { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:4px; }
-  .mtz-linha { display:grid; grid-template-columns:minmax(0,1fr) 78px 78px 78px; align-items:center;
-               gap:10px; padding:11px 13px; border-top:1px solid var(--border); }
-  .mtz-linha:first-child { border-top:none; }
-  .mtz-cab { background:var(--page-bg); padding-top:8px; padding-bottom:8px; }
-  .mtz-cab-verbo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
-                   letter-spacing:0.5px; color:var(--text); text-align:center; }
-  .mtz-cab-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
-                    letter-spacing:0.5px; color:var(--text); }
-  .mtz-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .mtz-onde { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .mtz-cel { display:flex; justify-content:center; align-items:center; }
-  .mtz-legenda { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text); margin:10px 2px 16px; }
-  .mtz-cadeado { width:14px; height:14px; color:var(--text); flex-shrink:0; }
-
-  /* item destrutivo dentro do menu de acoes — vermelho, sempre por ultimo */
-  .dropdown-select-item.item-perigo { color: var(--danger); }
-  /* ===== MODO LEITURA (bloco compartilhado) =====
-     O modo e do DOCUMENTO: `body.modo-leitura` troca a tela inteira. O texto de
-     leitura NAO e marcacao duplicada no HTML — e derivado do proprio campo (ver o
-     JS), porque sao 174 campos nas cinco telas e texto escrito a mao diverge do
-     campo na primeira edicao. */
-  .campo-leitura { display:none; font-family:'Nunito',sans-serif; font-size:14px; color:var(--text-heading); padding:3px 0 0; }
-  body.modo-leitura .campo-leitura { display:block; }
-  body.modo-leitura .form-field input,
-  body.modo-leitura .form-field textarea,
-  body.modo-leitura .form-field select,
-  body.modo-leitura .form-field .dropdown-select,
-  body.modo-leitura .form-field .auto-wrap,
-  body.modo-leitura .form-field .date-field,
-  body.modo-leitura .form-field .field-hint,
-  body.modo-leitura .form-field .field-error-msg { display:none; }
-  /* painel lateral abre POR CIMA de um registro em leitura e os campos dele
-     continuam vivos — a regra do §10.1, que ja custou um painel so com rotulos */
-  body.modo-leitura .event-drawer .form-field input,
-  body.modo-leitura .event-drawer .form-field textarea,
-  body.modo-leitura .event-drawer .form-field .dropdown-select,
-  body.modo-leitura .event-drawer .form-field .auto-wrap,
-  body.modo-leitura .event-drawer .form-field .date-field,
-  body.modo-leitura .event-drawer .form-field .field-hint { display:block; }
-  body.modo-leitura .event-drawer .campo-leitura { display:none; }
-  /* botao secundario do cabecalho — mesma regra das telas de Financas. Faltava
-     nestas cinco, e sem `display:flex` o rotulo caia embaixo do icone. */
-  .btn-secundario-topo { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; user-select:none; }
-  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
-  .btn-secundario-topo svg { width:14px; height:14px; }
-  /* em leitura nao ha o que salvar, e o toggle segmentado deixa de ser controle */
-  body.modo-leitura .form-footer-bar { display:none; }
-  body.modo-leitura .tipo-pessoa-toggle,
-  body.modo-leitura .tipo-loja-toggle { display:none; }
-  .toggle-leitura { display:none; }
-  body.modo-leitura .toggle-leitura { display:block; margin-bottom:18px; }
 </style>
 </head>
 <body class="dark">
@@ -548,7 +488,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       <span class="label-text">Início</span>
     </div>
-    <div class="nav-item active" data-id="cadastros" data-label="Cadastros">
+    <div class="nav-item" data-id="cadastros" data-label="Cadastros">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
       <span class="label-text">Cadastros</span>
     </div>
@@ -568,7 +508,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a1.75 1.75 0 1 1 0 3.5h-2a1.75 1.75 0 1 0 0 3.5h3.5"/></svg>
       <span class="label-text">Finanças</span>
     </div>
-    <div class="nav-item" data-id="operacional" data-label="Operacional">
+    <div class="nav-item active" data-id="operacional" data-label="Operacional">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
       <span class="label-text">Operacional</span>
     </div>
@@ -658,7 +598,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="PDV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
       <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
       <div class="flyout-item" data-label="Vendas Afiliados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Vendas Afiliados</div>
-      <div class="flyout-item" data-label="Metas" data-href="pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas</div>
       <div class="flyout-item" data-label="Performance de Vendas" data-href="pagina-vendas-performance-vendas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Performance de Vendas</div>
       <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
       <div class="flyout-item" data-label="Custos do E-commerce"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
@@ -740,370 +679,223 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
-  <a class="voltar-link" href="pagina-cadastros-vendedores.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-    Voltar pra listagem
-  </a>
-
   <div class="page-header">
     <div>
-      <h1 id="tituloVendedor">Marina Costa</h1>
-      <div class="subtitle" id="subtituloVendedor">Vinculado à Desk Shope</div>
+      <h1>Motivos de Devolução</h1>
+      <div class="subtitle">Por que a mercadoria volta, de quem é a conta e onde ela entra no estoque</div>
     </div>
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span class="status-badge" id="statusBadge" style="background:var(--success); color:#fff;">Ativo com acesso ao sistema</span>
-      <button class="btn-secundario-topo" id="btnEditarRegistro" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-        Editar
+    <button class="btn-primary" id="btnNovoMotivo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo motivo
+    </button>
+  </div>
+
+  <div class="motivo-toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="campoBusca" placeholder="Buscar por motivo...">
+    </div>
+    <div class="dropdown-select pill" id="filtroTipo" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todas as responsáveis</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="dropdown-select" id="menuMaisAcoes">
-        <button type="button" class="btn-ghost dropdown-select-btn">
-          <span class="dropdown-select-label">Mais ações</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:220px; white-space:nowrap;">
-          <div class="dropdown-select-item" id="btnGerenciarComissoes">Gerenciar comissões</div>
-          <div class="dropdown-select-item" id="btnAlterarSenha">Alterar senha de acesso</div>
-          <div class="dropdown-select-item item-perigo" id="btnExcluirVendedor">Excluir vendedor</div>
-        </div>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="todos">Todas as responsáveis</div>
+        <div class="dropdown-select-item" data-value="nossa">Nossa operação</div>
+        <div class="dropdown-select-item" data-value="transporte">Transporte</div>
+        <div class="dropdown-select-item" data-value="cliente">Cliente</div>
+        <div class="dropdown-select-item" data-value="fiscal">Fiscal</div>
+      </div>
+    </div>
+    <div class="dropdown-select pill" id="filtroSituacao" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todas as situações</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="todos">Todas as situações</div>
+        <div class="dropdown-select-item" data-value="ativo">Ativos</div>
+        <div class="dropdown-select-item" data-value="inativo">Inativos</div>
       </div>
     </div>
   </div>
 
-  <div class="tabs-row">
-    <div class="tab-item active" data-tab="gerais">Dados Gerais</div>
-    <div class="tab-item" data-tab="acesso">Acesso e Permissões</div>
-    <div class="tab-item" data-tab="comissionamento">Comissionamento</div>
+  <div class="card">
+    <label class="selecionar-todos-row">
+      <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
+      Selecionar todos
+    </label>
+    <div id="listaMotivos"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <div class="empty-state-title">Nenhum motivo encontrado</div>
+      <div class="empty-state-sub">Tenta ajustar a busca ou os filtros.</div>
+    </div>
+    <div class="selecao-bar" id="barraSelecao">
+      <span class="selecao-info" id="selecaoInfo">0 selecionados</span>
+      <div class="selecao-acoes">
+        <button class="btn-secundario" id="btnInativarSelecionados">Inativar selecionados</button>
+        <button class="btn-danger" id="btnExcluirSelecionados">Excluir selecionados</button>
+        <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
+      </div>
+    </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
   </div>
 
-  <!-- ABA: DADOS GERAIS -->
-  <div class="tab-panel active" id="tab-gerais">
-
-  <div class="section-title">Identificação</div>
-
-  <div class="form-row">
-    <div class="form-field" style="flex:1.6;" id="campoNomeVendedor">
-      <label>Nome</label>
-      <input type="text" id="inputNomeVendedor" value="Marina Costa" placeholder="Nome completo do vendedor">
-      <div class="field-error-msg" id="erroNomeVendedor">Este campo é obrigatório.</div>
+  <!-- PAINEL LATERAL: novo/editar motivo -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="event-drawer" id="eventDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitulo">Novo motivo</div>
+      <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
     </div>
-    <div class="form-field" style="flex:1.2;">
-      <label>Fantasia</label>
-      <input type="text" id="inputFantasiaVendedor" placeholder="Nome de fantasia ou apelido">
-    </div>
-    <div class="form-field" style="flex:0.7;">
-      <label>Código</label>
-      <input type="text" id="inputCodigoVendedor" placeholder="Opcional">
-    </div>
-  </div>
 
-  <div class="theme-seg tipo-pessoa-toggle" id="tipoPessoaToggle">
-    <button data-tipo="fisica" class="active">Pessoa Física</button>
-    <button data-tipo="juridica">Pessoa Jurídica</button>
-  </div>
+    <div class="form-secao primeira">Identificação</div>
 
-  <div class="form-row">
+    <div class="form-field" id="campoNomeMotivo">
+      <label>Motivo</label>
+      <input type="text" id="inputNomeMotivo" placeholder="Ex: Produto com defeito de fábrica">
+      <div class="field-error-msg" id="erroNomeMotivo">Este campo é obrigatório.</div>
+      <div class="field-hint">É este texto que aparece na devolução e no relatório de por que a mercadoria volta.</div>
+    </div>
+
     <div class="form-field">
-      <label id="labelDocumentoVendedor">CPF</label>
-      <input type="text" id="inputDocumentoVendedor" value="123.456.789-00">
-    </div>
-    <div class="form-field" style="flex:1.4;">
-      <label>Contribuinte</label>
-      <div class="dropdown-select" id="dropdownContribuinte" data-value="nao_informado">
+      <label>De quem é a conta</label>
+      <div class="dropdown-select" id="inputGrupo" data-value="nossa">
         <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Não informado</span>
+          <span class="dropdown-select-label">Nossa operação</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="dropdown-select-menu">
-          <div class="dropdown-select-item active" data-value="nao_informado">Não informado</div>
-          <div class="dropdown-select-item" data-value="contribuinte_icms">Contribuinte ICMS</div>
-          <div class="dropdown-select-item" data-value="isento">Contribuinte isento de Inscrição no cadastro de Contribuintes do ICMS</div>
-          <div class="dropdown-select-item" data-value="nao_contribuinte">Não Contribuinte, que pode ou não possuir Inscrição Estadual no Cadastro de Contribuintes do ICMS</div>
+          <div class="dropdown-select-item active" data-value="nossa">Nossa operação</div>
+          <div class="dropdown-select-item" data-value="transporte">Transporte</div>
+          <div class="dropdown-select-item" data-value="cliente">Cliente</div>
+          <div class="dropdown-select-item" data-value="fiscal">Fiscal</div>
         </div>
       </div>
+      <div class="field-hint">Separar "erramos nós" de "o cliente se arrependeu" é o que transforma a lista de devoluções em conserto de processo. Sem isso o relatório só conta quantas voltaram.</div>
     </div>
-    <div class="form-field">
-      <label>Inscrição Estadual</label>
-      <input type="text" id="inputInscricaoEstadual">
-    </div>
-  </div>
 
-  <div class="section-title">Endereço <span style="text-transform:none; font-weight:600; color:var(--text); letter-spacing:0;">(opcional)</span></div>
+    <div class="form-secao">O que acontece com a mercadoria</div>
 
-  <div class="form-row">
     <div class="form-field">
-      <label>CEP</label>
-      <input type="text" id="inputCepVendedor" placeholder="00000-000">
-    </div>
-    <div class="form-field" style="flex:1.6;">
-      <label>Cidade</label>
-      <input type="text" id="inputCidadeVendedor" value="São Paulo">
-    </div>
-    <div class="form-field">
-      <label>UF</label>
-      <div class="dropdown-select" id="dropdownUf" data-value="SP">
+      <label>Destino sugerido no estoque</label>
+      <div class="dropdown-select" id="inputDestino" data-value="revendavel">
         <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">SP</span>
+          <span class="dropdown-select-label">Volta revendável</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" id="menuUf"></div>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="revendavel">Volta revendável</div>
+          <div class="dropdown-select-item" data-value="avaria">Vai para Avaria</div>
+          <div class="dropdown-select-item" data-value="nenhum">Não volta ao estoque</div>
+        </div>
       </div>
+      <div class="field-hint">É sugestão, não trava: quem recebe a caixa confirma item por item na devolução. Avaria entra com saldo bloqueado, como na Conferência de Compra.</div>
     </div>
-  </div>
-  <div class="form-row">
-    <div class="form-field">
-      <label>Endereço</label>
-      <input type="text" id="inputEnderecoVendedor">
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-field" style="flex:1.4;">
-      <label>Bairro</label>
-      <input type="text" id="inputBairroVendedor">
-    </div>
-    <div class="form-field">
-      <label>Número</label>
-      <input type="text" id="inputNumeroVendedor">
-    </div>
-    <div class="form-field" style="flex:1.2;">
-      <label>Complemento</label>
-      <input type="text" id="inputComplementoVendedor">
-    </div>
-  </div>
 
-  <div class="section-title">Situação e vínculo</div>
+    <!-- Motivo que quase sempre volta quebrado nao pode cair no padrao calado de
+         "revendavel": o saldo passaria a dizer que ha mercadoria boa no galpao. -->
+    <div class="nota-box" id="notaAvaria" style="display:none;">
+      <div class="nota-box-titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Entra bloqueado
+      </div>
+      <div class="nota-box-texto">O item devolvido por este motivo cai no endereço de Avaria com saldo bloqueado: ele não volta a ser vendido enquanto alguém não resolver o que fazer com ele.</div>
+    </div>
 
-  <div class="form-row">
+    <div class="nota-box" id="notaNenhum" style="display:none;">
+      <div class="nota-box-titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Sem entrada de estoque
+      </div>
+      <div class="nota-box-texto">Devolução em que a mercadoria não volta fisicamente — extravio no transporte, por exemplo. O dinheiro se resolve, o saldo não se mexe.</div>
+    </div>
+
+    <label class="motivo-check-row">
+      <input type="checkbox" class="item-checkbox" id="inputExigeObs">
+      Exigir que escrevam o que houve
+    </label>
+    <div class="field-hint" style="margin:-6px 0 18px;">Para motivos genéricos como "Outro". Sem o texto, a devolução não salva — e seis meses depois ninguém sabe o que aconteceu.</div>
+
+    <div class="form-secao">Observações e situação</div>
+
+    <div class="form-field">
+      <label>Observação interna</label>
+      <textarea id="inputObs" placeholder="Ex: usar só quando o defeito vier de fábrica; defeito de uso é outro motivo."></textarea>
+      <div class="field-hint">Aparece para quem escolhe o motivo, no momento de escolher.</div>
+    </div>
+
     <div class="form-field">
       <label>Situação</label>
-      <div class="dropdown-select" id="dropdownSituacao" data-value="ativo_acesso">
+      <div class="dropdown-select" id="inputSituacao" data-value="ativo">
         <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Ativo com acesso ao sistema</span>
+          <span class="dropdown-select-label">Ativo</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="dropdown-select-menu">
-          <div class="dropdown-select-item active" data-value="ativo_acesso">Ativo com acesso ao sistema</div>
-          <div class="dropdown-select-item" data-value="ativo">Ativo</div>
+          <div class="dropdown-select-item active" data-value="ativo">Ativo</div>
           <div class="dropdown-select-item" data-value="inativo">Inativo</div>
         </div>
       </div>
+      <div class="field-hint">Inativo some da lista de escolha, mas continua nas devoluções antigas — apagar o motivo apagaria a história delas.</div>
     </div>
-    <div class="form-field">
-      <label>Depósito</label>
-      <div class="dropdown-select" id="dropdownDeposito" data-value="padrao">
-        <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Padrão</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu">
-          <div class="dropdown-select-item active" data-value="padrao">Padrão</div>
-          <div class="dropdown-select-item" data-value="geral">Geral</div>
-        </div>
-      </div>
+
+    <div class="drawer-footer">
+      <button class="btn-primary" id="btnSalvarMotivo">Salvar</button>
+      <div class="drawer-link" id="btnCancelarMotivo">Cancelar</div>
     </div>
-    <div class="form-field" style="flex:1.4;">
-      <label>E-mail para comunicações</label>
-      <input type="text" id="inputEmailComunicacoes" value="marina.costa@example.com">
+
+    <div class="excluir-link" id="linkExcluirMotivo" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Excluir motivo
     </div>
   </div>
 
-  <div class="form-row">
-    <div class="form-field" style="flex:1;">
-      <label>Loja Desk vinculada</label>
-      <div class="dropdown-select" id="dropdownLojaVinculada" data-value="1">
-        <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Desk Shope</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" id="menuLojaVinculada">
-          <div class="dropdown-select-item" data-value="">Nenhuma — vendedor autônomo</div>
-          <div class="dropdown-select-item active" data-value="1">Desk Shope</div>
-          <div class="dropdown-select-item" data-value="2">Desk Brands</div>
-          <div class="dropdown-select-item" data-value="3">Desk Tech</div>
-        </div>
-      </div>
-      <div class="field-hint">Sem loja vinculada, o vendedor funciona como autônomo: vende e acessa o sistema normalmente conforme o que estiver marcado abaixo, mas o resultado não entra no faturamento de nenhuma Loja Desk nem nos relatórios por loja.</div>
-    </div>
-  </div>
-
-  </div>
-  <!-- FIM ABA: DADOS GERAIS -->
-
-  <!-- ABA: ACESSO E PERMISSÕES -->
-  <div class="tab-panel" id="tab-acesso">
-
-  <div class="section-title">Dados de acesso</div>
-  <div class="form-row">
-    <div class="form-field" style="flex:1.4;">
-      <label>Usuário do Sistema</label>
-      <input type="text" id="inputUsuarioSistema" value="marina.costa">
-      <div class="field-hint" id="hintUsuarioSistema">@12345678900</div>
-    </div>
-  </div>
-  <div class="section-hint" style="margin-top:-6px;">Pra alterar a senha, use "Mais ações → Alterar senha de acesso" (ou o painel que abre automaticamente ao salvar um cadastro novo).</div>
-
-  <div class="section-title">Restrições de acesso</div>
-  <div class="checklist-row">
-    <input type="checkbox" class="item-checkbox" id="chkAcessoHorario">
-    <label for="chkAcessoHorario">Acesso restrito por horário</label>
-  </div>
-  <div class="checklist-row">
-    <input type="checkbox" class="item-checkbox" id="chkAcessoIp">
-    <label for="chkAcessoIp">Acesso restrito por IP</label>
-  </div>
-  <div class="section-hint" style="margin-top:-4px;">Utilize esta opção apenas caso tenha IP fixo.</div>
-
-  <div class="form-field" style="max-width:420px;">
-    <label>Pode acessar contatos com o perfil</label>
-    <div class="dropdown-select" id="dropdownPerfisContato">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label" id="perfisContatoLabel">Qualquer perfil de contato</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="cliente"> Cliente</label>
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="fornecedor"> Fornecedor</label>
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="vendedor"> Vendedor</label>
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="transportador"> Transportador</label>
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="funcionario"> Funcionário</label>
-        <label class="dropdown-multi-item"><input type="checkbox" class="perfil-checkbox" value="outro"> Outro</label>
-      </div>
-    </div>
-    <div class="field-hint">Vazio = qualquer perfil (sem restrição).</div>
-  </div>
-
-  <div class="section-title">Módulos que podem ser acessados pelo vendedor</div>
-  <div class="section-hint" style="margin-top:-8px;">Mocado — vira permissão de verdade quando Configurações → Permissões de Usuários existir.</div>
-  <div id="listaModulosAcesso"></div>
-
-  <div class="section-title">O que este usuário pode confirmar com a própria senha</div>
-  <div class="section-hint" style="margin-top:-8px;">Cada ação do sistema que exige confirmação por senha aparece aqui. Confirmação que não estiver nesta lista é permissão invisível — ninguém consegue auditar quem pode o quê. Toda tela nova que pedir senha entra aqui no mesmo passo. Mocado, como o resto.</div>
-  <div id="listaConfirmacoes"></div>
-
-  </div>
-  <!-- FIM ABA: ACESSO E PERMISSÕES -->
-
-  <!-- ABA: COMISSIONAMENTO -->
-  <div class="tab-panel" id="tab-comissionamento">
-
-  <div class="section-title">Regras de comissionamento</div>
-  <div class="form-field" style="max-width:460px;">
-    <label>Regras para liberação de comissões</label>
-    <div class="dropdown-select" id="dropdownRegraComissao" data-value="parcial_parcelas">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Liberação parcial vinculada ao pagamento das parcelas</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="parcial_parcelas">Liberação parcial vinculada ao pagamento das parcelas</div>
-        <div class="dropdown-select-item" data-value="integral_faturamento">Liberação integral no faturamento</div>
-        <div class="dropdown-select-item" data-value="integral_primeira_parcela">Liberação integral após o pagamento da primeira parcela</div>
-        <div class="dropdown-select-item" data-value="cinquenta_faturamento">Liberação de 50% no faturamento e o restante vinculado ao pagamento das parcelas</div>
-      </div>
-    </div>
-  </div>
-
-  <div style="margin:16px 0;">
-    <label class="radio-option"><input type="radio" name="tipoComissao" value="fixa" checked> Comissão com alíquota fixa</label>
-    <label class="radio-option"><input type="radio" name="tipoComissao" value="conforme_descontos"> Comissão com alíquota conforme descontos</label>
-  </div>
-
-  <div class="form-field" style="max-width:160px;">
-    <label>Alíquota de comissão</label>
-    <div class="input-percent">
-      <input type="text" id="inputAliquotaComissao" value="5">
-      <span class="suffix">%</span>
-    </div>
-  </div>
-
-  <div class="checklist-row" style="margin-top:8px;">
-    <input type="checkbox" class="item-checkbox" id="chkDesconsiderarComissaoLinha">
-    <label for="chkDesconsiderarComissaoLinha">Desconsiderar comissionamento por linhas de produto para este vendedor</label>
-  </div>
-
-  <div class="section-title">Observações</div>
-  <div class="form-field">
-    <textarea id="inputObservacoesVendedor" style="min-height:140px;" placeholder="Notas internas sobre este vendedor..."></textarea>
-  </div>
-
-  </div>
-  <!-- FIM ABA: COMISSIONAMENTO -->
-
-  <div class="form-footer-bar">
-    <a class="drawer-link" href="pagina-cadastros-vendedores.html">Cancelar</a>
-    <button class="btn-primary" id="btnSalvarVendedor">Salvar</button>
-  </div>
-</div>
-
-<!-- PAINEL LATERAL: criar/alterar senha de acesso (mocado — §10.x do design-system) -->
-<div class="drawer-backdrop" id="senhaDrawerBackdrop"></div>
-<div class="event-drawer" id="senhaDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="senhaDrawerTitulo">Criar senha de acesso</div>
-    <div class="drawer-close" id="senhaDrawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-
-  <div class="senha-usuario-label">Usuário</div>
-  <div class="senha-usuario-nome" id="senhaUsuarioNome">Marina Costa</div>
-
-  <div class="form-field">
-    <label>Nova senha de acesso</label>
-    <div class="input-senha">
-      <input type="password" id="inputNovaSenha" placeholder="Entre 12 e 32 caracteres">
-      <button type="button" class="toggle-senha-btn" data-target="inputNovaSenha" aria-label="Mostrar senha">
-        <svg class="icone-olho-aberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg class="icone-olho-fechado" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.8 21.8 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 5c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </button>
-    </div>
-  </div>
-  <div class="form-field" id="campoConfirmaSenha">
-    <label>Confirme a nova senha</label>
-    <div class="input-senha">
-      <input type="password" id="inputConfirmaSenha">
-      <button type="button" class="toggle-senha-btn" data-target="inputConfirmaSenha" aria-label="Mostrar senha">
-        <svg class="icone-olho-aberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg class="icone-olho-fechado" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.8 21.8 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 5c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </button>
-    </div>
-    <div class="field-error-msg" id="erroSenha">As senhas precisam ser iguais (e ter pelo menos 12 caracteres).</div>
-  </div>
-
-  <div id="blocoSenhaGerente">
-  <div class="section-title">Confirmar que é você</div>
-  <div class="section-hint" style="margin-top:-8px;">Pra proteger a conta, informe a senha de quem está autorizando este cadastro (gerente/owner).</div>
-  <div class="form-field" id="campoSenhaGerente">
-    <label>Sua senha (gerente/owner)</label>
-    <div class="input-senha">
-      <input type="password" id="inputSenhaGerente">
-      <button type="button" class="toggle-senha-btn" data-target="inputSenhaGerente" aria-label="Mostrar senha">
-        <svg class="icone-olho-aberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg class="icone-olho-fechado" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.8 21.8 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 5c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </button>
-    </div>
-    <div class="field-error-msg" id="erroSenhaGerente">Informe sua senha pra confirmar.</div>
-    <div class="field-hint">Mocado por enquanto — passa a validar de verdade quando o sistema de Usuários (Configurações) existir.</div>
-  </div>
-  </div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnCriarSenha">Criar senha</button>
-  </div>
-</div>
-
-<!-- MODAL: confirmação centralizada (excluir vendedor) -->
-<div class="drawer-backdrop" id="confirmModalBackdrop"></div>
-<div class="modal-card" id="confirmModal">
-  <div class="confirm-titulo">Confirmação</div>
-  <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
-  <div class="confirm-senha-row" id="campoSenhaModal">
+  <!-- MODAL: confirmação centralizada (reutilizável) -->
+  <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
+  <div class="modal-card" id="confirmModal">
+    <div class="confirm-titulo">Confirmação</div>
+    <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
+    <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
+      <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
+      Estou ciente destas ações e desejo continuar.
+    </label>
+    <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
     <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
   </div>
   <div class="confirm-acoes">
-    <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
-    <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+      <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
+      <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+    </div>
   </div>
+
 </div>
 
 <script>
@@ -1144,6 +936,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1204,14 +1002,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
     { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
-    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configura\u00e7\u00f5es \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
     // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
     { base:'transportadoras', nome:'Transportadoras', onde:'Operacional \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'motivosDevolucao', nome:'Motivos de Devolução', onde:'Operacional → Motivos de Devolução', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'motivosDevolucao', nome:'Motivos de Devolução', onde:'Operacional \u2192 Motivos de Devolução', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1224,45 +1018,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
-    // que vira divergencia de estoque, entao e a que mais precisa de nome.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
-    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
-    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
-    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
-    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
-    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
-    // devolve pecas ao estoque depois de o caminhao ter saido.
-    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
-    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
-    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
-    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
-    // avancar o funil nao pede senha e alterar a situacao a mao pede.
-    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1466,7 +1222,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Cadastros', 'Vendedores'];
+  let path = ['Operacional', 'Motivos de Devolução'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1574,10 +1330,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     sidebarCol.classList.toggle('collapsed');
   });
 
-  // Seletor de tema dentro de Configurações
-  // OBS: escopado a `.theme-picker .theme-seg button` — ver comentário equivalente em
-  // pagina-cadastros-lojas-desk.html sobre o bug real que isso evita (toggle de Tipo/Pessoa
-  // reaproveita a mesma classe base `.theme-seg`).
+  // Seletor de tema dentro de Configurações.
+  // Escopado a ".theme-picker .theme-seg button" (nunca ".theme-seg button" sozinho): a classe
+  // visual .theme-seg é reaproveitada por outros toggles do sistema (Tipo Pessoa, Tipo de Loja,
+  // modo de meta...). Sem o escopo, clicar num desses toggles caía neste listener, e como eles
+  // não têm data-theme o "mode" vinha null e o código entrava no ramo "auto", trocando o tema
+  // claro/escuro da tela inteira sem o usuário pedir (bug real — ver design-system §14).
   document.querySelectorAll('.theme-picker .theme-seg button').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1596,9 +1354,163 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   });
 
+
+
   renderBreadcrumb();
 
-  // ===== VENDEDORES (detalhe): dropdowns, tipo de pessoa, loja vinculada, permissões, comissão, senha =====
+  // ===== DADOS (mock) =====
+  // No Lovable isto vira a tabela `motivos_devolucao`. O cadastro nasceu ANTES da
+  // Devolucao usar ele (07/out/2026), de proposito: campo que aponta para um
+  // cadastro inexistente ja custou caro aqui duas vezes.
+  // De quem e a conta. Separar "erramos nos" de "o cliente se arrependeu" e o que
+  // transforma a lista de devolucoes em conserto de processo.
+  const GRUPOS = {
+    nossa:      { rotulo:'Nossa operação', cor:'var(--danger-solid)' },
+    transporte: { rotulo:'Transporte',    cor:'var(--chart-1)' },
+    cliente:    { rotulo:'Cliente',       cor:'var(--chart-2)' },
+    fiscal:     { rotulo:'Fiscal',        cor:'var(--text)' }
+  };
+
+  // Destino SUGERIDO. Quem recebe a caixa confirma item por item na devolucao —
+  // o motivo adianta o caso comum, nao decide por quem esta olhando a mercadoria.
+  const DESTINOS = {
+    revendavel: 'volta revendável',
+    avaria:     'vai para Avaria, bloqueado',
+    nenhum:     'não volta ao estoque'
+  };
+
+  const MOTIVOS = [
+    { id:1, nome:'Produto com defeito de fábrica', grupo:'nossa', destino:'avaria', exigeObs:false,
+      obs:'Defeito que veio do fornecedor. Defeito de uso é outro motivo.', status:'ativo' },
+    { id:2, nome:'Produto errado enviado', grupo:'nossa', destino:'revendavel', exigeObs:false,
+      obs:'Erro de separação ou de cadastro. O item volta inteiro e pode ser vendido de novo.', status:'ativo' },
+    { id:3, nome:'Avaria no transporte', grupo:'transporte', destino:'avaria', exigeObs:true,
+      obs:'Pedir foto da embalagem. É com ela que se abre reclamação na transportadora.', status:'ativo' },
+    { id:4, nome:'Extravio na entrega', grupo:'transporte', destino:'nenhum', exigeObs:true,
+      obs:'A mercadoria não volta: ela sumiu. Só o dinheiro se resolve.', status:'ativo' },
+    { id:5, nome:'Arrependimento em até 7 dias', grupo:'cliente', destino:'revendavel', exigeObs:false,
+      obs:'Direito do consumidor (CDC art. 49) nas compras de vitrine. Não precisa de justificativa.', status:'ativo' },
+    { id:6, nome:'Cliente comprou o item errado', grupo:'cliente', destino:'revendavel', exigeObs:false,
+      obs:'', status:'ativo' },
+    { id:7, nome:'Recusa no ato da entrega', grupo:'cliente', destino:'revendavel', exigeObs:true,
+      obs:'A caixa voltou com o motorista e não chegou a ser aberta.', status:'ativo' },
+    { id:8, nome:'Erro de emissão da nota', grupo:'fiscal', destino:'revendavel', exigeObs:true,
+      obs:'Mercadoria certa, documento errado. Espera o módulo fiscal para resolver o papel.', status:'ativo' },
+    { id:9, nome:'Outro', grupo:'nossa', destino:'revendavel', exigeObs:true,
+      obs:'Genérico de propósito, e por isso obriga escrever o que houve.', status:'ativo' },
+    { id:10, nome:'Troca por tamanho', grupo:'cliente', destino:'revendavel', exigeObs:false,
+      obs:'Herdado da Desk Brands, antes de cada loja ter grade própria.', status:'inativo' }
+  ];
+
+  let buscaAtual = '';
+  let filtroTipoAtual = 'todos';
+  let filtroSituacaoAtual = 'todos';
+  let motivoEmEdicaoId = null;
+  let itensSelecionados = new Set();
+  let paginaAtual = 1;
+  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
+
+  function metaDe(m) {
+    const partes = [DESTINOS[m.destino] || DESTINOS.revendavel];
+    if (m.exigeObs) partes.push('exige descrição');
+    if (m.obs) partes.push(m.obs);
+    return partes;
+  }
+
+  function motivosFiltrados() {
+    return MOTIVOS.filter(m => {
+      const passaGrupo = filtroTipoAtual === 'todos' || m.grupo === filtroTipoAtual;
+      const passaSituacao = filtroSituacaoAtual === 'todos' || m.status === filtroSituacaoAtual;
+      const termo = buscaAtual.trim().toLowerCase();
+      const passaBusca = termo === '' ||
+        m.nome.toLowerCase().includes(termo) ||
+        (m.obs || '').toLowerCase().includes(termo) ||
+        (GRUPOS[m.grupo] ? GRUPOS[m.grupo].rotulo.toLowerCase() : '').includes(termo);
+      return passaGrupo && passaSituacao && passaBusca;
+    });
+  }
+
+  function motivosPagina() {
+    const listaCompleta = motivosFiltrados();
+    const totalPaginas = Math.max(1, Math.ceil(listaCompleta.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
+    const fim = Math.min(inicio + itensPorPaginaAtual, listaCompleta.length);
+    return { listaCompleta, inicio, fim, totalPaginas, lista: listaCompleta.slice(inicio, fim) };
+  }
+
+  function renderMotivos() {
+    const container = document.getElementById('listaMotivos');
+    const emptyState = document.getElementById('emptyState');
+    container.innerHTML = '';
+    const { listaCompleta, inicio, fim, totalPaginas, lista } = motivosPagina();
+
+    if (listaCompleta.length === 0) {
+      emptyState.style.display = 'flex';
+      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
+      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
+      document.getElementById('btnPaginaAnterior').disabled = true;
+      document.getElementById('btnPaginaProxima').disabled = true;
+      atualizarBarraSelecao();
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    lista.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'motivo-card';
+      const corStatus = t.status === 'ativo' ? 'var(--success)' : 'var(--text)';
+      const grupo = GRUPOS[t.grupo] || GRUPOS.nossa;
+      const meta = metaDe(t).join(' <span class="sep-ponto">·</span> ');
+      item.innerHTML =
+        '<input type="checkbox" class="item-checkbox" data-id="' + t.id + '" ' + (itensSelecionados.has(t.id) ? 'checked' : '') + '>' +
+        '<div class="motivo-info">' +
+          '<div class="motivo-nome-row">' +
+            '<span class="status-dot" style="background:' + corStatus + ';"></span>' +
+            '<span class="motivo-nome">' + t.nome + '</span>' +
+            '<span class="tipo-badge" style="background:' + grupo.cor + ';">' + grupo.rotulo + '</span>' +
+          '</div>' +
+          '<div class="motivo-meta motivo-num">' + meta + '</div>' +
+        '</div>' +
+        '<svg class="motivo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
+      item.querySelector('.item-checkbox').addEventListener('click', (e) => e.stopPropagation());
+      item.querySelector('.item-checkbox').addEventListener('change', (e) => {
+        toggleSelecao(t.id, e.target.checked);
+      });
+      item.addEventListener('click', () => abrirDrawerMotivo(t.id));
+      container.appendChild(item);
+    });
+    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + listaCompleta.length;
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
+    atualizarBarraSelecao();
+  }
+
+  // ===== SELECAO EM MASSA (opera so na pagina atual, igual Marcas) =====
+  function toggleSelecao(id, marcado) {
+    if (marcado) itensSelecionados.add(id); else itensSelecionados.delete(id);
+    atualizarBarraSelecao();
+  }
+
+  function atualizarBarraSelecao() {
+    const bar = document.getElementById('barraSelecao');
+    const count = itensSelecionados.size;
+    document.getElementById('selecaoInfo').textContent = count + (count === 1 ? ' selecionada' : ' selecionadas');
+    bar.classList.toggle('show', count > 0);
+
+    const visiveis = motivosPagina().lista;
+    const checkTodos = document.getElementById('checkSelecionarTodos');
+    checkTodos.checked = visiveis.length > 0 && visiveis.every(t => itensSelecionados.has(t.id));
+  }
+
+  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
+    motivosPagina().lista.forEach(t => {
+      if (e.target.checked) itensSelecionados.add(t.id); else itensSelecionados.delete(t.id);
+    });
+    renderMotivos();
+  });
+
   // ===== COMPONENTE: dropdown customizado (substitui <select> nativo) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
@@ -1644,217 +1556,177 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // ===== UF (27 estados — gerado por JS, mesmo padrão de Clientes/Fornecedores) =====
-  const ESTADOS_UF = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
-  document.getElementById('menuUf').innerHTML = ESTADOS_UF.map(uf =>
-    '<div class="dropdown-select-item' + (uf === 'SP' ? ' active' : '') + '" data-value="' + uf + '">' + uf + '</div>'
-  ).join('');
-
-  inicializarDropdownSelect(document.getElementById('dropdownUf'));
-  inicializarDropdownSelect(document.getElementById('dropdownContribuinte'));
-  inicializarDropdownSelect(document.getElementById('dropdownDeposito'));
-  inicializarDropdownSelect(document.getElementById('dropdownRegraComissao'));
-
-  inicializarDropdownSelect(document.getElementById('dropdownSituacao'), (valor) => {
-    const badge = document.getElementById('statusBadge');
-    if (valor === 'ativo_acesso') { badge.textContent = 'Ativo com acesso ao sistema'; badge.style.background = 'var(--success)'; }
-    else if (valor === 'ativo') { badge.textContent = 'Ativo'; badge.style.background = 'var(--chart-2)'; }
-    else { badge.textContent = 'Inativo'; badge.style.background = 'var(--text)'; }
-  });
-
-  // ===== LOJA DESK VINCULADA (nosso campo — em branco = autônomo) =====
-  inicializarDropdownSelect(document.getElementById('dropdownLojaVinculada'), (valor, texto) => {
-    document.getElementById('subtituloVendedor').textContent = valor ? 'Vinculado à ' + texto : 'Vendedor autônomo — sem vínculo com Loja Desk';
-  });
-
-  // ===== PESSOA FÍSICA/JURÍDICA + DOCUMENTO =====
-  function aplicarTipoPessoaVendedor(tipo) {
-    document.querySelectorAll('#tipoPessoaToggle button').forEach(b => b.classList.toggle('active', b.getAttribute('data-tipo') === tipo));
-    document.getElementById('labelDocumentoVendedor').textContent = tipo === 'juridica' ? 'CNPJ' : 'CPF';
-  }
-  document.querySelectorAll('#tipoPessoaToggle button').forEach(btn => {
-    btn.addEventListener('click', () => aplicarTipoPessoaVendedor(btn.getAttribute('data-tipo')));
-  });
-
-  // ===== ABAS =====
-  document.querySelectorAll('.tab-item').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.getAttribute('data-tab')).classList.add('active');
+  // Um unico ajustador para os tres dropdowns de UM valor do formulario (tipo,
+  // UF e situacao). Tres copias da mesma funcao e tres lugares para esquecer de
+  // marcar o item ativo.
+  function setDropdownValor(idRaiz, valor) {
+    const raiz = document.getElementById(idRaiz);
+    if (!raiz) return;
+    raiz.setAttribute('data-value', valor);
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === valor;
+      it.classList.toggle('active', ativo);
+      if (ativo && rotulo) rotulo.textContent = it.textContent;
     });
-  });
-  function irParaAba(nome) {
-    document.querySelector('.tab-item[data-tab="' + nome + '"]').click();
   }
 
-  // ===== MÓDULOS QUE PODEM SER ACESSADOS (checklist — mocado até Configurações→Usuários existir) =====
-  const MODULOS_ACESSO = [
-    'Clientes', 'Comissões', 'CRM', 'Pedidos de Venda', 'PDV', 'Propostas Comerciais',
-    'Relatório de Preços de Produtos', 'Performance de Vendas', 'Cotação de Fretes',
-    'Permitir que o vendedor visualize pedidos de venda de outros vendedores',
-    'Permitir que o vendedor edite pedidos de venda de outros vendedores'
-  ];
-  const MODULOS_MARCADOS_PADRAO = ['Clientes', 'CRM', 'Pedidos de Venda', 'Performance de Vendas'];
-  document.getElementById('listaModulosAcesso').innerHTML = MODULOS_ACESSO.map((nome, i) => {
-    const id = 'chkModulo' + i;
-    return '<div class="checklist-row"><input type="checkbox" class="item-checkbox" id="' + id + '"' +
-      (MODULOS_MARCADOS_PADRAO.includes(nome) ? ' checked' : '') + '><label for="' + id + '">' + nome + '</label></div>';
-  }).join('');
-
-  // ===== CONFIRMAÇÕES POR SENHA =====
-  // A lista vem do catalogo compartilhado (ACOES_SENHA, no topo do script) — a
-  // MESMA que Configuracoes > geral > Confirmacoes por senha usa. Aqui a pergunta
-  // e outra: la se decide se a acao EXIGE senha; aqui, se ESTE perfil pode
-  // confirmar. Duas perguntas, uma lista so — duas copias divergiriam, e uma acao
-  // acabaria existindo numa tela e nao na outra.
-  // Acao que nao exige senha hoje aparece desabilitada: nao ha o que permitir.
-  // Quais acoes este perfil pode confirmar e dado DO PERFIL, nao do catalogo —
-  // outro perfil tem outra combinacao. Mocado ate Permissoes de Usuarios existir.
-  // Quais acoes ESTE perfil pode confirmar. Dado DO PERFIL, nao do catalogo —
-  // outro perfil tem outra combinacao. Mocado ate Permissoes de Usuarios existir.
-  // Chave ausente = nao pode.
-  const PODE_CONFIRMAR = { acertoLote: true, transfRecebe: true };
-  (function renderConfirmacoes() {
-    // MESMA grade de Configuracoes > Confirmacoes por senha, lendo o MESMO
-    // catalogo — a diferenca e a pergunta: la, "a acao exige senha?"; aqui,
-    // "este perfil pode confirmar?". Duas perguntas, uma lista so.
-    const grupos = [];
-    MODULOS_SENHA.forEach(m => {
-      let g = grupos.filter(x => x.nome === m.grupo)[0];
-      if (!g) { g = { nome:m.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.modulos.push(m);
-    });
-    ACOES_ESPECIFICAS.forEach(a => {
-      let g = grupos.filter(x => x.nome === a.grupo)[0];
-      if (!g) { g = { nome:a.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.especificas.push(a);
-    });
-
-    const cadeado = '<svg class="mtz-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-    let n = 0;
-
-    // Celula so e marcavel quando a acao EXISTE na tela e EXIGE senha hoje: nao
-    // ha o que permitir numa acao que ninguem confirma.
-    // UM unico lugar monta o <input>: o literal `id="' + ... + '"` repetido faz a
-    // checagem de IDs duplicados da auditoria acusar falso positivo (ja aconteceu
-    // aqui antes). Um emissor so resolve de verdade, em vez de driblar.
-    function caixa(chave, podeMarcar) {
-      n++;
-      return '<input type="checkbox" class="item-checkbox" id="chkConf' + n + '"' +
-        (PODE_CONFIRMAR[chave] && podeMarcar ? ' checked' : '') + (podeMarcar ? '' : ' disabled') + '>';
-    }
-
-    function celula(chave, ligado, rotulo) {
-      if (!ligado) return '<div class="mtz-cel" title="A tela ainda n\u00e3o pede confirma\u00e7\u00e3o nesta a\u00e7\u00e3o.">' + cadeado + '</div>';
-      const exige = exigeSenha(chave);
-      return '<div class="mtz-cel" title="' + rotulo + (exige ? '' : ' \u00b7 n\u00e3o exige senha hoje') + '">' +
-        caixa(chave, exige) + '</div>';
-    }
-
-    document.getElementById('listaConfirmacoes').innerHTML = grupos.map(g => {
-      const cab = '<div class="mtz-linha mtz-cab">' +
-          '<div class="mtz-cab-titulo">M\u00f3dulo</div>' +
-          VERBOS_SENHA.map(v => '<div class="mtz-cab-verbo">' + v.rotulo + '</div>').join('') +
-        '</div>';
-      const linhas = g.modulos.map(m =>
-        '<div class="mtz-linha">' +
-          '<div><div class="mtz-nome">' + m.nome + '</div><div class="mtz-onde">' + m.onde + '</div></div>' +
-          VERBOS_SENHA.map(v => celula(m.base + v.sufixo, m.ligado[v.id], v.rotulo + ' ' + m.nome)).join('') +
-        '</div>').join('');
-      const esp = g.especificas.map(a => {
-        const travado = !a.pronto || !exigeSenha(a.chave);
-        const nota = !a.pronto ? ' \u00b7 tela ainda n\u00e3o constru\u00edda'
-                   : (!exigeSenha(a.chave) ? ' \u00b7 n\u00e3o exige senha hoje' : '');
-        const marca = caixa(a.chave, !travado);
-        return '<div class="checklist-row' + (travado ? ' checklist-pendente' : '') + '">' + marca +
-          '<label for="chkConf' + n + '">' + a.nome +
-            '<span class="conf-onde">' + a.onde + nota + '</span>' +
-          '</label></div>';
-      }).join('');
-      return '<div class="section-title">' + g.nome + '</div>' +
-             '<div class="mtz">' + cab + linhas + '</div>' +
-             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda n\u00e3o pede confirma\u00e7\u00e3o nessa a\u00e7\u00e3o.</div>' +
-             esp;
-    }).join('');
+  // O menu de UF e montado por JS: 27 itens escritos na mao sao 27 chances de
+  // errar uma sigla, e a lista nunca muda por tela.
+  (function montarMenuUf() {
+    const menu = document.getElementById('menuUf');
+    if (!menu) return;
+    menu.innerHTML = UFS.map(uf =>
+      '<div class="dropdown-select-item' + (uf === 'SP' ? ' active' : '') + '" data-value="' + uf + '">' + uf + '</div>'
+    ).join('');
   })();
 
-  // ===== PERFIS DE CONTATO: dropdown multi-seleção =====
-  // Mesmo componente do .dropdown-select, mas com checkboxes. Recolhe automático a cada
-  // marcação/desmarcação (§9.1) — mesmo comportamento adotado em Marcas (Loja aplicável).
-  // Por isso não passa pelo inicializarDropdownSelect genérico.
-  function atualizarLabelPerfisContato() {
-    const marcados = Array.from(document.querySelectorAll('.perfil-checkbox:checked')).map(cb => cb.parentElement.textContent.trim());
-    document.getElementById('perfisContatoLabel').textContent = marcados.length > 0 ? marcados.join(', ') : 'Qualquer perfil de contato';
-  }
-  const dropdownPerfisContato = document.getElementById('dropdownPerfisContato');
-  const perfisContatoBtn = dropdownPerfisContato.querySelector('.dropdown-select-btn');
-  const perfisContatoMenu = dropdownPerfisContato.querySelector('.dropdown-select-menu');
-  perfisContatoBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== perfisContatoMenu) m.classList.remove('open'); });
-    const vaiAbrir = !perfisContatoMenu.classList.contains('open');
-    if (vaiAbrir) {
-      perfisContatoMenu.style.visibility = 'hidden';
-      perfisContatoMenu.style.display = 'block';
-      const alturaMenu = perfisContatoMenu.offsetHeight;
-      perfisContatoMenu.style.display = '';
-      perfisContatoMenu.style.visibility = '';
-      const espacoAbaixo = window.innerHeight - perfisContatoBtn.getBoundingClientRect().bottom;
-      perfisContatoMenu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
-    }
-    perfisContatoMenu.classList.toggle('open');
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (valor) => {
+    itensPorPaginaAtual = Number(valor);
+    paginaAtual = 1;
+    renderMotivos();
   });
-  perfisContatoMenu.addEventListener('click', (e) => e.stopPropagation());
-  document.querySelectorAll('.perfil-checkbox').forEach(cb => {
-    cb.addEventListener('change', () => {
-      atualizarLabelPerfisContato();
-      perfisContatoMenu.classList.remove('open');
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => {
+    if (paginaAtual > 1) { paginaAtual--; renderMotivos(); }
+  });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => {
+    paginaAtual++; renderMotivos();
+  });
+
+  document.getElementById('btnCancelarSelecao').addEventListener('click', () => {
+    itensSelecionados.clear();
+    renderMotivos();
+  });
+
+  document.getElementById('btnExcluirSelecionados').addEventListener('click', () => {
+    const n = itensSelecionados.size;
+    if (!n) return;
+    const texto = n === 1 ? 'Confirma exclusão do motivo selecionado? Devoluções antigas perdem a referência.'
+                          : 'Confirma exclusão dos ' + n + ' motivos selecionados? Devoluções antigas perdem a referência.';
+    armarSenhaModal('motivosDevolucaoExclui');
+    abrirModalConfirmacao(texto, n, () => {
+      for (let i = MOTIVOS.length - 1; i >= 0; i--) {
+        if (itensSelecionados.has(MOTIVOS[i].id)) MOTIVOS.splice(i, 1);
+      }
+      itensSelecionados.clear();
+      renderMotivos();
     });
   });
 
-  // ===== TIPO DE COMISSÃO (rádio) — "conforme descontos" desativa a alíquota fixa =====
-  function aplicarTipoComissao(tipo) {
-    document.getElementById('inputAliquotaComissao').disabled = (tipo === 'conforme_descontos');
-  }
-  document.querySelectorAll('input[name="tipoComissao"]').forEach(radio => {
-    radio.addEventListener('change', () => aplicarTipoComissao(radio.value));
-  });
-
-  // ===== MAIS AÇÕES (menu de ações — cada item dispara uma ação, não é uma seleção) =====
-  const dropdownMaisAcoes = document.getElementById('menuMaisAcoes');
-  const maisAcoesBtn = dropdownMaisAcoes.querySelector('.dropdown-select-btn');
-  const maisAcoesMenu = dropdownMaisAcoes.querySelector('.dropdown-select-menu');
-  maisAcoesBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== maisAcoesMenu) m.classList.remove('open'); });
-    maisAcoesMenu.classList.toggle('open');
-  });
-  maisAcoesMenu.addEventListener('click', (e) => e.stopPropagation());
-
-  document.getElementById('btnGerenciarComissoes').addEventListener('click', () => {
-    maisAcoesMenu.classList.remove('open');
-    irParaAba('comissionamento');
-  });
-  document.getElementById('btnAlterarSenha').addEventListener('click', () => {
-    maisAcoesMenu.classList.remove('open');
-    abrirSenhaDrawer('Alterar senha de acesso');
-  });
-  document.getElementById('btnExcluirVendedor').addEventListener('click', () => {
-    maisAcoesMenu.classList.remove('open');
-    const nome = document.getElementById('tituloVendedor').textContent;
-    armarSenhaModal('vendedoresExclui');
-    abrirModalConfirmacao('Excluir "' + nome + '"? O vendedor sai das listas padrão, mas continua disponível na aba "Excluídos".', 1, 'danger', () => {
-      window.location.href = 'pagina-cadastros-vendedores.html';
+  document.getElementById('btnInativarSelecionados').addEventListener('click', () => {
+    const n = itensSelecionados.size;
+    if (!n) return;
+    const texto = n === 1 ? 'Confirma inativar o motivo selecionado? Ele some da escolha, e as devoluções antigas continuam com ele.'
+                          : 'Confirma inativar os ' + n + ' motivos selecionados? Eles somem da escolha, e as devoluções antigas continuam com eles.';
+    abrirModalConfirmacao(texto, n, () => {
+      MOTIVOS.forEach(t => { if (itensSelecionados.has(t.id)) t.status = 'inativo'; });
+      itensSelecionados.clear();
+      renderMotivos();
     });
   });
 
-  // ===== MODAL DE CONFIRMAÇÃO (excluir vendedor) =====
+  document.getElementById('campoBusca').addEventListener('input', (e) => {
+    buscaAtual = e.target.value;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+
+  inicializarDropdownSelect(document.getElementById('filtroTipo'), (valor) => {
+    filtroTipoAtual = valor;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+  inicializarDropdownSelect(document.getElementById('filtroSituacao'), (valor) => {
+    filtroSituacaoAtual = valor;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+
+  // ===== PAINEL LATERAL: novo/editar motivo =====
+  function abrirDrawer() {
+    document.getElementById('drawerBackdrop').classList.add('open');
+    document.getElementById('eventDrawer').classList.add('open');
+  }
+  function fecharDrawer() {
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    document.getElementById('eventDrawer').classList.remove('open');
+  }
+
+  // Destino que nao e "revendavel" muda o que acontece no estoque, entao a tela
+  // diz isso ANTES de salvar, nao depois.
+  function aplicarDestino(destino) {
+    document.getElementById('notaAvaria').style.display = destino === 'avaria' ? '' : 'none';
+    document.getElementById('notaNenhum').style.display = destino === 'nenhum' ? '' : 'none';
+  }
+  inicializarDropdownSelect(document.getElementById('inputGrupo'), (valor) => setDropdownValor('inputGrupo', valor));
+  inicializarDropdownSelect(document.getElementById('inputDestino'), (valor) => {
+    setDropdownValor('inputDestino', valor);
+    aplicarDestino(valor);
+  });
+  inicializarDropdownSelect(document.getElementById('inputSituacao'), (valor) => setDropdownValor('inputSituacao', valor));
+
+  const CAMPOS_ERRO = [
+    ['campoNomeMotivo', 'erroNomeMotivo']
+  ];
+  function limparErros() {
+    CAMPOS_ERRO.forEach(([campo, erro]) => {
+      document.getElementById(campo).classList.remove('has-error');
+      document.getElementById(erro).classList.remove('show');
+    });
+  }
+  function marcarErro(campo, erro, mensagem) {
+    document.getElementById(campo).classList.add('has-error');
+    const el = document.getElementById(erro);
+    if (mensagem) el.textContent = mensagem;
+    el.classList.add('show');
+  }
+
+  function limparFormulario() {
+    document.getElementById('inputNomeMotivo').value = '';
+    document.getElementById('inputObs').value = '';
+    document.getElementById('inputExigeObs').checked = false;
+    limparErros();
+  }
+
+  document.getElementById('btnNovoMotivo').addEventListener('click', () => {
+    motivoEmEdicaoId = null;
+    document.getElementById('drawerTitulo').textContent = 'Novo motivo';
+    limparFormulario();
+    setDropdownValor('inputGrupo', 'nossa');
+    setDropdownValor('inputDestino', 'revendavel');
+    setDropdownValor('inputSituacao', 'ativo');
+    aplicarDestino('revendavel');
+    document.getElementById('linkExcluirMotivo').style.display = 'none';
+    abrirDrawer();
+  });
+
+  function abrirDrawerMotivo(id) {
+    const m = MOTIVOS.find(x => x.id === id);
+    if (!m) return;
+    motivoEmEdicaoId = id;
+    document.getElementById('drawerTitulo').textContent = m.nome;
+    limparFormulario();
+    document.getElementById('inputNomeMotivo').value = m.nome;
+    document.getElementById('inputObs').value = m.obs || '';
+    document.getElementById('inputExigeObs').checked = !!m.exigeObs;
+    setDropdownValor('inputGrupo', m.grupo);
+    setDropdownValor('inputDestino', m.destino);
+    setDropdownValor('inputSituacao', m.status);
+    aplicarDestino(m.destino);
+    document.getElementById('linkExcluirMotivo').style.display = 'flex';
+    abrirDrawer();
+  }
+
+  // ===== MODAL DE CONFIRMACAO (reutilizavel) =====
   let confirmAoConfirmarCallback = null;
-  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
+  function abrirModalConfirmacao(texto, quantidade, aoConfirmar) {
     document.getElementById('confirmModalTexto').textContent = texto;
-    document.getElementById('btnConfirmModalConfirmar').className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
+    const cienteRow = document.getElementById('confirmCienteRow');
+    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
+    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+    cienteCheckbox.checked = false;
+    if (quantidade > 1) { cienteRow.style.display = 'flex'; btnConfirmar.disabled = true; }
+    else { cienteRow.style.display = 'none'; btnConfirmar.disabled = false; }
     confirmAoConfirmarCallback = aoConfirmar;
     document.getElementById('confirmModalBackdrop').classList.add('open');
     document.getElementById('confirmModal').classList.add('open');
@@ -1864,7 +1736,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('confirmModal').classList.remove('open');
     confirmAoConfirmarCallback = null;
   }
+  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
+    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  });
+  // FECHA ANTES DE EXECUTAR. O inverso ja custou oito telas: callback que termina
+  // abrindo uma folha de aviso tinha o aviso derrubado pelo fechamento seguinte.
   document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
+    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
     const callback = confirmAoConfirmarCallback;
     fecharModalConfirmacao();
     if (callback) callback();
@@ -1877,117 +1755,75 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   });
 
-  // ===== H1-DINÂMICO: título acompanha o Nome ao vivo (mesmo padrão de Produtos-detalhe) =====
-  document.getElementById('inputNomeVendedor').addEventListener('input', () => {
-    const valor = document.getElementById('inputNomeVendedor').value;
-    const tituloAtual = valor.trim() === '' ? 'Novo Vendedor' : valor;
-    document.getElementById('tituloVendedor').textContent = tituloAtual;
-    document.getElementById('senhaUsuarioNome').textContent = tituloAtual;
-    if (valor.trim() !== '') {
-      document.getElementById('campoNomeVendedor').classList.remove('has-error');
-      document.getElementById('erroNomeVendedor').classList.remove('show');
+  document.getElementById('linkExcluirMotivo').addEventListener('click', () => {
+    const t = MOTIVOS.find(x => x.id === motivoEmEdicaoId);
+    if (!t) return;
+    armarSenhaModal('motivosDevolucaoExclui');
+    abrirModalConfirmacao('Confirma exclusão do motivo "' + t.nome + '"? Devoluções antigas apontam para ele — inativar guarda a história, excluir apaga.', 1, () => {
+      const index = MOTIVOS.findIndex(x => x.id === motivoEmEdicaoId);
+      if (index !== -1) MOTIVOS.splice(index, 1);
+      renderMotivos();
+      fecharDrawer();
+    });
+  });
+
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
+  document.getElementById('btnCancelarMotivo').addEventListener('click', fecharDrawer);
+
+  document.getElementById('inputNomeMotivo').addEventListener('input', () => {
+    if (document.getElementById('inputNomeMotivo').value.trim() !== '') {
+      document.getElementById('campoNomeMotivo').classList.remove('has-error');
+      document.getElementById('erroNomeMotivo').classList.remove('show');
     }
   });
 
-  // ===== PAINEL "CRIAR/ALTERAR SENHA DE ACESSO" (mocado — sem backend real ainda) =====
-  // Abre ao clicar em Salvar (cadastro novo) ou via Mais ações → Alterar senha de acesso
-  // (cadastro existente). Pede a senha do próprio vendedor + a senha de quem autoriza
-  // (gerente/owner) — tudo mocado até o sistema de Usuários (Configurações) existir de verdade.
-  // Olhinho de mostrar/ocultar senha — cada botão alterna o `type` do input irmão
-  // entre password/text e troca o ícone (aberto/fechado). Usado nos 3 campos de senha
-  // do painel (nova senha, confirmação, senha de quem autoriza).
-  function resetVisibilidadeSenha(input, btn) {
-    input.type = 'password';
-    btn.querySelector('.icone-olho-aberto').style.display = '';
-    btn.querySelector('.icone-olho-fechado').style.display = 'none';
-  }
-  document.querySelectorAll('.toggle-senha-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const input = document.getElementById(btn.getAttribute('data-target'));
-      const olhoAberto = btn.querySelector('.icone-olho-aberto');
-      const olhoFechado = btn.querySelector('.icone-olho-fechado');
-      const vaiMostrar = input.type === 'password';
-      input.type = vaiMostrar ? 'text' : 'password';
-      olhoAberto.style.display = vaiMostrar ? 'none' : '';
-      olhoFechado.style.display = vaiMostrar ? '' : 'none';
-      btn.setAttribute('aria-label', vaiMostrar ? 'Ocultar senha' : 'Mostrar senha');
-    });
-  });
+  // ===== SALVAR =====
+  // Preview: valida e grava em memoria, sem persistencia real ate
+  // `motivos_devolucao` entrar no Supabase.
 
-  function abrirSenhaDrawer(titulo) {
-    document.getElementById('senhaDrawerTitulo').textContent = titulo;
-    document.getElementById('inputNovaSenha').value = '';
-    document.getElementById('inputConfirmaSenha').value = '';
-    document.getElementById('inputSenhaGerente').value = '';
-    document.getElementById('campoConfirmaSenha').classList.remove('has-error');
-    document.getElementById('erroSenha').classList.remove('show');
-    document.getElementById('campoSenhaGerente').classList.remove('has-error');
-    document.getElementById('erroSenhaGerente').classList.remove('show');
-    document.querySelectorAll('.toggle-senha-btn').forEach(btn => {
-      resetVisibilidadeSenha(document.getElementById(btn.getAttribute('data-target')), btn);
-    });
-    aplicarExigenciaSenha('vendedorSenha', 'blocoSenhaGerente');
-    document.getElementById('senhaDrawerBackdrop').classList.add('open');
-    document.getElementById('senhaDrawer').classList.add('open');
-  }
-  function fecharSenhaDrawer() {
-    document.getElementById('senhaDrawerBackdrop').classList.remove('open');
-    document.getElementById('senhaDrawer').classList.remove('open');
-  }
-  document.getElementById('senhaDrawerClose').addEventListener('click', fecharSenhaDrawer);
-  document.getElementById('senhaDrawerBackdrop').addEventListener('click', fecharSenhaDrawer);
-
-  document.getElementById('btnCriarSenha').addEventListener('click', () => {
-    const novaSenha = document.getElementById('inputNovaSenha').value;
-    const confirmaSenha = document.getElementById('inputConfirmaSenha').value;
-    const senhaGerente = document.getElementById('inputSenhaGerente').value;
+  document.getElementById('btnSalvarMotivo').addEventListener('click', () => {
+    limparErros();
     let valido = true;
+    const nome = document.getElementById('inputNomeMotivo').value.trim();
 
-    if (novaSenha.length < 12 || novaSenha.length > 32 || novaSenha !== confirmaSenha) {
-      document.getElementById('campoConfirmaSenha').classList.add('has-error');
-      document.getElementById('erroSenha').classList.add('show');
+    if (nome === '') {
+      marcarErro('campoNomeMotivo', 'erroNomeMotivo', 'Este campo \u00e9 obrigat\u00f3rio.');
       valido = false;
-    } else {
-      document.getElementById('campoConfirmaSenha').classList.remove('has-error');
-      document.getElementById('erroSenha').classList.remove('show');
-    }
-
-    if (exigeSenha('vendedorSenha') && senhaGerente.trim() === '') {
-      document.getElementById('campoSenhaGerente').classList.add('has-error');
-      document.getElementById('erroSenhaGerente').classList.add('show');
+    } else if (MOTIVOS.some(m => m.id !== motivoEmEdicaoId && m.nome.trim().toLowerCase() === nome.toLowerCase())) {
+      // O relatorio agrupa por motivo. Dois cadastros com o mesmo nome viram
+      // duas linhas que somam a mesma coisa, e nenhuma delas conta a verdade.
+      marcarErro('campoNomeMotivo', 'erroNomeMotivo', 'J\u00e1 existe um motivo com este nome.');
       valido = false;
-    } else {
-      document.getElementById('campoSenhaGerente').classList.remove('has-error');
-      document.getElementById('erroSenhaGerente').classList.remove('show');
     }
-
     if (!valido) return;
 
-    // Mocado — sem persistência real ainda. Quando o sistema de Usuários (Configurações)
-    // existir, aqui entra a chamada de verdade pra criar/alterar a credencial e validar a
-    // senha de quem autoriza.
-    fecharSenhaDrawer();
-    aoSalvarCadastro('pagina-cadastros-vendedores.html', document.getElementById('btnSalvarVendedor'));
+    const dados = {
+      nome: nome,
+      grupo: document.getElementById('inputGrupo').getAttribute('data-value'),
+      destino: document.getElementById('inputDestino').getAttribute('data-value'),
+      exigeObs: document.getElementById('inputExigeObs').checked,
+      obs: document.getElementById('inputObs').value.trim(),
+      status: document.getElementById('inputSituacao').getAttribute('data-value')
+    };
+
+    const editando = !!motivoEmEdicaoId;
+    confirmarAcao(
+      editando ? 'motivosDevolucaoEditar' : 'motivosDevolucaoCriar',
+      editando ? 'Confirma a altera\u00e7\u00e3o do motivo "' + nome + '"?'
+               : 'Confirma o cadastro do motivo "' + nome + '"?',
+      () => {
+        if (motivoEmEdicaoId) {
+          Object.assign(MOTIVOS.find(x => x.id === motivoEmEdicaoId), dados);
+        } else {
+          MOTIVOS.push(Object.assign({ id: Date.now() }, dados));
+        }
+        renderMotivos();
+        fecharDrawer();
+      });
   });
 
-  // ===== VALIDAÇÃO E SALVAR =====
-  // Valida só o Nome (único campo obrigatório combinado na barganha). Ao salvar, abre o
-  // painel de criação de senha de acesso — pedido explícito do usuário (set/2026): todo
-  // cadastro de vendedor precisa gerar a credencial antes de considerar o cadastro concluído,
-  // com a senha do gerente/owner confirmando a operação. Mocado até existir backend de verdade.
-  document.getElementById('btnSalvarVendedor').addEventListener('click', () => {
-    if (document.getElementById('inputNomeVendedor').value.trim() === '') {
-      document.getElementById('campoNomeVendedor').classList.add('has-error');
-      document.getElementById('erroNomeVendedor').classList.add('show');
-      irParaAba('gerais');
-      return;
-    }
-    abrirSenhaDrawer('Criar senha de acesso');
-  });
-
-  aplicarTipoPessoaVendedor('fisica');
-  aplicarTipoComissao('fixa');
-  atualizarLabelPerfisContato();
+  renderMotivos();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -2034,101 +1870,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
-
-
-  // ===== MODO LEITURA (bloco compartilhado) =====
-  // Registro carregado abre em LEITURA e so vira formulario no botao Editar — o
-  // mesmo desenho de Lancamento do Caixa e Conta a pagar. O valor exibido e
-  // DERIVADO do campo, nunca uma segunda marcacao no HTML: sao dezenas de campos
-  // por tela, e texto duplicado diverge do campo na primeira edicao.
-  function textoDeLeitura(ff) {
-    const dd = ff.querySelector(':scope > .dropdown-select, :scope > .auto-wrap .dropdown-select');
-    if (dd) {
-      const lab = dd.querySelector('.dropdown-select-label');
-      return lab ? lab.textContent.trim() : '';
-    }
-    const ta = ff.querySelector(':scope > textarea');
-    if (ta) return ta.value.trim();
-    const df = ff.querySelector(':scope > .date-field input, :scope > .auto-wrap input');
-    if (df) return df.value.trim();
-    const inp = ff.querySelector(':scope > input, :scope > .input-senha > input');
-    if (inp) {
-      if (inp.type === 'password') return inp.value ? '••••••••' : '';
-      if (inp.type === 'checkbox') return inp.checked ? 'Sim' : 'Não';
-      return inp.value.trim();
-    }
-    return '';
-  }
-  function sincronizarLeitura() {
-    document.querySelectorAll('.form-field').forEach(ff => {
-      if (ff.closest('.event-drawer')) return;   // painel tem vida propria (§10.1)
-      let alvo = ff.querySelector(':scope > .campo-leitura');
-      if (!alvo) {
-        alvo = document.createElement('div');
-        alvo.className = 'campo-leitura';
-        const lab = ff.querySelector(':scope > label');
-        if (lab && lab.nextSibling) ff.insertBefore(alvo, lab.nextSibling); else ff.appendChild(alvo);
-      }
-      const t = textoDeLeitura(ff);
-      alvo.textContent = t === '' ? '—' : t;
-    });
-  }
-
-  // Toggle segmentado (Pessoa Fisica/Juridica, Tipo da loja) nao e `.form-field`:
-  // em leitura ele some e o valor escolhido vira texto, como qualquer outro campo.
-  const ROTULO_TOGGLE = { 'tipo-pessoa-toggle': 'Tipo de pessoa', 'tipo-loja-toggle': 'Tipo da loja' };
-  // Seleciona pelas classes dos toggles que sabemos rotular — NUNCA por
-  // `.theme-seg`, que e o seletor generico do seletor de tema. Pegar `.theme-seg`
-  // solto e o mesmo erro que ja trocou o tema da tela ao clicar no tipo de pessoa
-  // (§5 e §14), e a auditoria reprova com razao.
-  const SELETOR_TOGGLE = Object.keys(ROTULO_TOGGLE).map(k => '.' + k).join(', ');
-  function sincronizarTogglesLeitura() {
-    document.querySelectorAll(SELETOR_TOGGLE).forEach(seg => {
-      let alvo = seg.nextElementSibling;
-      if (!alvo || !alvo.classList.contains('toggle-leitura')) {
-        alvo = document.createElement('div');
-        // Rotulo proprio: sem ele o valor vira uma linha orfa colada no campo de
-        // baixo — em leitura todo valor precisa dizer de que campo ele e.
-        alvo.className = 'form-field toggle-leitura';
-        alvo.innerHTML = '<label></label><div class="campo-leitura"></div>';
-        seg.parentNode.insertBefore(alvo, seg.nextSibling);
-      }
-      let rot = '';
-      Object.keys(ROTULO_TOGGLE).forEach(k => { if (seg.classList.contains(k)) rot = ROTULO_TOGGLE[k]; });
-      alvo.querySelector('label').textContent = rot || 'Tipo';
-      const on = seg.querySelector('button.active');
-      alvo.querySelector('.campo-leitura').textContent = on ? on.textContent.trim() : '—';
-    });
-  }
-
-  function entrarModoLeitura() {
-    sincronizarLeitura();
-    sincronizarTogglesLeitura();
-    document.body.classList.add('modo-leitura');
-    const b = document.getElementById('btnEditarRegistro');
-    if (b) b.style.display = '';
-  }
-  function sairModoLeitura() {
-    document.body.classList.remove('modo-leitura');
-    const b = document.getElementById('btnEditarRegistro');
-    if (b) b.style.display = 'none';
-  }
-  (function ligarModoLeitura() {
-    const b = document.getElementById('btnEditarRegistro');
-    if (!b) return;
-    b.addEventListener('click', sairModoLeitura);
-    // Modo de abertura. Quem chega para INCLUIR (?novo=1) ou pelo botao "Editar
-    // cadastro completo" (?editar=1) ja disse o que quer: abre editavel. Quem
-    // chega para consultar segue a preferencia "Ao abrir um cadastro existente"
-    // de Configuracoes > Interface do usuario (padrao: visualizacao).
-    // No prototipo o formulario sempre traz o registro de exemplo, inclusive no
-    // ?novo=1; no Lovable o registro novo abre vazio.
-    const q = new URLSearchParams(window.location.search);
-    const querEditar = q.get('novo') === '1' || q.get('editar') === '1';
-    if (querEditar || PARAM.aoAbrirCadastro === 'edicao') sairModoLeitura();
-    else entrarModoLeitura();
-  })();
-
 
 </script>
 
