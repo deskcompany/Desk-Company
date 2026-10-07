@@ -78,7 +78,7 @@
  },
  "suites": {
   "teste_agenda_aviso.py": {
-   "asseracoes": 48,
+   "asseracoes": 24,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-contas-pagar.html": "113d222a4372d36e",
@@ -89,7 +89,7 @@
    "teste_sha": "96b4057082850906"
   },
   "teste_becos.py": {
-   "asseracoes": 242,
+   "asseracoes": 121,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -162,7 +162,7 @@
    "teste_sha": "2ea41a5101c6637f"
   },
   "teste_caixa.py": {
-   "asseracoes": 108,
+   "asseracoes": 54,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-caixa.html": "ff8aaaec46aa5208"
@@ -172,7 +172,7 @@
    "teste_sha": "fb00cd5ce4456f53"
   },
   "teste_conferencia_saida.py": {
-   "asseracoes": 170,
+   "asseracoes": 85,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-vendedores-detalhe.html": "377e7cb4193fdc6f",
@@ -188,7 +188,7 @@
    "teste_sha": "b9bb0cce947baaa9"
   },
   "teste_confirma_senha.py": {
-   "asseracoes": 1660,
+   "asseracoes": 830,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -261,7 +261,7 @@
    "teste_sha": "7747f1ccc40e8667"
   },
   "teste_cp.py": {
-   "asseracoes": 106,
+   "asseracoes": 53,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-contas-pagar.html": "113d222a4372d36e"
@@ -271,7 +271,7 @@
    "teste_sha": "0bcb3e23096b099e"
   },
   "teste_cpd.py": {
-   "asseracoes": 136,
+   "asseracoes": 68,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-contas-pagar-detalhe.html": "025cf5994442486d"
@@ -281,7 +281,7 @@
    "teste_sha": "7225ce31ef078ac8"
   },
   "teste_datas.py": {
-   "asseracoes": 34,
+   "asseracoes": 17,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-clientes-detalhe.html": "0dad0daf43b5d148",
@@ -293,7 +293,7 @@
    "teste_sha": "b1a5d5901167e9bd"
   },
   "teste_dropdown_todas.py": {
-   "asseracoes": 4,
+   "asseracoes": 2,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -366,7 +366,7 @@
    "teste_sha": "40665fc734774f7f"
   },
   "teste_esc_dropdown.py": {
-   "asseracoes": 0,
+   "asseracoes": 156,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -439,7 +439,7 @@
    "teste_sha": "7d72936388a8c623"
   },
   "teste_expedicao.py": {
-   "asseracoes": 194,
+   "asseracoes": 97,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -512,7 +512,7 @@
    "teste_sha": "e41601466e44519c"
   },
   "teste_integra.py": {
-   "asseracoes": 28,
+   "asseracoes": 14,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-caixa.html": "ff8aaaec46aa5208",
@@ -523,7 +523,7 @@
    "teste_sha": "bc324f92b38f7cbb"
   },
   "teste_lanc.py": {
-   "asseracoes": 88,
+   "asseracoes": 44,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-caixa-lancamento.html": "7372575ff6662607",
@@ -534,7 +534,7 @@
    "teste_sha": "daf92355a63db6f7"
   },
   "teste_mais_acoes.py": {
-   "asseracoes": 264,
+   "asseracoes": 132,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-clientes.html": "8bd5e068a6b1fede",
@@ -560,7 +560,7 @@
    "teste_sha": "78623cfd4a851d73"
   },
   "teste_menu.py": {
-   "asseracoes": 28,
+   "asseracoes": 14,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -633,7 +633,7 @@
    "teste_sha": "ea66bbb84368562a"
   },
   "teste_pedidos.py": {
-   "asseracoes": 256,
+   "asseracoes": 128,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-vendas-pedidos-detalhe.html": "89e591cb70fe3582",
@@ -644,7 +644,7 @@
    "teste_sha": "0c78192ba7bc64a6"
   },
   "teste_pos.py": {
-   "asseracoes": 14,
+   "asseracoes": 7,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-caixa-lancamento.html": "7372575ff6662607",
@@ -655,7 +655,7 @@
    "teste_sha": "95a9db6c8e5d5ae3"
   },
   "teste_receber.py": {
-   "asseracoes": 122,
+   "asseracoes": 61,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",
@@ -728,7 +728,7 @@
    "teste_sha": "db537917eea88b17"
   },
   "teste_recibo_clone.py": {
-   "asseracoes": 60,
+   "asseracoes": 30,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-financas-contas-pagar-detalhe.html": "025cf5994442486d"
@@ -738,7 +738,7 @@
    "teste_sha": "e1a0aea79330a709"
   },
   "teste_separacao.py": {
-   "asseracoes": 178,
+   "asseracoes": 89,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-vendedores-detalhe.html": "377e7cb4193fdc6f",
@@ -752,7 +752,7 @@
    "teste_sha": "1c15e472c2cc9cf6"
   },
   "teste_transportadoras.py": {
-   "asseracoes": 166,
+   "asseracoes": 83,
    "asseracoes_de": "rodada completa 06/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "836b316791fd36af",

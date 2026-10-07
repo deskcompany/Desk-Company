@@ -2313,6 +2313,7 @@ A última peça da F5, travada esperando Vendas desde 16/set. Os prints (lote 3,
 
 - **56 telas** + o molde. Duas auditorias limpas nas 57.
 - **17 suítes · 2.996 asserções sob selo · 0 falhas.** A suíte nova (`teste_receber.py`, 116 asserções) protege o que separa o receber do pagar, que é exatamente o que um clone apaga sem fazer barulho.
+  > **Correção de 06/out/2026:** as contagens desta linha estão infladas. O contador do `selo.py` somava `count('  ok   ') + count('  ok ')` e, como o primeiro **contém** o segundo, dobrava cada asserção. O `teste_receber` tem **61**, não 116. O total real sob selo, medido depois do conserto, é **2.109** em 21 suítes. Ver `_ferramentas/LEIA-ME.md`, §"O contador estava errado nas duas direções".
 - **Varredura de cliques: 1.908 cliques em 56 telas, 0 falhas.**
 - **F5 fechada.** O que sobra dela é a dívida de Configurações acima, não módulo.
 

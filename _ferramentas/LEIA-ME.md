@@ -192,12 +192,38 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 | `teste_mais_acoes.py` | **(28/set)** o menu "Mais ações": id, rótulo e estilo únicos, abre no clique, **fecha mutuamente** com os outros dropdowns, e a ação destrutiva está **dentro** dele com `item-perigo` | 132 |
 | `teste_esc_dropdown.py` | **(28/set)** Esc fecha o dropdown aberto em todas as telas — e, sem dropdown aberto, continua fechando o modal | 120 |
 | `teste_recibo_clone.py` | **(29/set)** clonar conta (copia a despesa, não a data) e imprimir recibo (travado sem baixa, valor por extenso com a regra do "e") | 30 |
-| `teste_receber.py` | **(02/out)** Contas a Receber, listagem e página da conta — o que ele protege é o que separa o **receber** do **pagar**, que é o que um clone apaga em silêncio: a conta nasce do pedido e a Origem leva até ele; Valor, Líquido, Saldo e Recebido são quatro números diferentes; a **taxa retida quita o título sem entrar no Caixa**; **baixa é entrada e estorno é saída** (o clone trouxe invertido); recibo e duplicata têm travas **inversas**; o pedido define as parcelas e a sobra dos centavos fica na primeira; e cliente com conta vencida não compra de novo | 116 |
+| `teste_receber.py` | **(02/out)** Contas a Receber, listagem e página da conta — o que ele protege é o que separa o **receber** do **pagar**, que é o que um clone apaga em silêncio: a conta nasce do pedido e a Origem leva até ele; Valor, Líquido, Saldo e Recebido são quatro números diferentes; a **taxa retida quita o título sem entrar no Caixa**; **baixa é entrada e estorno é saída** (o clone trouxe invertido); recibo e duplicata têm travas **inversas**; o pedido define as parcelas e a sobra dos centavos fica na primeira; e cliente com conta vencida não compra de novo | 61 |
 | `selo.py` · `alvos.py` | **(30/set)** o selo acima: decide o que roda e o que pula, e restringe as suítes que varrem a pasta às telas que mudaram (`DESK_ALVOS`) | — |
 | `teste_becos.py` | **(29/set, noite)** nenhuma tela diz que outra tela "ainda não existe" ou que "a navegação só funciona no Lovable" (varre as 54); 20 botões levam ao destino certo; `?receber=1`, `?clonar=1` e `?nota=` chegam certos; os 5 cadastros abrem em edição pelo Incluir e pelo Editar, e em leitura (ou conforme a preferência) na consulta; a senha fica no modal que **exclui**, nunca no aviso de que nada pode ser excluído (OC, Depósitos, Endereços); cancelar OC recebida pede senha; competência em massa no Caixa; hub sem marcadores | 110 |
-| `teste_pedidos.py` | **(30/set)** Pedidos de Venda, listagem e página do pedido — o que ele protege são as **decisões da barganha de 30/set**, não o desenho: as 11 abas cabem numa linha só e o que sobra vai para "mais"; contador e rodapé contam a mesma coisa e o cancelado fica fora do total; a reserva nasce com o pedido e volta no cancelamento; pedido expedido não se exclui; pedido sem saldo não nasce, e a mensagem diz **quanto existe**; os dois níveis de desconto, cada um na sua base; a loja escolhe o depósito; cadastro rápido nasce incompleto; comissão liberada no faturamento; campos fiscais visíveis e desabilitados. **(02/out)** mais 6 seções: o funil anda um passo por vez na ordem certa e termina em Entregue; avançar NÃO pede senha e alterar situação à mão PEDE; clonar abre o pedido preenchido com a data de hoje; os painéis de últimas vendas e de limite de crédito abrem sem sair do pedido; o limite bloqueia em boleto e deixa passar em Pix; e nenhum item do menu voltou a ser promessa vazia. **(02/out, noite)** situação virou filtro suspenso: as 10 opções abrem todas visíveis, os contadores acompanham os outros filtros, e devolução não é mais situação de pedido | 256 |
+| `teste_pedidos.py` | **(30/set)** Pedidos de Venda, listagem e página do pedido — o que ele protege são as **decisões da barganha de 30/set**, não o desenho: as 11 abas cabem numa linha só e o que sobra vai para "mais"; contador e rodapé contam a mesma coisa e o cancelado fica fora do total; a reserva nasce com o pedido e volta no cancelamento; pedido expedido não se exclui; pedido sem saldo não nasce, e a mensagem diz **quanto existe**; os dois níveis de desconto, cada um na sua base; a loja escolhe o depósito; cadastro rápido nasce incompleto; comissão liberada no faturamento; campos fiscais visíveis e desabilitados. **(02/out)** mais 6 seções: o funil anda um passo por vez na ordem certa e termina em Entregue; avançar NÃO pede senha e alterar situação à mão PEDE; clonar abre o pedido preenchido com a data de hoje; os painéis de últimas vendas e de limite de crédito abrem sem sair do pedido; o limite bloqueia em boleto e deixa passar em Pix; e nenhum item do menu voltou a ser promessa vazia. **(02/out, noite)** situação virou filtro suspenso: as 10 opções abrem todas visíveis, os contadores acompanham os outros filtros, e devolução não é mais situação de pedido | 128 |
 
-Total: **3.906 asserções** sob selo *(a contagem passou a ser medida pelo `selo.py` a cada rodada verde, em vez de somada à mão — os números antigos por suíte estavam defasados)*. Eram 2.996 até 02/out; a diferença é Separação, Conferência de Saída, Expedição e Transportadoras, mais o `teste_becos` que voltou a contar as 242 dele quando a comparação de URL foi consertada.
+Total: **2.109 asserções** sob selo, medidas na rodada completa de 06/out/2026.
+
+### O contador estava errado nas duas direções (06/out/2026)
+
+A contagem automática do `selo.py` publicava **3.906**. Ela errava duas coisas ao mesmo tempo:
+
+- **Dobrava quase tudo.** Era `count('  ok   ') + count('  ok ')`, e `'  ok   '` **contém**
+  `'  ok '` como substring: cada asserção entrava duas vezes.
+- **Zerava quem não imprime linha de `ok`.** O `teste_esc_dropdown` só imprime `FALHA` e declara
+  o próprio total numa linha de resumo — entrava como **0** tendo 156.
+
+O número publicado era o saldo líquido dos dois erros, ou seja, não media nada. Agora quem
+declara o próprio total manda, e o resto tem as linhas de `ok` contadas **uma vez**.
+
+**A prova de que o conserto está certo veio da própria tabela acima.** Os números contados à mão
+antes do contador automático existir voltaram a bater **exatamente**: `teste_cp` 53, `teste_cpd`
+68, `teste_caixa` 54, `teste_lanc` 44, `teste_integra` 14, `teste_mais_acoes` 132,
+`teste_recibo_clone` 30, e `teste_datas` + `teste_pos` somando os 24 de sempre. Já os registrados
+**depois** — `teste_pedidos` com 256 e `teste_receber` com 116 — eram exatamente o dobro do real
+(128 e 61) e foram corrigidos na tabela. **Lição: número automático só substitui número à mão
+depois de concordar com ele.** Trocar sem conferir foi o que escondeu o defeito por dias.
+
+**Limitação conhecida:** o `teste_dropdown_todas` declara só **2**, porque imprime um resumo
+próprio (`telas com dropdown testadas: N de M`) e linha de `ok` apenas para a sub-checagem do
+toggle de tema — as 41 telas que ele varre não aparecem na conta. Suíte que faz trabalho por tela
+deveria **declarar o próprio total**, como a do Esc faz; enquanto não declarar, ela está
+subrepresentada aqui.
 
 ## Varredura de cliques (29/set/2026) — ferramenta de fechamento de módulo
 
