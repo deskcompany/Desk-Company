@@ -58,7 +58,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -73,7 +73,7 @@
    "selado_em": "2026-10-07"
   },
   "oficial": {
-   "conjunto": "6d4cc16814b7bde9",
+   "conjunto": "2d34ed7d5939fc11",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-07"
   }
@@ -150,7 +150,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -251,7 +251,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -358,7 +358,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -433,7 +433,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -508,7 +508,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -631,7 +631,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -669,15 +669,15 @@
    "teste_sha": "2f135b2379b421c1"
   },
   "teste_rastreamento.py": {
-   "asseracoes": 120,
+   "asseracoes": 127,
    "asseracoes_de": "rodada completa 07/10",
    "cobertura": {
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f"
    },
    "ferramenta_sha": "2fbf40b41555189d",
    "selado_em": "2026-10-07",
-   "teste_sha": "0e60b9b2fbeb36b5"
+   "teste_sha": "e4aed93180f32d6b"
   },
   "teste_receber.py": {
    "asseracoes": 61,
@@ -739,7 +739,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",
@@ -838,7 +838,7 @@
     "pagina-logistica-conferencia-saida.html": "02896550e56d7394",
     "pagina-logistica-expedicao-detalhe.html": "409dab3fca5dd59b",
     "pagina-logistica-expedicao.html": "645316e14b8185f0",
-    "pagina-logistica-rastreamento-detalhe.html": "0588c7faacfc45d0",
+    "pagina-logistica-rastreamento-detalhe.html": "14bfb5fa2cf6cc1a",
     "pagina-logistica-rastreamento.html": "e9176671c7bcf02f",
     "pagina-logistica-separacao-detalhe.html": "b4a21f119f6f3b0a",
     "pagina-logistica-separacao.html": "7e979fa620cf11f6",

@@ -2609,7 +2609,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       inicializarDataField(df, {
         min: function () { return PEDIDO ? (PEDIDO.enviadoEm || '') : ''; },
         motivoMin: 'Antes do dia em que o pedido saiu. Previsão não anda para trás do embarque.',
-        aoMudar: function (valor) { RASCUNHO_DATA[id] = valor; atualizarBarra(); }
+        // Le o CAMPO, nao o argumento: o componente entrega a data em ISO para
+        // quem chama, e o rascunho desta tela fala dd/mm/aaaa. Guardar o
+        // argumento cru escrevia 2026-10-20 onde se esperava 20/10/2026, e a
+        // validacao recusava a data que a propria tela tinha acabado de oferecer
+        // no calendario. Todas as outras telas do sistema leem o campo tambem.
+        aoMudar: function () {
+          const campo = df.querySelector('input[data-data]');
+          RASCUNHO_DATA[id] = campo ? campo.value : '';
+          atualizarBarra();
+        }
       });
     });
     corpo.querySelectorAll('[data-cancelar]').forEach(el => {

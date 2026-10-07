@@ -441,6 +441,36 @@ with sync_playwright() as p:
     ok(pg.locator('#corpoVolumes input[data-vol]').count() == 0, 'Cancelar fecha a linha')
     ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoVolumes tr:first-child td')).map(td => Math.round(td.getBoundingClientRect().width))") == antesL, 'e a tabela volta exatamente ao que era')
 
+
+    print('\n[26] Escolher a data NO CALENDARIO, nao digitando')
+    pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=2')
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+    pg.locator('#corpoVolumes [data-editar-data]').first.click(); pg.wait_for_timeout(300)
+    pg.locator('#corpoVolumes .date-btn').first.click(); pg.wait_for_timeout(350)
+    ok(pg.locator('#corpoVolumes .date-pop.open').count() == 1, 'o calendario abre na linha')
+    # A trava do embarque precisa aparecer ANTES do clique: dia riscado e
+    # informacao, erro depois de salvar e punicao.
+    ok(pg.locator('#corpoVolumes .date-dia.off').count() > 0,
+       'dia anterior ao embarque ja aparece bloqueado no calendario')
+    dia = pg.locator('#corpoVolumes .date-dia[data-iso]:not(.off)').last
+    isoEscolhido = dia.get_attribute('data-iso')
+    dia.click(); pg.wait_for_timeout(350)
+    campoC = pg.locator('#corpoVolumes input[data-data]').first
+    esperado = isoEscolhido[8:10] + '/' + isoEscolhido[5:7] + '/' + isoEscolhido[0:4]
+    ok(campoC.input_value() == esperado,
+       'o campo recebe a data escolhida em dd/mm/aaaa: %s' % campoC.input_value())
+    ok('data' in pg.inner_text('#infoPendente').lower(),
+       'o rodape ja conta a pendencia: %s' % pg.inner_text('#infoPendente'))
+    pg.locator('#btnSalvarCodigos').click(); pg.wait_for_timeout(500)
+    corpoM = pg.inner_text('body').lower()
+    ok('data inv' not in corpoM,
+       'a tela NAO recusa a data que ela mesma ofereceu no calendario')
+    ok(pg.locator('#confirmModal.open').count() == 1, 'ela segue para a confirmacao')
+    pg.fill('#inputSenhaModal', 'senha-de-teste')
+    pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
+    gravadaC = pg.evaluate("PEDIDO.volumes[0].previsao")
+    ok(gravadaC == isoEscolhido, 'e grava exatamente o dia clicado: %s' % gravadaC)
+
     print('\n[21] Id invalido NAO inventa pedido')
     pg.goto(ARQ.replace('.html', '-detalhe.html') + '?id=99999')
     pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
