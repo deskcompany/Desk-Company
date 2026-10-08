@@ -83,6 +83,14 @@ skill também quando o assunto for contraste ou estouro de largura. Unificar as 
 aberta — quando mexer nisso, siga a regra da casa: provar nos dois sentidos (injetar o defeito
 e confirmar que reprova; rodar nas 64 telas e confirmar o silêncio).
 
+**A dívida cobrou três vezes só em 07–08/out, sempre no mesmo lugar: tela nova.** A do projeto
+deu OK e a da skill reprovou, em `campo-qtd` sem CSS (Devolução detalhe), e de novo nos campos
+de texto de Nomes do sistema, com o fundo branco nativo vazando no tema escuro. O padrão é
+claro: **a do projeto é cega para "classe sem CSS" e para campo sem estilo** — as duas coisas
+que mais aparecem quando se copia uma tela. Até a unificação existir, **rode as duas em toda
+tela nova**, não só quando o assunto for contraste. O `selo.py` já roda as duas; o risco é
+auditar à mão só com a do projeto e achar que passou.
+
 ## Git existe desde 06/out/2026
 
 A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o estado de

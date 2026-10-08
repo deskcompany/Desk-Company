@@ -1060,6 +1060,14 @@
 
   .par-campos { display:flex; gap:14px; flex-wrap:wrap; }
   .par-campo { display:flex; flex-direction:column; gap:6px; }
+  /* Campo de texto desta tela. Sem esta regra o input cai no estilo nativo
+     do navegador — fundo branco — e vaza por cima do tema escuro. */
+  .par-campo input[type="text"] { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px;
+                                  color:var(--text-heading); background:var(--page-bg);
+                                  border:1px solid var(--border); border-radius:9px;
+                                  padding:9px 11px; outline:none; }
+  .par-campo input[type="text"]:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .par-campo input[type="text"].has-error { border-color:var(--danger-solid); }
   .par-campo label { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
   .par-num { display:flex; align-items:center; gap:0; }
   .par-num input { width:78px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
@@ -1357,41 +1365,56 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Confirmações por senha</h1>
-      <div class="subtitle">Quais ações exigem que a pessoa digite a própria senha antes de acontecer.</div>
+      <h1>Nomes do sistema</h1>
+      <div class="subtitle">Como o sistema chama as coisas. Renomear muda o que aparece nas telas, não o que o sistema faz.</div>
     </div>
-  </div>
-
-  <div class="nota-reservado">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    <span>Senha responde <b>"é você mesmo fazendo isto?"</b>. Não é a mesma pergunta que permissão — <i>"você pode fazer isto?"</i> —, que vive em <b>Permissões de usuários</b>. A mesma ação aparece nas duas telas: aqui se decide <b>se ela pede senha</b>; lá, <b>quem pode confirmar</b>.</span>
   </div>
 
   <div class="par-secao">
-    <div class="par-secao-titulo">Ações do sistema</div>
-    <div class="par-secao-sub">A grade é o catálogo do sistema, não uma lista digitada aqui: módulo novo aparece sozinho no dia em que é construído. <b>Criar</b> e <b>editar</b> nascem desligados; <b>excluir</b> nasce ligado. Célula com cadeado é ação que a tela ainda não verifica — aparece assim em vez de virar um interruptor que não faz nada.</div>
-
-    <div id="listaAcoes"></div>
-    <div class="par-previa" id="previaAcoes"></div>
-  </div>
-
-  <div class="par-secao par-futuro">
-    <div class="par-secao-titulo">Ainda não estão nesta tela</div>
-    <div class="par-secao-sub">Duas peças do modelo de autorização que dependem de módulo que ainda não existe.</div>
-
-    <div class="par-linha">
-      <div class="par-exp">
-        <b>Quem pode confirmar cada ação.</b> É a outra metade da pergunta, e ela pertence a <b>Permissões de usuários</b>. Enquanto essa tela não existe, o checklist mora na aba <b>Acesso e Permissões</b> do cadastro de Vendedores — lendo <b>este mesmo catálogo</b>, não uma cópia.
-      </div>
-      <div class="par-exp">
-        <b>Código de liberação de desconto.</b> É um mecanismo <b>diferente</b> de senha: a senha confirma <i>quem é você</i>; o código libera <i>uma exceção pontual</i> — o gerente autoriza um desconto acima do limite sem virar o dono da venda. Entra junto com Vendas.
-      </div>
+    <div class="par-secao-titulo">Por que estes e não todos</div>
+    <div class="par-secao-sub">
+      Lista que <b>cresce</b> — motivos de devolução, depósitos, categorias — já é cadastro, e lá você cria,
+      renomeia e inativa à vontade. Aqui ficam as listas <b>fechadas</b>: aquelas em que cada entrada
+      dispara um comportamento do sistema. Você pode renomear as opções, mas não criar nem excluir —
+      uma opção nova não teria código que soubesse o que fazer com ela.
+    </div>
+    <div class="par-exp">
+      O nome interno de cada opção fica do lado do campo. Ele não muda, e é por ele que o sistema
+      se entende: renomear "Avariada" para "Quebrada" não mexe em nenhuma regra de estoque.
     </div>
   </div>
 
+  <div class="par-secao">
+    <div class="par-secao-titulo">Devolução · estado da mercadoria</div>
+    <div class="par-secao-sub">
+      O que aconteceu com o produto que voltou. Cada estado decide o destino no estoque, e é isso
+      que não muda: <b>boa para revenda</b> segue a regra de entrada, <b>avariada</b> entra com saldo
+      bloqueado, e a terceira não entra no saldo nenhum.
+    </div>
+    <div class="par-campos" id="grupoEstados"></div>
+  </div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Devolução · de quem é a conta</div>
+    <div class="par-secao-sub">
+      O agrupamento dos motivos. Ele responde quem pagou pelo erro — e é o que vai sugerir
+      quem paga o frete da logística reversa.
+    </div>
+    <div class="par-campos" id="grupoGrupos"></div>
+  </div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Devolução · situação do documento</div>
+    <div class="par-secao-sub">
+      As quatro situações do funil da devolução. A ordem e as regras de passagem não mudam:
+      só o nome que aparece na aba e na listagem.
+    </div>
+    <div class="par-campos" id="grupoSituacoes"></div>
+  </div>
+
   <div class="barra-salvar" id="barraSalvar">
-    <button class="btn-primary" id="btnSalvarParam">Salvar confirmações</button>
-    <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
+    <button class="btn-primary" id="btnSalvarNomes">Salvar nomes</button>
+    <div class="drawer-link" id="btnRestaurarNomes">Restaurar padrão</div>
     <span class="barra-info" id="notaBarra"></span>
   </div>
 </div>
@@ -1485,6 +1508,49 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   const PARAM = lerParametros();
 
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
+
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
   // que nenhum verbo descreve. Decidido nas barganhas de 18 e 21/set/2026.
@@ -1527,17 +1593,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
     { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
-    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configurações \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
-    // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
-    { base:'transportadoras', nome:'Transportadoras', onde:'Operacional \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'motivosDevolucao', nome:'Motivos de Devolução', onde:'Operacional → Motivos de Devolução', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
+    { chave:'nomesSistema',      nome:'Renomear os nomes do sistema',                onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true },
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
@@ -1547,51 +1606,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
-    // que vira divergencia de estoque, entao e a que mais precisa de nome.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
-    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
-    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
-    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
-    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
-    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
-    // devolve pecas ao estoque depois de o caminhao ter saido.
-    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
-    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
-    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
-    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
-    // avancar o funil nao pede senha e alterar a situacao a mao pede.
-    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoLancaEstoque', nome:'Lançar no estoque a mercadoria devolvida',        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
-    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1845,7 +1860,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Estoque', 'Controle de Estoques'];
+  let path = ['Configurações', 'Nomes do sistema'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -2081,158 +2096,131 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   })();
 
-  // ===== CONFIRMAÇÕES POR SENHA =====
-  // A tela nao tem lista propria: ela edita o catalogo compartilhado ACOES_SENHA
-  // (topo do script), o mesmo que as telas que pedem senha leem e que o checklist
-  // do perfil em Vendedores mostra. No Lovable, `acoes_confirmacao` (catalogo) e
-  // `parametros.confirmacoes` (o que a empresa ligou ou desligou).
-  // E configuracao DA EMPRESA, nao do usuario: `usuario_id` nulo.
+  // ===== NOMES DO SISTEMA =====
+  // Edita o ROTULO das listas fechadas. A chave fica — e e por ela que o
+  // codigo decide o que fazer. Renomear "Avariada" para "Quebrada" nao mexe em
+  // regra de estoque nenhuma, e e exatamente essa garantia que esta tela da.
+  const GRUPOS_NOME = [
+    { alvo: 'grupoEstados', chaves: [
+      'devolucao.estado.revendavel', 'devolucao.estado.avaria', 'devolucao.estado.nenhum'] },
+    { alvo: 'grupoGrupos', chaves: [
+      'devolucao.grupo.nossa', 'devolucao.grupo.transporte',
+      'devolucao.grupo.cliente', 'devolucao.grupo.fiscal'] },
+    { alvo: 'grupoSituacoes', chaves: [
+      'devolucao.situacao.aberta', 'devolucao.situacao.andamento',
+      'devolucao.situacao.finalizada', 'devolucao.situacao.cancelada'] }
+  ];
+  const TODAS_CHAVES = GRUPOS_NOME.reduce((s, g) => s.concat(g.chaves), []);
 
   const elNota = document.getElementById('notaBarra');
-  // Estado em edicao, comecando do que esta salvo. So vira PARAM no Salvar.
-  let edicao = {};
-  ACOES_SENHA.forEach(a => { edicao[a.chave] = exigeSenha(a.chave); });
+  const edicao = {};
+  TODAS_CHAVES.forEach(k => { edicao[k] = NOMES[k]; });
 
-  function render() {
-    // A grade sai do catalogo, nao de uma lista escrita aqui: modulo novo aparece
-    // sozinho no dia em que entra no catalogo. Cada grupo traz a matriz de verbos
-    // e, embaixo, as acoes que verbo nenhum descreve.
-    const grupos = [];
-    MODULOS_SENHA.forEach(m => {
-      let g = grupos.filter(x => x.nome === m.grupo)[0];
-      if (!g) { g = { nome:m.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.modulos.push(m);
-    });
-    ACOES_ESPECIFICAS.forEach(a => {
-      let g = grupos.filter(x => x.nome === a.grupo)[0];
-      if (!g) { g = { nome:a.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.especificas.push(a);
-    });
-
-    const cadeado = '<svg class="conf-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
-
-    document.getElementById('listaAcoes').innerHTML = grupos.map(g => {
-      const cabecalho =
-        '<div class="mtz-linha mtz-cab">' +
-          '<div class="mtz-cab-titulo">M\u00f3dulo</div>' +
-          VERBOS_SENHA.map(v => '<div class="mtz-cab-verbo">' + v.rotulo + '</div>').join('') +
-        '</div>';
-
-      const linhas = g.modulos.map(m =>
-        '<div class="mtz-linha">' +
-          '<div><div class="mtz-nome">' + m.nome + '</div><div class="mtz-onde">' + m.onde + '</div></div>' +
-          VERBOS_SENHA.map(v => {
-            const chave = m.base + v.sufixo;
-            if (!m.ligado[v.id]) {
-              return '<div class="mtz-cel" title="A tela de ' + m.nome + ' ainda não pede confirmação ao ' +
-                     v.rotulo.toLowerCase() + '. O interruptor aparece quando ela for ligada.">' + cadeado + '</div>';
-            }
-            return '<div class="mtz-cel"><div class="switch' + (edicao[chave] ? ' on' : '') +
-                   '" data-chave="' + chave + '" role="switch" title="' + v.rotulo + ' ' + m.nome + '"></div></div>';
-          }).join('') +
+  // O nome interno aparece ao lado do campo de proposito: e ele que nao muda,
+  // e e por ele que uma duvida futura se resolve sem adivinhacao.
+  function montar() {
+    GRUPOS_NOME.forEach(g => {
+      const raiz = document.getElementById(g.alvo);
+      if (!raiz) return;
+      raiz.innerHTML = g.chaves.map(k =>
+        '<div class="par-campo">' +
+          '<label>' + NOMES_PADRAO[k] + '</label>' +
+          '<input type="text" id="campo-' + k.replace(/\./g, '-') + '" data-nome="' + k +
+            '" value="" autocomplete="off" maxlength="40" style="width:230px;">' +
+          '<span class="par-exp">nome interno: <b>' + k + '</b></span>' +
         '</div>').join('');
+    });
+    TODAS_CHAVES.forEach(k => {
+      const el = document.querySelector('[data-nome="' + k + '"]');
+      if (el) el.value = edicao[k];
+    });
+  }
 
-      const especificas = g.especificas.map(a => {
-        const exige = edicao[a.chave];
-        const travado = !a.pronto;
-        const estado = travado
-          ? '<div class="conf-estado indisponivel">tela ainda não constru\u00edda \u00b7 nasce exigindo senha</div>'
-          : (exige ? '<div class="conf-estado exige">exige senha</div>'
-                   : '<div class="conf-estado livre">acontece sem confirmação</div>');
-        return '<div class="switch-row">' +
-          '<div class="switch-row-texto">' +
-            '<div class="switch-row-titulo">' + a.nome + '</div>' +
-            '<div class="field-hint">' + a.onde + '</div>' + estado +
-          '</div>' +
-          (travado ? cadeado
-                   : '<div class="switch' + (exige ? ' on' : '') + '" data-chave="' + a.chave + '" role="switch"></div>') +
-        '</div>';
-      }).join('');
-
-      return '<div class="section-title">' + g.nome + '</div>' +
-             '<div class="mtz">' + cabecalho + linhas + '</div>' +
-             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda não pede confirmação nessa ação. O interruptor nasce junto com ela.</div>' +
-             especificas;
-    }).join('');
-
-    document.querySelectorAll('#listaAcoes .switch[role="switch"]').forEach(sw => {
-      sw.addEventListener('click', () => {
-        const k = sw.getAttribute('data-chave');
-        edicao[k] = !edicao[k];
-        render();
+  function ligar() {
+    document.querySelectorAll('[data-nome]').forEach(el => {
+      el.addEventListener('input', () => {
+        edicao[el.getAttribute('data-nome')] = el.value;
+        contar();
       });
     });
-
-    atualizarPrevia();
-    contarMudancas();
   }
 
-  // A previa nao repete o obvio ("3 ligadas"): ela nomeia o que fica SEM trava,
-  // porque desligar aqui e sempre uma reducao de seguranca e tem de estar escrito.
-  function atualizarPrevia() {
-    // Conta so o que esta LIGADO: celula com cadeado nao pede senha hoje e nao
-    // pode entrar na conta como se pedisse.
-    // O VERMELHO e reservado a protecao RETIRADA — acao cujo padrao e exigir
-    // senha e que foi desligada aqui. Criar e editar nascem desligados de
-    // proposito; pinta-los de alerta ensinaria o usuario a ignorar a cor, que e
-    // o mesmo erro ja corrigido na previa de Parametros de estoque.
-    const ligadas   = ACOES_SENHA.filter(a => a.pronto && a.ligado);
-    const exigindo  = ligadas.filter(a => edicao[a.chave]);
-    const retiradas = ligadas.filter(a => !edicao[a.chave] && a.exigePadrao);
-    const el = document.getElementById('previaAcoes');
-    el.classList.toggle('alerta', retiradas.length > 0);
+  // Nome em branco nao e renomear: e apagar o rotulo e deixar a opcao muda na
+  // tela. O campo vazio volta ao padrao no salvar, e a tela diz isso antes.
+  function vazios() {
+    return TODAS_CHAVES.filter(k => String(edicao[k]).trim() === '');
+  }
+  // Dois rotulos iguais no MESMO grupo deixam a pessoa escolhendo entre duas
+  // opcoes identicas, sem saber qual faz o que.
+  function repetidos() {
+    const achados = [];
+    GRUPOS_NOME.forEach(g => {
+      const vistos = {};
+      g.chaves.forEach(k => {
+        const v = String(edicao[k]).trim().toLowerCase();
+        if (!v) return;
+        if (vistos[v]) achados.push(edicao[k]);
+        vistos[v] = true;
+      });
+    });
+    return achados;
+  }
 
-    const base = '<b>' + exigindo.length + ' de ' + ligadas.length + '</b> ações ligadas pedem senha hoje.';
-    if (retiradas.length === 0) {
-      el.innerHTML = base + ' <b>Nenhuma prote\u00e7\u00e3o de f\u00e1brica foi retirada</b> \u2014 o que est\u00e1 desligado nasceu assim.';
+  function contar() {
+    const dif = TODAS_CHAVES.filter(k => edicao[k] !== NOMES[k]).length;
+    const rep = repetidos();
+    TODAS_CHAVES.forEach(k => {
+      const el = document.querySelector('[data-nome="' + k + '"]');
+      if (!el) return;
+      const v = String(edicao[k]).trim().toLowerCase();
+      const duplicado = v !== '' && rep.some(r => r.trim().toLowerCase() === v);
+      el.classList.toggle('has-error', duplicado);
+    });
+    if (rep.length) {
+      elNota.textContent = 'Dois nomes iguais no mesmo grupo — corrija para salvar.';
       return;
     }
-    const exclusoes = retiradas.filter(a => a.verbo === 'excluir');
-    const lista = retiradas.length <= 4
-      ? retiradas.map(a => a.nome.toLowerCase()).join('; ')
-      : (exclusoes.length ? '<b>' + exclusoes.length + '</b> delas s\u00e3o exclus\u00f5es de cadastro' : 'v\u00e1rias de uma vez');
-    el.innerHTML = base + ' <b>' + plural(retiradas.length, 'prote\u00e7\u00e3o retirada', 'prote\u00e7\u00f5es retiradas') +
-      '</b> em relação ao padr\u00e3o: ' + lista +
-      '. Quem alcan\u00e7ar a tela executa direto, e o hist\u00f3rico não guarda quem autorizou.';
+    const vz = vazios().length;
+    if (dif === 0) { elNota.textContent = 'Nenhuma alteração pendente.'; return; }
+    elNota.textContent = dif + (dif === 1 ? ' nome alterado' : ' nomes alterados') +
+      ', ainda não salvo.' + (vz ? ' ' + vz + (vz === 1 ? ' campo vazio volta' : ' campos vazios voltam') + ' ao padrão.' : '');
   }
 
-  const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
-
-  function contarMudancas() {
-    const dif = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave)).length;
-    elNota.textContent = dif ? plural(dif, 'ação alterada', 'ações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
-  }
-
-  document.getElementById('btnSalvarParam').addEventListener('click', () => {
-    const mudadas = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave));
-    if (mudadas.length === 0) { avisar('Nenhuma confirmação mudou.'); return; }
-    const desligadas = mudadas.filter(a => !edicao[a.chave]);
-    PARAM.confirmacoes = Object.assign({}, PARAM.confirmacoes, edicao);
-    const gravou = gravarParametros(PARAM);
-    contarMudancas();
-    avisar(plural(mudadas.length, 'ação salva', 'ações salvas') + '. ' +
-      (desligadas.length
-        ? desligadas.length === 1
-          ? 'O painel de confirmação continua abrindo em "' + desligadas[0].nome.toLowerCase() + '" \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
-          : 'Os pain\u00e9is de confirmação continuam abrindo \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
-        : 'As telas afetadas voltam a pedir senha na pr\u00f3xima abertura.') +
-      (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, ent\u00e3o isto vale s\u00f3 nesta aba.)'));
+  document.getElementById('btnSalvarNomes').addEventListener('click', () => {
+    if (repetidos().length) {
+      avisar('Dois nomes iguais no mesmo grupo deixam quem usa o sistema escolhendo entre duas opções idênticas. Troque um dos dois.');
+      return;
+    }
+    const mudadas = TODAS_CHAVES.filter(k => edicao[k] !== NOMES[k]);
+    if (!mudadas.length) { avisar('Nada mudou — não há o que salvar.'); return; }
+    // Campo vazio volta ao padrao: rotulo em branco deixa a opcao muda.
+    TODAS_CHAVES.forEach(k => {
+      const v = String(edicao[k]).trim();
+      NOMES[k] = v === '' ? NOMES_PADRAO[k] : v;
+      edicao[k] = NOMES[k];
+    });
+    confirmarAcao('nomesSistema',
+      'Renomear muda o que ' + mudadas.length + (mudadas.length === 1 ? ' opção mostra' : ' opções mostram') +
+      ' em todas as telas do sistema. O que o sistema faz com elas não muda. Confirma?',
+      () => {
+        gravarNomes(NOMES);
+        montar(); ligar(); contar();
+        avisar('Nomes salvos. As telas que mostram esses rótulos passam a usar os novos — é a mesma lista, lida por todas.');
+      });
   });
 
-  document.getElementById('btnRestaurarParam').addEventListener('click', () => {
-    ACOES_SENHA.forEach(a => { edicao[a.chave] = a.exigePadrao; });   // inclui as travadas: o padrao delas vale quando forem ligadas
-    render();
-    avisar('Padr\u00e3o de f\u00e1brica restaurado na tela: toda ação do cat\u00e1logo exige senha. Clique em "Salvar confirmações" para valer.');
+  document.getElementById('btnRestaurarNomes').addEventListener('click', () => {
+    TODAS_CHAVES.forEach(k => { edicao[k] = NOMES_PADRAO[k]; });
+    montar(); ligar(); contar();
+    avisar('Padrão de fábrica restaurado na tela. Clique em "Salvar nomes" para valer.');
   });
 
-  render();
+  montar(); ligar(); contar();
 
-  path = ['Configurações', 'Configurações ERP', 'Confirmações por senha'];
+  path = ['Configurações', 'Configurações ERP', 'Nomes do sistema'];
   renderBreadcrumb();
-  setMainTitle('Confirmações por senha');
+  setMainTitle('Nomes do sistema');
 
-  // O renderBreadcrumb compartilhado so mexe no flyout; o crumb do meio precisa
-  // voltar pro hub de verdade. Listener local, pra nao mexer no bloco dos 40.
   document.querySelectorAll('#breadcrumb .crumb').forEach(c => {
     if (c.textContent.trim() === 'Configurações ERP') {
       c.addEventListener('click', () => { window.location.href = 'pagina-configuracoes.html'; });
@@ -2288,7 +2276,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
   // alguma coisa, e ate la ficava vazia — e vazio nao informa.
-  contarMudancas();
+  contar();
 
 </script>
 </body>

@@ -961,6 +961,49 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   const PARAM = lerParametros();
 
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
+
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
   // que nenhum verbo descreve. Decidido nas barganhas de 18 e 21/set/2026.
@@ -1365,17 +1408,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // cadastro inexistente ja custou caro aqui duas vezes.
   // De quem e a conta. Separar "erramos nos" de "o cliente se arrependeu" e o que
   // transforma a lista de devolucoes em conserto de processo.
+  // O rotulo vem do dicionario; a cor e decisao de design e fica aqui.
   const GRUPOS = {
-    nossa:      { rotulo:'Nossa operação', cor:'var(--danger-solid)' },
-    transporte: { rotulo:'Transporte',    cor:'var(--chart-1)' },
-    cliente:    { rotulo:'Cliente',       cor:'var(--chart-2)' },
-    fiscal:     { rotulo:'Fiscal',        cor:'var(--text)' }
+    nossa:      { rotulo:nome('devolucao.grupo.nossa'),      cor:'var(--danger-solid)' },
+    transporte: { rotulo:nome('devolucao.grupo.transporte'), cor:'var(--chart-1)' },
+    cliente:    { rotulo:nome('devolucao.grupo.cliente'),    cor:'var(--chart-2)' },
+    fiscal:     { rotulo:nome('devolucao.grupo.fiscal'),     cor:'var(--text)' }
   };
 
   // Destino SUGERIDO. Quem recebe a caixa confirma item por item na devolucao —
   // o motivo adianta o caso comum, nao decide por quem esta olhando a mercadoria.
+  // Cuidado com dois nomes parecidos que sao coisas diferentes: "Avariada" e o
+  // ESTADO da mercadoria e sai do dicionario; "Avaria" aqui e o DEPOSITO para
+  // onde ela vai, e esse nome e do cadastro de Depositos. Renomear o estado nao
+  // renomeia o deposito, e nao deveria mesmo.
   const DESTINOS = {
-    revendavel: 'volta boa para revenda',
+    revendavel: 'volta ' + nome('devolucao.estado.revendavel').toLowerCase(),
     avaria:     'vai para Avaria, bloqueado',
     nenhum:     'não volta ao estoque'
   };
@@ -1823,6 +1871,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         fecharDrawer();
       });
   });
+
+  // O dropdown de destino traz os rotulos escritos no HTML. Eles sao os
+  // MESMOS estados da devolucao, entao tem de sair do dicionario — senao
+  // renomear num canto e nao no outro, e a mesma coisa passa a ter dois nomes.
+  (function pintarNomesDoDestino() {
+    const raiz = document.getElementById('inputDestino');
+    if (!raiz) return;
+    const rotulos = {
+      revendavel: nome('devolucao.estado.revendavel'),
+      avaria: 'Vai para Avaria',
+      nenhum: 'Não volta ao estoque'
+    };
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const k = it.getAttribute('data-value');
+      if (rotulos[k]) it.textContent = rotulos[k];
+    });
+    const atual = raiz.getAttribute('data-value');
+    const lab = raiz.querySelector('.dropdown-select-label');
+    if (lab && rotulos[atual]) lab.textContent = rotulos[atual];
+  })();
 
   renderMotivos();
 

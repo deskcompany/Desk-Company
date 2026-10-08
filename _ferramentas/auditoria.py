@@ -194,13 +194,17 @@ def audita(caminho):
     # 8 localStorage
     for k in set(re.findall(r"localStorage\.\w+Item\(\"([^\"]+)\"|localStorage\.\w+Item\('([^']+)'", txt)):
         pass
-    # Sao TRES os depositos compartilhados, e so tres:
+    # Sao CINCO os depositos compartilhados, e so cinco (o comentario dizia
+    # "tres" e ja listava quatro — a lista e que manda):
     #   deskParametros  - a configuracao do sistema
     #   deskLog         - o registro de atividades
     #   deskCaixaExtras - movimentos que uma tela grava e o Caixa le (baixa de contas)
     #   deskAvisos      - avisos que uma tela publica e a Agenda le (renovacao)
+    #   deskNomes       - o dicionario de rotulos das listas FECHADAS (08/out).
+    #                     Chave e do codigo e nao muda; rotulo e de quem usa o
+    #                     sistema e se edita em Configuracoes > Nomes do sistema.
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
-    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos'}
+    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes'}
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))
