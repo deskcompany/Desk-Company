@@ -1869,7 +1869,7 @@ O menu tem **dois itens** para **um módulo**, e o segundo aponta para uma tela 
 
 | tela | o que é | breadcrumb |
 |---|---|---|
-| `conferencia-compra.html` | a **fila** — 10 notas, 5 abas de situação | Estoque › Conferência |
+| `conferencia-entrada.html` | a **fila** — notas de compra E de devolução, 5 abas de situação | Estoque › Conferência de Entrada |
 | `conferencia.html` | a **contagem de UMA nota** | Estoque › Conferência › Nota 9051 |
 
 Os breadcrumbs já dizem a verdade: é listagem + detalhe, como Controle de Estoques. **O menu é que mente** — clicar em *Conferência* larga o usuário na nota 9051, que ninguém escolheu. É o único lugar do sistema onde um item de menu aponta para tela de detalhe.

@@ -15,7 +15,7 @@ COM_MENU = {
  'pagina-cadastros-fornecedores.html': None,
  'pagina-cadastros-produtos.html': None,
  'pagina-cadastros-vendedores-detalhe.html': 'btnExcluirVendedor',
- 'pagina-estoque-conferencia-compra.html': None,
+ 'pagina-estoque-conferencia-entrada.html': None,
  'pagina-estoque-conferencia.html': None,
  'pagina-estoque-controle-estoques.html': None,
  'pagina-estoque-enderecamento.html': None,

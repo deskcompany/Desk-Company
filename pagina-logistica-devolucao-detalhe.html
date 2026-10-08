@@ -1033,7 +1033,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="flyout-body">
       <div class="flyout-item" data-label="Controle de Estoques" data-href="pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
       <div class="flyout-item" data-label="Entrada de Notas" data-href="pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
-      <div class="flyout-item" data-label="Conferência de Entrada" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
+      <div class="flyout-item" data-label="Conferência de Entrada" data-href="pagina-estoque-conferencia-entrada.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
       <div class="flyout-item" data-label="Endereçamento" data-href="pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
       <div class="flyout-item" data-label="Reposição" data-href="pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
@@ -1306,7 +1306,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="doc-grid">
       <div class="doc-item"><div class="doc-rotulo">Plataforma</div><div class="doc-valor" id="docRevPlataforma">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Quem paga o frete</div><div class="doc-valor" id="docRevQuemPaga">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Valor do frete</div><div class="doc-valor" id="docRevValor">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Frete cotado</div><div class="doc-valor" id="docRevValor">—</div></div>
+    </div>
+    <!-- Reafericao: a transportadora pesa e mede de novo na postagem, e cobra
+         a diferenca. Sem estes dois campos, a tela guardava so o simulado e o
+         financeiro ficava com o numero errado. -->
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Frete cobrado de verdade</div><div class="doc-valor" id="docRevReal">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Diferença</div><div class="doc-valor" id="docRevDif">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Peso faturado na postagem</div><div class="doc-valor" id="docRevPeso">—</div></div>
+    </div>
+    <div class="vol-campo" id="linhaReal" style="justify-content:flex-start; margin-top:14px; display:none;">
+      <input type="text" id="inputFreteReal" placeholder="Frete cobrado (R$)" autocomplete="off" maxlength="12">
+      <input type="text" id="inputPesoReal" placeholder="Peso aferido (kg)" autocomplete="off" maxlength="10">
+      <button type="button" class="btn-mini destaque" id="btnFreteReal">Registrar cobrança real</button>
     </div>
     <!-- O codigo vem da plataforma depois do pagamento. Enquanto a integracao
          nao existe ele e informado a mao — e isso continua valendo depois,
@@ -1350,7 +1363,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="vol-botoes" style="justify-content:flex-start; margin-top:14px;">
       <button type="button" class="btn-mini destaque" id="btnConfirmarChegada">Confirmar chegada da mercadoria</button>
       <a class="btn-mini" id="btnVerNota" href="pagina-estoque-entrada-notas.html">Ver a nota de entrada</a>
-      <a class="btn-mini" id="btnVerFila" href="pagina-estoque-conferencia-compra.html">Ir para a conferência</a>
+      <a class="btn-mini" id="btnVerFila" href="pagina-estoque-conferencia-entrada.html">Ir para a conferência</a>
     </div>
   </div>
 
@@ -1417,9 +1430,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="section-title">Ofertas de coleta</div>
-  <div class="nota-reservado" style="margin-bottom:14px;">
+  <!-- O peso aparece ANTES das ofertas porque e dele que o preco sai. Numero
+       de frete sem o peso ao lado e numero que ninguem consegue conferir. -->
+  <div class="rev-resumo" id="revPeso" style="margin-top:0;"></div>
+  <div class="nota-reservado" style="margin:12px 0 14px;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-    <span><b>Simulação.</b> Com as integrações ligadas, a cotação sai do CEP do cliente até o nosso depósito, com o peso dos itens que voltam. Até lá os valores são de exemplo.</span>
+    <span><b>Simulação.</b> Com as integrações ligadas, a cotação sai do CEP do cliente até o nosso depósito com esse peso. Até lá os valores das ofertas são de exemplo.</span>
   </div>
   <div class="ofertas-lista" id="revOfertas"></div>
 
@@ -1667,6 +1683,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2645,6 +2662,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (btnCanc) btnCanc.style.display = EDITANDO_COD ? '' : 'none';
     const linhaAlt = document.getElementById('linhaAlterarCod');
     if (linhaAlt) linhaAlt.style.display = (podeTer && r.codigo && !EDITANDO_COD) ? 'flex' : 'none';
+
+    // Reafericao: so faz sentido depois que a postagem aconteceu, e so onde ha
+    // plataforma cobrando — coleta propria nao tem cobranca de terceiro.
+    const temReal = r && r.real !== undefined && r.real !== null;
+    texto('docRevReal', temReal ? moeda(r.real) : (r ? 'ainda não cobrado' : '—'));
+    if (temReal) {
+      const dif = r.real - (r.valor || 0);
+      texto('docRevDif', Math.abs(dif) < 0.005 ? 'bateu com o cotado'
+            : (dif > 0 ? '+' + moeda(dif) : '−' + moeda(-dif)));
+    } else {
+      texto('docRevDif', '—');
+    }
+    texto('docRevPeso', r && r.pesoReal ? String(r.pesoReal).replace('.', ',') + ' kg' : '—');
+    const linhaReal = document.getElementById('linhaReal');
+    if (linhaReal) {
+      const cabe = r && r.codigo && r.entrega !== 'propria' && !temReal &&
+                   DEV.situacao !== 'cancelada';
+      linhaReal.style.display = cabe ? 'flex' : 'none';
+    }
   }
 
   const SIT_NOTA = {
@@ -2996,6 +3032,63 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
   }
 
+  // ===== PESO FATURADO =====
+  // Peso bruto por item vem de Cadastros > Produtos (por variacao); peso e
+  // medidas da caixa vem de Cadastros > Embalagens. Numa devolucao PARCIAL o
+  // peso e o das pecas que voltam, nao o da caixa original da venda.
+  const PESO_ITEM = {
+    'FER-2201': 3.400, 'ELE-1001': 0.280, 'ELE-1044': 0.090,
+    'ILU-3310': 1.150, 'MOV-5501': 12.800
+  };
+  // Caixa de Encomenda Flex M, do cadastro de Embalagens.
+  const EMBALAGEM_PADRAO = { nome: 'Caixa de Encomenda Flex M', peso: 0.36, c: 26, l: 21, a: 16 };
+  const DIVISOR_CUBAGEM = 6000;
+  // Correios, Jadlog e Loggi ignoram a cubagem quando ela nao passa de 5kg.
+  const CUBAGEM_MINIMA = 5;
+
+  function pesoDaDevolucao() {
+    if (!DEV) return null;
+    const emb = EMBALAGEM_PADRAO;
+    let real = emb.peso;
+    let semCadastro = 0;
+    DEV.itens.forEach(function (i, n) {
+      const q = qtdNaTela(n);
+      if (q === null || estadoNaTela(n) === 'nenhum') return;
+      const unit = PESO_ITEM[i.sku];
+      if (unit === undefined) { semCadastro++; return; }
+      real += unit * q;
+    });
+    const cubado = (emb.c * emb.l * emb.a) / DIVISOR_CUBAGEM;
+    // Abaixo do piso, a cubagem nao conta — e e o caso da maioria das caixas
+    // pequenas. Acima dele, paga-se o maior dos dois.
+    const contaCubagem = cubado > CUBAGEM_MINIMA;
+    const faturado = contaCubagem ? Math.max(real, cubado) : real;
+    return {
+      real: real, cubado: cubado, faturado: faturado,
+      mandou: (contaCubagem && cubado > real) ? 'cubado' : 'real',
+      contaCubagem: contaCubagem, semCadastro: semCadastro, embalagem: emb.nome
+    };
+  }
+
+  function textoDoPeso() {
+    const p = pesoDaDevolucao();
+    if (!p) return '';
+    const kg = function (v) { return v.toFixed(3).replace('.', ',') + ' kg'; };
+    const partes = ['Peso real <b>' + kg(p.real) + '</b> (itens + ' + p.embalagem + ')'];
+    partes.push('cubagem <b>' + kg(p.cubado) + '</b>');
+    partes.push(p.mandou === 'cubado'
+      ? 'A <b>cubagem manda</b>: a caixa é grande para o que pesa, e o frete sai por ela.'
+      : (p.contaCubagem
+          ? 'O <b>peso real manda</b>: ele é maior que a cubagem.'
+          : 'A cubagem não chega aos ' + CUBAGEM_MINIMA + ' kg, então <b>vale o peso real</b>.'));
+    partes.push('Faturado: <b>' + kg(p.faturado) + '</b>.');
+    if (p.semCadastro) {
+      partes.push('<b>' + p.semCadastro + (p.semCadastro === 1 ? ' item sem peso' : ' itens sem peso') +
+                  ' no cadastro</b> — a cotação sai menor do que a real.');
+    }
+    return partes.join(' · ');
+  }
+
   // ===== LOGISTICA REVERSA =====
   // A escolha e a mesma do checkout do pedido: comparar ofertas e decidir.
   // Com as integracoes ligadas, a cotacao sai do CEP do cliente ate o nosso
@@ -3119,6 +3212,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setDrop('revQuemPaga', quemPagaSugerido(), QUEM_PAGA);
     marcarAtivoReversa();
     montarOfertas();
+    html('revPeso', textoDoPeso());
     pintarResumoReversa();
     document.getElementById('revBackdrop').classList.add('open');
     document.getElementById('revDrawer').classList.add('open');
@@ -3211,6 +3305,63 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const campo = document.getElementById('inputCodReversa');
     if (campo) campo.classList.remove('has-error');
     pintarReversa();
+  }
+
+  // A transportadora cobrou diferente do cotado. Registrar isso e o que
+  // mantem o financeiro honesto: se o frete era do cliente, a conta a receber
+  // dele muda junto; se era nosso, a despesa sobe.
+  function registrarFreteReal() {
+    if (!DEV || !DEV.reversa) { avisar('Peça a logística reversa antes de registrar a cobrança real.'); return; }
+    const cv = document.getElementById('inputFreteReal');
+    const cp = document.getElementById('inputPesoReal');
+    const bruto = (cv ? cv.value : '').trim().replace(/[R$\s]/g, '').replace(',', '.');
+    const real = Number(bruto);
+    if (!bruto || isNaN(real) || real < 0) {
+      if (cv) cv.classList.add('has-error');
+      avisar('Informe o valor que a transportadora cobrou de fato, em reais.');
+      return;
+    }
+    if (cv) cv.classList.remove('has-error');
+    const pesoTxt = (cp ? cp.value : '').trim().replace(',', '.');
+    const peso = pesoTxt ? Number(pesoTxt) : null;
+    if (pesoTxt && (isNaN(peso) || peso <= 0)) {
+      if (cp) cp.classList.add('has-error');
+      avisar('O peso aferido, quando informado, é um número em quilos.');
+      return;
+    }
+    if (cp) cp.classList.remove('has-error');
+
+    const cotado = DEV.reversa.valor || 0;
+    const dif = real - cotado;
+    const quem = DEV.reversa.paga === 'cliente' ? 'na conta a receber do cliente' : 'na nossa despesa';
+    const texto = Math.abs(dif) < 0.005
+      ? 'A cobrança bateu com o cotado: ' + moeda(real) + '. Nada muda no financeiro.'
+      : (dif > 0
+          ? 'A transportadora cobrou ' + moeda(dif) + ' A MAIS que o cotado (' + moeda(cotado) +
+            ' → ' + moeda(real) + '). A diferença entra em ' + quem + '.'
+          : 'A transportadora cobrou ' + moeda(-dif) + ' A MENOS que o cotado (' + moeda(cotado) +
+            ' → ' + moeda(real) + '). A diferença sai de ' + quem + '.');
+
+    confirmarAcao('devolucaoFreteReal', texto, function () {
+      DEV.reversa.real = real;
+      if (peso) DEV.reversa.pesoReal = peso;
+      // Evento INTERNO: reafericao e conversa nossa com a transportadora. O
+      // cliente nao tem o que fazer com ela, e se o frete era dele a mudanca
+      // aparece na conta a receber, que e onde ele de fato vai ver.
+      DEV.eventos.push({ data: HOJE, tipo: 'reversa', interna: true,
+        nota: 'Cobrança real da transportadora: ' + moeda(real) +
+              (Math.abs(dif) < 0.005 ? ' — bateu com o cotado.'
+                : ' (' + (dif > 0 ? '+' : '') + moeda(dif) + ' sobre o cotado de ' + moeda(cotado) + ').') +
+              (peso ? ' Peso aferido: ' + String(peso).replace('.', ',') + ' kg.' : '') });
+      if (Math.abs(dif) >= 0.005 && DEV.reversa.paga === 'cliente') {
+        DEV.eventos.push({ data: HOJE, tipo: 'reversa', interna: true,
+          nota: 'Conta a receber do frete ajustada de ' + moeda(cotado) + ' para ' + moeda(real) + '.' });
+      }
+      pintarTudo();
+      avisar('Cobrança registrada. ' + (DEV.reversa.paga === 'cliente'
+        ? 'A conta a receber do frete acompanha o valor real.'
+        : 'A despesa do frete acompanha o valor real.'));
+    });
   }
 
   // O codigo vem da plataforma. Enquanto a integracao nao existe, ele e
@@ -3385,6 +3536,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnDeclaracao').addEventListener('click', imprimirDeclaracao);
   document.getElementById('btnCodReversa').addEventListener('click', informarCodigoReversa);
   document.getElementById('btnAlterarCod').addEventListener('click', abrirEdicaoCodigo);
+  document.getElementById('btnFreteReal').addEventListener('click', registrarFreteReal);
   document.getElementById('btnCancelarCod').addEventListener('click', cancelarEdicaoCodigo);
   document.getElementById('revConfirmar').addEventListener('click', solicitarReversa);
   document.getElementById('revCancelar').addEventListener('click', fecharPainelReversa);

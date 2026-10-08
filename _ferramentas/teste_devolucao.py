@@ -293,6 +293,75 @@ with sync_playwright() as pw:
     ok(temVitrine, 'e SO entao o codigo vira evento de vitrine, visivel para o cliente')
     ok(not pg.locator('#linhaCodReversa').is_visible(), 'o campo some depois de registrado')
 
+    print('\n[12c] O frete sai do PESO FATURADO, nao do peso da balanca')
+    # Frete e cobrado pelo maior entre peso real e peso cubado — (CxLxA)/6000.
+    # Com uma excecao que muda a conta: nos Correios, Jadlog e Loggi, cubagem
+    # de ate 5kg e desconsiderada e vale o peso real. Cotar so pelo peso real
+    # subestima tudo o que e volumoso, e a diferenca volta como debito depois.
+    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pe = pg.evaluate("pesoDaDevolucao()")
+    ok(pe and pe.get('real', 0) > 0, 'a tela calcula o peso real dos itens que voltam: %s' % (pe or {}).get('real'))
+    ok(pe and pe.get('cubado', 0) > 0, 'e a cubagem da embalagem: %s' % (pe or {}).get('cubado'))
+    # O peso vem do ITEM mais a embalagem, entao mexer na quantidade mexe nele.
+    antes = pe['real']
+    pg.fill('input[data-qtd="0"]', '6'); pg.wait_for_timeout(300)
+    depois = pg.evaluate("pesoDaDevolucao().real")
+    ok(depois > antes, 'devolver mais pecas pesa mais (%.3f -> %.3f)' % (antes, depois))
+    pg.fill('input[data-qtd="0"]', '2'); pg.wait_for_timeout(300)
+
+    # A regra dos 5kg: abaixo dela a cubagem nao conta, e e o caso da caixa
+    # media. A asserção mede a REGRA, nao o numero do exemplo.
+    regra = pg.evaluate(
+        '(function(){var p=pesoDaDevolucao();'
+        'return p.contaCubagem === (p.cubado > CUBAGEM_MINIMA);})()')
+    ok(regra, 'a cubagem so conta acima do piso de 5kg')
+    coerente = pg.evaluate(
+        '(function(){var p=pesoDaDevolucao();'
+        'return p.faturado === (p.contaCubagem ? Math.max(p.real,p.cubado) : p.real);})()')
+    ok(coerente, 'e o faturado e o maior dos dois quando ela conta, senao o real')
+
+    clicarId(pg, 'btnReversa'); pg.wait_for_timeout(500)
+    ok('Faturado' in pg.inner_text('#revPeso'),
+       'o painel mostra de onde o preco sai, em vez de so entregar um numero')
+    clicarId(pg, 'revCancelar'); pg.wait_for_timeout(300)
+
+    print('\n[12d] A transportadora reafere, e o financeiro acompanha')
+    # O pacote e pesado de novo na agencia e a diferenca e repassada. Antes a
+    # reversa gravava UM valor, o simulado: se o frete era do cliente, a conta
+    # a receber ficava errada; se era nosso, a despesa ficava subdimensionada.
+    clicarId(pg, 'btnReversa'); pg.wait_for_timeout(400)
+    clicarId(pg, 'revConfirmar'); pg.wait_for_timeout(600)
+    if pg.locator('#confirmModal.open').count():
+        clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(500)
+    pg.fill('#inputCodReversa', 'aa111111111br'); pg.wait_for_timeout(200)
+    clicarId(pg, 'btnCodReversa'); pg.wait_for_timeout(600)
+    if pg.locator('#confirmModal.open').count():
+        clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(500)
+
+    ok(pg.locator('#linhaReal').is_visible(),
+       'depois da postagem, abre o campo da cobranca real')
+    ok('ainda não cobrado' in pg.inner_text('#docRevReal'),
+       'e ate la o campo diz que nao houve cobranca, em vez de repetir o cotado')
+    cotado = pg.evaluate("DEV.reversa.valor")
+
+    pg.fill('#inputFreteReal', '31,70'); pg.fill('#inputPesoReal', '4,1'); pg.wait_for_timeout(200)
+    clicarId(pg, 'btnFreteReal'); pg.wait_for_timeout(700)
+    if pg.locator('#campoSenhaModal').count() and pg.locator('#campoSenhaModal').is_visible():
+        pg.fill('#inputSenhaModal', 'senha-de-teste')
+    if pg.locator('#confirmModal.open').count():
+        clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
+    ok(abs(pg.evaluate("DEV.reversa.real") - 31.70) < 0.01, 'a cobranca real e gravada')
+    ok(abs(pg.evaluate("DEV.reversa.pesoReal") - 4.1) < 0.01, 'e o peso aferido junto')
+    ok(cotado != pg.evaluate("DEV.reversa.real"),
+       'cotado e real sao campos DIFERENTES: um nao sobrescreve o outro')
+    ok('+' in pg.inner_text('#docRevDif'), 'a diferenca aparece com sinal: %s' % pg.inner_text('#docRevDif'))
+    # Reafericao e conversa nossa com a transportadora: o cliente nao tem o que
+    # fazer com ela. Se o frete era dele, a mudanca aparece na conta a receber.
+    interno = pg.evaluate(
+        'DEV.eventos.filter(e => String(e.nota).indexOf("Cobrança real") >= 0).every(e => e.interna === true)')
+    ok(interno, 'e o evento da reafericao e INTERNO, nao vai para a vitrine')
+    ok(not pg.locator('#linhaReal').is_visible(), 'o campo some depois de registrado')
+
     print('\n[13] Finalizar com estoque pendente e barrado')
     pg.goto(URL + DET + '?id=4'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok(pg.evaluate("!estoqueLancado(DEV)"), 'a DV-0009 ainda nao teve estoque lancado')
@@ -414,7 +483,7 @@ with sync_playwright() as pw:
       return celulaMde(n).indexOf('naoseaplica') >= 0;
     }""")
     ok(semMde, 'manifestacao nao se aplica a devolucao: a coluna mostra tracinho')
-    p6.goto(URL + 'pagina-estoque-conferencia-compra.html'); p6.wait_for_timeout(800)
+    p6.goto(URL + 'pagina-estoque-conferencia-entrada.html'); p6.wait_for_timeout(800)
     naFila = p6.evaluate("NOTAS.some(n => n.origem === 'devolucao')")
     ok(naFila, 'e a devolucao entra na fila de Conferencia de Entrada')
     ok('Conferência de Entrada' in p6.inner_text('h1'),

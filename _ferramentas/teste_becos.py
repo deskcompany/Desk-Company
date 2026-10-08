@@ -65,18 +65,18 @@ with sync_playwright() as p:
         ('pagina-estoque-ordens-compra.html', lambda: (pg.evaluate("abrirPreview(ORDENS.find(o => document.querySelector('input.item-checkbox[data-id=\"' + o.id + '\"]')).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirDetalhe')), 'pagina-estoque-ordens-compra-detalhe.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-ordens-compra.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),
-        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('receber'), 'pagina-estoque-conferencia-compra.html?receber=1'),
-        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('parcial'), 'pagina-estoque-conferencia-compra.html?receber=1'),
+        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('receber'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
+        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('parcial'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('clonar'), 'pagina-estoque-ordens-compra-detalhe.html?clonar=1'),
         ('pagina-estoque-entrada-notas.html', lambda: pg.click('#btnNovaNota'), 'pagina-estoque-entrada-notas-detalhe.html'),
         ('pagina-estoque-entrada-notas.html', lambda: (pg.evaluate("abrirPreview(NOTAS.find(n => Number(n.numero) === 2301).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirConferencia')), 'pagina-estoque-conferencia.html?nota=2301'),
-        ('pagina-estoque-entrada-notas.html', lambda: (pg.evaluate("abrirPreview(NOTAS.find(n => Number(n.numero) === 731).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirConferencia')), 'pagina-estoque-conferencia-compra.html'),
+        ('pagina-estoque-entrada-notas.html', lambda: (pg.evaluate("abrirPreview(NOTAS.find(n => Number(n.numero) === 731).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirConferencia')), 'pagina-estoque-conferencia-entrada.html'),
         ('pagina-estoque-entrada-notas-detalhe.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-entrada-notas.html'),
-        ('pagina-estoque-entrada-notas-detalhe.html', lambda: menu('conferencia'), 'pagina-estoque-conferencia-compra.html'),
-        ('pagina-estoque-conferencia.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-conferencia-compra.html'),
+        ('pagina-estoque-entrada-notas-detalhe.html', lambda: menu('conferencia'), 'pagina-estoque-conferencia-entrada.html'),
+        ('pagina-estoque-conferencia.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-conferencia-entrada.html'),
         ('pagina-estoque-conferencia.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),
         ('pagina-estoque-conferencia.html', lambda: menu('oc'), 'pagina-estoque-ordens-compra-detalhe.html'),
-        ('pagina-estoque-conferencia-compra.html', lambda: menu('notas'), 'pagina-estoque-entrada-notas.html'),
+        ('pagina-estoque-conferencia-entrada.html', lambda: menu('notas'), 'pagina-estoque-entrada-notas.html'),
         ('pagina-estoque-controle-estoques.html', lambda: pg.click('#btnGerenciarProdutos'), 'pagina-cadastros-produtos.html'),
         ('pagina-estoque-controle-estoques-detalhe.html', lambda: pg.click('#btnAbrirCadastro'), 'pagina-cadastros-produtos-detalhe.html'),
         ('pagina-estoque-enderecamento.html', lambda: menu('enderecos'), 'pagina-cadastros-enderecos-estoque.html'),
@@ -91,7 +91,7 @@ with sync_playwright() as p:
             ok(False, arq + ' -> ' + esperado + ' (' + str(e).split('\n')[0][:90] + ')')
 
     print('\n[3] Chegada nos destinos com parametro')
-    abre('pagina-estoque-conferencia-compra.html?receber=1', 400)
+    abre('pagina-estoque-conferencia-entrada.html?receber=1', 400)
     ok(pg.evaluate("document.getElementById('receberModal') ? document.getElementById('receberModal').classList.contains('open') : [...document.querySelectorAll('.open')].some(e => /receber/i.test(e.id))"),
        'Conferencia de Compra ?receber=1 abre o modal de receber mercadorias')
     abre('pagina-estoque-ordens-compra-detalhe.html?clonar=1', 300)
