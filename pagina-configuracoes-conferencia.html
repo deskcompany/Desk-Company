@@ -1082,10 +1082,8 @@
   .par-previa.alerta { border-left-color:var(--danger-solid); }
 
   /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
-  .par-barra { position:sticky; bottom:0; display:flex; align-items:center; gap:18px;
-               background:var(--page-bg); border-top:1px solid var(--border);
-               padding:14px 0 6px; margin-top:4px; }
-  .par-barra-nota { font-size:11.5px; color:var(--text); }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
 
   /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
   .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
@@ -1490,10 +1488,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="par-barra">
+  <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarParam">Salvar configurações</button>
     <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
-    <span class="par-barra-nota" id="notaBarra"></span>
+    <span class="barra-info" id="notaBarra"></span>
   </div>
 </div>
 
@@ -1636,8 +1634,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
     // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
-    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1654,14 +1652,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Logistica: trabalho de galpao nao pede senha — pede RASTRO. A excecao e
     // o que apaga um controle: desligar a contagem cega da saida e reabrir uma
     // conferencia ja faturada nascem pedindo senha.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true }
@@ -2197,7 +2195,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function contar() {
     const dif = CHAVES_CONF.filter(k => edicao[k] !== PARAM[k]).length;
-    elNota.textContent = dif ? plural(dif, 'configuração alterada', 'configurações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') : '';
+    elNota.textContent = dif ? plural(dif, 'configuração alterada', 'configurações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
   }
 
   document.querySelectorAll('[data-param]').forEach(sw => {
@@ -2299,6 +2297,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
 
+
+  // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
+  // alguma coisa, e ate la ficava vazia — e vazio nao informa.
+  contar();
 
 </script>
 </body>

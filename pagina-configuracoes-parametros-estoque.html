@@ -1096,10 +1096,8 @@
   .mdfe-add { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 
   /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
-  .par-barra { position:sticky; bottom:0; display:flex; align-items:center; gap:18px;
-               background:var(--page-bg); border-top:1px solid var(--border);
-               padding:14px 0 6px; margin-top:4px; }
-  .par-barra-nota { font-size:11.5px; color:var(--text); }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
 
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
@@ -1653,10 +1651,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="par-barra">
+  <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarParam">Salvar parâmetros</button>
     <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
-    <span class="par-barra-nota" id="notaBarra"></span>
+    <span class="barra-info" id="notaBarra"></span>
   </div>
 </div>
 
@@ -2592,9 +2590,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function mudou() {
     const v = validar();
-    if (!v) { elNota.textContent = ''; return; }
+    // Validacao reprovada. Dizer "nenhuma alteracao pendente" aqui seria a
+    // mentira mais cara que esta nota pode contar: a que aparece justamente
+    // quando ha algo errado na tela.
+    if (!v) { elNota.textContent = 'Há campo inválido — corrija para salvar.'; return; }
     const dif = CHAVES.filter(k => !paramIgual(k, v[k], PARAM[k])).length;
-    elNota.textContent = dif ? plural(dif, 'parâmetro alterado', 'parâmetros alterados') + ', ainda não salvo' : '';
+    elNota.textContent = dif ? plural(dif, 'parâmetro alterado', 'parâmetros alterados') + ', ainda não salvo.' : 'Nenhuma alteração pendente.';
   }
 
   function aoDigitar() { atualizarPrevias(); mudou(); }
@@ -2728,6 +2729,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
 
+
+  // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
+  // alguma coisa, e ate la ficava vazia — e vazio nao informa.
+  mudou();
 
 </script>
 </body>

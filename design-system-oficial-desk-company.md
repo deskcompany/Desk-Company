@@ -465,6 +465,80 @@ Três amarras que eliminam o motivo da recusa original:
 2. **Conjunto mínimo é o que a venda exige:** tipo de pessoa, nome, CPF/CNPJ, CEP (que preenche cidade e UF), endereço e telefone. Contribuinte, inscrição estadual, limite de crédito e condição de pagamento ficam para o cadastro completo.
 3. **O registro nasce marcado como incompleto e o sistema diz isso** — no documento (*"primeira venda para este cliente; clique para completar os dados"*) e na listagem de Clientes, com filtro próprio. Sem essa terceira amarra a base enche de cliente pela metade e ninguém descobre por meses: é ela que impede o atalho de virar dívida silenciosa.
 
+## 11.3 Rodapé de salvar (`.barra-salvar`) — 08/out/2026
+
+Um nome só, em todas as telas que gravam alguma coisa. **Isto é rodapé de
+PÁGINA** — dentro de drawer e de modal o botão continua à direita, que é a
+convenção de caixa de diálogo e está certa lá.
+
+```html
+<div class="barra-salvar" id="barraSalvar">
+  <button class="btn-primary" id="btnSalvar">Salvar alterações</button>
+  <!-- opcional: um ou mais .btn-secundario, ex. "Salvar e continuar depois" -->
+  <div class="drawer-link" id="btnVoltarRodape">Voltar pras ordens de compra</div>
+  <div class="barra-info" id="infoPendente">—</div>
+</div>
+```
+
+```css
+.barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0;
+                background:var(--page-bg); border-top:1px solid var(--border);
+                padding:14px 0; margin-top:26px; z-index:20; }
+.barra-info   { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+```
+
+**Por que o botão fica à esquerda.** Direita é a convenção de **diálogo**: caixa
+estreita, o olho termina no canto inferior direito. Um rodapé de página
+atravessa ~1050px. Com o botão à direita, você edita um campo à esquerda e
+viaja a tela inteira para confirmar — e a nota de estado não tem onde morar sem
+espremer o botão. Com ele à esquerda, o `margin-left:auto` da nota lhe dá a
+ponta direita inteira.
+
+**O link do meio diz para onde vai, nunca "Cancelar".** "Cancelar" ao lado de
+"Salvar" parece desfazer, e nas seis telas onde ele existia era um `<a href>`
+puro: saía da página levando junto tudo o que não tinha sido gravado, calado.
+Escreva o destino — "Voltar pra listagem", "Voltar pro caixa", "Voltar para a
+fila". Quando o botão **de fato** descarta as alterações sem sair (Minha
+Conta), o nome é "Descartar alterações"; aí ele está dizendo a verdade.
+
+**Sair com alteração pendente para e pergunta**, pelo modal de confirmação da
+§8 em vermelho. Vale nos **dois** caminhos de saída, o link do rodapé e o do
+topo (`a.voltar-link`): avisar só num deles é pior que não avisar, porque
+ensina que a tela avisa.
+
+**A nota conta, não adjetiva.** "3 campos alterados, ainda não salvo." é melhor
+que "alterações não salvas" — com o número dá para saber se o pendente é o
+campo que você acabou de mexer ou mais quatro que ficaram numa aba fechada.
+Limpa, ela diz "Nenhuma alteração pendente." e **nunca fica vazia**: vazio não
+informa, pode ser "nada mudou" ou "a tela parou de olhar". Cada tela escolhe o
+substantivo — campo, parâmetro, meta, código, quantidade.
+
+**A referência nasce depois de a tela se montar.** Esta é a armadilha, e ela é
+silenciosa:
+
+```js
+if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+```
+
+Medida cedo demais, a referência congela um formulário vazio. A nota continua
+dizendo "Nenhuma alteração pendente" — não porque seja verdade, mas porque
+parou de olhar — e só se descobre quando alguém digita. Aconteceu em Pedidos de
+Venda, onde o cliente e os itens entram depois. `teste_rodape.py` [3] mede
+exatamente isso: a referência guardada tem de descrever a tela que está ali.
+
+**A raiz do rastreio é `.main`, não `#card`.** Nesta família de telas `#card` é
+a **sidebar**. Com a raiz errada o rastreio escuta os campos do menu e nunca vê
+o formulário.
+
+**Nomes aposentados, que `teste_rodape.py` [1] impede de voltar:**
+`.form-footer-bar`, `.par-barra`, `.par-barra-nota`, e `.form-actions` servindo
+de rodapé de página. O preço de ter mais de um nome já foi cobrado: em Pedidos
+de Venda alguém renomeou o CSS para `.barra-salvar` e esqueceu o HTML, que
+ficou em `.form-footer-bar` — classe que naquela tela só existia dentro de
+`body.modo-leitura`, para esconder. Em modo de edição a barra era uma `div`
+crua, sem sticky, sem borda, sem espaçamento, e ninguém percebeu. Ver §14.
+
 ## 12. Módulos de Cadastro construídos até aqui
 
 | Módulo | Arquivo(s) | Observação |
@@ -1313,3 +1387,62 @@ Todo o resto **avisa e deixa passar**: volume acima do limite de peso da transpo
 O formato é nosso porque o romaneio é **controle interno** (§14.27). O que a pesquisa trouxe foi o uso, não o layout: é o padrão do PLP dos Correios — o transportador confere, assina e devolve uma via, e **essa via carimbada é o comprovante de que a carga saiu**, a base para reclamar extravio.
 
 Então as duas vias são "Via do galpão" e "Via do transportador", cada uma com a tabela de pedidos (pedido, cliente, NF-e, destino, volumes, peso), o peso bruto, motorista e placa, e **duas linhas de assinatura**. O rodapé diz, em letra pequena e sem rodeio, que o documento não tem validade fiscal — porque uma folha com tabela e assinatura é exatamente o tipo de papel que alguém assume ser nota.
+
+## 14.35 Quatro nomes para um componente, e o que isso custou (08/out/2026)
+
+O rodapé de salvar existia em 22 telas com **quatro** nomes: `.barra-salvar`,
+`.par-barra` (Configurações), `.form-footer-bar` (os cadastros) e dois rodapés
+soltos vestidos de `.form-actions` e `.drawer-footer`. Três dos quatro já
+punham o botão à esquerda — o "padrão antigo" era a minoria, com 6 telas.
+
+A conta chegou em **Pedidos de Venda**. Alguém renomeou o CSS para
+`.barra-salvar` e esqueceu o HTML, que ficou em `.form-footer-bar` — classe que
+naquela tela só existia dentro de `body.modo-leitura`, para esconder. Resultado:
+em modo de edição a barra era uma `div` crua, sem sticky, sem borda, sem
+espaçamento, com o CSS certo morto duas telas acima. Nenhuma auditoria pegou:
+a checagem de "classe sem CSS" encontra o nome dentro de
+`body.modo-leitura .form-footer-bar` e dá por satisfeita.
+
+A lição não é "renomeie com cuidado", é **não ter dois nomes**. Enquanto os dois
+existirem, a próxima tela copia o que estiver mais perto. Hoje é um nome só
+(§11.3) e `teste_rodape.py` [1] reprova se qualquer aposentado voltar.
+
+## 14.36 "Cancelar" num rodapé de cadastro não cancela nada (08/out/2026)
+
+Em seis telas o "Cancelar" ao lado de "Salvar" era um `<a href>` puro. Ele não
+desfazia: **saía da página, levando junto tudo o que não tinha sido gravado, sem
+aviso nenhum.** Em Produtos dava para preencher sessenta campos, clicar nele
+achando que desfazia a última alteração, e perder a tela inteira.
+
+Duas regras saíram daí. O link **diz o destino** ("Voltar pras ordens de
+compra", "Voltar pro caixa") — e só se chama "Descartar alterações" quando de
+fato descarta sem sair, que é o caso de Minha Conta. E **sair com pendência para
+e pergunta**, nos *dois* caminhos de saída, o link do rodapé e o do topo:
+avisar só num deles é pior que não avisar, porque ensina que a tela avisa.
+
+## 14.37 Referência medida cedo demais mente calada (08/out/2026)
+
+A nota do rodapé compara a tela com uma referência tirada na abertura. Em
+Pedidos de Venda a referência era tirada **antes de a tela se montar**: ela
+congelou um formulário vazio, e a nota passou a dizer "Nenhuma alteração
+pendente" — não porque fosse verdade, mas porque nunca mais olhou.
+
+O que torna esse bug caro é que ele **passa no teste óbvio**. A asserção "a nota
+abre dizendo que nada está pendente" fica verde com o defeito instalado: a nota
+diz exatamente isso. Só reprova quem compara a referência guardada com a tela já
+montada — `teste_rodape.py` [3]. Reinjetado, o defeito derruba a [3] e deixa a
+outra passando.
+
+Vale o mesmo para qualquer estado tirado na abertura: **meça depois do
+`load`**, não no fim do script.
+
+```js
+if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+```
+
+E a variação disso que apareceu na mesma rodada: nas telas de Configurações a
+nota nascia **vazia**, porque a função que a escreve só rodava quando alguém
+mexia em algo. Vazio não informa — pode ser "nada mudou" ou "a tela parou de
+olhar", e é exatamente essa diferença que a nota existe para contar. A nota
+nasce escrita.

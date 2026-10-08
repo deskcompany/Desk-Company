@@ -1721,7 +1721,8 @@
   .anexo-nome { flex:1; font-size:13px; font-weight:600; color:var(--text-heading); }
   .anexo-tamanho { font-size:11.5px; color:var(--text); margin-right:6px; }
 
-  .form-footer-bar { position:sticky; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:16px; margin-top:26px; padding:16px 0 4px; background:var(--page-bg); border-top:1px solid var(--border); }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
   .drawer-link:hover { color: var(--text-heading); }
 
@@ -2531,9 +2532,10 @@
     Excluir produto
   </div>
 
-  <div class="form-footer-bar">
-    <a class="drawer-link" href="pagina-cadastros-produtos.html">Cancelar</a>
-    <button class="btn-primary" id="btnSalvarProduto">Salvar</button>
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvarProduto">Salvar alterações</button>
+    <div class="drawer-link" id="btnVoltarRodape">Voltar pra listagem</div>
+    <div class="barra-info" id="infoPendente">—</div>
   </div>
 </div>
 

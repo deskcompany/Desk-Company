@@ -1082,10 +1082,8 @@
   .par-previa.alerta { border-left-color:var(--danger-solid); }
 
   /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
-  .par-barra { position:sticky; bottom:0; display:flex; align-items:center; gap:18px;
-               background:var(--page-bg); border-top:1px solid var(--border);
-               padding:14px 0 6px; margin-top:4px; }
-  .par-barra-nota { font-size:11.5px; color:var(--text); }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
 
   /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
   .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
@@ -1390,10 +1388,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="par-barra">
+  <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarParam">Salvar confirmações</button>
     <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
-    <span class="par-barra-nota" id="notaBarra"></span>
+    <span class="barra-info" id="notaBarra"></span>
   </div>
 </div>
 
@@ -1526,11 +1524,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
     // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
-    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
     // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configura\u00e7\u00f5es \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configurações \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
     // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
@@ -1554,17 +1552,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
     // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
     // que vira divergencia de estoque, entao e a que mais precisa de nome.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
     // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
     // que nasce pedindo senha — reabrir uma conferencia ja faturada.
     { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
@@ -2124,7 +2122,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           VERBOS_SENHA.map(v => {
             const chave = m.base + v.sufixo;
             if (!m.ligado[v.id]) {
-              return '<div class="mtz-cel" title="A tela de ' + m.nome + ' ainda n\u00e3o pede confirma\u00e7\u00e3o ao ' +
+              return '<div class="mtz-cel" title="A tela de ' + m.nome + ' ainda não pede confirmação ao ' +
                      v.rotulo.toLowerCase() + '. O interruptor aparece quando ela for ligada.">' + cadeado + '</div>';
             }
             return '<div class="mtz-cel"><div class="switch' + (edicao[chave] ? ' on' : '') +
@@ -2136,9 +2134,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const exige = edicao[a.chave];
         const travado = !a.pronto;
         const estado = travado
-          ? '<div class="conf-estado indisponivel">tela ainda n\u00e3o constru\u00edda \u00b7 nasce exigindo senha</div>'
+          ? '<div class="conf-estado indisponivel">tela ainda não constru\u00edda \u00b7 nasce exigindo senha</div>'
           : (exige ? '<div class="conf-estado exige">exige senha</div>'
-                   : '<div class="conf-estado livre">acontece sem confirma\u00e7\u00e3o</div>');
+                   : '<div class="conf-estado livre">acontece sem confirmação</div>');
         return '<div class="switch-row">' +
           '<div class="switch-row-texto">' +
             '<div class="switch-row-titulo">' + a.nome + '</div>' +
@@ -2151,7 +2149,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
       return '<div class="section-title">' + g.nome + '</div>' +
              '<div class="mtz">' + cabecalho + linhas + '</div>' +
-             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda n\u00e3o pede confirma\u00e7\u00e3o nessa a\u00e7\u00e3o. O interruptor nasce junto com ela.</div>' +
+             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda não pede confirmação nessa ação. O interruptor nasce junto com ela.</div>' +
              especificas;
     }).join('');
 
@@ -2182,7 +2180,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const el = document.getElementById('previaAcoes');
     el.classList.toggle('alerta', retiradas.length > 0);
 
-    const base = '<b>' + exigindo.length + ' de ' + ligadas.length + '</b> a\u00e7\u00f5es ligadas pedem senha hoje.';
+    const base = '<b>' + exigindo.length + ' de ' + ligadas.length + '</b> ações ligadas pedem senha hoje.';
     if (retiradas.length === 0) {
       el.innerHTML = base + ' <b>Nenhuma prote\u00e7\u00e3o de f\u00e1brica foi retirada</b> \u2014 o que est\u00e1 desligado nasceu assim.';
       return;
@@ -2192,29 +2190,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? retiradas.map(a => a.nome.toLowerCase()).join('; ')
       : (exclusoes.length ? '<b>' + exclusoes.length + '</b> delas s\u00e3o exclus\u00f5es de cadastro' : 'v\u00e1rias de uma vez');
     el.innerHTML = base + ' <b>' + plural(retiradas.length, 'prote\u00e7\u00e3o retirada', 'prote\u00e7\u00f5es retiradas') +
-      '</b> em rela\u00e7\u00e3o ao padr\u00e3o: ' + lista +
-      '. Quem alcan\u00e7ar a tela executa direto, e o hist\u00f3rico n\u00e3o guarda quem autorizou.';
+      '</b> em relação ao padr\u00e3o: ' + lista +
+      '. Quem alcan\u00e7ar a tela executa direto, e o hist\u00f3rico não guarda quem autorizou.';
   }
 
   const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
 
   function contarMudancas() {
     const dif = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave)).length;
-    elNota.textContent = dif ? plural(dif, 'a\u00e7\u00e3o alterada', 'a\u00e7\u00f5es alteradas') + ', ainda n\u00e3o salva' + (dif > 1 ? 's' : '') : '';
+    elNota.textContent = dif ? plural(dif, 'ação alterada', 'ações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
   }
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     const mudadas = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave));
-    if (mudadas.length === 0) { avisar('Nenhuma confirma\u00e7\u00e3o mudou.'); return; }
+    if (mudadas.length === 0) { avisar('Nenhuma confirmação mudou.'); return; }
     const desligadas = mudadas.filter(a => !edicao[a.chave]);
     PARAM.confirmacoes = Object.assign({}, PARAM.confirmacoes, edicao);
     const gravou = gravarParametros(PARAM);
     contarMudancas();
-    avisar(plural(mudadas.length, 'a\u00e7\u00e3o salva', 'a\u00e7\u00f5es salvas') + '. ' +
+    avisar(plural(mudadas.length, 'ação salva', 'ações salvas') + '. ' +
       (desligadas.length
         ? desligadas.length === 1
-          ? 'O painel de confirma\u00e7\u00e3o continua abrindo em "' + desligadas[0].nome.toLowerCase() + '" \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
-          : 'Os pain\u00e9is de confirma\u00e7\u00e3o continuam abrindo \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
+          ? 'O painel de confirmação continua abrindo em "' + desligadas[0].nome.toLowerCase() + '" \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
+          : 'Os pain\u00e9is de confirmação continuam abrindo \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
         : 'As telas afetadas voltam a pedir senha na pr\u00f3xima abertura.') +
       (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, ent\u00e3o isto vale s\u00f3 nesta aba.)'));
   });
@@ -2222,7 +2220,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnRestaurarParam').addEventListener('click', () => {
     ACOES_SENHA.forEach(a => { edicao[a.chave] = a.exigePadrao; });   // inclui as travadas: o padrao delas vale quando forem ligadas
     render();
-    avisar('Padr\u00e3o de f\u00e1brica restaurado na tela: toda a\u00e7\u00e3o do cat\u00e1logo exige senha. Clique em "Salvar confirma\u00e7\u00f5es" para valer.');
+    avisar('Padr\u00e3o de f\u00e1brica restaurado na tela: toda ação do cat\u00e1logo exige senha. Clique em "Salvar confirmações" para valer.');
   });
 
   render();
@@ -2285,6 +2283,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
 
+
+  // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
+  // alguma coisa, e ate la ficava vazia — e vazio nao informa.
+  contarMudancas();
 
 </script>
 </body>

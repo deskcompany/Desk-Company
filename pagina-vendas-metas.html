@@ -319,7 +319,8 @@
   .meta-row input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .meta-row-hint { font-size:11px; color:var(--text); width:70px; flex-shrink:0; }
 
-  .form-footer-bar { position:sticky; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:16px; margin-top:26px; padding:16px 0 4px; background:var(--page-bg); border-top:1px solid var(--border); max-width:none; }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
@@ -683,8 +684,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div id="gridMetas"></div>
   </div>
 
-  <div class="form-footer-bar" style="max-width:none;">
+  <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarMetas">Salvar metas deste período</button>
+    <div class="barra-info" id="infoPendente">—</div>
   </div>
 </div>
 
@@ -1406,6 +1408,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       }
     });
     renderGrid();
+    marcarSalvo();
     const btn = document.getElementById('btnSalvarMetas');
     const textoOriginal = btn.textContent;
     btn.textContent = 'Metas salvas ✓';
@@ -1423,6 +1426,43 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderSeletorPeriodo();
   renderGrid();
+
+  // ------------------------------------------------- rodape de salvar
+  // A barra diz, o tempo todo, quantas celulas divergem do ultimo salvamento.
+  // Aqui nao existe formulario: o que a pessoa mexe e a grade.
+  const RODAPE = { limpo: null };
+  function estadoDoFormulario() {
+    return [...document.querySelectorAll('.main input')]
+      .map((el, i) => i + ':' + el.value).join('|');
+  }
+  function camposAlterados() {
+    if (RODAPE.limpo === null) return 0;
+    const antes = RODAPE.limpo.split('|');
+    const agora = estadoDoFormulario().split('|');
+    let n = 0;
+    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
+      if (antes[i] !== agora[i]) n++;
+    }
+    return n;
+  }
+  function temPendencia() { return camposAlterados() > 0; }
+  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
+  function atualizarRodape() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const n = camposAlterados();
+    info.textContent = n === 0
+      ? 'Nenhuma alteração pendente.'
+      : n + (n === 1 ? ' meta alterada' : ' metas alteradas') + ', ainda não salvo.';
+  }
+  document.addEventListener('input', atualizarRodape);
+  document.addEventListener('change', atualizarRodape);
+  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
+  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
+  // demais, ele congela uma grade vazia e a barra passa a mentir.
+  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+  marcarSalvo();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

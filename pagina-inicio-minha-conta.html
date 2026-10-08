@@ -290,7 +290,8 @@
   .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14.5px; color:var(--text-heading); margin-bottom:16px; }
   .card + .card { margin-top:18px; }
 
-  .form-actions { display:flex; align-items:center; gap:16px; margin-top:6px; }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
 
   .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; }
 
@@ -703,9 +704,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
       </div>
 
-      <div class="form-actions">
+      <div class="barra-salvar" id="barraSalvar">
         <button class="btn-primary" id="btnSalvarConta">Salvar alterações</button>
-        <div class="drawer-link" id="btnCancelarConta">Cancelar</div>
+        <div class="drawer-link" id="btnCancelarConta">Descartar alterações</div>
+        <div class="barra-info" id="infoPendente">—</div>
       </div>
     </div>
 
@@ -1487,6 +1489,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     btn.textContent = 'Alterações salvas';
     btn.disabled = true;
     setTimeout(() => { btn.textContent = textoOriginal; btn.disabled = false; }, 1800);
+    marcarSalvo();
   });
 
   document.getElementById('btnCancelarConta').addEventListener('click', () => {
@@ -1498,6 +1501,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoCidade').value = 'Imperatriz';
     document.getElementById('campoEstado').value = 'MA';
     document.getElementById('campoCep').value = '65900-000';
+    atualizarRodape();
   });
 
   renderSubordinados();
@@ -1547,6 +1551,61 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
+
+  // ------------------------------------------------- rodape de salvar
+  // A barra diz, o tempo todo, quantos campos divergem da ultima gravacao.
+  // Antes dela o rodape tinha "Cancelar", que nao cancelava nada: era um link
+  // de navegacao, e levava embora tudo o que nao tinha sido salvo sem dizer
+  // uma palavra.
+  const RODAPE = { limpo: null };
+
+  // A raiz e `.main`: `#card` e a SIDEBAR nesta familia de telas, nao o
+  // formulario.
+  function estadoDoFormulario() {
+    const partes = [];
+    document.querySelectorAll('.main input, .main textarea').forEach((el, i) => {
+      if (el.type === 'file') return;
+      const marcavel = el.type === 'checkbox' || el.type === 'radio';
+      partes.push(i + ':' + (marcavel ? (el.checked ? '1' : '0') : el.value));
+    });
+    document.querySelectorAll('.main .dropdown-select').forEach((d, i) => {
+      partes.push('d' + i + ':' + (d.getAttribute('data-value') || ''));
+    });
+    return partes.join('|');
+  }
+  function camposAlterados() {
+    if (RODAPE.limpo === null) return 0;
+    const antes = RODAPE.limpo.split('|');
+    const agora = estadoDoFormulario().split('|');
+    let n = 0;
+    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
+      if (antes[i] !== agora[i]) n++;
+    }
+    return n;
+  }
+  function temPendencia() { return camposAlterados() > 0; }
+  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
+  function atualizarRodape() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const n = camposAlterados();
+    info.textContent = n === 0
+      ? 'Nenhuma alteração pendente.'
+      : n + (n === 1 ? ' campo alterado' : ' campos alterados') + ', ainda não salvo.';
+  }
+
+  // A nota so mente se parar de ouvir. Dropdown e caixa de marcar nao disparam
+  // `input`, entao o clique tambem reavalia — depois de o componente ter
+  // gravado o data-value dele.
+  document.addEventListener('input', atualizarRodape);
+  document.addEventListener('change', atualizarRodape);
+  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
+  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
+  // demais, ele congela um formulario vazio e a barra passa a mentir: diz que
+  // nao ha pendencia porque nunca mais olhou.
+  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+  marcarSalvo();
 
 </script>
 

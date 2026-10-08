@@ -279,8 +279,11 @@ with sync_playwright() as p:
     ok(DET in pg.url and '?id=' in pg.url, 'o preview abre o pedido completo: ' + pg.url.split('/')[-1])
     abre(DET)
     pg.click('#btnEditarRegistro'); pg.wait_for_timeout(200)
-    pg.click('#btnCancelar'); pg.wait_for_timeout(400)
-    ok(pg.url.endswith(LISTA), 'Cancelar volta para a listagem')
+    # O rodape foi unificado em 08/out (design system §11.3): o "Cancelar" que
+    # so navegava virou um link que DIZ para onde vai. Sem alteracao pendente
+    # ele sai direto, que e o caminho medido aqui.
+    pg.click('#btnVoltarRodape'); pg.wait_for_timeout(400)
+    ok(pg.url.endswith(LISTA), 'sem pendencia, o link do rodape volta direto para a listagem')
 
     # =======================================================================
     # Daqui para baixo: a barganha de 02/out. O pedido ANDA, o cliente tem

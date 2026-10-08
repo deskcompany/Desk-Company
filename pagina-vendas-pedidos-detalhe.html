@@ -624,6 +624,7 @@
   .parcelas-vazio { font-size:12.5px; color:var(--text); padding:14px 0; }
 
   .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
 
   .fiscal-ativo-hint { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
   .fiscal-ativo-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
@@ -791,7 +792,7 @@
   body.modo-leitura .event-drawer .form-field .date-field,
   body.modo-leitura .event-drawer .form-field .field-hint { display:block; }
   body.modo-leitura .event-drawer .campo-leitura { display:none; }
-  body.modo-leitura .form-footer-bar,
+  body.modo-leitura .barra-salvar,
   body.modo-leitura .itens-acoes,
   body.modo-leitura .item-remover,
   body.modo-leitura #btnEditarItemHint { display:none; }
@@ -1382,9 +1383,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="form-footer-bar">
+  <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvar">Salvar pedido</button>
-    <div class="drawer-link" id="btnCancelar">Cancelar</div>
+    <div class="drawer-link" id="btnVoltarRodape">Voltar pros pedidos</div>
+    <div class="barra-info" id="infoPendente">—</div>
   </div>
 
 <!-- PAINEL LATERAL: dados do item -->
@@ -2700,12 +2702,76 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         avisar('Pedido salvo. O estoque dos itens ficou reservado e ' + contas + '.' +
                (novoCliente ? ' O cliente ' + nome + ' foi criado com cadastro incompleto — ele aparece com esse selo na listagem de Clientes até alguém completar.' : '') +
                ' No protótipo nada persiste ao recarregar a página.');
+        marcarSalvo();
       });
   });
 
-  document.getElementById('btnCancelar').addEventListener('click', () => {
-    window.location.href = 'pagina-vendas-pedidos.html';
-  });
+  // ------------------------------------------------- rodape de salvar
+  // A barra diz, o tempo todo, se existe alteracao que ainda nao foi gravada.
+  // Antes dela o rodape tinha "Cancelar", que nao cancelava nada: era um link
+  // de navegacao, e levava embora o pedido inteiro sem dizer uma palavra.
+  const RODAPE = { limpo: null };
+
+  // Assinatura do que esta na tela agora. A raiz e `.main`: `#card` e a
+  // SIDEBAR nesta familia de telas, nao o formulario.
+  function estadoDoFormulario() {
+    const partes = [];
+    document.querySelectorAll('.main input, .main textarea').forEach((el, i) => {
+      if (el.type === 'file') return;
+      const marcavel = el.type === 'checkbox' || el.type === 'radio';
+      partes.push(i + ':' + (marcavel ? (el.checked ? '1' : '0') : el.value));
+    });
+    document.querySelectorAll('.main .dropdown-select').forEach((d, i) => {
+      partes.push('d' + i + ':' + (d.getAttribute('data-value') || ''));
+    });
+    return partes.join('|');
+  }
+  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
+  function temPendencia() { return camposAlterados() > 0; }
+  // Quantos campos divergem da ultima gravacao. O numero importa: com ele da
+  // para saber se o pendente e o campo que voce acabou de mexer ou mais
+  // quatro que voce esqueceu numa aba que nem esta aberta.
+  function camposAlterados() {
+    if (RODAPE.limpo === null) return 0;
+    const antes = RODAPE.limpo.split('|');
+    const agora = estadoDoFormulario().split('|');
+    let n = 0;
+    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
+      if (antes[i] !== agora[i]) n++;
+    }
+    return n;
+  }
+  function atualizarRodape() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const n = camposAlterados();
+    info.textContent = n === 0
+      ? 'Nenhuma alteração pendente.'
+      : n + (n === 1 ? ' campo alterado' : ' campos alterados') + ', ainda não salvo.';
+  }
+
+  // Sair com alteracao pendente para e pergunta.
+  function sairDaTela() {
+    const ir = () => { window.location.href = 'pagina-vendas-pedidos.html'; };
+    if (!temPendencia()) { ir(); return; }
+    abrirModalConfirmacao(
+      'Esta tela tem alterações que ainda não foram salvas. Sair agora descarta o que você mudou.',
+      1, 'danger', ir);
+  }
+  document.getElementById('btnVoltarRodape').addEventListener('click', sairDaTela);
+
+  // A nota so mente se parar de ouvir. Dropdown e caixa de marcar nao disparam
+  // `input`, entao o clique tambem reavalia — depois de o componente ter
+  // gravado o data-value dele.
+  document.addEventListener('input', atualizarRodape);
+  document.addEventListener('change', atualizarRodape);
+  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
+  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
+  // demais, ele congela um formulario vazio e a barra passa a mentir: diz
+  // que nao ha pendencia porque nunca mais olhou.
+  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+  marcarSalvo();
 
   // ===== MODO DE ABERTURA (§10.3) =====
   function textoDeLeitura(ff) {

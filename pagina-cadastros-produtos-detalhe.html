@@ -379,7 +379,8 @@
   .anexo-nome { flex:1; font-size:13px; font-weight:600; color:var(--text-heading); }
   .anexo-tamanho { font-size:11.5px; color:var(--text); margin-right:6px; }
 
-  .form-footer-bar { position:sticky; bottom:0; display:flex; align-items:center; justify-content:flex-end; gap:16px; margin-top:26px; padding:16px 0 4px; background:var(--page-bg); border-top:1px solid var(--border); }
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
   .drawer-link:hover { color: var(--text-heading); }
 
@@ -531,7 +532,7 @@
   .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo svg { width:14px; height:14px; }
   /* em leitura nao ha o que salvar, e o toggle segmentado deixa de ser controle */
-  body.modo-leitura .form-footer-bar { display:none; }
+  body.modo-leitura .barra-salvar { display:none; }
   body.modo-leitura .tipo-pessoa-toggle,
   body.modo-leitura .tipo-loja-toggle { display:none; }
   .toggle-leitura { display:none; }
@@ -1266,9 +1267,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="form-footer-bar">
-    <a class="drawer-link" href="pagina-cadastros-produtos.html">Cancelar</a>
-    <button class="btn-primary" id="btnSalvarProduto">Salvar</button>
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvarProduto">Salvar alterações</button>
+    <div class="drawer-link" id="btnVoltarRodape">Voltar pra listagem</div>
+    <div class="barra-info" id="infoPendente">—</div>
   </div>
 </div>
 
@@ -1685,6 +1687,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Onde parar depois de salvar um cadastro (Interface do usuario). A tela de
   // detalhe nao decide mais sozinha: ela informa qual e a listagem dela.
   function aoSalvarCadastro(listagem, botao) {
+    marcarSalvo();
     if (PARAM.aoSalvar !== 'ficar') { window.location.href = listagem; return; }
     if (!botao || botao.dataset.confirmando) return;
     const rotulo = botao.textContent;
@@ -2723,6 +2726,81 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (querEditar || PARAM.aoAbrirCadastro === 'edicao') sairModoLeitura();
     else entrarModoLeitura();
   })();
+  // ------------------------------------------------- rodape de salvar
+  // A barra diz, o tempo todo, se existe alteracao que ainda nao foi gravada.
+  // Antes dela o rodape tinha "Cancelar", que nao cancelava nada: era um link
+  // de navegacao, e levava embora tudo o que nao tinha sido salvo sem dizer
+  // uma palavra.
+  const RODAPE = { limpo: null };
+
+  // Assinatura do que esta na tela agora. Pega o que a pessoa mexe: campo de
+  // texto, area de texto, caixa de marcar e dropdown — que guarda o valor em
+  // data-value, nao em input. A raiz e `.main`: `#card` e a
+  // SIDEBAR nesta familia de telas, nao o formulario.
+  function estadoDoFormulario() {
+    const partes = [];
+    document.querySelectorAll('.main input, .main textarea').forEach((el, i) => {
+      if (el.type === 'file') return;
+      const marcavel = el.type === 'checkbox' || el.type === 'radio';
+      partes.push(i + ':' + (marcavel ? (el.checked ? '1' : '0') : el.value));
+    });
+    document.querySelectorAll('.main .dropdown-select').forEach((d, i) => {
+      partes.push('d' + i + ':' + (d.getAttribute('data-value') || ''));
+    });
+    return partes.join('|');
+  }
+  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
+  function temPendencia() { return camposAlterados() > 0; }
+  // Quantos campos divergem da ultima gravacao. O numero importa: com ele da
+  // para saber se o pendente e o campo que voce acabou de mexer ou mais
+  // quatro que voce esqueceu numa aba que nem esta aberta.
+  function camposAlterados() {
+    if (RODAPE.limpo === null) return 0;
+    const antes = RODAPE.limpo.split('|');
+    const agora = estadoDoFormulario().split('|');
+    let n = 0;
+    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
+      if (antes[i] !== agora[i]) n++;
+    }
+    return n;
+  }
+  function atualizarRodape() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const n = camposAlterados();
+    info.textContent = n === 0
+      ? 'Nenhuma alteração pendente.'
+      : n + (n === 1 ? ' campo alterado' : ' campos alterados') + ', ainda não salvo.';
+  }
+
+  // Sair com alteracao pendente para e pergunta — nos DOIS caminhos de saida,
+  // o link do topo e o do rodape. Avisar so num deles seria pior que nao
+  // avisar: ensinaria que a tela avisa.
+  function sairDaTela() {
+    const ir = () => { window.location.href = 'pagina-cadastros-produtos.html'; };
+    if (!temPendencia()) { ir(); return; }
+    abrirModalConfirmacao(
+      'Esta tela tem alterações que ainda não foram salvas. Sair agora descarta o que você mudou.',
+      1, 'danger', ir);
+  }
+  document.getElementById('btnVoltarRodape').addEventListener('click', sairDaTela);
+  document.querySelectorAll('a.voltar-link').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); sairDaTela(); });
+  });
+
+  // A nota so mente se parar de ouvir. Dropdown e caixa de marcar nao disparam
+  // `input`, entao o clique tambem reavalia — depois de o componente ter
+  // gravado o data-value dele.
+  document.addEventListener('input', atualizarRodape);
+  document.addEventListener('change', atualizarRodape);
+  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
+  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
+  // demais, ele congela um formulario vazio e a barra passa a mentir: diz
+  // que nao ha pendencia porque nunca mais olhou.
+  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+  marcarSalvo();
+
 
 
 </script>
