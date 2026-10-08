@@ -16,7 +16,7 @@
   * { box-sizing: border-box; margin:0; padding:0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
 
   :root {
-    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0;
+    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0; --divisor: #CFCBBD;
     --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
     --brand-blue: #2563EB; --logo-color: #2979FF;
     --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
@@ -24,7 +24,7 @@
     --card-bg: #FFFFFF;
   }
   body.dark {
-    --page-bg: #101010; --panel-bg: #101010; --border: #262626;
+    --page-bg: #101010; --panel-bg: #101010; --border: #262626; --divisor: #363636;
     --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
     --brand-blue: #2563EB; --logo-color: #FFFFFF;
     --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
@@ -231,7 +231,9 @@
 
   .spacer { flex:1; }
 
-  .bottom-list { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  /* Linha SOZINHA precisa de mais contraste que contorno de card: `--border`
+     media 1.2:1 aqui e sumia. `--divisor` fica em ~1.57:1 nos dois temas. */
+  .bottom-list { border-top: 1px solid var(--divisor); padding-top: 10px; margin-top: 10px; }
   .bottom-item {
     display:flex; align-items:center; gap:13px; padding:7px 12px; border-radius:10px;
     font-family:'Nunito',sans-serif; font-weight:600; font-size:14px; color: var(--text); cursor:pointer; margin-bottom:1px;
@@ -258,7 +260,10 @@
     transition: width .2s ease, padding .2s ease, border-width .2s ease;
   }
   .flyout-col.open { width: 300px; padding: 22px 10px; border-left-width: 1px; }
-  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 12px 14px; white-space: nowrap; user-select:none; }
+  /* A linha abaixo do titulo do modulo atravessa o painel inteiro: a margem
+     negativa compensa o padding lateral do .flyout-col aberto (10px). Sem
+     ela o titulo encostava nos itens e os dois pareciam a mesma lista. */
+  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 22px 14px; margin: 0 -10px 12px; white-space: nowrap; user-select:none; border-bottom: 1px solid var(--divisor); }
 
   .flyout-body { overflow-y:auto; overflow-x:hidden; flex:1; }
   .flyout-item {
@@ -271,14 +276,21 @@
   .flyout-item svg { width:17px; height:17px; flex-shrink:0; }
   .flyout-item:hover { transform: translateX(6px); background: var(--active-bg); color: var(--active-text); }
 
-  .theme-picker { margin-top: auto; padding: 14px 12px 4px; border-top: 1px solid var(--border); }
-  .theme-picker .label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color: var(--text); font-weight:700; margin-bottom:10px; }
-  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 10px; padding:3px; }
+  .theme-picker { margin-top: auto; padding: 12px 12px 4px; border-top: 1px solid var(--divisor); }
+  .theme-picker .label { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color: var(--text-heading); margin-bottom:9px; }
+  /* Rotulo a esquerda, botoes a direita, na mesma linha: o tema e preferencia
+     que se mexe uma vez, nao acao principal. Esticar os botoes pela largura
+     dava a eles o peso de um botao de salvar. */
+  .theme-linha { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .theme-linha-rotulo { font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color: var(--text); flex-shrink:0; }
+  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 20px; padding:2px; }
   .theme-seg button {
-    flex:1; border:none; background:transparent; color: var(--text); font-size:13px; padding:7px 0;
-    border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600;
+    border:none; background:transparent; color: var(--text); font-size:11.5px; padding:4px 9px;
+    border-radius: 18px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700;
+    white-space:nowrap;
   }
-  .theme-seg button.active { background: var(--brand-blue); color:#fff; font-weight:600; }
+  .theme-seg button:hover { color: var(--text-heading); }
+  .theme-seg button.active { background: var(--brand-blue); color:#fff; }
 
   /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
   .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
@@ -567,6 +579,10 @@
   /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
   /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
      par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
+  /* Em transito: o documento existe, a mercadoria esta na rua. Cor mais
+     apagada que "A conferir" de proposito — nao ha o que fazer ainda. */
+  .sit-transito, .bs-transito .sit-dot { background: var(--text); }
+  .bs-transito { background: rgba(120,120,140,0.14); color: var(--text); }
   .sit-aconferir     { background:#B45309; }
   .sit-emconferencia { background:#0A4EE4; }
   .sit-divergencia   { background:#B91C1C; }
@@ -607,6 +623,8 @@
   .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
   .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
 
+  .nota-dequem { display:block; font-size:13px; font-weight:700; color:var(--text-heading); }
+  .mde-naoseaplica { font-size:13px; font-weight:700; color:var(--text); opacity:0.65; cursor:help; }
   .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
   .dif-divergente { color:#B91C1C; }
   body.dark .dif-divergente { color:#FCA5A5; }
@@ -621,7 +639,7 @@
   .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
@@ -685,10 +703,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
       <span class="label-text">Integrações</span>
     </div>
-    <div class="nav-item" data-id="config" data-label="Configurações">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="label-text">Configurações</span>
-    </div>
 
     <div class="spacer"></div>
 
@@ -700,6 +714,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="bottom-item" data-id="suporte" data-label="Central de Suporte">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span class="label-text">Central de Suporte</span>
+      </div>
+      <div class="bottom-item" data-id="config" data-label="Configurações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label-text">Configurações</span>
       </div>
 
       <div class="fixar-row">
@@ -746,7 +764,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="flyout-body">
       <div class="flyout-item" data-label="Controle de Estoques" data-href="pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
       <div class="flyout-item" data-label="Entrada de Notas" data-href="pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
-      <div class="flyout-item" data-label="Conferência de Compra" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Compra</div>
+      <div class="flyout-item" data-label="Conferência de Entrada" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
       <div class="flyout-item" data-label="Endereçamento" data-href="pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
       <div class="flyout-item" data-label="Reposição" data-href="pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
@@ -836,11 +854,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Configurações ERP" data-href="pagina-configuracoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.62.77 1.06 1.42 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações ERP</div>
     </div>
     <div class="theme-picker">
-      <div class="label">Preferências · Tema</div>
-      <div class="theme-seg">
-        <button data-theme="auto">Auto</button>
-        <button data-theme="light">Claro</button>
-        <button data-theme="dark" class="active">Escuro</button>
+      <div class="label">Preferências</div>
+      <div class="theme-linha">
+        <span class="theme-linha-rotulo">Tema</span>
+        <div class="theme-seg">
+          <button data-theme="auto">Auto</button>
+          <button data-theme="light">Claro</button>
+          <button data-theme="dark" class="active">Escuro</button>
+        </div>
       </div>
     </div>
   </div>
@@ -931,6 +952,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="abas-situacao" id="abasSituacao">
     <div class="aba-sit active" data-sit="todos"><span>Todas</span><span class="sit-contador" data-cont="todos">0</span></div>
+    <div class="aba-sit" data-sit="transito"><span class="sit-dot sit-transito"></span><span>Em trânsito</span><span class="sit-contador" data-cont="transito">0</span></div>
     <div class="aba-sit" data-sit="aconferir"><span class="sit-dot sit-aconferir"></span><span>A conferir</span><span class="sit-contador" data-cont="aconferir">0</span></div>
     <div class="aba-sit" data-sit="emconferencia"><span class="sit-dot sit-emconferencia"></span><span>Em conferência</span><span class="sit-contador" data-cont="emconferencia">0</span></div>
     <div class="aba-sit" data-sit="divergencia"><span class="sit-dot sit-divergencia"></span><span>Com divergência</span><span class="sit-contador" data-cont="divergencia">0</span></div>
@@ -1101,6 +1123,59 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const PARAM = lerParametros();
+
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada',
+    // Entrada de notas — de onde a nota veio
+    'entrada.origem.compra':    'Compra',
+    'entrada.origem.devolucao': 'Devolução',
+    // Entrada de notas — situacao do documento
+    'entrada.situacao.transito':      'Em trânsito',
+    'entrada.situacao.aconferir':     'A conferir',
+    'entrada.situacao.emconferencia': 'Em conferência',
+    'entrada.situacao.divergencia':   'Com divergência',
+    'entrada.situacao.lancada':       'Lançada',
+    'entrada.situacao.recusada':      'Recusada'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
 
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
@@ -1501,13 +1576,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // Ciclo da nota de entrada. A mercadoria NAO entra no estoque quando a nota entra:
   // entra quando a conferencia fecha. Por isso "lancada" e o unico estado que gerou estoque.
+  // `transito` e situacao nova (08/out): a nota ja existe e a mercadoria esta
+  // na rua. Nasce assim toda nota de devolucao, e so vira "A conferir" quando
+  // alguem confirma que a caixa chegou.
   const SITUACAO_LABEL = {
-    aconferir: 'A conferir', emconferencia: 'Em conferência',
-    divergencia: 'Com divergência', lancada: 'Lançada', recusada: 'Recusada'
+    transito: nome('entrada.situacao.transito'),
+    aconferir: nome('entrada.situacao.aconferir'), emconferencia: nome('entrada.situacao.emconferencia'),
+    divergencia: nome('entrada.situacao.divergencia'), lancada: nome('entrada.situacao.lancada'),
+    recusada: nome('entrada.situacao.recusada')
   };
   const SITUACAO_CLASSE = {
+    transito: 'bs-transito',
     aconferir: 'bs-aconferir', emconferencia: 'bs-emconferencia',
     divergencia: 'bs-divergencia', lancada: 'bs-lancada', recusada: 'bs-recusada'
+  };
+  // De onde a nota veio. Compra tem fornecedor e manifestacao do
+  // destinatario; devolucao tem cliente e pedido de origem, e manifestacao
+  // nao se aplica — a NF-e e nossa ou do cliente, nao de terceiro sobre nos.
+  const ORIGEM_LABEL = {
+    compra:    nome('entrada.origem.compra'),
+    devolucao: nome('entrada.origem.devolucao')
   };
 
   // Manifestacao do Destinatario (NT 2020.001 / Ajuste SINIEF 44/20). Sao 4 eventos,
@@ -1561,23 +1649,48 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
 
   const NOTAS = [
-    { id: 1,  numero: 4468, serie: 1, emissao: '2026-08-28', recebimento: '2026-09-01', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, valor: 18420.00, situacao: 'lancada',       mde: 'confirmada',   oc: 1 },
-    { id: 2,  numero: 4471, serie: 1, emissao: '2026-09-02', recebimento: '2026-09-04', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 7313.00,  situacao: 'divergencia',   mde: 'confirmada',   oc: 2 },
-    { id: 3,  numero: 1182, serie: 2, emissao: '2026-09-03', recebimento: '2026-09-05', fornecedor: 'Tecidos Ceará S/A',       dep: 2, valor: 3960.00,  situacao: 'divergencia',   mde: 'confirmada',   oc: 4 },
-    { id: 4,  numero: 9051, serie: 1, emissao: '2026-09-08', recebimento: '2026-09-10', fornecedor: 'Nordic Home Importação',  dep: 2, valor: 24890.00, situacao: 'emconferencia', mde: 'ciencia',      oc: 3 },
-    { id: 5,  numero: 4476, serie: 1, emissao: '2026-09-09', recebimento: '2026-09-11', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 890.00,   situacao: 'aconferir',     mde: 'pendente',     oc: 12 },
-    { id: 6,  numero: 731,  serie: 1, emissao: '2026-09-10', recebimento: '',           fornecedor: 'Papelaria Central',       dep: 1, valor: 412.90,   situacao: 'aconferir',     mde: 'pendente',     oc: 5 },
-    { id: 7,  numero: 2290, serie: 1, emissao: '2026-09-05', recebimento: '2026-09-08', fornecedor: 'Embalagens do Vale',      dep: 2, valor: 2240.00,  situacao: 'lancada',       mde: 'confirmada',   oc: 8 },
-    { id: 8,  numero: 6614, serie: 1, emissao: '2026-08-30', recebimento: '2026-09-02', fornecedor: 'Luminárias Brasil',       dep: 2, valor: 5380.00,  situacao: 'lancada',       mde: 'confirmada',   oc: 10 },
-    { id: 9,  numero: 9060, serie: 1, emissao: '2026-09-06', recebimento: '2026-09-07', fornecedor: 'Nordic Home Importação',  dep: 3, valor: 6120.00,  situacao: 'recusada',      mde: 'naorealizada', oc: 9 },
-    { id: 10, numero: 4479, serie: 1, emissao: '2026-09-11', recebimento: '',           fornecedor: 'TechParts Distribuidora', dep: 4, valor: 1580.00,  situacao: 'aconferir',     mde: 'pendente',     oc: 7 },
-    { id: 11, numero: 1190, serie: 2, emissao: '2026-08-31', recebimento: '2026-09-03', fornecedor: 'Tecidos Ceará S/A',       dep: 2, valor: 11200.00, situacao: 'aconferir',     mde: 'pendente',     oc: 11 },
-    { id: 12, numero: 736,  serie: 1, emissao: '2026-08-22', recebimento: '2026-08-26', fornecedor: 'Papelaria Central',       dep: 1, valor: 320.00,   situacao: 'lancada',       mde: 'confirmada',   oc: 13 },
-    { id: 13, numero: 2301, serie: 1, emissao: '2026-09-09', recebimento: '2026-09-10', fornecedor: 'Embalagens do Vale',      dep: 2, valor: 1780.00,  situacao: 'emconferencia', mde: 'ciencia',      oc: 14 },
-    { id: 14, numero: 4482, serie: 1, emissao: '2026-08-19', recebimento: '2026-08-24', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 2460.00,  situacao: 'lancada',       mde: 'confirmada',   oc: null }
+    { id: 1,  numero: 4468, origem: 'compra', serie: 1, emissao: '2026-08-28', recebimento: '2026-09-01', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, valor: 18420.00, situacao: 'lancada',       mde: 'confirmada',   oc: 1 },
+    { id: 2,  numero: 4471, origem: 'compra', serie: 1, emissao: '2026-09-02', recebimento: '2026-09-04', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 7313.00,  situacao: 'divergencia',   mde: 'confirmada',   oc: 2 },
+    { id: 3,  numero: 1182, origem: 'compra', serie: 2, emissao: '2026-09-03', recebimento: '2026-09-05', fornecedor: 'Tecidos Ceará S/A',       dep: 2, valor: 3960.00,  situacao: 'divergencia',   mde: 'confirmada',   oc: 4 },
+    { id: 4,  numero: 9051, origem: 'compra', serie: 1, emissao: '2026-09-08', recebimento: '2026-09-10', fornecedor: 'Nordic Home Importação',  dep: 2, valor: 24890.00, situacao: 'emconferencia', mde: 'ciencia',      oc: 3 },
+    { id: 5,  numero: 4476, origem: 'compra', serie: 1, emissao: '2026-09-09', recebimento: '2026-09-11', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 890.00,   situacao: 'aconferir',     mde: 'pendente',     oc: 12 },
+    { id: 6,  numero: 731, origem: 'compra',  serie: 1, emissao: '2026-09-10', recebimento: '',           fornecedor: 'Papelaria Central',       dep: 1, valor: 412.90,   situacao: 'aconferir',     mde: 'pendente',     oc: 5 },
+    { id: 7,  numero: 2290, origem: 'compra', serie: 1, emissao: '2026-09-05', recebimento: '2026-09-08', fornecedor: 'Embalagens do Vale',      dep: 2, valor: 2240.00,  situacao: 'lancada',       mde: 'confirmada',   oc: 8 },
+    { id: 8,  numero: 6614, origem: 'compra', serie: 1, emissao: '2026-08-30', recebimento: '2026-09-02', fornecedor: 'Luminárias Brasil',       dep: 2, valor: 5380.00,  situacao: 'lancada',       mde: 'confirmada',   oc: 10 },
+    { id: 9,  numero: 9060, origem: 'compra', serie: 1, emissao: '2026-09-06', recebimento: '2026-09-07', fornecedor: 'Nordic Home Importação',  dep: 3, valor: 6120.00,  situacao: 'recusada',      mde: 'naorealizada', oc: 9 },
+    { id: 10, numero: 4479, origem: 'compra', serie: 1, emissao: '2026-09-11', recebimento: '',           fornecedor: 'TechParts Distribuidora', dep: 4, valor: 1580.00,  situacao: 'aconferir',     mde: 'pendente',     oc: 7 },
+    // Devolucoes de venda. Nascem EM TRANSITO: o documento existe e a
+    // mercadoria esta na rua. `recebimento` vazio e o que diz isso.
+    { id: 15, origem: 'devolucao', numero: 9001, serie: 1, emissao: '2026-10-06', recebimento: '', fornecedor: 'Construtora Veredas Ltda', dep: 1, valor: 1080.00, situacao: 'transito',   mde: 'naoseaplica', oc: null, devolucao: 'DV-0012', devolucaoId: 1, pedido: 'PV-4862' },
+    { id: 16, origem: 'devolucao', numero: 9002, serie: 1, emissao: '2026-10-03', recebimento: '2026-10-07', fornecedor: 'Marcos Aurélio Pinheiro',  dep: 1, valor: 349.90,  situacao: 'aconferir',  mde: 'naoseaplica', oc: null, devolucao: 'DV-0011', devolucaoId: 2, pedido: 'PV-4790' },
+    { id: 17, origem: 'devolucao', numero: 9003, serie: 1, emissao: '2026-09-28', recebimento: '2026-10-01', fornecedor: 'Ateliê Dona Rosa',        dep: 2, valor: 720.00,  situacao: 'lancada',    mde: 'naoseaplica', oc: null, devolucao: 'DV-0010', devolucaoId: 3, pedido: 'PV-4655' },
+    { id: 11, numero: 1190, origem: 'compra', serie: 2, emissao: '2026-08-31', recebimento: '2026-09-03', fornecedor: 'Tecidos Ceará S/A',       dep: 2, valor: 11200.00, situacao: 'aconferir',     mde: 'pendente',     oc: 11 },
+    { id: 12, numero: 736, origem: 'compra',  serie: 1, emissao: '2026-08-22', recebimento: '2026-08-26', fornecedor: 'Papelaria Central',       dep: 1, valor: 320.00,   situacao: 'lancada',       mde: 'confirmada',   oc: 13 },
+    { id: 13, numero: 2301, origem: 'compra', serie: 1, emissao: '2026-09-09', recebimento: '2026-09-10', fornecedor: 'Embalagens do Vale',      dep: 2, valor: 1780.00,  situacao: 'emconferencia', mde: 'ciencia',      oc: 14 },
+    { id: 14, numero: 4482, origem: 'compra', serie: 1, emissao: '2026-08-19', recebimento: '2026-08-24', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 2460.00,  situacao: 'lancada',       mde: 'confirmada',   oc: null }
   ];
+  // Quem EMITE a nota de devolucao nao e sempre o cliente. Cliente pessoa
+  // fisica nao emite NF-e: nesses casos a nota de entrada e emitida por NOS,
+  // contra o nosso proprio CNPJ, e e isso que o `emitente` diz. Cliente
+  // pessoa juridica emite a dele, e a nota chega como qualquer outra.
+  const EMPRESA = { nome: 'Desk Company', cnpj: '41.903.556/0001-02', uf: '21' };
+  const CLIENTES = {
+    'Construtora Veredas Ltda': { cnpj: '12.884.330/0001-47', uf: '21', pj: true },
+    'Ateliê Dona Rosa':         { cnpj: '09.771.204/0001-88', uf: '21', pj: true },
+    'Marcos Aurélio Pinheiro':  { cnpj: '', uf: '21', pj: false }
+  };
   NOTAS.forEach(n => {
+    if (n.origem === 'devolucao') {
+      const c = CLIENTES[n.fornecedor] || { cnpj: '', uf: '21', pj: false };
+      const propria = !c.pj;
+      n.emitente = propria ? EMPRESA.nome + ' (nota própria)' : n.fornecedor;
+      n.cnpj = propria ? EMPRESA.cnpj : c.cnpj;
+      n.chave = chaveDe(propria ? EMPRESA.uf : c.uf,
+                        n.emissao.slice(2, 4) + n.emissao.slice(5, 7), n.cnpj, n.serie, n.numero);
+      return;
+    }
     const f = FORNECEDORES[n.fornecedor];
+    n.emitente = n.fornecedor;
     n.cnpj = f.cnpj;
     n.chave = chaveDe(f.uf, n.emissao.slice(2, 4) + n.emissao.slice(5, 7), f.cnpj, n.serie, n.numero);
   });
@@ -1594,6 +1707,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     4: [{ nome: 'Poltrona Nordic Oslo',   sku: 'POL-NOR-004', un: 'UN', qtdNota: 14, conferida: 0,  preco: 1420.00, motivo: '' },
         { nome: 'Tapete Nordic 2x3',      sku: 'TAP-NOR-007', un: 'UN', qtdNota: 8,  conferida: 0,  preco: 621.25, motivo: '' }],
     9: [{ nome: 'Poltrona Nordic Oslo',   sku: 'POL-NOR-004', un: 'UN', qtdNota: 4,  conferida: 0,  preco: 1530.00, motivo: 'recusado' }]
+  };
+  // Itens das notas de devolucao: sao os que voltaram, e e com eles que a
+  // Conferencia de Entrada vai contar. `conferida: null` quer dizer que
+  // ninguem abriu a caixa ainda — diferente de `0`, que seria "contei e nao
+  // veio nada".
+  const ITENS_DEVOLUCAO = {
+    15: [{ nome: 'Furadeira de impacto 850W', sku: 'FER-2201', un: 'UN', qtdNota: 2, conferida: null, preco: 540.00, motivo: '' }],
+    16: [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'ELE-1001', un: 'UN', qtdNota: 1, conferida: null, preco: 199.90, motivo: '' },
+         { nome: 'Cabo USB-C 2m', sku: 'ELE-1044', un: 'UN', qtdNota: 2, conferida: null, preco: 75.00, motivo: '' }],
+    17: [{ nome: 'Luminária de mesa articulada', sku: 'ILU-3310', un: 'UN', qtdNota: 3, conferida: 3, preco: 240.00, motivo: '' }]
   };
   const ITENS_PADRAO = [{ nome: 'Item de exemplo', sku: 'sem SKU', un: 'UN', qtdNota: 1, conferida: 0, preco: 0, motivo: '' }];
 
@@ -1696,7 +1819,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function atualizarContadores() {
     const base = baseFiltrada();
-    const cont = { todos: base.length, aconferir: 0, emconferencia: 0, divergencia: 0, lancada: 0, recusada: 0 };
+    const cont = { todos: base.length, transito: 0, aconferir: 0, emconferencia: 0, divergencia: 0, lancada: 0, recusada: 0 };
     base.forEach(n => { cont[n.situacao]++; });
     document.querySelectorAll('.sit-contador').forEach(el => {
       el.textContent = cont[el.getAttribute('data-cont')];
@@ -1706,6 +1829,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Celula de manifestacao: o evento mais o prazo que ainda corre. Prazo e o unico
   // numero da tela que vence sozinho, por isso ele fica visivel na listagem.
   function celulaMde(n) {
+    // Manifestacao do Destinatario e evento sobre nota de TERCEIRO contra o
+    // nosso CNPJ. Numa devolucao de venda a nota e nossa ou do cliente — nao
+    // ha o que manifestar, e mostrar "Sem manifestacao" aqui seria cobrar uma
+    // providencia que nao existe.
+    if (n.origem === 'devolucao') return '<span class="mde-naoseaplica" title="Manifestação vale para nota de fornecedor. Esta é uma devolução de venda.">—</span>';
     const badge = '<span class="badge-situacao ' + MDE_CLASSE[n.mde] + '" title="' + MDE_LABEL[n.mde] + '"><span class="sit-dot"></span>' + MDE_CURTO[n.mde] + '</span>';
     let prazo = '';
     if (n.mde === 'pendente') {
@@ -1727,6 +1855,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? 'Nenhuma nota sem manifestação agora.'
       : '<b>' + pendentes + (pendentes === 1 ? ' nota' : ' notas') + '</b> sem manifestação' + (vencendo > 0 ? ', ' + vencendo + ' com o prazo de ciência vencendo ou vencido.' : '.');
     document.getElementById('avisoPrazosTexto').innerHTML = txt;
+  }
+
+  // De onde a nota veio, embaixo do nome. Sem coluna nova: a tabela ja tem
+  // nove e o card tem largura fixa a 1440px.
+  function origemDaNota(n) {
+    if (n.origem !== 'devolucao') return ORIGEM_LABEL.compra;
+    return ORIGEM_LABEL.devolucao + (n.pedido ? ' · ' + n.pedido : '');
   }
 
   function renderTabela() {
@@ -1765,7 +1900,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto"><span class="oc-numero">' + n.numero + '</span><span class="nota-serie">série ' + n.serie + '</span></td>' +
         '<td class="col-texto">' + fmtData(n.emissao) + '</td>' +
         '<td class="col-texto">' + fmtData(n.recebimento) + '</td>' +
-        '<td class="col-texto">' + n.fornecedor + '</td>' +
+        '<td class="col-texto"><span class="nota-dequem">' + n.fornecedor + '</span>' +
+          '<span class="nota-serie">' + origemDaNota(n) + '</span></td>' +
         '<td class="col-texto">' + DEPOSITOS[n.dep] + '</td>' +
         '<td>' + fmtMoeda(n.valor) + '</td>' +
         '<td class="col-texto">' + celulaMde(n) + '</td>' +
@@ -1888,14 +2024,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function abrirPreview(id) {
     const n = NOTAS.find(x => x.id === id);
     if (!n) return;
-    const itens = ITENS_NOTA[n.id] || ITENS_PADRAO;
+    const itens = ITENS_DEVOLUCAO[n.id] || ITENS_NOTA[n.id] || ITENS_PADRAO;
     const jaConferida = n.situacao === 'divergencia' || n.situacao === 'lancada';
     document.getElementById('drawerTitulo').textContent = 'Nota ' + n.numero + ' · série ' + n.serie;
 
     let html =
       '<div class="drawer-badges">' +
         '<span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span>' +
-        '<span class="badge-situacao ' + MDE_CLASSE[n.mde] + '"><span class="sit-dot"></span>' + MDE_LABEL[n.mde] + '</span>' +
+        (n.origem === 'devolucao' ? '' :
+          '<span class="badge-situacao ' + MDE_CLASSE[n.mde] + '"><span class="sit-dot"></span>' + MDE_LABEL[n.mde] + '</span>') +
       '</div>' +
       '<div class="chave-bloco"><div class="chave-rotulo">Chave de acesso</div><div class="chave-valor">' + fmtChave(n.chave) + '</div></div>' +
       '<div class="extrato-linha"><span class="extrato-rotulo">Fornecedor</span><span class="extrato-valor">' + n.fornecedor + '</span></div>' +
@@ -1941,6 +2078,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<button class="btn-secundario" id="btnComunicado" style="margin-top:12px;">Ver comunicado de divergência</button>';
     }
 
+    // O tipo decide o formulario: campo que nao se aplica SOME (§14.28). Numa
+    // devolucao de venda a nota e nossa ou do cliente, e Manifestacao do
+    // Destinatario e evento sobre nota de TERCEIRO contra o nosso CNPJ. O
+    // bloco inteiro sai — oferecer os botoes aqui deixava registrar um evento
+    // que a coluna da listagem, corretamente, ignora: a tela gravava uma coisa
+    // e mostrava outra.
+    if (n.origem === 'devolucao') {
+      html += '<div class="extrato-bloco-titulo">Origem desta entrada</div>' +
+        '<div class="field-hint" style="margin-bottom:10px;">' +
+        'Devolução <b>' + (n.devolucao || '—') + '</b>, do pedido <b>' + (n.pedido || '—') + '</b>. ' +
+        'Manifestação do destinatário não se aplica: ela é evento sobre nota de fornecedor contra o nosso CNPJ.' +
+        '</div>' +
+        '<a class="btn-secundario" href="pagina-logistica-devolucao-detalhe.html?id=' +
+          n.devolucaoId + '">Ver a devolução ' + (n.devolucao || '') + '</a>';
+    } else {
+
     html += '<div class="extrato-bloco-titulo">Manifestação do destinatário</div>';
     if (n.mde === 'pendente') {
       const pc = prazoCiencia(n);
@@ -1957,6 +2110,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<button class="btn-secundario" data-mde="naorealizada">Operação não realizada</button>' +
         '<button class="btn-secundario" data-mde="desconhecida">Desconhecimento</button>' +
         '</div>';
+    }
+
     }
 
     html += '<div class="drawer-footer">';

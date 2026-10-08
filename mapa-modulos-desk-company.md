@@ -36,7 +36,7 @@
 |---|---|
 | ✅ | Controle de Estoques *(+ detalhe)* |
 | ✅ | Entrada de Notas *(+ detalhe)* |
-| ✅ | Conferência de Compra *(+ a tela de contagem cega)* |
+| ✅ | Conferência de Entrada *(+ a tela de contagem cega)* |
 | ✅ | Endereçamento |
 | ✅ | Reposição |
 | ✅ | Ordens de Compra *(+ detalhe)* |
@@ -128,6 +128,6 @@
 | **Operacional** | **2** | **4** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **46 entradas de menu · 68 telas** | **22** |
+| **Total** | **46 entradas de menu · 70 telas** | **22** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

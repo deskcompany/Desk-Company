@@ -16,7 +16,7 @@
   * { box-sizing: border-box; margin:0; padding:0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
 
   :root {
-    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0;
+    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0; --divisor: #CFCBBD;
     --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
     --brand-blue: #2563EB; --logo-color: #2979FF;
     --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
@@ -24,7 +24,7 @@
     --card-bg: #FFFFFF;
   }
   body.dark {
-    --page-bg: #101010; --panel-bg: #101010; --border: #262626;
+    --page-bg: #101010; --panel-bg: #101010; --border: #262626; --divisor: #363636;
     --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
     --brand-blue: #2563EB; --logo-color: #FFFFFF;
     --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
@@ -231,7 +231,9 @@
 
   .spacer { flex:1; }
 
-  .bottom-list { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  /* Linha SOZINHA precisa de mais contraste que contorno de card: `--border`
+     media 1.2:1 aqui e sumia. `--divisor` fica em ~1.57:1 nos dois temas. */
+  .bottom-list { border-top: 1px solid var(--divisor); padding-top: 10px; margin-top: 10px; }
   .bottom-item {
     display:flex; align-items:center; gap:13px; padding:7px 12px; border-radius:10px;
     font-family:'Nunito',sans-serif; font-weight:600; font-size:14px; color: var(--text); cursor:pointer; margin-bottom:1px;
@@ -258,7 +260,10 @@
     transition: width .2s ease, padding .2s ease, border-width .2s ease;
   }
   .flyout-col.open { width: 300px; padding: 22px 10px; border-left-width: 1px; }
-  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 12px 14px; white-space: nowrap; user-select:none; }
+  /* A linha abaixo do titulo do modulo atravessa o painel inteiro: a margem
+     negativa compensa o padding lateral do .flyout-col aberto (10px). Sem
+     ela o titulo encostava nos itens e os dois pareciam a mesma lista. */
+  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 22px 14px; margin: 0 -10px 12px; white-space: nowrap; user-select:none; border-bottom: 1px solid var(--divisor); }
 
   .flyout-body { overflow-y:auto; overflow-x:hidden; flex:1; }
   .flyout-item {
@@ -271,14 +276,21 @@
   .flyout-item svg { width:17px; height:17px; flex-shrink:0; }
   .flyout-item:hover { transform: translateX(6px); background: var(--active-bg); color: var(--active-text); }
 
-  .theme-picker { margin-top: auto; padding: 14px 12px 4px; border-top: 1px solid var(--border); }
-  .theme-picker .label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color: var(--text); font-weight:700; margin-bottom:10px; }
-  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 10px; padding:3px; }
+  .theme-picker { margin-top: auto; padding: 12px 12px 4px; border-top: 1px solid var(--divisor); }
+  .theme-picker .label { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color: var(--text-heading); margin-bottom:9px; }
+  /* Rotulo a esquerda, botoes a direita, na mesma linha: o tema e preferencia
+     que se mexe uma vez, nao acao principal. Esticar os botoes pela largura
+     dava a eles o peso de um botao de salvar. */
+  .theme-linha { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .theme-linha-rotulo { font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color: var(--text); flex-shrink:0; }
+  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 20px; padding:2px; }
   .theme-seg button {
-    flex:1; border:none; background:transparent; color: var(--text); font-size:13px; padding:7px 0;
-    border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600;
+    border:none; background:transparent; color: var(--text); font-size:11.5px; padding:4px 9px;
+    border-radius: 18px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700;
+    white-space:nowrap;
   }
-  .theme-seg button.active { background: var(--brand-blue); color:#fff; font-weight:600; }
+  .theme-seg button:hover { color: var(--text-heading); }
+  .theme-seg button.active { background: var(--brand-blue); color:#fff; }
 
   /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
   .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
@@ -674,7 +686,7 @@
   .switch.travado { opacity:0.5; pointer-events:none; }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
@@ -845,10 +857,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
       <span class="label-text">Integrações</span>
     </div>
-    <div class="nav-item" data-id="config" data-label="Configurações">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="label-text">Configurações</span>
-    </div>
 
     <div class="spacer"></div>
 
@@ -860,6 +868,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="bottom-item" data-id="suporte" data-label="Central de Suporte">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span class="label-text">Central de Suporte</span>
+      </div>
+      <div class="bottom-item" data-id="config" data-label="Configurações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label-text">Configurações</span>
       </div>
 
       <div class="fixar-row">
@@ -906,7 +918,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="flyout-body">
       <div class="flyout-item" data-label="Controle de Estoques" data-href="pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
       <div class="flyout-item" data-label="Entrada de Notas" data-href="pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
-      <div class="flyout-item" data-label="Conferência de Compra" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Compra</div>
+      <div class="flyout-item" data-label="Conferência de Entrada" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
       <div class="flyout-item" data-label="Endereçamento" data-href="pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
       <div class="flyout-item" data-label="Reposição" data-href="pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
@@ -996,11 +1008,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Configurações ERP" data-href="pagina-configuracoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.62.77 1.06 1.42 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações ERP</div>
     </div>
     <div class="theme-picker">
-      <div class="label">Preferências · Tema</div>
-      <div class="theme-seg">
-        <button data-theme="auto">Auto</button>
-        <button data-theme="light">Claro</button>
-        <button data-theme="dark" class="active">Escuro</button>
+      <div class="label">Preferências</div>
+      <div class="theme-linha">
+        <span class="theme-linha-rotulo">Tema</span>
+        <div class="theme-seg">
+          <button data-theme="auto">Auto</button>
+          <button data-theme="light">Claro</button>
+          <button data-theme="dark" class="active">Escuro</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1338,7 +1353,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
     // avancar o funil nao pede senha e alterar a situacao a mao pede.
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoLancaEstoque', nome:'Lançar no estoque a mercadoria devolvida',        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },

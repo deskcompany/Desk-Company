@@ -27,6 +27,22 @@ URL = _pathlib.Path(PASTA).as_uri() + '/'
 LISTA = 'pagina-logistica-devolucao.html'
 DET = 'pagina-logistica-devolucao-detalhe.html'
 
+def clicarId(pg, eid):
+    """Clique pelo DOM: com um painel aberto o Playwright recusa o clique por
+    interceptacao de ponteiro, e aqui o painel e justamente o alvo."""
+    pg.evaluate("(i) => document.getElementById(i).click()", eid)
+
+
+def trocar(pg, raiz, menu, valor):
+    """Abre o dropdown e escolhe a opcao, pelo DOM: com um painel aberto o
+    Playwright recusa o clique por interceptacao de ponteiro."""
+    pg.evaluate("(r) => document.querySelector('#' + r + ' .dropdown-select-btn').click()", raiz)
+    pg.wait_for_timeout(250)
+    pg.evaluate("([m, v]) => document.querySelector('#' + m + ' [data-value=\"' + v + '\"]').click()",
+                [menu, valor])
+    pg.wait_for_timeout(350)
+
+
 falhas = []
 def ok(c, m):
     print(('  ok   ' if c else '  FALHA ') + m)
@@ -118,22 +134,41 @@ with sync_playwright() as pw:
     ok('sugest' in pg.inner_text('#hintMotivo').lower(),
        'a tela diz que o motivo SUGERE o destino: %s' % pg.inner_text('#hintMotivo'))
 
-    print('\n[8] Lancar estoque e ACAO EXPLICITA, e muda o saldo uma vez so')
-    ok(pg.locator('#btnLancarEstoque:visible').count() == 1, 'ha um botao de lancar estoque')
-    ok('ainda não lançado' in pg.inner_text('#docEstQuando').lower(), 'antes de lancar, a tela diz que nao lancou')
-    ok('parâmetro' in pg.inner_text('#docEstDeposito').lower(),
-       'e diz que o deposito vem do parametro: %s' % pg.inner_text('#docEstDeposito'))
-    pg.locator('#btnLancarEstoque').click(); pg.wait_for_timeout(450)
-    ok(pg.locator('#confirmModal.open').count() == 1, 'lancar para no modal de confirmacao')
-    ok(pg.evaluate("!DEV.estoque"), 'e nao lanca sozinho')
-    pg.fill('#inputSenhaModal', 'senha-de-teste')
-    pg.evaluate("document.getElementById('btnConfirmModalConfirmar').click()"); pg.wait_for_timeout(600)
-    ok(pg.evaluate("!!DEV.estoque"), 'confirmado, o estoque e lancado')
-    ok(pg.locator('#btnLancarEstoque:visible').count() == 0,
-       'e o botao some: lancar duas vezes duplicaria a entrada')
-    ok('já entrou' in pg.inner_text('#avisoEstoqueTexto').lower() or
-       'já entraram' in pg.inner_text('#avisoEstoqueTexto').lower(),
-       'o aviso passa a falar no passado')
+    print('\n[8] A Devolucao NAO mexe no saldo: ela so confirma que a caixa chegou')
+    # Devolucao de venda e, fiscalmente, uma nota de ENTRADA. O "Lancar
+    # estoque" que existia aqui pulava o documento E deixava alguem declarar o
+    # estado da mercadoria antes de ter aberto a caixa. Agora a devolucao faz
+    # nascer a nota, e o saldo sobe na Conferencia de Entrada.
+    ok(pg.evaluate("!document.getElementById('btnLancarEstoque')"),
+       'nao existe mais botao de lancar estoque nesta tela')
+    ok(pg.evaluate("!!DEV.notaEntrada"), 'a devolucao fez nascer a nota de entrada')
+    ok(pg.evaluate("DEV.notaEntrada.situacao") == 'transito',
+       'ela nasce EM TRANSITO: o documento existe e a mercadoria esta na rua')
+    ok('em trânsito' in pg.inner_text('#docEstSitNota').lower(),
+       'e a tela diz isso: %s' % pg.inner_text('#docEstSitNota'))
+    ok('ainda na rua' in pg.inner_text('#docEstChegada').lower(),
+       'sem data de chegada enquanto nao chegou')
+    ok(pg.locator('#btnConfirmarChegada:visible').count() == 1, 'ha o botao de confirmar chegada')
+
+    # Confirmar chegada NAO pede senha de proposito: quem recebe caixa faz isso
+    # dezenas de vezes por dia, e senha a cada caixa vira senha compartilhada —
+    # pior que senha nenhuma. Pela mecanica do sistema, acao sem senha executa
+    # direto e fica no registro de atividades.
+    pg.locator('#btnConfirmarChegada').click(); pg.wait_for_timeout(600)
+    ok(pg.locator('#confirmModal.open').count() == 0,
+       'nao para em modal: e fato da portaria, nao decisao sobre o saldo')
+    ok(pg.evaluate("ACOES_ESPECIFICAS.filter(a => a.chave === 'devolucaoConfirmaChegada')[0].pronto"),
+       'mas a acao esta no catalogo, entao vai para o registro de atividades')
+    ok(pg.evaluate("!!DEV.notaEntrada.chegada"), 'confirmado, a chegada e registrada')
+    ok(pg.evaluate("DEV.notaEntrada.situacao") == 'aconferir',
+       'e a nota entra na fila de conferencia')
+    # A asserção que guarda o ponto do fluxo: chegar NAO e entrar no saldo.
+    ok(pg.evaluate("DEV.notaEntrada.situacao !== 'lancada'"),
+       'confirmar chegada NAO lanca o saldo — isso e da conferencia')
+    ok('conferência de entrada' in pg.inner_text('#avisoEstoqueTexto').lower(),
+       'e o aviso diz onde o saldo sobe: %s' % pg.inner_text('#avisoEstoqueTexto')[:60])
+    ok(pg.locator('#btnConfirmarChegada:visible').count() == 0,
+       'o botao some: confirmar duas vezes nao faz sentido')
 
     print('\n[9] Devolver mais do que foi vendido e barrado')
     pg.goto(URL + DET + '?id=2'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
@@ -186,14 +221,86 @@ with sync_playwright() as pw:
     ok(semReversa == 0, 'o funil do Rastreamento nao ganhou situacao de volta (%d)' % semReversa)
     pg2.close()
 
+    print('\n[12b] A reversa e COTACAO: ofertas, quem paga, e o codigo que ainda nao saiu')
+    # A escolha e a mesma do checkout: comparar ofertas e decidir. E ha uma
+    # distincao que o cliente sente na pele — autorizacao de postagem (ele
+    # leva um codigo) contra etiqueta invertida (ele PRECISA imprimir).
+    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    ok(pg.evaluate("!DEV.reversa"), 'a DV-0012 ainda nao pediu reversa')
+    # §9.3: dropdown de painel nasce com a TELA. Painel fechado tambem e pagina.
+    ok(pg.evaluate("document.querySelectorAll('#revOfertas .oferta').length") > 0,
+       'as ofertas ja existem antes de o painel abrir')
+    clicarId(pg, 'btnReversa'); pg.wait_for_timeout(500)
+    ok(pg.locator('#revDrawer.open').count() == 1, 'o painel abre em vez de gravar direto')
+
+    plats = pg.evaluate("OFERTAS_REVERSA.map(o => o.plataforma)")
+    ok(len(set(plats)) >= 3,
+       'as ofertas vem de plataformas diferentes, para comparar: %s' % sorted(set(plats)))
+    tipos = pg.evaluate("OFERTAS_REVERSA.map(o => o.entrega)")
+    ok('codigo' in tipos and 'etiqueta' in tipos,
+       'e distinguem codigo de postagem de etiqueta para imprimir: %s' % sorted(set(tipos)))
+    ok('propria' in tipos, 'a coleta por frota propria tambem e uma oferta')
+
+    # Quem paga vem do GRUPO do motivo, como o destino no estoque.
+    grupo = pg.evaluate("motivoDe(DEV.motivoId).grupo")
+    sugerido = pg.evaluate("document.getElementById('revQuemPaga').getAttribute('data-value')")
+    ok(grupo == 'transporte' and sugerido == 'nos',
+       'motivo de grupo %s sugere que NOS pagamos (%s)' % (grupo, sugerido))
+
+    # Escolher a etiqueta tem de AVISAR que o cliente precisa de impressora.
+    pg.evaluate("(s) => document.querySelector(s).click()", '[data-oferta="sf-jadlog"]')
+    pg.wait_for_timeout(400)
+    ok('IMPRIMIR' in pg.inner_text('#revResumo'),
+       'a oferta de etiqueta avisa que o cliente precisa imprimir')
+    ok('19,80' in pg.inner_text('#revResumo'), 'e mostra o valor dela')
+
+    clicarId(pg, 'revConfirmar'); pg.wait_for_timeout(700)
+    if pg.locator('#campoSenhaModal').count() and pg.locator('#campoSenhaModal').is_visible():
+        pg.fill('#inputSenhaModal', 'senha-de-teste')
+    if pg.locator('#btnConfirmModalConfirmar').count():
+        clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
+    r = pg.evaluate("DEV.reversa")
+    ok(r and r.get('plataforma') == 'SuperFrete', 'grava a plataforma: %s' % (r or {}).get('plataforma'))
+    ok(r and abs((r.get('valor') or 0) - 19.80) < 0.01, 'e o valor da oferta: %s' % (r or {}).get('valor'))
+
+    # O passo do meio: pedido gerado, codigo inexistente. Sem ele visivel,
+    # alguem avisa o cliente e o manda a agencia a toa.
+    ok(r and r.get('codigo') == '', 'o codigo nasce VAZIO: ele sai depois do pagamento')
+    ok('ainda não saiu' in pg.inner_text('#avisoReversaTexto'),
+       'e a tela nomeia esse estado, em vez de dizer so que foi pedida')
+    ok('não foi avisado' in pg.inner_text('#avisoReversaTexto'),
+       'dizendo que o cliente ainda NAO foi avisado')
+    ok(pg.locator('#linhaCodReversa').is_visible(), 'e abre o campo para registrar o codigo')
+    soInterno = pg.evaluate(
+        'DEV.eventos.filter(e => e.tipo === "reversa").every(e => e.interna === true)')
+    ok(soInterno, 'enquanto nao ha codigo, nada da reversa vai para a vitrine')
+
+    # Codigo curto demais e recusado: um codigo errado manda o cliente a toa.
+    pg.fill('#inputCodReversa', 'ab12'); pg.wait_for_timeout(200)
+    clicarId(pg, 'btnCodReversa'); pg.wait_for_timeout(500)
+    ok(pg.evaluate("DEV.reversa.codigo") == '', 'codigo curto nao e aceito')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+
+    pg.fill('#inputCodReversa', 'ab123456789br'); pg.wait_for_timeout(200)
+    clicarId(pg, 'btnCodReversa'); pg.wait_for_timeout(600)
+    if pg.locator('#confirmModal.open').count() and pg.locator('#btnConfirmModalConfirmar').count():
+        clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
+    ok(pg.evaluate("DEV.reversa.codigo") == 'AB123456789BR',
+       'o codigo e gravado em maiuscula: %s' % pg.evaluate("DEV.reversa.codigo"))
+    # Padrao Shopee: devolucao aprovada, codigo no pedido do cliente.
+    temVitrine = pg.evaluate(
+        'DEV.eventos.some(e => e.tipo === "reversa" && !e.interna && String(e.nota).indexOf("AB123456789BR") >= 0)')
+    ok(temVitrine, 'e SO entao o codigo vira evento de vitrine, visivel para o cliente')
+    ok(not pg.locator('#linhaCodReversa').is_visible(), 'o campo some depois de registrado')
+
     print('\n[13] Finalizar com estoque pendente e barrado')
     pg.goto(URL + DET + '?id=4'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
-    ok(pg.evaluate("!DEV.estoque"), 'a DV-0009 ainda nao teve estoque lancado')
+    ok(pg.evaluate("!estoqueLancado(DEV)"), 'a DV-0009 ainda nao teve estoque lancado')
     temPendente = pg.evaluate("podeLancarEstoque(DEV)")
     pg.locator('#menuMaisAcoes .dropdown-select-btn').click(); pg.wait_for_timeout(250)
     pg.locator('#menuMaisAcoes [data-acao="finalizar"]').click(); pg.wait_for_timeout(450)
     if temPendente:
-        ok('lançar no estoque' in pg.inner_text('body').lower(),
+        ok('não entrou no saldo' in pg.inner_text('body').lower(),
            'a tela explica que a caixa ficaria fora do saldo')
         ok(pg.evaluate("DEV.situacao") != 'finalizada', 'e nao finaliza')
     else:
@@ -204,7 +311,7 @@ with sync_playwright() as pw:
 
     print('\n[14] Cancelar depois de lancar o estoque e barrado')
     pg.goto(URL + DET + '?id=3'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
-    ok(pg.evaluate("!!DEV.estoque"), 'a DV-0010 ja teve o estoque lancado')
+    ok(pg.evaluate("estoqueLancado(DEV)"), 'a DV-0010 ja teve o estoque lancado pela conferencia')
     pg.locator('#menuMaisAcoes .dropdown-select-btn').click(); pg.wait_for_timeout(250)
     pg.locator('#menuMaisAcoes [data-acao="cancelar"]').click(); pg.wait_for_timeout(450)
     ok('acerto de estoque' in pg.inner_text('body').lower(),
@@ -261,14 +368,19 @@ with sync_playwright() as pw:
 
     print('\n[19] A trava nasce com a tela')
     pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
-    chaves = ['devolucaoCria', 'devolucaoLancaEstoque', 'devolucaoFinaliza',
+    chaves = ['devolucaoCria', 'devolucaoConfirmaChegada', 'devolucaoFinaliza',
               'devolucaoCancela', 'devolucaoReversa']
     for k in chaves:
         achou = pg.evaluate("ACOES_ESPECIFICAS.some(a => a.chave === '%s')" % k)
         ok(achou, 'a acao %s esta no catalogo' % k)
-    senha = pg.evaluate("""['devolucaoLancaEstoque','devolucaoFinaliza','devolucaoCancela']
+    senha = pg.evaluate("""['devolucaoFinaliza','devolucaoCancela']
       .every(k => ACOES_ESPECIFICAS.filter(a => a.chave === k)[0].exigePadrao === true)""")
-    ok(senha, 'mexer no saldo, finalizar e cancelar nascem exigindo senha')
+    ok(senha, 'finalizar e cancelar nascem exigindo senha')
+    # Confirmar chegada NAO pede senha: e um fato da portaria, nao uma decisao
+    # sobre o saldo. Quem mexe no saldo e a conferencia, e la a trava e outra.
+    semSenha = pg.evaluate(
+        "ACOES_ESPECIFICAS.filter(a => a.chave === 'devolucaoConfirmaChegada')[0].exigePadrao === false")
+    ok(semSenha, 'confirmar chegada nasce SEM senha: e fato da portaria, nao decisao de saldo')
     p5 = nav.new_page(viewport={'width': 1440, 'height': 950})
     p5.goto(URL + 'pagina-configuracoes-confirmacoes-senha.html'); p5.wait_for_timeout(600)
     todas = p5.evaluate("['%s'].every(k => ACOES_ESPECIFICAS.some(a => a.chave === k))" % "','".join(chaves))
@@ -288,6 +400,26 @@ with sync_playwright() as pw:
             ok('unito' in est['fonte'], '%s tema %s: fonte Nunito' % (alvo.split('?')[0][-18:], tema))
             ok(est['larg'] <= 1440, '%s tema %s: nao estoura em 1440 (%d)' % (alvo.split('?')[0][-18:], tema, est['larg']))
     ok(not erros, 'sem erro de JS nas duas telas: %s' % erros[:2])
+
+    print('\n[21b] A nota da devolucao aparece na Entrada de Notas e na fila')
+    # A promessa do fluxo so vale se o documento aparecer do OUTRO lado. Sem
+    # isto, "nasce uma nota de entrada" e texto na tela de devolucao.
+    p6 = nav.new_page(viewport={'width': 1440, 'height': 950})
+    p6.goto(URL + 'pagina-estoque-entrada-notas.html'); p6.wait_for_timeout(800)
+    temTransito = p6.evaluate("NOTAS.some(n => n.origem === 'devolucao' && n.situacao === 'transito')")
+    ok(temTransito, 'Entrada de Notas tem devolucao em transito')
+    ok(p6.locator('.aba-sit[data-sit="transito"]').count() == 1, 'e a aba Em transito existe la')
+    semMde = p6.evaluate("""() => {
+      const n = NOTAS.filter(x => x.origem === 'devolucao')[0];
+      return celulaMde(n).indexOf('naoseaplica') >= 0;
+    }""")
+    ok(semMde, 'manifestacao nao se aplica a devolucao: a coluna mostra tracinho')
+    p6.goto(URL + 'pagina-estoque-conferencia-compra.html'); p6.wait_for_timeout(800)
+    naFila = p6.evaluate("NOTAS.some(n => n.origem === 'devolucao')")
+    ok(naFila, 'e a devolucao entra na fila de Conferencia de Entrada')
+    ok('Conferência de Entrada' in p6.inner_text('h1'),
+       'que mudou de nome, porque nao recebe so compra: %s' % p6.inner_text('h1'))
+    p6.close()
 
     print('\n[21] O item de menu deixou de ser inerte')
     href = pg.evaluate("""() => {

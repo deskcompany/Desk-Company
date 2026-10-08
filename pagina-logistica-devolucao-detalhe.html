@@ -16,7 +16,7 @@
   * { box-sizing: border-box; margin:0; padding:0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
 
   :root {
-    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0;
+    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0; --divisor: #CFCBBD;
     --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
     --brand-blue: #2563EB; --logo-color: #2979FF;
     --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
@@ -24,7 +24,7 @@
     --card-bg: #FFFFFF;
   }
   body.dark {
-    --page-bg: #101010; --panel-bg: #101010; --border: #262626;
+    --page-bg: #101010; --panel-bg: #101010; --border: #262626; --divisor: #363636;
     --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
     --brand-blue: #2563EB; --logo-color: #FFFFFF;
     --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
@@ -231,7 +231,9 @@
 
   .spacer { flex:1; }
 
-  .bottom-list { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  /* Linha SOZINHA precisa de mais contraste que contorno de card: `--border`
+     media 1.2:1 aqui e sumia. `--divisor` fica em ~1.57:1 nos dois temas. */
+  .bottom-list { border-top: 1px solid var(--divisor); padding-top: 10px; margin-top: 10px; }
   .bottom-item {
     display:flex; align-items:center; gap:13px; padding:7px 12px; border-radius:10px;
     font-family:'Nunito',sans-serif; font-weight:600; font-size:14px; color: var(--text); cursor:pointer; margin-bottom:1px;
@@ -258,7 +260,10 @@
     transition: width .2s ease, padding .2s ease, border-width .2s ease;
   }
   .flyout-col.open { width: 300px; padding: 22px 10px; border-left-width: 1px; }
-  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 12px 14px; white-space: nowrap; user-select:none; }
+  /* A linha abaixo do titulo do modulo atravessa o painel inteiro: a margem
+     negativa compensa o padding lateral do .flyout-col aberto (10px). Sem
+     ela o titulo encostava nos itens e os dois pareciam a mesma lista. */
+  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 22px 14px; margin: 0 -10px 12px; white-space: nowrap; user-select:none; border-bottom: 1px solid var(--divisor); }
 
   .flyout-body { overflow-y:auto; overflow-x:hidden; flex:1; }
   .flyout-item {
@@ -271,14 +276,21 @@
   .flyout-item svg { width:17px; height:17px; flex-shrink:0; }
   .flyout-item:hover { transform: translateX(6px); background: var(--active-bg); color: var(--active-text); }
 
-  .theme-picker { margin-top: auto; padding: 14px 12px 4px; border-top: 1px solid var(--border); }
-  .theme-picker .label { font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color: var(--text); font-weight:700; margin-bottom:10px; }
-  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 10px; padding:3px; }
+  .theme-picker { margin-top: auto; padding: 12px 12px 4px; border-top: 1px solid var(--divisor); }
+  .theme-picker .label { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color: var(--text-heading); margin-bottom:9px; }
+  /* Rotulo a esquerda, botoes a direita, na mesma linha: o tema e preferencia
+     que se mexe uma vez, nao acao principal. Esticar os botoes pela largura
+     dava a eles o peso de um botao de salvar. */
+  .theme-linha { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .theme-linha-rotulo { font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color: var(--text); flex-shrink:0; }
+  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 20px; padding:2px; }
   .theme-seg button {
-    flex:1; border:none; background:transparent; color: var(--text); font-size:13px; padding:7px 0;
-    border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600;
+    border:none; background:transparent; color: var(--text); font-size:11.5px; padding:4px 9px;
+    border-radius: 18px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700;
+    white-space:nowrap;
   }
-  .theme-seg button.active { background: var(--brand-blue); color:#fff; font-weight:600; }
+  .theme-seg button:hover { color: var(--text-heading); }
+  .theme-seg button.active { background: var(--brand-blue); color:#fff; }
 
   /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
   .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
@@ -673,7 +685,7 @@
   .switch.travado { opacity:0.5; pointer-events:none; }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger,
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
@@ -778,6 +790,33 @@
   .chip-prazo { border-color:#B45309; color:#B45309; }
   body.dark .chip-prazo { border-color:#F5A623; color:#F5A623; }
 
+  /* Lista de ofertas de coleta — mesma leitura do checkout do pedido: a
+     pessoa compara preco, prazo e o QUE O CLIENTE VAI PRECISAR FAZER. */
+  .rev-endereco { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); padding:8px 0 0; }
+  .rev-resumo { font-size:12.5px; font-weight:600; line-height:1.55; color:var(--text); background:var(--page-bg); border:1px solid var(--border); border-radius:12px; padding:12px 13px; margin-top:16px; }
+  .ofertas-lista { display:flex; flex-direction:column; gap:8px; }
+  .oferta { display:flex; align-items:flex-start; gap:11px; padding:11px 12px; border:1px solid var(--border);
+            border-radius:12px; cursor:pointer; user-select:none; transition:border-color .15s, background .15s; }
+  .oferta:hover { border-color: var(--chart-2); }
+  .oferta.escolhida { border-color: var(--brand-blue); background: var(--active-bg); }
+  .oferta-radio { width:16px; height:16px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; margin-top:2px; position:relative; }
+  .oferta.escolhida .oferta-radio { border-color: var(--brand-blue); }
+  .oferta.escolhida .oferta-radio::after { content:''; position:absolute; inset:2px; border-radius:50%; background: var(--brand-blue); }
+  .oferta-corpo { flex:1; min-width:0; }
+  .oferta-topo { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .oferta-nome { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color:var(--text-heading); }
+  .oferta-valor { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color:var(--text-heading); white-space:nowrap; }
+  .oferta-sub { font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .oferta-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:1px 7px; border-radius:20px; margin-top:5px; }
+  /* Contraste e medicao, nao opiniao. Sobre o proprio fundo esmaecido, o
+     token de ESTADO (--success, --warning) reprova no tema claro: a tag
+     laranja media 2.03:1. Entao a cor do TEXTO e propria e vive junto do
+     fundo, redefinida em body.dark — onde o token original ja passa. */
+  .oferta-tag.codigo { background: rgba(21,128,61,0.14); color: #12692F; }
+  .oferta-tag.etiqueta { background: rgba(245,166,35,0.16); color: #8A5600; }
+  .oferta-tag.propria { background: var(--active-bg); color: var(--active-text); }
+  body.dark .oferta-tag.codigo { background: rgba(34,197,94,0.14); color: var(--success); }
+  body.dark .oferta-tag.etiqueta { color: var(--warning); }
   .vol-tabela-wrap { overflow:visible; }
   /* table-layout fixo porque a largura NAO pode depender do estado da linha: sem
      isto a coluna encolhia quando o chip virava campo e a tabela inteira dançava
@@ -933,10 +972,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
       <span class="label-text">Integrações</span>
     </div>
-    <div class="nav-item" data-id="config" data-label="Configurações">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="label-text">Configurações</span>
-    </div>
 
     <div class="spacer"></div>
 
@@ -948,6 +983,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="bottom-item" data-id="suporte" data-label="Central de Suporte">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span class="label-text">Central de Suporte</span>
+      </div>
+      <div class="bottom-item" data-id="config" data-label="Configurações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label-text">Configurações</span>
       </div>
 
       <div class="fixar-row">
@@ -994,7 +1033,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="flyout-body">
       <div class="flyout-item" data-label="Controle de Estoques" data-href="pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
       <div class="flyout-item" data-label="Entrada de Notas" data-href="pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
-      <div class="flyout-item" data-label="Conferência de Compra" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Compra</div>
+      <div class="flyout-item" data-label="Conferência de Entrada" data-href="pagina-estoque-conferencia-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
       <div class="flyout-item" data-label="Endereçamento" data-href="pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
       <div class="flyout-item" data-label="Reposição" data-href="pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
@@ -1084,11 +1123,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Configurações ERP" data-href="pagina-configuracoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.62.77 1.06 1.42 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações ERP</div>
     </div>
     <div class="theme-picker">
-      <div class="label">Preferências · Tema</div>
-      <div class="theme-seg">
-        <button data-theme="auto">Auto</button>
-        <button data-theme="light">Claro</button>
-        <button data-theme="dark" class="active">Escuro</button>
+      <div class="label">Preferências</div>
+      <div class="theme-linha">
+        <span class="theme-linha-rotulo">Tema</span>
+        <div class="theme-seg">
+          <button data-theme="auto">Auto</button>
+          <button data-theme="light">Claro</button>
+          <button data-theme="dark" class="active">Escuro</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1252,33 +1294,63 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <!-- O codigo da reversa mora AQUI, nao no Rastreamento (barganha de 07/out):
          o Rastreamento e a ida, com nove situacoes, previsao congelada e KPI de
          atraso. A volta e outro movimento e caberia mal naquele funil. -->
+    <div class="nota-reservado" id="avisoReversa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoReversaTexto"></span>
+    </div>
     <div class="doc-grid">
-      <div class="doc-item"><div class="doc-rotulo">Transportadora</div><div class="doc-valor" id="docRevTransp">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Código da reversa</div><div class="doc-valor" id="docRevCodigo">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Serviço</div><div class="doc-valor" id="docRevTransp">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Código de autorização</div><div class="doc-valor" id="docRevCodigo">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Solicitada em</div><div class="doc-valor" id="docRevData">—</div></div>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Plataforma</div><div class="doc-valor" id="docRevPlataforma">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Quem paga o frete</div><div class="doc-valor" id="docRevQuemPaga">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Valor do frete</div><div class="doc-valor" id="docRevValor">—</div></div>
+    </div>
+    <!-- O codigo vem da plataforma depois do pagamento. Enquanto a integracao
+         nao existe ele e informado a mao — e isso continua valendo depois,
+         para reversa contratada fora do sistema. -->
+    <div class="vol-campo" id="linhaCodReversa" style="justify-content:flex-start; margin-top:14px; display:none;">
+      <input type="text" id="inputCodReversa" placeholder="Código da transportadora" autocomplete="off" maxlength="40">
+      <button type="button" class="btn-mini destaque" id="btnCodReversa">Registrar código</button>
+      <button type="button" class="btn-mini" id="btnCancelarCod" style="display:none;">Cancelar</button>
+    </div>
+    <div class="vol-botoes" id="linhaAlterarCod" style="justify-content:flex-start; margin-top:14px; display:none;">
+      <button type="button" class="btn-mini" id="btnAlterarCod">Alterar código</button>
     </div>
     <div class="vol-botoes" style="justify-content:flex-start; margin-top:14px;">
       <button type="button" class="btn-mini destaque" id="btnReversa">Solicitar logística reversa</button>
+      <button type="button" class="btn-mini" id="btnDeclaracao">Imprimir declaração de conteúdo</button>
     </div>
   </div>
 
   <div class="card">
     <div class="section-title" style="margin-top:0; padding-top:0; border-top:none;">Estoque</div>
-    <!-- Lancar o estoque e ACAO EXPLICITA (barganha de 07/out). No Olist o saldo
-         entra sozinho quando a SEFAZ autoriza a nota; nos nao temos NF-e, e a
-         devolucao pode ser autorizada hoje com a caixa chegando em oito dias.
-         Quem recebeu a mercadoria e que lanca. -->
+    <!-- O saldo NAO sobe aqui (08/out). Devolucao de venda e, fiscalmente, uma
+         nota de ENTRADA: ela nasce em transito junto com a devolucao, entra na
+         fila de Conferencia de Entrada quando a caixa chega, e e la que o saldo
+         sobe — com o produto na mao de quem conta. O "Lancar estoque" que
+         existia aqui pulava o documento E deixava alguem declarar o estado da
+         mercadoria antes de ter aberto a caixa. -->
     <div class="nota-reservado" id="avisoEstoque">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
       <span id="avisoEstoqueTexto"></span>
     </div>
     <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Nota de entrada</div><div class="doc-valor" id="docEstNota">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Situação da nota</div><div class="doc-valor" id="docEstSitNota">—</div></div>
       <div class="doc-item"><div class="doc-rotulo">Depósito de destino</div><div class="doc-valor" id="docEstDeposito">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Lançado em</div><div class="doc-valor" id="docEstQuando">—</div></div>
-      <div class="doc-item"><div class="doc-rotulo">Lançado por</div><div class="doc-valor" id="docEstQuem">—</div></div>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-item"><div class="doc-rotulo">Mercadoria chegou em</div><div class="doc-valor" id="docEstChegada">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Conferida em</div><div class="doc-valor" id="docEstQuando">—</div></div>
+      <div class="doc-item"><div class="doc-rotulo">Conferida por</div><div class="doc-valor" id="docEstQuem">—</div></div>
     </div>
     <div class="vol-botoes" style="justify-content:flex-start; margin-top:14px;">
-      <button type="button" class="btn-mini destaque" id="btnLancarEstoque">Lançar estoque</button>
+      <button type="button" class="btn-mini destaque" id="btnConfirmarChegada">Confirmar chegada da mercadoria</button>
+      <a class="btn-mini" id="btnVerNota" href="pagina-estoque-entrada-notas.html">Ver a nota de entrada</a>
+      <a class="btn-mini" id="btnVerFila" href="pagina-estoque-conferencia-compra.html">Ir para a conferência</a>
     </div>
   </div>
 
@@ -1310,6 +1382,55 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 <div class="rastreio-folha oculta" id="rastreioFolha"></div>
 
 <!-- MODAL: confirmação / aviso -->
+<!-- PAINEL LATERAL: pedir a logistica reversa -->
+<!-- Tres decisoes, e so tres. Cotar entre transportadoras nao entra porque a
+     reversa dessas plataformas so existe em PAC e SEDEX dos Correios: a
+     escolha real e servico, quem paga e por onde o cliente recebe o codigo. -->
+<div class="drawer-backdrop" id="revBackdrop"></div>
+<div class="event-drawer" id="revDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Pedir a logística reversa</div>
+    <div class="drawer-close" id="revClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+
+  <div class="nota-reservado" style="margin-bottom:18px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+    <span>Não se imprime etiqueta na reversa. O que sai é um <b>código de autorização de postagem</b>: o cliente leva a caixa à agência com ele. O que se imprime é a <b>declaração de conteúdo</b>, obrigatória, e ela acompanha a encomenda.</span>
+  </div>
+
+  <div class="form-field">
+    <label>Coleta em</label>
+    <div class="rev-endereco" id="revEndereco">—</div>
+    <div class="field-hint">Endereço da venda. Na reversa os papéis se invertem: o cliente é o remetente e nós somos o destinatário.</div>
+  </div>
+
+  <div class="form-field">
+    <label>Quem paga o frete</label>
+    <div class="dropdown-select" id="revQuemPaga" data-value="nos">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Nós pagamos</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuRevQuemPaga"></div>
+    </div>
+    <div class="field-hint" id="revQuemPagaHint">—</div>
+  </div>
+
+  <div class="section-title">Ofertas de coleta</div>
+  <div class="nota-reservado" style="margin-bottom:14px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+    <span><b>Simulação.</b> Com as integrações ligadas, a cotação sai do CEP do cliente até o nosso depósito, com o peso dos itens que voltam. Até lá os valores são de exemplo.</span>
+  </div>
+  <div class="ofertas-lista" id="revOfertas"></div>
+
+  <div class="rev-resumo" id="revResumo"></div>
+
+  <div class="drawer-footer">
+    <button class="btn-primary" id="revConfirmar">Pedir a reversa</button>
+    <div class="drawer-link" id="revCancelar">Cancelar</div>
+  </div>
+</div>
+
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -1430,7 +1551,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     'devolucao.situacao.aberta':     'Em aberto',
     'devolucao.situacao.andamento':  'Em andamento',
     'devolucao.situacao.finalizada': 'Finalizada',
-    'devolucao.situacao.cancelada':  'Cancelada'
+    'devolucao.situacao.cancelada':  'Cancelada',
+    // Entrada de notas — de onde a nota veio
+    'entrada.origem.compra':    'Compra',
+    'entrada.origem.devolucao': 'Devolução',
+    // Entrada de notas — situacao do documento
+    'entrada.situacao.transito':      'Em trânsito',
+    'entrada.situacao.aconferir':     'A conferir',
+    'entrada.situacao.emconferencia': 'Em conferência',
+    'entrada.situacao.divergencia':   'Com divergência',
+    'entrada.situacao.lancada':       'Lançada',
+    'entrada.situacao.recusada':      'Recusada'
   };
   function lerNomes() {
     try {
@@ -1533,7 +1664,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
     // avancar o funil nao pede senha e alterar a situacao a mao pede.
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoLancaEstoque', nome:'Lançar no estoque a mercadoria devolvida',        onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -1958,12 +2091,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       descricao: 'Duas caixas chegaram com a lateral amassada; o cliente mandou foto no mesmo dia.',
       itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtdVendida: 6, qtd: 2, unit: 540.00, estado: 'avaria' } ],
       frete: 0, desconto: 0, forma: 'contaspagar', reversa: null, estoque: null,
+      notaEntrada: { numero: 9001, serie: 1, emissao: '2026-10-06', chegada: '', situacao: 'transito', conferidaEm: '', conferidaPor: null },
       eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4862.' } ] },
     { id: 2, numero: 'DV-0011', origem: 'pedido', chamadoId: null, vendaId: 1,
       abertaEm: '2026-10-03', situacao: 'andamento', motivoId: 5, descricao: '',
       itens: [ { sku: 'TEC-0912', nome: 'Headset gamer Desk Pro', qtdVendida: 1, qtd: 1, unit: 1480.00, estado: 'revendavel' } ],
       frete: 0, desconto: 0, forma: 'dinheiro',
       reversa: { transp: 'Correios · PAC', codigo: 'LR884471029BR', solicitadaEm: '2026-10-04' }, estoque: null,
+      notaEntrada: { numero: 9002, serie: 1, emissao: '2026-10-03', chegada: '2026-10-07', situacao: 'aconferir', conferidaEm: '', conferidaPor: null },
       eventos: [ { data: '2026-10-03', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4821.' },
                  { data: '2026-10-04', tipo: 'reversa', nota: 'Logística reversa solicitada: Correios · PAC, código LR884471029BR.' } ] },
     { id: 3, numero: 'DV-0010', origem: 'pedido', chamadoId: null, vendaId: 3,
@@ -1973,6 +2108,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       frete: 0, desconto: 0, forma: 'sem',
       reversa: { transp: 'RotaSul Transportes', codigo: 'RS2026092811', solicitadaEm: '2026-09-29' },
       estoque: { em: '2026-10-02', por: 3, dep: 1 },
+      notaEntrada: { numero: 9003, serie: 1, emissao: '2026-09-28', chegada: '2026-10-01', situacao: 'lancada', conferidaEm: '2026-10-02', conferidaPor: 3 },
       eventos: [ { data: '2026-09-29', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
                  { data: '2026-09-29', tipo: 'reversa', nota: 'Logística reversa solicitada: RotaSul Transportes.' },
                  { data: '2026-10-02', tipo: 'estoque', nota: '1 peça devolvida ao Galpão Centro, revendável.' },
@@ -1982,6 +2118,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       descricao: 'Transportadora confirmou o extravio por escrito.',
       itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtdVendida: 1, qtd: 1, unit: 389.90, estado: 'nenhum' } ],
       frete: 24.90, desconto: 0, forma: 'dinheiro', reversa: null, estoque: null,
+      notaEntrada: { numero: 9004, serie: 1, emissao: '2026-09-30', chegada: '', situacao: 'transito', conferidaEm: '', conferidaPor: null },
       eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4903.' } ] },
     { id: 5, numero: 'DV-0008', origem: 'pedido', chamadoId: null, vendaId: 5,
       abertaEm: '2026-08-12', situacao: 'finalizada', motivoId: 6,
@@ -1990,6 +2127,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       frete: 0, desconto: 0, forma: 'contaspagar',
       reversa: { transp: 'Frota Desk', codigo: '', solicitadaEm: '2026-08-13' },
       estoque: { em: '2026-08-20', por: 4, dep: 1 },
+      notaEntrada: { numero: 9005, serie: 1, emissao: '2026-08-15', chegada: '2026-08-18', situacao: 'lancada', conferidaEm: '2026-08-20', conferidaPor: 4 },
       eventos: [ { data: '2026-08-12', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4845.' },
                  { data: '2026-08-20', tipo: 'estoque', nota: '4 peças devolvidas ao Galpão Centro, revendáveis.' },
                  { data: '2026-08-21', tipo: 'finalizou', nota: 'Conta a pagar gerada em Finanças.' } ] },
@@ -1998,6 +2136,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       descricao: 'Aberta por engano no pedido errado.',
       itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtdVendida: 2, qtd: 1, unit: 1120.00, estado: 'revendavel' } ],
       frete: 0, desconto: 0, forma: 'sem', reversa: null, estoque: null,
+      notaEntrada: null,
       eventos: [ { data: '2026-09-22', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
                  { data: '2026-09-22', tipo: 'cancelou', nota: 'Cancelada: aberta no pedido errado.' } ] }
   ];
@@ -2076,10 +2215,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (regra === 'padrao') return 1;
     return v ? v.dep : 3;
   }
+  // O saldo nao sobe mais aqui: ele e consequencia da Conferencia de Entrada.
+  // Estas tres funcoes sao o que a tela precisa saber sobre a nota que ela
+  // fez nascer.
+  function temMercadoriaVoltando(d) {
+    return d.itens.some(i => i.estado !== 'nenhum');
+  }
+  function estoqueLancado(d) {
+    return !!(d.notaEntrada && d.notaEntrada.situacao === 'lancada');
+  }
+  function podeConfirmarChegada(d) {
+    if (d.situacao === 'cancelada' || d.situacao === 'finalizada') return false;
+    if (!d.notaEntrada || d.notaEntrada.chegada) return false;
+    return true;
+  }
+  // Ainda ha mercadoria que o saldo nao conta? Enquanto houver, finalizar
+  // deixaria a caixa no galpao e fora do saldo.
   function podeLancarEstoque(d) {
     if (d.situacao === 'cancelada') return false;
-    if (d.estoque) return false;
-    return d.itens.some(i => i.estado !== 'nenhum');
+    if (estoqueLancado(d)) return false;
+    return temMercadoriaVoltando(d);
   }
 
   // ===== MODAL =====
@@ -2264,7 +2419,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!DEV) return;
     const corpo = document.getElementById('corpoItens');
     if (!corpo) return;
-    const travado = DEV.situacao === 'cancelada' || DEV.situacao === 'finalizada' || !!DEV.estoque;
+    // Depois que a conferencia lancou, mexer na quantidade aqui nao muda mais
+    // o saldo — e so criaria divergencia entre o documento e o que entrou.
+    const travado = DEV.situacao === 'cancelada' || DEV.situacao === 'finalizada' || estoqueLancado(DEV);
 
     corpo.innerHTML = DEV.itens.map((i, n) => {
       const est = ESTADOS_ITEM[i.estado] || ESTADOS_ITEM.revendavel;
@@ -2349,7 +2506,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       return s + (q !== null && estadoNaTela(n) !== 'nenhum' ? q : 0);
     }, 0);
     const alvoEst = document.getElementById('avisoEstoqueTexto');
-    if (alvoEst && !DEV.estoque) {
+    if (alvoEst && !estoqueLancado(DEV)) {
       html('avisoEstoqueTexto', '<b>' + entram + (entram === 1 ? ' peça entra' : ' peças entram') +
         '</b> no saldo quando alguém lançar. Até lá o saldo conta uma mercadoria que já voltou — e por isso o lançamento é ato de quem recebeu a caixa, não consequência automática de abrir a devolução.');
     }
@@ -2440,31 +2597,103 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!DEV) return;
     const r = DEV.reversa;
     texto('docRevTransp', r ? r.transp : 'não solicitada');
-    texto('docRevCodigo', r ? (r.codigo || 'sem código ainda') : '—');
+    texto('docRevCodigo', r ? (r.codigo || 'aguardando a plataforma') : '—');
     texto('docRevData', r ? fmtData(r.solicitadaEm) : '—');
+    texto('docRevPlataforma', r ? (r.plataforma || '—') : '—');
+    texto('docRevQuemPaga', r ? (r.valor ? (r.paga === 'cliente' ? 'O cliente' : 'Nós') : 'sem custo') : '—');
+    texto('docRevValor', r ? (r.valor ? moeda(r.valor) : 'sem custo') : '—');
+
+    // Tres passos, e cada frase diz o que FALTA. O passo do meio e o que
+    // costuma sumir: pedido gerado, codigo inexistente, cliente sem saber.
+    let aviso;
+    if (!r) {
+      aviso = 'Nenhuma coleta pedida. Enquanto não houver, a mercadoria fica com o cliente e nada entra na fila de conferência.';
+    } else if (!r.codigo && r.entrega === 'propria') {
+      aviso = 'Coleta da <b>nossa frota</b> agendada para até ' + r.prazo + ' dias. Não depende de plataforma nem de saldo.';
+    } else if (!r.codigo) {
+      aviso = 'Pedido gerado na <b>' + r.plataforma + '</b> em ' + fmtData(r.solicitadaEm) +
+              '. O código <b>ainda não saiu</b> — ele sai depois do pagamento ou do saldo na plataforma. ' +
+              'Até lá o cliente <b>não foi avisado</b>: mandá-lo à agência sem código é viagem perdida.';
+    } else if (r.entrega === 'etiqueta') {
+      aviso = 'Etiqueta <b>' + r.codigo + '</b> disponível e já visível para o cliente. ' +
+              'Ela precisa ser <b>impressa</b> e colada na caixa — cliente sem impressora não consegue postar.';
+    } else {
+      aviso = 'Código <b>' + r.codigo + '</b> disponível e já visível para o cliente no pedido dele. ' +
+              'Ele tem <b>20 dias</b> para postar: depois disso a autorização vence e é preciso pedir outra.';
+    }
+    html('avisoReversaTexto', aviso);
+
     const btn = document.getElementById('btnReversa');
     if (btn) {
       const bloqueado = !!r || DEV.situacao === 'cancelada' || DEV.situacao === 'finalizada';
       btn.style.display = bloqueado ? 'none' : '';
     }
+    const dec = document.getElementById('btnDeclaracao');
+    if (dec) dec.style.display = r ? '' : 'none';
+    // O campo do codigo so aparece quando ha pedido e ainda falta o codigo, e
+    // nunca na coleta propria: ali nao existe codigo de plataforma.
+    // Tres estados da linha do codigo: ausente (coleta propria ou sem pedido),
+    // em branco esperando, e gravado — este ultimo so mostra "Alterar".
+    const podeTer = r && r.entrega !== 'propria' &&
+                    DEV.situacao !== 'cancelada' && DEV.situacao !== 'finalizada';
+    const emBranco = podeTer && !r.codigo;
+    const linha = document.getElementById('linhaCodReversa');
+    if (linha) linha.style.display = (emBranco || (podeTer && EDITANDO_COD)) ? 'flex' : 'none';
+    const btnGrava = document.getElementById('btnCodReversa');
+    if (btnGrava) btnGrava.textContent = EDITANDO_COD ? 'Salvar código' : 'Registrar código';
+    const btnCanc = document.getElementById('btnCancelarCod');
+    if (btnCanc) btnCanc.style.display = EDITANDO_COD ? '' : 'none';
+    const linhaAlt = document.getElementById('linhaAlterarCod');
+    if (linhaAlt) linhaAlt.style.display = (podeTer && r.codigo && !EDITANDO_COD) ? 'flex' : 'none';
   }
+
+  const SIT_NOTA = {
+    transito:      nome('entrada.situacao.transito'),
+    aconferir:     nome('entrada.situacao.aconferir'),
+    emconferencia: nome('entrada.situacao.emconferencia'),
+    lancada:       nome('entrada.situacao.lancada')
+  };
 
   function pintarEstoque() {
     if (!DEV) return;
     const dep = depositoDestino(DEV);
-    const volta = DEV.itens.filter(i => i.estado !== 'nenhum').reduce((s, i) => s + i.qtd, 0);
-    texto('docEstDeposito', DEPOSITOS[dep] + (DEV.estoque ? '' : ' · pelo parâmetro de Configurações'));
-    texto('docEstQuando', DEV.estoque ? fmtData(DEV.estoque.em) : 'ainda não lançado');
-    texto('docEstQuem', DEV.estoque ? OPERADORES[DEV.estoque.por] : '—');
+    const ne = DEV.notaEntrada;
+    const volta = DEV.itens.filter((i, n) => estadoNaTela(n) !== 'nenhum')
+                           .reduce((s, i, idx) => s + (qtdNaTela(DEV.itens.indexOf(i)) || 0), 0);
 
-    html('avisoEstoqueTexto', DEV.estoque
-      ? '<b>' + volta + (volta === 1 ? ' peça já entrou' : ' peças já entraram') + '</b> no saldo. Lançar de novo duplicaria a entrada, por isso o botão sai da tela.'
-      : (volta
-          ? '<b>' + volta + (volta === 1 ? ' peça entra' : ' peças entram') + '</b> no saldo quando alguém lançar. Até lá o saldo conta uma mercadoria que já voltou — e por isso o lançamento é ato de quem recebeu a caixa, não consequência automática de abrir a devolução.'
-          : 'Nada entra no saldo: nenhum item desta devolução volta ao estoque.'));
+    texto('docEstNota', ne ? 'NF-e ' + ne.numero + ' · série ' + ne.serie : 'ainda não gerada');
+    texto('docEstSitNota', ne ? (SIT_NOTA[ne.situacao] || ne.situacao) : '—');
+    texto('docEstDeposito', DEPOSITOS[dep] + (estoqueLancado(DEV) ? '' : ' · pelo parâmetro de Configurações'));
+    texto('docEstChegada', ne && ne.chegada ? fmtData(ne.chegada) : 'ainda na rua');
+    texto('docEstQuando', ne && ne.conferidaEm ? fmtData(ne.conferidaEm) : 'ainda não conferida');
+    texto('docEstQuem', ne && ne.conferidaPor ? OPERADORES[ne.conferidaPor] : '—');
 
-    const btn = document.getElementById('btnLancarEstoque');
-    if (btn) btn.style.display = podeLancarEstoque(DEV) ? '' : 'none';
+    // Cada frase descreve o passo em que a mercadoria esta AGORA, e diz o que
+    // falta — "o saldo ainda conta uma mercadoria que voltou" e a informacao
+    // que faz alguem ir atras.
+    let aviso;
+    if (!temMercadoriaVoltando(DEV)) {
+      aviso = 'Nada entra no saldo: nenhum item desta devolução volta ao estoque.';
+    } else if (!ne) {
+      aviso = 'A nota de entrada nasce quando a devolução é salva. É ela que leva a mercadoria à conferência.';
+    } else if (estoqueLancado(DEV)) {
+      aviso = '<b>' + volta + (volta === 1 ? ' peça já entrou' : ' peças já entraram') +
+              '</b> no saldo, pela conferência da nota ' + ne.numero + '.';
+    } else if (!ne.chegada) {
+      aviso = 'A nota <b>' + ne.numero + '</b> está <b>em trânsito</b>: o documento existe e a mercadoria está na rua. ' +
+              'Confirme a chegada quando a caixa entrar no CD — é isso que a põe na fila de conferência.';
+    } else {
+      aviso = 'A mercadoria chegou e a nota <b>' + ne.numero + '</b> está na fila de <b>Conferência de Entrada</b>. ' +
+              'O saldo sobe lá, com o produto na mão de quem conta — não aqui.';
+    }
+    html('avisoEstoqueTexto', aviso);
+
+    const btn = document.getElementById('btnConfirmarChegada');
+    if (btn) btn.style.display = podeConfirmarChegada(DEV) ? '' : 'none';
+    const verNota = document.getElementById('btnVerNota');
+    if (verNota) verNota.style.display = ne ? '' : 'none';
+    const verFila = document.getElementById('btnVerFila');
+    if (verFila) verFila.style.display = (ne && ne.chegada && !estoqueLancado(DEV)) ? '' : 'none';
   }
 
   // ===== HISTORICO =====
@@ -2739,50 +2968,299 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ===== LANCAR ESTOQUE =====
-  function lancarEstoque() {
-    if (!DEV || NOVA) { avisar('Salve a devolução antes de lançar o estoque.'); return; }
-    if (!podeLancarEstoque(DEV)) { avisar('Não há o que lançar nesta devolução.'); return; }
+  // A caixa chegou. E so isso que este botao faz: ele NAO mexe no saldo —
+  // tira a nota de "Em transito" e a poe na fila de Conferencia de Entrada,
+  // que e onde alguem abre a caixa e conta. Separar as duas coisas e o ponto
+  // do fluxo: confirmar chegada e um fato da portaria; lancar saldo e
+  // consequencia de ter contado.
+  function confirmarChegada() {
+    if (!DEV || NOVA) { avisar('Salve a devolução antes de confirmar a chegada.'); return; }
+    if (!DEV.notaEntrada) { avisar('Esta devolução ainda não gerou nota de entrada.'); return; }
+    if (DEV.notaEntrada.chegada) { avisar('A chegada desta mercadoria já foi confirmada.'); return; }
     const m = coletarMudancas();
     if (m.qtd.length || m.estado.length) {
-      // Lancar com alteracao pendente lancaria o numero antigo, e o saldo ficaria
-      // diferente do que a tela mostra.
-      avisar('Há alteração de quantidade ou de estado ainda não salva. Salve antes de lançar, senão o estoque recebe o número antigo.');
+      avisar('Há alteração de quantidade ou de estado ainda não salva. Salve antes — é esse número que vai para a conferência como esperado.');
       return;
     }
-    const dep = depositoDestino(DEV);
-    const rev = DEV.itens.filter(i => i.estado === 'revendavel').reduce((s, i) => s + i.qtd, 0);
-    const avr = DEV.itens.filter(i => i.estado === 'avaria').reduce((s, i) => s + i.qtd, 0);
-    const detalhe = [];
-    if (rev) detalhe.push(rev + ' peça(s) revendável(is)');
-    if (avr) detalhe.push(avr + ' peça(s) em Avaria, bloqueada(s)');
-
-    confirmarAcao('devolucaoLancaEstoque',
-      'Lançar no ' + DEPOSITOS[dep] + ': ' + detalhe.join(' e ') +
-      '. Depois disto o saldo muda, e desfazer é acerto de estoque.',
+    confirmarAcao('devolucaoConfirmaChegada',
+      'Confirmar que a mercadoria da nota ' + DEV.notaEntrada.numero + ' chegou. ' +
+      'Ela entra na fila de Conferência de Entrada; o saldo só sobe quando alguém conferir.',
       function () {
-        DEV.estoque = { em: HOJE, por: EU, dep: dep };
+        DEV.notaEntrada.chegada = HOJE;
+        DEV.notaEntrada.situacao = 'aconferir';
         DEV.eventos.push({ data: HOJE, tipo: 'estoque',
-          nota: detalhe.join(' e ') + ' no ' + DEPOSITOS[dep] + '.' });
+          nota: 'Mercadoria recebida. Nota ' + DEV.notaEntrada.numero +
+                ' entrou na fila de Conferência de Entrada.' });
         if (DEV.situacao === 'aberta') DEV.situacao = 'andamento';
         pintarTudo();
       });
   }
 
   // ===== LOGISTICA REVERSA =====
-  function solicitarReversa() {
+  // A escolha e a mesma do checkout do pedido: comparar ofertas e decidir.
+  // Com as integracoes ligadas, a cotacao sai do CEP do cliente ate o nosso
+  // deposito, com o peso do que volta — e numa devolucao PARCIAL o peso e o
+  // das pecas que voltam, nao o da caixa original.
+  //
+  // `entrega` separa duas naturezas que o cliente sente na pele:
+  //   'codigo'   — autorizacao de postagem. O cliente leva o codigo a agencia.
+  //   'etiqueta' — etiqueta com remetente e destinatario trocados. Ele PRECISA
+  //                imprimir. Cliente sem impressora nao devolve por aqui.
+  //   'propria'  — nossa frota busca. Nao depende de plataforma nem de saldo.
+  const OFERTAS_REVERSA = [
+    { id: 'me-pac',   plataforma: 'Melhor Envio', servico: 'Correios · PAC',   prazo: 8, valor: 23.40, entrega: 'codigo' },
+    { id: 'me-sedex', plataforma: 'Melhor Envio', servico: 'Correios · SEDEX', prazo: 3, valor: 41.90, entrega: 'codigo' },
+    { id: 'sf-jadlog', plataforma: 'SuperFrete',  servico: 'Jadlog · Package', prazo: 6, valor: 19.80, entrega: 'etiqueta' },
+    { id: 'co-pac',   plataforma: 'Correios',     servico: 'PAC Reverso',      prazo: 9, valor: 26.10, entrega: 'codigo' },
+    { id: 'frota',    plataforma: 'Frota Desk',   servico: 'Coleta própria',   prazo: 2, valor: 0,     entrega: 'propria' }
+  ];
+  const ENTREGA_INFO = {
+    codigo:   { tag: 'Código de postagem', classe: 'codigo',
+                nota: 'O cliente leva o código à agência. Não precisa imprimir nada.' },
+    etiqueta: { tag: 'Etiqueta para imprimir', classe: 'etiqueta',
+                nota: 'O cliente precisa IMPRIMIR a etiqueta e colar na caixa. Sem impressora, ele não consegue postar.' },
+    propria:  { tag: 'Coleta nossa', classe: 'propria',
+                nota: 'Nossa frota busca no endereço. Não depende de plataforma nem de saldo.' }
+  };
+  function ofertaDe(id) { return OFERTAS_REVERSA.filter(o => o.id === id)[0] || OFERTAS_REVERSA[0]; }
+
+  // Quem paga sai do GRUPO do motivo, do mesmo jeito que o motivo ja sugere o
+  // destino no estoque. E sugestao, nao trava: erro nosso e frete nosso, mas
+  // quem atende pode bancar um arrependimento para nao perder o cliente.
+  const PAGA_POR_GRUPO = { nossa: 'nos', transporte: 'nos', fiscal: 'nos', cliente: 'cliente' };
+  const QUEM_PAGA = [
+    { id: 'nos',     rotulo: 'Nós pagamos',
+      nota: 'O frete entra como despesa. Padrão quando o erro é nosso, do transporte ou da nota.' },
+    { id: 'cliente', rotulo: 'O cliente paga',
+      nota: 'Nasce uma conta a receber no valor do frete, no nome do cliente. Padrão em arrependimento e compra errada.' }
+  ];
+
+  let OFERTA_ESCOLHIDA = 'me-pac';
+
+  function quemPagaSugerido() {
+    const m = motivoDe(RASCUNHO.motivo !== null ? RASCUNHO.motivo : DEV.motivoId);
+    return (m && PAGA_POR_GRUPO[m.grupo]) || 'nos';
+  }
+
+  // Ordem: mais barata primeiro, que e a comparacao que se faz antes de
+  // qualquer outra. A frota propria fica por ULTIMO mesmo custando zero —
+  // "sem custo" ali quer dizer "nao cobrado por terceiro", nao "de graca", e
+  // deixa-la no topo faria a lista mentir sobre qual e a oferta mais barata.
+  function ofertasOrdenadas() {
+    return OFERTAS_REVERSA.slice().sort(function (a, b) {
+      if ((a.entrega === 'propria') !== (b.entrega === 'propria')) {
+        return a.entrega === 'propria' ? 1 : -1;
+      }
+      return a.valor - b.valor;
+    });
+  }
+
+  function montarOfertas() {
+    const raiz = document.getElementById('revOfertas');
+    if (!raiz) return;
+    raiz.innerHTML = ofertasOrdenadas().map(function (o) {
+      const info = ENTREGA_INFO[o.entrega];
+      return '<div class="oferta' + (o.id === OFERTA_ESCOLHIDA ? ' escolhida' : '') + '" data-oferta="' + o.id + '">' +
+        '<div class="oferta-radio"></div>' +
+        '<div class="oferta-corpo">' +
+          '<div class="oferta-topo">' +
+            '<span class="oferta-nome">' + o.servico + '</span>' +
+            '<span class="oferta-valor">' + (o.valor ? moeda(o.valor) : 'sem custo') + '</span>' +
+          '</div>' +
+          '<div class="oferta-sub">' + o.plataforma + ' · até ' + o.prazo + (o.prazo === 1 ? ' dia' : ' dias') + '</div>' +
+          '<span class="oferta-tag ' + info.classe + '">' + info.tag + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    raiz.querySelectorAll('[data-oferta]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        OFERTA_ESCOLHIDA = el.getAttribute('data-oferta');
+        montarOfertas();
+        pintarResumoReversa();
+      });
+    });
+  }
+
+  function montarMenusReversa() {
+    const menu = document.getElementById('menuRevQuemPaga');
+    if (!menu) return;
+    const atual = document.getElementById('revQuemPaga').getAttribute('data-value');
+    menu.innerHTML = QUEM_PAGA.map(function (o) {
+      return '<div class="dropdown-select-item' + (o.id === atual ? ' active' : '') +
+             '" data-value="' + o.id + '">' + o.rotulo + '</div>';
+    }).join('');
+  }
+
+  function pintarResumoReversa() {
+    const o = ofertaDe(OFERTA_ESCOLHIDA);
+    const info = ENTREGA_INFO[o.entrega];
+    const paga = document.getElementById('revQuemPaga').getAttribute('data-value');
+    const q = QUEM_PAGA.filter(x => x.id === paga)[0];
+    texto('revQuemPagaHint', q.nota);
+    const partes = ['<b>' + o.servico + '</b> por ' + o.plataforma + ', ' +
+                    (o.valor ? moeda(o.valor) : 'sem custo') + ', até ' + o.prazo + ' dias.'];
+    partes.push(info.nota);
+    if (o.valor) {
+      partes.push(paga === 'cliente'
+        ? 'Vai nascer uma <b>conta a receber de ' + moeda(o.valor) + '</b> no nome do cliente.'
+        : 'O frete entra como <b>despesa nossa</b>.');
+    }
+    if (o.entrega !== 'propria') {
+      partes.push('O pedido vai para a plataforma; o código sai depois do pagamento ou do saldo.');
+    }
+    html('revResumo', partes.join(' '));
+  }
+
+  function abrirPainelReversa() {
     if (!DEV || NOVA) { avisar('Salve a devolução antes de pedir a logística reversa.'); return; }
     if (DEV.reversa) { avisar('A logística reversa desta devolução já foi solicitada.'); return; }
     const v = vendaDe(DEV.vendaId) || {};
+    texto('revEndereco', v.endereco || 'endereço do cliente');
+    setDrop('revQuemPaga', quemPagaSugerido(), QUEM_PAGA);
+    marcarAtivoReversa();
+    montarOfertas();
+    pintarResumoReversa();
+    document.getElementById('revBackdrop').classList.add('open');
+    document.getElementById('revDrawer').classList.add('open');
+  }
+  function fecharPainelReversa() {
+    document.getElementById('revBackdrop').classList.remove('open');
+    document.getElementById('revDrawer').classList.remove('open');
+  }
+
+  function setDrop(id, valor, lista) {
+    const raiz = document.getElementById(id);
+    if (!raiz) return;
+    raiz.setAttribute('data-value', valor);
+    const o = lista.filter(x => x.id === valor)[0] || lista[0];
+    const lab = raiz.querySelector('.dropdown-select-label');
+    if (lab) lab.textContent = o.rotulo;
+  }
+
+  function marcarAtivoReversa() {
+    const raiz = document.getElementById('revQuemPaga');
+    if (!raiz) return;
+    const atual = raiz.getAttribute('data-value');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(function (it) {
+      it.classList.toggle('active', it.getAttribute('data-value') === atual);
+    });
+  }
+
+  // Nasce com a TELA, nao com o painel (§9.3): dropdown que so ganha
+  // comportamento na abertura e botao mudo no carregamento.
+  function ligarDropsReversa() {
+    montarMenusReversa();
+    montarOfertas();
+    const raiz = document.getElementById('revQuemPaga');
+    if (!raiz) return;
+    inicializarDropdownSelect(raiz, function (v) {
+      setDrop('revQuemPaga', v, QUEM_PAGA);
+      marcarAtivoReversa();
+      pintarResumoReversa();
+    });
+  }
+
+  function solicitarReversa() {
+    const o = ofertaDe(OFERTA_ESCOLHIDA);
+    const info = ENTREGA_INFO[o.entrega];
+    const paga = document.getElementById('revQuemPaga').getAttribute('data-value');
+    const v = vendaDe(DEV.vendaId) || {};
     confirmarAcao('devolucaoReversa',
-      'Solicitar a coleta em ' + (v.endereco || 'endereço do cliente') +
-      '. O código da reversa é desta devolução, não entra no Rastreamento do pedido — lá é a ida.',
+      'Pedir ' + o.servico + ' por ' + o.plataforma + ', com coleta em ' +
+      (v.endereco || 'endereço do cliente') + '. ' +
+      (o.valor
+        ? (paga === 'cliente'
+            ? 'O frete de ' + moeda(o.valor) + ' vira conta a receber no nome do cliente.'
+            : 'O frete de ' + moeda(o.valor) + ' fica por nossa conta.')
+        : 'Sem custo de frete: a coleta é da nossa frota.'),
       function () {
-        DEV.reversa = { transp: TRANSPORTADORAS[0], codigo: '', solicitadaEm: HOJE };
+        // O codigo so existe depois que a plataforma cobra e gera. Gravar um
+        // numero aqui faria alguem repassar ao cliente algo que a agencia nao
+        // reconhece — e o cliente iria a agencia a toa.
+        DEV.reversa = { transp: o.servico, plataforma: o.plataforma, oferta: o.id,
+                        codigo: '', solicitadaEm: HOJE, paga: paga, valor: o.valor,
+                        entrega: o.entrega, prazo: o.prazo };
         DEV.situacao = 'andamento';
-        DEV.eventos.push({ data: HOJE, tipo: 'reversa',
-          nota: 'Logística reversa solicitada: ' + TRANSPORTADORAS[0] + '. Código entra quando a transportadora devolver.' });
+        DEV.eventos.push({ data: HOJE, tipo: 'reversa', interna: true,
+          nota: 'Coleta pedida: ' + o.servico + ' por ' + o.plataforma + ', ' +
+                (o.valor ? moeda(o.valor) : 'sem custo') + ', ' +
+                (paga === 'cliente' ? 'por conta do cliente' : 'por nossa conta') + '.' });
+        if (o.valor && paga === 'cliente') {
+          DEV.eventos.push({ data: HOJE, tipo: 'reversa', interna: true,
+            nota: 'Conta a receber de ' + moeda(o.valor) + ' aberta no nome do cliente, referente ao frete da reversa.' });
+        }
+        fecharPainelReversa();
         pintarTudo();
+        avisar(o.entrega === 'propria'
+          ? 'Coleta da nossa frota agendada. A declaração de conteúdo precisa ir com a caixa.'
+          : 'Pedido gerado na ' + o.plataforma + '. O código só sai depois do pagamento ou do saldo — enquanto isso o cliente NÃO é avisado, para não mandá-lo à agência à toa.');
       });
+  }
+
+  // Alterar e outro ato, nao a mesma coisa que registrar. O codigo ja esta na
+  // vitrine: o cliente pode estar indo para a agencia com ele anotado.
+  let EDITANDO_COD = false;
+  function abrirEdicaoCodigo() {
+    EDITANDO_COD = true;
+    pintarReversa();
+    const campo = document.getElementById('inputCodReversa');
+    if (campo) { campo.value = DEV.reversa.codigo || ''; campo.focus(); campo.select(); }
+  }
+  function cancelarEdicaoCodigo() {
+    EDITANDO_COD = false;
+    const campo = document.getElementById('inputCodReversa');
+    if (campo) campo.classList.remove('has-error');
+    pintarReversa();
+  }
+
+  // O codigo vem da plataforma. Enquanto a integracao nao existe, ele e
+  // informado a mao — e isso continua valendo depois, para reversa contratada
+  // fora do sistema.
+  function informarCodigoReversa() {
+    if (!DEV || !DEV.reversa) { avisar('Peça a logística reversa antes de informar o código.'); return; }
+    const campo = document.getElementById('inputCodReversa');
+    const cod = (campo ? campo.value : '').trim().toUpperCase();
+    if (cod.length < 6) {
+      if (campo) campo.classList.add('has-error');
+      avisar('O código da transportadora tem pelo menos 6 caracteres. Um código errado manda o cliente à agência à toa.');
+      return;
+    }
+    if (campo) campo.classList.remove('has-error');
+    const antigo = DEV.reversa.codigo || '';
+    if (antigo && cod === antigo) { cancelarEdicaoCodigo(); avisar('O código é o mesmo que já estava gravado.'); return; }
+
+    // Duas acoes, dois pesos. Registrar preenche um campo vazio e e rotina;
+    // ALTERAR troca um numero que o cliente ja tem na mao, e para no modal.
+    const chave = antigo ? 'devolucaoAlteraCodigoReversa' : 'devolucaoCodigoReversa';
+    const texto = antigo
+      ? 'Trocar o código ' + antigo + ' por ' + cod + '. O cliente já viu o anterior e pode estar a caminho da agência com ele — a troca aparece na vitrine, e o código antigo fica no histórico.'
+      : 'Registrar o código ' + cod + '. A partir daqui ele aparece para o cliente na vitrine, e é com ele que a postagem acontece.';
+    confirmarAcao(chave, texto, function () {
+        DEV.reversa.codigo = cod;
+        EDITANDO_COD = false;
+        // Evento PUBLICO nos dois casos. Esconder a correcao do cliente o
+        // deixaria com um codigo que nao funciona mais — e o padrao da casa
+        // e o da Shopee: o codigo vive no pedido dele.
+        DEV.eventos.push({ data: HOJE, tipo: 'reversa',
+          nota: antigo
+            ? 'Código de postagem corrigido de ' + antigo + ' para ' + cod + '. Use o novo: o anterior não vale mais.'
+            : 'Código de postagem ' + cod + ' disponível. ' +
+              (DEV.reversa.entrega === 'etiqueta'
+                ? 'A etiqueta precisa ser impressa e colada na caixa.'
+                : 'Basta levar o código à agência.') });
+        pintarTudo();
+        avisar(antigo
+          ? 'Código corrigido. A vitrine do cliente mostra o novo, e o antigo fica registrado no histórico.'
+          : 'Código registrado. Ele aparece agora na vitrine, no pedido do cliente.');
+      });
+  }
+
+  function imprimirDeclaracao() {
+    if (!DEV || !DEV.reversa) {
+      avisar('A declaração de conteúdo sai depois que a reversa é pedida: é ela que define o serviço e o remetente.');
+      return;
+    }
+    avisar('A declaração de conteúdo é obrigatória na reversa, mesmo quando a ida saiu com NF-e, e precisa ir com a caixa. No protótipo ela ainda não imprime: a folha entra junto com a emissão de documentos.');
   }
 
   // ===== FINALIZAR E CANCELAR =====
@@ -2793,7 +3271,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (podeLancarEstoque(DEV)) {
       // Finalizar com estoque pendente deixaria mercadoria fisicamente no galpao
       // e invisivel no saldo, sem nenhuma tela cobrando a diferenca depois.
-      avisar('Esta devolução ainda tem mercadoria para lançar no estoque. Finalizar agora deixaria a caixa no galpão e fora do saldo, sem ninguém cobrando a diferença depois.');
+      avisar('A mercadoria desta devolução ainda não entrou no saldo. Ela entra na Conferência de Entrada, pela nota ' +
+             (DEV.notaEntrada ? DEV.notaEntrada.numero : 'de entrada') +
+             '. Finalizar agora deixaria a caixa no galpão e fora do saldo, sem ninguém cobrando a diferença depois.');
       return;
     }
     const f = formaDe(DEV.forma);
@@ -2809,8 +3289,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function cancelar() {
     if (!DEV || NOVA) { avisar('Esta devolução ainda não existe para ser cancelada.'); return; }
     if (DEV.situacao === 'cancelada') { avisar('A devolução ' + DEV.numero + ' já está cancelada.'); return; }
-    if (DEV.estoque) {
-      avisar('O estoque desta devolução já foi lançado. Cancelar agora deixaria o saldo com mercadoria de uma devolução que não existe — a saída é um acerto de estoque.');
+    if (estoqueLancado(DEV)) {
+      avisar('O estoque desta devolução já foi lançado na conferência. Cancelar agora deixaria o saldo com mercadoria de uma devolução que não existe — a saída é um acerto de estoque.');
       return;
     }
     confirmarAcao('devolucaoCancela',
@@ -2899,8 +3379,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   document.getElementById('btnSalvar').addEventListener('click', salvar);
-  document.getElementById('btnLancarEstoque').addEventListener('click', lancarEstoque);
-  document.getElementById('btnReversa').addEventListener('click', solicitarReversa);
+  document.getElementById('btnConfirmarChegada').addEventListener('click', confirmarChegada);
+  ligarDropsReversa();
+  document.getElementById('btnReversa').addEventListener('click', abrirPainelReversa);
+  document.getElementById('btnDeclaracao').addEventListener('click', imprimirDeclaracao);
+  document.getElementById('btnCodReversa').addEventListener('click', informarCodigoReversa);
+  document.getElementById('btnAlterarCod').addEventListener('click', abrirEdicaoCodigo);
+  document.getElementById('btnCancelarCod').addEventListener('click', cancelarEdicaoCodigo);
+  document.getElementById('revConfirmar').addEventListener('click', solicitarReversa);
+  document.getElementById('revCancelar').addEventListener('click', fecharPainelReversa);
+  document.getElementById('revClose').addEventListener('click', fecharPainelReversa);
+  document.getElementById('revBackdrop').addEventListener('click', fecharPainelReversa);
   document.getElementById('btnVoltar').addEventListener('click', () => {
     window.location.href = 'pagina-logistica-devolucao.html';
   });

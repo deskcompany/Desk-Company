@@ -214,7 +214,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 
 | `teste_nomes_sistema.py` | **(08/out)** Configurações → Nomes do sistema. O sistema tinha **28 conjuntos de rótulos escritos no código**; lista que CRESCE (motivos, depósitos) já era cadastro, e o problema eram as listas FECHADAS, em que cada entrada dispara um comportamento — `revendavel` segue a regra de entrada, `avaria` bloqueia o saldo. Elas não podem virar cadastro: um quarto estado inventado não teria código que o entendesse. A saída foi separar **chave** de **rótulo**, e a suíte guarda as duas metades dessa promessa. A que importa mais é a **[7]**: depois de renomear, a chave e o destino no estoque continuam exatamente os mesmos — renomear muda o que aparece, não o que o sistema faz. Mais: o rótulo novo chega em **todas** as telas que o mostram, não só na que foi editada [6][8]; o nome interno fica à vista ao lado do campo [2]; dois rótulos iguais no mesmo grupo são barrados antes de salvar [4], senão a pessoa escolhe entre opções idênticas sem saber qual faz o quê; e renomear **pede senha** [5] | 19 |
 
-Total: **2.959 asserções** sob selo, medidas na rodada completa de 08/out/2026, em 26 suítes.
+Total: **3.015 asserções** sob selo, medidas na rodada completa de 08/out/2026, em 26 suítes.
 
 ### O contador estava errado nas duas direções (06/out/2026)
 

@@ -54,8 +54,15 @@ with sync_playwright() as p:
     ok(alvo.count() >= 1, 'o card aparece na tela de Configuracoes')
 
     pg.goto(URL + TELA); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    # O numero cresce conforme os conjuntos fechados vao entrando: 11 na
+    # estreia (devolucao), 19 depois que entrada de notas entrou. A asserção
+    # mede o CONTRATO, nao o numero: todo rotulo declarado tem campo na tela.
     campos = pg.locator('[data-nome]').count()
-    ok(campos == 11, 'os 11 rotulos abrem para edicao (%d)' % campos)
+    declarados = pg.evaluate('TODAS_CHAVES.length')
+    ok(campos == declarados,
+       'todo rotulo declarado tem campo na tela (%d campos, %d declarados)' % (campos, declarados))
+    ok(declarados == pg.evaluate('Object.keys(NOMES_PADRAO).length'),
+       'e nenhum rotulo do dicionario fica fora da tela de edicao')
 
     print('[2] O nome INTERNO aparece ao lado, e e ele que nao muda')
     corpo = pg.inner_text('.main')
