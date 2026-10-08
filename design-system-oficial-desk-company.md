@@ -1568,3 +1568,43 @@ E duas armadilhas da integração, para quando ela vier:
 - **O sandbox não cobre o que importa:** só Correios e JadLog, e não gera o
   código de reversa. O fluxo que mais precisa de teste é o que menos dá para
   testar fora de produção.
+
+## 14.41 Motivo sem cadastro é regra sem dono (08/out/2026)
+
+Os motivos de perda viviam escritos no código do Acerto de Estoque, e um dos
+campos **não era rótulo**: `fiscal` decide se a baixa exige NF-e própria (CFOP
+5.927, sem destaque de ICMS, com estorno do crédito aproveitado na entrada), se
+resolve com documento interno, ou se depende da diferença apurada.
+
+Isso é o mesmo padrão do cadastro de Motivos de Devolução, que nasceu dois dias
+antes: a lista parece texto, mas cada entrada **dispara um comportamento**.
+Enquanto ela vive dentro de uma tela, mudar a regra fiscal é editar JavaScript —
+e ninguém fora do código sabe que a regra existe.
+
+O cadastro tem dois eixos, e o segundo é o que importa:
+
+| eixo | o que decide |
+|---|---|
+| Em que movimento vale | o Acerto só oferece os motivos do movimento escolhido |
+| **O que a baixa obriga** | NF-e própria · documento interno · depende · nenhuma |
+
+**A asserção que justifica o cadastro existir** compara o que o cadastro diz com
+o que o Acerto oferece, código a código e tratamento a tratamento. Sem ela, as
+duas listas divergem em silêncio e o motivo escolhido no Acerto deixa de ser o
+que o cadastro descreve — com o tratamento fiscal errado junto. Ela foi provada
+nos dois sentidos: mudar `Furto ou roubo` de `nfe` para `interno` só no Acerto
+faz a suíte reprovar.
+
+Enquanto não há backend, a lista do Acerto fica como **espelho** do cadastro, e
+isso está escrito lá: mesma ordem, mesmos códigos, mesmo tratamento. Quando o
+backend entrar, ela some.
+
+**Dois erros ao clonar um cadastro, que valem para o próximo:**
+
+- Substituir o nome por texto renomeia **também o item de menu** do cadastro de
+  origem, criando item duplicado no flyout. A checagem 11 da auditoria pega.
+- Os **valores padrão do formulário** continuam apontando para chaves do
+  cadastro antigo (`revendavel` num cadastro que não tem destino de estoque).
+  O dropdown abre vazio e o aviso condicional não aparece ao criar um registro
+  novo — e isso passa despercebido, porque editar um registro existente
+  funciona.

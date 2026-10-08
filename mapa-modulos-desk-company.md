@@ -60,7 +60,7 @@
 | ❌ | Custos do E-commerce |
 | ❌ | Relatórios de Vendas |
 
-> **Metas** existe e funciona, mas **não tem item no menu** — só se chega por Lojas Desk, Vendedores ou Performance. Vale colocar no menu de Vendas.
+> ~~**Metas** existe e funciona, mas **não tem item no menu**.~~ **Resolvido em 08/out:** o item existia em **6 telas** e faltava em **64** — quem estivesse em qualquer outra não chegava lá pelo menu. Agora são 70 de 70.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
@@ -81,14 +81,14 @@
 | ❌ | Comissões Afiliados |
 | ❌ | Relatórios Finanças |
 
-## 🔧 Operacional — 2 de 6
+## 🔧 Operacional — 3 de 6
 | | Submódulo |
 |---|---|
 | ✅ | Transportadoras |
 | ❌ | Formas de Pagamento |
 | ❌ | Cupons |
 | ✅ | Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque; nasceu antes da Devolução usá-lo)* |
-| ❌ | Motivos de Perda |
+| ✅ | Motivos de Perda *(em que movimento o motivo vale e o que a baixa obriga; os motivos vieram do código do Acerto, onde viviam sem dono)* |
 | ❌ | Relatórios Operacional |
 
 ## 🔌 Integrações — 0 de 4 próprias
@@ -125,9 +125,9 @@
 | Vendas | 2 | 7 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
-| **Operacional** | **2** | **4** |
+| **Operacional** | **3** | **3** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **46 entradas de menu · 70 telas** | **22** |
+| **Total** | **47 entradas de menu · 71 telas** | **21** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

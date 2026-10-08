@@ -318,14 +318,17 @@
   .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
-  /* ===== CADASTROS > MARCAS (listagem) ===== */
-  .marcas-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+
+  /* ===== CADASTROS > MOTIVOS (listagem) ===== */
+  .motivo-check-row { display:flex; align-items:center; gap:10px; font-family:'Nunito',sans-serif; font-weight:700;
+                      font-size:13px; color:var(--text-heading); cursor:pointer; user-select:none; margin:4px 0 12px; }
+  .motivo-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
   .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
 
   .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .parent-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
+  .tipo-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
 
   .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
   .selecao-bar.show { display:flex; }
@@ -343,23 +346,19 @@
     content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
     border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
   }
-  /* Terceiro estado: RESPONDIDO EM PARTE (tracinho, nao check). Marca cheia
-     diria "coletei tudo" e marca vazia diria "nem olhei" — as duas mentem
-     sobre um item que veio incompleto de proposito. */
-  .item-checkbox:indeterminate { background:var(--chart-2); border-color:var(--chart-2); }
-  .item-checkbox:indeterminate::after {
-    content:''; position:absolute; left:2px; top:5.5px; width:9px; height:2px;
-    background:#fff; border-radius:1px;
-  }
 
-  .marcas-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
-  .marcas-card:first-of-type { border-top:none; }
-  .marcas-card:hover { background: rgba(120,120,140,0.06); }
-  .marcas-info { flex:1; min-width:0; }
-  .marcas-nome-row { display:flex; align-items:center; gap:8px; }
-  .marcas-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .marcas-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
-  .marcas-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+  .motivo-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .motivo-card:first-of-type { border-top:none; }
+  .motivo-card:hover { background: rgba(120,120,140,0.06); }
+  .motivo-info { flex:1; min-width:0; }
+  .motivo-nome-row { display:flex; align-items:center; gap:8px; }
+  .motivo-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .motivo-meta { font-size:12px; color:var(--text); margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .motivo-meta .sep-ponto { opacity:0.55; }
+  /* Numero em coluna de lista alinha por tabela, nao por fonte monoespacada:
+     a familia continua sendo UMA (Nunito, §2). */
+  .motivo-num { font-variant-numeric: tabular-nums; letter-spacing:0.2px; }
+  .motivo-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
   .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
@@ -375,6 +374,35 @@
   .paginacao-btn svg { width:14px; height:14px; }
   .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
 
+  /* ===== FORMULARIO DA TRANSPORTADORA ===== */
+  /* Dois campos curtos lado a lado. Hora de corte e prazo sao numeros de tres
+     digitos: campo de largura total ali e espaco gasto sem ganho de leitura. */
+  .form-duo { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-duo .form-field { margin-bottom:0; }
+  .form-field textarea {
+    width:100%; min-height:62px; resize:vertical; font-family:'Nunito',sans-serif; font-size:13.5px;
+    color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border);
+    border-radius:9px; padding:9px 11px; outline:none;
+  }
+  .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field.has-error textarea { border-color: var(--danger); }
+
+  /* Separador de secao dentro do painel: o formulario tem quatro assuntos
+     (identificacao, coleta, limites, contato) e sem titulo eles viram uma
+     coluna de dezoito campos iguais. */
+  .form-secao { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; letter-spacing:0.6px;
+                text-transform:uppercase; color:var(--text); margin:24px 0 12px; padding-top:16px;
+                border-top:1px solid var(--border); }
+  .form-secao.primeira { margin-top:0; padding-top:0; border-top:none; }
+
+  /* Caixa de explicacao do painel. NAO e aviso de erro: e o texto que diz o que
+     a Expedicao vai fazer com o que esta sendo cadastrado aqui. */
+  .nota-box { border:1px solid var(--border); background:var(--page-bg); border-radius:10px; padding:11px 13px; margin-bottom:18px; }
+  .nota-box-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .nota-box-titulo svg { width:13px; height:13px; flex-shrink:0; }
+  .nota-box-texto { font-size:11.5px; color:var(--text); line-height:1.5; }
+  .nota-box.atencao { border-color: var(--warning); }
+  .nota-box.atencao .nota-box-titulo { color: var(--warning); }
   /* ===== PAINEL LATERAL: nova/editar ===== */
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
@@ -455,182 +483,6 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
-  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
-  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
-  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
-  .estoque-table th.col-texto { text-align:left; }
-  .estoque-table th.ordenavel { cursor:pointer; }
-  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
-  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
-  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
-  .estoque-table th.ordenado { color:var(--text-heading); }
-  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
-  .estoque-table td.col-texto { text-align:left; }
-  .estoque-table tbody tr { cursor:pointer; }
-  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
-  .estoque-table tbody tr:last-child td { border-bottom:none; }
-  .col-produto { font-weight:700; }
-  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
-  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
-  .celula-reservada { color:var(--text); opacity:0.5; }
-  .saldo-critico { color:var(--danger); font-weight:800; }
-  .saldo-negativo { color:var(--danger); font-weight:800; }
-  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
-  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
-  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
-  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
-  .switch-row-texto { flex:1; min-width:0; }
-  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .switch-row .field-hint { margin-top:4px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .cf-nota { display:none; margin:16px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
-             border-left:3px solid var(--danger-solid); border-radius:9px; font-size:12px; color:var(--text); line-height:1.55; }
-  .cf-nota b { color:var(--text-heading); }
-
-
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; min-width:120px; }
-  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
-  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-
-  /* ===== Contas bancárias ===== */
-  .cb-banco { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cb-desc { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .cb-num { font-variant-numeric:tabular-nums; }
-  .cb-vinc { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--active-text); }
-  .cb-sem-vinc { font-size:12.5px; color:var(--danger); font-weight:700; }
-
-  /* ===== Contas financeiras ===== */
-  .cf-kpi { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:16px;
-            padding:14px 16px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; }
-  .cf-kpi-rotulo { font-size:12.5px; color:var(--text); }
-  .cf-kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .cf-kpi-nota { font-size:11.5px; color:var(--text); }
-  .cf-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cf-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
-  .cf-chip { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;
-             padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap; }
-  .cf-chip.pref  { color:#1E6B2E; }
-  .cf-chip.fora  { color:#B45309; }
-  .cf-chip.banco { color:var(--active-text); }
-  body.dark .cf-chip.pref { color:#6FCF97; }
-  body.dark .cf-chip.fora { color:#F5A623; }
-  .cf-cadeado { width:14px; height:14px; color:var(--text); vertical-align:-2px; margin-right:6px; }
-  .cf-contabil { font-variant-numeric:tabular-nums; }
-  .cf-vazio { color:var(--text); }
-
-  /* ===== Categorias financeiras ===== */
-  .visao-tabs { display:flex; gap:6px; margin-bottom:16px; }
-  .visao-tab { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); background:var(--card-bg);
-               border:1px solid var(--border); border-radius:20px; padding:8px 16px; cursor:pointer; }
-  .visao-tab:hover { color:var(--text-heading); }
-  .visao-tab.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
-  .link-perigo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--danger); cursor:pointer; user-select:none; }
-  .link-perigo:hover { opacity:0.8; }
-  .link-perigo.desabilitado { color:var(--text); cursor:default; }
-  .link-perigo.desabilitado:hover { opacity:1; }
-  .selecao-aviso { color:var(--danger); font-weight:700; }
-  .col-check { width:34px; }
-  .cat-grupo-row { cursor:default; }
-  .cat-grupo-row td { background:var(--page-bg); font-family:'Nunito',sans-serif; font-weight:800; font-size:11px;
-                      text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:9px 8px;
-                      text-align:left; }   /* a regra geral da tabela alinha td a direita; cabecalho de grupo e texto */
-  .cat-grupo-row:hover td { background:var(--page-bg); }
-  .cat-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cat-sub { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; color:var(--text); margin-top:3px; }
-  .cat-chip { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
-              border-radius:20px; border:1px solid currentColor; white-space:nowrap; color:var(--active-text); }
-  .cat-dre { font-size:12.5px; color:var(--text-heading); }
-  .cat-dre.nao { color:var(--text); }
-
-  /* ===== Caixa e Bancos ===== */
-  .btn-secundario-topo { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700;
-                         font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border);
-                         background:var(--card-bg); color:var(--text-heading); cursor:pointer; user-select:none; }
-  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
-  .btn-secundario-topo svg { width:14px; height:14px; }
-  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; }
-  .link-inline:hover { color:var(--text-heading); }
-  .cx-acoes-topo { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-
-  .cx-conta-bar { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-bottom:16px; padding:14px 16px;
-                  background:var(--card-bg); border:1px solid var(--border); border-radius:12px; }
-  .cx-saldo { display:flex; align-items:baseline; gap:8px; }
-  .cx-saldo-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); font-variant-numeric:tabular-nums; }
-  .cx-saldo-valor.neg { color:var(--danger); }
-  .cx-saldo-rotulo { font-size:12px; color:var(--text); }
-  .cx-saldo-nota { display:none; flex:1; min-width:220px; font-size:11.5px; color:var(--text); }
-  .cx-saldo-nota b { color:var(--text-heading); }
-
-  .cx-table { min-width:900px; }
-  .cx-saldo-row { cursor:default; }
-  .cx-saldo-row td { background:var(--page-bg); text-align:left; font-size:12px; color:var(--text); padding:10px 8px; }
-  .cx-saldo-row td b { color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:800; font-variant-numeric:tabular-nums; }
-  .cx-saldo-row:hover td { background:var(--page-bg); }
-  .cx-data { font-variant-numeric:tabular-nums; font-size:12.5px; white-space:nowrap; }
-  .cx-hist { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .cx-sub { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .cx-cat { font-size:12.5px; }
-  .cx-num { font-variant-numeric:tabular-nums; font-size:13px; }
-  .cx-origem { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
-               border-radius:20px; border:1px solid currentColor; color:var(--active-text); white-space:nowrap; }
-  .cx-alerta-comp { color:var(--active-text); font-weight:800; margin-left:4px; cursor:help; }
-
-  .cx-totais { display:flex; align-items:center; justify-content:flex-end; gap:26px; flex-wrap:wrap;
-               padding:14px 4px 2px; border-top:1px solid var(--border); margin-top:6px; }
-  .cx-total-item { text-align:right; }
-  .cx-total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); font-variant-numeric:tabular-nums; }
-  .cx-total-valor.neg { color:var(--danger); }
-  .cx-total-valor.sel { color:var(--active-text); }
-  .cx-total-rotulo { font-size:11px; color:var(--text); margin-top:2px; }
-  .cx-fechado .cx-total-valor { color:var(--active-text); }
-  .cx-total-aviso { flex-basis:100%; text-align:right; font-size:11.5px; color:var(--text); margin-top:8px; }
-  .cx-total-aviso b { color:var(--text-heading); }
-
-  .cx-ro { font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text); background:var(--page-bg);
-           border:1px solid var(--border); border-radius:9px; padding:9px 11px; }
-  .cx-texto { font-size:12.5px; color:var(--text); line-height:1.55; margin-bottom:16px; }
-  .cx-texto b { color:var(--text-heading); }
-  .cx-bloq { padding:11px 0; border-bottom:1px solid var(--border); }
-
-  .dropdown-grupo { padding:9px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px;
-                    text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
-
-  /* ===== Campo de data com mini calendário (componente compartilhado) ===== */
-  .date-field { position:relative; }
-  .date-field input[type="text"] { padding-right:34px; }
-  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
-              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
-              color:var(--text); cursor:pointer; }
-  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
-  .date-btn svg { width:13px; height:13px; }
-  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
-     o campo esta no topo da tela e nao ha espaco acima. */
-  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
-              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
-  .date-pop.open { display:block; }
-  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
-  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
-  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
-  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
-              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
-  .date-nav:hover { background: rgba(120,120,140,0.12); }
-  .date-nav svg { width:11px; height:11px; }
-  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
-             padding-bottom:4px; text-transform:uppercase; }
-  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
-              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
-  .date-dia:hover { background: rgba(120,120,140,0.14); }
-  .date-dia.vazio { cursor:default; }
-  .date-dia.vazio:hover { background:transparent; }
-  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
-  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
-  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
-  .date-dia.off:hover { background:transparent; }
-  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
-  .date-rodape b { color:var(--text-heading); }
-
 </style>
 </head>
 <body class="dark">
@@ -664,11 +516,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       <span class="label-text">Logística</span>
     </div>
-    <div class="nav-item active" data-id="financas" data-label="Finanças">
+    <div class="nav-item" data-id="financas" data-label="Finanças">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a1.75 1.75 0 1 1 0 3.5h-2a1.75 1.75 0 1 0 0 3.5h3.5"/></svg>
       <span class="label-text">Finanças</span>
     </div>
-    <div class="nav-item" data-id="operacional" data-label="Operacional">
+    <div class="nav-item active" data-id="operacional" data-label="Operacional">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
       <span class="label-text">Operacional</span>
     </div>
@@ -846,130 +698,69 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Caixa e Bancos</h1>
-      <div class="subtitle">O extrato de uma conta financeira: o que entrou, o que saiu e quanto sobrou.</div>
+      <h1>Motivos de Perda</h1>
+      <div class="subtitle">Por que o saldo muda sem venda, em que movimento o motivo vale e o que a baixa obriga</div>
     </div>
-    <div class="cx-acoes-topo">
-      <button class="btn-secundario-topo" id="btnTransferir">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Transferir
-      </button>
-      <button class="btn-primary" id="btnNovoLancamento">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Incluir lançamento
-      </button>
-      <div class="dropdown-select" id="menuMaisAcoes" data-value="">
-        <button type="button" class="btn-ghost dropdown-select-btn">
-          <span class="dropdown-select-label">Mais ações</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:290px;">
-          <div class="dropdown-select-item" data-value="fechamento">Gerenciar fechamento financeiro</div>
-          <div class="dropdown-select-item" data-value="bloqueadas">Movimentações financeiras bloqueadas</div>
-        </div>
-      </div>
-    </div>
+    <button class="btn-primary" id="btnNovoMotivo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Novo motivo
+    </button>
   </div>
 
-  <div class="nota-reservado">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-    <span>Esta tela é <b>extrato de uma conta</b>, não uma lista de lançamentos: a primeira linha é o saldo antes do período e o rodapé fecha com saldo inicial, entradas, saídas e saldo final. A coluna <b>Origem</b> existe para dizer <b>qual documento gerou o movimento</b> — hoje só há lançamento manual e transferência; pedido, ordem de compra e baixa de título entram nela quando esses módulos passarem por aqui.</span>
-  </div>
-
-  <div class="cx-conta-bar">
-    <div class="dropdown-select" id="seletorConta" data-value="1">
-      <button type="button" class="dropdown-select-btn pill">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>
-        <span class="dropdown-select-label">Caixa</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuConta"></div>
-    </div>
-    <div class="cx-saldo">
-      <div class="cx-saldo-valor" id="saldoAtual">0,00</div>
-      <div class="cx-saldo-rotulo">saldo atual (R$)</div>
-    </div>
-    <div class="cx-saldo-nota" id="saldoNota"></div>
-  </div>
-
-  <div class="marcas-toolbar">
+  <div class="motivo-toolbar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Buscar por histórico, cliente ou fornecedor...">
+      <input type="text" id="campoBusca" placeholder="Buscar por motivo...">
     </div>
-
-    <div class="dropdown-select" id="filtroPeriodo" data-value="30">
+    <div class="dropdown-select pill" id="filtroTipo" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Últimos 30 dias</span>
+        <span class="dropdown-select-label">Todas as responsáveis</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="dropdown-select-menu">
-        <div class="dropdown-select-item" data-value="0">Do dia</div>
-        <div class="dropdown-select-item" data-value="7">Últimos 7 dias</div>
-        <div class="dropdown-select-item active" data-value="30">Últimos 30 dias</div>
-        <div class="dropdown-select-item" data-value="90">Últimos 90 dias</div>
-        <div class="dropdown-select-item" data-value="todos">Sem filtro de período</div>
+        <div class="dropdown-select-item active" data-value="todos">Todas as responsáveis</div>
+        <div class="dropdown-select-item" data-value="nossa">Nossa operação</div>
+        <div class="dropdown-select-item" data-value="transporte">Transporte</div>
+        <div class="dropdown-select-item" data-value="cliente">Cliente</div>
+        <div class="dropdown-select-item" data-value="fiscal">Fiscal</div>
       </div>
     </div>
-
-    <div class="dropdown-select" id="filtroBase" data-value="emissao">
+    <div class="dropdown-select pill" id="filtroSituacao" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">por emissão</span>
+        <span class="dropdown-select-label">Todas as situações</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="emissao">por emissão</div>
-        <div class="dropdown-select-item" data-value="competencia">por competência</div>
+        <div class="dropdown-select-item active" data-value="todos">Todas as situações</div>
+        <div class="dropdown-select-item" data-value="ativo">Ativos</div>
+        <div class="dropdown-select-item" data-value="inativo">Inativos</div>
       </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroCategoria" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todas as categorias</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroCategoria"></div>
-    </div>
-
-    <div class="link-inline" id="limparFiltros">Limpar filtros</div>
-  </div>
-
-  <div class="selecao-bar" id="barraSelecao">
-    <div class="selecao-info" id="selecaoInfo">0 selecionados</div>
-    <div class="selecao-acoes">
-      <div class="dropdown-select" id="ddCategoriaMassa" data-value="">
-        <button type="button" class="dropdown-select-btn pill">
-          <span class="dropdown-select-label">Alterar categoria</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" id="menuCategoriaMassa"></div>
-      </div>
-      <div class="dropdown-select" id="ddCompetenciaMassa" data-value="">
-        <button type="button" class="dropdown-select-btn pill">
-          <span class="dropdown-select-label">Alterar competência</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" id="menuCompetenciaMassa"></div>
-      </div>
-      <div class="link-inline" id="linkAlterarContaMassa">Alterar conta</div>
-      <div class="link-perigo" id="linkExcluirSelecionados">Excluir selecionados</div>
-      <div class="drawer-link" id="linkLimparSelecao">Limpar seleção</div>
     </div>
   </div>
 
   <div class="card">
-    <div id="listaMovimentos"></div>
+    <label class="selecionar-todos-row">
+      <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
+      Selecionar todos
+    </label>
+    <div id="listaMotivos"></div>
     <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <div class="empty-state-title" id="emptyTitulo">Nenhum lançamento no período</div>
-      <div class="empty-state-sub" id="emptySub">Troque o período ou limpe os filtros para ver o extrato completo desta conta.</div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <div class="empty-state-title">Nenhum motivo encontrado</div>
+      <div class="empty-state-sub">Tenta ajustar a busca ou os filtros.</div>
     </div>
-
-    <div class="cx-totais" id="barraTotais"></div>
+    <div class="selecao-bar" id="barraSelecao">
+      <span class="selecao-info" id="selecaoInfo">0 selecionados</span>
+      <div class="selecao-acoes">
+        <button class="btn-secundario" id="btnInativarSelecionados">Inativar selecionados</button>
+        <button class="btn-danger" id="btnExcluirSelecionados">Excluir selecionados</button>
+        <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
+      </div>
+    </div>
 
     <div class="paginacao-bar">
       <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
         <span>· Por página:</span>
         <div class="dropdown-select" id="itensPorPagina" data-value="10">
           <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
@@ -992,170 +783,139 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-<!-- PAINEL LATERAL: transferência entre contas -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="drawerTransferencia">
-  <div class="drawer-header">
-    <div class="drawer-title">Transferência entre contas</div>
-    <div class="drawer-close" id="fecharTransferencia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
+  <!-- PAINEL LATERAL: novo/editar motivo -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="event-drawer" id="eventDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawerTitulo">Novo motivo</div>
+      <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+    </div>
 
-  <div class="form-row">
-    <div class="form-field" id="campoTransfData">
-      <label>Data</label>
-      <div class="date-field" id="dfTransfData">
-        <input type="text" id="inputTransfData" placeholder="dd/mm/aaaa" autocomplete="off">
-        <button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
-        <div class="date-pop"></div>
+    <div class="form-secao primeira">Identificação</div>
+
+    <div class="form-field" id="campoNomeMotivo">
+      <label>Motivo</label>
+      <input type="text" id="inputNomeMotivo" placeholder="Ex: Quebra ou avaria">
+      <div class="field-error-msg" id="erroNomeMotivo">Este campo é obrigatório.</div>
+      <div class="field-hint">É este texto que aparece no Acerto de Estoque e no relatório de por que o saldo mudou sem venda.</div>
+    </div>
+
+    <div class="form-field">
+      <label>Em que movimento o motivo aparece</label>
+      <div class="dropdown-select" id="inputGrupo" data-value="saida">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Saída</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item" data-value="entrada">Entrada</div>
+          <div class="dropdown-select-item active" data-value="saida">Saída</div>
+          <div class="dropdown-select-item" data-value="balanco">Balanço</div>
+        </div>
       </div>
-      <div class="field-error-msg" id="erroTransfData">Data inválida ou dentro do período financeiro fechado.</div>
+      <div class="field-hint">O Acerto de Estoque só oferece os motivos do movimento escolhido. Sobra de contagem não serve para baixa, e furto não serve para entrada.</div>
     </div>
-    <div class="form-field" id="campoTransfValor">
-      <label>Valor (R$)</label>
-      <input type="text" id="inputTransfValor" placeholder="0,00">
-      <div class="field-error-msg" id="erroTransfValor">Informe um valor maior que zero.</div>
+
+    <div class="form-secao">O que a baixa obriga</div>
+
+    <div class="form-field">
+      <label>Tratamento fiscal</label>
+      <div class="dropdown-select" id="inputDestino" data-value="nfe">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Exige NF-e própria</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="nfe">Exige NF-e própria</div>
+          <div class="dropdown-select-item" data-value="interno">Resolve com documento interno</div>
+          <div class="dropdown-select-item" data-value="depende">Depende da diferença</div>
+          <div class="dropdown-select-item" data-value="nenhum">Não gera obrigação</div>
+        </div>
+      </div>
+      <div class="field-hint">Este campo não é rótulo: ele decide o que o Acerto avisa na hora de gravar. NF-e própria sai com <b>CFOP 5.927</b>, sem destaque de ICMS e com estorno do crédito aproveitado na entrada.</div>
+    </div>
+
+    <!-- Baixa que exige NF-e nao pode sair calada: enquanto a Desk nao emite,
+         a linha fica numa fila de regularizacao, e quem escolhe o motivo
+         precisa saber disso na hora de escolher, nao meses depois. -->
+    <div class="nota-box" id="notaAvaria" style="display:none;">
+      <div class="nota-box-titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Gera obrigação fiscal
+      </div>
+      <div class="nota-box-texto">Baixa por este motivo exige <b>NF-e própria com CFOP 5.927</b>, sem destaque de ICMS, e <b>estorno do crédito</b> aproveitado na entrada. Como a Desk ainda não emite NF-e, a linha entra na fila de baixas pendentes de regularização fiscal.</div>
+    </div>
+
+    <div class="nota-box" id="notaNenhum" style="display:none;">
+      <div class="nota-box-titulo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Depende da diferença
+      </div>
+      <div class="nota-box-texto">O balanço vira entrada ou saída conforme a diferença contra o saldo atual. Se der <b>falta</b>, a obrigação fiscal se aplica ao motivo da falta — e aí vale escolher o motivo específico, não o balanço.</div>
+    </div>
+
+    <label class="motivo-check-row">
+      <input type="checkbox" class="item-checkbox" id="inputExigeObs">
+      Exigir que escrevam o que houve
+    </label>
+    <div class="field-hint" style="margin:-6px 0 18px;">Para motivos genéricos como "Outro". Sem o texto, a devolução não salva — e seis meses depois ninguém sabe o que aconteceu.</div>
+
+    <div class="form-secao">Observações e situação</div>
+
+    <div class="form-field">
+      <label>Observação interna</label>
+      <textarea id="inputObs" placeholder="Ex: pedir foto antes do descarte; é a prova de que a mercadoria existia."></textarea>
+      <div class="field-hint">Aparece para quem escolhe o motivo, no momento de escolher.</div>
+    </div>
+
+    <div class="form-field">
+      <label>Situação</label>
+      <div class="dropdown-select" id="inputSituacao" data-value="ativo">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Ativo</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="ativo">Ativo</div>
+          <div class="dropdown-select-item" data-value="inativo">Inativo</div>
+        </div>
+      </div>
+      <div class="field-hint">Inativo some da lista de escolha, mas continua nas devoluções antigas — apagar o motivo apagaria a história delas.</div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn-primary" id="btnSalvarMotivo">Salvar</button>
+      <div class="drawer-link" id="btnCancelarMotivo">Cancelar</div>
+    </div>
+
+    <div class="excluir-link" id="linkExcluirMotivo" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Excluir motivo
     </div>
   </div>
 
-  <div class="form-field" id="campoTransfOrigem">
-    <label>Conta de origem</label>
-    <div class="dropdown-select" id="ddTransfOrigem" data-value="">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Selecione</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuTransfOrigem"></div>
-    </div>
-    <div class="field-error-msg" id="erroTransfOrigem">Origem e destino não podem ser a mesma conta.</div>
-  </div>
-
-  <div class="form-field" id="campoTransfDestino">
-    <label>Conta de destino</label>
-    <div class="dropdown-select" id="ddTransfDestino" data-value="">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Selecione</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuTransfDestino"></div>
-    </div>
-    <div class="field-error-msg" id="erroTransfDestino">Escolha a conta de destino.</div>
-  </div>
-
-  <div class="form-field">
-    <label>Histórico</label>
-    <input type="text" id="inputTransfHist" value="Transferência entre contas">
-  </div>
-
-  <div class="cf-nota" style="display:block;">Uma transferência <b>não é um lançamento: são dois</b> — uma saída na origem e uma entrada no destino, ligadas entre si. É por isso que ela não aparece como receita nem como despesa em relatório nenhum: o dinheiro mudou de lugar, não de dono.</div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnSalvarTransferencia">Transferir</button>
-    <div class="drawer-link" id="btnCancelarTransferencia">Cancelar</div>
-  </div>
-</div>
-
-<!-- PAINEL LATERAL: alterar conta financeira -->
-<div class="event-drawer" id="drawerConta">
-  <div class="drawer-header">
-    <div class="drawer-title">Alterar conta financeira</div>
-    <div class="drawer-close" id="fecharConta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-
-  <div class="form-field">
-    <label>Conta atual</label>
-    <div class="cx-ro" id="contaAtualRo">—</div>
-  </div>
-
-  <div class="form-field" id="campoNovaConta">
-    <label>Nova conta</label>
-    <div class="dropdown-select" id="ddNovaConta" data-value="">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Selecione</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuNovaConta"></div>
-    </div>
-    <div class="field-error-msg" id="erroNovaConta">Escolha uma conta diferente da atual.</div>
-  </div>
-
-  <div class="cf-nota" id="notaAlterarConta"></div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnSalvarConta">Alterar conta</button>
-    <div class="drawer-link" id="btnCancelarConta">Cancelar</div>
-  </div>
-</div>
-
-<!-- PAINEL LATERAL: fechamento financeiro -->
-<div class="event-drawer" id="drawerFechamento">
-  <div class="drawer-header">
-    <div class="drawer-title">Gerenciar fechamento financeiro</div>
-    <div class="drawer-close" id="fecharFechamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-
-  <div class="cx-texto">Fechar o período serve a quem concilia o financeiro de tempos em tempos: <b>nenhum lançamento — manual ou automático — entra em data igual ou anterior à data de fechamento</b>. O que já está lançado continua como está.</div>
-
-  <div class="cf-nota" id="notaFechamentoAtual"></div>
-
-  <div class="form-field" id="campoDataFechamento">
-    <label>Data de fechamento</label>
-    <div class="date-field" id="dfFechamento">
-      <input type="text" id="inputDataFechamento" placeholder="dd/mm/aaaa" autocomplete="off">
-      <button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
-      <div class="date-pop"></div>
-    </div>
-    <div class="field-error-msg" id="erroDataFechamento">Informe uma data válida (dd/mm/aaaa) que não seja futura.</div>
-    <div class="field-hint">Os lançamentos ficam bloqueados <b>até</b> a data informada, ela inclusive.</div>
-  </div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnFecharPeriodo">Fechar período financeiro</button>
-    <div class="drawer-link" id="btnCancelarFechamento">Cancelar</div>
-  </div>
-
-  <div class="excluir-link" id="linkReabrirPeriodo" style="display:none;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-    Reabrir o período
-  </div>
-</div>
-
-<!-- PAINEL LATERAL: movimentações financeiras bloqueadas -->
-<div class="event-drawer" id="drawerBloqueadas">
-  <div class="drawer-header">
-    <div class="drawer-title">Movimentações financeiras bloqueadas</div>
-    <div class="drawer-close" id="fecharBloqueadas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-
-  <div class="cx-texto">Movimento <b>automático</b> que caiu em período fechado não é descartado e não fura a trava: ele fica aqui, com o que seria lançado e o motivo. Sem esta fila, fechar o período faria movimento sumir em silêncio e o saldo divergiria sem ninguém saber de onde.</div>
-
-  <div id="listaBloqueadas"></div>
-
-  <div class="drawer-footer">
-    <div class="drawer-link" id="btnFecharBloqueadas2">Fechar</div>
-  </div>
-</div>
-
-<!-- MODAL: confirmação centralizada -->
-<div class="drawer-backdrop" id="confirmModalBackdrop"></div>
-<div class="modal-card" id="confirmModal">
-  <div class="confirm-titulo">Confirmação</div>
-  <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
-  <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
-    <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
-    Estou ciente destas ações e desejo continuar.
-  </label>
-  <div class="confirm-senha-row" id="campoSenhaModal">
+  <!-- MODAL: confirmação centralizada (reutilizável) -->
+  <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
+  <div class="modal-card" id="confirmModal">
+    <div class="confirm-titulo">Confirmação</div>
+    <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
+    <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
+      <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
+      Estou ciente destas ações e desejo continuar.
+    </label>
+    <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
     <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
   </div>
   <div class="confirm-acoes">
-    <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
-    <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+      <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
+      <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+    </div>
   </div>
-</div>
 
 </div>
+
 <script>
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
@@ -1194,6 +954,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1211,6 +977,68 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const PARAM = lerParametros();
+
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada',
+    // Entrada de notas — de onde a nota veio
+    'entrada.origem.compra':    'Compra',
+    'entrada.origem.devolucao': 'Devolução',
+    // Entrada de notas — situacao do documento
+    'entrada.situacao.transito':      'Em trânsito',
+    'entrada.situacao.aconferir':     'A conferir',
+    'entrada.situacao.emconferencia': 'Em conferência',
+    'entrada.situacao.divergencia':   'Com divergência',
+    'entrada.situacao.lancada':       'Lançada',
+    'entrada.situacao.recusada':      'Recusada',
+    // Motivos de perda — em que movimento o motivo vale
+    'perda.movimento.entrada': 'Entrada',
+    'perda.movimento.saida':   'Saída',
+    'perda.movimento.balanco': 'Balanço',
+    // Motivos de perda — o que a baixa obriga
+    'perda.fiscal.nfe':     'Exige NF-e própria',
+    'perda.fiscal.interno': 'Resolve com documento interno',
+    'perda.fiscal.depende': 'Depende da diferença',
+    'perda.fiscal.nenhum':  'Não gera obrigação'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
 
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
@@ -1254,10 +1082,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
     { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
-    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configura\u00e7\u00f5es \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
+    // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
+    { base:'transportadoras', nome:'Transportadoras', onde:'Operacional \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'motivosPerda', nome:'Motivos de Perda', onde:'Operacional \u2192 Motivos de Perda', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1270,13 +1098,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    // Mudar a conta de um lancamento move dinheiro entre dois saldos de uma vez.
-    // Nasce SEM senha (e correcao de erro de digitacao, nao ato destrutivo) mas
-    // SEMPRE registrada — e quem quiser pedir senha liga na matriz.
-    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    // Fechar o periodo trava TODO MUNDO, inclusive lancamento automatico. Nasce
-    // exigindo senha.
-    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
@@ -1481,7 +1302,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Cadastros', 'Marcas'];
+  let path = ['Operacional', 'Motivos de Perda'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1617,10 +1438,168 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== DADOS (mock) =====
+  // No Lovable isto vira a tabela `motivos_devolucao`. O cadastro nasceu ANTES da
+  // Devolucao usar ele (07/out/2026), de proposito: campo que aponta para um
+  // cadastro inexistente ja custou caro aqui duas vezes.
+  // De quem e a conta. Separar "erramos nos" de "o cliente se arrependeu" e o que
+  // transforma a lista de devolucoes em conserto de processo.
+  // O rotulo vem do dicionario; a cor e decisao de design e fica aqui.
+  // Em que movimento o motivo aparece. O Acerto so oferece os motivos do
+  // movimento escolhido: sobra de contagem nao serve para baixa, e furto nao
+  // serve para entrada.
+  const GRUPOS = {
+    entrada: { rotulo:nome('perda.movimento.entrada'), cor:'var(--success)' },
+    saida:   { rotulo:nome('perda.movimento.saida'),   cor:'var(--danger-solid)' },
+    balanco: { rotulo:nome('perda.movimento.balanco'), cor:'var(--chart-1)' }
+  };
 
-  // ===== COMPONENTE: dropdown customizado (substitui o select nativo) =====
-  // Tag literal dentro de comentario ja reprovou 40 arquivos numa auditoria: o
-  // contador de tags le o texto do arquivo, nao o HTML. Aqui vai sem os sinais.
+  // O que a baixa OBRIGA. Este campo nao e rotulo: e ele que decide o aviso
+  // que o Acerto da na hora de gravar, e e por isso que o motivo precisava de
+  // cadastro em vez de viver escrito no codigo de uma tela.
+  const DESTINOS = {
+    nfe:     'exige NF-e própria (CFOP 5.927)',
+    interno: 'resolve com documento interno',
+    depende: 'depende da diferença apurada',
+    nenhum:  'não gera obrigação fiscal'
+  };
+
+  // Vieram do codigo do Acerto de Estoque, onde estavam escritos a mao.
+  const MOTIVOS = [
+    { id:1, nome:'Quebra ou avaria', grupo:'saida', destino:'nfe', exigeObs:true,
+      obs:'Pedir foto antes do descarte. É a prova de que a mercadoria existia e deixou de existir.', status:'ativo' },
+    { id:2, nome:'Perda', grupo:'saida', destino:'nfe', exigeObs:true,
+      obs:'Genérico de propósito. Se cabe num motivo mais específico, use o específico — o relatório agradece.', status:'ativo' },
+    { id:3, nome:'Furto ou roubo', grupo:'saida', destino:'nfe', exigeObs:true,
+      obs:'Com boletim de ocorrência o estorno de crédito tem defesa. Sem ele, o fisco trata como saída sem nota.', status:'ativo' },
+    { id:4, nome:'Extravio', grupo:'saida', destino:'nfe', exigeObs:true,
+      obs:'Sumiu dentro de casa, sem sinal de furto. Quase sempre é endereçamento errado — vale conferir antes de baixar.', status:'ativo' },
+    { id:5, nome:'Consumo próprio', grupo:'saida', destino:'nfe', exigeObs:false,
+      obs:'Mercadoria que saiu do estoque para uso da empresa. Deixa de ser revenda e o crédito é estornado.', status:'ativo' },
+    { id:6, nome:'Deterioração ou vencimento', grupo:'saida', destino:'interno', exigeObs:true,
+      obs:'Produto vencido deixou de ser mercadoria: resolve com documento interno. O estorno de crédito continua devido.', status:'ativo' },
+    { id:7, nome:'Sobra de contagem', grupo:'entrada', destino:'nenhum', exigeObs:false,
+      obs:'Apareceu mais do que o saldo dizia. Entra sem obrigação fiscal, mas vale investigar de onde veio.', status:'ativo' },
+    { id:8, nome:'Correção de lançamento', grupo:'entrada', destino:'nenhum', exigeObs:true,
+      obs:'Conserto de erro nosso de digitação. Escrever qual lançamento está sendo corrigido é o que torna a correção auditável.', status:'ativo' },
+    { id:9, nome:'Devolução interna (uso ou mostruário)', grupo:'entrada', destino:'nenhum', exigeObs:false,
+      obs:'Peça que saiu para uso e voltou inteira ao estoque de venda.', status:'ativo' },
+    { id:10, nome:'Contagem física', grupo:'balanco', destino:'depende', exigeObs:false,
+      obs:'O balanço vira entrada ou saída conforme a diferença. Se der falta, a obrigação segue o motivo da falta.', status:'ativo' },
+    { id:11, nome:'Amostra para cliente', grupo:'saida', destino:'nfe', exigeObs:false,
+      obs:'Saída sem venda, mas com destinatário. Enquanto a NF-e não existe, entra na fila de regularização.', status:'inativo' }
+  ];
+
+  let buscaAtual = '';
+  let filtroTipoAtual = 'todos';
+  let filtroSituacaoAtual = 'todos';
+  let motivoEmEdicaoId = null;
+  let itensSelecionados = new Set();
+  let paginaAtual = 1;
+  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
+
+  function metaDe(m) {
+    const partes = [DESTINOS[m.destino] || DESTINOS.nenhum];
+    if (m.exigeObs) partes.push('exige descrição');
+    if (m.obs) partes.push(m.obs);
+    return partes;
+  }
+
+  function motivosFiltrados() {
+    return MOTIVOS.filter(m => {
+      const passaGrupo = filtroTipoAtual === 'todos' || m.grupo === filtroTipoAtual;
+      const passaSituacao = filtroSituacaoAtual === 'todos' || m.status === filtroSituacaoAtual;
+      const termo = buscaAtual.trim().toLowerCase();
+      const passaBusca = termo === '' ||
+        m.nome.toLowerCase().includes(termo) ||
+        (m.obs || '').toLowerCase().includes(termo) ||
+        (GRUPOS[m.grupo] ? GRUPOS[m.grupo].rotulo.toLowerCase() : '').includes(termo);
+      return passaGrupo && passaSituacao && passaBusca;
+    });
+  }
+
+  function motivosPagina() {
+    const listaCompleta = motivosFiltrados();
+    const totalPaginas = Math.max(1, Math.ceil(listaCompleta.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
+    const fim = Math.min(inicio + itensPorPaginaAtual, listaCompleta.length);
+    return { listaCompleta, inicio, fim, totalPaginas, lista: listaCompleta.slice(inicio, fim) };
+  }
+
+  function renderMotivos() {
+    const container = document.getElementById('listaMotivos');
+    const emptyState = document.getElementById('emptyState');
+    container.innerHTML = '';
+    const { listaCompleta, inicio, fim, totalPaginas, lista } = motivosPagina();
+
+    if (listaCompleta.length === 0) {
+      emptyState.style.display = 'flex';
+      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
+      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
+      document.getElementById('btnPaginaAnterior').disabled = true;
+      document.getElementById('btnPaginaProxima').disabled = true;
+      atualizarBarraSelecao();
+      return;
+    }
+    emptyState.style.display = 'none';
+
+    lista.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'motivo-card';
+      const corStatus = t.status === 'ativo' ? 'var(--success)' : 'var(--text)';
+      const grupo = GRUPOS[t.grupo] || GRUPOS.nossa;
+      const meta = metaDe(t).join(' <span class="sep-ponto">·</span> ');
+      item.innerHTML =
+        '<input type="checkbox" class="item-checkbox" data-id="' + t.id + '" ' + (itensSelecionados.has(t.id) ? 'checked' : '') + '>' +
+        '<div class="motivo-info">' +
+          '<div class="motivo-nome-row">' +
+            '<span class="status-dot" style="background:' + corStatus + ';"></span>' +
+            '<span class="motivo-nome">' + t.nome + '</span>' +
+            '<span class="tipo-badge" style="background:' + grupo.cor + ';">' + grupo.rotulo + '</span>' +
+          '</div>' +
+          '<div class="motivo-meta motivo-num">' + meta + '</div>' +
+        '</div>' +
+        '<svg class="motivo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
+      item.querySelector('.item-checkbox').addEventListener('click', (e) => e.stopPropagation());
+      item.querySelector('.item-checkbox').addEventListener('change', (e) => {
+        toggleSelecao(t.id, e.target.checked);
+      });
+      item.addEventListener('click', () => abrirDrawerMotivo(t.id));
+      container.appendChild(item);
+    });
+    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + listaCompleta.length;
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
+    atualizarBarraSelecao();
+  }
+
+  // ===== SELECAO EM MASSA (opera so na pagina atual, igual Marcas) =====
+  function toggleSelecao(id, marcado) {
+    if (marcado) itensSelecionados.add(id); else itensSelecionados.delete(id);
+    atualizarBarraSelecao();
+  }
+
+  function atualizarBarraSelecao() {
+    const bar = document.getElementById('barraSelecao');
+    const count = itensSelecionados.size;
+    document.getElementById('selecaoInfo').textContent = count + (count === 1 ? ' selecionada' : ' selecionadas');
+    bar.classList.toggle('show', count > 0);
+
+    const visiveis = motivosPagina().lista;
+    const checkTodos = document.getElementById('checkSelecionarTodos');
+    checkTodos.checked = visiveis.length > 0 && visiveis.every(t => itensSelecionados.has(t.id));
+  }
+
+  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
+    motivosPagina().lista.forEach(t => {
+      if (e.target.checked) itensSelecionados.add(t.id); else itensSelecionados.delete(t.id);
+    });
+    renderMotivos();
+  });
+
+  // ===== COMPONENTE: dropdown customizado (substitui <select> nativo) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
@@ -1665,123 +1644,168 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // ===== COMPONENTE: campo de data com mini calendário =====
-  // Decidido na barganha de 22/set/2026. O campo continua aceitando DIGITACAO —
-  // quem sabe a data digita mais rapido — e ganha o icone que abre o calendario,
-  // para quem nao lembra o dia. Os dois caminhos, como no Olist.
-  //
-  // O motivo que nao e estetico: e no calendario que a TRAVA FICA VISIVEL. Dia
-  // dentro de periodo financeiro fechado aparece desabilitado, com o motivo no
-  // `title`, em vez de o usuario digitar, mandar salvar e so entao descobrir.
-  // Trava que aparece antes do clique e informacao; depois, e punicao.
-  //
-  // `min` e `max` aceitam string ISO ou FUNCAO — precisam ser funcao quando o
-  // limite muda durante a sessao, que e o caso do fechamento financeiro.
-  const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-  const MESES_NOME = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-
-  function inicializarDataField(raiz, opcoes) {
-    if (!raiz || raiz.dataset.dateInit) return;
-    raiz.dataset.dateInit = '1';
-    const op = opcoes || {};
-    const input = raiz.querySelector('input');
-    const btn = raiz.querySelector('.date-btn');
-    const pop = raiz.querySelector('.date-pop');
-    if (!input || !btn || !pop) return;
-    let mesVisivel = null;
-
-    const limite = (v) => (typeof v === 'function' ? v() : v) || null;
-    const isoDoInput = () => {
-      const m = String(input.value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-      if (!m) return null;
-      const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
-      if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
-      return m[3] + '-' + m[2] + '-' + m[1];
-    };
-
-    function desenhar() {
-      const sel = isoDoInput();
-      const base = mesVisivel || (sel ? new Date(Number(sel.slice(0, 4)), Number(sel.slice(5, 7)) - 1, 1) : new Date());
-      base.setDate(1);
-      mesVisivel = base;
-      const ano = base.getFullYear(), mes = base.getMonth();
-      const primeiro = new Date(ano, mes, 1).getDay();
-      const ultimo = new Date(ano, mes + 1, 0).getDate();
-      const min = limite(op.min), max = limite(op.max);
-      const hojeIso = (function () { const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); })();
-
-      let celulas = '';
-      for (let i = 0; i < primeiro; i++) celulas += '<div class="date-dia vazio"></div>';
-      for (let d = 1; d <= ultimo; d++) {
-        const isoD = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-        const fora = (min && isoD < min) || (max && isoD > max);
-        const classes = 'date-dia' + (fora ? ' off' : '') + (isoD === sel ? ' sel' : '') + (isoD === hojeIso ? ' hoje' : '');
-        const txt = (v, padrao) => (typeof v === 'function' ? v() : v) || padrao;
-        const motivo = fora ? ' title="' + ((min && isoD < min) ? txt(op.motivoMin, 'Data anterior ao permitido.') : txt(op.motivoMax, 'Data posterior ao permitido.')) + '"' : '';
-        celulas += '<div class="' + classes + '"' + (fora ? '' : ' data-iso="' + isoD + '"') + motivo + '>' + d + '</div>';
-      }
-      pop.innerHTML =
-        '<div class="date-cab">' +
-          '<button type="button" class="date-nav" data-passo="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>' +
-          '<span class="date-mes">' + MESES_NOME[mes] + ' ' + ano + '</span>' +
-          '<button type="button" class="date-nav" data-passo="1" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>' +
-        '</div>' +
-        '<div class="date-grade">' + DIAS_SEMANA.map(s => '<div class="date-ds">' + s + '</div>').join('') + celulas + '</div>' +
-        (op.rodape ? '<div class="date-rodape">' + op.rodape() + '</div>' : '');
-
-      pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', (e) => {
-        e.stopPropagation();
-        mesVisivel = new Date(ano, mes + Number(b.getAttribute('data-passo')), 1);
-        desenhar();
-      }));
-      pop.querySelectorAll('.date-dia[data-iso]').forEach(c => c.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const v = c.getAttribute('data-iso');
-        input.value = v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
-        fechar();
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        if (op.aoMudar) op.aoMudar(v);
-      }));
-    }
-
-    function abrir() {
-      document.querySelectorAll('.date-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
-      mesVisivel = null;
-      desenhar();
-      // POSICAO: colado no icone, e ACIMA por padrao.
-      //  - Horizontal: o popover alinha pela DIREITA, que e onde o icone fica.
-      //    Abrindo pela esquerda, o mouse atravessa o campo inteiro para chegar
-      //    no dia — foi o que o print de 22/set mostrou.
-      //  - Vertical: para cima. Num formulario preenchido de cima para baixo,
-      //    quando se chega na data os campos de cima ja foram resolvidos; o que
-      //    esta ABAIXO e o proximo passo e o botao de salvar. Cobrir o que ja
-      //    passou custa menos que cobrir o que vem.
-      //  - Desce so quando nao ha espaco acima (campo no topo da tela).
-      pop.style.visibility = 'hidden'; pop.style.display = 'block';
-      const alturaPop = pop.offsetHeight;
-      pop.style.display = ''; pop.style.visibility = '';
-      const caixaBtn = btn.getBoundingClientRect();
-      const espacoAcima = caixaBtn.top;
-      const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
-      pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
-      pop.classList.add('open');
-    }
-    function fechar() { pop.classList.remove('open'); }
-
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (pop.classList.contains('open')) fechar(); else abrir();
+  // Um unico ajustador para os tres dropdowns de UM valor do formulario (tipo,
+  // UF e situacao). Tres copias da mesma funcao e tres lugares para esquecer de
+  // marcar o item ativo.
+  function setDropdownValor(idRaiz, valor) {
+    const raiz = document.getElementById(idRaiz);
+    if (!raiz) return;
+    raiz.setAttribute('data-value', valor);
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === valor;
+      it.classList.toggle('active', ativo);
+      if (ativo && rotulo) rotulo.textContent = it.textContent;
     });
-    pop.addEventListener('click', (e) => e.stopPropagation());
-    input.addEventListener('input', () => { if (pop.classList.contains('open')) { mesVisivel = null; desenhar(); } });
-    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
   }
 
-  // ===== MODAL DE CONFIRMAÇÃO (reutilizável) =====
-  // Mesmo bloco das listagens de cadastro. Aqui ele atende exclusao individual,
-  // exclusao em massa (com a caixa "estou ciente") e a troca de grupo em massa.
+  // O menu de UF e montado por JS: 27 itens escritos na mao sao 27 chances de
+  // errar uma sigla, e a lista nunca muda por tela.
+  (function montarMenuUf() {
+    const menu = document.getElementById('menuUf');
+    if (!menu) return;
+    menu.innerHTML = UFS.map(uf =>
+      '<div class="dropdown-select-item' + (uf === 'SP' ? ' active' : '') + '" data-value="' + uf + '">' + uf + '</div>'
+    ).join('');
+  })();
+
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (valor) => {
+    itensPorPaginaAtual = Number(valor);
+    paginaAtual = 1;
+    renderMotivos();
+  });
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => {
+    if (paginaAtual > 1) { paginaAtual--; renderMotivos(); }
+  });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => {
+    paginaAtual++; renderMotivos();
+  });
+
+  document.getElementById('btnCancelarSelecao').addEventListener('click', () => {
+    itensSelecionados.clear();
+    renderMotivos();
+  });
+
+  document.getElementById('btnExcluirSelecionados').addEventListener('click', () => {
+    const n = itensSelecionados.size;
+    if (!n) return;
+    const texto = n === 1 ? 'Confirma exclusão do motivo selecionado? Devoluções antigas perdem a referência.'
+                          : 'Confirma exclusão dos ' + n + ' motivos selecionados? Devoluções antigas perdem a referência.';
+    armarSenhaModal('motivosPerdaExclui');
+    abrirModalConfirmacao(texto, n, () => {
+      for (let i = MOTIVOS.length - 1; i >= 0; i--) {
+        if (itensSelecionados.has(MOTIVOS[i].id)) MOTIVOS.splice(i, 1);
+      }
+      itensSelecionados.clear();
+      renderMotivos();
+    });
+  });
+
+  document.getElementById('btnInativarSelecionados').addEventListener('click', () => {
+    const n = itensSelecionados.size;
+    if (!n) return;
+    const texto = n === 1 ? 'Confirma inativar o motivo selecionado? Ele some da escolha, e as devoluções antigas continuam com ele.'
+                          : 'Confirma inativar os ' + n + ' motivos selecionados? Eles somem da escolha, e as devoluções antigas continuam com eles.';
+    abrirModalConfirmacao(texto, n, () => {
+      MOTIVOS.forEach(t => { if (itensSelecionados.has(t.id)) t.status = 'inativo'; });
+      itensSelecionados.clear();
+      renderMotivos();
+    });
+  });
+
+  document.getElementById('campoBusca').addEventListener('input', (e) => {
+    buscaAtual = e.target.value;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+
+  inicializarDropdownSelect(document.getElementById('filtroTipo'), (valor) => {
+    filtroTipoAtual = valor;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+  inicializarDropdownSelect(document.getElementById('filtroSituacao'), (valor) => {
+    filtroSituacaoAtual = valor;
+    paginaAtual = 1;
+    renderMotivos();
+  });
+
+  // ===== PAINEL LATERAL: novo/editar motivo =====
+  function abrirDrawer() {
+    document.getElementById('drawerBackdrop').classList.add('open');
+    document.getElementById('eventDrawer').classList.add('open');
+  }
+  function fecharDrawer() {
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    document.getElementById('eventDrawer').classList.remove('open');
+  }
+
+  // Tratamento fiscal que obriga alguma coisa muda o que a baixa exige, entao a tela
+  // diz isso ANTES de salvar, nao depois.
+  function aplicarDestino(destino) {
+    document.getElementById('notaAvaria').style.display = destino === 'nfe' ? '' : 'none';
+    document.getElementById('notaNenhum').style.display = destino === 'depende' ? '' : 'none';
+  }
+  inicializarDropdownSelect(document.getElementById('inputGrupo'), (valor) => setDropdownValor('inputGrupo', valor));
+  inicializarDropdownSelect(document.getElementById('inputDestino'), (valor) => {
+    setDropdownValor('inputDestino', valor);
+    aplicarDestino(valor);
+  });
+  inicializarDropdownSelect(document.getElementById('inputSituacao'), (valor) => setDropdownValor('inputSituacao', valor));
+
+  const CAMPOS_ERRO = [
+    ['campoNomeMotivo', 'erroNomeMotivo']
+  ];
+  function limparErros() {
+    CAMPOS_ERRO.forEach(([campo, erro]) => {
+      document.getElementById(campo).classList.remove('has-error');
+      document.getElementById(erro).classList.remove('show');
+    });
+  }
+  function marcarErro(campo, erro, mensagem) {
+    document.getElementById(campo).classList.add('has-error');
+    const el = document.getElementById(erro);
+    if (mensagem) el.textContent = mensagem;
+    el.classList.add('show');
+  }
+
+  function limparFormulario() {
+    document.getElementById('inputNomeMotivo').value = '';
+    document.getElementById('inputObs').value = '';
+    document.getElementById('inputExigeObs').checked = false;
+    limparErros();
+  }
+
+  document.getElementById('btnNovoMotivo').addEventListener('click', () => {
+    motivoEmEdicaoId = null;
+    document.getElementById('drawerTitulo').textContent = 'Novo motivo';
+    limparFormulario();
+    setDropdownValor('inputGrupo', 'saida');
+    setDropdownValor('inputDestino', 'nfe');
+    setDropdownValor('inputSituacao', 'ativo');
+    aplicarDestino('nfe');
+    document.getElementById('linkExcluirMotivo').style.display = 'none';
+    abrirDrawer();
+  });
+
+  function abrirDrawerMotivo(id) {
+    const m = MOTIVOS.find(x => x.id === id);
+    if (!m) return;
+    motivoEmEdicaoId = id;
+    document.getElementById('drawerTitulo').textContent = m.nome;
+    limparFormulario();
+    document.getElementById('inputNomeMotivo').value = m.nome;
+    document.getElementById('inputObs').value = m.obs || '';
+    document.getElementById('inputExigeObs').checked = !!m.exigeObs;
+    setDropdownValor('inputGrupo', m.grupo);
+    setDropdownValor('inputDestino', m.destino);
+    setDropdownValor('inputSituacao', m.status);
+    aplicarDestino(m.destino);
+    document.getElementById('linkExcluirMotivo').style.display = 'flex';
+    abrirDrawer();
+  }
+
+  // ===== MODAL DE CONFIRMACAO (reutilizavel) =====
   let confirmAoConfirmarCallback = null;
   function abrirModalConfirmacao(texto, quantidade, aoConfirmar) {
     document.getElementById('confirmModalTexto').textContent = texto;
@@ -1803,6 +1827,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
     document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
   });
+  // FECHA ANTES DE EXECUTAR. O inverso ja custou oito telas: callback que termina
+  // abrindo uma folha de aviso tinha o aviso derrubado pelo fechamento seguinte.
   document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
     if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
     const callback = confirmAoConfirmarCallback;
@@ -1817,721 +1843,106 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   });
 
-  // ===== CAIXA E BANCOS =====
-  // Extrato de UMA conta financeira. Fontes: prints de 16/set (lote 1) e de
-  // 22/set (lote 2, com dado real, tres contas e o periodo fechado), mais a
-  // documentacao do Olist em `gestao-financeira/caixa`.
-  //
-  // Tres decisoes de estrutura que os prints confirmaram:
-  //  1. A tela NAO e lista de lancamentos, e EXTRATO: a primeira linha e o saldo
-  //     anterior ao periodo e o rodape fecha com saldo inicial, entradas, saidas
-  //     e saldo final. Por isso a ordem e CRESCENTE por data — extrato se le de
-  //     cima para baixo, do saldo antigo para o atual.
-  //  2. Entrada e saida sao DUAS colunas, nao um valor com sinal.
-  //  3. Data e competencia sao campos diferentes, e o filtro de periodo escolhe
-  //     por qual dos dois esta filtrando (regime de caixa x regime de competencia).
-  //
-  // Divergencia deliberada do print: la existe uma coluna Cliente propria. Aqui
-  // ela e a segunda linha da celula de Historico, porque com a coluna separada a
-  // tabela passava de 1040px na largura de referencia e a rolagem horizontal
-  // esconderia justamente Entradas e Saidas. Coluna que carrega a informacao
-  // principal tem de caber.
-
-  const HOJE = new Date(); HOJE.setHours(0, 0, 0, 0);
-  function dAtras(n) { const d = new Date(HOJE); d.setDate(d.getDate() - n); return d; }
-  function iso(d) {
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-  function fmtData(s) { const p = String(s).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
-  function fmtComp(s) { const p = String(s).split('-'); return p[1] + '/' + p[0]; }
-  function parseData(txt) {
-    const m = String(txt || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (!m) return null;
-    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
-    if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
-    return iso(d);
-  }
-  // Dinheiro tem casas de MOEDA, sempre duas — nao usa PARAM.casasPreco, que e a
-  // precisao do preco de tabela do produto. Erro facil, ja registrado no design
-  // system: um parametro so mexendo em quantidade e em dinheiro.
-  function fmtDin(n) {
-    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-  function compDaData(isoData, offMeses) {
-    const p = isoData.split('-');
-    const d = new Date(Number(p[0]), Number(p[1]) - 1 + (offMeses || 0), 1);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-  }
-
-  // Espelho do cadastro de Contas financeiras — mesmos ids, mesmos nomes. No
-  // Lovable e a mesma tabela; aqui cada tela e um arquivo solto.
-  // `saldoAbertura` e o saldo antes do primeiro movimento deste mock: sem ele a
-  // linha de saldo anterior abriria sempre em zero e nao provaria nada.
-  const CONTAS_FIN = [
-    { id:1, nome:'Caixa',                      saldoAbertura: 820.00,   ativo:true,  foraFluxo:false, sistema:true },
-    { id:2, nome:'Banco Inter — conta corrente', saldoAbertura: 12480.00, ativo:true,  foraFluxo:false, sistema:false },
-    { id:3, nome:'Mercado Pago',               saldoAbertura: 0.00,     ativo:true,  foraFluxo:false, sistema:false },
-    { id:4, nome:'Cofre da loja',              saldoAbertura: 1500.00,  ativo:true,  foraFluxo:true,  sistema:false },
-    { id:5, nome:'Conta antiga Bradesco',      saldoAbertura: 0.00,     ativo:false, foraFluxo:false, sistema:false },
-    { id:6, nome:'Conta teste',                saldoAbertura: 0.00,     ativo:true,  foraFluxo:false, sistema:false }
-  ];
-
-  // Espelho de Configuracoes > Categorias financeiras (mesmos ids e grupos).
-  const CATS_FIN = [
-    { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
-    { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
-    { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
-    { id:10, nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
-    { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
-    { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
-    { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
-    { id:0,  nome:'Sem categoria',                     grupo:'' }
-  ];
-
-  // TODO MOVIMENTO DO MOCK E MANUAL, de proposito. Pedido, ordem de compra e
-  // baixa de titulo vao preencher a coluna Origem quando esses modulos passarem
-  // por aqui — semear agora seria mostrar um rastro para uma tela que ainda nao
-  // existe, o mesmo erro da previa que media fila inventada.
-  // `dias` = quantos dias atras; a data e calculada na abertura, entao o extrato
-  // nunca fica velho. `compOff` = meses de diferenca entre data e competencia.
-  const MOVIMENTOS = [
-    { id:1,  contaId:1, dias:41, hist:'Venda balcão — pedido retirado na loja', pessoa:'Marina Alves',        catId:1,  tipo:'entrada', valor:1250.00, compOff:0 },
-    { id:2,  contaId:1, dias:38, hist:'Compra de caixas e fita',                 pessoa:'Embalagens Norte Ltda', catId:11, tipo:'saida',   valor:318.40,  compOff:0 },
-    { id:3,  contaId:1, dias:27, hist:'Venda balcão',                             pessoa:'Rodrigo Menezes',     catId:1,  tipo:'entrada', valor:890.00,  compOff:0 },
-    { id:4,  contaId:1, dias:24, hist:'Conta de energia — consumo do mês anterior', pessoa:'Enel',            catId:8,  tipo:'saida',   valor:742.15,  compOff:-1 },
-    { id:5,  contaId:1, dias:20, hist:'Internet do galpão',                       pessoa:'Vivo Empresas',       catId:9,  tipo:'saida',   valor:229.90,  compOff:-1 },
-    { id:6,  contaId:1, dias:16, hist:'Venda balcão',                             pessoa:'Carla Prado',         catId:1,  tipo:'entrada', valor:1670.00, compOff:0 },
-    { id:7,  contaId:1, dias:12, hist:'Frete de entrega da semana',              pessoa:'Desk Flash',          catId:12, tipo:'saida',   valor:486.00,  compOff:0 },
-    { id:8,  contaId:1, dias:9,  hist:'Aluguel do galpão',                        pessoa:'Imobiliária Sete',    catId:7,  tipo:'saida',   valor:4200.00, compOff:0 },
-    { id:9,  contaId:1, dias:5,  hist:'Venda balcão',                             pessoa:'Tiago Nunes',         catId:1,  tipo:'entrada', valor:2310.00, compOff:0 },
-    { id:10, contaId:1, dias:2,  hist:'Compra de mercadoria — lote de fones',     pessoa:'Prime Distribuidora', catId:4,  tipo:'saida',   valor:1890.00, compOff:0 },
-    { id:11, contaId:1, dias:0,  hist:'Venda balcão',                             pessoa:'Letícia Barros',      catId:1,  tipo:'entrada', valor:540.00,  compOff:0 },
-
-    { id:12, contaId:2, dias:35, hist:'Repasse do marketplace',                  pessoa:'Mercado Livre',       catId:2,  tipo:'entrada', valor:8420.50, compOff:0 },
-    { id:13, contaId:2, dias:33, hist:'Comissão do marketplace',                  pessoa:'Mercado Livre',       catId:13, tipo:'saida',   valor:1263.07, compOff:0 },
-    { id:14, contaId:2, dias:22, hist:'Pagamento do fornecedor — lote 1180',      pessoa:'Prime Distribuidora', catId:4,  tipo:'saida',   valor:6740.00, compOff:0 },
-    { id:15, contaId:2, dias:18, hist:'Salários da equipe',                       pessoa:'',                    catId:10, tipo:'saida',   valor:9850.00, compOff:0 },
-    { id:16, contaId:2, dias:15, hist:'Repasse do marketplace',                  pessoa:'Shopee',              catId:2,  tipo:'entrada', valor:5130.80, compOff:0 },
-    { id:17, contaId:2, dias:14, hist:'Tarifa de manutenção da conta',            pessoa:'Banco Inter',         catId:18, tipo:'saida',   valor:59.90,   compOff:0 },
-    { id:18, contaId:2, dias:8,  hist:'DAS do Simples — competência anterior',    pessoa:'Receita Federal',     catId:15, tipo:'saida',   valor:3180.44, compOff:-1 },
-    { id:19, contaId:2, dias:3,  hist:'Repasse do marketplace',                  pessoa:'Amazon',              catId:2,  tipo:'entrada', valor:6975.30, compOff:0 },
-    { id:20, contaId:2, dias:1,  hist:'Frete da compra — lote 1180',              pessoa:'Transportes Vale',    catId:5,  tipo:'saida',   valor:412.70,  compOff:0 },
-
-    { id:21, contaId:3, dias:26, hist:'Recebimento de vendas Mercado Pago',      pessoa:'Mercado Pago',        catId:2,  tipo:'entrada', valor:3240.00, compOff:0 },
-    { id:22, contaId:3, dias:26, hist:'Taxa da maquininha',                      pessoa:'Mercado Pago',        catId:17, tipo:'saida',   valor:129.60,  compOff:0 },
-    { id:23, contaId:3, dias:6,  hist:'Recebimento de vendas Mercado Pago',      pessoa:'Mercado Pago',        catId:2,  tipo:'entrada', valor:1880.00, compOff:0 },
-    { id:24, contaId:3, dias:6,  hist:'Taxa da maquininha',                      pessoa:'Mercado Pago',        catId:17, tipo:'saida',   valor:75.20,   compOff:0 },
-
-    { id:26, contaId:1, dias:19, hist:'Taxa da maquininha da loja',            pessoa:'Mercado Pago',        catId:17, tipo:'saida',   valor:96.30,   compOff:0 },
-    { id:27, contaId:1, dias:7,  hist:'Venda balc\u00e3o',                             pessoa:'Fernanda Lima',       catId:1,  tipo:'entrada', valor:735.00,  compOff:0 },
-    { id:25, contaId:4, dias:30, hist:'Reserva de troco',                        pessoa:'',                    catId:0,  tipo:'entrada', valor:600.00,  compOff:0 }
-  ];
-  // A data e a competencia sao calculadas uma vez, na abertura.
-  MOVIMENTOS.forEach(m => {
-    m.data = iso(dAtras(m.dias));
-    m.comp = compDaData(m.data, m.compOff);
-    m.origem = m.origem || null;      // null = lancamento manual
+  document.getElementById('linkExcluirMotivo').addEventListener('click', () => {
+    const t = MOTIVOS.find(x => x.id === motivoEmEdicaoId);
+    if (!t) return;
+    armarSenhaModal('motivosPerdaExclui');
+    abrirModalConfirmacao('Confirma exclusão do motivo "' + t.nome + '"? Devoluções antigas apontam para ele — inativar guarda a história, excluir apaga.', 1, () => {
+      const index = MOTIVOS.findIndex(x => x.id === motivoEmEdicaoId);
+      if (index !== -1) MOTIVOS.splice(index, 1);
+      renderMotivos();
+      fecharDrawer();
+    });
   });
 
-  // ===== LANÇAMENTOS VINDOS DE OUTRAS TELAS =====
-  // O extrato e um arquivo e Contas a Pagar e outro. Para a integracao ser REAL
-  // no prototipo — e nao um texto dizendo que seria —, quem da baixa grava o
-  // movimento num deposito compartilhado no navegador e o extrato le esse
-  // deposito junto com o mock. Mesma ideia do `deskParametros` e do `deskLog`.
-  // No Lovable isto nao existe: e a mesma tabela `movimentos`, escrita pela baixa.
-  (function lerMovimentosDeOutrasTelas() {
-    try {
-      const extras = JSON.parse(localStorage.getItem('deskCaixaExtras') || '[]');
-      extras.forEach((m, i) => {
-        MOVIMENTOS.push({
-          id: 900000 + i, contaId: Number(m.contaId), data: m.data, comp: m.comp,
-          hist: m.hist, pessoa: m.pessoa || '', catId: Number(m.catId),
-          tipo: m.tipo, valor: Number(m.valor), origem: m.origem || 'Baixa'
-        });
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
+  document.getElementById('btnCancelarMotivo').addEventListener('click', fecharDrawer);
+
+  document.getElementById('inputNomeMotivo').addEventListener('input', () => {
+    if (document.getElementById('inputNomeMotivo').value.trim() !== '') {
+      document.getElementById('campoNomeMotivo').classList.remove('has-error');
+      document.getElementById('erroNomeMotivo').classList.remove('show');
+    }
+  });
+
+  // ===== SALVAR =====
+  // Preview: valida e grava em memoria, sem persistencia real ate
+  // `motivos_devolucao` entrar no Supabase.
+
+  document.getElementById('btnSalvarMotivo').addEventListener('click', () => {
+    limparErros();
+    let valido = true;
+    const nome = document.getElementById('inputNomeMotivo').value.trim();
+
+    if (nome === '') {
+      marcarErro('campoNomeMotivo', 'erroNomeMotivo', 'Este campo \u00e9 obrigat\u00f3rio.');
+      valido = false;
+    } else if (MOTIVOS.some(m => m.id !== motivoEmEdicaoId && m.nome.trim().toLowerCase() === nome.toLowerCase())) {
+      // O relatorio agrupa por motivo. Dois cadastros com o mesmo nome viram
+      // duas linhas que somam a mesma coisa, e nenhuma delas conta a verdade.
+      marcarErro('campoNomeMotivo', 'erroNomeMotivo', 'J\u00e1 existe um motivo com este nome.');
+      valido = false;
+    }
+    if (!valido) return;
+
+    const dados = {
+      nome: nome,
+      grupo: document.getElementById('inputGrupo').getAttribute('data-value'),
+      destino: document.getElementById('inputDestino').getAttribute('data-value'),
+      exigeObs: document.getElementById('inputExigeObs').checked,
+      obs: document.getElementById('inputObs').value.trim(),
+      status: document.getElementById('inputSituacao').getAttribute('data-value')
+    };
+
+    const editando = !!motivoEmEdicaoId;
+    confirmarAcao(
+      editando ? 'motivosPerdaEditar' : 'motivosPerdaCriar',
+      editando ? 'Confirma a altera\u00e7\u00e3o do motivo "' + nome + '"?'
+               : 'Confirma o cadastro do motivo "' + nome + '"?',
+      () => {
+        if (motivoEmEdicaoId) {
+          Object.assign(MOTIVOS.find(x => x.id === motivoEmEdicaoId), dados);
+        } else {
+          MOTIVOS.push(Object.assign({ id: Date.now() }, dados));
+        }
+        renderMotivos();
+        fecharDrawer();
       });
-    } catch (e) {}
+  });
+
+  // O dropdown de destino traz os rotulos escritos no HTML. Eles sao os
+  // MESMOS estados da devolucao, entao tem de sair do dicionario — senao
+  // renomear num canto e nao no outro, e a mesma coisa passa a ter dois nomes.
+  (function pintarNomesDoDestino() {
+    const raiz = document.getElementById('inputDestino');
+    if (!raiz) return;
+    const rotulos = {
+      nfe: nome('perda.fiscal.nfe'),
+      interno: nome('perda.fiscal.interno'),
+      depende: nome('perda.fiscal.depende'),
+      nenhum: nome('perda.fiscal.nenhum')
+    };
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const k = it.getAttribute('data-value');
+      if (rotulos[k]) it.textContent = rotulos[k];
+    });
+    const raizG = document.getElementById('inputGrupo');
+    if (raizG) {
+      raizG.querySelectorAll('.dropdown-select-item').forEach(it => {
+        const g = GRUPOS[it.getAttribute('data-value')];
+        if (g) it.textContent = g.rotulo;
+      });
+      const atualG = raizG.getAttribute('data-value');
+      const labG = raizG.querySelector('.dropdown-select-label');
+      if (labG && GRUPOS[atualG]) labG.textContent = GRUPOS[atualG].rotulo;
+    }
+    const atual = raiz.getAttribute('data-value');
+    const lab = raiz.querySelector('.dropdown-select-label');
+    if (lab && rotulos[atual]) lab.textContent = rotulos[atual];
   })();
 
-  // Fila das movimentacoes AUTOMATICAS que a trava do periodo fechado impediu.
-  // Nasce vazia e continua vazia enquanto nao existir modulo que lance sozinho
-  // aqui (baixa de titulo, ordem de compra, comissao). Semear seria mentir.
-  const BLOQUEADAS = [];
-
-  let contaAtualId = 1;
-  let periodoAtual = '30';
-  let baseDataAtual = 'emissao';
-  let filtroCatAtual = 'todos';
-  let buscaAtual = '';
-  let selMov = [];
-  let paginaAtual = 1;
-  let itensPorPaginaAtual = PARAM.registrosPorPagina;
-  let movEmEdicao = [];             // ids que o painel de conta vai mover
-
-  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const contaDe = (id) => CONTAS_FIN.filter(c => c.id === id)[0] || null;
-  const catDe = (id) => CATS_FIN.filter(c => c.id === id)[0] || CATS_FIN[CATS_FIN.length - 1];
-  const movDe = (id) => MOVIMENTOS.filter(m => m.id === id)[0] || null;
-  // Saldo de uma conta ate uma data (inclusive). Com `null`, saldo total.
-  // Mora aqui, entre os utilitarios, e nao dentro do extrato: a tela de
-  // lancamento tambem precisa dele para o tipo Saldo.
-  function saldoAte(contaId, limite) {
-    const c = contaDe(contaId);
-    let s = c ? c.saldoAbertura : 0;
-    MOVIMENTOS.forEach(m => {
-      if (m.contaId !== contaId) return;
-      if (limite && m.data > limite) return;
-      s += (m.tipo === 'entrada' ? m.valor : -m.valor);
-    });
-    return s;
-  }
-
-  // ===== FECHAMENTO FINANCEIRO =====
-  // Uma data so, gravada junto com os demais parametros. Nao entra no
-  // PARAM_PADRAO pelo mesmo motivo de `confirmacoes`: e escrita por UMA tela e
-  // lida com defesa (`|| ''`) por quem precisa — parametro de fabrica ela nao e.
-  function lerFechamento() {
-    try { return (JSON.parse(localStorage.getItem('deskParametros') || '{}') || {}).fechamentoFinanceiro || ''; }
-    catch (e) { return ''; }
-  }
-  function gravarFechamento(dataIso) {
-    try {
-      const p = JSON.parse(localStorage.getItem('deskParametros') || '{}') || {};
-      p.fechamentoFinanceiro = dataIso;
-      localStorage.setItem('deskParametros', JSON.stringify(p));
-    } catch (e) {}
-  }
-  function dataBloqueada(dataIso) {
-    const f = lerFechamento();
-    return !!f && dataIso <= f;
-  }
-
-  // ===== EXTRATO =====
-  function inicioPeriodo() {
-    if (periodoAtual === 'todos') return null;
-    return iso(dAtras(Number(periodoAtual)));
-  }
-  function chaveData(m) { return baseDataAtual === 'competencia' ? m.comp : m.data; }
-  function chaveInicio() {
-    const i = inicioPeriodo();
-    if (!i) return null;
-    return baseDataAtual === 'competencia' ? i.slice(0, 7) : i;
-  }
-
-  function movimentosDaConta() {
-    return MOVIMENTOS.filter(m => m.contaId === contaAtualId);
-  }
-  const temFiltroDeTexto = () => buscaAtual.trim() !== '' || filtroCatAtual !== 'todos';
-
-  function listaFiltrada() {
-    const b = semAcento(buscaAtual);
-    const ini = chaveInicio();
-    return movimentosDaConta().filter(m => {
-      if (ini && chaveData(m) < ini) return false;
-      if (filtroCatAtual !== 'todos' && String(m.catId) !== String(filtroCatAtual)) return false;
-      if (b !== '' && semAcento(m.hist + ' ' + m.pessoa + ' ' + catDe(m.catId).nome).indexOf(b) === -1) return false;
-      return true;
-    }).sort((x, y) => x.data === y.data ? y.id - x.id : (x.data < y.data ? 1 : -1));
-    // Ordem DECRESCENTE, confirmada no print de 22/set com quatro dias distintos:
-    // 10/10, 27/09, 22/09, 21/09, de cima para baixo. Quem abre o caixa quer ver o
-    // que acabou de acontecer — e lancamento com data FUTURA aparece e ja entra no
-    // saldo, como la.
-  }
-
-  // UM emissor de caixa de selecao para a tabela inteira.
-  function caixaSel(idMov, marcada) {
-    return '<input type="checkbox" class="item-checkbox" data-check="mov" id="chkMov' + idMov + '"' +
-           ' data-id="' + idMov + '"' + (marcada ? ' checked' : '') + '>';
-  }
-
-  function render() {
-    montarSeletorConta();
-    const cx = document.getElementById('listaMovimentos');
-    const vazio = document.getElementById('emptyState');
-    const completa = listaFiltrada();
-    const totalPaginas = Math.max(1, Math.ceil(completa.length / itensPorPaginaAtual));
-    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
-    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
-    const fim = Math.min(inicio + itensPorPaginaAtual, completa.length);
-    const lista = completa.slice(inicio, fim);
-
-    const ini = inicioPeriodo();
-    const saldoInicial = ini ? saldoAte(contaAtualId, iso(dAtras(Number(periodoAtual) + 1)))
-                             : (contaDe(contaAtualId) || {}).saldoAbertura || 0;
-
-    if (completa.length === 0) {
-      cx.innerHTML = '';
-      vazio.style.display = 'flex';
-    } else {
-      vazio.style.display = 'none';
-      const idsPagina = lista.map(m => m.id);
-      const todasMarcadas = idsPagina.length > 0 && idsPagina.every(id => selMov.indexOf(id) !== -1);
-      let corpo = '';
-      lista.forEach(m => {
-        const cat = catDe(m.catId);
-        corpo += '<tr data-id="' + m.id + '">' +
-          '<td class="col-texto col-check">' + caixaSel(m.id, selMov.indexOf(m.id) !== -1) + '</td>' +
-          '<td class="col-texto cx-data">' + fmtData(m.data) + '</td>' +
-          '<td class="col-texto cx-data">' + fmtComp(m.comp) +
-            (m.comp !== m.data.slice(0, 7) ? '<span class="cx-alerta-comp" title="A competência e o mês da data são diferentes — quem define isso é a categoria.">·</span>' : '') + '</td>' +
-          '<td class="col-texto"><div class="cx-hist">' + m.hist + '</div>' +
-            (m.pessoa ? '<div class="cx-sub">' + m.pessoa + '</div>' : '') + '</td>' +
-          '<td class="col-texto cx-cat">' + (m.catId ? cat.nome : '<span class="cf-vazio">sem categoria</span>') + '</td>' +
-          '<td class="cx-num">' + (m.tipo === 'entrada' ? fmtDin(m.valor) : '') + '</td>' +
-          '<td class="cx-num">' + (m.tipo === 'saida' ? fmtDin(m.valor) : '') + '</td>' +
-          '<td class="col-texto">' + (m.origem ? '<span class="cx-origem">' + m.origem + '</span>' : '<span class="cf-vazio">—</span>') + '</td>' +
-        '</tr>';
-      });
-      // A faixa do saldo anterior fecha a tabela, nao abre: com ordem decrescente
-      // o ponto de partida e a linha mais ANTIGA, que fica embaixo. E ela so
-      // existe quando ha filtro de periodo — sem filtro, o comeco e o saldo de
-      // abertura da conta, que o rodape ja mostra como "saldo inicial". Foi o que
-      // o print sem filtro mostrou: nenhuma faixa.
-      if (ini && paginaAtual === totalPaginas) {
-        corpo += '<tr class="cx-saldo-row"><td colspan="8">saldo em ' + fmtData(ini) +
-                 ' <b>R$ ' + fmtDin(saldoInicial) + '</b></td></tr>';
-      }
-      cx.innerHTML =
-        '<div class="estoque-table-wrap"><table class="estoque-table cx-table"><thead><tr>' +
-          '<th class="col-texto col-check"><input type="checkbox" class="checkbox-todos" id="chkTodos"' + (todasMarcadas ? ' checked' : '') + '></th>' +
-          '<th class="col-texto" style="width:96px;">Data</th>' +
-          '<th class="col-texto" style="width:104px;">Competência</th>' +
-          '<th class="col-texto">Histórico</th>' +
-          '<th class="col-texto" style="width:190px;">Categoria</th>' +
-          '<th style="width:108px;">Entradas</th>' +
-          '<th style="width:108px;">Saídas</th>' +
-          '<th class="col-texto" style="width:110px;" title="Documento que gerou o movimento. Lançamento manual não tem origem.">Origem</th>' +
-        '</tr></thead><tbody>' + corpo + '</tbody></table></div>';
-
-      cx.querySelectorAll('tbody tr[data-id]').forEach(tr => {
-        tr.addEventListener('click', () => {
-          window.location.href = 'pagina-financas-caixa-lancamento.html?id=' + tr.getAttribute('data-id');
-        });
-      });
-      cx.querySelectorAll('[data-check="mov"]').forEach(ch => {
-        ch.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const id = Number(ch.getAttribute('data-id'));
-          const i = selMov.indexOf(id);
-          if (ch.checked && i === -1) selMov.push(id);
-          if (!ch.checked && i !== -1) selMov.splice(i, 1);
-          const todos = document.getElementById('chkTodos');
-          if (todos) todos.checked = idsPagina.every(x => selMov.indexOf(x) !== -1);
-          atualizarBarraSelecao();
-          renderTotais(completa, saldoInicial);
-        });
-      });
-      const chkTodos = document.getElementById('chkTodos');
-      if (chkTodos) chkTodos.addEventListener('click', (e) => {
-        e.stopPropagation();
-        idsPagina.forEach(id => {
-          const i = selMov.indexOf(id);
-          if (chkTodos.checked && i === -1) selMov.push(id);
-          if (!chkTodos.checked && i !== -1) selMov.splice(i, 1);
-        });
-        cx.querySelectorAll('[data-check="mov"]').forEach(c => { c.checked = chkTodos.checked; });
-        atualizarBarraSelecao();
-        renderTotais(completa, saldoInicial);
-      });
-    }
-
-    renderTotais(completa, saldoInicial);
-    atualizarBarraSelecao();
-    atualizarSaldoConta();
-
-    document.getElementById('paginacaoResumo').textContent = completa.length === 0
-      ? 'Mostrando 0 de 0'
-      : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + completa.length + (completa.length === 1 ? ' lançamento' : ' lançamentos');
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
-    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
-  }
-
-  // Rodape de totais. O saldo final so fecha com o saldo da conta quando NAO ha
-  // filtro de texto ou de categoria — com filtro, os totais sao do que esta na
-  // tela, e a tela precisa dizer isso em vez de deixar o numero mentir.
-  function renderTotais(lista, saldoInicial) {
-    const entradas = lista.filter(m => m.tipo === 'entrada').reduce((s, m) => s + m.valor, 0);
-    const saidas = lista.filter(m => m.tipo === 'saida').reduce((s, m) => s + m.valor, 0);
-    const saldoFinal = saldoInicial + entradas - saidas;
-    const selecionados = selMov.map(movDe).filter(m => m && m.contaId === contaAtualId)
-                               .reduce((s, m) => s + (m.tipo === 'entrada' ? m.valor : -m.valor), 0);
-    const f = lerFechamento();
-    const bloco = (valor, rotulo, classe) =>
-      '<div class="cx-total-item"><div class="cx-total-valor' + (classe ? ' ' + classe : '') + '">' + valor + '</div>' +
-      '<div class="cx-total-rotulo">' + rotulo + '</div></div>';
-    let html = '';
-    if (selMov.length) {
-      html += bloco((selecionados < 0 ? '−' : '') + 'R$ ' + fmtDin(Math.abs(selecionados)),
-                    selMov.length + (selMov.length === 1 ? ' selecionado' : ' selecionados'), 'sel');
-    }
-    html += bloco('R$ ' + fmtDin(saldoInicial), 'saldo inicial');
-    html += bloco('R$ ' + fmtDin(entradas), 'entradas');
-    html += bloco('R$ ' + fmtDin(saidas), 'saídas');
-    html += bloco((saldoFinal < 0 ? '−' : '') + 'R$ ' + fmtDin(Math.abs(saldoFinal)), 'saldo final', saldoFinal < 0 ? 'neg' : '');
-    html += bloco(String(lista.length), lista.length === 1 ? 'lançamento' : 'lançamentos');
-    if (f) html += '<div class="cx-total-item cx-fechado" title="Nenhum lançamento entra em data igual ou anterior a esta."><div class="cx-total-valor">' + fmtData(f) + '</div><div class="cx-total-rotulo">financeiro fechado</div></div>';
-    if (temFiltroDeTexto()) {
-      html += '<div class="cx-total-aviso">totais do que está <b>filtrado</b>, não da conta inteira</div>';
-    }
-    document.getElementById('barraTotais').innerHTML = html;
-  }
-
-  function atualizarSaldoConta() {
-    const c = contaDe(contaAtualId);
-    const saldo = saldoAte(contaAtualId, null);
-    const el = document.getElementById('saldoAtual');
-    el.textContent = (saldo < 0 ? '−' : '') + fmtDin(Math.abs(saldo));
-    el.classList.toggle('neg', saldo < 0);
-    const nota = document.getElementById('saldoNota');
-    const notas = [];
-    if (c && c.foraFluxo) notas.push('Esta conta está marcada como <b>fora do fluxo de caixa</b> em Contas financeiras: ela tem saldo, mas não entra no total da empresa.');
-    if (c && c.sistema) notas.push('Conta do sistema — nasce com a empresa e não se exclui.');
-    nota.innerHTML = notas.join(' ');
-    nota.style.display = notas.length ? 'block' : 'none';
-  }
-
-  function montarSeletorConta() {
-    const menu = document.getElementById('menuConta');
-    if (menu.getAttribute('data-pronto') === '1') return;
-    menu.innerHTML = CONTAS_FIN.filter(c => c.ativo)
-      .map(c => '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>').join('');
-    menu.setAttribute('data-pronto', '1');
-    inicializarDropdownSelect(document.getElementById('seletorConta'), (v) => {
-      contaAtualId = Number(v);
-      paginaAtual = 1;
-      selMov = [];
-      render();
-    });
-  }
-
-  function itensCategoria(incluirTodas, incluirSem) {
-    const grupos = [];
-    CATS_FIN.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
-    let html = incluirTodas ? '<div class="dropdown-select-item" data-value="todos">Todas as categorias</div>' : '';
-    grupos.forEach(g => {
-      html += '<div class="dropdown-grupo">' + g + '</div>';
-      CATS_FIN.filter(c => c.grupo === g).forEach(c => {
-        html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
-      });
-    });
-    if (incluirSem) html += '<div class="dropdown-select-item" data-value="0">Sem categoria</div>';
-    return html;
-  }
-
-  // ===== BARRA DE SELEÇÃO =====
-  function atualizarBarraSelecao() {
-    const bar = document.getElementById('barraSelecao');
-    const n = selMov.length;
-    bar.classList.toggle('show', n > 0);
-    if (n === 0) return;
-    const travados = selMov.map(movDe).filter(m => m && dataBloqueada(m.data)).length;
-    document.getElementById('selecaoInfo').innerHTML =
-      '<b>' + n + '</b> ' + (n === 1 ? 'lançamento selecionado' : 'lançamentos selecionados') +
-      (travados > 0 ? ' · <span class="selecao-aviso">' + travados + ' em período fechado, fora de qualquer alteração</span>' : '');
-    const livres = n - travados;
-    const link = document.getElementById('linkExcluirSelecionados');
-    link.classList.toggle('desabilitado', livres === 0);
-    link.textContent = livres === 0 ? 'Nenhum pode ser excluído' : 'Excluir selecionados' + (travados > 0 ? ' (' + livres + ')' : '');
-  }
-
-  function limparSelecao() { selMov = []; render(); }
-
-  // ===== DRAWERS =====
-  const backdrop = document.getElementById('drawerBackdrop');
-  const drawers = ['drawerTransferencia', 'drawerConta', 'drawerFechamento', 'drawerBloqueadas'];
-  function abrirDrawer(id) {
-    drawers.forEach(d => document.getElementById(d).classList.remove('open'));
-    document.getElementById(id).classList.add('open');
-    backdrop.classList.add('open');
-  }
-  function fecharDrawers() {
-    drawers.forEach(d => document.getElementById(d).classList.remove('open'));
-    backdrop.classList.remove('open');
-  }
-  backdrop.addEventListener('click', fecharDrawers);
-
-  function rotuloDropdown(id, texto, valor) {
-    const raiz = document.getElementById(id);
-    raiz.setAttribute('data-value', valor == null ? '' : String(valor));
-    raiz.querySelector('.dropdown-select-label').textContent = texto;
-    raiz.querySelectorAll('.dropdown-select-item').forEach(i => {
-      i.classList.toggle('active', i.getAttribute('data-value') === String(valor == null ? '' : valor));
-    });
-  }
-  function marcarErro(campo, erro, mostrar) {
-    document.getElementById(campo).classList.toggle('has-error', mostrar);
-    document.getElementById(erro).classList.toggle('show', mostrar);
-  }
-  // `so_conteudo` = refaz a lista sem re-inicializar o dropdown. O componente
-  // religa os listeners dos ITENS em cada chamada, entao re-inicializar a cada
-  // abertura de painel acumula listener — hoje invisivel porque os `aoMudar`
-  // sao idempotentes, e registrado no design system como defeito do componente.
-  function menuContas(idMenu, idRaiz, excluirId, aoMudar, so_conteudo) {
-    document.getElementById(idMenu).innerHTML = CONTAS_FIN.filter(c => c.ativo && c.id !== excluirId)
-      .map(c => '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>').join('');
-    if (!so_conteudo) inicializarDropdownSelect(document.getElementById(idRaiz), aoMudar || function () {});
-  }
-
-  // ----- Transferência -----
-  document.getElementById('btnTransferir').addEventListener('click', () => {
-    document.getElementById('inputTransfData').value = fmtData(iso(HOJE));
-    document.getElementById('inputTransfValor').value = '';
-    document.getElementById('inputTransfHist').value = 'Transferência entre contas';
-    menuContas('menuTransfOrigem', 'ddTransfOrigem', 0, null, true);
-    menuContas('menuTransfDestino', 'ddTransfDestino', 0, null, true);
-    rotuloDropdown('ddTransfOrigem', (contaDe(contaAtualId) || {}).nome || 'Selecione', contaAtualId);
-    rotuloDropdown('ddTransfDestino', 'Selecione', '');
-    ['campoTransfData','campoTransfValor','campoTransfOrigem','campoTransfDestino'].forEach(c => document.getElementById(c).classList.remove('has-error'));
-    ['erroTransfData','erroTransfValor','erroTransfOrigem','erroTransfDestino'].forEach(c => document.getElementById(c).classList.remove('show'));
-    abrirDrawer('drawerTransferencia');
-  });
-  document.getElementById('fecharTransferencia').addEventListener('click', fecharDrawers);
-  document.getElementById('btnCancelarTransferencia').addEventListener('click', fecharDrawers);
-
-  document.getElementById('btnSalvarTransferencia').addEventListener('click', () => {
-    const dataIso = parseData(document.getElementById('inputTransfData').value);
-    const valor = Number(String(document.getElementById('inputTransfValor').value).replace(/\./g, '').replace(',', '.'));
-    const origem = Number(document.getElementById('ddTransfOrigem').getAttribute('data-value') || 0);
-    const destino = Number(document.getElementById('ddTransfDestino').getAttribute('data-value') || 0);
-    const hist = document.getElementById('inputTransfHist').value.trim() || 'Transferência entre contas';
-
-    const dataRuim = !dataIso || dataBloqueada(dataIso);
-    marcarErro('campoTransfData', 'erroTransfData', dataRuim);
-    marcarErro('campoTransfValor', 'erroTransfValor', !(valor > 0));
-    marcarErro('campoTransfOrigem', 'erroTransfOrigem', !origem || origem === destino);
-    marcarErro('campoTransfDestino', 'erroTransfDestino', !destino);
-    if (dataRuim || !(valor > 0) || !origem || !destino || origem === destino) return;
-
-    confirmarAcao('caixaCriar',
-      'Transferir R$ ' + fmtDin(valor) + ' de "' + contaDe(origem).nome + '" para "' + contaDe(destino).nome + '"? Isso cria dois lançamentos ligados: uma saída e uma entrada.',
-      () => {
-        const base = Date.now();
-        const comp = compDaData(dataIso, 0);
-        MOVIMENTOS.push({ id: base,     contaId: origem,  data: dataIso, comp: comp, hist: hist, pessoa:'', catId:0, tipo:'saida',   valor: valor, origem:'Transferência', parId: base + 1 });
-        MOVIMENTOS.push({ id: base + 1, contaId: destino, data: dataIso, comp: comp, hist: hist, pessoa:'', catId:0, tipo:'entrada', valor: valor, origem:'Transferência', parId: base });
-        fecharDrawers();
-        render();
-      });
-  });
-
-  // ----- Alterar conta financeira -----
-  function abrirDrawerConta(ids) {
-    movEmEdicao = ids.filter(id => { const m = movDe(id); return m && !dataBloqueada(m.data); });
-    const atual = contaDe(contaAtualId);
-    document.getElementById('contaAtualRo').textContent = atual ? atual.nome : '—';
-    menuContas('menuNovaConta', 'ddNovaConta', contaAtualId, null, true);
-    rotuloDropdown('ddNovaConta', 'Selecione', '');
-    marcarErro('campoNovaConta', 'erroNovaConta', false);
-    const fora = ids.length - movEmEdicao.length;
-    document.getElementById('notaAlterarConta').innerHTML =
-      'Mover ' + movEmEdicao.length + ' ' + (movEmEdicao.length === 1 ? 'lançamento' : 'lançamentos') +
-      ' muda <b>dois saldos de uma vez</b>: sai do saldo desta conta e entra no da outra. Por isso a ação fica registrada no <b>Registro de atividades</b> com as duas contas.' +
-      (fora > 0 ? '<br>' + fora + ' ' + (fora === 1 ? 'lançamento está' : 'lançamentos estão') + ' em período fechado e não ' + (fora === 1 ? 'vai' : 'vão') + ' junto.' : '');
-    document.getElementById('notaAlterarConta').style.display = 'block';
-    abrirDrawer('drawerConta');
-  }
-  document.getElementById('linkAlterarContaMassa').addEventListener('click', () => {
-    if (selMov.length) abrirDrawerConta(selMov.slice());
-  });
-  document.getElementById('fecharConta').addEventListener('click', fecharDrawers);
-  document.getElementById('btnCancelarConta').addEventListener('click', fecharDrawers);
-
-  document.getElementById('btnSalvarConta').addEventListener('click', () => {
-    const nova = Number(document.getElementById('ddNovaConta').getAttribute('data-value') || 0);
-    marcarErro('campoNovaConta', 'erroNovaConta', !nova || nova === contaAtualId);
-    if (!nova || nova === contaAtualId || movEmEdicao.length === 0) return;
-    const de = contaDe(contaAtualId).nome, para = contaDe(nova).nome;
-    confirmarAcao('caixaAlterarConta',
-      'Mover ' + movEmEdicao.length + ' ' + (movEmEdicao.length === 1 ? 'lançamento' : 'lançamentos') + ' de "' + de + '" para "' + para + '"? O saldo das duas contas muda.',
-      () => {
-        movEmEdicao.forEach(id => { const m = movDe(id); if (m) m.contaId = nova; });
-        selMov = [];
-        fecharDrawers();
-        render();
-      });
-  });
-
-  // ----- Fechamento financeiro -----
-  function abrirDrawerFechamento() {
-    const f = lerFechamento();
-    const nota = document.getElementById('notaFechamentoAtual');
-    if (f) {
-      nota.innerHTML = 'Hoje o período está <b>fechado até ' + fmtData(f) + '</b>. Informar uma data nova substitui esta.';
-      nota.style.display = 'block';
-    } else {
-      nota.innerHTML = 'Nenhum período fechado até agora — qualquer data aceita lançamento.';
-      nota.style.display = 'block';
-    }
-    document.getElementById('inputDataFechamento').value = f ? fmtData(f) : '';
-    marcarErro('campoDataFechamento', 'erroDataFechamento', false);
-    document.getElementById('linkReabrirPeriodo').style.display = f ? 'flex' : 'none';
-    abrirDrawer('drawerFechamento');
-  }
-  document.getElementById('fecharFechamento').addEventListener('click', fecharDrawers);
-  document.getElementById('btnCancelarFechamento').addEventListener('click', fecharDrawers);
-
-  document.getElementById('btnFecharPeriodo').addEventListener('click', () => {
-    const dataIso = parseData(document.getElementById('inputDataFechamento').value);
-    const ruim = !dataIso || dataIso > iso(HOJE);
-    marcarErro('campoDataFechamento', 'erroDataFechamento', ruim);
-    if (ruim) return;
-    const quantos = MOVIMENTOS.filter(m => m.data <= dataIso).length;
-    confirmarAcao('caixaFechaPeriodo',
-      'Fechar o período financeiro até ' + fmtData(dataIso) + '? A partir daí nenhum lançamento entra nessa data ou antes dela, em conta nenhuma. ' + quantos + ' ' + (quantos === 1 ? 'lançamento passa' : 'lançamentos passam') + ' a ficar fora de alteração.',
-      () => { gravarFechamento(dataIso); fecharDrawers(); render(); });
-  });
-
-  document.getElementById('linkReabrirPeriodo').addEventListener('click', () => {
-    const f = lerFechamento();
-    if (!f) return;
-    confirmarAcao('caixaFechaPeriodo',
-      'Reabrir o período fechado em ' + fmtData(f) + '? Lançamento retroativo volta a ser aceito, e um período já conciliado pode mudar de saldo.',
-      () => { gravarFechamento(''); fecharDrawers(); render(); });
-  });
-
-  // ----- Movimentações bloqueadas -----
-  function abrirDrawerBloqueadas() {
-    const cx = document.getElementById('listaBloqueadas');
-    if (BLOQUEADAS.length === 0) {
-      cx.innerHTML =
-        '<div class="empty-state" style="padding:34px 8px;">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
-          '<div class="empty-state-title">Nenhuma movimentação bloqueada</div>' +
-          '<div class="empty-state-sub">Esta fila enche sozinha quando <b>Contas a Pagar</b>, <b>Contas a Receber</b> ou a ordem de compra tentarem lançar em data fechada. Lançamento <b>manual</b> nunca cai aqui: ele é barrado na hora, com o erro no próprio campo Data.</div>' +
-        '</div>';
-    } else {
-      cx.innerHTML = BLOQUEADAS.map(b => '<div class="cx-bloq"><div class="cx-hist">' + b.hist + '</div><div class="cx-sub">' + b.motivo + '</div></div>').join('');
-    }
-    abrirDrawer('drawerBloqueadas');
-  }
-  document.getElementById('fecharBloqueadas').addEventListener('click', fecharDrawers);
-  document.getElementById('btnFecharBloqueadas2').addEventListener('click', fecharDrawers);
-
-  // ===== EXCLUSÃO EM MASSA =====
-  document.getElementById('linkExcluirSelecionados').addEventListener('click', () => {
-    const livres = selMov.filter(id => { const m = movDe(id); return m && !dataBloqueada(m.data); });
-    if (livres.length === 0) return;
-    const fora = selMov.length - livres.length;
-    armarSenhaModal('caixaExclui');
-    abrirModalConfirmacao(
-      'Confirma exclusão de ' + livres.length + ' ' + (livres.length === 1 ? 'lançamento' : 'lançamentos') + '? O saldo da conta muda na hora.' +
-      (fora > 0 ? ' ' + fora + ' em período fechado ' + (fora === 1 ? 'fica' : 'ficam') + ' como ' + (fora === 1 ? 'está' : 'estão') + '.' : ''),
-      livres.length, () => {
-        livres.forEach(id => {
-          const i = MOVIMENTOS.findIndex(m => m.id === id);
-          if (i !== -1) MOVIMENTOS.splice(i, 1);
-        });
-        selMov = [];
-        render();
-      });
-  });
-  document.getElementById('linkLimparSelecao').addEventListener('click', limparSelecao);
-
-  // ===== FILTROS, MENU E PAGINAÇÃO =====
-  document.getElementById('menuFiltroCategoria').innerHTML = itensCategoria(true, true);
-  document.getElementById('menuCategoriaMassa').innerHTML = itensCategoria(false, true);
-  // Competencia em massa: seis meses para tras e dois para frente do mes atual —
-  // a janela em que corrigir competencia faz sentido (fechamento de DRE mensal).
-  (function menuCompetenciaMassa() {
-    const h = new Date();
-    let html = '';
-    for (let k = 2; k >= -6; k--) {
-      const d = new Date(h.getFullYear(), h.getMonth() + k, 1);
-      const v = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-      html += '<div class="dropdown-select-item" data-value="' + v + '">' + fmtComp(v) + '</div>';
-    }
-    document.getElementById('menuCompetenciaMassa').innerHTML = html;
-  })();
-
-  document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; render(); });
-  // Os dropdowns que moram dentro de painel nascem com a tela: painel fechado
-  // tambem faz parte da pagina, e botao sem acao no carregamento e botao mudo.
-  menuContas('menuTransfOrigem', 'ddTransfOrigem', 0);
-  menuContas('menuTransfDestino', 'ddTransfDestino', 0);
-  menuContas('menuNovaConta', 'ddNovaConta', 0);
-  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (v) => { periodoAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroBase'), (v) => { baseDataAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroCategoria'), (v) => { filtroCatAtual = v; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('ddCategoriaMassa'), (v) => {
-    rotuloDropdown('ddCategoriaMassa', 'Alterar categoria', '');
-    const ids = selMov.slice();
-    if (!ids.length) return;
-    const nome = catDe(Number(v)).nome;
-    confirmarAcao('caixaEditar',
-      'Mudar a categoria de ' + ids.length + ' ' + (ids.length === 1 ? 'lançamento' : 'lançamentos') + ' para "' + nome + '"?',
-      () => { ids.forEach(id => { const m = movDe(id); if (m) m.catId = Number(v); }); selMov = []; render(); });
-  });
-  // Mesma acao auditavel da categoria em massa (caixaEditar): competencia e dado
-  // do lancamento, nao da conta, e muda o DRE — nao o saldo.
-  inicializarDropdownSelect(document.getElementById('ddCompetenciaMassa'), (v) => {
-    rotuloDropdown('ddCompetenciaMassa', 'Alterar competência', '');
-    const ids = selMov.slice();
-    if (!ids.length) return;
-    confirmarAcao('caixaEditar',
-      'Mudar a competência de ' + ids.length + ' ' + (ids.length === 1 ? 'lançamento' : 'lançamentos') + ' para ' + fmtComp(v) + '? A data do movimento e o saldo não mudam — só o mês em que ele conta no resultado.',
-      () => { ids.forEach(id => { const m = movDe(id); if (m) m.comp = v; }); selMov = []; render(); });
-  });
-  inicializarDropdownSelect(document.getElementById('menuMaisAcoes'), (v) => {
-    rotuloDropdown('menuMaisAcoes', 'Mais ações', '');
-    if (v === 'fechamento') abrirDrawerFechamento();
-    if (v === 'bloqueadas') abrirDrawerBloqueadas();
-  });
-
-  document.getElementById('limparFiltros').addEventListener('click', () => {
-    buscaAtual = ''; filtroCatAtual = 'todos'; periodoAtual = '30'; baseDataAtual = 'emissao'; paginaAtual = 1;
-    document.getElementById('campoBusca').value = '';
-    rotuloDropdown('filtroCategoria', 'Todas as categorias', 'todos');
-    rotuloDropdown('filtroPeriodo', 'Últimos 30 dias', '30');
-    rotuloDropdown('filtroBase', 'por emissão', 'emissao');
-    render();
-  });
-
-  document.getElementById('btnNovoLancamento').addEventListener('click', () => {
-    window.location.href = 'pagina-financas-caixa-lancamento.html';
-  });
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; render(); } });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; render(); });
-
-  // ===== CAMPOS DE DATA =====
-  // O limite minimo e FUNCAO porque o fechamento financeiro muda durante a
-  // sessao: o calendario tem de refletir o estado da hora em que abre, nao o da
-  // hora em que a tela carregou.
-  const primeiroDiaLivre = () => {
-    const f = lerFechamento();
-    if (!f) return null;
-    const d = new Date(f + 'T00:00:00');
-    d.setDate(d.getDate() + 1);
-    return iso(d);
-  };
-  const motivoFechado = () => 'Per\u00edodo financeiro fechado at\u00e9 ' + fmtData(lerFechamento()) + '.';
-  const rodapeFechado = () => {
-    const f = lerFechamento();
-    return f ? 'Fechado at\u00e9 <b>' + fmtData(f) + '</b> \u2014 dias riscados n\u00e3o aceitam lan\u00e7amento.' : 'Nenhum per\u00edodo fechado.';
-  };
-  inicializarDataField(document.getElementById('dfTransfData'), {
-    min: primeiroDiaLivre, motivoMin: motivoFechado, rodape: rodapeFechado
-  });
-  // No fechamento a regra e outra: nao se fecha um periodo que ainda nao passou.
-  inicializarDataField(document.getElementById('dfFechamento'), {
-    max: () => iso(HOJE), motivoMax: 'N\u00e3o d\u00e1 para fechar um per\u00edodo que ainda n\u00e3o terminou.'
-  });
-
-  render();
-
-  path = ['Finanças', 'Caixa e Bancos'];
-  renderBreadcrumb();
-  setMainTitle('Caixa e Bancos');
+  renderMotivos();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

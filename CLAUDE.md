@@ -105,7 +105,7 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 ## Estado atual (06/out/2026)
 
-**68 telas construídas**, 46 entradas de menu, 22 submódulos a fazer. F2 (Cadastros), F5
+**71 telas construídas**, 47 entradas de menu, 21 submódulos a fazer. F2 (Cadastros), F5
 (Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
 Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
 mais o cadastro de **Motivos de Devolução** em Operacional. De Logística falta só
