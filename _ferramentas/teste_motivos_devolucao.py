@@ -48,7 +48,9 @@ with sync_playwright() as pw:
     n = pg.locator('#listaMotivos .motivo-card').count()
     ok(n > 0, 'a lista renderiza (%d motivos na pagina)' % n)
     corpo = pg.inner_text('#listaMotivos').lower()
-    ok('volta revend' in corpo, 'a linha diz quando o item volta revendavel')
+    # 08/out: "Volta revendavel" era instrucao, nao estado, e a coluna se
+    # chama "Estado da mercadoria". Virou "Boa para revenda".
+    ok('boa para revenda' in corpo, 'a linha diz quando o item volta bom para revenda')
     ok('avaria' in corpo, 'e quando ele vai para Avaria')
     ok('bloqueado' in corpo, 'dizendo que entra bloqueado, nao so "avaria"')
 

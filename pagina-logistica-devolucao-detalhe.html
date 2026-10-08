@@ -961,6 +961,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="flyout-col" id="flyout-inicio">
     <h4>Início</h4>
     <div class="flyout-body">
+      <div class="flyout-item" data-label="Página inicial" data-href="pagina-inicio-boas-vindas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Página inicial</div>
       <div class="flyout-item" data-label="Dashboard KPIs" data-href="pagina-dashboard-kpis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg>Dashboard KPIs</div>
       <div class="flyout-item" data-label="Agenda" data-href="pagina-inicio-agenda.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Agenda</div>
       <div class="flyout-item" data-label="Minha Conta" data-href="pagina-inicio-minha-conta.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Minha Conta</div>
@@ -1857,13 +1858,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'contaspagar', rotulo: 'Contas a pagar', nota: 'gera a conta com o valor devolvido, em Finanças' }
   ];
   const ESTADOS_ITEM = {
-    revendavel: { rotulo: 'Volta revendável', destino: 'segue a regra de entrada' },
-    avaria:     { rotulo: 'Avariado',         destino: 'Avaria, bloqueado' },
+    revendavel: { rotulo: 'Boa para revenda', destino: 'segue a regra de entrada' },
+    avaria:     { rotulo: 'Avariada',         destino: 'Avaria, bloqueado' },
     nenhum:     { rotulo: 'Não voltou',       destino: 'nada entra no saldo' }
   };
   const MOTIVOS = {
     1: { nome: 'Produto com defeito de fábrica', grupo: 'nossa',      destino: 'avaria',     exigeObs: false },
-    2: { nome: 'Produto errado enviado',         grupo: 'nossa',      destino: 'revendavel', exigeObs: false },
+    2: { nome: 'Produto enviado errado',         grupo: 'nossa',      destino: 'revendavel', exigeObs: false },
     3: { nome: 'Avaria no transporte',           grupo: 'transporte', destino: 'avaria',     exigeObs: true },
     4: { nome: 'Extravio na entrega',            grupo: 'transporte', destino: 'nenhum',     exigeObs: true },
     5: { nome: 'Arrependimento em até 7 dias',   grupo: 'cliente',    destino: 'revendavel', exigeObs: false },
@@ -1984,6 +1985,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function vendaDe(id) { return VENDAS.filter(v => v.id === id)[0] || null; }
 
   function totalItensDev(d) { return d.itens.reduce((s, i) => s + i.qtd * i.unit, 0); }
+
+  // O que esta na TELA agora, que nao e o mesmo que o que esta gravado. O
+  // rascunho so conta quando e um numero que serve; digitar "abc" ou 99 numa
+  // venda de 6 nao pode virar total nenhum — a linha mostra o erro em vez de
+  // inventar um valor.
+  function qtdNaTela(n) {
+    const i = DEV.itens[n];
+    if (RASCUNHO.qtd[n] === undefined) return i.qtd;
+    const bruto = String(RASCUNHO.qtd[n]).trim().replace(',', '.');
+    if (bruto === '' || !/^[0-9]+$/.test(bruto)) return null;
+    const num = Number(bruto);
+    if (num < 1 || num > i.qtdVendida) return null;
+    return num;
+  }
+  function estadoNaTela(n) {
+    return RASCUNHO.estado[n] !== undefined ? RASCUNHO.estado[n] : DEV.itens[n].estado;
+  }
   function totalDevolver(d) { return totalItensDev(d) + (d.frete || 0) - (d.desconto || 0); }
   function pecasDe(d) { return d.itens.reduce((s, i) => s + i.qtd, 0); }
   function ehParcial(d) {
@@ -2228,27 +2246,67 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<span class="vol-sub">' + i.sku + ' · ' + moeda(i.unit) + ' cada</span></td>' +
         '<td class="col-texto"><span class="vol-prazo-valor">' + i.qtdVendida + '</span></td>' +
         '<td class="col-texto">' + celQtd + '</td>' +
-        '<td class="col-texto"><span class="vol-prazo-valor">' + moeda(i.qtd * i.unit) + '</span></td>' +
+        '<td class="col-texto"><span class="vol-prazo-valor" data-total="' + n + '">' + moeda(i.qtd * i.unit) + '</span></td>' +
         '<td class="vol-acao"><div class="vol-botoes" style="justify-content:flex-start;">' + celEstado + '</div></td>' +
       '</tr>';
     }).join('');
 
     ligarItens();
 
-    const pecas = pecasDe(DEV);
+    pintarTotaisItens();
+  }
+
+  // Tudo o que DERIVA da quantidade e do estado. Fica separado de pintarItens
+  // de proposito: redesenhar a tabela a cada tecla tiraria o foco do campo em
+  // que a pessoa esta digitando.
+  function pintarTotaisItens() {
+    if (!DEV) return;
+    let pecas = 0, soma = 0, invalidos = 0;
+    DEV.itens.forEach((i, n) => {
+      const q = qtdNaTela(n);
+      const cel = document.querySelector('[data-total="' + n + '"]');
+      const campo = document.querySelector('input[data-qtd="' + n + '"]');
+      if (campo) campo.classList.toggle('has-error', q === null);
+      if (q === null) {
+        invalidos++;
+        if (cel) cel.textContent = '—';
+        return;
+      }
+      pecas += q;
+      soma += q * i.unit;
+      if (cel) cel.textContent = moeda(q * i.unit);
+    });
+
     const vendidas = DEV.itens.reduce((s, i) => s + i.qtdVendida, 0);
     texto('contagemItens', DEV.itens.length + (DEV.itens.length === 1 ? ' item' : ' itens') +
-          ' · ' + pecas + (pecas === 1 ? ' peça de ' : ' peças de ') + vendidas + ' vendidas');
-    texto('totalItens', moeda(totalItensDev(DEV)));
+          ' · ' + pecas + (pecas === 1 ? ' peça de ' : ' peças de ') + vendidas + ' vendidas' +
+          (invalidos ? ' · ' + invalidos + (invalidos === 1 ? ' quantidade inválida' : ' quantidades inválidas') : ''));
+    texto('totalItens', moeda(soma));
 
-    const avariados = DEV.itens.filter(i => i.estado === 'avaria').length;
-    const fora = DEV.itens.filter(i => i.estado === 'nenhum').length;
+    // Valor a devolver acompanha na hora: e a pergunta que o cliente faz.
+    texto('docValItens', moeda(soma));
+    html('docValTotal', '<b>' + moeda(soma + (DEV.frete || 0)) + '</b>');
+
+    const avariados = DEV.itens.filter((i, n) => estadoNaTela(n) === 'avaria').length;
+    const fora = DEV.itens.filter((i, n) => estadoNaTela(n) === 'nenhum').length;
     const partes = [];
     if (avariados) partes.push('<b>' + avariados + '</b> vai para Avaria, com saldo bloqueado');
     if (fora) partes.push('<b>' + fora + '</b> não volta ao estoque');
     html('avisoItensTexto', partes.length
       ? partes.join(' · ') + '. O resto entra no saldo pela regra de entrada: com base de picking vai para disponível, sem base vai para a endereçar.'
-      : 'Tudo volta revendável e entra pela regra de entrada: com base de picking vai para disponível, sem base vai para a endereçar.');
+      : 'Tudo volta boa para revenda e entra pela regra de entrada: com base de picking vai para disponível, sem base vai para a endereçar.');
+
+    // O aviso do Estoque conta as pecas que vao entrar, e elas acabaram de
+    // mudar junto com a quantidade.
+    const entram = DEV.itens.reduce((s, i, n) => {
+      const q = qtdNaTela(n);
+      return s + (q !== null && estadoNaTela(n) !== 'nenhum' ? q : 0);
+    }, 0);
+    const alvoEst = document.getElementById('avisoEstoqueTexto');
+    if (alvoEst && !DEV.estoque) {
+      html('avisoEstoqueTexto', '<b>' + entram + (entram === 1 ? ' peça entra' : ' peças entram') +
+        '</b> no saldo quando alguém lançar. Até lá o saldo conta uma mercadoria que já voltou — e por isso o lançamento é ato de quem recebeu a caixa, não consequência automática de abrir a devolução.');
+    }
   }
 
   function ligarItens() {
@@ -2256,7 +2314,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!corpo) return;
     corpo.querySelectorAll('input[data-qtd]').forEach(el => {
       const n = Number(el.getAttribute('data-qtd'));
-      el.addEventListener('input', () => { RASCUNHO.qtd[n] = el.value; atualizarBarra(); });
+      el.addEventListener('input', () => {
+        RASCUNHO.qtd[n] = el.value;
+        pintarTotaisItens();
+        atualizarBarra();
+      });
     });
     corpo.querySelectorAll('[data-estado]').forEach(raiz => {
       const n = Number(raiz.getAttribute('data-estado'));
@@ -2269,6 +2331,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           if (ativo && rot) rot.textContent = it.textContent;
         });
         RASCUNHO.estado[n] = v;
+        pintarTotaisItens();
         atualizarBarra();
       });
     });
