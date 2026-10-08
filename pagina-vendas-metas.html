@@ -100,6 +100,43 @@
 
   /* ===== KPI CARD ===== */
   .kpi-card { border-left:3px solid; }
+
+  /* ABAS CONTADORAS. Cabem aqui porque sao quatro situacoes; no Rastreamento,
+     com dez, a medicao de 02/out mostrou que nao cabem a 1440px. */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* Cores das situacoes da devolucao, aferidas contra o fundo da pagina nos dois temas. */
+  .dev-aberta     { background:#B45309; }
+  .dev-andamento  { background:#0A4EE4; }
+  .dev-finalizada { background:#15803D; }
+  .dev-cancelada  { background:#6B7280; }
+  body.dark .dev-aberta     { background:#F5A623; }
+  body.dark .dev-andamento  { background:#4D8DFF; }
+  body.dark .dev-finalizada { background:#34C759; }
+  body.dark .dev-cancelada  { background:#9AA0A6; }
+
+  .bd-aberta     { background:rgba(180,83,9,0.12);  color:#B45309; }
+  .bd-andamento  { background:var(--active-bg);     color:var(--active-text); }
+  .bd-finalizada { background:rgba(21,128,61,0.12); color:#15803D; }
+  .bd-cancelada  { background:rgba(107,114,128,0.14); color:#6B7280; }
+  body.dark .bd-aberta     { background:rgba(245,166,35,0.16); color:#F5A623; }
+  body.dark .bd-finalizada { background:rgba(52,199,89,0.16);  color:#34C759; }
+  body.dark .bd-cancelada  { background:rgba(154,160,166,0.18); color:#C7CBD1; }
+
+  .dev-item { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+  .dev-item:last-child { border-bottom:none; }
+  .dev-item.sel { background:var(--active-bg); border-radius:9px; padding-left:9px; padding-right:9px; }
+  .dev-item-nome { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .dev-item-sub { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .dev-item-valor { margin-left:auto; font-size:13px; font-weight:800; color:var(--text-heading); white-space:nowrap; }
+  .fora-prazo { font-weight:800; color:#B45309; }
+  body.dark .fora-prazo { color:#F5A623; }
   .kpi-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text); margin-bottom:10px; }
   .kpi-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:var(--text-heading); margin-bottom:6px; }
   .kpi-delta { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:4px; }
@@ -304,50 +341,36 @@
 
   .header-actions { display:flex; align-items:center; gap:10px; }
 
-  .categorias-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
 
-  .form-row { display:flex; gap:12px; flex-wrap:wrap; }
-  .form-field { flex:1; min-width:120px; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-
-  .dropdown-select { position:relative; }
+  .dropdown-select { position:relative; flex-shrink:0; }
+  .dropdown-select-btn.pill { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  .dropdown-select-btn.pill:hover { background: rgba(120,120,140,0.08); }
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
-  .dropdown-select-btn:hover { background: rgba(120,120,140,0.08); }
-  .dropdown-select-btn svg { width:13px; height:13px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
+  .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
-  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13.5px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; }
+  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
   .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
-  .meta-row { display:flex; align-items:center; gap:14px; padding:13px 4px; border-top:1px solid var(--border); }
-  .meta-row:first-of-type { border-top:none; }
-  .meta-row .profile-avatar { width:38px; height:38px; font-size:13px; }
-  .meta-nome { flex:1; min-width:0; font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .meta-row input[type="text"] { width:150px; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:8px 10px; outline:none; text-align:right; }
-  .meta-row input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .meta-row-hint { font-size:11px; color:var(--text); width:70px; flex-shrink:0; }
-
-  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
-  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
-  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  /* ===== CADASTROS > MARCAS (listagem) ===== */
+  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
   .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
-  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
-  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
-  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
 
-  .selecao-bar { display:none; align-items:center; justify-content:space-between; gap:14px; padding:12px 16px; margin-top:14px; margin-bottom:6px; background: var(--active-bg); border-radius:12px; flex-wrap:wrap; }
+  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .parent-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
+
+  .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
   .selecao-bar.show { display:flex; }
-  .selecao-info { font-size:13px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
-  .selecao-acoes { display:flex; align-items:center; gap:14px; }
+  .selecao-info { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .selecao-acoes { display:flex; align-items:center; gap:14px; margin-left:auto; }
 
-  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:4px 4px 14px; font-size:12.5px; color:var(--text); font-weight:600; font-family:'Nunito',sans-serif; }
-  .selecionar-todos-row label { cursor:pointer; user-select:none; }
+  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; }
   .item-checkbox, .checkbox-todos {
     appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
     border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
@@ -367,22 +390,30 @@
     background:#fff; border-radius:1px;
   }
 
-  .loja-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
-  .loja-card:first-of-type { border-top:none; }
-  .loja-card:hover { background: rgba(120,120,140,0.06); }
-  .loja-info { flex:1; min-width:0; }
-  .loja-nome-row { display:flex; align-items:center; gap:8px; }
-  .loja-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
-  .loja-meta { font-size:12px; color:var(--text); margin-top:2px; }
-  .loja-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .deposito-card:first-of-type { border-top:none; }
+  .deposito-card:hover { background: rgba(120,120,140,0.06); }
+  .deposito-info { flex:1; min-width:0; }
+  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
+  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
   .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
   .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
   .empty-state-sub { font-size:12.5px; color:var(--text); }
 
-  /* ===== PAINEL LATERAL: nova/editar categoria ===== */
+  .paginacao-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .paginacao-info { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); }
+  .paginacao-nav { display:flex; align-items:center; gap:10px; }
+  .paginacao-btn { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .paginacao-btn:hover:not(:disabled) { background: rgba(120,120,140,0.08); }
+  .paginacao-btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .paginacao-btn svg { width:14px; height:14px; }
+  .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
+
+  /* ===== PAINEL LATERAL: nova/editar ===== */
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
   .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
@@ -393,26 +424,14 @@
   .drawer-close:hover { color:var(--text-heading); }
   .drawer-close svg { width:15px; height:15px; }
 
-  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
-  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-
-  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
-  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
-
-  /* ===== PAINEL LATERAL: preview rápido da loja ===== */
-  .preview-summary { display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 4px; }
-  .preview-summary .profile-avatar { width:64px; height:64px; font-size:22px; margin-bottom:12px; }
-  .preview-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
-  .preview-badges { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:10px; }
-  .origem-badge { font-size:10.5px; font-weight:800; color:#fff; padding:4px 10px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
-
-  .preview-meta-list { width:100%; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
-  .preview-meta-row { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:7px 0; }
-  .preview-meta-label { color:var(--text); }
-  .preview-meta-value { color:var(--text-heading); font-weight:700; text-align:right; }
-
-  .preview-footer { margin-top:22px; width:100%; }
-  .preview-footer .btn-primary { width:100%; text-decoration:none; }
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color: var(--danger); }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
@@ -430,17 +449,327 @@
   .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
   .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
   .confirm-acoes { display:flex; align-items:center; gap:20px; }
-  .confirm-acoes .btn-primary, .confirm-acoes .btn-danger { padding:11px 26px; font-size:14px; }
-  .confirm-acoes .btn-primary:disabled, .confirm-acoes .btn-danger:disabled { opacity:0.4; cursor:not-allowed; }
+  .confirm-acoes button { padding:11px 26px; font-size:14px; }
+  .confirm-acoes button:disabled { opacity:0.4; cursor:not-allowed; }
   .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
-  .confirmacao-texto { font-size:13px; color:var(--text-heading); margin-bottom:14px; line-height:1.5; }
-  .confirmacao-acoes { display:flex; align-items:center; gap:16px; }
   .btn-danger { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--danger-solid); color:#fff; cursor:pointer; user-select:none; }
   .btn-danger:hover { opacity:0.88; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
 
-  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
-  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
+     mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
+
+  /* ===== Filtro de situacao em abas (§7) ===== */
+  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
+  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
+  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
+  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
+     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
+     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
+  .av-geral           { background: var(--chart-2); color:#101010; }
+  .av-galpao          { background: var(--chart-3); color:#101010; }
+  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
+  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
+  .av-transito        { background: var(--warning); color:#101010; }
+  body.dark .av-geral           { color:#FFFFFF; }
+  body.dark .av-galpao          { color:#FFFFFF; }
+  body.dark .av-loja_fisica     { color:#101010; }
+  body.dark .av-trade_marketing { color:#101010; }
+  body.dark .av-transito        { color:#101010; }
+
+  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+
+  /* ===== Formulario em duas colunas dentro do drawer ===== */
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; min-width:120px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+
+  /* ===== Linha de interruptor dentro do formulario ===== */
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+
+
+  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
+  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th.col-texto { text-align:left; }
+  .estoque-table th.ordenavel { cursor:pointer; }
+  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
+  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
+  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado { color:var(--text-heading); }
+  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td.col-texto { text-align:left; }
+  .estoque-table tbody tr { cursor:pointer; }
+  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
+  .estoque-table tbody tr:last-child td { border-bottom:none; }
+  .col-produto { font-weight:700; }
+  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
+  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
+  .celula-reservada { color:var(--text); opacity:0.5; }
+  .saldo-critico { color:var(--danger); font-weight:800; }
+  .saldo-negativo { color:var(--danger); font-weight:800; }
+  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
+  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
+  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+
+  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
+  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
+  .estoque-total b { color:var(--active-text); font-weight:800; }
+
+  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
+
+  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
+  .sit-aberto      { background:#B45309; }
+  .sit-andamento   { background:#0A4EE4; }
+  .sit-atendida    { background:#15803D; }
+  .sit-cancelada   { background:#6B7280; }
+  body.dark .sit-aberto    { background:#F5A623; }
+  body.dark .sit-andamento { background:#9DB8F0; }
+  body.dark .sit-atendida  { background:#4ADE80; }
+  body.dark .sit-cancelada { background:#9CA3AF; }
+
+  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
+  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .bs-aberto      { color:#B45309; }
+  .bs-andamento   { color:#0A4EE4; }
+  .bs-atendida    { color:#15803D; }
+  .bs-cancelada   { color:#6B7280; }
+  body.dark .bs-aberto    { color:#F5A623; }
+  body.dark .bs-andamento { color:#9DB8F0; }
+  body.dark .bs-atendida  { color:#4ADE80; }
+  body.dark .bs-cancelada { color:#9CA3AF; }
+
+  /* filtro de periodo em popover */
+  .periodo-wrap { position:relative; flex-shrink:0; }
+  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
+  .periodo-menu.open { display:block; }
+  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
+  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
+  .periodo-op:hover { background:rgba(120,120,140,0.08); }
+  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
+
+  .oc-numero { font-weight:800; color:var(--active-text); }
+  .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
+
+  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
+  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
+  .btn-secundario-topo svg { width:14px; height:14px; }
+
+  /* extrato dentro do drawer */
+  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
+  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .extrato-linha:first-of-type { border-top:none; }
+  .extrato-rotulo { color:var(--text); }
+  .extrato-valor { font-weight:700; color:var(--text-heading); }
+  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
+  .mov-item:first-of-type { border-top:none; }
+  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mov-icone svg { width:13px; height:13px; }
+  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
+  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
+  .mov-qtd.entrada { color:var(--success); }
+  .mov-qtd.saida { color:var(--danger); }
+
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
+
+  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
+  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
+     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
+  .sit-aconferir     { background:#B45309; }
+  .sit-emconferencia { background:#0A4EE4; }
+  .sit-divergencia   { background:#B91C1C; }
+  .sit-lancada       { background:#15803D; }
+  .sit-recusada      { background:#6B7280; }
+  body.dark .sit-aconferir     { background:#F5A623; }
+  body.dark .sit-emconferencia { background:#9DB8F0; }
+  body.dark .sit-divergencia   { background:#FCA5A5; }
+  body.dark .sit-lancada       { background:#4ADE80; }
+  body.dark .sit-recusada      { background:#9CA3AF; }
+
+  .bs-aconferir     { color:#B45309; }
+  .bs-emconferencia { color:#0A4EE4; }
+  .bs-divergencia   { color:#B91C1C; }
+  .bs-lancada       { color:#15803D; }
+  .bs-recusada      { color:#6B7280; }
+  body.dark .bs-aconferir     { color:#F5A623; }
+  body.dark .bs-emconferencia { color:#9DB8F0; }
+  body.dark .bs-divergencia   { color:#FCA5A5; }
+  body.dark .bs-lancada       { color:#4ADE80; }
+  body.dark .bs-recusada      { color:#9CA3AF; }
+
+  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
+  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
+  .mde-prazo.alerta { color:#B45309; }
+  body.dark .mde-prazo.alerta { color:#F5A623; }
+  .mde-pendente      { color:#6B7280; }
+  .mde-ciencia       { color:#B45309; }
+  .mde-confirmada    { color:#15803D; }
+  .mde-naorealizada  { color:#B91C1C; }
+  .mde-desconhecida  { color:#B91C1C; }
+  body.dark .mde-pendente     { color:#9CA3AF; }
+  body.dark .mde-ciencia      { color:#F5A623; }
+  body.dark .mde-confirmada   { color:#4ADE80; }
+  body.dark .mde-naorealizada { color:#FCA5A5; }
+  body.dark .mde-desconhecida { color:#FCA5A5; }
+  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
+
+  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .dif-divergente { color:#B91C1C; }
+  body.dark .dif-divergente { color:#FCA5A5; }
+  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
+  body.dark .pend-tag { color:#FCA5A5; }
+
+  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
+     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
+  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
+  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
+  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
+
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (o que acontece depois da doca) ===== */
+  /* As situacoes daqui sao as do PEDIDO DE VENDA — o mesmo funil de 9 passos da
+     barganha de 02/out, nao um funil proprio. Esta tela nao inventa status: ela
+     mostra o que o pedido ja diz e acrescenta o que so existe depois do envio
+     (codigo de rastreio, previsao congelada, eventos). Devolucao continua fora:
+     e documento proprio, e o pedido devolvido mantem a situacao dele. */
+
+  /* O ponto colore a FASE, nao a situacao. Nove cores ninguem memoriza, e nove
+     cores no tema claro e campo minado de contraste; o rotulo ao lado ja diz a
+     situacao exata. Tres fases + cancelado dao a leitura de relance que o
+     galpao precisa: "ainda esta aqui", "esta na rua", "acabou". */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
+
+  .tx-processando { color:#B45309; }
+  .tx-transito    { color:#0A4EE4; }
+  .tx-final       { color:#15803D; }
+  .tx-cancelado   { color:#DC2626; }
+  body.dark .tx-processando { color:#F5A623; }
+  body.dark .tx-transito    { color:#9DB8F0; }
+  body.dark .tx-final       { color:#4ADE80; }
+  body.dark .tx-cancelado   { color:#EF4444; }
+
+  /* PAGAMENTO E EIXO SEPARADO (barganha de 07/out), nao passo do funil. Boleto de
+     30 dias fica enviado e nao pago; Pix fica pago ainda em aberto. Quem manda
+     aqui e Financas > Contas a Receber: esta coluna LE, nunca escreve. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  /* A PREVISAO E CONGELADA NO ENVIO (barganha de 07/out): gravada a partir do prazo
+     da transportadora no momento do despacho, nunca recalculada. Mudar o prazo no
+     cadastro depois NAO reescreve se um pedido antigo atrasou — historico que muda
+     sozinho e historico que mente. */
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* CODIGO DE RASTREIO E POR VOLUME (barganha de 07/out). Os volumes ja nascem na
+     Conferencia de Saida; um pedido de 3 caixas que chegam em dias diferentes tem
+     3 codigos. A celula resume e o painel mostra um por um. */
+  .cod-resumo { font-weight:700; color:var(--text-heading); }
+  .vol-prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-family:inherit; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+
+  .cliente-nome { font-weight:700; color:var(--text-heading); }
+  .cliente-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* ===== O HISTORICO, DENTRO DO PAINEL ===== */
+  /* Cada evento carrega um rotulo PROPRIO para o cliente e um marcador de quem o
+     ve (barganha de 07/out). "Conferencia de saida" e vocabulario de deposito:
+     o cliente le "Pedido embalado". A vitrine consome so os publicos. */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
+
+  /* Volume dentro do painel: uma linha por caixa, com o campo do codigo. */
+  .vol-linha { display:grid; grid-template-columns:1fr 210px; gap:11px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
+  .vol-linha:last-child { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* Vinham do bloco da Expedicao, que esta tela substituiu. Classe usada sem CSS
+     e o "componente copiado pela metade" que a auditoria pega na secao 3. */
+  .transp-nome { font-weight:700; color:var(--text-heading); }
+  .transp-tipo { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+
+  /* A linha inteira abre o painel, entao o cursor precisa dizer isso. */
+  .estoque-table tbody tr.linha-clicavel { cursor:pointer; }
+
+  /* Painel: linha de rotulo e valor usando o par canonico chave-rotulo /
+     chave-valor, mais o titulo que separa os blocos. */
+  .rt-linha { display:grid; grid-template-columns:150px 1fr; gap:11px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
+  .rt-linha:last-child { border-bottom:none; }
+  .rt-sub { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:17px 0 7px; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -457,6 +786,44 @@
   .confirm-senha-row.has-error input { border-color:var(--danger); }
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+
+  /* ===== VENDAS > METAS ===== */
+  .ating { display:flex; align-items:center; gap:9px; min-width:150px; }
+  .ating-trilho { flex:1; height:7px; border-radius:6px; background:rgba(120,120,140,0.18); overflow:hidden; }
+  .ating-barra { display:block; height:100%; border-radius:6px; }
+  .ating-pct { font-size:12.5px; font-weight:800; color:var(--text-heading); min-width:42px; text-align:right; font-variant-numeric:tabular-nums; }
+  /* Cor de fundo do selo e cor do TEXTO vivem juntas, e o texto e redefinido
+     em body.dark: o mesmo tom nao passa em 4.5:1 nos dois temas. */
+  .mt-batida   { background:rgba(21,128,61,0.12);  color:#12692F; }
+  .mt-noritmo  { background:rgba(10,78,228,0.10);  color:#0A4EE4; }
+  .mt-abaixo   { background:rgba(180,83,9,0.12);   color:#8A5600; }
+  .mt-naobatida{ background:rgba(220,38,38,0.10);  color:#B91C1C; }
+  .mt-semmeta  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .mt-futuro   { background:rgba(120,120,140,0.14); color:var(--text); }
+  body.dark .mt-batida    { color:#4ADE80; }
+  body.dark .mt-noritmo   { color:#9DB8F0; }
+  body.dark .mt-abaixo    { color:#FBBF24; }
+  body.dark .mt-naobatida { color:#FCA5A5; }
+  .pt-batida   { background:#15803D; }
+  .pt-noritmo  { background:#0A4EE4; }
+  .pt-abaixo   { background:#B45309; }
+  .pt-naobatida{ background:#DC2626; }
+  .pt-semmeta  { background:#8A8A94; }
+  .pt-futuro   { background:#8A8A94; }
+  .meta-previa { border:1px solid var(--border); border-radius:12px; padding:4px 12px; background:var(--page-bg); }
+  .meta-previa-linha { display:grid; grid-template-columns:86px 1fr auto; gap:10px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .meta-previa-linha:last-child { border-bottom:none; }
+  .meta-previa-mes { font-weight:800; color:var(--text-heading); }
+  .meta-previa-obs { font-size:11px; font-weight:600; color:var(--text); }
+  .meta-previa-valor { font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .meta-previa-vazia { padding:10px 0; font-size:12px; font-weight:600; color:var(--text); }
+  .meta-ano { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .meta-ano th { text-align:right; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:6px 0; border-bottom:1px solid var(--border); }
+  .meta-ano th:first-child, .meta-ano td:first-child { text-align:left; }
+  .meta-ano td { text-align:right; padding:7px 0; border-bottom:1px solid var(--border); color:var(--text-heading); font-weight:700; font-variant-numeric:tabular-nums; }
+  .meta-ano tr:last-child td { border-bottom:none; }
+  .meta-ano tr.atual td { color:var(--active-text); }
 
 </style>
 </head>
@@ -668,45 +1035,230 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
+
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
     <div>
       <h1>Metas</h1>
-      <div class="subtitle">Defina a meta mensal de cada loja — o realizado é comparado aqui quando Vendas existir</div>
+      <div class="subtitle">Quanto cada loja e cada vendedor precisa vender no mês, quanto já vendeu, e se o ritmo fecha a conta</div>
+    </div>
+    <div class="header-acoes">
+      <button class="btn-primary" id="btnDefinirMeta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Definir meta
+      </button>
+      <div class="dropdown-select" id="menuMaisAcoes">
+        <button type="button" class="btn-ghost dropdown-select-btn">
+          <span class="dropdown-select-label">Mais ações</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:300px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="performance">Abrir Performance de Vendas</div>
+          <div class="dropdown-select-item" data-acao="lojas">Abrir Lojas Desk</div>
+          <div class="dropdown-select-item" data-acao="vendedores">Abrir Vendedores</div>
+          <div class="dropdown-select-item" data-acao="exportar">Exportar metas para planilha</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="theme-seg" id="modoMetaToggle" style="max-width:520px; margin-bottom:20px;">
-    <button class="active" data-modo="mensal">Mensal</button>
-    <button data-modo="trimestral">Trimestral</button>
-    <button data-modo="anual">Anual</button>
-    <button data-modo="progressivo">Progressivo</button>
+  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
+    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Meta do mês</div>
+      <div class="kpi-value" id="kpiMeta">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiMetaSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--success)">
+      <div class="kpi-label">Realizado</div>
+      <div class="kpi-value" id="kpiReal">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiRealSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Atingimento</div>
+      <div class="kpi-value" id="kpiAting">0%</div>
+      <div class="kpi-delta neutral" id="kpiAtingSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Abaixo do ritmo</div>
+      <div class="kpi-value" id="kpiAbaixo">0</div>
+      <div class="kpi-delta neutral" id="kpiAbaixoSub">—</div>
+    </div>
   </div>
 
-  <div class="form-row" id="seletorPeriodo" style="max-width:420px; margin-bottom:18px;"></div>
-
-  <div class="categorias-toolbar">
-    <div class="filtro-tipo" id="filtroTipo">
-      <button class="active" data-filtro="todos">Todos</button>
-      <button data-filtro="produto">Produtos</button>
-      <button data-filtro="servico">Serviços</button>
-      <button data-filtro="trade_marketing">Trade Marketing</button>
+  <div class="estoque-toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="campoBusca" placeholder="Pesquise por loja ou vendedor">
     </div>
+
+    <div class="dropdown-select" id="filtroMes" data-value="10">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Outubro</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroMes" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroAno" data-value="2026">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">2026</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroAno"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroSituacao" data-value="todas">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Qualquer situação</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroSituacao"></div>
+    </div>
+  </div>
+
+  <!-- Loja e vendedor sao metas INDEPENDENTES (barganha de 08/out): cada uma e
+       definida a parte, e a tela avisa quando a soma dos vendedores nao fecha
+       com a da loja. Por isso sao duas abas da mesma tela, nao duas telas. -->
+  <div class="abas-situacao" id="abasNivel">
+    <div class="aba-sit active" data-nivel="loja"><span>Lojas</span><span class="sit-contador" data-cont="loja">0</span></div>
+    <div class="aba-sit" data-nivel="vendedor"><span>Vendedores</span><span class="sit-contador" data-cont="vendedor">0</span></div>
   </div>
 
   <div class="card">
-    <div id="gridMetas"></div>
+    <div class="nota-reservado" id="avisoMetas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoMetasTexto"></span>
+    </div>
+
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto ordenavel" data-ordem="nome"><span id="thNome">Loja</span> <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="meta">Meta <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="real" title="Pedidos de venda a partir de Faturado. Cancelado não entra.">Realizado <span class="seta">▲</span></th>
+            <th class="col-texto ordenavel" data-ordem="pct">Atingimento <span class="seta">▲</span></th>
+            <th title="Quanto já deveria estar vendido até hoje, em dias corridos">Ritmo até hoje</th>
+            <th class="col-texto">Situação</th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabela"></tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="empty-state-title">Nada neste filtro</div>
+      <div class="empty-state-sub">Com os filtros atuais, não há meta para mostrar.</div>
+      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
+    </div>
+
+    <div class="estoque-rodape">
+      <span id="contagemLinhas">0 lojas</span>
+      <span class="estoque-total">Meta do filtro: <b id="somaFiltro">R$ 0,00</b></span>
+    </div>
   </div>
 
-  <div class="barra-salvar" id="barraSalvar">
-    <button class="btn-primary" id="btnSalvarMetas">Salvar metas deste período</button>
-    <div class="barra-info" id="infoPendente">—</div>
+<!-- PAINEL LATERAL: a meta por dentro, so leitura -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitulo">Meta</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div id="drawerCorpo"></div>
+</div>
+
+<!-- PAINEL LATERAL: definir meta. E a UNICA porta de escrita desta tela. -->
+<!-- Os dropdowns nascem com a TELA, nao com o painel (design system 9.3):
+     abrir o painel so atualiza o que esta selecionado. -->
+<div class="drawer-backdrop" id="defBackdrop"></div>
+<div class="event-drawer" id="defDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Definir meta</div>
+    <div class="drawer-close" id="defClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+
+  <div class="form-field" id="campoAlvo">
+    <label>Para quem</label>
+    <div class="dropdown-select" id="defAlvo" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Escolha a loja ou o vendedor</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuDefAlvo" style="max-height:260px; overflow-y:auto;"></div>
+    </div>
+    <div class="field-hint">Meta de loja e meta de vendedor são independentes. A tela avisa quando a soma dos vendedores não fecha com a da loja.</div>
+  </div>
+
+  <div class="form-field">
+    <label>Como preencher</label>
+    <div class="dropdown-select" id="defModo" data-value="mensal">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Um mês</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuDefModo"></div>
+    </div>
+    <div class="field-hint" id="defModoHint">—</div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field" id="campoDefMes">
+      <label id="rotDefMes">Mês</label>
+      <div class="dropdown-select" id="defMes" data-value="10">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Outubro</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuDefMes" style="max-height:240px; overflow-y:auto;"></div>
+      </div>
+    </div>
+    <div class="form-field" id="campoDefTri" style="display:none;">
+      <label>Trimestre</label>
+      <div class="dropdown-select" id="defTri" data-value="4">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">4º trimestre</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuDefTri"></div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label id="rotDefAno">Ano</label>
+      <div class="dropdown-select" id="defAno" data-value="2026">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">2026</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuDefAno"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-field" id="campoDefValor">
+      <label id="rotDefValor">Meta do mês (R$)</label>
+      <input type="text" id="defValor" placeholder="0,00" autocomplete="off" maxlength="14">
+    </div>
+    <div class="form-field" id="campoDefPct" style="display:none;">
+      <label>Crescimento ao mês (%)</label>
+      <input type="text" id="defPct" placeholder="0" autocomplete="off" maxlength="6">
+    </div>
+  </div>
+
+  <div class="rt-sub">O que vai ser gravado</div>
+  <div class="meta-previa" id="defPrevia"></div>
+
+  <div class="drawer-footer">
+    <button class="btn-primary" id="defSalvar">Salvar meta</button>
+    <div class="drawer-link" id="defCancelar">Cancelar</div>
   </div>
 </div>
 
-<!-- MODAL: confirmação centralizada (reutilizável — exclusão individual e em massa, e aqui pra editar período já fechado) -->
+<!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -718,12 +1270,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
   </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
   </div>
+</div>
+
 </div>
 
 <script>
@@ -754,6 +1308,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // empresa
     conferenciaCompraAlerta: 1,
     conferenciaCompraCritico: 3,
+    separacaoAlertaHoras: 4,
+    separacaoCriticoHoras: 12,
+    separacaoOrdemPorEndereco: true,
+    expedicaoAlertaHoras: 8,
+    expedicaoCriticoHoras: 24,
+    romaneioSugereAutomatico: true,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -781,6 +1347,75 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const PARAM = lerParametros();
+
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada',
+    // Entrada de notas — de onde a nota veio
+    'entrada.origem.compra':    'Compra',
+    'entrada.origem.devolucao': 'Devolução',
+    // Entrada de notas — situacao do documento
+    'entrada.situacao.transito':      'Em trânsito',
+    'entrada.situacao.aconferir':     'A conferir',
+    'entrada.situacao.emconferencia': 'Em conferência',
+    'entrada.situacao.divergencia':   'Com divergência',
+    'entrada.situacao.lancada':       'Lançada',
+    'entrada.situacao.recusada':      'Recusada',
+    // Motivos de perda — em que movimento o motivo vale
+    'perda.movimento.entrada': 'Entrada',
+    'perda.movimento.saida':   'Saída',
+    'perda.movimento.balanco': 'Balanço',
+    // Motivos de perda — o que a baixa obriga
+    'perda.fiscal.nfe':     'Exige NF-e própria',
+    'perda.fiscal.interno': 'Resolve com documento interno',
+    'perda.fiscal.depende': 'Depende da diferença',
+    'perda.fiscal.nenhum':  'Não gera obrigação',
+    // Metas — situacao da meta no mes
+    'metas.situacao.batida':    'Meta batida',
+    'metas.situacao.noritmo':   'No ritmo',
+    'metas.situacao.abaixo':    'Abaixo do ritmo',
+    'metas.situacao.naobatida': 'Não bateu',
+    'metas.situacao.semmeta':   'Sem meta',
+    'metas.situacao.futuro':    'Ainda não começou'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
 
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
@@ -836,7 +1471,54 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
+    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
+    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
+    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
+    // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                           onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                            onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',     onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
+    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1036,6 +1718,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
   }
 
+
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
@@ -1148,13 +1831,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     sidebarCol.classList.toggle('collapsed');
   });
 
-  // Seletor de tema dentro de Configurações
-  // OBS: escopado a `.theme-picker .theme-seg button` (não `.theme-seg button` sozinho) —
-  // bug real encontrado nesta tela: como o toggle de Tipo e o de Pessoa Física/Jurídica também
-  // usam a classe base `.theme-seg`, o seletor genérico limpava a classe `.active` DELES ao
-  // clicar no seletor de tema (e vice-versa), até quebrar com `null.getAttribute` no Salvar.
-  // Esse mesmo risco existe em qualquer outra tela que reaproveite `.theme-seg` pra um toggle
-  // próprio — vale aplicar esse mesmo escopo lá.
+  // Seletor de tema dentro de Configurações.
+  // Escopado a ".theme-picker .theme-seg button" (nunca ".theme-seg button" sozinho): a classe
+  // visual .theme-seg é reaproveitada por outros toggles do sistema (Tipo Pessoa, Tipo de Loja,
+  // modo de meta...). Sem o escopo, clicar num desses toggles caía neste listener, e como eles
+  // não têm data-theme o "mode" vinha null e o código entrava no ramo "auto", trocando o tema
+  // claro/escuro da tela inteira sem o usuário pedir (bug real — ver design-system §14).
   document.querySelectorAll('.theme-picker .theme-seg button').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1173,44 +1855,161 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   });
 
+
+
   renderBreadcrumb();
 
-  // ===== METAS: schema e lógica =====
-  // Schema `metas` (ver arquitetura-roadmap §3): loja_id, mes (1-12), ano, valor. Sempre
-  // granularidade mensal — os 4 modos abaixo são só formas diferentes de PREENCHER esse mesmo
-  // dado mais rápido, nunca estruturas diferentes. Único ponto de escrita do sistema; a aba
-  // "Histórico de Metas" dentro de Lojas Desk só lê.
-  const COR_POR_TIPO = { produto: 'var(--chart-2)', servico: 'var(--warning)', trade_marketing: 'var(--text)' };
-  const TIPO_LABEL = { produto: 'Produtos', servico: 'Serviços', trade_marketing: 'Trade Marketing' };
-  const NOMES_MES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const NOMES_TRIMESTRE = ['1º Tri (Jan-Mar)', '2º Tri (Abr-Jun)', '3º Tri (Jul-Set)', '4º Tri (Out-Dez)'];
-  const ANOS_DISPONIVEIS = ['2025', '2026', '2027'];
-  const CURRENT_ANO = 2026;
-  const CURRENT_MES = 9; // Setembro/2026 — data de referência do sistema
+  // ===== DADOS (mock) =====
+  // A listagem LE, o painel lateral ESCREVE: e a mesma divisao do Rastreamento e
+  // da Devolucao. Aqui a porta de escrita e uma so, o painel "Definir meta".
+  //
+  // Meta de LOJA e meta de VENDEDOR sao independentes (barganha de 08/out). A
+  // da loja nao e a soma dos vendedores: venda de vitrine nao tem vendedor, e
+  // vendedor autonomo nao tem loja. A tela compara as duas e avisa a diferenca.
+  const HOJE = '2026-10-08';
+  const ANO_HOJE = 2026, MES_HOJE = 10, DIA_HOJE = 8;
+  const NOMES_MES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const MES_CURTO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const ANOS = [2025, 2026, 2027];
+  const TIPO_LOJA = { produto: 'Produtos', servico: 'Serviços', trade_marketing: 'Trade Marketing' };
 
-  function iniciais(nome) {
-    return nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+  // As tres lojas do cadastro de Lojas Desk.
+  const LOJAS = [
+    { id: 1, nome: 'Desk Shope',  tipo: 'produto' },
+    { id: 2, nome: 'Desk Brands', tipo: 'produto' },
+    { id: 3, nome: 'Desk Tech',   tipo: 'servico' }
+  ];
+  // `lojaId: null` e vendedor AUTONOMO: vende, tem meta propria e nao entra na
+  // soma de loja nenhuma (mesma regra do cadastro de Vendedores).
+  const VENDEDORES = [
+    { id: 1, nome: 'Marina Costa',                lojaId: 1,    ativo: true },
+    { id: 5, nome: 'Rafael Tenório',              lojaId: 2,    ativo: true },
+    { id: 6, nome: 'Bianca Furtado',              lojaId: 1,    ativo: true },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', lojaId: null, ativo: true },
+    { id: 3, nome: 'Rafael Andrade',              lojaId: 3,    ativo: false }
+  ];
+
+  // Uma linha por (nivel, id, mes, ano). O modo de preenchimento (trimestre,
+  // ano, progressivo) nao e gravado: ele so decide quais linhas nascem.
+  const METAS = [];
+  function semear(nivel, id, ano, valores) {
+    valores.forEach(function (v, i) { if (v) METAS.push({ nivel: nivel, id: id, mes: i + 1, ano: ano, valor: v }); });
+  }
+  semear('loja', 1, 2026, [38000, 38000, 40000, 40000, 42000, 42000, 42000, 44000, 46000, 48000, 0, 0]);
+  semear('loja', 2, 2026, [21000, 21000, 22000, 22000, 23000, 23000, 24000, 24000, 25000, 26000, 0, 0]);
+  semear('loja', 3, 2026, [9000, 9000, 9000, 9500, 9500, 9500, 10000, 10000, 10000, 0, 0, 0]);
+  semear('vendedor', 1, 2026, [0, 0, 0, 0, 0, 0, 16000, 17000, 18000, 19000, 0, 0]);
+  semear('vendedor', 6, 2026, [0, 0, 0, 0, 0, 0, 12000, 12000, 13000, 14000, 0, 0]);
+  semear('vendedor', 5, 2026, [0, 0, 0, 0, 0, 0, 14000, 14000, 15000, 26000, 0, 0]);
+  semear('vendedor', 2, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 6000, 6000, 0, 0]);
+
+  // REALIZADO = pedidos de venda a partir de FATURADO. Cancelado nao entra.
+  // E o mesmo ponto em que a comissao do vendedor e liberada, de proposito:
+  // contar no "pedido salvo" poria na meta uma venda que ainda pode cair.
+  // No Lovable isto e uma soma em `pedidos`; aqui sao numeros de exemplo.
+  const REALIZADO = {};
+  function vender(nivel, id, ano, valores) {
+    valores.forEach(function (v, i) { REALIZADO[nivel + ':' + id + ':' + ano + ':' + (i + 1)] = v; });
+  }
+  vender('loja', 1, 2026, [36400, 39100, 41800, 38200, 43500, 40900, 43800, 40500, 47200, 13900, 0, 0]);
+  vender('loja', 2, 2026, [19800, 21500, 20100, 23400, 22800, 24100, 23600, 25200, 24300, 5100, 0, 0]);
+  vender('loja', 3, 2026, [9400, 8700, 9100, 9800, 9200, 10100, 9700, 10400, 10900, 2600, 0, 0]);
+  vender('loja', 1, 2025, [31200, 32800, 34100, 33500, 35900, 34700, 36300, 35100, 38400, 39800, 44200, 52100]);
+  vender('loja', 2, 2025, [16900, 17400, 17100, 18800, 18300, 19600, 19200, 20100, 19700, 21300, 23900, 28400]);
+  vender('loja', 3, 2025, [7800, 7600, 8100, 8300, 8000, 8600, 8400, 8900, 9100, 9300, 9000, 8200]);
+  vender('vendedor', 1, 2026, [0, 0, 0, 0, 0, 0, 16900, 15800, 19400, 5600, 0, 0]);
+  vender('vendedor', 6, 2026, [0, 0, 0, 0, 0, 0, 11200, 12600, 12100, 2900, 0, 0]);
+  vender('vendedor', 5, 2026, [0, 0, 0, 0, 0, 0, 13100, 14800, 14200, 3400, 0, 0]);
+  vender('vendedor', 2, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 6800, 2100, 0, 0]);
+  vender('vendedor', 3, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  // ===== REGRAS DE DOMINIO =====
+  function fmtData(s) {
+    if (!s) return '—';
+    const p = String(s).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function moeda(v) {
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function diasNoMes(mes, ano) { return new Date(ano, mes, 0).getDate(); }
+
+  function metaDe(nivel, id, mes, ano) {
+    const m = METAS.filter(function (x) { return x.nivel === nivel && x.id === id && x.mes === mes && x.ano === ano; })[0];
+    return m ? m.valor : null;
+  }
+  function realizadoDe(nivel, id, mes, ano) {
+    return REALIZADO[nivel + ':' + id + ':' + ano + ':' + mes] || 0;
+  }
+  // -1 = mes ja fechado, 0 = mes corrente, 1 = ainda nao comecou.
+  function tempoDoMes(mes, ano) {
+    if (ano < ANO_HOJE || (ano === ANO_HOJE && mes < MES_HOJE)) return -1;
+    if (ano === ANO_HOJE && mes === MES_HOJE) return 0;
+    return 1;
   }
 
-  const LOJAS = [
-    { id: 1, nome: 'Desk Shope', tipo: 'produto' },
-    { id: 2, nome: 'Desk Brands', tipo: 'produto' },
-    { id: 3, nome: 'Desk Tech', tipo: 'servico' }
-  ];
+  // RITMO em DIAS CORRIDOS (barganha de 08/out): vitrine vende todo dia, e dia
+  // util pediria um calendario de feriados que o sistema nao tem. O ritmo e
+  // quanto ja deveria estar vendido ATE HOJE para a meta fechar no fim do mes
+  // — e o que mostra o atraso antes de o mes acabar, nao depois.
+  function ritmoDe(meta, mes, ano) {
+    const tempo = tempoDoMes(mes, ano);
+    const dias = diasNoMes(mes, ano);
+    if (meta === null) return { esperado: null, restantes: 0, porDia: null };
+    if (tempo !== 0) return { esperado: tempo < 0 ? meta : 0, restantes: 0, porDia: null };
+    return { esperado: meta * DIA_HOJE / dias, restantes: dias - DIA_HOJE, porDia: null };
+  }
 
-  let METAS = [
-    { lojaId: 1, mes: 7, ano: 2026, valor: 42000 },
-    { lojaId: 1, mes: 8, ano: 2026, valor: 44000 },
-    { lojaId: 1, mes: 9, ano: 2026, valor: 46000 },
-    { lojaId: 2, mes: 9, ano: 2026, valor: 28000 },
-    { lojaId: 3, mes: 9, ano: 2026, valor: 15000 }
-  ];
+  // Nome de classe COMPLETO num mapa, nunca 'mt-' + chave: a concatenacao deixa
+  // o literal fora do HTML e a auditoria de classe sem CSS nao enxerga.
+  const SIT_META = {
+    batida:    { rotulo: nome('metas.situacao.batida'),    selo: 'mt-batida',    ponto: 'pt-batida',    cor: 'var(--success)' },
+    noritmo:   { rotulo: nome('metas.situacao.noritmo'),   selo: 'mt-noritmo',   ponto: 'pt-noritmo',   cor: 'var(--brand-blue)' },
+    abaixo:    { rotulo: nome('metas.situacao.abaixo'),    selo: 'mt-abaixo',    ponto: 'pt-abaixo',    cor: 'var(--warning)' },
+    naobatida: { rotulo: nome('metas.situacao.naobatida'), selo: 'mt-naobatida', ponto: 'pt-naobatida', cor: 'var(--danger)' },
+    semmeta:   { rotulo: nome('metas.situacao.semmeta'),   selo: 'mt-semmeta',   ponto: 'pt-semmeta',   cor: 'var(--text)' },
+    futuro:    { rotulo: nome('metas.situacao.futuro'),    selo: 'mt-futuro',    ponto: 'pt-futuro',    cor: 'var(--text)' }
+  };
+  function situacaoDaMeta(meta, real, mes, ano) {
+    if (meta === null) return 'semmeta';
+    const tempo = tempoDoMes(mes, ano);
+    if (tempo > 0) return 'futuro';
+    if (real >= meta) return 'batida';
+    if (tempo < 0) return 'naobatida';
+    return real >= ritmoDe(meta, mes, ano).esperado ? 'noritmo' : 'abaixo';
+  }
 
-  let modoAtual = 'mensal';
-  let filtroTipoAtual = 'todos';
-  let periodo = { mes: CURRENT_MES, ano: CURRENT_ANO, trimestre: 3, anoAnual: CURRENT_ANO, mesInicial: CURRENT_MES, anoInicial: CURRENT_ANO };
+  // Uma linha da listagem, ja calculada.
+  function linhaDe(nivel, unidade, mes, ano) {
+    const meta = metaDe(nivel, unidade.id, mes, ano);
+    const real = realizadoDe(nivel, unidade.id, mes, ano);
+    const r = ritmoDe(meta, mes, ano);
+    const falta = meta === null ? null : Math.max(0, meta - real);
+    return {
+      nivel: nivel, id: unidade.id, nome: unidade.nome, unidade: unidade,
+      meta: meta, real: real, falta: falta,
+      pct: meta ? real / meta * 100 : null,
+      esperado: r.esperado, restantes: r.restantes,
+      porDia: (tempoDoMes(mes, ano) === 0 && falta && r.restantes > 0) ? falta / r.restantes : null,
+      sit: situacaoDaMeta(meta, real, mes, ano)
+    };
+  }
+  function unidadesDe(nivel) {
+    return nivel === 'loja' ? LOJAS : VENDEDORES.filter(function (v) { return v.ativo; });
+  }
+  function lojaDe(id) { return LOJAS.filter(function (l) { return l.id === id; })[0] || null; }
 
-  // ===== COMPONENTE: dropdown customizado =====
+  // Soma das metas dos vendedores VINCULADOS contra a meta da loja. Autonomo
+  // fica de fora: ele nao pertence a loja nenhuma.
+  function diferencaDaLoja(loja, mes, ano) {
+    const metaLoja = metaDe('loja', loja.id, mes, ano);
+    const soma = VENDEDORES.filter(function (v) { return v.ativo && v.lojaId === loja.id; })
+      .reduce(function (s, v) { return s + (metaDe('vendedor', v.id, mes, ano) || 0); }, 0);
+    return { metaLoja: metaLoja, soma: soma, dif: metaLoja === null ? null : soma - metaLoja };
+  }
+
+  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
@@ -1253,232 +2052,518 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
-  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
-
-  function dropdownHtml(id, valorAtual, opcoes) {
-    return '<div class="dropdown-select" id="' + id + '" data-value="' + valorAtual + '">' +
-      '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + (opcoes.find(o => o.v === valorAtual) || opcoes[0]).t + '</span>' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
-      '<div class="dropdown-select-menu">' +
-        opcoes.map(o => '<div class="dropdown-select-item' + (o.v === valorAtual ? ' active' : '') + '" data-value="' + o.v + '">' + o.t + '</div>').join('') +
-      '</div></div>';
-  }
-
-  // ===== MODO DE PREENCHIMENTO =====
-  document.querySelectorAll('#modoMetaToggle button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#modoMetaToggle button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      modoAtual = btn.getAttribute('data-modo');
-      renderSeletorPeriodo();
-      renderGrid();
-    });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
   });
 
-  function renderSeletorPeriodo() {
-    const opcoesMes = NOMES_MES.map((n, i) => ({ v: String(i + 1), t: n }));
-    const opcoesAno = ANOS_DISPONIVEIS.map(a => ({ v: a, t: a }));
-    const opcoesTrimestre = NOMES_TRIMESTRE.map((n, i) => ({ v: String(i + 1), t: n }));
-    const container = document.getElementById('seletorPeriodo');
+  // ===== MODAL =====
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+  const confirmCienteRow = document.getElementById('confirmCienteRow');
+  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
 
-    if (modoAtual === 'mensal') {
-      container.innerHTML =
-        '<div class="form-field"><label>Mês</label>' + dropdownHtml('selMes', String(periodo.mes), opcoesMes) + '</div>' +
-        '<div class="form-field"><label>Ano</label>' + dropdownHtml('selAno', String(periodo.ano), opcoesAno) + '</div>';
-      inicializarDropdownSelect(document.getElementById('selMes'), (v) => { periodo.mes = Number(v); renderGrid(); });
-      inicializarDropdownSelect(document.getElementById('selAno'), (v) => { periodo.ano = Number(v); renderGrid(); });
-    } else if (modoAtual === 'trimestral') {
-      container.innerHTML =
-        '<div class="form-field" style="flex:1.6;"><label>Trimestre</label>' + dropdownHtml('selTrimestre', String(periodo.trimestre), opcoesTrimestre) + '</div>' +
-        '<div class="form-field"><label>Ano</label>' + dropdownHtml('selAno', String(periodo.ano), opcoesAno) + '</div>';
-      inicializarDropdownSelect(document.getElementById('selTrimestre'), (v) => { periodo.trimestre = Number(v); renderGrid(); });
-      inicializarDropdownSelect(document.getElementById('selAno'), (v) => { periodo.ano = Number(v); renderGrid(); });
-    } else if (modoAtual === 'anual') {
-      container.innerHTML = '<div class="form-field"><label>Ano</label>' + dropdownHtml('selAnoAnual', String(periodo.anoAnual), opcoesAno) + '</div>';
-      inicializarDropdownSelect(document.getElementById('selAnoAnual'), (v) => { periodo.anoAnual = Number(v); renderGrid(); });
-    } else {
-      container.innerHTML =
-        '<div class="form-field"><label>Mês inicial</label>' + dropdownHtml('selMesIni', String(periodo.mesInicial), opcoesMes) + '</div>' +
-        '<div class="form-field"><label>Ano inicial</label>' + dropdownHtml('selAnoIni', String(periodo.anoInicial), opcoesAno) + '</div>';
-      inicializarDropdownSelect(document.getElementById('selMesIni'), (v) => { periodo.mesInicial = Number(v); renderGrid(); });
-      inicializarDropdownSelect(document.getElementById('selAnoIni'), (v) => { periodo.anoInicial = Number(v); renderGrid(); });
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() {
+    confirmModalBackdrop.classList.remove('open');
+    confirmModal.classList.remove('open');
+    acaoConfirmada = null;
+  }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
+  // Antes isto executava o callback e so depois fechava. Callback que termina
+  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
+  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
+  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
+  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
+  // liberada" nunca apareceu para ninguem.
+  btnConfirmar.addEventListener('click', () => {
+    const executar = acaoConfirmada;
+    fecharModalConfirmacao();
+    if (executar) executar();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
+      else if (eventDrawer.classList.contains('open')) fecharDrawer();
+      else if (defDrawer.classList.contains('open')) fecharDefinir();
     }
+  });
+
+
+  // ===== FILTROS E ORDEM =====
+  let busca = '', nivel = 'loja', fSit = 'todas';
+  let mesSel = MES_HOJE, anoSel = ANO_HOJE;
+  let ordem = 'nome', asc = true;
+  const eventDrawer = document.getElementById('eventDrawer');
+  const defDrawer = document.getElementById('defDrawer');
+
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+
+  function linhasDoNivel(n) {
+    return unidadesDe(n).map(function (u) { return linhaDe(n, u, mesSel, anoSel); });
+  }
+  function filtradas() {
+    const q = busca.trim().toLowerCase();
+    let lista = linhasDoNivel(nivel).filter(function (l) {
+      if (fSit !== 'todas' && l.sit !== fSit) return false;
+      if (q && l.nome.toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    lista.sort(function (a, b) {
+      let x, y;
+      if (ordem === 'nome') { x = a.nome.toLowerCase(); y = b.nome.toLowerCase(); }
+      else if (ordem === 'meta') { x = a.meta || 0; y = b.meta || 0; }
+      else if (ordem === 'real') { x = a.real; y = b.real; }
+      else { x = a.pct === null ? -1 : a.pct; y = b.pct === null ? -1 : b.pct; }
+      if (x < y) return asc ? -1 : 1;
+      if (x > y) return asc ? 1 : -1;
+      return 0;
+    });
+    return lista;
   }
 
-  // Retorna a lista de {mes, ano} que o modo/período atual afeta — é sempre isso que fica
-  // gravado, não importa o modo usado pra preencher.
-  function mesesDoPeriodo() {
-    if (modoAtual === 'mensal') return [{ mes: periodo.mes, ano: periodo.ano }];
-    if (modoAtual === 'trimestral') {
-      const inicio = (periodo.trimestre - 1) * 3 + 1;
-      return [0, 1, 2].map(i => ({ mes: inicio + i, ano: periodo.ano }));
+  // ===== DESENHO DA LISTA =====
+  function subDe(l) {
+    if (l.nivel === 'loja') return TIPO_LOJA[l.unidade.tipo] || '';
+    const loja = lojaDe(l.unidade.lojaId);
+    return loja ? loja.nome : 'Autônomo, sem loja';
+  }
+  function celulaAting(l) {
+    if (l.pct === null) return '<span class="vol-sub">sem meta para medir</span>';
+    const s = SIT_META[l.sit];
+    const larg = Math.max(0, Math.min(100, l.pct));
+    return '<div class="ating"><span class="ating-trilho"><span class="ating-barra" style="width:' +
+      larg.toFixed(0) + '%; background:' + s.cor + ';"></span></span>' +
+      '<span class="ating-pct">' + l.pct.toFixed(0) + '%</span></div>';
+  }
+  function celulaRitmo(l) {
+    const tempo = tempoDoMes(mesSel, anoSel);
+    if (l.meta === null) return '—';
+    if (tempo < 0) return '<span class="vol-sub">mês fechado</span>';
+    if (tempo > 0) return '<span class="vol-sub">ainda não começou</span>';
+    const linha2 = l.falta === 0 ? 'meta já batida'
+      : (l.porDia !== null ? moeda(l.porDia) + ' por dia para bater' : 'último dia do mês');
+    return moeda(l.esperado) + '<span class="vol-sub">' + linha2 + '</span>';
+  }
+
+  function render() {
+    const lista = filtradas();
+    const corpo = document.getElementById('corpoTabela');
+    texto('thNome', nivel === 'loja' ? 'Loja' : 'Vendedor');
+
+    corpo.innerHTML = lista.map(function (l) {
+      const s = SIT_META[l.sit];
+      return '<tr data-id="' + l.id + '">' +
+        '<td class="col-texto"><span class="vol-nome">' + l.nome + '</span><span class="vol-sub">' + subDe(l) + '</span></td>' +
+        '<td>' + (l.meta === null ? '<span class="vol-sub">sem meta</span>' : moeda(l.meta)) + '</td>' +
+        '<td>' + moeda(l.real) + (l.falta ? '<span class="vol-sub">faltam ' + moeda(l.falta) + '</span>' : '') + '</td>' +
+        '<td class="col-texto">' + celulaAting(l) + '</td>' +
+        '<td>' + celulaRitmo(l) + '</td>' +
+        '<td class="col-texto"><span class="badge-situacao ' + s.selo + '"><span class="sit-dot ' + s.ponto + '"></span>' + s.rotulo + '</span></td>' +
+      '</tr>';
+    }).join('');
+    corpo.querySelectorAll('tr').forEach(function (tr) {
+      tr.addEventListener('click', function () { abrirPainel(nivel, Number(tr.getAttribute('data-id'))); });
+    });
+
+    const vazio = lista.length === 0;
+    document.querySelector('.estoque-table-wrap').style.display = vazio ? 'none' : '';
+    document.getElementById('emptyState').style.display = vazio ? '' : 'none';
+
+    const nomeN = nivel === 'loja' ? ['loja', 'lojas'] : ['vendedor', 'vendedores'];
+    texto('contagemLinhas', lista.length + ' ' + (lista.length === 1 ? nomeN[0] : nomeN[1]));
+    texto('somaFiltro', moeda(lista.reduce(function (s, l) { return s + (l.meta || 0); }, 0)));
+
+    document.querySelectorAll('#abasNivel .sit-contador').forEach(function (el) {
+      el.textContent = unidadesDe(el.getAttribute('data-cont')).length;
+    });
+    document.querySelectorAll('.estoque-table th.ordenavel').forEach(function (th) {
+      const ativo = th.getAttribute('data-ordem') === ordem;
+      th.classList.toggle('ordenado', ativo);
+      const seta = th.querySelector('.seta');
+      if (seta) seta.textContent = ativo ? (asc ? '▲' : '▼') : '▲';
+    });
+    pintarKpis();
+    pintarAviso();
+  }
+
+  // Os KPIs somam o NIVEL da aba, sem a busca: sao o retrato do mes, e nao
+  // podem mudar porque alguem digitou um nome no campo.
+  function pintarKpis() {
+    const todas = linhasDoNivel(nivel);
+    const comMeta = todas.filter(function (l) { return l.meta !== null; });
+    const meta = comMeta.reduce(function (s, l) { return s + l.meta; }, 0);
+    const real = comMeta.reduce(function (s, l) { return s + l.real; }, 0);
+    const tempo = tempoDoMes(mesSel, anoSel);
+    const dias = diasNoMes(mesSel, anoSel);
+    const semMeta = todas.length - comMeta.length;
+    const abaixo = todas.filter(function (l) { return l.sit === 'abaixo' || l.sit === 'naobatida'; });
+
+    texto('kpiMeta', moeda(meta));
+    texto('kpiMetaSub', NOMES_MES[mesSel - 1] + ' de ' + anoSel +
+      (semMeta ? ' · ' + semMeta + ' sem meta' : ''));
+    texto('kpiReal', moeda(real));
+    texto('kpiRealSub', tempo === 0 ? 'até ' + fmtData(HOJE) + ', dia ' + DIA_HOJE + ' de ' + dias
+      : (tempo < 0 ? 'mês fechado' : 'o mês ainda não começou'));
+    texto('kpiAting', meta ? (real / meta * 100).toFixed(0) + '%' : '—');
+    if (tempo === 0 && meta) {
+      const esperado = meta * DIA_HOJE / dias;
+      const dif = real - esperado;
+      texto('kpiAtingSub', (dif >= 0 ? moeda(dif) + ' à frente' : moeda(-dif) + ' atrás') + ' do ritmo');
+    } else {
+      texto('kpiAtingSub', meta ? 'faltaram ' + moeda(Math.max(0, meta - real)) : 'sem meta no mês');
     }
-    if (modoAtual === 'anual') return Array.from({ length: 12 }, (_, i) => ({ mes: i + 1, ano: periodo.anoAnual }));
-    // progressivo: 12 meses a partir do mês/ano inicial, virando o ano quando passar de Dez
+    texto('kpiAbaixo', abaixo.length);
+    texto('kpiAbaixoSub', abaixo.length
+      ? abaixo.map(function (l) { return l.nome; }).slice(0, 2).join(', ') + (abaixo.length > 2 ? ' e mais ' + (abaixo.length - 2) : '')
+      : (tempo > 0 ? 'o mês ainda não começou' : 'ninguém atrás neste mês'));
+  }
+
+  // O aviso diz o que NAO FECHA entre os dois niveis. Sem ele, loja e vendedor
+  // seriam duas listas que ninguem compara.
+  function pintarAviso() {
+    const partes = [];
+    LOJAS.forEach(function (loja) {
+      const d = diferencaDaLoja(loja, mesSel, anoSel);
+      if (d.metaLoja === null) {
+        if (d.soma > 0) partes.push('<b>' + loja.nome + '</b> não tem meta, mas os vendedores dela somam ' + moeda(d.soma));
+        return;
+      }
+      if (d.soma === 0) return;
+      if (Math.abs(d.dif) < 0.005) return;
+      partes.push('<b>' + loja.nome + '</b>: os vendedores somam ' + moeda(d.soma) + ', ' +
+        moeda(Math.abs(d.dif)) + (d.dif < 0 ? ' abaixo' : ' acima') + ' da meta da loja');
+    });
+    const autonomos = VENDEDORES.filter(function (v) { return v.ativo && v.lojaId === null; }).length;
+    const fim = autonomos ? ' ' + autonomos + (autonomos === 1 ? ' vendedor autônomo tem' : ' vendedores autônomos têm') +
+      ' meta própria e não entra em soma de loja.' : '';
+    html('avisoMetasTexto', partes.length
+      ? partes.join(' · ') + '. A diferença é o que a vitrine vende sem vendedor, ou meta que ainda falta distribuir.' + fim
+      : 'As metas dos vendedores fecham com as das lojas neste mês.' + fim);
+  }
+
+  // ===== PAINEL DE LEITURA: os doze meses de quem foi clicado =====
+  function abrirPainel(n, id) {
+    const u = (n === 'loja' ? LOJAS : VENDEDORES).filter(function (x) { return x.id === id; })[0];
+    if (!u) return;
+    const l = linhaDe(n, u, mesSel, anoSel);
+    const s = SIT_META[l.sit];
+    texto('drawerTitulo', u.nome);
+
+    const anterior = realizadoDe(n, id, mesSel, anoSel - 1);
+    let corpo =
+      '<div class="drawer-badges"><span class="badge-situacao ' + s.selo + '"><span class="sit-dot ' + s.ponto + '"></span>' + s.rotulo + '</span></div>' +
+      '<div class="rt-sub">' + NOMES_MES[mesSel - 1] + ' de ' + anoSel + '</div>' +
+      '<div class="rt-linha"><span class="chave-rotulo">Meta</span><span class="chave-valor">' + (l.meta === null ? 'sem meta' : moeda(l.meta)) + '</span></div>' +
+      '<div class="rt-linha"><span class="chave-rotulo">Realizado</span><span class="chave-valor">' + moeda(l.real) + '</span></div>' +
+      '<div class="rt-linha"><span class="chave-rotulo">Atingimento</span><span class="chave-valor">' + (l.pct === null ? '—' : l.pct.toFixed(1).replace('.', ',') + '%') + '</span></div>' +
+      '<div class="rt-linha"><span class="chave-rotulo">Falta</span><span class="chave-valor">' + (l.falta === null ? '—' : moeda(l.falta)) + '</span></div>';
+    if (tempoDoMes(mesSel, anoSel) === 0 && l.meta !== null) {
+      corpo +=
+        '<div class="rt-linha"><span class="chave-rotulo">Ritmo até hoje</span><span class="chave-valor">' + moeda(l.esperado) + '</span></div>' +
+        '<div class="rt-linha"><span class="chave-rotulo">Por dia para bater</span><span class="chave-valor">' + (l.porDia === null ? '—' : moeda(l.porDia)) + '</span></div>';
+    }
+    // Mesmo mes do ano anterior: e a comparacao que o Olist oferece, e a unica
+    // que desconta a sazonalidade sem precisar de modelo.
+    corpo += '<div class="rt-linha"><span class="chave-rotulo">' + MES_CURTO[mesSel - 1] + ' de ' + (anoSel - 1) + '</span><span class="chave-valor">' +
+      (anterior ? moeda(anterior) + ' realizado' : 'sem venda registrada') + '</span></div>';
+
+    corpo += '<div class="rt-sub">O ano de ' + anoSel + '</div><table class="meta-ano"><thead><tr><th>Mês</th><th>Meta</th><th>Realizado</th><th>%</th></tr></thead><tbody>';
+    for (let m = 1; m <= 12; m++) {
+      const meta = metaDe(n, id, m, anoSel);
+      const real = realizadoDe(n, id, m, anoSel);
+      const futuro = tempoDoMes(m, anoSel) > 0;
+      corpo += '<tr' + (m === mesSel ? ' class="atual"' : '') + '><td>' + MES_CURTO[m - 1] + '</td>' +
+        '<td>' + (meta === null ? '—' : moeda(meta)) + '</td>' +
+        '<td>' + (futuro ? '—' : moeda(real)) + '</td>' +
+        '<td>' + (meta && !futuro ? (real / meta * 100).toFixed(0) + '%' : '—') + '</td></tr>';
+    }
+    corpo += '</tbody></table>';
+    corpo += '<div class="drawer-footer"><button class="btn-primary" id="btnDefinirDaqui">Definir meta</button>' +
+      '<div class="drawer-link" id="btnFecharPainel">Fechar</div></div>';
+
+    html('drawerCorpo', corpo);
+    document.getElementById('btnFecharPainel').addEventListener('click', fecharDrawer);
+    document.getElementById('btnDefinirDaqui').addEventListener('click', function () {
+      fecharDrawer();
+      abrirDefinir(n + ':' + id);
+    });
+    document.getElementById('drawerBackdrop').classList.add('open');
+    eventDrawer.classList.add('open');
+  }
+  function fecharDrawer() {
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    eventDrawer.classList.remove('open');
+    fecharDefinir();
+  }
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
+
+  // ===== PAINEL DE ESCRITA: definir meta =====
+  const MODOS = [
+    { id: 'mensal',      rotulo: 'Um mês',
+      nota: 'Grava a meta de um mês só.' },
+    { id: 'trimestral',  rotulo: 'Um trimestre',
+      nota: 'Você informa o total do trimestre e ele é dividido igualmente nos três meses.' },
+    { id: 'anual',       rotulo: 'O ano inteiro',
+      nota: 'Você informa o total do ano e ele é dividido igualmente nos doze meses.' },
+    { id: 'progressivo', rotulo: 'Doze meses crescendo',
+      nota: 'Você informa a meta do primeiro mês e quanto ela cresce a cada mês seguinte.' }
+  ];
+  const TRIMESTRES = ['1º trimestre', '2º trimestre', '3º trimestre', '4º trimestre'];
+
+  function setDrop(id, valor, rotulo) {
+    const raiz = document.getElementById(id);
+    raiz.setAttribute('data-value', valor);
+    const lab = raiz.querySelector('.dropdown-select-label');
+    if (lab) lab.textContent = rotulo;
+    raiz.querySelectorAll('.dropdown-select-item').forEach(function (it) {
+      it.classList.toggle('active', it.getAttribute('data-value') === String(valor));
+    });
+  }
+  function valDrop(id) { return document.getElementById(id).getAttribute('data-value'); }
+  function montar(idMenu, itens) {
+    document.getElementById(idMenu).innerHTML = itens.map(function (o) {
+      return '<div class="dropdown-select-item" data-value="' + o.v + '">' + o.t + '</div>';
+    }).join('');
+  }
+  function rotuloAlvo(chave) {
+    const p = chave.split(':');
+    const lista = p[0] === 'loja' ? LOJAS : VENDEDORES;
+    const u = lista.filter(function (x) { return x.id === Number(p[1]); })[0];
+    return u ? (p[0] === 'loja' ? 'Loja · ' : 'Vendedor · ') + u.nome : '';
+  }
+
+  // Lista de {mes, ano, valor} que a escolha atual vai gravar. E a mesma lista
+  // que alimenta a PREVIA e o salvar: o que a pessoa ve e o que entra.
+  function numero(txt) {
+    const bruto = String(txt || '').trim().replace(/\./g, '').replace(',', '.');
+    if (bruto === '' || isNaN(Number(bruto))) return null;
+    return Number(bruto);
+  }
+  function mesesAGravar() {
+    const modo = valDrop('defModo');
+    const ano = Number(valDrop('defAno'));
+    const valor = numero(document.getElementById('defValor').value);
+    if (valor === null || valor <= 0) return [];
+    if (modo === 'mensal') return [{ mes: Number(valDrop('defMes')), ano: ano, valor: valor }];
+    if (modo === 'trimestral') {
+      const ini = (Number(valDrop('defTri')) - 1) * 3 + 1;
+      return [0, 1, 2].map(function (i) { return { mes: ini + i, ano: ano, valor: valor / 3 }; });
+    }
+    if (modo === 'anual') {
+      const lista = [];
+      for (let m = 1; m <= 12; m++) lista.push({ mes: m, ano: ano, valor: valor / 12 });
+      return lista;
+    }
+    const pct = numero(document.getElementById('defPct').value);
+    if (pct === null) return [];
     const lista = [];
-    let m = periodo.mesInicial, a = periodo.anoInicial;
+    let m = Number(valDrop('defMes')), a = ano;
     for (let i = 0; i < 12; i++) {
-      lista.push({ mes: m, ano: a });
+      lista.push({ mes: m, ano: a, valor: valor * Math.pow(1 + pct / 100, i) });
       m++; if (m > 12) { m = 1; a++; }
     }
     return lista;
   }
 
-  function algumMesJaFechou(meses) {
-    return meses.some(p => p.ano < CURRENT_ANO || (p.ano === CURRENT_ANO && p.mes < CURRENT_MES));
-  }
+  function pintarDefinir() {
+    const modo = valDrop('defModo');
+    const m = MODOS.filter(function (x) { return x.id === modo; })[0];
+    texto('defModoHint', m.nota);
+    document.getElementById('campoDefMes').style.display = (modo === 'mensal' || modo === 'progressivo') ? '' : 'none';
+    document.getElementById('campoDefTri').style.display = modo === 'trimestral' ? '' : 'none';
+    document.getElementById('campoDefPct').style.display = modo === 'progressivo' ? '' : 'none';
+    texto('rotDefMes', modo === 'progressivo' ? 'Primeiro mês' : 'Mês');
+    texto('rotDefAno', modo === 'progressivo' ? 'Ano do primeiro mês' : 'Ano');
+    texto('rotDefValor', { mensal: 'Meta do mês (R$)', trimestral: 'Total do trimestre (R$)',
+      anual: 'Total do ano (R$)', progressivo: 'Meta do primeiro mês (R$)' }[modo]);
 
-  function valorExistente(lojaId, meses) {
-    const registros = meses.map(p => METAS.find(m => m.lojaId === lojaId && m.mes === p.mes && m.ano === p.ano));
-    if (registros.some(r => !r)) return null; // período parcialmente preenchido — não arrisca mostrar soma errada
-    return registros.reduce((soma, r) => soma + r.valor, 0);
-  }
-
-  // ===== GRID =====
-  function renderGrid() {
-    const container = document.getElementById('gridMetas');
-    const meses = mesesDoPeriodo();
-    const lojas = LOJAS.filter(l => filtroTipoAtual === 'todos' || l.tipo === filtroTipoAtual);
-
-    container.innerHTML = lojas.map(loja => {
-      const avatar = '<div class="profile-avatar" style="background:' + COR_POR_TIPO[loja.tipo] + ';">' + iniciais(loja.nome) + '</div>';
-      const nome = '<span class="meta-nome">' + loja.nome + ' <span class="tipo-tag" style="margin-left:6px;">' + TIPO_LABEL[loja.tipo] + '</span></span>';
-
-      if (modoAtual === 'progressivo') {
-        return '<div class="meta-row" data-loja="' + loja.id + '">' + avatar + nome +
-          '<span class="meta-row-hint">Base R$</span><input type="text" data-campo="base" placeholder="0,00">' +
-          '<span class="meta-row-hint">% ao mês</span><input type="text" data-campo="pct" placeholder="0"></div>';
-      }
-
-      const existente = valorExistente(loja.id, meses);
-      const label = modoAtual === 'mensal' ? 'Meta R$' : (modoAtual === 'trimestral' ? 'Total tri R$' : 'Total ano R$');
-      return '<div class="meta-row" data-loja="' + loja.id + '">' + avatar + nome +
-        '<span class="meta-row-hint">' + label + '</span>' +
-        '<input type="text" data-campo="valor" placeholder="0,00" value="' + (existente !== null ? existente : '') + '"></div>';
+    // PREVIA: os meses que vao ser gravados, com o que ja existia em cada um.
+    // Sobrescrever sem mostrar o valor antigo era o que a tela fazia.
+    const alvo = valDrop('defAlvo');
+    const lista = mesesAGravar();
+    const raiz = document.getElementById('defPrevia');
+    if (!alvo || !lista.length) {
+      raiz.innerHTML = '<div class="meta-previa-vazia">' +
+        (!alvo ? 'Escolha para quem é a meta.' : 'Informe o valor para ver os meses que serão gravados.') + '</div>';
+      return;
+    }
+    const p = alvo.split(':');
+    raiz.innerHTML = lista.map(function (x) {
+      const antigo = metaDe(p[0], Number(p[1]), x.mes, x.ano);
+      const obs = [];
+      if (tempoDoMes(x.mes, x.ano) < 0) obs.push('mês já fechado');
+      if (antigo !== null) obs.push(Math.abs(antigo - x.valor) < 0.005 ? 'igual à atual' : 'substitui ' + moeda(antigo));
+      return '<div class="meta-previa-linha"><span class="meta-previa-mes">' + MES_CURTO[x.mes - 1] + ' ' + x.ano + '</span>' +
+        '<span class="meta-previa-obs">' + (obs.join(' · ') || 'meta nova') + '</span>' +
+        '<span class="meta-previa-valor">' + moeda(x.valor) + '</span></div>';
     }).join('');
   }
 
-  document.querySelectorAll('#filtroTipo button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#filtroTipo button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filtroTipoAtual = btn.getAttribute('data-filtro');
-      renderGrid();
+  function abrirDefinir(alvo) {
+    setDrop('defAlvo', alvo || '', alvo ? rotuloAlvo(alvo) : 'Escolha a loja ou o vendedor');
+    setDrop('defModo', 'mensal', 'Um mês');
+    setDrop('defMes', mesSel, NOMES_MES[mesSel - 1]);
+    setDrop('defTri', Math.ceil(mesSel / 3), TRIMESTRES[Math.ceil(mesSel / 3) - 1]);
+    setDrop('defAno', anoSel, String(anoSel));
+    document.getElementById('defValor').value = '';
+    document.getElementById('defPct').value = '';
+    document.getElementById('campoAlvo').classList.remove('has-error');
+    document.getElementById('campoDefValor').classList.remove('has-error');
+    document.getElementById('campoDefPct').classList.remove('has-error');
+    pintarDefinir();
+    document.getElementById('defBackdrop').classList.add('open');
+    defDrawer.classList.add('open');
+  }
+  function fecharDefinir() {
+    document.getElementById('defBackdrop').classList.remove('open');
+    defDrawer.classList.remove('open');
+  }
+
+  function salvarMeta() {
+    const alvo = valDrop('defAlvo');
+    const lista = mesesAGravar();
+    document.getElementById('campoAlvo').classList.toggle('has-error', !alvo);
+    const valor = numero(document.getElementById('defValor').value);
+    document.getElementById('campoDefValor').classList.toggle('has-error', valor === null || valor <= 0);
+    const progressivo = valDrop('defModo') === 'progressivo';
+    const pct = numero(document.getElementById('defPct').value);
+    document.getElementById('campoDefPct').classList.toggle('has-error', progressivo && pct === null);
+    if (!alvo || !lista.length) return;
+
+    const p = alvo.split(':');
+    const fechados = lista.filter(function (x) { return tempoDoMes(x.mes, x.ano) < 0; }).length;
+    const trocados = lista.filter(function (x) {
+      const antigo = metaDe(p[0], Number(p[1]), x.mes, x.ano);
+      return antigo !== null && Math.abs(antigo - x.valor) >= 0.005;
+    }).length;
+
+    // Mexer em mes FECHADO e outro ato: muda a regua de uma comparacao que ja
+    // foi feita. Tem chave propria, e essa pede senha.
+    const chave = fechados ? 'metasAlteraFechado' : 'metasDefine';
+    let frase = 'Gravar ' + lista.length + (lista.length === 1 ? ' mês' : ' meses') + ' de meta para ' + rotuloAlvo(alvo) + '.';
+    if (trocados) frase += ' ' + trocados + (trocados === 1 ? ' mês já tinha meta e vai ser substituído.' : ' meses já tinham meta e vão ser substituídos.');
+    if (fechados) frase += ' ' + fechados + (fechados === 1 ? ' deles já fechou' : ' deles já fecharam') +
+      ': alterar a meta agora muda a comparação com um realizado que já aconteceu.';
+
+    confirmarAcao(chave, frase, function () {
+      lista.forEach(function (x) {
+        const ja = METAS.filter(function (m) { return m.nivel === p[0] && m.id === Number(p[1]) && m.mes === x.mes && m.ano === x.ano; })[0];
+        if (ja) ja.valor = x.valor;
+        else METAS.push({ nivel: p[0], id: Number(p[1]), mes: x.mes, ano: x.ano, valor: x.valor });
+      });
+      fecharDefinir();
+      render();
+      avisar('Meta gravada em ' + lista.length + (lista.length === 1 ? ' mês.' : ' meses.') +
+             ' No protótipo nada persiste ao recarregar a página.');
+    });
+  }
+
+  // Os menus do painel nascem AQUI, com a tela (design system 9.3).
+  (function ligarDefinir() {
+    montar('menuDefAlvo',
+      LOJAS.map(function (l) { return { v: 'loja:' + l.id, t: 'Loja · ' + l.nome }; }).concat(
+      VENDEDORES.filter(function (v) { return v.ativo; }).map(function (v) { return { v: 'vendedor:' + v.id, t: 'Vendedor · ' + v.nome }; })));
+    montar('menuDefModo', MODOS.map(function (m) { return { v: m.id, t: m.rotulo }; }));
+    montar('menuDefMes', NOMES_MES.map(function (n, i) { return { v: i + 1, t: n }; }));
+    montar('menuDefTri', TRIMESTRES.map(function (n, i) { return { v: i + 1, t: n }; }));
+    montar('menuDefAno', ANOS.map(function (a) { return { v: a, t: String(a) }; }));
+    ['defAlvo', 'defModo', 'defMes', 'defTri', 'defAno'].forEach(function (id) {
+      const raiz = document.getElementById(id);
+      inicializarDropdownSelect(raiz, function (v) {
+        const item = raiz.querySelector('.dropdown-select-item[data-value="' + v + '"]');
+        setDrop(id, v, item ? item.textContent : v);
+        pintarDefinir();
+      });
+    });
+    document.getElementById('defValor').addEventListener('input', pintarDefinir);
+    document.getElementById('defPct').addEventListener('input', pintarDefinir);
+    document.getElementById('defSalvar').addEventListener('click', salvarMeta);
+    document.getElementById('defCancelar').addEventListener('click', fecharDefinir);
+    document.getElementById('defClose').addEventListener('click', fecharDefinir);
+    document.getElementById('defBackdrop').addEventListener('click', fecharDefinir);
+    document.getElementById('btnDefinirMeta').addEventListener('click', function () { abrirDefinir(''); });
+  })();
+
+  // ===== ABAS, ORDENACAO, BUSCA E FILTROS =====
+  document.querySelectorAll('#abasNivel .aba-sit').forEach(function (aba) {
+    aba.addEventListener('click', function () {
+      document.querySelectorAll('#abasNivel .aba-sit').forEach(function (a) { a.classList.remove('active'); });
+      aba.classList.add('active');
+      nivel = aba.getAttribute('data-nivel');
+      render();
     });
   });
-
-  // ===== MODAL DE CONFIRMAÇÃO (reutilizado — editar período já fechado) =====
-  let confirmAoConfirmarCallback = null;
-  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    const cienteRow = document.getElementById('confirmCienteRow');
-    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-    document.getElementById('confirmCienteCheckbox').checked = false;
-    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
-    cienteRow.style.display = quantidade > 1 ? 'flex' : 'none';
-    btnConfirmar.disabled = quantidade > 1;
-    confirmAoConfirmarCallback = aoConfirmar;
-    document.getElementById('confirmModalBackdrop').classList.add('open');
-    document.getElementById('confirmModal').classList.add('open');
-  }
-  function fecharModalConfirmacao() {
-    document.getElementById('confirmModalBackdrop').classList.remove('open');
-    document.getElementById('confirmModal').classList.remove('open');
-    confirmAoConfirmarCallback = null;
-  }
-  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
-    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  document.querySelectorAll('.estoque-table th.ordenavel').forEach(function (th) {
+    th.addEventListener('click', function () {
+      const campo = th.getAttribute('data-ordem');
+      if (ordem === campo) asc = !asc; else { ordem = campo; asc = true; }
+      render();
+    });
   });
-  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
-    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
-    const callback = confirmAoConfirmarCallback;
-    fecharModalConfirmacao();
-    if (callback) callback();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) fecharModalConfirmacao();
+  document.getElementById('campoBusca').addEventListener('input', function (e) { busca = e.target.value; render(); });
+
+  (function ligarFiltros() {
+    montar('menuFiltroMes', NOMES_MES.map(function (n, i) { return { v: i + 1, t: n }; }));
+    montar('menuFiltroAno', ANOS.map(function (a) { return { v: a, t: String(a) }; }));
+    montar('menuFiltroSituacao', [{ v: 'todas', t: 'Qualquer situação' }].concat(
+      Object.keys(SIT_META).map(function (k) { return { v: k, t: SIT_META[k].rotulo }; })));
+    setDrop('filtroMes', mesSel, NOMES_MES[mesSel - 1]);
+    setDrop('filtroAno', anoSel, String(anoSel));
+    setDrop('filtroSituacao', 'todas', 'Qualquer situação');
+    inicializarDropdownSelect(document.getElementById('filtroMes'), function (v) {
+      mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES[mesSel - 1]); render();
+    });
+    inicializarDropdownSelect(document.getElementById('filtroAno'), function (v) {
+      anoSel = Number(v); setDrop('filtroAno', v, String(v)); render();
+    });
+    inicializarDropdownSelect(document.getElementById('filtroSituacao'), function (v) {
+      fSit = v; setDrop('filtroSituacao', v, v === 'todas' ? 'Qualquer situação' : SIT_META[v].rotulo); render();
+    });
+  })();
+
+  document.getElementById('btnLimparFiltros').addEventListener('click', function () {
+    busca = ''; fSit = 'todas';
+    document.getElementById('campoBusca').value = '';
+    setDrop('filtroSituacao', 'todas', 'Qualquer situação');
+    render();
   });
 
-  // ===== SALVAR =====
-  function gravarMetas() {
-    const meses = mesesDoPeriodo();
-    document.querySelectorAll('.meta-row').forEach(row => {
-      const lojaId = Number(row.getAttribute('data-loja'));
-      // limpa os meses afetados pra essa loja antes de regravar (evita duplicar)
-      METAS = METAS.filter(m => !(m.lojaId === lojaId && meses.some(p => p.mes === m.mes && p.ano === m.ano)));
-
-      if (modoAtual === 'progressivo') {
-        const base = parseFloat(row.querySelector('[data-campo="base"]').value.replace(',', '.')) || 0;
-        const pct = parseFloat(row.querySelector('[data-campo="pct"]').value.replace(',', '.')) || 0;
-        let valorMes = base;
-        meses.forEach((p, i) => {
-          if (i > 0) valorMes = valorMes * (1 + pct / 100);
-          METAS.push({ lojaId, mes: p.mes, ano: p.ano, valor: Math.round(valorMes) });
-        });
-      } else {
-        const total = parseFloat(row.querySelector('[data-campo="valor"]').value.replace(',', '.')) || 0;
-        const porMes = Math.round(total / meses.length);
-        meses.forEach(p => METAS.push({ lojaId, mes: p.mes, ano: p.ano, valor: porMes }));
+  // ===== MAIS AÇÕES =====
+  const menuMais = document.getElementById('menuMaisAcoes');
+  inicializarDropdownSelect(menuMais, null);
+  menuMais.querySelectorAll('.dropdown-select-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      menuMais.classList.remove('open');
+      const acao = item.getAttribute('data-acao');
+      if (acao === 'performance') { window.location.href = 'pagina-vendas-performance-vendas.html'; return; }
+      if (acao === 'lojas') { window.location.href = 'pagina-cadastros-lojas-desk.html'; return; }
+      if (acao === 'vendedores') { window.location.href = 'pagina-cadastros-vendedores.html'; return; }
+      if (acao === 'exportar') {
+        avisar('A exportação para planilha entra junto com os relatórios de Vendas. Por enquanto a lista filtrada é o que existe.');
       }
     });
-    renderGrid();
-    marcarSalvo();
-    const btn = document.getElementById('btnSalvarMetas');
-    const textoOriginal = btn.textContent;
-    btn.textContent = 'Metas salvas ✓';
-    setTimeout(() => { btn.textContent = textoOriginal; }, 1600);
-  }
-
-  document.getElementById('btnSalvarMetas').addEventListener('click', () => {
-    const meses = mesesDoPeriodo();
-    if (algumMesJaFechou(meses)) {
-      abrirModalConfirmacao('Parte desse período já fechou — alterar a meta agora pode mascarar a comparação com o realizado. Confirma mesmo assim?', 1, 'primary', gravarMetas);
-    } else {
-      gravarMetas();
-    }
   });
 
-  renderSeletorPeriodo();
-  renderGrid();
-
-  // ------------------------------------------------- rodape de salvar
-  // A barra diz, o tempo todo, quantas celulas divergem do ultimo salvamento.
-  // Aqui nao existe formulario: o que a pessoa mexe e a grade.
-  const RODAPE = { limpo: null };
-  function estadoDoFormulario() {
-    return [...document.querySelectorAll('.main input')]
-      .map((el, i) => i + ':' + el.value).join('|');
-  }
-  function camposAlterados() {
-    if (RODAPE.limpo === null) return 0;
-    const antes = RODAPE.limpo.split('|');
-    const agora = estadoDoFormulario().split('|');
-    let n = 0;
-    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
-      if (antes[i] !== agora[i]) n++;
-    }
-    return n;
-  }
-  function temPendencia() { return camposAlterados() > 0; }
-  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
-  function atualizarRodape() {
-    const info = document.getElementById('infoPendente');
-    if (!info) return;
-    const n = camposAlterados();
-    info.textContent = n === 0
-      ? 'Nenhuma alteração pendente.'
-      : n + (n === 1 ? ' meta alterada' : ' metas alteradas') + ', ainda não salvo.';
-  }
-  document.addEventListener('input', atualizarRodape);
-  document.addEventListener('change', atualizarRodape);
-  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
-  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
-  // demais, ele congela uma grade vazia e a barra passa a mentir.
-  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
-  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
-  marcarSalvo();
+  render();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -1525,6 +2610,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
+
 
 </script>
 

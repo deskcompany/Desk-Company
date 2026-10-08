@@ -61,6 +61,8 @@
 | ❌ | Relatórios de Vendas |
 
 > ~~**Metas** existe e funciona, mas **não tem item no menu**.~~ **Resolvido em 08/out:** o item existia em **6 telas** e faltava em **64** — quem estivesse em qualquer outra não chegava lá pelo menu. Agora são 70 de 70.
+>
+> **Metas e Performance refeitas em 08/out.** Metas virou listagem com painel lateral (loja e vendedor, realizado dos pedidos faturados, ritmo por dias corridos). Performance lê o **mesmo bloco de dados** e a suíte `teste_metas.py` compara os dois. Pendências: **Desk Flash não está no cadastro de Lojas Desk**, então Metas mostra 3 lojas; e o detalhe de Lojas Desk e o Dashboard de KPIs ainda têm números de meta próprios. Ver §14.42.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |

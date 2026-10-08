@@ -19,7 +19,7 @@
     --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0; --divisor: #CFCBBD;
     --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
     --brand-blue: #2563EB; --logo-color: #2979FF;
-    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623; --negativo: #9F1239;
+    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
     --chart-1: #0A4EE4; --chart-2: #6B93F2; --chart-3: #B7C7F5;
     --card-bg: #FFFFFF;
   }
@@ -27,7 +27,7 @@
     --page-bg: #101010; --panel-bg: #101010; --border: #262626; --divisor: #363636;
     --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
     --brand-blue: #2563EB; --logo-color: #FFFFFF;
-    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623; --negativo: #D96B80;
+    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
     --chart-1: #9DB8F0; --chart-2: #4C6FC4; --chart-3: #263A73;
     --card-bg: #17181C;
   }
@@ -100,6 +100,43 @@
 
   /* ===== KPI CARD ===== */
   .kpi-card { border-left:3px solid; }
+
+  /* ABAS CONTADORAS. Cabem aqui porque sao quatro situacoes; no Rastreamento,
+     com dez, a medicao de 02/out mostrou que nao cabem a 1440px. */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* Cores das situacoes da devolucao, aferidas contra o fundo da pagina nos dois temas. */
+  .dev-aberta     { background:#B45309; }
+  .dev-andamento  { background:#0A4EE4; }
+  .dev-finalizada { background:#15803D; }
+  .dev-cancelada  { background:#6B7280; }
+  body.dark .dev-aberta     { background:#F5A623; }
+  body.dark .dev-andamento  { background:#4D8DFF; }
+  body.dark .dev-finalizada { background:#34C759; }
+  body.dark .dev-cancelada  { background:#9AA0A6; }
+
+  .bd-aberta     { background:rgba(180,83,9,0.12);  color:#B45309; }
+  .bd-andamento  { background:var(--active-bg);     color:var(--active-text); }
+  .bd-finalizada { background:rgba(21,128,61,0.12); color:#15803D; }
+  .bd-cancelada  { background:rgba(107,114,128,0.14); color:#6B7280; }
+  body.dark .bd-aberta     { background:rgba(245,166,35,0.16); color:#F5A623; }
+  body.dark .bd-finalizada { background:rgba(52,199,89,0.16);  color:#34C759; }
+  body.dark .bd-cancelada  { background:rgba(154,160,166,0.18); color:#C7CBD1; }
+
+  .dev-item { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+  .dev-item:last-child { border-bottom:none; }
+  .dev-item.sel { background:var(--active-bg); border-radius:9px; padding-left:9px; padding-right:9px; }
+  .dev-item-nome { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .dev-item-sub { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .dev-item-valor { margin-left:auto; font-size:13px; font-weight:800; color:var(--text-heading); white-space:nowrap; }
+  .fora-prazo { font-weight:800; color:#B45309; }
+  body.dark .fora-prazo { color:#F5A623; }
   .kpi-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text); margin-bottom:10px; }
   .kpi-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:var(--text-heading); margin-bottom:6px; }
   .kpi-delta { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:4px; }
@@ -304,48 +341,36 @@
 
   .header-actions { display:flex; align-items:center; gap:10px; }
 
-  .categorias-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
 
-  .form-row { display:flex; gap:12px; flex-wrap:wrap; }
-  .form-field { flex:1; min-width:120px; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-
-  .dropdown-select { position:relative; }
-  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; white-space:nowrap; gap:8px; }
-  .dropdown-select-btn:hover { background: rgba(120,120,140,0.08); }
-  .dropdown-select-btn svg { width:13px; height:13px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select { position:relative; flex-shrink:0; }
+  .dropdown-select-btn.pill { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  .dropdown-select-btn.pill:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
+  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
+  .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
-  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13.5px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; }
+  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
   .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
-  .meta-row { display:flex; align-items:center; gap:14px; padding:13px 4px; border-top:1px solid var(--border); }
-  .meta-row:first-of-type { border-top:none; }
-  .meta-row .profile-avatar { width:38px; height:38px; font-size:13px; }
-  .meta-nome { flex:1; min-width:0; font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .meta-row input[type="text"] { width:150px; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:8px 10px; outline:none; text-align:right; }
-  .meta-row input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .meta-row-hint { font-size:11px; color:var(--text); width:70px; flex-shrink:0; }
-
-  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  /* ===== CADASTROS > MARCAS (listagem) ===== */
+  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
   .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
-  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
-  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
-  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
 
-  .selecao-bar { display:none; align-items:center; justify-content:space-between; gap:14px; padding:12px 16px; margin-top:14px; margin-bottom:6px; background: var(--active-bg); border-radius:12px; flex-wrap:wrap; }
+  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .parent-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
+
+  .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
   .selecao-bar.show { display:flex; }
-  .selecao-info { font-size:13px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
-  .selecao-acoes { display:flex; align-items:center; gap:14px; }
+  .selecao-info { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .selecao-acoes { display:flex; align-items:center; gap:14px; margin-left:auto; }
 
-  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:4px 4px 14px; font-size:12.5px; color:var(--text); font-weight:600; font-family:'Nunito',sans-serif; }
-  .selecionar-todos-row label { cursor:pointer; user-select:none; }
+  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; }
   .item-checkbox, .checkbox-todos {
     appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
     border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
@@ -365,47 +390,30 @@
     background:#fff; border-radius:1px;
   }
 
-  .loja-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
-  .loja-card:first-of-type { border-top:none; }
-  .loja-card:hover { background: rgba(120,120,140,0.06); }
-  .loja-info { flex:1; min-width:0; }
-  .loja-nome-row { display:flex; align-items:center; gap:8px; }
-  .loja-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
-  .loja-meta { font-size:12px; color:var(--text); margin-top:2px; }
-  .loja-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .deposito-card:first-of-type { border-top:none; }
+  .deposito-card:hover { background: rgba(120,120,140,0.06); }
+  .deposito-info { flex:1; min-width:0; }
+  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
+  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
-
-  .dropdown-checkbox-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; font-weight:600; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; }
-  .dropdown-checkbox-item:hover { background: rgba(120,120,140,0.08); }
-  .dropdown-checkbox-item input[type="checkbox"] {
-    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
-    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
-    position:relative; transition:background .15s, border-color .15s;
-  }
-  .dropdown-checkbox-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
-  .dropdown-checkbox-item input[type="checkbox"]:checked::after {
-    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
-    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
-  }
-
-  .historico-table { width:100%; border-collapse:collapse; }
-  .historico-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px 20px; border-bottom:1px solid var(--border); }
-  .historico-table th:first-child { text-align:left; padding-left:8px; }
-  .historico-table td { padding:14px 8px 14px 20px; border-bottom:1px solid var(--border); font-size:13.5px; color:var(--text-heading); }
-  .historico-table td:first-child { padding-left:8px; }
-  .historico-table td.valor { font-weight:700; }
-  .historico-table tfoot td { padding:14px 8px 8px 20px; border-top:2px solid var(--border); border-bottom:none; font-weight:800; font-family:'Nunito',sans-serif; }
-  .historico-table tfoot td:first-child { padding-left:8px; }
-  .historico-table th { white-space:nowrap; cursor:default; }
-  .historico-table td.loja-cell { display:flex; align-items:center; gap:10px; white-space:nowrap; }
-  .historico-table td.loja-cell .profile-avatar { width:32px; height:32px; font-size:12px; }
   .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
   .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
   .empty-state-sub { font-size:12.5px; color:var(--text); }
 
-  /* ===== PAINEL LATERAL: nova/editar categoria ===== */
+  .paginacao-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .paginacao-info { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); }
+  .paginacao-nav { display:flex; align-items:center; gap:10px; }
+  .paginacao-btn { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .paginacao-btn:hover:not(:disabled) { background: rgba(120,120,140,0.08); }
+  .paginacao-btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .paginacao-btn svg { width:14px; height:14px; }
+  .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
+
+  /* ===== PAINEL LATERAL: nova/editar ===== */
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
   .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
@@ -416,26 +424,14 @@
   .drawer-close:hover { color:var(--text-heading); }
   .drawer-close svg { width:15px; height:15px; }
 
-  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
-  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-
-  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
-  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
-
-  /* ===== PAINEL LATERAL: preview rápido da loja ===== */
-  .preview-summary { display:flex; flex-direction:column; align-items:center; text-align:center; padding:6px 0 4px; }
-  .preview-summary .profile-avatar { width:64px; height:64px; font-size:22px; margin-bottom:12px; }
-  .preview-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
-  .preview-badges { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-top:10px; }
-  .origem-badge { font-size:10.5px; font-weight:800; color:#fff; padding:4px 10px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
-
-  .preview-meta-list { width:100%; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
-  .preview-meta-row { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:7px 0; }
-  .preview-meta-label { color:var(--text); }
-  .preview-meta-value { color:var(--text-heading); font-weight:700; text-align:right; }
-
-  .preview-footer { margin-top:22px; width:100%; }
-  .preview-footer .btn-primary { width:100%; text-decoration:none; }
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color: var(--danger); }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
@@ -453,17 +449,327 @@
   .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
   .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
   .confirm-acoes { display:flex; align-items:center; gap:20px; }
-  .confirm-acoes .btn-primary, .confirm-acoes .btn-danger { padding:11px 26px; font-size:14px; }
-  .confirm-acoes .btn-primary:disabled, .confirm-acoes .btn-danger:disabled { opacity:0.4; cursor:not-allowed; }
+  .confirm-acoes button { padding:11px 26px; font-size:14px; }
+  .confirm-acoes button:disabled { opacity:0.4; cursor:not-allowed; }
   .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
-  .confirmacao-texto { font-size:13px; color:var(--text-heading); margin-bottom:14px; line-height:1.5; }
-  .confirmacao-acoes { display:flex; align-items:center; gap:16px; }
   .btn-danger { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--danger-solid); color:#fff; cursor:pointer; user-select:none; }
   .btn-danger:hover { opacity:0.88; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
 
-  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
-  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
+     mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
+
+  /* ===== Filtro de situacao em abas (§7) ===== */
+  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
+  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
+  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
+  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
+     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
+     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
+  .av-geral           { background: var(--chart-2); color:#101010; }
+  .av-galpao          { background: var(--chart-3); color:#101010; }
+  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
+  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
+  .av-transito        { background: var(--warning); color:#101010; }
+  body.dark .av-geral           { color:#FFFFFF; }
+  body.dark .av-galpao          { color:#FFFFFF; }
+  body.dark .av-loja_fisica     { color:#101010; }
+  body.dark .av-trade_marketing { color:#101010; }
+  body.dark .av-transito        { color:#101010; }
+
+  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+
+  /* ===== Formulario em duas colunas dentro do drawer ===== */
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; min-width:120px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+
+  /* ===== Linha de interruptor dentro do formulario ===== */
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+
+
+  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
+  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th.col-texto { text-align:left; }
+  .estoque-table th.ordenavel { cursor:pointer; }
+  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
+  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
+  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado { color:var(--text-heading); }
+  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td.col-texto { text-align:left; }
+  .estoque-table tbody tr { cursor:pointer; }
+  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
+  .estoque-table tbody tr:last-child td { border-bottom:none; }
+  .col-produto { font-weight:700; }
+  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
+  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
+  .celula-reservada { color:var(--text); opacity:0.5; }
+  .saldo-critico { color:var(--danger); font-weight:800; }
+  .saldo-negativo { color:var(--danger); font-weight:800; }
+  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
+  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
+  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+
+  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
+  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
+  .estoque-total b { color:var(--active-text); font-weight:800; }
+
+  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
+
+  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
+  .sit-aberto      { background:#B45309; }
+  .sit-andamento   { background:#0A4EE4; }
+  .sit-atendida    { background:#15803D; }
+  .sit-cancelada   { background:#6B7280; }
+  body.dark .sit-aberto    { background:#F5A623; }
+  body.dark .sit-andamento { background:#9DB8F0; }
+  body.dark .sit-atendida  { background:#4ADE80; }
+  body.dark .sit-cancelada { background:#9CA3AF; }
+
+  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
+  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .bs-aberto      { color:#B45309; }
+  .bs-andamento   { color:#0A4EE4; }
+  .bs-atendida    { color:#15803D; }
+  .bs-cancelada   { color:#6B7280; }
+  body.dark .bs-aberto    { color:#F5A623; }
+  body.dark .bs-andamento { color:#9DB8F0; }
+  body.dark .bs-atendida  { color:#4ADE80; }
+  body.dark .bs-cancelada { color:#9CA3AF; }
+
+  /* filtro de periodo em popover */
+  .periodo-wrap { position:relative; flex-shrink:0; }
+  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
+  .periodo-menu.open { display:block; }
+  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
+  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
+  .periodo-op:hover { background:rgba(120,120,140,0.08); }
+  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
+
+  .oc-numero { font-weight:800; color:var(--active-text); }
+  .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
+
+  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
+  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
+  .btn-secundario-topo svg { width:14px; height:14px; }
+
+  /* extrato dentro do drawer */
+  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
+  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .extrato-linha:first-of-type { border-top:none; }
+  .extrato-rotulo { color:var(--text); }
+  .extrato-valor { font-weight:700; color:var(--text-heading); }
+  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
+  .mov-item:first-of-type { border-top:none; }
+  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mov-icone svg { width:13px; height:13px; }
+  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
+  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
+  .mov-qtd.entrada { color:var(--success); }
+  .mov-qtd.saida { color:var(--danger); }
+
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
+
+  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
+  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
+     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
+  .sit-aconferir     { background:#B45309; }
+  .sit-emconferencia { background:#0A4EE4; }
+  .sit-divergencia   { background:#B91C1C; }
+  .sit-lancada       { background:#15803D; }
+  .sit-recusada      { background:#6B7280; }
+  body.dark .sit-aconferir     { background:#F5A623; }
+  body.dark .sit-emconferencia { background:#9DB8F0; }
+  body.dark .sit-divergencia   { background:#FCA5A5; }
+  body.dark .sit-lancada       { background:#4ADE80; }
+  body.dark .sit-recusada      { background:#9CA3AF; }
+
+  .bs-aconferir     { color:#B45309; }
+  .bs-emconferencia { color:#0A4EE4; }
+  .bs-divergencia   { color:#B91C1C; }
+  .bs-lancada       { color:#15803D; }
+  .bs-recusada      { color:#6B7280; }
+  body.dark .bs-aconferir     { color:#F5A623; }
+  body.dark .bs-emconferencia { color:#9DB8F0; }
+  body.dark .bs-divergencia   { color:#FCA5A5; }
+  body.dark .bs-lancada       { color:#4ADE80; }
+  body.dark .bs-recusada      { color:#9CA3AF; }
+
+  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
+  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
+  .mde-prazo.alerta { color:#B45309; }
+  body.dark .mde-prazo.alerta { color:#F5A623; }
+  .mde-pendente      { color:#6B7280; }
+  .mde-ciencia       { color:#B45309; }
+  .mde-confirmada    { color:#15803D; }
+  .mde-naorealizada  { color:#B91C1C; }
+  .mde-desconhecida  { color:#B91C1C; }
+  body.dark .mde-pendente     { color:#9CA3AF; }
+  body.dark .mde-ciencia      { color:#F5A623; }
+  body.dark .mde-confirmada   { color:#4ADE80; }
+  body.dark .mde-naorealizada { color:#FCA5A5; }
+  body.dark .mde-desconhecida { color:#FCA5A5; }
+  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
+
+  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .dif-divergente { color:#B91C1C; }
+  body.dark .dif-divergente { color:#FCA5A5; }
+  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
+  body.dark .pend-tag { color:#FCA5A5; }
+
+  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
+     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
+  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
+  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
+  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
+
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (o que acontece depois da doca) ===== */
+  /* As situacoes daqui sao as do PEDIDO DE VENDA — o mesmo funil de 9 passos da
+     barganha de 02/out, nao um funil proprio. Esta tela nao inventa status: ela
+     mostra o que o pedido ja diz e acrescenta o que so existe depois do envio
+     (codigo de rastreio, previsao congelada, eventos). Devolucao continua fora:
+     e documento proprio, e o pedido devolvido mantem a situacao dele. */
+
+  /* O ponto colore a FASE, nao a situacao. Nove cores ninguem memoriza, e nove
+     cores no tema claro e campo minado de contraste; o rotulo ao lado ja diz a
+     situacao exata. Tres fases + cancelado dao a leitura de relance que o
+     galpao precisa: "ainda esta aqui", "esta na rua", "acabou". */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
+
+  .tx-processando { color:#B45309; }
+  .tx-transito    { color:#0A4EE4; }
+  .tx-final       { color:#15803D; }
+  .tx-cancelado   { color:#DC2626; }
+  body.dark .tx-processando { color:#F5A623; }
+  body.dark .tx-transito    { color:#9DB8F0; }
+  body.dark .tx-final       { color:#4ADE80; }
+  body.dark .tx-cancelado   { color:#EF4444; }
+
+  /* PAGAMENTO E EIXO SEPARADO (barganha de 07/out), nao passo do funil. Boleto de
+     30 dias fica enviado e nao pago; Pix fica pago ainda em aberto. Quem manda
+     aqui e Financas > Contas a Receber: esta coluna LE, nunca escreve. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  /* A PREVISAO E CONGELADA NO ENVIO (barganha de 07/out): gravada a partir do prazo
+     da transportadora no momento do despacho, nunca recalculada. Mudar o prazo no
+     cadastro depois NAO reescreve se um pedido antigo atrasou — historico que muda
+     sozinho e historico que mente. */
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* CODIGO DE RASTREIO E POR VOLUME (barganha de 07/out). Os volumes ja nascem na
+     Conferencia de Saida; um pedido de 3 caixas que chegam em dias diferentes tem
+     3 codigos. A celula resume e o painel mostra um por um. */
+  .cod-resumo { font-weight:700; color:var(--text-heading); }
+  .vol-prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-family:inherit; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+
+  .cliente-nome { font-weight:700; color:var(--text-heading); }
+  .cliente-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* ===== O HISTORICO, DENTRO DO PAINEL ===== */
+  /* Cada evento carrega um rotulo PROPRIO para o cliente e um marcador de quem o
+     ve (barganha de 07/out). "Conferencia de saida" e vocabulario de deposito:
+     o cliente le "Pedido embalado". A vitrine consome so os publicos. */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
+
+  /* Volume dentro do painel: uma linha por caixa, com o campo do codigo. */
+  .vol-linha { display:grid; grid-template-columns:1fr 210px; gap:11px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
+  .vol-linha:last-child { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* Vinham do bloco da Expedicao, que esta tela substituiu. Classe usada sem CSS
+     e o "componente copiado pela metade" que a auditoria pega na secao 3. */
+  .transp-nome { font-weight:700; color:var(--text-heading); }
+  .transp-tipo { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+
+  /* A linha inteira abre o painel, entao o cursor precisa dizer isso. */
+  .estoque-table tbody tr.linha-clicavel { cursor:pointer; }
+
+  /* Painel: linha de rotulo e valor usando o par canonico chave-rotulo /
+     chave-valor, mais o titulo que separa os blocos. */
+  .rt-linha { display:grid; grid-template-columns:150px 1fr; gap:11px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
+  .rt-linha:last-child { border-bottom:none; }
+  .rt-sub { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:17px 0 7px; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -480,6 +786,51 @@
   .confirm-senha-row.has-error input { border-color:var(--danger); }
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+
+  /* ===== VENDAS > METAS ===== */
+  .ating { display:flex; align-items:center; gap:9px; min-width:150px; }
+  .ating-trilho { flex:1; height:7px; border-radius:6px; background:rgba(120,120,140,0.18); overflow:hidden; }
+  .ating-barra { display:block; height:100%; border-radius:6px; }
+  .ating-pct { font-size:12.5px; font-weight:800; color:var(--text-heading); min-width:42px; text-align:right; font-variant-numeric:tabular-nums; }
+  /* Cor de fundo do selo e cor do TEXTO vivem juntas, e o texto e redefinido
+     em body.dark: o mesmo tom nao passa em 4.5:1 nos dois temas. */
+  .mt-batida   { background:rgba(21,128,61,0.12);  color:#12692F; }
+  .mt-noritmo  { background:rgba(10,78,228,0.10);  color:#0A4EE4; }
+  .mt-abaixo   { background:rgba(180,83,9,0.12);   color:#8A5600; }
+  .mt-naobatida{ background:rgba(220,38,38,0.10);  color:#B91C1C; }
+  .mt-semmeta  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .mt-futuro   { background:rgba(120,120,140,0.14); color:var(--text); }
+  body.dark .mt-batida    { color:#4ADE80; }
+  body.dark .mt-noritmo   { color:#9DB8F0; }
+  body.dark .mt-abaixo    { color:#FBBF24; }
+  body.dark .mt-naobatida { color:#FCA5A5; }
+  .pt-batida   { background:#15803D; }
+  .pt-noritmo  { background:#0A4EE4; }
+  .pt-abaixo   { background:#B45309; }
+  .pt-naobatida{ background:#DC2626; }
+  .pt-semmeta  { background:#8A8A94; }
+  .pt-futuro   { background:#8A8A94; }
+  .meta-previa { border:1px solid var(--border); border-radius:12px; padding:4px 12px; background:var(--page-bg); }
+  .meta-previa-linha { display:grid; grid-template-columns:86px 1fr auto; gap:10px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .meta-previa-linha:last-child { border-bottom:none; }
+  .meta-previa-mes { font-weight:800; color:var(--text-heading); }
+  .meta-previa-obs { font-size:11px; font-weight:600; color:var(--text); }
+  .meta-previa-valor { font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .meta-previa-vazia { padding:10px 0; font-size:12px; font-weight:600; color:var(--text); }
+  .meta-ano { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .meta-ano th { text-align:right; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:6px 0; border-bottom:1px solid var(--border); }
+  .meta-ano th:first-child, .meta-ano td:first-child { text-align:left; }
+  .meta-ano td { text-align:right; padding:7px 0; border-bottom:1px solid var(--border); color:var(--text-heading); font-weight:700; font-variant-numeric:tabular-nums; }
+  .meta-ano tr:last-child td { border-bottom:none; }
+  .meta-ano tr.atual td { color:var(--active-text); }
+
+
+  /* ===== VENDAS > PERFORMANCE ===== */
+  .var-sobe { color:#12692F; font-weight:800; }
+  .var-desce { color:#B91C1C; font-weight:800; }
+  body.dark .var-sobe { color:#4ADE80; }
+  body.dark .var-desce { color:#FCA5A5; }
 
 </style>
 </head>
@@ -691,80 +1042,131 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
+
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
     <div>
       <h1>Performance de Vendas</h1>
-      <div class="subtitle">Meta × Realizado por canal — Desk Shope, Desk Brands, Desk Tech e futuros pontos de Trade Marketing, lado a lado</div>
+      <div class="subtitle">Como cada loja e cada vendedor vendeu: quantas vendas, de que tamanho, quanto voltou, e contra o que isso se compara</div>
     </div>
-  </div>
-
-  <div class="categorias-toolbar" style="margin-bottom:14px;">
-    <div class="form-field" style="flex:0; min-width:150px;">
-      <div class="dropdown-select" id="filtroPeriodo" data-value="9-2026">
-        <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Setembro/2026</span>
+    <div class="header-acoes">
+      <a class="btn-ghost" id="btnIrMetas" href="pagina-vendas-metas.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Definir metas
+      </a>
+      <div class="dropdown-select" id="menuMaisAcoes">
+        <button type="button" class="btn-ghost dropdown-select-btn">
+          <span class="dropdown-select-label">Mais ações</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" id="menuFiltroPeriodo"></div>
-      </div>
-    </div>
-    <div class="form-field" style="flex:0; min-width:160px;">
-      <div class="dropdown-select" id="filtroStatus" data-value="todos">
-        <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Todos os status</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu">
-          <div class="dropdown-select-item active" data-value="todos">Todos os status</div>
-          <div class="dropdown-select-item" data-value="ativo">Ativo</div>
-          <div class="dropdown-select-item" data-value="inativo">Inativo</div>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:300px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="pedidos">Abrir Pedidos de Venda</div>
+          <div class="dropdown-select-item" data-acao="devolucoes">Abrir Devoluções</div>
+          <div class="dropdown-select-item" data-acao="exportar">Exportar para planilha</div>
         </div>
       </div>
     </div>
-    <div class="filtro-tipo" id="filtroTipo">
-      <button class="active" data-filtro="todos">Todos</button>
-      <button data-filtro="produto">Produtos</button>
-      <button data-filtro="servico">Serviços</button>
-      <button data-filtro="trade_marketing">Trade Marketing</button>
-    </div>
+  </div>
 
-    <div class="dropdown-select" id="seletorVisao" data-value="meta_realizado" style="margin-left:auto;">
-      <button type="button" class="dropdown-select-btn form-style" style="width:auto; gap:8px; padding:8px 14px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span class="dropdown-select-label">Meta x Realizado</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuVisao" style="min-width:210px;"></div>
+  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
+    <div class="card kpi-card" style="border-left-color:var(--success)">
+      <div class="kpi-label">Vendido no mês</div>
+      <div class="kpi-value" id="kpiVendido">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiVendidoSub">—</div>
     </div>
-
-    <div class="dropdown-select" id="seletorColunas">
-      <button type="button" class="dropdown-select-btn form-style" style="width:auto; gap:8px; padding:8px 14px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
-        <span class="dropdown-select-label">Colunas</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuColunas" style="right:0; left:auto; min-width:200px;"></div>
+    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Número de vendas</div>
+      <div class="kpi-value" id="kpiNumero">0</div>
+      <div class="kpi-delta neutral" id="kpiNumeroSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Ticket médio</div>
+      <div class="kpi-value" id="kpiTicket">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiTicketSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Taxa de devolução</div>
+      <div class="kpi-value" id="kpiDevolucao">0%</div>
+      <div class="kpi-delta neutral" id="kpiDevolucaoSub">—</div>
     </div>
   </div>
 
-  <div class="card" style="overflow-x:auto;">
-    <table class="historico-table" id="tabelaPerformance" style="white-space:nowrap;">
-      <thead><tr id="cabecalhoPerformance"></tr></thead>
-      <tbody id="corpoPerformance"></tbody>
-      <tfoot id="rodapePerformance"></tfoot>
-    </table>
-    <div class="empty-state" id="performanceVazio" style="display:none;">
-      <div class="empty-state-title">Nenhuma loja encontrada</div>
-      <div class="empty-state-sub">Tente ajustar os filtros.</div>
+  <div class="estoque-toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="campoBusca" placeholder="Pesquise por loja ou vendedor">
+    </div>
+
+    <div class="dropdown-select" id="filtroMes" data-value="10">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Outubro</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroMes" style="max-height:300px; overflow-y:auto;"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroAno" data-value="2026">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">2026</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroAno"></div>
+    </div>
+
+    <div class="dropdown-select" id="filtroVisao" data-value="resultado">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Resultado</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroVisao"></div>
     </div>
   </div>
+
+  <div class="abas-situacao" id="abasNivel">
+    <div class="aba-sit active" data-nivel="loja"><span>Lojas</span><span class="sit-contador" data-cont="loja">0</span></div>
+    <div class="aba-sit" data-nivel="vendedor"><span>Vendedores</span><span class="sit-contador" data-cont="vendedor">0</span></div>
+  </div>
+
+  <div class="card">
+    <div class="nota-reservado" id="avisoPerf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+      <span id="avisoPerfTexto"></span>
+    </div>
+
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead><tr id="cabecalhoPerf"></tr></thead>
+        <tbody id="corpoTabela"></tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
+      <div class="empty-state-title">Nada neste filtro</div>
+      <div class="empty-state-sub">Com os filtros atuais, não há venda para mostrar.</div>
+      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
+    </div>
+
+    <div class="estoque-rodape">
+      <span id="contagemLinhas">0 lojas</span>
+      <span class="estoque-total">Vendido no filtro: <b id="somaFiltro">R$ 0,00</b></span>
+    </div>
+  </div>
+
+<!-- PAINEL LATERAL: a performance por dentro. Esta tela SO LE: quem define
+     meta e a tela de Metas, e o botao daqui leva para la. -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitulo">Performance</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div id="drawerCorpo"></div>
 </div>
 
-
-<!-- MODAL: confirmação centralizada (reutilizável — excluir/inativar, individual e em massa) -->
+<!-- MODAL: confirmação / aviso -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -776,12 +1178,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
   </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
   </div>
+</div>
+
 </div>
 
 <script>
@@ -812,6 +1216,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // empresa
     conferenciaCompraAlerta: 1,
     conferenciaCompraCritico: 3,
+    separacaoAlertaHoras: 4,
+    separacaoCriticoHoras: 12,
+    separacaoOrdemPorEndereco: true,
+    expedicaoAlertaHoras: 8,
+    expedicaoCriticoHoras: 24,
+    romaneioSugereAutomatico: true,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -839,6 +1255,75 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const PARAM = lerParametros();
+
+  // ===== DICIONÁRIO DE NOMES =====
+  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
+  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
+  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
+  // Configuracoes > Nomes do sistema.
+  //
+  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
+  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
+  // um quarto estado inventado nao teria codigo que o entendesse.
+  //
+  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
+  // que mostram esses rotulos. Duas copias divergiriam.
+  const NOMES_PADRAO = {
+    // Devolucao — estado da mercadoria que voltou
+    'devolucao.estado.revendavel': 'Boa para revenda',
+    'devolucao.estado.avaria':     'Avariada',
+    'devolucao.estado.nenhum':     'Não voltou',
+    // Devolucao — de quem e a conta
+    'devolucao.grupo.nossa':      'Nossa operação',
+    'devolucao.grupo.transporte': 'Transporte',
+    'devolucao.grupo.cliente':    'Cliente',
+    'devolucao.grupo.fiscal':     'Fiscal',
+    // Devolucao — situacao do documento
+    'devolucao.situacao.aberta':     'Em aberto',
+    'devolucao.situacao.andamento':  'Em andamento',
+    'devolucao.situacao.finalizada': 'Finalizada',
+    'devolucao.situacao.cancelada':  'Cancelada',
+    // Entrada de notas — de onde a nota veio
+    'entrada.origem.compra':    'Compra',
+    'entrada.origem.devolucao': 'Devolução',
+    // Entrada de notas — situacao do documento
+    'entrada.situacao.transito':      'Em trânsito',
+    'entrada.situacao.aconferir':     'A conferir',
+    'entrada.situacao.emconferencia': 'Em conferência',
+    'entrada.situacao.divergencia':   'Com divergência',
+    'entrada.situacao.lancada':       'Lançada',
+    'entrada.situacao.recusada':      'Recusada',
+    // Motivos de perda — em que movimento o motivo vale
+    'perda.movimento.entrada': 'Entrada',
+    'perda.movimento.saida':   'Saída',
+    'perda.movimento.balanco': 'Balanço',
+    // Motivos de perda — o que a baixa obriga
+    'perda.fiscal.nfe':     'Exige NF-e própria',
+    'perda.fiscal.interno': 'Resolve com documento interno',
+    'perda.fiscal.depende': 'Depende da diferença',
+    'perda.fiscal.nenhum':  'Não gera obrigação',
+    // Metas — situacao da meta no mes
+    'metas.situacao.batida':    'Meta batida',
+    'metas.situacao.noritmo':   'No ritmo',
+    'metas.situacao.abaixo':    'Abaixo do ritmo',
+    'metas.situacao.naobatida': 'Não bateu',
+    'metas.situacao.semmeta':   'Sem meta',
+    'metas.situacao.futuro':    'Ainda não começou'
+  };
+  function lerNomes() {
+    try {
+      const bruto = localStorage.getItem('deskNomes');
+      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
+  }
+  function gravarNomes(n) {
+    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
+    catch (e) { return false; }
+  }
+  const NOMES = lerNomes();
+  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
+  // que some e pior que um rotulo feio — some sem avisar.
+  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
 
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
@@ -894,7 +1379,54 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
+    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
+    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
+    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
+    // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                           onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                            onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',     onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
+    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -930,53 +1462,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
     if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
   }
-
-  // ===== MODAL DE CONFIRMAÇÃO (reutilizável — excluir/inativar, individual e em massa) =====
-  // Assinatura de 4 argumentos, a que o despacho de `confirmarAcao` prefere
-  // (ele le `.length` da funcao). Sem esta funcao a tela carregava o bloco de
-  // senha sem ter onde pedir a senha, e a trava era ignorada em silencio.
-  let confirmAoConfirmarCallback = null;
-
-  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    const cienteRow = document.getElementById('confirmCienteRow');
-    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
-    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-    cienteCheckbox.checked = false;
-    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
-    if (quantidade > 1) {
-      cienteRow.style.display = 'flex';
-      btnConfirmar.disabled = true;
-    } else {
-      cienteRow.style.display = 'none';
-      btnConfirmar.disabled = false;
-    }
-    confirmAoConfirmarCallback = aoConfirmar;
-    document.getElementById('confirmModalBackdrop').classList.add('open');
-    document.getElementById('confirmModal').classList.add('open');
-  }
-
-  function fecharModalConfirmacao() {
-    document.getElementById('confirmModalBackdrop').classList.remove('open');
-    document.getElementById('confirmModal').classList.remove('open');
-    confirmAoConfirmarCallback = null;
-  }
-  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
-    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
-  });
-  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
-    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
-    const callback = confirmAoConfirmarCallback;
-    fecharModalConfirmacao();
-    if (callback) callback();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
-      fecharModalConfirmacao();
-    }
-  });
 
   // ----- Senha dentro do modal de confirmacao compartilhado -----
   // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
@@ -1141,6 +1626,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
   }
 
+
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
@@ -1253,13 +1739,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     sidebarCol.classList.toggle('collapsed');
   });
 
-  // Seletor de tema dentro de Configurações
-  // OBS: escopado a `.theme-picker .theme-seg button` (não `.theme-seg button` sozinho) —
-  // bug real encontrado nesta tela: como o toggle de Tipo e o de Pessoa Física/Jurídica também
-  // usam a classe base `.theme-seg`, o seletor genérico limpava a classe `.active` DELES ao
-  // clicar no seletor de tema (e vice-versa), até quebrar com `null.getAttribute` no Salvar.
-  // Esse mesmo risco existe em qualquer outra tela que reaproveite `.theme-seg` pra um toggle
-  // próprio — vale aplicar esse mesmo escopo lá.
+  // Seletor de tema dentro de Configurações.
+  // Escopado a ".theme-picker .theme-seg button" (nunca ".theme-seg button" sozinho): a classe
+  // visual .theme-seg é reaproveitada por outros toggles do sistema (Tipo Pessoa, Tipo de Loja,
+  // modo de meta...). Sem o escopo, clicar num desses toggles caía neste listener, e como eles
+  // não têm data-theme o "mode" vinha null e o código entrava no ramo "auto", trocando o tema
+  // claro/escuro da tela inteira sem o usuário pedir (bug real — ver design-system §14).
   document.querySelectorAll('.theme-picker .theme-seg button').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1278,129 +1763,161 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   });
 
+
+
   renderBreadcrumb();
 
-  // ===== PERFORMANCE DE VENDAS =====
-  // Cruza `stores` (Lojas Desk) com `metas` (Vendas > Metas) e com o "realizado" — este último
-  // ainda mock, só existe de verdade quando Vendas/Pedidos existir (roadmap F3+). Situação e
-  // Atingimento são sempre derivados de meta/realizado, nunca campos próprios salvos.
-  const COR_POR_TIPO = { produto: 'var(--chart-2)', servico: 'var(--warning)', trade_marketing: 'var(--text)' };
-  const TIPO_LABEL = { produto: 'Produtos', servico: 'Serviços', trade_marketing: 'Trade Marketing' };
-  const NOMES_MES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const NOMES_MES_LONGO = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  // ===== DADOS (mock) =====
+  // A listagem LE, o painel lateral ESCREVE: e a mesma divisao do Rastreamento e
+  // da Devolucao. Aqui a porta de escrita e uma so, o painel "Definir meta".
+  //
+  // Meta de LOJA e meta de VENDEDOR sao independentes (barganha de 08/out). A
+  // da loja nao e a soma dos vendedores: venda de vitrine nao tem vendedor, e
+  // vendedor autonomo nao tem loja. A tela compara as duas e avisa a diferenca.
+  const HOJE = '2026-10-08';
+  const ANO_HOJE = 2026, MES_HOJE = 10, DIA_HOJE = 8;
+  const NOMES_MES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const MES_CURTO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const ANOS = [2025, 2026, 2027];
+  const TIPO_LOJA = { produto: 'Produtos', servico: 'Serviços', trade_marketing: 'Trade Marketing' };
 
-  function iniciais(nome) {
-    return nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
-  }
-
-
+  // As tres lojas do cadastro de Lojas Desk.
   const LOJAS = [
-    { id: 1, nome: 'Desk Shope', tipo: 'produto', status: 'ativo' },
-    { id: 2, nome: 'Desk Brands', tipo: 'produto', status: 'ativo' },
-    { id: 3, nome: 'Desk Tech', tipo: 'servico', status: 'ativo' }
+    { id: 1, nome: 'Desk Shope',  tipo: 'produto' },
+    { id: 2, nome: 'Desk Brands', tipo: 'produto' },
+    { id: 3, nome: 'Desk Tech',   tipo: 'servico' }
+  ];
+  // `lojaId: null` e vendedor AUTONOMO: vende, tem meta propria e nao entra na
+  // soma de loja nenhuma (mesma regra do cadastro de Vendedores).
+  const VENDEDORES = [
+    { id: 1, nome: 'Marina Costa',                lojaId: 1,    ativo: true },
+    { id: 5, nome: 'Rafael Tenório',              lojaId: 2,    ativo: true },
+    { id: 6, nome: 'Bianca Furtado',              lojaId: 1,    ativo: true },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', lojaId: null, ativo: true },
+    { id: 3, nome: 'Rafael Andrade',              lojaId: 3,    ativo: false }
   ];
 
-  // Mock — mesmos números de Jul/Set já usados no Histórico de Metas da Desk Shope, pra ficar
-  // coerente entre as duas telas. devolucaoValor/qtdDevolucao são novos, só pra visão Devoluções.
-  const PERFORMANCE = [
-    { lojaId: 1, mes: 7, ano: 2026, meta: 42000, realizado: 43800, nVendas: 210, devolucaoValor: 1150, qtdDevolucao: 6 },
-    { lojaId: 1, mes: 8, ano: 2026, meta: 44000, realizado: 40500, nVendas: 198, devolucaoValor: 2100, qtdDevolucao: 11 },
-    { lojaId: 1, mes: 9, ano: 2026, meta: 46000, realizado: 47200, nVendas: 236, devolucaoValor: 980, qtdDevolucao: 5 },
-    { lojaId: 2, mes: 7, ano: 2026, meta: 26000, realizado: 27500, nVendas: 172, devolucaoValor: 620, qtdDevolucao: 4 },
-    { lojaId: 2, mes: 8, ano: 2026, meta: 27000, realizado: 24800, nVendas: 150, devolucaoValor: 1340, qtdDevolucao: 9 },
-    { lojaId: 2, mes: 9, ano: 2026, meta: 28000, realizado: 25100, nVendas: 158, devolucaoValor: 890, qtdDevolucao: 6 },
-    { lojaId: 3, mes: 7, ano: 2026, meta: 14000, realizado: 14950, nVendas: 38, devolucaoValor: 210, qtdDevolucao: 1 },
-    { lojaId: 3, mes: 8, ano: 2026, meta: 14500, realizado: 13200, nVendas: 34, devolucaoValor: 340, qtdDevolucao: 2 },
-    { lojaId: 3, mes: 9, ano: 2026, meta: 15000, realizado: 16800, nVendas: 42, devolucaoValor: 190, qtdDevolucao: 1 }
-  ];
-
-  const PERIODOS_DISPONIVEIS = [
-    { v: '9-2026', mes: 9, ano: 2026 },
-    { v: '8-2026', mes: 8, ano: 2026 },
-    { v: '7-2026', mes: 7, ano: 2026 }
-  ];
-
-  function buscarPerformance(lojaId, mes, ano) {
-    return PERFORMANCE.find(x => x.lojaId === lojaId && x.mes === mes && x.ano === ano) || {};
+  // Uma linha por (nivel, id, mes, ano). O modo de preenchimento (trimestre,
+  // ano, progressivo) nao e gravado: ele so decide quais linhas nascem.
+  const METAS = [];
+  function semear(nivel, id, ano, valores) {
+    valores.forEach(function (v, i) { if (v) METAS.push({ nivel: nivel, id: id, mes: i + 1, ano: ano, valor: v }); });
   }
-  function somar(linhas, campo) { return linhas.reduce((s, l) => s + (l[campo] || 0), 0); }
+  semear('loja', 1, 2026, [38000, 38000, 40000, 40000, 42000, 42000, 42000, 44000, 46000, 48000, 0, 0]);
+  semear('loja', 2, 2026, [21000, 21000, 22000, 22000, 23000, 23000, 24000, 24000, 25000, 26000, 0, 0]);
+  semear('loja', 3, 2026, [9000, 9000, 9000, 9500, 9500, 9500, 10000, 10000, 10000, 0, 0, 0]);
+  semear('vendedor', 1, 2026, [0, 0, 0, 0, 0, 0, 16000, 17000, 18000, 19000, 0, 0]);
+  semear('vendedor', 6, 2026, [0, 0, 0, 0, 0, 0, 12000, 12000, 13000, 14000, 0, 0]);
+  semear('vendedor', 5, 2026, [0, 0, 0, 0, 0, 0, 14000, 14000, 15000, 26000, 0, 0]);
+  semear('vendedor', 2, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 6000, 6000, 0, 0]);
 
-  // ===== VISÕES (cada uma é uma "família" de métricas — Colunas liga/desliga dentro dela) =====
-  const VISOES = {
-    meta_realizado: {
-      label: 'Meta x Realizado',
-      colunas: [
-        { key: 'meta', label: 'Meta', formato: 'moeda' },
-        { key: 'realizado', label: 'Realizado', formato: 'moeda' },
-        { key: 'situacao', label: 'Situação', formato: 'situacao' },
-        { key: 'atingimento', label: 'Atingimento', formato: 'percentual_meta' },
-        { key: 'nvendas', label: 'Nº de Vendas', formato: 'numero' },
-        { key: 'ticket', label: 'Ticket Médio', formato: 'moeda' }
-      ],
-      calcularLinha(loja, periodo) {
-        const p = buscarPerformance(loja.id, periodo.mes, periodo.ano);
-        const meta = p.meta || 0, realizado = p.realizado || 0, nvendas = p.nVendas || 0;
-        return { loja, meta, realizado, nvendas, situacao: realizado - meta, atingimento: meta > 0 ? (realizado / meta) * 100 : 0, ticket: nvendas > 0 ? realizado / nvendas : 0 };
-      },
-      totalizar(linhas) {
-        const meta = somar(linhas, 'meta'), realizado = somar(linhas, 'realizado'), nvendas = somar(linhas, 'nvendas');
-        return { meta, realizado, nvendas, situacao: realizado - meta, atingimento: meta > 0 ? (realizado / meta) * 100 : 0, ticket: nvendas > 0 ? realizado / nvendas : 0 };
-      }
-    },
-    devolucoes: {
-      label: 'Devoluções',
-      colunas: [
-        { key: 'vendas', label: 'Vendas', formato: 'moeda' },
-        { key: 'devolucao', label: 'Devolução', formato: 'moeda' },
-        { key: 'taxaDevolucao', label: 'Taxa de Devolução', formato: 'percentual_neutro' },
-        { key: 'qtdVendas', label: 'Qtd. Vendas', formato: 'numero' },
-        { key: 'qtdDevolucao', label: 'Qtd. Devolução', formato: 'numero' }
-      ],
-      calcularLinha(loja, periodo) {
-        const p = buscarPerformance(loja.id, periodo.mes, periodo.ano);
-        const vendas = p.realizado || 0, devolucao = p.devolucaoValor || 0;
-        return { loja, vendas, devolucao, taxaDevolucao: vendas > 0 ? (devolucao / vendas) * 100 : 0, qtdVendas: p.nVendas || 0, qtdDevolucao: p.qtdDevolucao || 0 };
-      },
-      totalizar(linhas) {
-        const vendas = somar(linhas, 'vendas'), devolucao = somar(linhas, 'devolucao');
-        return { vendas, devolucao, taxaDevolucao: vendas > 0 ? (devolucao / vendas) * 100 : 0, qtdVendas: somar(linhas, 'qtdVendas'), qtdDevolucao: somar(linhas, 'qtdDevolucao') };
-      }
-    },
-    comparativo: {
-      label: 'Comparativo de Período',
-      colunas: [
-        { key: 'realizadoAtual', label: 'Realizado (mês atual)', formato: 'moeda' },
-        { key: 'realizadoAnterior', label: 'Realizado (mês anterior)', formato: 'moeda' },
-        { key: 'variacaoValor', label: 'Variação', formato: 'situacao' },
-        { key: 'variacaoPct', label: 'Variação %', formato: 'percentual_variacao' }
-      ],
-      calcularLinha(loja, periodo) {
-        const mesAnt = periodo.mes === 1 ? 12 : periodo.mes - 1;
-        const anoAnt = periodo.mes === 1 ? periodo.ano - 1 : periodo.ano;
-        const atual = (buscarPerformance(loja.id, periodo.mes, periodo.ano).realizado) || 0;
-        const anterior = (buscarPerformance(loja.id, mesAnt, anoAnt).realizado) || 0;
-        return { loja, realizadoAtual: atual, realizadoAnterior: anterior, variacaoValor: atual - anterior, variacaoPct: anterior > 0 ? ((atual - anterior) / anterior) * 100 : 0 };
-      },
-      totalizar(linhas) {
-        const atual = somar(linhas, 'realizadoAtual'), anterior = somar(linhas, 'realizadoAnterior');
-        return { realizadoAtual: atual, realizadoAnterior: anterior, variacaoValor: atual - anterior, variacaoPct: anterior > 0 ? ((atual - anterior) / anterior) * 100 : 0 };
-      }
-    }
+  // REALIZADO = pedidos de venda a partir de FATURADO. Cancelado nao entra.
+  // E o mesmo ponto em que a comissao do vendedor e liberada, de proposito:
+  // contar no "pedido salvo" poria na meta uma venda que ainda pode cair.
+  // No Lovable isto e uma soma em `pedidos`; aqui sao numeros de exemplo.
+  const REALIZADO = {};
+  function vender(nivel, id, ano, valores) {
+    valores.forEach(function (v, i) { REALIZADO[nivel + ':' + id + ':' + ano + ':' + (i + 1)] = v; });
+  }
+  vender('loja', 1, 2026, [36400, 39100, 41800, 38200, 43500, 40900, 43800, 40500, 47200, 13900, 0, 0]);
+  vender('loja', 2, 2026, [19800, 21500, 20100, 23400, 22800, 24100, 23600, 25200, 24300, 5100, 0, 0]);
+  vender('loja', 3, 2026, [9400, 8700, 9100, 9800, 9200, 10100, 9700, 10400, 10900, 2600, 0, 0]);
+  vender('loja', 1, 2025, [31200, 32800, 34100, 33500, 35900, 34700, 36300, 35100, 38400, 39800, 44200, 52100]);
+  vender('loja', 2, 2025, [16900, 17400, 17100, 18800, 18300, 19600, 19200, 20100, 19700, 21300, 23900, 28400]);
+  vender('loja', 3, 2025, [7800, 7600, 8100, 8300, 8000, 8600, 8400, 8900, 9100, 9300, 9000, 8200]);
+  vender('vendedor', 1, 2026, [0, 0, 0, 0, 0, 0, 16900, 15800, 19400, 5600, 0, 0]);
+  vender('vendedor', 6, 2026, [0, 0, 0, 0, 0, 0, 11200, 12600, 12100, 2900, 0, 0]);
+  vender('vendedor', 5, 2026, [0, 0, 0, 0, 0, 0, 13100, 14800, 14200, 3400, 0, 0]);
+  vender('vendedor', 2, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 6800, 2100, 0, 0]);
+  vender('vendedor', 3, 2026, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+  // ===== REGRAS DE DOMINIO =====
+  function fmtData(s) {
+    if (!s) return '—';
+    const p = String(s).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function moeda(v) {
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function diasNoMes(mes, ano) { return new Date(ano, mes, 0).getDate(); }
+
+  function metaDe(nivel, id, mes, ano) {
+    const m = METAS.filter(function (x) { return x.nivel === nivel && x.id === id && x.mes === mes && x.ano === ano; })[0];
+    return m ? m.valor : null;
+  }
+  function realizadoDe(nivel, id, mes, ano) {
+    return REALIZADO[nivel + ':' + id + ':' + ano + ':' + mes] || 0;
+  }
+  // -1 = mes ja fechado, 0 = mes corrente, 1 = ainda nao comecou.
+  function tempoDoMes(mes, ano) {
+    if (ano < ANO_HOJE || (ano === ANO_HOJE && mes < MES_HOJE)) return -1;
+    if (ano === ANO_HOJE && mes === MES_HOJE) return 0;
+    return 1;
+  }
+
+  // RITMO em DIAS CORRIDOS (barganha de 08/out): vitrine vende todo dia, e dia
+  // util pediria um calendario de feriados que o sistema nao tem. O ritmo e
+  // quanto ja deveria estar vendido ATE HOJE para a meta fechar no fim do mes
+  // — e o que mostra o atraso antes de o mes acabar, nao depois.
+  function ritmoDe(meta, mes, ano) {
+    const tempo = tempoDoMes(mes, ano);
+    const dias = diasNoMes(mes, ano);
+    if (meta === null) return { esperado: null, restantes: 0, porDia: null };
+    if (tempo !== 0) return { esperado: tempo < 0 ? meta : 0, restantes: 0, porDia: null };
+    return { esperado: meta * DIA_HOJE / dias, restantes: dias - DIA_HOJE, porDia: null };
+  }
+
+  // Nome de classe COMPLETO num mapa, nunca 'mt-' + chave: a concatenacao deixa
+  // o literal fora do HTML e a auditoria de classe sem CSS nao enxerga.
+  const SIT_META = {
+    batida:    { rotulo: nome('metas.situacao.batida'),    selo: 'mt-batida',    ponto: 'pt-batida',    cor: 'var(--success)' },
+    noritmo:   { rotulo: nome('metas.situacao.noritmo'),   selo: 'mt-noritmo',   ponto: 'pt-noritmo',   cor: 'var(--brand-blue)' },
+    abaixo:    { rotulo: nome('metas.situacao.abaixo'),    selo: 'mt-abaixo',    ponto: 'pt-abaixo',    cor: 'var(--warning)' },
+    naobatida: { rotulo: nome('metas.situacao.naobatida'), selo: 'mt-naobatida', ponto: 'pt-naobatida', cor: 'var(--danger)' },
+    semmeta:   { rotulo: nome('metas.situacao.semmeta'),   selo: 'mt-semmeta',   ponto: 'pt-semmeta',   cor: 'var(--text)' },
+    futuro:    { rotulo: nome('metas.situacao.futuro'),    selo: 'mt-futuro',    ponto: 'pt-futuro',    cor: 'var(--text)' }
   };
-
-  let visaoAtual = 'meta_realizado';
-  let colunasVisiveis = {};
-  function resetarColunasVisiveis() {
-    colunasVisiveis = {};
-    VISOES[visaoAtual].colunas.forEach(c => { colunasVisiveis[c.key] = true; });
+  function situacaoDaMeta(meta, real, mes, ano) {
+    if (meta === null) return 'semmeta';
+    const tempo = tempoDoMes(mes, ano);
+    if (tempo > 0) return 'futuro';
+    if (real >= meta) return 'batida';
+    if (tempo < 0) return 'naobatida';
+    return real >= ritmoDe(meta, mes, ano).esperado ? 'noritmo' : 'abaixo';
   }
-  resetarColunasVisiveis();
 
-  let filtroPeriodoAtual = '9-2026';
-  let filtroStatusAtual = 'todos';
-  let filtroTipoAtual = 'todos';
+  // Uma linha da listagem, ja calculada.
+  function linhaDe(nivel, unidade, mes, ano) {
+    const meta = metaDe(nivel, unidade.id, mes, ano);
+    const real = realizadoDe(nivel, unidade.id, mes, ano);
+    const r = ritmoDe(meta, mes, ano);
+    const falta = meta === null ? null : Math.max(0, meta - real);
+    return {
+      nivel: nivel, id: unidade.id, nome: unidade.nome, unidade: unidade,
+      meta: meta, real: real, falta: falta,
+      pct: meta ? real / meta * 100 : null,
+      esperado: r.esperado, restantes: r.restantes,
+      porDia: (tempoDoMes(mes, ano) === 0 && falta && r.restantes > 0) ? falta / r.restantes : null,
+      sit: situacaoDaMeta(meta, real, mes, ano)
+    };
+  }
+  function unidadesDe(nivel) {
+    return nivel === 'loja' ? LOJAS : VENDEDORES.filter(function (v) { return v.ativo; });
+  }
+  function lojaDe(id) { return LOJAS.filter(function (l) { return l.id === id; })[0] || null; }
 
-  // ===== COMPONENTE: dropdown de seleção única =====
+  // Soma das metas dos vendedores VINCULADOS contra a meta da loja. Autonomo
+  // fica de fora: ele nao pertence a loja nenhuma.
+  function diferencaDaLoja(loja, mes, ano) {
+    const metaLoja = metaDe('loja', loja.id, mes, ano);
+    const soma = VENDEDORES.filter(function (v) { return v.ativo && v.lojaId === loja.id; })
+      .reduce(function (s, v) { return s + (metaDe('vendedor', v.id, mes, ano) || 0); }, 0);
+    return { metaLoja: metaLoja, soma: soma, dif: metaLoja === null ? null : soma - metaLoja };
+  }
+
+  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
@@ -1443,129 +1960,346 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
-  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
+  });
 
-  // Período: monta as opções e inicializa
-  document.getElementById('menuFiltroPeriodo').innerHTML = PERIODOS_DISPONIVEIS.map(p =>
-    '<div class="dropdown-select-item' + (p.v === filtroPeriodoAtual ? ' active' : '') + '" data-value="' + p.v + '">' + NOMES_MES_LONGO[p.mes - 1] + '/' + p.ano + '</div>'
-  ).join('');
-  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (v) => { filtroPeriodoAtual = v; renderTabela(); });
-  inicializarDropdownSelect(document.getElementById('filtroStatus'), (v) => { filtroStatusAtual = v; renderTabela(); });
+  // ===== MODAL =====
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+  const confirmCienteRow = document.getElementById('confirmCienteRow');
+  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
 
-  document.querySelectorAll('#filtroTipo button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#filtroTipo button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filtroTipoAtual = btn.getAttribute('data-filtro');
-      renderTabela();
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() {
+    confirmModalBackdrop.classList.remove('open');
+    confirmModal.classList.remove('open');
+    acaoConfirmada = null;
+  }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
+  // Antes isto executava o callback e so depois fechava. Callback que termina
+  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
+  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
+  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
+  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
+  // liberada" nunca apareceu para ninguem.
+  btnConfirmar.addEventListener('click', () => {
+    const executar = acaoConfirmada;
+    fecharModalConfirmacao();
+    if (executar) executar();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
+      else if (eventDrawer.classList.contains('open')) fecharDrawer();
+    }
+  });
+
+
+  // ===== O QUE SO A PERFORMANCE PRECISA =====
+  // Numero de vendas e devolucao saem do realizado por regra fixa, para o
+  // prototipo nao carregar tres tabelas a mais. No Lovable sao contagens em
+  // `pedidos` e `devolucoes`, com o mesmo corte: a partir de Faturado.
+  const TICKET_BASE = { 'loja:1': 205, 'loja:2': 158, 'loja:3': 392,
+                        'vendedor:1': 228, 'vendedor:6': 187, 'vendedor:5': 164, 'vendedor:2': 141, 'vendedor:3': 300 };
+  const TAXA_DEV = { 'loja:1': 0.026, 'loja:2': 0.041, 'loja:3': 0.014,
+                     'vendedor:1': 0.019, 'vendedor:6': 0.034, 'vendedor:5': 0.043, 'vendedor:2': 0.022, 'vendedor:3': 0 };
+  function numeroDeVendas(n, id, mes, ano) {
+    const real = realizadoDe(n, id, mes, ano);
+    const base = TICKET_BASE[n + ':' + id] || 200;
+    return real ? Math.max(1, Math.round(real / (base * (1 + ((mes % 3) - 1) * 0.04)))) : 0;
+  }
+  function devolvidoDe(n, id, mes, ano) {
+    const taxa = (TAXA_DEV[n + ':' + id] || 0) * (1 + ((mes % 4) - 1.5) * 0.12);
+    return Math.round(realizadoDe(n, id, mes, ano) * taxa);
+  }
+  function mesAnterior(mes, ano) { return mes === 1 ? { mes: 12, ano: ano - 1 } : { mes: mes - 1, ano: ano }; }
+
+  // ===== FILTROS E ORDEM =====
+  let busca = '', nivel = 'loja', visao = 'resultado';
+  let mesSel = MES_HOJE, anoSel = ANO_HOJE;
+  let ordem = 'nome', asc = true;
+  const eventDrawer = document.getElementById('eventDrawer');
+
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+  function pct(v) { return v.toFixed(1).replace('.', ',') + '%'; }
+
+  // A linha de performance: a de Metas, mais o que so esta tela mede.
+  function linhaPerf(n, u) {
+    const l = linhaDe(n, u, mesSel, anoSel);
+    const ant = mesAnterior(mesSel, anoSel);
+    l.vendas = numeroDeVendas(n, u.id, mesSel, anoSel);
+    l.ticket = l.vendas ? l.real / l.vendas : 0;
+    l.devolvido = devolvidoDe(n, u.id, mesSel, anoSel);
+    l.taxaDev = l.real ? l.devolvido / l.real * 100 : 0;
+    l.qtdDev = l.devolvido ? Math.max(1, Math.round(l.devolvido / (l.ticket || 1))) : 0;
+    l.realAnt = realizadoDe(n, u.id, ant.mes, ant.ano);
+    l.realAnoAnt = realizadoDe(n, u.id, mesSel, anoSel - 1);
+    return l;
+  }
+  function linhasDoNivel(n) { return unidadesDe(n).map(function (u) { return linhaPerf(n, u); }); }
+
+  function variacao(atual, base) {
+    if (!base) return '<span class="vol-sub">sem base para comparar</span>';
+    const d = (atual - base) / base * 100;
+    return '<span class="' + (d >= 0 ? 'var-sobe' : 'var-desce') + '">' + (d >= 0 ? '+' : '−') + pct(Math.abs(d)) + '</span>';
+  }
+  function celulaAting(l) {
+    if (l.pct === null) return '<span class="vol-sub">sem meta</span>';
+    const s = SIT_META[l.sit];
+    return '<div class="ating"><span class="ating-trilho"><span class="ating-barra" style="width:' +
+      Math.max(0, Math.min(100, l.pct)).toFixed(0) + '%; background:' + s.cor + ';"></span></span>' +
+      '<span class="ating-pct">' + l.pct.toFixed(0) + '%</span></div>';
+  }
+  function selo(l) {
+    const s = SIT_META[l.sit];
+    return '<span class="badge-situacao ' + s.selo + '"><span class="sit-dot ' + s.ponto + '"></span>' + s.rotulo + '</span>';
+  }
+
+  // TRES VISOES, uma pergunta cada. A coluna de nome e fixa; as outras mudam.
+  // `ord` e a chave de ordenacao; coluna sem `ord` nao ordena.
+  const VISOES = {
+    resultado: { rotulo: 'Resultado', colunas: [
+      { t: 'Vendido', ord: 'real', f: function (l) { return moeda(l.real); } },
+      { t: 'Nº de vendas', ord: 'vendas', f: function (l) { return String(l.vendas); } },
+      { t: 'Ticket médio', ord: 'ticket', f: function (l) { return l.vendas ? moeda(l.ticket) : '—'; } },
+      { t: 'Meta', ord: 'meta', f: function (l) { return l.meta === null ? '<span class="vol-sub">sem meta</span>' : moeda(l.meta); } },
+      { t: 'Atingimento', ord: 'pct', texto: true, f: celulaAting },
+      { t: 'Situação', texto: true, f: selo } ] },
+    devolucoes: { rotulo: 'Devoluções', colunas: [
+      { t: 'Vendido', ord: 'real', f: function (l) { return moeda(l.real); } },
+      { t: 'Devolvido', ord: 'devolvido', f: function (l) { return moeda(l.devolvido); } },
+      { t: 'Taxa de devolução', ord: 'taxaDev', f: function (l) { return l.real ? pct(l.taxaDev) : '—'; } },
+      { t: 'Nº de vendas', ord: 'vendas', f: function (l) { return String(l.vendas); } },
+      { t: 'Nº de devoluções', ord: 'qtdDev', f: function (l) { return String(l.qtdDev); } } ] },
+    comparativo: { rotulo: 'Comparativo', colunas: [
+      { t: 'Vendido no mês', ord: 'real', f: function (l) { return moeda(l.real); } },
+      { t: 'Mês anterior', ord: 'realAnt', f: function (l) { return l.realAnt ? moeda(l.realAnt) : '—'; } },
+      { t: 'Variação', f: function (l) { return variacao(l.real, l.realAnt); } },
+      { t: 'Mesmo mês, ano anterior', ord: 'realAnoAnt', f: function (l) { return l.realAnoAnt ? moeda(l.realAnoAnt) : '—'; } },
+      { t: 'Variação', f: function (l) { return variacao(l.real, l.realAnoAnt); } } ] }
+  };
+
+  function filtradas() {
+    const q = busca.trim().toLowerCase();
+    const lista = linhasDoNivel(nivel).filter(function (l) {
+      return !q || l.nome.toLowerCase().indexOf(q) >= 0;
     });
-  });
+    lista.sort(function (a, b) {
+      let x = a[ordem], y = b[ordem];
+      if (ordem === 'nome') { x = a.nome.toLowerCase(); y = b.nome.toLowerCase(); }
+      if (x === null || x === undefined) x = -1;
+      if (y === null || y === undefined) y = -1;
+      if (x < y) return asc ? -1 : 1;
+      if (x > y) return asc ? 1 : -1;
+      return 0;
+    });
+    return lista;
+  }
+  function subDe(l) {
+    if (l.nivel === 'loja') return TIPO_LOJA[l.unidade.tipo] || '';
+    const loja = lojaDe(l.unidade.lojaId);
+    return loja ? loja.nome : 'Autônomo, sem loja';
+  }
 
-  // ===== SELETOR DE VISÃO (seleção única — muda a família de métricas inteira) =====
-  document.getElementById('menuVisao').innerHTML = Object.keys(VISOES).map(k =>
-    '<div class="dropdown-select-item' + (k === visaoAtual ? ' active' : '') + '" data-value="' + k + '">' + VISOES[k].label + '</div>'
-  ).join('');
-  inicializarDropdownSelect(document.getElementById('seletorVisao'), (v) => {
-    visaoAtual = v;
-    resetarColunasVisiveis();
-    renderMenuColunas();
-    renderTabela();
-  });
-
-  // ===== SELETOR DE COLUNAS (multi-seleção — não fecha ao marcar; conteúdo muda com a Visão) =====
-  function renderMenuColunas() {
-    document.getElementById('menuColunas').innerHTML = VISOES[visaoAtual].colunas.map(c =>
-      '<label class="dropdown-checkbox-item"><input type="checkbox" data-coluna="' + c.key + '"' + (colunasVisiveis[c.key] ? ' checked' : '') + '> ' + c.label + '</label>'
-    ).join('');
-    document.querySelectorAll('#menuColunas input[type="checkbox"]').forEach(chk => {
-      chk.addEventListener('change', (e) => {
-        colunasVisiveis[e.target.getAttribute('data-coluna')] = e.target.checked;
-        renderTabela();
+  function render() {
+    const v = VISOES[visao];
+    const lista = filtradas();
+    document.getElementById('cabecalhoPerf').innerHTML =
+      '<th class="col-texto ordenavel" data-ordem="nome">' + (nivel === 'loja' ? 'Loja' : 'Vendedor') + ' <span class="seta">▲</span></th>' +
+      v.colunas.map(function (c) {
+        return '<th class="' + (c.texto ? 'col-texto ' : '') + (c.ord ? 'ordenavel' : '') + '"' +
+          (c.ord ? ' data-ordem="' + c.ord + '"' : '') + '>' + c.t + (c.ord ? ' <span class="seta">▲</span>' : '') + '</th>';
+      }).join('');
+    document.querySelectorAll('#cabecalhoPerf th.ordenavel').forEach(function (th) {
+      const campo = th.getAttribute('data-ordem');
+      const ativo = campo === ordem;
+      th.classList.toggle('ordenado', ativo);
+      const seta = th.querySelector('.seta');
+      if (seta) seta.textContent = ativo ? (asc ? '▲' : '▼') : '▲';
+      th.addEventListener('click', function () {
+        if (ordem === campo) asc = !asc; else { ordem = campo; asc = campo === 'nome'; }
+        render();
       });
     });
-  }
-  renderMenuColunas();
-  document.getElementById('seletorColunas').querySelector('.dropdown-select-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const menu = document.getElementById('menuColunas');
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-    menu.classList.toggle('open');
-  });
-  document.getElementById('menuColunas').addEventListener('click', (e) => e.stopPropagation());
 
-  // ===== FORMATAÇÃO =====
-  function fmtMoeda(v) { return 'R$ ' + Math.round(v).toLocaleString('pt-BR'); }
-  function fmtSituacao(diff) {
-    const cor = diff >= 0 ? 'var(--active-text)' : 'var(--negativo)';
-    const sinal = diff >= 0 ? '+' : '−';
-    return '<span style="color:' + cor + '; font-weight:700;">' + sinal + ' ' + fmtMoeda(Math.abs(diff)) + '</span>';
-  }
-  // percentual_meta: bom quando >= 100% (Atingimento de meta)
-  function fmtPercentualMeta(pct) {
-    const cor = pct >= 100 ? 'var(--active-text)' : 'var(--negativo)';
-    return '<span style="color:' + cor + '; font-weight:700;">' + pct.toFixed(0) + '%</span>';
-  }
-  // percentual_variacao: bom quando >= 0% (cresceu vs período anterior)
-  function fmtPercentualVariacao(pct) {
-    const cor = pct >= 0 ? 'var(--active-text)' : 'var(--negativo)';
-    const sinal = pct >= 0 ? '+' : '';
-    return '<span style="color:' + cor + '; font-weight:700;">' + sinal + pct.toFixed(0) + '%</span>';
-  }
-  // percentual_neutro: sem "certo/errado" implícito (ex: Taxa de Devolução — não temos benchmark definido)
-  function fmtPercentualNeutro(pct) {
-    return '<span style="font-weight:700;">' + pct.toFixed(1) + '%</span>';
-  }
-  function fmtValor(l, c) {
-    if (c.formato === 'moeda') return fmtMoeda(l[c.key]);
-    if (c.formato === 'situacao') return fmtSituacao(l[c.key]);
-    if (c.formato === 'percentual_meta') return fmtPercentualMeta(l[c.key]);
-    if (c.formato === 'percentual_variacao') return fmtPercentualVariacao(l[c.key]);
-    if (c.formato === 'percentual_neutro') return fmtPercentualNeutro(l[c.key]);
-    return String(l[c.key]);
-  }
-
-  // ===== TABELA =====
-  function colunasAtivas() { return VISOES[visaoAtual].colunas.filter(c => colunasVisiveis[c.key]); }
-
-  function renderCabecalho() {
-    const ativas = colunasAtivas();
-    document.getElementById('cabecalhoPerformance').innerHTML =
-      '<th>Loja</th>' + ativas.map(c => '<th style="text-align:right;">' + c.label + '</th>').join('');
-  }
-
-  function renderTabela() {
-    renderCabecalho();
-    const periodo = PERIODOS_DISPONIVEIS.find(p => p.v === filtroPeriodoAtual);
-    const ativas = colunasAtivas();
-    const visao = VISOES[visaoAtual];
-
-    const linhas = LOJAS.filter(l =>
-      (filtroTipoAtual === 'todos' || l.tipo === filtroTipoAtual) &&
-      (filtroStatusAtual === 'todos' || l.status === filtroStatusAtual)
-    ).map(loja => visao.calcularLinha(loja, periodo));
-
-    const corpo = document.getElementById('corpoPerformance');
-    corpo.innerHTML = linhas.map(l => {
-      const celulaLoja = '<td class="loja-cell"><div class="profile-avatar" style="background:' + COR_POR_TIPO[l.loja.tipo] + ';">' + iniciais(l.loja.nome) + '</div>' +
-        '<span>' + l.loja.nome + '</span><span class="tipo-tag">' + TIPO_LABEL[l.loja.tipo] + '</span></td>';
-      const celulas = ativas.map(c => '<td class="valor" style="text-align:right;">' + fmtValor(l, c) + '</td>').join('');
-      return '<tr>' + celulaLoja + celulas + '</tr>';
+    const corpo = document.getElementById('corpoTabela');
+    corpo.innerHTML = lista.map(function (l) {
+      return '<tr data-id="' + l.id + '"><td class="col-texto"><span class="vol-nome">' + l.nome +
+        '</span><span class="vol-sub">' + subDe(l) + '</span></td>' +
+        v.colunas.map(function (c) { return '<td' + (c.texto ? ' class="col-texto"' : '') + '>' + c.f(l) + '</td>'; }).join('') + '</tr>';
     }).join('');
+    corpo.querySelectorAll('tr').forEach(function (tr) {
+      tr.addEventListener('click', function () { abrirPainel(nivel, Number(tr.getAttribute('data-id'))); });
+    });
 
-    const rodape = document.getElementById('rodapePerformance');
-    if (linhas.length > 0) {
-      const totais = visao.totalizar(linhas);
-      const celulasTotal = ativas.map(c => '<td style="text-align:right;">' + fmtValor(totais, c) + '</td>').join('');
-      rodape.innerHTML = '<tr><td>Totais</td>' + celulasTotal + '</tr>';
-    } else {
-      rodape.innerHTML = '';
-    }
-
-    document.getElementById('performanceVazio').style.display = linhas.length === 0 ? 'block' : 'none';
-    document.getElementById('tabelaPerformance').style.display = linhas.length === 0 ? 'none' : 'table';
+    const vazio = lista.length === 0;
+    document.querySelector('.estoque-table-wrap').style.display = vazio ? 'none' : '';
+    document.getElementById('emptyState').style.display = vazio ? '' : 'none';
+    const nomeN = nivel === 'loja' ? ['loja', 'lojas'] : ['vendedor', 'vendedores'];
+    texto('contagemLinhas', lista.length + ' ' + (lista.length === 1 ? nomeN[0] : nomeN[1]));
+    texto('somaFiltro', moeda(lista.reduce(function (s, l) { return s + l.real; }, 0)));
+    document.querySelectorAll('#abasNivel .sit-contador').forEach(function (el) {
+      el.textContent = unidadesDe(el.getAttribute('data-cont')).length;
+    });
+    pintarKpis();
+    pintarAviso();
   }
 
-  renderTabela();
+  function pintarKpis() {
+    const todas = linhasDoNivel(nivel);
+    const real = todas.reduce(function (s, l) { return s + l.real; }, 0);
+    const vendas = todas.reduce(function (s, l) { return s + l.vendas; }, 0);
+    const dev = todas.reduce(function (s, l) { return s + l.devolvido; }, 0);
+    const ant = todas.reduce(function (s, l) { return s + l.realAnt; }, 0);
+    const tempo = tempoDoMes(mesSel, anoSel);
+    texto('kpiVendido', moeda(real));
+    texto('kpiVendidoSub', NOMES_MES[mesSel - 1] + ' de ' + anoSel +
+      (tempo === 0 ? ' · até o dia ' + DIA_HOJE : (tempo > 0 ? ' · ainda não começou' : '')));
+    texto('kpiNumero', String(vendas));
+    texto('kpiNumeroSub', 'a partir de Faturado, sem cancelados');
+    texto('kpiTicket', vendas ? moeda(real / vendas) : '—');
+    // Mes corrente contra mes fechado nao se compara: um tem 8 dias, o outro 30.
+    texto('kpiTicketSub', tempo === 0 ? 'mês em andamento' : (ant ? 'mês anterior vendeu ' + moeda(ant) : 'sem mês anterior para comparar'));
+    texto('kpiDevolucao', real ? pct(dev / real * 100) : '—');
+    texto('kpiDevolucaoSub', real ? moeda(dev) + ' devolvidos' : 'sem venda no mês');
+  }
+
+  // O aviso diz o que a tabela nao deixa obvio: quem puxa a taxa de devolucao.
+  function pintarAviso() {
+    const todas = linhasDoNivel(nivel).filter(function (l) { return l.real > 0; });
+    if (!todas.length) { html('avisoPerfTexto', 'Sem venda registrada em ' + NOMES_MES[mesSel - 1] + ' de ' + anoSel + '.'); return; }
+    const pior = todas.slice().sort(function (a, b) { return b.taxaDev - a.taxaDev; })[0];
+    const maior = todas.slice().sort(function (a, b) { return b.ticket - a.ticket; })[0];
+    html('avisoPerfTexto',
+      '<b>' + pior.nome + '</b> tem a maior taxa de devolução do mês, ' + pct(pior.taxaDev) + '. ' +
+      '<b>' + maior.nome + '</b> tem o maior ticket médio, ' + moeda(maior.ticket) + '. ' +
+      (tempoDoMes(mesSel, anoSel) === 0 ? 'O mês está em andamento: comparar com mês fechado mede dias diferentes.' : ''));
+  }
+
+  // ===== PAINEL DE LEITURA =====
+  function abrirPainel(n, id) {
+    const u = (n === 'loja' ? LOJAS : VENDEDORES).filter(function (x) { return x.id === id; })[0];
+    if (!u) return;
+    const l = linhaPerf(n, u);
+    texto('drawerTitulo', u.nome);
+    function linha(r, v) { return '<div class="rt-linha"><span class="chave-rotulo">' + r + '</span><span class="chave-valor">' + v + '</span></div>'; }
+    let corpo = '<div class="drawer-badges">' + selo(l) + '</div>' +
+      '<div class="rt-sub">' + NOMES_MES[mesSel - 1] + ' de ' + anoSel + '</div>' +
+      linha('Vendido', moeda(l.real)) +
+      linha('Nº de vendas', String(l.vendas)) +
+      linha('Ticket médio', l.vendas ? moeda(l.ticket) : '—') +
+      linha('Devolvido', moeda(l.devolvido) + (l.real ? ' · ' + pct(l.taxaDev) : '')) +
+      linha('Meta', l.meta === null ? 'sem meta' : moeda(l.meta) + ' · ' + l.pct.toFixed(0) + '%') +
+      linha('Mês anterior', l.realAnt ? moeda(l.realAnt) + ' · ' + variacao(l.real, l.realAnt) : 'sem venda registrada') +
+      linha(MES_CURTO[mesSel - 1] + ' de ' + (anoSel - 1), l.realAnoAnt ? moeda(l.realAnoAnt) + ' · ' + variacao(l.real, l.realAnoAnt) : 'sem venda registrada');
+
+    corpo += '<div class="rt-sub">O ano de ' + anoSel + '</div><table class="meta-ano"><thead><tr><th>Mês</th><th>Vendido</th><th>Vendas</th><th>Ticket</th></tr></thead><tbody>';
+    for (let m = 1; m <= 12; m++) {
+      const real = realizadoDe(n, id, m, anoSel);
+      const nv = numeroDeVendas(n, id, m, anoSel);
+      const futuro = tempoDoMes(m, anoSel) > 0;
+      corpo += '<tr' + (m === mesSel ? ' class="atual"' : '') + '><td>' + MES_CURTO[m - 1] + '</td>' +
+        '<td>' + (futuro || !real ? '—' : moeda(real)) + '</td>' +
+        '<td>' + (futuro || !nv ? '—' : nv) + '</td>' +
+        '<td>' + (futuro || !nv ? '—' : moeda(real / nv)) + '</td></tr>';
+    }
+    corpo += '</tbody></table>';
+    corpo += '<div class="drawer-footer"><a class="btn-primary" href="pagina-vendas-metas.html">Definir metas</a>' +
+      '<div class="drawer-link" id="btnFecharPainel">Fechar</div></div>';
+    html('drawerCorpo', corpo);
+    document.getElementById('btnFecharPainel').addEventListener('click', fecharDrawer);
+    document.getElementById('drawerBackdrop').classList.add('open');
+    eventDrawer.classList.add('open');
+  }
+  function fecharDrawer() {
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    eventDrawer.classList.remove('open');
+  }
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
+
+  // ===== ABAS, BUSCA E FILTROS =====
+  function setDrop(id, valor, rotulo) {
+    const raiz = document.getElementById(id);
+    raiz.setAttribute('data-value', valor);
+    const lab = raiz.querySelector('.dropdown-select-label');
+    if (lab) lab.textContent = rotulo;
+    raiz.querySelectorAll('.dropdown-select-item').forEach(function (it) {
+      it.classList.toggle('active', it.getAttribute('data-value') === String(valor));
+    });
+  }
+  function montar(idMenu, itens) {
+    document.getElementById(idMenu).innerHTML = itens.map(function (o) {
+      return '<div class="dropdown-select-item" data-value="' + o.v + '">' + o.t + '</div>';
+    }).join('');
+  }
+  document.querySelectorAll('#abasNivel .aba-sit').forEach(function (aba) {
+    aba.addEventListener('click', function () {
+      document.querySelectorAll('#abasNivel .aba-sit').forEach(function (a) { a.classList.remove('active'); });
+      aba.classList.add('active');
+      nivel = aba.getAttribute('data-nivel');
+      render();
+    });
+  });
+  document.getElementById('campoBusca').addEventListener('input', function (e) { busca = e.target.value; render(); });
+
+  (function ligarFiltros() {
+    montar('menuFiltroMes', NOMES_MES.map(function (n, i) { return { v: i + 1, t: n }; }));
+    montar('menuFiltroAno', ANOS.map(function (a) { return { v: a, t: String(a) }; }));
+    montar('menuFiltroVisao', Object.keys(VISOES).map(function (k) { return { v: k, t: VISOES[k].rotulo }; }));
+    setDrop('filtroMes', mesSel, NOMES_MES[mesSel - 1]);
+    setDrop('filtroAno', anoSel, String(anoSel));
+    setDrop('filtroVisao', visao, VISOES[visao].rotulo);
+    inicializarDropdownSelect(document.getElementById('filtroMes'), function (v) {
+      mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES[mesSel - 1]); render();
+    });
+    inicializarDropdownSelect(document.getElementById('filtroAno'), function (v) {
+      anoSel = Number(v); setDrop('filtroAno', v, String(v)); render();
+    });
+    inicializarDropdownSelect(document.getElementById('filtroVisao'), function (v) {
+      visao = v; ordem = 'nome'; asc = true; setDrop('filtroVisao', v, VISOES[v].rotulo); render();
+    });
+  })();
+
+  document.getElementById('btnLimparFiltros').addEventListener('click', function () {
+    busca = ''; document.getElementById('campoBusca').value = ''; render();
+  });
+
+  // ===== MAIS AÇÕES =====
+  const menuMais = document.getElementById('menuMaisAcoes');
+  inicializarDropdownSelect(menuMais, null);
+  menuMais.querySelectorAll('.dropdown-select-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+      menuMais.classList.remove('open');
+      const acao = item.getAttribute('data-acao');
+      if (acao === 'pedidos') { window.location.href = 'pagina-vendas-pedidos.html'; return; }
+      if (acao === 'devolucoes') { window.location.href = 'pagina-logistica-devolucao.html'; return; }
+      if (acao === 'exportar') {
+        avisar('A exportação para planilha entra junto com os relatórios de Vendas. Por enquanto a lista filtrada é o que existe.');
+      }
+    });
+  });
+
+  render();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -1612,6 +2346,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
+
 
 </script>
 

@@ -1465,6 +1465,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="par-campos" id="grupoFiscalPerda"></div>
   </div>
 
+  <div class="par-secao">
+    <div class="par-secao-titulo">Metas · situação da meta no mês</div>
+    <div class="par-secao-sub">
+      A situação é calculada, não escolhida: <b>no ritmo</b> e <b>abaixo do ritmo</b> comparam o que já
+      foi vendido com o que deveria estar vendido até hoje, em dias corridos. Mês fechado vira
+      <b>batida</b> ou <b>não bateu</b>.
+    </div>
+    <div class="par-campos" id="grupoSitMetas"></div>
+  </div>
+
   <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarNomes">Salvar nomes</button>
     <div class="drawer-link" id="btnRestaurarNomes">Restaurar padrão</div>
@@ -1606,7 +1616,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     'perda.fiscal.nfe':     'Exige NF-e própria',
     'perda.fiscal.interno': 'Resolve com documento interno',
     'perda.fiscal.depende': 'Depende da diferença',
-    'perda.fiscal.nenhum':  'Não gera obrigação'
+    'perda.fiscal.nenhum':  'Não gera obrigação',
+    // Metas — situacao da meta no mes
+    'metas.situacao.batida':    'Meta batida',
+    'metas.situacao.noritmo':   'No ritmo',
+    'metas.situacao.abaixo':    'Abaixo do ritmo',
+    'metas.situacao.naobatida': 'Não bateu',
+    'metas.situacao.semmeta':   'Sem meta',
+    'metas.situacao.futuro':    'Ainda não começou'
   };
   function lerNomes() {
     try {
@@ -2191,7 +2208,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       'perda.movimento.entrada', 'perda.movimento.saida', 'perda.movimento.balanco'] },
     { alvo: 'grupoFiscalPerda', chaves: [
       'perda.fiscal.nfe', 'perda.fiscal.interno',
-      'perda.fiscal.depende', 'perda.fiscal.nenhum'] }
+      'perda.fiscal.depende', 'perda.fiscal.nenhum'] },
+    { alvo: 'grupoSitMetas', chaves: [
+      'metas.situacao.batida', 'metas.situacao.noritmo', 'metas.situacao.abaixo',
+      'metas.situacao.naobatida', 'metas.situacao.semmeta', 'metas.situacao.futuro'] }
   ];
   const TODAS_CHAVES = GRUPOS_NOME.reduce((s, g) => s.concat(g.chaves), []);
 

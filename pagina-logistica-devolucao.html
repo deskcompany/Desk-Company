@@ -1339,7 +1339,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     'perda.fiscal.nfe':     'Exige NF-e própria',
     'perda.fiscal.interno': 'Resolve com documento interno',
     'perda.fiscal.depende': 'Depende da diferença',
-    'perda.fiscal.nenhum':  'Não gera obrigação'
+    'perda.fiscal.nenhum':  'Não gera obrigação',
+    // Metas — situacao da meta no mes
+    'metas.situacao.batida':    'Meta batida',
+    'metas.situacao.noritmo':   'No ritmo',
+    'metas.situacao.abaixo':    'Abaixo do ritmo',
+    'metas.situacao.naobatida': 'Não bateu',
+    'metas.situacao.semmeta':   'Sem meta',
+    'metas.situacao.futuro':    'Ainda não começou'
   };
   function lerNomes() {
     try {
@@ -1442,6 +1449,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
     // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
     // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2104,7 +2113,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      else if (eventDrawer.classList.contains('open')) fecharDrawer();
+      // Nesta tela o painel fecha por `fecharPainel`. O nome herdado do
+      // Rastreamento (`fecharDrawer`) nao existe aqui: Esc com o painel aberto
+      // dava ReferenceError e o painel ficava na tela.
+      else if (eventDrawer.classList.contains('open')) fecharPainel();
       else document.getElementById('periodoMenu').classList.remove('open');
     }
   });

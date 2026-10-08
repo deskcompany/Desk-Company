@@ -216,7 +216,9 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 
 | `teste_motivos_perda.py` | **(08/out)** Operacional → Motivos de Perda. O item já existia no menu de Estoque, em Acerto e Inventário, **apontando para lugar nenhum** — e os motivos viviam escritos no código do Acerto, com um campo que **não é rótulo**: `fiscal` decide se a baixa exige NF-e própria (CFOP 5.927, com estorno do crédito), se resolve com documento interno, ou se depende da diferença. Motivo sem cadastro é regra fiscal sem dono. A suíte guarda que movimento é eixo de verdade (furto não serve para entrada), que tratamento com obrigação **avisa antes de salvar** e trocar de aviso esconde o anterior, que nome repetido é barrado mesmo com outra caixa, e que a trava nasce com a tela. A **[8] é a que justifica o cadastro existir**: compara o que o cadastro diz com o que o Acerto oferece, código a código e tratamento a tratamento. Provada nos dois sentidos — mudar o "Furto ou roubo" para `interno` só no Acerto faz ela reprovar | 48 |
 
-Total: **3.077 asserções** sob selo, medidas na rodada completa de 08/out/2026, em 27 suítes.
+| `teste_metas.py` | **(08/out)** Vendas → Metas e Performance de Vendas. Metas era um formulário solto e virou listagem com painel lateral: a listagem lê, o painel escreve. A suíte guarda os dois níveis (loja e vendedor), o ritmo por **dias corridos**, que "abaixo do ritmo" só existe no mês corrente, o aviso de diferença entre a meta da loja e a soma dos vendedores, os quatro modos de definir (mensal, trimestral, anual, progressivo) com a prévia do que será gravado, e que alterar meta de mês fechado **pede senha**. A **[9] é a que justifica as duas telas serem refeitas juntas**: compara o bloco de dados e o texto de `situacaoDaMeta` entre Metas e Performance. Performance tinha a sua própria cópia dos números e podia discordar calada. Provada nos dois sentidos — mudar uma meta só em Performance faz ela reprovar | 65 |
+
+Total: **3.143 asserções** sob selo, medidas na rodada completa de 08/out/2026, em 28 suítes.
 
 ### O contador estava errado nas duas direções (06/out/2026)
 

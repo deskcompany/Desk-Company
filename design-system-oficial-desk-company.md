@@ -1608,3 +1608,53 @@ backend entrar, ela some.
   O dropdown abre vazio e o aviso condicional não aparece ao criar um registro
   novo — e isso passa despercebido, porque editar um registro existente
   funciona.
+
+## 14.42 Meta é listagem com painel, e o número tem uma casa só (08/out/2026)
+
+A primeira tela de Metas era um formulário solto: escolhia a loja, digitava o
+valor, salvava. Funcionava, e era **mais rasa que qualquer outro cadastro do
+sistema** — não mostrava quem estava batendo, quem estava atrás, nem quanto
+faltava. O usuário chamou de vaga, e era.
+
+O desenho que ficou é o mesmo do Rastreamento e da Devolução: **a listagem lê,
+o painel lateral escreve**. A tela principal mostra as metas do mês com o
+realizado ao lado; definir ou alterar abre o painel.
+
+O que a pesquisa em Olist e Bling trouxe, e o que virou regra aqui:
+
+| decisão | o que ficou |
+|---|---|
+| Níveis | loja e vendedor, em abas |
+| De onde vem o realizado | Pedidos de Venda **faturados** — orçamento e pedido em aberto não contam |
+| Ritmo | **dias corridos**: no dia 8 de um mês de 31, o esperado é 8/31 da meta |
+| Loja x vendedores | **independentes**. A soma dos vendedores não precisa fechar com a loja; quando não fecha, a tela **avisa a diferença** e não corrige nada sozinha |
+| Como se define | mensal, trimestral (divide por 3), anual (divide por 12) ou progressivo (cresce X% ao mês), sempre com **prévia** dos meses que serão gravados |
+| Mês fechado | alterar meta de mês que já passou **pede senha** (`metasAlteraFechado`); definir meta futura é trabalho normal (`metasDefine`) |
+
+A situação tem seis valores e a ordem importa: sem meta, futuro, batida, não
+batida, no ritmo, abaixo do ritmo. **"Abaixo do ritmo" só existe no mês
+corrente** — mês fechado é batida ou não batida, e mês futuro não tem ritmo
+para medir. Os seis rótulos estão no dicionário de nomes (`metas.situacao.*`).
+
+**A lição que vale para o próximo par de telas.** Performance de Vendas tinha a
+**sua própria cópia** dos números de meta. As duas telas mostravam a mesma
+loja, no mesmo mês, e podiam discordar sem que nada reclamasse. Agora as duas
+carregam o mesmo bloco de dados e a mesma função `situacaoDaMeta`, e a suíte
+compara os dois — os dados e o **texto da função**. Provada nos dois sentidos:
+mudar uma meta só em Performance faz ela reprovar.
+
+Enquanto não há backend, isso é espelho, como a lista de motivos do Acerto
+(§14.41). **Ainda há duas cópias fora do espelho:** `HISTORICO_METAS` no
+detalhe de Lojas Desk e os números do Dashboard de KPIs. Elas não foram
+conferidas contra Metas; quem mexer em uma das duas confere antes.
+
+**Performance perdeu duas coisas na reconstrução**, de propósito e à vista: o
+botão "Colunas" e os filtros de status e tipo. No lugar entrou o seletor de
+visão (resultado, devoluções, comparativo), que troca o conjunto de colunas
+inteiro. Se o usuário sentir falta, volta — não foi esquecimento.
+
+**Um bug que a tela-molde carregava.** Metas foi gerada a partir da listagem de
+Devolução, e lá o Esc chamava `fecharDrawer()`, função que **não existe** — o
+nome certo é `fecharPainel()`. O painel não fechava no Esc e o console acusava
+erro a cada tecla. Nenhuma suíte apertava Esc com o painel aberto; agora a de
+Devolução aperta. Clonar uma tela copia também o que ninguém testou nela.

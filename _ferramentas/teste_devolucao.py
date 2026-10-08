@@ -111,6 +111,16 @@ with sync_playwright() as pw:
        'nao ha campo editavel nenhum no painel')
     ok(pg.locator('#drawerCorpo [data-abrir-detalhe]').count() == 1, 'ele oferece abrir a devolucao')
 
+    # Esc fecha o painel. Faltava este teste, e por isso o bug passou: o Esc
+    # chamava uma funcao com o nome do Rastreamento, que nao existe aqui.
+    if pg.locator('#eventDrawer.open').count() == 0:
+        pg.evaluate("document.querySelector('#corpoTabela tr').click()"); pg.wait_for_timeout(400)
+    aberto = pg.locator('#eventDrawer.open').count() == 1
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(350)
+    ok(aberto and pg.locator('#eventDrawer.open').count() == 0, 'Esc fecha o painel da listagem')
+    # A secao seguinte parte do painel aberto.
+    pg.evaluate("document.querySelector('#corpoTabela tr').click()"); pg.wait_for_timeout(400)
+
     print('\n[6] O painel leva ao detalhe, pelo ?id=')
     pg.locator('#drawerCorpo [data-abrir-detalhe]').click()
     pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
