@@ -1764,3 +1764,36 @@ Três regras que ficam:
   roda nela (`python varredura_cliques.py - <nome>`), porque é a única que aperta tudo.
 - **Todo `open()` de script daqui diz o `encoding`.** O padrão do Windows não é o do Linux onde
   as ferramentas nasceram.
+
+## 14.46 Cadastro que se configura uma vez não é item de menu (08/out/2026)
+
+O módulo **Operacional** saiu do menu lateral. O usuário olhou o que sobrava nele (Transportadoras,
+Motivos de Devolução, Motivos de Perda) e disse o que era: "configuração da operação, configura uma
+vez, já era". O Olist guarda essas listas em Configurações, e o nosso hub **já tinha** uma aba
+Operacional com os três nomes.
+
+O que mudou:
+
+| o quê | antes | agora |
+|---|---|---|
+| os três cadastros | item do menu lateral, em Operacional | cartão no hub de Configurações, aba Operacional |
+| os arquivos | `telas/operacional/pagina-operacional-*.html` | `telas/configuracoes/pagina-configuracoes-*.html` |
+| Formas de Pagamento | item sem tela em Operacional | nasce em Configurações → Finanças |
+| Cupons | item sem tela em Operacional | adiado para as vitrines: hoje nenhuma tela lê cupom |
+| caminho da tela | Operacional › Transportadoras | Configurações › Configurações ERP › Transportadoras |
+
+No catálogo de senhas, `onde` passou a dizer `Configurações → ...` e `grupo` continuou `Operacional`:
+o grupo é a área do assunto (é o nome da aba do hub), não o lugar do menu. É a mesma forma de
+Contas financeiras, que mora em Configurações e é do grupo Finanças.
+
+**O defeito que a mudança revelou.** O hub listava os três cadastros como cartão **sem destino**, com
+a etiqueta de "a construir", e as três telas estavam prontas havia dias. Cartão morto para tela que
+existe é beco do mesmo tipo do item de menu sem `data-href`, só que num lugar que nenhuma suíte
+olhava. Agora `teste_menu.py` (seção 8) cobra que **toda tela da pasta de Configurações tenha cartão
+com destino no hub**, e que o módulo apagado não volte numa tela copiada de versão antiga.
+
+**Regra para a próxima lista auxiliar:** se a pessoa configura uma vez e a operação só lê, a tela
+nasce em Configurações, com cartão no hub. Item de menu lateral é para o que se usa no dia a dia.
+
+**Nome antigo de arquivo não redireciona.** O servidor redireciona endereço sem pasta, não arquivo
+renomeado: `/operacional/pagina-operacional-transportadoras.html` agora dá 404.

@@ -125,7 +125,7 @@ with sync_playwright() as p:
     if pg.locator('#campoSenhaModal').is_visible():
         pg.fill('#inputSenhaModal', 'seiasenha')
     clicar(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(500)
-    pg.goto(localiza.http('pagina-operacional-motivos-devolucao.html'))
+    pg.goto(localiza.http('pagina-configuracoes-motivos-devolucao.html'))
     pg.wait_for_load_state('load'); pg.wait_for_timeout(800)
     ok('pronta pra vitrine' in pg.inner_text('#listaMotivos').lower(),
        'a lista de motivos usa o nome novo')

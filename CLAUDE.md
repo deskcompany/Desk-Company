@@ -26,7 +26,7 @@ ERP System\
 ├── telas\                 o que o servidor de preview entrega
 │   ├── inicio\            boas-vindas, agenda, minha conta e o dashboard de KPIs
 │   ├── cadastros\  estoque\  vendas\  logistica\  financas\
-│   ├── operacional\  configuracoes\
+│   ├── configuracoes\     abre pelo hub; guarda também Transportadoras e os Motivos
 │   ├── integracoes\       vazia: nenhuma tela construída ainda
 │   ├── _molde\            pagina-molde-referencia.html
 │   └── fontes\            Nunito, usada por todas as telas
@@ -157,10 +157,10 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 ## Estado atual (06/out/2026)
 
-**71 telas construídas**, 45 entradas de menu, 19 submódulos a fazer. F2 (Cadastros), F5
+**71 telas construídas**, 41 entradas de menu, 18 submódulos a fazer. F2 (Cadastros), F5
 (Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
 Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
-mais o cadastro de **Motivos de Devolução** em Operacional. De Logística falta só
+mais o cadastro de **Motivos de Devolução** (hoje em Configurações; o módulo Operacional saiu do menu em 08/out). De Logística falta só
 Relatórios, que entra junto com os dos outros módulos.
 
 **Padrão que vale para tudo que vier:** cadastro de que a tela depende nasce **antes** dela,

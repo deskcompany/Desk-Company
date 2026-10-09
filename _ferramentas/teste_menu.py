@@ -117,6 +117,23 @@ with sync_playwright() as p:
     ok(not nus, 'nenhuma citacao a tela sem a pasta: %s' % nus[:3])
     ok(not quebrados, 'e toda pasta citada tem a tela la dentro: %s' % quebrados[:3])
     ok(not fontes, 'e as fontes carregam de onde a tela esta: %s' % fontes[:3])
+    print('8. Configuracoes abre pelo hub: toda tela do modulo tem cartao, e Operacional saiu do menu')
+    # 08/out: os cadastros de Operacional (Transportadoras e os dois Motivos)
+    # foram para Configuracoes, e o modulo saiu do menu lateral. O hub ja listava
+    # os tres como cartao SEM destino, com as telas prontas havia dias: cartao
+    # morto para tela que existe. Esta secao cobra as duas pontas: nenhuma tela
+    # de Configuracoes fica sem porta no hub, e o modulo apagado nao volta numa
+    # tela copiada de uma versao antiga.
+    hub = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
+    sem_cartao = [os.path.basename(c) for c in localiza.caminhos()
+                  if os.path.basename(os.path.dirname(c)) == 'configuracoes'
+                  and os.path.basename(c) != 'pagina-configuracoes.html'
+                  and ("href:'../configuracoes/" + os.path.basename(c) + "'") not in hub]
+    ok(not sem_cartao, 'toda tela de Configuracoes tem cartao no hub: %s' % sem_cartao[:4])
+    com_modulo = [os.path.basename(c) for c in _filtrar(localiza.caminhos())
+                  if 'id="flyout-operacional"' in open(c, encoding='utf-8').read()
+                  or 'data-id="operacional"' in open(c, encoding='utf-8').read()]
+    ok(not com_modulo, 'nenhuma tela traz o modulo Operacional no menu lateral: %s' % com_modulo[:4])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

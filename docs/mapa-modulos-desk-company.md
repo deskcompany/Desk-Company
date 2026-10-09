@@ -85,17 +85,9 @@
 | ❌ | Comissões Afiliados |
 | ❌ | Relatórios Finanças |
 
-## 🔧 Operacional — 3 de 4
-| | Submódulo |
-|---|---|
-| ✅ | Transportadoras |
-| ✅ | Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque; nasceu antes da Devolução usá-lo)* |
-| ✅ | Motivos de Perda *(em que movimento o motivo vale e o que a baixa obriga; os motivos vieram do código do Acerto, onde viviam sem dono)* |
-| ❌ | Relatórios Operacional |
+## 🔧 Operacional — módulo apagado em 08/out/2026
 
-> **Saíram deste menu em 08/out/2026, por decisão do usuário:**
-> **Formas de Pagamento** nasce em Configurações → Finanças, ao lado das contas e categorias financeiras de que depende (o hub já tinha os dois cartões reservados: formas de recebimento e formas de pagamento).
-> **Cupons** fica para quando as vitrines forem construídas: é a vitrine que aplica cupom, e hoje nenhuma tela do ERP lê um.
+> Por decisão do usuário: o que havia aqui é configuração da operação, que se faz uma vez. **Transportadoras, Motivos de Devolução e Motivos de Perda** foram para Configurações e abrem pelo hub, na aba Operacional. **Formas de Pagamento** nasce em Configurações → Finanças. **Cupons** fica para quando as vitrines forem construídas. **Relatórios Operacional** deixou de existir como entrada.
 
 ## 🔌 Integrações — 0 de 4 próprias
 *Lojas Desk, Depósitos e Endereços de Estoque aqui são atalhos para Cadastros, não telas próprias.*
@@ -107,7 +99,7 @@
 | ❌ | Gateways de Pagamento |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 10 de 10
+## ⚙️ Configurações — 15 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
@@ -115,6 +107,7 @@
 | ✅ | Configurações da conferência · do cadastro de produtos · do cadastro de clientes |
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
 | ✅ | Nomes do sistema |
+| ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
 | ❌ | Formas de recebimento · Formas de pagamento *(próximas; cartões já reservados no hub, em Finanças)* |
 
 > ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
@@ -133,9 +126,8 @@
 | Vendas | 2 | 7 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
-| **Operacional** | **3** | **1** |
 | Integrações | 0 | 4 |
-| Configurações | 10 | 0 |
-| **Total** | **45 entradas de menu · 71 telas** | **19** |
+| Configurações | 15 | 0 |
+| **Total** | **41 entradas de menu · 71 telas** | **18** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

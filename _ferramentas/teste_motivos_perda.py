@@ -34,7 +34,7 @@ _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/
 CHROME = _ch[0] if _ch else None
 
 URL = 'http://localhost:3000/'
-TELA = 'pagina-operacional-motivos-perda.html'
+TELA = 'pagina-configuracoes-motivos-perda.html'
 ACERTO = 'pagina-estoque-acerto.html'
 
 falhas = []
@@ -183,23 +183,14 @@ with sync_playwright() as p:
     ok(not divergentes,
        'e o tratamento fiscal e o MESMO nos dois lados: %s' % (divergentes or 'nenhuma divergência'))
 
-    print('\n[9] O item de menu deixou de ser promessa vazia')
-    href = pg.evaluate("""(function () {
-      var el = Array.from(document.querySelectorAll('.flyout-item'))
-        .filter(function (e) { return (e.getAttribute('data-label') || '') === 'Motivos de Perda'; })[0];
-      return el ? el.getAttribute('data-href') : null;
-    })()""")
-    ok(localiza.nome(href) == TELA, 'o item leva ao cadastro: %s' % href)
-    p4 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p4.goto(localiza.http(ACERTO))
-    p4.wait_for_timeout(700)
-    hrefEst = p4.evaluate("""(function () {
-      var el = Array.from(document.querySelectorAll('.flyout-item'))
-        .filter(function (e) { return (e.getAttribute('data-label') || '') === 'Motivos de Perda'; })[0];
-      return el ? el.getAttribute('data-href') : null;
-    })()""")
-    ok(localiza.nome(hrefEst) == TELA, 'e o item do menu de Estoque tambem, que era onde ele nao levava a lugar nenhum')
-    p4.close()
+    print('\n[9] A porta e o hub de Configuracoes')
+    # O item nasceu no menu lateral apontando para lugar nenhum, ganhou destino
+    # em 08/out e, no mesmo dia, o modulo Operacional saiu do menu. O cadastro
+    # abre pelo cartao do hub.
+    hub = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
+    ok(("href:'../configuracoes/" + TELA + "'") in hub, 'o hub de Configuracoes tem o cartao que abre esta tela')
+    ok(pg.locator('.flyout-item[data-label="Motivos de Perda"]').count() == 0,
+       'e o item antigo saiu do menu lateral')
 
     print('\n[10] Nos dois temas, sem erro de JS')
     for tema in ['claro', 'escuro']:

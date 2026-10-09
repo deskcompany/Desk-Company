@@ -231,7 +231,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 | `teste_lanc.py` | Lançamento do Caixa | 44 |
 | `teste_integra.py` | Contas a pagar **escreve** no Caixa e o Caixa **lê** | 14 |
 | `teste_agenda_aviso.py` | recorrência que termina vira aviso na Agenda, e renovar cria o ano seguinte | 24 |
-| `teste_menu.py` | o menu lateral navega de verdade entre as telas. Desde 08/out guarda tambem duas regras do sistema inteiro: nenhuma classe de botao sublinha quando vira link (secao 6), e **todo link entre telas diz a pasta, e a pasta tem a tela dentro** (secao 7, estatica, cobre as 3.360 citacoes e as fontes). As duas provadas nos dois sentidos | 18 |
+| `teste_menu.py` | o menu lateral navega de verdade entre as telas. Desde 08/out guarda tambem duas regras do sistema inteiro: nenhuma classe de botao sublinha quando vira link (secao 6), e **todo link entre telas diz a pasta, e a pasta tem a tela dentro** (secao 7, estatica, cobre as 3.360 citacoes e as fontes). As duas provadas nos dois sentidos. A secao 8 (08/out) cobra que toda tela de Configuracoes tenha cartao com destino no hub, e que o modulo Operacional, apagado do menu, nao volte numa tela copiada | 20 |
 | `teste_datas.py` · `teste_pos.py` | o componente de data e o posicionamento do calendário | 24 |
 | `teste_dropdown_todas.py` | clica no dropdown das **54 telas**: abre, escolhe, fecha — e, desde 02/out, confere com `elementFromPoint` que o menu **aparece de verdade**, não só no DOM (ver abaixo) | 54 telas |
 | `teste_confirma_senha.py` | **(28/set)** modal de confirmação em **todas** as telas que carregam o bloco de senha — descobertas pelo próprio script, sem lista fixa: a trava trava, o Esc fecha, o "estou ciente" aparece com 2+, a ação entra no registro, e o despacho entrega o callback nas **três assinaturas** | 687 |
@@ -258,7 +258,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 
 | `teste_metas.py` | **(08/out)** Vendas → Metas e Performance de Vendas. Metas era um formulário solto e virou listagem com painel lateral: a listagem lê, o painel escreve. A suíte guarda os dois níveis (loja e vendedor), o ritmo por **dias corridos**, que "abaixo do ritmo" só existe no mês corrente, o aviso de diferença entre a meta da loja e a soma dos vendedores, os quatro modos de definir (mensal, trimestral, anual, progressivo) com a prévia do que será gravado, e que alterar meta de mês fechado **pede senha**. A **[9] é a que justifica as duas telas serem refeitas juntas**: compara o bloco de dados e o texto de `situacaoDaMeta` entre Metas e Performance. Performance tinha a sua própria cópia dos números e podia discordar calada. Provada nos dois sentidos — mudar uma meta só em Performance faz ela reprovar. A **[12]** guarda o link que sai de Performance: "Definir meta" chega em Metas com o painel aberto naquela loja e naquele mês | 74 |
 
-Total: **3.165 asserções** sob selo, medidas em 08/out/2026 (já na estrutura por módulos), em 28 suítes.
+Total: **3.167 asserções** sob selo, medidas em 08/out/2026 (já na estrutura por módulos), em 28 suítes.
 
 ### O contador estava errado nas duas direções (06/out/2026)
 

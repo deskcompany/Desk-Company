@@ -23,7 +23,7 @@ os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
 CHROME = _ch[0] if _ch else None
 URL = _pathlib.Path(PASTA).as_uri() + '/'
-TELA = 'pagina-operacional-motivos-devolucao.html'
+TELA = 'pagina-configuracoes-motivos-devolucao.html'
 
 falhas = []
 def ok(c, m):
@@ -153,16 +153,16 @@ with sync_playwright() as pw:
         ok(achou, 'o catalogo de %s conhece motivosDevolucao' % tela.replace('pagina-configuracoes-', ''))
         p2.close()
 
-    print('\n[11] O item de menu deixou de ser inerte')
+    print('\n[11] A porta e o hub de Configuracoes')
+    # Ate 08/out o item morava no menu lateral, em Operacional. O modulo saiu do
+    # menu; o cadastro abre pelo cartao do hub.
     pg.goto(localiza.uri(TELA)); pg.wait_for_timeout(450)
-    href = pg.evaluate("""() => {
-      const el = Array.from(document.querySelectorAll('.flyout-item'))
-        .filter(e => (e.getAttribute('data-label') || '').indexOf('Motivos de Devolu') === 0)[0];
-      return el ? el.getAttribute('data-href') : null;
-    }""")
-    ok(localiza.nome(href) == TELA, 'o item do menu leva a esta tela: %s' % href)
+    hub = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
+    ok(("href:'../configuracoes/" + TELA + "'") in hub, 'o hub de Configuracoes tem o cartao que abre esta tela')
+    ok(pg.locator('.flyout-item[data-label^="Motivos de Devolu"]').count() == 0,
+       'e o item antigo saiu do menu lateral')
     bc = pg.inner_text('#breadcrumb').lower()
-    ok('operacional' in bc and 'motivos' in bc, 'o caminho diz Operacional > Motivos: %s' % bc.replace(chr(10), ' '))
+    ok('configura' in bc and 'motivos' in bc, 'o caminho diz Configuracoes > Motivos: %s' % bc.replace(chr(10), ' '))
 
     print('\n[12] Nos dois temas, sem erro de JS e sem estourar a largura')
     for tema in ['claro', 'escuro']:

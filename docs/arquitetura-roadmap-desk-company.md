@@ -2612,7 +2612,7 @@ Um achado guardado para quando a integração entrar: **a recotação no empacot
 
 ## Três telas novas
 
-**Operacional → Transportadoras** (`pagina-operacional-transportadoras.html`). Nome no galpão, tipo, CNPJ, dias de coleta, horário de corte, prazo em dias úteis, peso máximo por volume, UF de origem, contato e observação para o galpão. O **tipo decide o formulário**: retirada no balcão não tem coleta nem limite de carga, e frota própria é o único tipo que fala de MDF-e (§14.28).
+**Operacional → Transportadoras** (`pagina-configuracoes-transportadoras.html`). Nome no galpão, tipo, CNPJ, dias de coleta, horário de corte, prazo em dias úteis, peso máximo por volume, UF de origem, contato e observação para o galpão. O **tipo decide o formulário**: retirada no balcão não tem coleta nem limite de carga, e frota própria é o único tipo que fala de MDF-e (§14.28).
 
 **Logística → Expedição** (`pagina-logistica-expedicao.html`). A fila da doca, por **romaneio**, não por pedido. Abre com as cargas já sugeridas pelo dia e pela forma de envio, e diz em uma frase o que ficou de fora e por quê (§14.31).
 

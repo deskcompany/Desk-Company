@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Operacional → Transportadoras. Nasceu em 06/out/2026 junto com a Expedição,
+# Configurações → Transportadoras (ate 08/out/2026 era Operacional → Transportadoras; o modulo
+# Operacional saiu do menu e os cadastros dele abrem pelo hub). Nasceu em 06/out/2026 junto com a Expedição,
 # porque sem ele a forma de envio era texto solto no mock — e romaneio que
 # agrupa por texto solto não agrupa coisa nenhuma.
 #
@@ -25,7 +26,7 @@ os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
 CHROME = _ch[0] if _ch else None
 URL = _pathlib.Path(PASTA).as_uri() + '/'   # forma do navegador: barras e %20
-TELA = 'pagina-operacional-transportadoras.html'
+TELA = 'pagina-configuracoes-transportadoras.html'
 
 falhas = []
 def ok(c, m):
@@ -80,10 +81,10 @@ with sync_playwright() as pw:
     tipos = set(pg.locator('.tipo-badge').all_inner_texts())
     for esperado in ['CORREIOS', 'TRANSPORTADORA', 'FROTA PRÓPRIA', 'RETIRADA NO BALCÃO']:
         ok(esperado in tipos, 'o mock cobre o tipo %s' % esperado)
-    ok('Operacional' in pg.locator('#breadcrumb').inner_text(),
-       'o caminho diz Operacional, que e onde o menu previa a tela')
-    ok(pg.locator('.nav-item.active').get_attribute('data-id') == 'operacional',
-       'o item de menu aceso e o de Operacional')
+    ok('configura' in pg.locator('#breadcrumb').inner_text().lower(),
+       'o caminho diz Configuracoes, para onde o cadastro foi em 08/out')
+    ok(pg.locator('.nav-item[data-id="operacional"]').count() == 0,
+       'e o modulo Operacional nao existe mais no menu lateral')
 
     # ---------------------------------------------------------------- 2
     print('\n2. RETIRADA NO BALCAO NAO ENTRA EM ROMANEIO — E A LISTA DIZ ISSO')
@@ -293,7 +294,7 @@ with sync_playwright() as pw:
     ok(all(c.endswith('/true') or c.endswith('/True') for c in cat),
        'nenhum deles e celula morta — modulo novo entra com os tres ligados')
     ok(pg.evaluate("() => ACOES_SENHA.filter(a => a.base === 'transportadoras')[0].grupo") == 'Operacional',
-       'o catalogo arquiva a tela em Operacional, igual ao menu')
+       'o catalogo arquiva a tela no grupo Operacional, igual a secao do hub')
 
     CHAVES = ['transportadorasCriar', 'transportadorasEditar', 'transportadorasExclui']
     for tela in ['pagina-configuracoes-confirmacoes-senha.html',
@@ -306,20 +307,15 @@ with sync_playwright() as pw:
            % (tela.replace('pagina-', ''), '' if not faltando else ' — falta ' + ', '.join(faltando)))
 
     # ---------------------------------------------------------------- 12
-    print('\n12. O MENU LEVA A TELA — EM TODAS AS TELAS')
-    import glob as _g
-    sem_item, item_morto, duplicado = [], [], []
-    for arq in localiza.nomes():
-        txt = open(localiza.onde(arq), encoding='utf-8').read()
-        esperado = 2 if arq == 'pagina-molde-referencia.html' else 1
-        n_link = txt.count('data-href="../operacional/pagina-operacional-transportadoras.html"')
-        n_rot = txt.count('data-label="Transportadoras"')
-        if n_rot == 0: sem_item.append(arq)
-        elif n_link < n_rot: item_morto.append(arq)
-        elif n_rot != esperado: duplicado.append(arq)
-    ok(not sem_item, 'toda tela tem o item de menu%s' % ('' if not sem_item else ': falta em ' + ', '.join(sem_item)))
-    ok(not item_morto, 'e nenhum deles e item morto%s' % ('' if not item_morto else ': ' + ', '.join(item_morto)))
-    ok(not duplicado, 'e ninguem ficou com o item duas vezes%s' % ('' if not duplicado else ': ' + ', '.join(duplicado)))
+    print('\n12. A PORTA E O HUB DE CONFIGURACOES, E O ITEM ANTIGO SUMIU DE TODAS AS TELAS')
+    # Ate 08/out o item morava no menu lateral, em Operacional, e esta secao
+    # cobrava o item em todas as telas. O modulo saiu do menu: cadastro que se
+    # configura uma vez abre pelo hub. A secao agora cobra o contrario.
+    hub = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
+    ok(("href:'../configuracoes/" + TELA + "'") in hub, 'o hub de Configuracoes tem o cartao que abre esta tela')
+    sobrou = [arq for arq in localiza.nomes()
+              if 'data-label="Transportadoras"' in open(localiza.onde(arq), encoding='utf-8').read()]
+    ok(not sobrou, 'nenhuma tela ficou com o item antigo no menu lateral%s' % ('' if not sobrou else ': ' + ', '.join(sobrou[:4])))
 
     print('\nERROS DE CONSOLE: ' + (str(erros) if erros else 'nenhum'))
     if erros: falhas.append('erro de console: %s' % erros)
