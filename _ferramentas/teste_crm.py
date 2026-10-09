@@ -247,6 +247,14 @@ with sync_playwright() as p:
     ok(visivel(pg, '#novaErro') and 'Escreva' in pg.inner_text('#novaErro'), 'acao sem texto e barrada')
     pg.fill('#novaTexto', 'Mandar o catálogo de leitores'); pg.wait_for_timeout(150)
     ok(pg.inner_text('#novaCont') == 'Você tem 227 caracteres restando.', 'o contador desconta o que foi escrito: %s' % pg.inner_text('#novaCont'))
+    # 09/out: o botao do calendario nao abria nada, porque o campo nasceu sem a caixa dele, e o Esc levava o formulario junto.
+    pg.click('#novaDf .date-btn'); pg.wait_for_timeout(250)
+    ok(pg.locator('#novaDf .date-pop.open').count() == 1 and pg.locator('#novaDf .date-dia[data-iso]').count() >= 28, 'o botao do calendario abre o mes')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    ok(pg.locator('#novaDf .date-pop.open').count() == 0 and visivel(pg, '#formNova') and pg.input_value('#novaTexto') == 'Mandar o catálogo de leitores',
+       'Esc fecha o calendario e o formulario fica, com o que foi escrito')
+    pg.click('#novaDf .date-btn'); pg.wait_for_timeout(250); pg.click('#novaDf .date-dia[data-iso]'); pg.wait_for_timeout(250)
+    ok(pg.input_value('#novaData')[:3] == '01/' and pg.locator('#novaDf .date-pop.open').count() == 0, 'escolher o dia preenche a data e fecha: %s' % pg.input_value('#novaData'))
     pg.fill('#novaData', '31/02/2027'); clic(pg, '#btnSalvarNova'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#novaErro') and 'dd/mm/aaaa' in pg.inner_text('#novaErro'), 'data que nao existe e barrada')
     escolher(pg, 'novaPrevisto', 'quantoantes')
@@ -254,6 +262,19 @@ with sync_playwright() as p:
     escolher(pg, 'novaPrevisto', 'data')
     pg.fill('#novaData', dma(1)); clic(pg, '#novaLinkHora'); pg.wait_for_timeout(150)
     ok(visivel(pg, '#novaCampoHora') and pg.inner_text('#novaLinkHora') == 'remover horário', '"adicionar horario" mostra o campo e vira "remover horario"')
+    pg.click('#novaHf .date-btn'); pg.wait_for_timeout(250)
+    agora = pg.input_value('#novaHora')
+    ok(pg.locator('#novaHf .date-pop.open').count() == 1 and len(agora) == 5 and agora[4] in '05', 'o relogio abre as setas e parte da hora de agora: %s' % agora)
+    pg.fill('#novaHora', '13:43'); pg.click('#novaHf [data-parte="m"][data-passo="1"]'); sobe = pg.input_value('#novaHora')
+    pg.fill('#novaHora', '13:43'); pg.click('#novaHf [data-parte="m"][data-passo="-1"]'); desce = pg.input_value('#novaHora')
+    pg.click('#novaHf [data-parte="h"][data-passo="-1"]')
+    ok([sobe, desce, pg.input_value('#novaHora')] == ['13:45', '13:40', '12:40'] and pg.inner_text('#novaHf [data-num="h"]') == '12',
+       'as setas mudam a hora de 1 em 1 e o minuto de 5 em 5: %s' % [sobe, desce, pg.input_value('#novaHora')])
+    pg.fill('#novaHora', '23:55'); pg.click('#novaHf [data-parte="h"][data-passo="1"]'); pg.click('#novaHf [data-parte="m"][data-passo="1"]')
+    ok(pg.input_value('#novaHora') == '00:00', 'e dao a volta em 23h e em 55min: %s' % pg.input_value('#novaHora'))
+    pg.click('#novaDf .date-btn'); pg.wait_for_timeout(200)
+    ok(pg.locator('#novaHf .date-pop.open').count() == 0 and pg.locator('#novaDf .date-pop.open').count() == 1, 'abrir o calendario fecha o horario: uma caixa por vez')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
     pg.fill('#novaHora', '25:00'); clic(pg, '#btnSalvarNova'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#novaErro') and 'hh:mm' in pg.inner_text('#novaErro'), 'horario que nao existe e barrado')
     pg.fill('#novaHora', '14:30'); clic(pg, '#btnSalvarNova'); pg.wait_for_timeout(350)
@@ -308,6 +329,10 @@ with sync_playwright() as p:
     ok(pg.inner_text('#itemProposta') == 'Incluir proposta' and pg.locator('#cartaoProposta').count() == 0, 'sem proposta, o menu oferece incluir')
     acao_menu(pg, 'proposta')
     ok(pg.locator('#propostaDrawer.open').count() == 1 and pg.input_value('#propValidade') == dma(7) and not visivel(pg, '#btnRemoverProposta'), 'o painel abre com validade de 7 dias e sem "remover"')
+    pg.click('#propDf .date-btn'); pg.wait_for_timeout(250)
+    abriu = pg.locator('#propDf .date-pop.open').count() == 1
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    ok(abriu and pg.locator('#propDf .date-pop.open').count() == 0 and pg.locator('#propostaDrawer.open').count() == 1, 'o calendario da validade abre, e o Esc fecha so ele')
     clic(pg, '#btnSalvarProposta'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#propErro') and 'valor' in pg.inner_text('#propErro'), 'proposta sem valor e barrada')
     pg.fill('#propValor', '1.500,00'); pg.fill('#propCondicoes', 'À vista no Pix.'); clic(pg, '#btnSalvarProposta'); pg.wait_for_timeout(350)
@@ -389,6 +414,19 @@ with sync_playwright() as p:
        'uma coluna por estagio, na ordem do funil, com os assuntos: %s' % col)
     ok(pg.evaluate("document.documentElement.scrollWidth") <= 1440 and pg.evaluate("(() => { const w = document.querySelector('.crm-quadro-wrap'); return w.scrollWidth <= w.clientWidth + 1; })()"),
        'as cinco colunas cabem em 1440')
+    # 09/out: "Perdido · Prazo de entrega" e "avancar" com seta nao cabiam no cartao: vazavam e criavam a barra de rolagem.
+    # Pior caso: o motivo mais longo, horario em toda acao e a coluna na largura minima (1280).
+    pg.evaluate("ASSUNTOS.forEach(a => { if (a.resultado === 'perdido') a.motivoPerda = 'Comprou do concorrente'; a.acoes.forEach(x => { if (x.data && !x.concluidaEm) x.hora = '15:00'; }); }); pintar();")
+    VAZA = '''() => { const f = []; document.querySelectorAll('#quadroCrm .crm-cartao').forEach(c => { const lim = c.getBoundingClientRect().right + 0.5;
+        c.querySelectorAll('*').forEach(e => { if (e.getBoundingClientRect().right > lim) f.push(e.textContent.slice(0, 24)); }); }); return f; }'''
+    pg.wait_for_timeout(250); fora = pg.evaluate(VAZA)
+    ok(not fora and pg.evaluate("(() => { const w = document.querySelector('.crm-quadro-wrap'); return w.scrollWidth <= w.clientWidth + 1; })()"),
+       'com o motivo mais longo e horario em toda acao, nenhum texto sai do cartao e o quadro nao rola: %s' % fora[:3])
+    pg.set_viewport_size({'width': 1280, 'height': 900}); pg.wait_for_timeout(250); fora = pg.evaluate(VAZA)
+    pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(250)
+    ok(not fora, 'nem com a coluna na largura minima, em 1280: %s' % fora[:3])
+    ok(pg.evaluate("Array.from(new Set(Array.from(document.querySelectorAll('#quadroCrm [data-avancar]')).map(b => b.textContent))).sort()") == ['Avançar', 'Encerrar'],
+       'o botao do cartao diz so "Avancar" ou "Encerrar", sem seta')
     ok(pg.evaluate("document.querySelector('.crm-cartao[data-id=\"6\"]').getAttribute('draggable')") is None and pg.locator('.crm-cartao[data-id="6"] [data-avancar]').count() == 0,
        'assunto encerrado nao e arrastado nem avanca')
     clic(pg, '#quadroCrm [data-avancar="1"]'); pg.wait_for_timeout(300)

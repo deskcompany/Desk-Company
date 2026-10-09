@@ -134,6 +134,21 @@ with sync_playwright() as p:
                   if 'id="flyout-operacional"' in open(c, encoding='utf-8').read()
                   or 'data-id="operacional"' in open(c, encoding='utf-8').read()]
     ok(not com_modulo, 'nenhuma tela traz o modulo Operacional no menu lateral: %s' % com_modulo[:4])
+    print('9. O modulo marcado no menu lateral e o da pasta da tela')
+    # 09/out: Pedidos de Venda e a pagina do pedido nasceram de uma tela de Estoque
+    # e continuaram marcando "Estoque"; os tres cadastros que vieram de Operacional
+    # ficaram sem marca nenhuma. A marca e uma classe no HTML, entao a checagem e
+    # estatica e cobre toda tela que tem menu.
+    PASTA_ID = {'inicio': 'inicio', 'cadastros': 'cadastros', 'estoque': 'estoque', 'vendas': 'vendas',
+                'logistica': 'logistica', 'financas': 'financas', 'integracoes': 'integracoes', 'configuracoes': 'config'}
+    marca_errada = []
+    for arq in sorted(_filtrar(localiza.caminhos())):
+        pasta = os.path.basename(os.path.dirname(arq))
+        t = open(arq, encoding='utf-8').read()
+        if pasta not in PASTA_ID or 'class="nav-item' not in t: continue
+        marcados = re.findall(r'class="(?:nav|bottom)-item active" data-id="([a-z]+)"', t)
+        if marcados != [PASTA_ID[pasta]]: marca_errada.append((os.path.basename(arq), marcados))
+    ok(not marca_errada, 'toda tela marca o proprio modulo, e so ele: %s' % marca_errada[:4])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

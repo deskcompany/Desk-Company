@@ -868,15 +868,18 @@
   .crm-col.alvo { border-color:var(--active-text); }
   .crm-col-topo { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12.5px; font-weight:800; color:var(--text-heading); margin-bottom:10px; }
   .crm-col-topo span { font-size:11.5px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 8px; }
-  .crm-cartao { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer; }
+  .crm-cartao { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer; min-width:0; overflow-wrap:anywhere; }
+  /* no cartao nada fica preso em linha unica: coluna estreita quebra o texto em vez de vazar e criar rolagem */
+  .crm-cartao .crm-quando, .crm-cartao .crm-chip { white-space:normal; margin-left:0; }
   .crm-cartao:hover { border-color:var(--active-text); }
   .crm-cartao .crm-cli { font-size:12.5px; }
   /* colunas de texto quebram linha: e o que faz a tabela caber no cartao em 1440 */
   .estoque-table td.crm-quebra { white-space:normal; min-width:120px; line-height:1.45; }
   .estoque-table td.crm-quebra .crm-chip { margin-left:0; margin-right:6px; }
   .crm-cartao-tit { font-size:13px; font-weight:800; color:var(--text-heading); margin-top:5px; }
-  .crm-cartao-pe { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:9px; font-size:12px; color:var(--text); }
-  .crm-avancar { font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:800; color:var(--active-text); background:transparent; border:none; cursor:pointer; padding:2px 0; }
+  .crm-cartao-pe { display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; margin-top:9px; font-size:12px; color:var(--text); }
+  .crm-avancar { font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:800; color:var(--active-text); background:transparent; border:1px solid var(--border); border-radius:20px; cursor:pointer; padding:2px 10px; margin-left:auto; white-space:nowrap; }
+  .crm-avancar:hover { border-color:var(--active-text); }
   .crm-col-vazia { font-size:12px; color:var(--text); padding:8px 2px; }
   /* tela do assunto */
   .crm-topo-assunto { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
@@ -2564,9 +2567,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             '<div class="crm-cartao-tit">' + esc(a.titulo) + '</div>' +
             (a.proposta ? '<div class="crm-sub">Proposta de ' + moeda(a.proposta.valor) + '</div>' : '') +
             '<div class="crm-cartao-pe">' +
-              (a.resultado ? '<span class="crm-chip ' + a.resultado + '" style="margin-left:0;">' + esc(rotuloResultado(a)) + '</span>'
+              (a.resultado ? '<span class="crm-chip ' + a.resultado + '">' + (a.resultado === 'ganho' ? 'Ganho' : 'Perdido') + '</span>' + (a.resultado === 'perdido' ? '<span>' + esc(a.motivoPerda) + '</span>' : '')
                            : (q ? '<span class="crm-quando ' + q.classe + '">' + esc(q.rotulo) + '</span>' : '<span>sem ação marcada</span>')) +
-              (!a.resultado && prox ? '<button type="button" class="crm-avancar" data-avancar="' + a.id + '" title="Passar para ' + esc(prox.nome) + '">' + (prox.final ? 'encerrar' : 'avançar') + ' →</button>' : '') +
+              (!a.resultado && prox ? '<button type="button" class="crm-avancar" data-avancar="' + a.id + '" title="Passar para ' + esc(prox.nome) + '">' + (prox.final ? 'Encerrar' : 'Avançar') + '</button>' : '') +
             '</div></div>';
         }).join('') || '<div class="crm-col-vazia">Nenhum assunto neste estágio.</div>') + '</div>';
     }).join(''));

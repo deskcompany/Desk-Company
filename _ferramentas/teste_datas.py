@@ -49,6 +49,19 @@ with sync_playwright() as p:
             pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
         ok(not erros, '  sem erro de JS ao final: %s' % erros[:2])
         pg.close()
+    # 09/out: o CRM nasceu com dois campos de data sem a caixa do calendario. O componente
+    # desiste calado quando falta uma das tres pecas, entao o botao existia e nao abria nada.
+    print('toda tela: campo de data com botao e caixa')
+    pg = b.new_page(viewport={'width':1440,'height':900})
+    capengas = []
+    for caminho in sorted(localiza.caminhos()):
+        if 'date-field' not in open(caminho, encoding='utf-8').read(): continue
+        nome = _os.path.basename(caminho)
+        pg.goto(localiza.uri(nome)); pg.wait_for_timeout(350)
+        n = pg.evaluate("Array.from(document.querySelectorAll('.date-field')).filter(d => !d.querySelector('input') || !d.querySelector('.date-btn') || !d.querySelector('.date-pop')).length")
+        if n: capengas.append('%s: %d' % (nome, n))
+    ok(not capengas, '  nenhum campo de data sem uma das tres pecas: %s' % capengas[:4])
+    pg.close()
     b.close()
 print(); print('FALHAS: %d' % len(falhas))
 for f in falhas: print(' - ' + f)

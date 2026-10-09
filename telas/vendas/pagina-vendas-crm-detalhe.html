@@ -868,15 +868,18 @@
   .crm-col.alvo { border-color:var(--active-text); }
   .crm-col-topo { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12.5px; font-weight:800; color:var(--text-heading); margin-bottom:10px; }
   .crm-col-topo span { font-size:11.5px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 8px; }
-  .crm-cartao { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer; }
+  .crm-cartao { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer; min-width:0; overflow-wrap:anywhere; }
+  /* no cartao nada fica preso em linha unica: coluna estreita quebra o texto em vez de vazar e criar rolagem */
+  .crm-cartao .crm-quando, .crm-cartao .crm-chip { white-space:normal; margin-left:0; }
   .crm-cartao:hover { border-color:var(--active-text); }
   .crm-cartao .crm-cli { font-size:12.5px; }
   /* colunas de texto quebram linha: e o que faz a tabela caber no cartao em 1440 */
   .estoque-table td.crm-quebra { white-space:normal; min-width:120px; line-height:1.45; }
   .estoque-table td.crm-quebra .crm-chip { margin-left:0; margin-right:6px; }
   .crm-cartao-tit { font-size:13px; font-weight:800; color:var(--text-heading); margin-top:5px; }
-  .crm-cartao-pe { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:9px; font-size:12px; color:var(--text); }
-  .crm-avancar { font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:800; color:var(--active-text); background:transparent; border:none; cursor:pointer; padding:2px 0; }
+  .crm-cartao-pe { display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; margin-top:9px; font-size:12px; color:var(--text); }
+  .crm-avancar { font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:800; color:var(--active-text); background:transparent; border:1px solid var(--border); border-radius:20px; cursor:pointer; padding:2px 10px; margin-left:auto; white-space:nowrap; }
+  .crm-avancar:hover { border-color:var(--active-text); }
   .crm-col-vazia { font-size:12px; color:var(--text); padding:8px 2px; }
   /* tela do assunto */
   .crm-topo-assunto { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
@@ -980,6 +983,12 @@
   .date-dia.off:hover { background:transparent; }
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
+  /* horario: a mesma caixa do calendario, estreita, com as setas de hora e de minuto */
+  .date-pop.hora-pop { width:128px; }
+  .hora-colunas { display:flex; align-items:center; justify-content:center; gap:10px; }
+  .hora-col { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .hora-num { font-size:17px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .hora-sep { font-size:15px; font-weight:800; color:var(--text); }
 </style>
 </head>
 <body class="dark">
@@ -1309,6 +1318,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="date-field" id="propDf">
         <input type="text" id="propValidade" placeholder="dd/mm/aaaa" autocomplete="off">
         <button type="button" class="date-btn" aria-label="abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+        <div class="date-pop"></div>
       </div>
     </div>
   </div>
@@ -2568,7 +2578,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const IC_LAPIS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
   const IC_LIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
   const IC_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
-  const BTN_CAL = '<button type="button" class="date-btn" aria-label="abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>';
+  const BTN_CAL = '<button type="button" class="date-btn" aria-label="abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><div class="date-pop"></div>';
 
   // ---------- paineis laterais ----------
   const PAINEIS = ['acaoDrawer', 'notaDrawer', 'propostaDrawer', 'encerrarDrawer', 'assuntoDrawer', 'outrosDrawer'];
@@ -2619,6 +2629,46 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<span class="dropdown-select-label">' + esc(itens[0].t) + '</span>' + SETA + '</button><div class="dropdown-select-menu">' +
       itens.map((o, i) => '<div class="dropdown-select-item' + (i === 0 ? ' active' : '') + '" data-value="' + o.v + '">' + esc(o.t) + '</div>').join('') + '</div></div>';
   }
+  // Horario: o campo continua digitavel; o relogio abre as setas. O que a caixa mostra e o que esta no campo.
+  const BTN_RELOGIO = '<button type="button" class="date-btn" aria-label="escolher horário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button><div class="date-pop hora-pop"></div>';
+  function inicializarHoraField(raiz) {
+    const input = raiz.querySelector('input'), btn = raiz.querySelector('.date-btn'), pop = raiz.querySelector('.date-pop');
+    const dois = (n) => String(n).padStart(2, '0');
+    const seta = (parte, passo, pontos, nome) => '<button type="button" class="date-nav" data-parte="' + parte + '" data-passo="' + passo + '" aria-label="' + nome + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="' + pontos + '"/></svg></button>';
+    const coluna = (parte, nome) => '<div class="hora-col">' + seta(parte, 1, '18 15 12 9 6 15', 'aumentar ' + nome) +
+      '<span class="hora-num" data-num="' + parte + '"></span>' + seta(parte, -1, '6 9 12 15 18 9', 'diminuir ' + nome) + '</div>';
+    pop.innerHTML = '<div class="hora-colunas">' + coluna('h', 'hora') + '<span class="hora-sep">:</span>' + coluna('m', 'minuto') + '</div>';
+    const ler = () => {
+      const m = input.value.trim().match(/^(\d{1,2}):(\d{2})$/);
+      return m && Number(m[1]) < 24 && Number(m[2]) < 60 ? { h: Number(m[1]), m: Number(m[2]) } : null;
+    };
+    const agora = () => { const d = new Date(); return { h: d.getHours(), m: Math.floor(d.getMinutes() / 5) * 5 }; };
+    const pintar = () => { const v = ler(); ['h', 'm'].forEach(k => { pop.querySelector('[data-num="' + k + '"]').textContent = v ? dois(v[k]) : '--'; }); };
+    const escrever = (v) => { input.value = dois(v.h) + ':' + dois(v.m); pintar(); };
+    const fechar = () => pop.classList.remove('open');
+    pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', () => {
+      const v = ler() || agora(), passo = Number(b.getAttribute('data-passo'));
+      if (b.getAttribute('data-parte') === 'h') v.h = (v.h + passo + 24) % 24;
+      // minuto de 5 em 5; valor quebrado digitado a mao (13:43) encaixa no multiplo vizinho
+      else v.m = ((passo > 0 ? Math.floor(v.m / 5) * 5 + 5 : Math.ceil(v.m / 5) * 5 - 5) + 60) % 60;
+      escrever(v);
+    }));
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pop.classList.contains('open')) { fechar(); return; }
+      document.querySelectorAll('.date-pop.open').forEach(x => x.classList.remove('open'));
+      if (!ler()) escrever(agora()); else pintar();
+      // sobe por padrao e desce quando nao ha espaco acima, como o calendario
+      const caixa = btn.getBoundingClientRect();
+      pop.classList.toggle('abaixo', caixa.top < 140 && window.innerHeight - caixa.bottom > caixa.top);
+      pop.classList.add('open');
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', pintar);
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
+  }
   function htmlFormAcao(p) {
     return '<div class="crm-campo" id="' + p + 'CampoTexto"><label for="' + p + 'Texto">' + (p === 'nova' ? 'Próxima ação' : 'Ação') + '</label>' +
         '<textarea id="' + p + 'Texto" maxlength="256"></textarea><div class="crm-contador" id="' + p + 'Cont"></div></div>' +
@@ -2630,7 +2680,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<div class="crm-campo" id="' + p + 'CampoData"><label for="' + p + 'Data">Data</label><div class="date-field" id="' + p + 'Df">' +
           '<input type="text" id="' + p + 'Data" placeholder="dd/mm/aaaa" autocomplete="off">' + BTN_CAL + '</div></div>' +
         '<div class="crm-campo" id="' + p + 'CampoHora" style="display:none;"><label for="' + p + 'Hora">Horário</label>' +
-          '<input type="text" id="' + p + 'Hora" placeholder="hh:mm" inputmode="numeric" maxlength="5"></div>' +
+          '<div class="date-field" id="' + p + 'Hf"><input type="text" id="' + p + 'Hora" placeholder="hh:mm" inputmode="numeric" maxlength="5" autocomplete="off">' + BTN_RELOGIO + '</div></div>' +
       '</div><button type="button" class="crm-link" id="' + p + 'LinkHora">adicionar horário</button></div>' +
       '<div class="field-error-msg" id="' + p + 'Erro"></div>';
   }
@@ -2649,6 +2699,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     inicializarDropdownSelect(document.getElementById(p + 'Previsto'), () => pintarFormAcao(p));
     inicializarDropdownSelect(document.getElementById(p + 'Resp'), null);
     inicializarDataField(document.getElementById(p + 'Df'), { rodape: () => 'Ação com data aparece na Agenda do Início.', aoMudar: () => {} });
+    inicializarHoraField(document.getElementById(p + 'Hf'));
     document.getElementById(p + 'LinkHora').addEventListener('click', () => mostrarHora(p, document.getElementById(p + 'CampoHora').style.display === 'none'));
   }
   function respPadrao() {
@@ -3023,8 +3074,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       else if (acao === 'excluir') excluirAssunto();
     });
     // Esc fecha o que esta por cima: o modal tem o proprio Esc, e o dos dropdowns ja gastou a tecla quando fechou um menu.
+    // Calendario ou horario aberto tambem esta por cima: o Esc fecha a caixa e o formulario fica.
     document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || e.cancelBubble || confirmModal.classList.contains('open')) return;
+      if (e.key !== 'Escape' || e.cancelBubble || confirmModal.classList.contains('open') || document.querySelector('.date-pop.open')) return;
       if (painelAberto()) fecharPaineis();
       else if (document.getElementById('formNova').style.display !== 'none') mostrar('formNova', false);
     }, true);

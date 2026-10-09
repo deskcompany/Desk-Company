@@ -2020,5 +2020,27 @@ volta de `localStorage` engoliram o `ReferenceError`. Nada era gravado e nenhuma
 quem acusou foi a asserção "sobrevive ao F5". `catch` vazio em volta de armazenamento esconde erro
 de digitação junto com o bloqueio do navegador.
 
+**Ajustes do primeiro teste do usuário (09/out).**
+
+- **O calendário não abria.** Os dois campos de data do CRM nasceram sem a `.date-pop`, e
+  `inicializarDataField` desiste calado quando falta uma das três peças (campo, botão, caixa): o
+  botão existia e não fazia nada. `teste_datas.py` passou a abrir toda tela que tem campo de data
+  e cobrar as três peças.
+- **Horário com relógio.** O campo continua digitável; o relógio abre uma caixa pequena
+  (`.date-pop.hora-pop`, 128px) com setas de hora (1 em 1) e de minuto (5 em 5, dando a volta).
+  A caixa mostra o que está no campo, sem estado próprio; aberta com o campo vazio, parte da hora
+  de agora. `inicializarHoraField` mora na tela do assunto. A Agenda ainda usa dois dropdowns
+  (Hora e Min): são dois desenhos para a mesma coisa, à espera de o usuário escolher um.
+- **Esc fecha o que está por cima.** Com calendário ou horário aberto, o Esc fecha a caixa e o
+  formulário fica, com o que foi escrito. Antes levava os dois.
+- **No cartão do quadro nada fica em linha única.** "Perdido · Prazo de entrega" e "avançar →"
+  não cabiam na coluna, vazavam do cartão e criavam a barra de rolagem. A etiqueta do resultado
+  virou só "Ganho" ou "Perdido", com o motivo ao lado em texto que quebra; "Avançar" e "Encerrar"
+  viraram botão, sem seta; e o rodapé do cartão quebra linha. Cinco colunas cabem sem rolagem a
+  partir de 1366; abaixo disso a rolagem dentro do quadro é a degradação prevista.
+- **O menu lateral marca o módulo da pasta da tela.** Pedidos de Venda e a página do pedido
+  marcavam "Estoque" (herança da tela de que nasceram), e Transportadoras e os dois Motivos, que
+  vieram de Operacional, não marcavam nada. A seção 9 de `teste_menu.py` cobra isso em toda tela.
+
 Ficou de fora, com o usuário sabendo: marcadores, a visão "por período", cadastro de motivos de
 perda, cadastro rápido de cliente dentro do CRM e o módulo de Propostas comerciais.
