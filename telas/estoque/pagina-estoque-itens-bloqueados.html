@@ -2048,6 +2048,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return p.saldos.filter(s => s.dep === dep && (s.estagio === 'disponivel' || s.estagio === 'a_enderecar'))
       .map(s => ({ s: s, livre: livreEm(p, s) })).filter(x => x.livre > 0);
   }
+  // Tudo que o produto tem livre, em todos os depositos, e em quantos enderecos isso esta espalhado.
+  function livreDoProduto(p) {
+    const linhas = Array.from(new Set(p.saldos.map(s => s.dep))).reduce((l, d) => l.concat(linhasLivres(p, d)), []);
+    return { total: arred(linhas.reduce((t, x) => t + x.livre, 0)), enderecos: linhas.length };
+  }
   // Retrato do produto num deposito, para quem decide ver o efeito antes de confirmar.
   function estoqueDe(sku, dep) {
     const p = produtoDe(sku);
@@ -2353,9 +2358,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const noEspelho = p.saldos.find(s => s.dep === dep && s.tipoEnd === 'avaria');
       return naFila ? naFila.endereco : (noEspelho ? noEspelho.endereco : null);
     }
+    // O bloqueio sai de UM endereco: o total do produto soma todos, e o limite e o do escolhido.
+    const livreNosOutros = () => arred(livreDoProduto(p).total - linha.livre);
     function pintarPrevia() {
       const q = lerQtd(document.getElementById('bloqQtd').value);
-      document.getElementById('bloqLivre').textContent = linha ? 'Livre neste endereço: ' + qtdTexto(linha.livre, p.un) + '.' : '';
+      document.getElementById('bloqLivre').textContent = !linha ? '' : 'Livre neste endereço: ' + qtdTexto(linha.livre, p.un) + '.' +
+        (livreNosOutros() > 0 ? ' Há mais ' + qtdTexto(livreNosOutros(), p.un) + ' em outros endereços.' : '');
       if (!linha) { document.getElementById('bloqPrevia').textContent = ''; return; }
       const av = enderecoDeAvaria();
       const destino = motivo !== 'avaria' ? 'o mesmo endereço, só travado'
@@ -2377,13 +2385,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       cx.classList.remove('open');
       limpar('erroBloqProduto', 'wrapBloqBusca');
       const deps = Array.from(new Set(p.saldos.map(s => s.dep))).filter(d => linhasLivres(p, d).length);
-      const livre = arred(deps.reduce((t, d) => t + linhasLivres(p, d).reduce((u, x) => u + x.livre, 0), 0));
+      const livre = livreDoProduto(p);
       const travado = arred(ITENS.filter(x => x.sku === p.sku).reduce((t, x) => t + x.qtd, 0));
       document.getElementById('bloqEscolhido').innerHTML =
         '<div class="bq-topo"><div><div class="bq-nome">' + esc(p.nome) + '</div><div class="prod-sku">' + esc(p.sku) + ' · custo médio ' + moeda(p.custo) + '</div></div>' +
           '<div class="drawer-link" id="btnTrocarProduto">trocar produto</div></div>' +
         '<div class="bq-fatos bq-fatos-2">' +
-          '<div class="bq-fato"><b id="bloqLivreTotal">' + qtdTexto(livre, esc(p.un)) + '</b><span class="bq-rot">livre para bloquear</span></div>' +
+          '<div class="bq-fato"><b id="bloqLivreTotal">' + qtdTexto(livre.total, esc(p.un)) + '</b><span class="bq-rot" id="bloqLivreRotulo">livre para bloquear' +
+            (livre.enderecos > 1 ? ', somando ' + livre.enderecos + ' endereços' : '') + '</span></div>' +
           '<div class="bq-fato"><b id="bloqJaTravado">' + qtdTexto(travado, esc(p.un)) + '</b><span class="bq-rot">já bloqueado na fila</span></div></div>';
       document.getElementById('btnTrocarProduto').addEventListener('click', () => {
         p = null; dep = null; linha = null;
@@ -2427,7 +2436,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const q = lerQtd(document.getElementById('bloqQtd').value), obs = document.getElementById('bloqObs').value.trim();
       let ok = true;
       if (!(q > 0)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Informe uma quantidade maior que zero.');
-      else if (q > linha.livre) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Só há ' + qtdTexto(linha.livre, p.un) + ' livres neste endereço.');
+      else if (q > linha.livre) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Só há ' + qtdTexto(linha.livre, p.un) + ' livres neste endereço.' +
+        (livreNosOutros() > 0 ? ' O resto está em outros endereços: troque em "De qual endereço" e bloqueie um de cada vez.' : ''));
       else if (!fracionavel(p.un) && !Number.isInteger(q)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Este produto é contado em ' + p.un + ': informe um número inteiro.');
       if (!motivo) ok = erro('erroBloqMotivo', 'wrapBloqMotivo');
       else if (motivo === 'decisao' && obs === '') ok = erro('erroBloqObs', 'wrapBloqObs');

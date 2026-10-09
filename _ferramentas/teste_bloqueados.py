@@ -405,9 +405,13 @@ with sync_playwright() as p:
     buscar(pg, 'TEC-MEC'); pg.focus('#bloqBusca'); pg.keyboard.press('Enter'); pg.wait_for_timeout(300)
     ok(visivel(pg, '#bloqCampos') and not visivel(pg, '#wrapBloqBusca') and 'Teclado Mecânico Desk' in pg.inner_text('#bloqEscolhido') and pg.inner_text('#bloqLivreTotal') == '38 UN' and pg.inner_text('#bloqJaTravado') == '2 UN',
        'Enter escolhe o primeiro, e o painel mostra quanto esta livre e quanto ja esta na fila')
+    # 09/out: o usuario viu "38 UN livre" em cima e "so ha 4" ao bloquear 25. Os dois numeros estavam
+    # certos (38 e a soma de tres enderecos, 4 e o do escolhido), mas a tela nao dizia isso.
+    ok(pg.inner_text('#bloqLivreRotulo') == 'livre para bloquear, somando 3 endereços' and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 4 UN. Há mais 34 UN em outros endereços.',
+       'o total diz que soma os enderecos, e o campo diz quanto ha neste e quanto ha nos outros: %s' % pg.inner_text('#bloqLivre'))
     deps = pg.evaluate("Array.from(document.querySelectorAll('#bloqDep .dropdown-select-item')).map(e => e.textContent)")
     origens = pg.evaluate("Array.from(document.querySelectorAll('#bloqOrigem .dropdown-select-item')).map(e => e.textContent)")
-    ok(deps == ['Galpão Centro', 'Bancada Desk Tech'] and origens == ['A-05-1-02 · Picking — 4 UN livres', 'P-01-2-05 · Pulmão — 28 UN livres'] and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 4 UN.',
+    ok(deps == ['Galpão Centro', 'Bancada Desk Tech'] and origens == ['A-05-1-02 · Picking — 4 UN livres', 'P-01-2-05 · Pulmão — 28 UN livres'] and pg.inner_text('#bloqLivre').startswith('Livre neste endereço: 4 UN.'),
        'so oferece deposito e endereco com saldo livre, ja descontado o que a fila travou ali: %s' % origens)
     clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#erroBloqQtd') and 'maior que zero' in pg.inner_text('#erroBloqQtd') and visivel(pg, '#erroBloqMotivo'), 'sem quantidade e sem motivo, nao bloqueia')
@@ -416,7 +420,7 @@ with sync_playwright() as p:
     for valor in ['5', '1,5']:
         pg.fill('#bloqQtd', valor); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(180)
         barrados.append(pg.inner_text('#erroBloqQtd') if visivel(pg, '#erroBloqQtd') else '')
-    ok('Só há 4 UN livres' in barrados[0] and 'número inteiro' in barrados[1] and pg.evaluate('ITENS.length') == 7, 'nao bloqueia mais do que ha livre no endereco, nem quantidade quebrada em UN: %s' % [b[:22] for b in barrados])
+    ok('Só há 4 UN livres neste endereço. O resto está em outros endereços: troque em "De qual endereço"' in barrados[0] and 'número inteiro' in barrados[1] and pg.evaluate('ITENS.length') == 7, 'nao bloqueia mais do que ha livre no endereco, nem quantidade quebrada em UN: %s' % [b[:22] for b in barrados])
     pg.fill('#bloqQtd', '2'); escolher(pg, 'bloqMotivo', 'decisao'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#erroBloqObs') and pg.evaluate('ITENS.length') == 7, 'travar por decisao exige dizer por que')
     escolher(pg, 'bloqMotivo', 'analise')
@@ -431,9 +435,9 @@ with sync_playwright() as p:
        and abas(pg)[0] == 'todos:8' and abas(pg)[3] == 'analise:2' and pg.locator('#eventDrawer.open').count() == 0 and 'Bloqueio manual' in linha(pg, 8) and 'hoje' in linha(pg, 8),
        'o item entra na fila no mesmo endereco, com custo, base e observacao: %s' % abas(pg))
     bloquear_abrir(pg, 'TEC-MEC')
-    ok(pg.inner_text('#bloqLivre') == 'Livre neste endereço: 2 UN.' and pg.inner_text('#bloqLivreTotal') == '36 UN' and pg.inner_text('#bloqJaTravado') == '4 UN', 'o que acabou de ser bloqueado deixa de estar livre')
+    ok(pg.inner_text('#bloqLivre') == 'Livre neste endereço: 2 UN. Há mais 34 UN em outros endereços.' and pg.inner_text('#bloqLivreTotal') == '36 UN' and pg.inner_text('#bloqJaTravado') == '4 UN', 'o que acabou de ser bloqueado deixa de estar livre')
     escolher(pg, 'bloqDep', 4)
-    ok(pg.inner_text('#bloqOrigem .dropdown-select-label') == 'B-01 · Picking — 6 UN livres' and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 6 UN.', 'trocar de deposito troca os enderecos')
+    ok(pg.inner_text('#bloqOrigem .dropdown-select-label') == 'B-01 · Picking — 6 UN livres' and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 6 UN. Há mais 30 UN em outros endereços.', 'trocar de deposito troca os enderecos')
     pg.fill('#bloqQtd', '1'); escolher(pg, 'bloqMotivo', 'avaria')
     ok('Destino: fila do Endereçamento, à espera de um endereço de Avaria.' in pg.inner_text('#bloqPrevia'), 'avaria sem endereco de Avaria no deposito vai para a fila do Enderecamento')
     clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(450)
@@ -445,6 +449,7 @@ with sync_playwright() as p:
     bloquear_abrir(pg, 'kit home')
     pg.fill('#bloqQtd', '1'); escolher(pg, 'bloqMotivo', 'avaria')
     ok('Destino: AV-01, endereço de Avaria.' in pg.inner_text('#bloqPrevia'), 'produto que ja tem avaria no deposito usa o mesmo endereco de Avaria')
+    ok(pg.inner_text('#bloqLivreRotulo') == 'livre para bloquear' and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 4 UN.', 'com o saldo num endereco so, a tela nao fala em outros enderecos')
     clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(450); confirmar(pg)
     novo = pg.evaluate('ITENS[ITENS.length - 1]')
     ok([novo[k] for k in ['sku', 'endereco', 'tipoEnd', 'saiuDe']] == ['KIT-HOF-005', 'AV-01', 'avaria', 'B-02-1-04'] and pg.evaluate('ITENS.length') == 10, 'e a linha nasce nele')
@@ -467,7 +472,7 @@ with sync_playwright() as p:
     ok(retrato == ['Disponível 32 32', 'Bloqueado 2 2', 'Estoque físico 34 34'] and projecao(pg) == ['Disponível 32 32', 'Bloqueado 2 0', 'Estoque físico 34 32'], 'o retrato acompanha o que a fila ja fez: %s' % projecao(pg))
     clic(pg, '#btnConfirmarResolver'); pg.wait_for_timeout(450); confirmar(pg); confirmar(pg)
     bloquear_abrir(pg, 'TEC-MEC')
-    ok(liberado == 'Livre neste endereço: 4 UN.' and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 4 UN.' and pg.inner_text('#bloqLivreTotal') == '37 UN' and pg.inner_text('#bloqJaTravado') == '1 UN',
+    ok(liberado.startswith('Livre neste endereço: 4 UN.') and pg.inner_text('#bloqLivre').startswith('Livre neste endereço: 4 UN.') and pg.inner_text('#bloqLivreTotal') == '37 UN' and pg.inner_text('#bloqJaTravado') == '1 UN',
        'liberar devolve o saldo livre ao endereco; dar baixa nao devolve: %s' % pg.inner_text('#bloqLivreTotal'))
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
