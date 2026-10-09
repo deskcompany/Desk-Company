@@ -881,7 +881,8 @@
   .pdv-icone-btn svg { width:14px; height:14px; }
   .pdv-dica { margin-top:12px; font-size:12px; color:var(--text); }
 
-  .pdv-barra { position:sticky; bottom:0; z-index:30; display:flex; align-items:center; gap:18px; margin-top:16px; padding:14px 18px; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; box-shadow:0 -6px 18px rgba(0,0,0,0.10); }
+  /* z-index abaixo do menu lateral (30): com o mesmo numero, a barra passava por cima do submenu aberto. */
+  .pdv-barra { position:sticky; bottom:0; z-index:20; display:flex; align-items:center; gap:18px; margin-top:16px; padding:14px 18px; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; box-shadow:0 -6px 18px rgba(0,0,0,0.10); }
   .pdv-totais { margin-left:auto; display:flex; align-items:flex-end; gap:30px; }
   .pdv-tot { text-align:right; }
   .pdv-tot-rot { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); }
@@ -951,6 +952,36 @@
   .pdv-tab-sub { display:block; font-size:11.5px; color:var(--text); margin-top:2px; }
   .pdv-tab-link { color:var(--active-text); font-weight:700; cursor:pointer; white-space:nowrap; }
   .pdv-painel-acoes { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 4px; }
+  /* Acao que encerra ou tira algo (fechar caixa, remover item): contorno e texto na cor de perigo. */
+  .btn-secundario.pdv-btn-perigo { color:var(--danger); border-color:var(--danger); }
+  /* Editar produto: linhas de rotulo e campo, opcoes em cartao e o total em destaque (print do Olist). */
+  #itemDrawer { width:560px; right:-580px; }
+  #itemDrawer.open { right:0; }
+  .pdv-ed-produto { margin:-8px 0 8px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .pdv-ed-produto b { display:block; font-size:15px; font-weight:800; color:var(--text-heading); }
+  .pdv-ed-produto span { display:block; font-size:12px; color:var(--text); margin-top:3px; }
+  .pdv-ed-linha { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13.5px; color:var(--text-heading); }
+  .pdv-ed-linha b { font-variant-numeric:tabular-nums; }
+  .pdv-ed-linha.secao { border-bottom:none; font-weight:800; padding-bottom:10px; }
+  .pdv-ed-linha input[type="text"] { width:170px; text-align:right; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 12px; outline:none; }
+  .pdv-ed-linha input[type="text"]:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .pdv-ed-linha input[type="text"]:disabled { opacity:.6; cursor:not-allowed; }
+  .pdv-opcoes { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pdv-opcao { border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:var(--page-bg); }
+  .pdv-ed-modo { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .pdv-ed-total { display:flex; align-items:center; justify-content:space-between; margin:16px 0 4px; padding:16px 18px; border-radius:12px; background:var(--active-bg); color:var(--active-text); font-weight:800; font-size:14.5px; }
+  .pdv-ed-total b { font-size:19px; font-variant-numeric:tabular-nums; }
+  /* Botao de opcao (radio) da casa, o mesmo de Cadastros > Vendedores. */
+  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
+  .radio-option.pdv-opcao { padding:12px 14px; }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative; margin:0;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
 
   /* ===== FOLHA DE IMPRESSAO (comprovantes e recibos) ===== */
   .pdv-folha { display:none; }
@@ -1173,14 +1204,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="header-acoes" id="pdvAcoesTopo" style="display:none;">
       <span class="pdv-chip" id="chipTurno"></span>
       <button class="btn-secundario" id="btnDetalhesCaixa">Detalhes do caixa<span class="pdv-kbd">Ctrl+Y</span></button>
-      <button class="btn-secundario" id="btnFecharCaixaTopo">Fechar caixa</button>
+      <button class="btn-secundario" id="btnSangriaTopo">Sangria</button>
+      <button class="btn-secundario pdv-btn-perigo" id="btnFecharCaixaTopo">Fechar caixa</button>
       <div class="dropdown-select" id="menuMaisAcoes">
         <button type="button" class="btn-ghost dropdown-select-btn">
           <span class="dropdown-select-label">Mais ações</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="dropdown-select-menu" style="right:0; left:auto; min-width:270px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="sangria">Lançar sangria de caixa</div>
           <div class="dropdown-select-item" data-acao="reforco">Lançar reforço de caixa</div>
           <div class="dropdown-select-divider"></div>
           <div class="dropdown-select-item" data-acao="ultima">Reimprimir a última venda</div>
@@ -1461,65 +1492,40 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 <!-- editar item -->
 <div class="event-drawer" id="itemDrawer">
   <div class="drawer-header">
-    <div class="drawer-title" id="itemNome">Editar item</div>
+    <div class="drawer-title">Editar produto</div>
     <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
-  <div class="form-row">
-    <div class="form-field" id="campoItemQtd">
-      <label id="rotuloItemQtd">Quantidade</label>
-      <input type="text" id="itemQtd" inputmode="decimal">
-    </div>
-    <div class="form-field" id="campoItemPreco">
-      <label>Preço un (R$)</label>
-      <input type="text" id="itemPreco" inputmode="decimal">
-    </div>
+  <div class="pdv-ed-produto"><b id="itemNome">Produto</b><span id="itemSub"></span></div>
+  <div class="pdv-ed-linha" id="campoItemQtd">
+    <label id="rotuloItemQtd" for="itemQtd">Quantidade</label>
+    <input type="text" id="itemQtd" inputmode="decimal">
   </div>
-  <div class="field-hint" id="hintItemPreco"></div>
-  <div class="form-field" style="margin-top:14px;">
-    <label>Desconto ou acréscimo</label>
-    <div class="dropdown-select" id="itemAjusteTipo" data-value="nenhum">
-      <button type="button" class="dropdown-select-btn form-style">
-        <span class="dropdown-select-label">Sem ajuste</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="nenhum">Sem ajuste</div>
-        <div class="dropdown-select-item" data-value="desconto">Desconto</div>
-        <div class="dropdown-select-item" data-value="acrescimo">Acréscimo</div>
-      </div>
-    </div>
+  <div class="pdv-ed-linha"><span>Preço do cadastro</span><b id="itemPrecoCadastro">R$ 0,00</b></div>
+  <div class="pdv-ed-linha" id="campoItemPreco">
+    <label for="itemPreco">Editar preço (R$)</label>
+    <input type="text" id="itemPreco" inputmode="decimal">
   </div>
-  <div id="blocoItemAjuste" style="display:none;">
-    <div class="form-row">
-      <div class="form-field">
-        <label>Em</label>
-        <div class="dropdown-select" id="itemAjusteModo" data-value="valor">
-          <button type="button" class="dropdown-select-btn form-style">
-            <span class="dropdown-select-label">Valor (R$)</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="valor">Valor (R$)</div>
-            <div class="dropdown-select-item" data-value="pct">Porcentagem (%)</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-field" id="campoItemAjuste">
-        <label>Quanto</label>
-        <input type="text" id="itemAjusteValor" inputmode="decimal" placeholder="0,00">
-      </div>
-    </div>
+  <div class="field-hint" id="hintItemPreco" style="display:none;"></div>
+  <div class="pdv-ed-linha secao"><span>Desconto ou acréscimo</span><b id="itemAjusteCalc">R$ 0,00</b></div>
+  <div class="pdv-opcoes">
+    <label class="radio-option pdv-opcao"><input type="radio" name="itemAjusteTipo" value="desconto" checked> Desconto</label>
+    <label class="radio-option pdv-opcao"><input type="radio" name="itemAjusteTipo" value="acrescimo"> Acréscimo</label>
   </div>
+  <div class="pdv-ed-linha" id="campoItemAjuste">
+    <div class="pdv-ed-modo">
+      <label class="radio-option"><input type="radio" name="itemAjusteModo" value="valor" checked> Valor fixo (R$)</label>
+      <label class="radio-option"><input type="radio" name="itemAjusteModo" value="pct"> Porcentagem (%)</label>
+    </div>
+    <input type="text" id="itemAjusteValor" inputmode="decimal" placeholder="0,00" aria-label="Valor do desconto ou acréscimo">
+  </div>
+  <div class="field-hint">Deixe em branco para vender sem desconto nem acréscimo.</div>
   <div class="field-error-msg" id="erroItem"></div>
   <div class="pdv-nota" id="itemNota" style="display:none;"></div>
-  <div class="pdv-linha forte"><span>Total do item</span><b id="itemTotal">R$ 0,00</b></div>
+  <div class="pdv-ed-total"><span>Preço total</span><b id="itemTotal">R$ 0,00</b></div>
   <div class="drawer-footer">
-    <button class="btn-primary" id="btnAplicarItem">Aplicar</button>
-    <div class="drawer-link" data-fechar-painel>Cancelar</div>
-  </div>
-  <div class="excluir-link" id="btnRemoverItem">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-    Remover item da venda
+    <button class="btn-primary" id="btnAplicarItem">Aplicar<span class="pdv-kbd">Ctrl+Enter</span></button>
+    <button class="btn-secundario pdv-btn-perigo" id="btnRemoverItem">Remover</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar<span class="pdv-kbd">Esc</span></div>
   </div>
 </div>
 
@@ -1537,7 +1543,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
   <div id="caixaCorpo"></div>
   <div class="drawer-footer" id="caixaRodape">
-    <button class="btn-secundario" id="btnFecharCaixaPainel">Fechar caixa</button>
+    <button class="btn-secundario pdv-btn-perigo" id="btnFecharCaixaPainel">Fechar caixa</button>
     <div class="drawer-link" id="btnReimprimirTurno">Reimprimir comprovante</div>
   </div>
 </div>
@@ -2766,20 +2772,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ----- editar item -----
+  function radioDe(nome) { const m = document.querySelector('input[name="' + nome + '"]:checked'); return m ? m.value : ''; }
+  function marcarRadio(nome, valor) { document.querySelectorAll('input[name="' + nome + '"]').forEach(r => { r.checked = r.value === valor; }); }
   function lerItemDoPainel() {
     const base = venda.itens[itemEmEdicao];
-    const tipo = valDrop('itemAjusteTipo');
+    // Campo em branco (ou zero) e "sem ajuste": o tipo marcado so vale quando ha quanto.
+    const txt = document.getElementById('itemAjusteValor').value.trim();
+    const quanto = txt === '' ? 0 : numero(txt);
     return { sku: base.sku, nome: base.nome, un: base.un, precoOriginal: base.precoOriginal,
              qtd: numero(document.getElementById('itemQtd').value),
              preco: numero(document.getElementById('itemPreco').value),
-             ajusteTipo: tipo, ajusteModo: valDrop('itemAjusteModo'),
-             ajusteValor: tipo === 'nenhum' ? 0 : numero(document.getElementById('itemAjusteValor').value) };
+             ajusteTipo: quanto === 0 ? 'nenhum' : radioDe('itemAjusteTipo'), ajusteModo: radioDe('itemAjusteModo'),
+             ajusteValor: quanto };
   }
   function pintarPainelItem() {
     const it = lerItemDoPainel();
-    mostrar('blocoItemAjuste', it.ajusteTipo !== 'nenhum');
-    const ok = it.qtd !== null && it.preco !== null && it.ajusteValor !== null;
+    const ok = it.qtd !== null && it.preco !== null && it.ajusteValor !== null && it.ajusteValor >= 0;
     texto('itemTotal', ok ? moeda(totalDoItem(it)) : '—');
+    const aj = ok ? ajusteDoItem(it) : 0;
+    texto('itemAjusteCalc', !ok ? '—' : (aj < 0 ? '− ' + moeda(-aj) : (aj > 0 ? '+ ' + moeda(aj) : moeda(0))));
     const pct = ok ? descontoPctDoItem(it) : 0;
     const acima = pct > PARAM.pdvDescontoMaximoPct + 0.0001;
     mostrar('itemNota', acima);
@@ -2789,17 +2800,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     itemEmEdicao = i;
     const it = venda.itens[i];
     texto('itemNome', it.nome);
+    texto('itemSub', it.sku + ' · saldo em ' + depositoDe(venda.depositoId).nome + ': ' + fmtQtd(saldoDe(it.sku, venda.depositoId), it.un) + ' ' + it.un);
     texto('rotuloItemQtd', 'Quantidade (' + it.un + ')');
     document.getElementById('itemQtd').value = fracionavel(it.un) ? fmtNum(it.qtd) : String(it.qtd);
+    texto('itemPrecoCadastro', moeda(it.precoOriginal));
     const preco = document.getElementById('itemPreco');
     preco.value = fmtNum(it.preco);
     // `pdvBloqueiaAlterarPreco`: o preco e o do cadastro; so desconto e acrescimo mexem no total.
     preco.disabled = !!PARAM.pdvBloqueiaAlterarPreco;
-    texto('hintItemPreco', PARAM.pdvBloqueiaAlterarPreco
-      ? 'O preço unitário está travado em Configurações do PDV. Use desconto ou acréscimo.'
-      : 'Preço do cadastro: ' + moeda(it.precoOriginal) + '.');
-    setDrop('itemAjusteTipo', it.ajusteTipo);
-    setDrop('itemAjusteModo', it.ajusteModo);
+    mostrar('hintItemPreco', !!PARAM.pdvBloqueiaAlterarPreco);
+    texto('hintItemPreco', 'O preço unitário está travado em Configurações do PDV. Use desconto ou acréscimo.');
+    marcarRadio('itemAjusteTipo', it.ajusteTipo === 'acrescimo' ? 'acrescimo' : 'desconto');
+    marcarRadio('itemAjusteModo', it.ajusteModo);
     document.getElementById('itemAjusteValor').value = it.ajusteValor ? fmtNum(it.ajusteValor) : '';
     limparErro(null, 'erroItem');
     pintarPainelItem();
@@ -2814,7 +2826,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (erroQ) { marcarErro(null, 'erroItem', erroQ); return; }
     if (it.preco === null || it.preco < 0) { marcarErro(null, 'erroItem', 'Informe o preço com números, usando vírgula para os centavos.'); return; }
     if (it.ajusteTipo !== 'nenhum') {
-      if (it.ajusteValor === null || it.ajusteValor <= 0) { marcarErro(null, 'erroItem', 'Informe quanto de ' + (it.ajusteTipo === 'desconto' ? 'desconto' : 'acréscimo') + ', ou escolha "Sem ajuste".'); return; }
+      if (it.ajusteValor === null || it.ajusteValor < 0) { marcarErro(null, 'erroItem', 'Informe o ' + (it.ajusteTipo === 'desconto' ? 'desconto' : 'acréscimo') + ' com números, ou deixe o campo em branco.'); return; }
       if (it.ajusteModo === 'pct' && it.ajusteValor > 100) { marcarErro(null, 'erroItem', 'A porcentagem não passa de 100%.'); return; }
       if (it.ajusteTipo === 'desconto' && -ajusteDoItem(it) > brutoDoItem(it) + 0.005) { marcarErro(null, 'erroItem', 'O desconto não pode ser maior que o valor do item.'); return; }
     }
@@ -3471,8 +3483,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('finDeposito'), (v) => { venda.depositoId = Number(v); pintarFinalizar(); gravar(); });
   inicializarDropdownSelect(document.getElementById('finCategoria'), (v) => { venda.categoriaId = Number(v); gravar(); });
   inicializarDropdownSelect(document.getElementById('selAddReceb'), (v) => { if (v) adicionarRecebimento(v); });
-  inicializarDropdownSelect(document.getElementById('itemAjusteTipo'), pintarPainelItem);
-  inicializarDropdownSelect(document.getElementById('itemAjusteModo'), pintarPainelItem);
+  document.querySelectorAll('input[name="itemAjusteTipo"], input[name="itemAjusteModo"]').forEach(r => r.addEventListener('change', pintarPainelItem));
   inicializarDropdownSelect(document.getElementById('movConta'), null);
   ['itemQtd', 'itemPreco', 'itemAjusteValor'].forEach(id => document.getElementById(id).addEventListener('input', pintarPainelItem));
 
@@ -3547,14 +3558,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       e.stopPropagation();
       menu.classList.remove('open');
       const acao = item.getAttribute('data-acao');
-      if (acao === 'sangria') abrirMovimento('sangria');
-      else if (acao === 'reforco') abrirMovimento('reforco');
+      if (acao === 'reforco') abrirMovimento('reforco');
       else if (acao === 'cancelar') cancelarVenda();
       else if (acao === 'atalhos') abrirPainel('atalhosDrawer');
       else if (acao === 'ultima') { if (ultimaVenda) imprimir(folhaRecibo(ultimaVenda, false)); else avisar('Ainda não há venda finalizada neste navegador para reimprimir.'); }
     }));
   })();
   document.getElementById('btnFecharCaixaTopo').addEventListener('click', abrirFechamento);
+  document.getElementById('btnSangriaTopo').addEventListener('click', () => abrirMovimento('sangria'));
 
   // ---------- atalhos de teclado ----------
   // Rodam na captura, depois do Esc dos dropdowns (que e mais antigo). Com o

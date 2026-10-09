@@ -133,6 +133,12 @@ def prox_util(d, n=1):
     return d
 
 
+def radio(pg, nome, valor):
+    """Marca um botao de opcao do painel de item."""
+    pg.evaluate("([n, v]) => document.querySelector('input[name=' + n + '][value=' + v + ']').click()", [nome, valor])
+    pg.wait_for_timeout(150)
+
+
 def receber(pg, chave, valor=None, i=None):
     escolher(pg, 'selAddReceb', chave)
     if valor is not None:
@@ -217,13 +223,22 @@ with sync_playwright() as p:
 
     print('\n[4] Editar item: desconto dentro do limite passa, acima pede senha')
     clic(pg, '#listaItens tbody tr'); pg.wait_for_timeout(350)
-    ok(pg.locator('#itemDrawer.open').count() == 1 and 'Fone' in pg.inner_text('#itemNome'), 'clicar no item abre o painel dele')
+    ok(pg.locator('#itemDrawer.open').count() == 1 and 'Fone' in pg.inner_text('#itemNome') and pg.inner_text('#itemDrawer .drawer-title') == 'Editar produto',
+       'clicar no item abre o painel "Editar produto" dele')
+    ok('FON-BT-200' in pg.inner_text('#itemSub') and 'saldo em Geral: 34' in pg.inner_text('#itemSub') and pg.inner_text('#itemPrecoCadastro') == 'R$ 249,90',
+       'com o codigo, o saldo no deposito da venda e o preco do cadastro: %s' % pg.inner_text('#itemSub'))
+    ok(pg.evaluate("document.getElementById('itemDrawer').getBoundingClientRect().width") >= 500 and not visivel(pg, '#hintItemPreco'),
+       'o painel e largo, e sem a trava de preco nao ha aviso de trava')
     ok(pg.evaluate("document.getElementById('itemPreco').disabled") is False, 'o preco pode ser mudado (parametro desligado)')
-    escolher(pg, 'itemAjusteTipo', 'desconto')
-    ok(visivel(pg, '#blocoItemAjuste'), 'escolher desconto mostra os campos do ajuste')
-    escolher(pg, 'itemAjusteModo', 'pct')
+    ok(visivel(pg, '#itemAjusteValor') and pg.evaluate("radioDe('itemAjusteTipo') + '/' + radioDe('itemAjusteModo')") == 'desconto/valor' and pg.inner_text('#itemAjusteCalc') == 'R$ 0,00',
+       'desconto e acrescimo ja estao na tela, sem menu para abrir, e em branco nao ha ajuste')
+    radio(pg, 'itemAjusteTipo', 'acrescimo'); pg.fill('#itemAjusteValor', '10'); pg.wait_for_timeout(200)
+    ok(pg.inner_text('#itemTotal') == 'R$ 759,70' and pg.inner_text('#itemAjusteCalc') == '+ R$ 10,00', 'acrescimo de valor fixo soma no total do item: %s' % pg.inner_text('#itemTotal'))
+    radio(pg, 'itemAjusteTipo', 'desconto')
+    radio(pg, 'itemAjusteModo', 'pct')
     pg.fill('#itemAjusteValor', '10'); pg.wait_for_timeout(200)
-    ok(pg.inner_text('#itemTotal') == 'R$ 674,73' and not visivel(pg, '#itemNota'), 'a previa mostra o total com 10%% (no limite, sem aviso): %s' % pg.inner_text('#itemTotal'))
+    ok(pg.inner_text('#itemTotal') == 'R$ 674,73' and pg.inner_text('#itemAjusteCalc') == '− R$ 74,97' and not visivel(pg, '#itemNota'),
+       'a previa mostra o desconto e o total com 10%% (no limite, sem aviso): %s' % pg.inner_text('#itemTotal'))
     clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(350)
     ok(pg.locator('#confirmModal.open').count() == 0 and pg.evaluate('venda.itens[0].ajusteValor') == 10, 'desconto no limite aplica sem senha')
     ok('desconto de' in pg.inner_text('#listaItens').lower(), 'e a linha do item mostra o desconto')
@@ -238,10 +253,18 @@ with sync_playwright() as p:
     clic(pg, '#listaItens tbody tr'); pg.wait_for_timeout(350)
     pg.fill('#itemQtd', '0'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#erroItem'), 'quantidade zero no painel e barrada')
-    pg.fill('#itemQtd', '3'); escolher(pg, 'itemAjusteTipo', 'nenhum'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(350)
-    ok(pg.evaluate('venda.itens[0].ajusteTipo') == 'nenhum' and pg.inner_text('#totVenda') == 'R$ 847,25', 'tirar o ajuste devolve o total')
+    pg.fill('#itemAjusteValor', 'abc'); pg.fill('#itemQtd', '3'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(250)
+    ok(visivel(pg, '#erroItem') and 'em branco' in pg.inner_text('#erroItem') and pg.inner_text('#itemTotal') == '—', 'ajuste que nao e numero e barrado, e a previa nao inventa total')
+    pg.fill('#itemAjusteValor', ''); pg.locator('#itemQtd').focus(); pg.keyboard.press('Control+Enter'); pg.wait_for_timeout(350)
+    ok(pg.locator('#itemDrawer.open').count() == 0 and pg.evaluate('venda.itens[0].ajusteTipo') == 'nenhum' and pg.inner_text('#totVenda') == 'R$ 847,25',
+       'apagar o campo tira o ajuste, e Ctrl+Enter aplica')
     clic(pg, '[data-remover="1"]'); pg.wait_for_timeout(250)
     ok(pg.evaluate('venda.itens.length') == 1, 'o X da linha remove o item')
+    adicionar(pg, 'CAR-33W-01', '1')
+    clic(pg, '#listaItens tbody tr:nth-child(2)'); pg.wait_for_timeout(350)
+    ok('Carregador' in pg.inner_text('#itemNome'), 'o painel abre o item da linha clicada')
+    clic(pg, '#btnRemoverItem'); pg.wait_for_timeout(300)
+    ok(pg.evaluate('venda.itens.length') == 1 and pg.locator('#itemDrawer.open').count() == 0 and pg.evaluate('venda.itens[0].sku') == 'FON-BT-200', 'e o botao Remover do painel tira so aquele item')
 
     print('\n[5] Vendedor da loja, cliente e cadastro rapido')
     vend = pg.evaluate("Array.from(document.querySelectorAll('#menuVendedor .dropdown-select-item')).map(e => e.textContent)")
@@ -408,11 +431,12 @@ with sync_playwright() as p:
     clic(pg, '#caixaCorpo [data-mov-painel="reforco"]'); pg.wait_for_timeout(300)
     ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#movTitulo') == 'Reforço de caixa', 'a aba de sangrias e reforcos lanca direto dali')
     clic(pg, '#movDrawer [data-fechar-painel]'); pg.wait_for_timeout(250)
-    ok(visivel(pg, '#btnFecharCaixaTopo') and pg.locator('#menuMaisAcoes [data-acao="fechar"]').count() == 0, 'Fechar caixa e botao proprio no topo, fora do menu')
-    clic(pg, '#menuMaisAcoes [data-acao="sangria"]'); pg.wait_for_timeout(300)
-    ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#movTitulo') == 'Sangria de caixa', 'Mais acoes abre a sangria')
-    ok(pg.inner_text('#menuMaisAcoes .dropdown-select-label') == 'Mais ações' and pg.locator('#menuMaisAcoes .dropdown-select-item.active').count() == 0,
-       'e o botao continua se chamando "Mais ações", sem item marcado')
+    ok(visivel(pg, '#btnFecharCaixaTopo') and visivel(pg, '#btnSangriaTopo') and pg.locator('#menuMaisAcoes [data-acao="fechar"], #menuMaisAcoes [data-acao="sangria"]').count() == 0,
+       'Fechar caixa e Sangria sao botoes proprios no topo, fora do menu')
+    cores = pg.evaluate("['btnFecharCaixaTopo', 'btnSangriaTopo', 'itemCancelarVenda'].map(i => getComputedStyle(document.getElementById(i)).color)")
+    ok(cores[0] != cores[1] and cores[0] == cores[2], 'e o Fechar caixa tem cor propria, a mesma das acoes de perigo: %s' % cores[:2])
+    clic(pg, '#btnSangriaTopo'); pg.wait_for_timeout(300)
+    ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#movTitulo') == 'Sangria de caixa', 'o botao Sangria abre a sangria')
     ok(pg.inner_text('#movConta .dropdown-select-label') == 'Cofre da loja', 'com o cofre sugerido como destino')
     pg.fill('#movValor', '9000'); pg.fill('#movMotivo', 'teste'); clic(pg, '#btnSalvarMov'); pg.wait_for_timeout(250)
     e = pg.inner_text('#erroMovValor')
@@ -424,6 +448,8 @@ with sync_playwright() as p:
     confirmar(pg); fechar_aviso(pg)
     ok(pg.evaluate("turno.movimentos.length") == 1 and pg.evaluate("dinheiroNaGaveta(turno)") == 350, 'a sangria sai da gaveta: 150 + 300 - 100 = 350')
     clic(pg, '#menuMaisAcoes [data-acao="reforco"]'); pg.wait_for_timeout(300)
+    ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#menuMaisAcoes .dropdown-select-label') == 'Mais ações' and pg.locator('#menuMaisAcoes .dropdown-select-item.active').count() == 0,
+       'Mais acoes abre o reforco, e o botao continua se chamando "Mais ações", sem item marcado')
     pg.fill('#movValor', '50'); pg.fill('#movMotivo', 'troco'); clic(pg, '#btnSalvarMov'); pg.wait_for_timeout(400)
     ok(not (pg.locator('#confirmModal.open').count() == 1 and visivel(pg, '#campoSenhaModal')), 'reforco nao pede senha por padrao')
     fechar_aviso(pg)
@@ -553,7 +579,7 @@ with sync_playwright() as p:
     fechar_aviso(pg)
     clic(pg, '#listaItens tbody tr'); pg.wait_for_timeout(300)
     ok(pg.evaluate("document.getElementById('itemPreco').disabled") is True and 'travado' in pg.inner_text('#hintItemPreco'), 'com "bloquear alteracao de preco" ligado, o preco vem travado')
-    escolher(pg, 'itemAjusteTipo', 'desconto'); escolher(pg, 'itemAjusteModo', 'pct'); pg.fill('#itemAjusteValor', '8'); pg.wait_for_timeout(200)
+    radio(pg, 'itemAjusteTipo', 'desconto'); radio(pg, 'itemAjusteModo', 'pct'); pg.fill('#itemAjusteValor', '8'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#itemNota') and '5,00%' in pg.inner_text('#itemNota'), 'e 8% de desconto ja passa do maximo de 5%')
     clic(pg, '#itemDrawer [data-fechar-painel]'); pg.wait_for_timeout(250)
     # fechamento NAO cego mostra o esperado; abrir com o ultimo valor sugere o troco
@@ -611,6 +637,16 @@ with sync_playwright() as p:
     ok(pg.locator('#clienteDrawer.open').count() == 0, 'Esc fecha o painel')
     pg.keyboard.press('Control+Enter'); pg.wait_for_timeout(350)
     ok(pg.evaluate('momento') == 'finalizar', 'Ctrl+Enter na venda continua')
+    # O submenu do menu lateral abre por cima do conteudo. A barra do PDV tinha o mesmo z-index e passava na frente.
+    pg.evaluate("document.getElementById('flyout-config').classList.add('open')"); pg.wait_for_timeout(450)
+    por_cima = pg.evaluate("""() => {
+        const card = document.getElementById('card').getBoundingClientRect();
+        const barra = Array.from(document.querySelectorAll('.pdv-barra')).filter(b => b.offsetParent !== null)[0].getBoundingClientRect();
+        if (card.right <= barra.left) return 'o submenu nao chegou na barra';
+        const x = (Math.max(card.left, barra.left) + Math.min(card.right, barra.right)) / 2, y = (barra.top + barra.bottom) / 2;
+        return !!document.elementFromPoint(x, y).closest('#card'); }""")
+    pg.evaluate("document.getElementById('flyout-config').classList.remove('open')"); pg.wait_for_timeout(300)
+    ok(por_cima is True, 'o submenu do menu lateral fica por cima da barra do PDV: %s' % por_cima)
     pg.keyboard.press('F4'); pg.wait_for_timeout(250)
     ok(pg.locator('#menuAddReceb.open').count() == 1, 'F4 abre as formas de recebimento')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)

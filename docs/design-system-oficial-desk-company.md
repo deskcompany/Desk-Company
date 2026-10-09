@@ -1950,5 +1950,23 @@ fechar caixa no rodapé. A aba de sangrias e reforços lança direto dali, e a d
 recibo de qualquer venda do turno. Com o fechamento cego ligado e o caixa aberto, o resumo mostra
 as formas usadas e quantas vendas, **sem valor**.
 
+**Editar produto** também segue o print: painel largo com o nome, o código e o saldo no depósito
+da venda; linhas de rótulo à esquerda e campo à direita (quantidade, preço do cadastro só para
+leitura, editar preço); desconto ou acréscimo em **botões de opção à vista**, sem menu para abrir;
+o valor do ajuste calculado ao lado do título da seção; o preço total em destaque; e Aplicar,
+Remover e Cancelar no rodapé. Não existe a opção "sem ajuste": **campo em branco é sem ajuste**.
+O botão de opção é o da casa (`.radio-option`, o mesmo de Cadastros → Vendedores).
+
+**Ação de todo turno é botão, não item de menu.** Sangria e Fechar caixa ficam no topo, ao lado de
+Detalhes do caixa. Fechar caixa e Remover item usam contorno e texto na cor de perigo
+(`.pdv-btn-perigo`), a mesma do item de perigo do "Mais ações".
+
+**Barra fixa de rodapé fica abaixo do menu lateral.** O cartão do menu lateral tem `z-index: 30`
+e o submenu dele abre por cima do conteúdo. A barra do PDV nasceu com o mesmo 30 e, por vir depois
+na página, passava na frente do submenu. Barra fixa usa `z-index: 20`, como a `.barra-salvar` das
+outras telas.
+
 Ficou de fora: o Pedido de Venda ainda não usa prazo fixo, taxa por parcela nem repasse; ele só
-deixou de conferir limite no cartão. As taxas por parcela do cadastro são exemplo.
+deixou de conferir limite no cartão. As taxas por parcela do cadastro são exemplo. Os atalhos do
+Olist para remover item (Ctrl+Backspace) e trocar valor fixo por porcentagem (Ctrl+A, Ctrl+B) não
+entraram: são teclas que o campo de texto já usa para apagar palavra e selecionar tudo.
