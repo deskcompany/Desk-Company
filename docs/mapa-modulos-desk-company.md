@@ -85,15 +85,17 @@
 | ❌ | Comissões Afiliados |
 | ❌ | Relatórios Finanças |
 
-## 🔧 Operacional — 3 de 6
+## 🔧 Operacional — 3 de 4
 | | Submódulo |
 |---|---|
 | ✅ | Transportadoras |
-| ❌ | Formas de Pagamento |
-| ❌ | Cupons |
 | ✅ | Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque; nasceu antes da Devolução usá-lo)* |
 | ✅ | Motivos de Perda *(em que movimento o motivo vale e o que a baixa obriga; os motivos vieram do código do Acerto, onde viviam sem dono)* |
 | ❌ | Relatórios Operacional |
+
+> **Saíram deste menu em 08/out/2026, por decisão do usuário:**
+> **Formas de Pagamento** nasce em Configurações → Finanças, ao lado das contas e categorias financeiras de que depende (o hub já tinha os dois cartões reservados: formas de recebimento e formas de pagamento).
+> **Cupons** fica para quando as vitrines forem construídas: é a vitrine que aplica cupom, e hoje nenhuma tela do ERP lê um.
 
 ## 🔌 Integrações — 0 de 4 próprias
 *Lojas Desk, Depósitos e Endereços de Estoque aqui são atalhos para Cadastros, não telas próprias.*
@@ -112,6 +114,8 @@
 | ✅ | Parâmetros de estoque · Interface do usuário · Confirmações por senha · Registro de atividades |
 | ✅ | Configurações da conferência · do cadastro de produtos · do cadastro de clientes |
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
+| ✅ | Nomes do sistema |
+| ❌ | Formas de recebimento · Formas de pagamento *(próximas; cartões já reservados no hub, em Finanças)* |
 
 > ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
 >
@@ -129,9 +133,9 @@
 | Vendas | 2 | 7 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
-| **Operacional** | **3** | **3** |
+| **Operacional** | **3** | **1** |
 | Integrações | 0 | 4 |
 | Configurações | 10 | 0 |
-| **Total** | **47 entradas de menu · 71 telas** | **21** |
+| **Total** | **45 entradas de menu · 71 telas** | **19** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
