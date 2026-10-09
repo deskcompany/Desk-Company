@@ -155,7 +155,7 @@ with sync_playwright() as p:
     abrir(pg, 'Boleto')
     ok(pg.locator('#eventDrawer.open').count() == 1, 'clicar na linha abre o painel')
     ok(pg.evaluate("document.getElementById('inputNomeForma').disabled") is True, 'o nome vem travado')
-    ok(not visivel(pg, '#linkExcluirForma'), 'nao ha link de excluir')
+    ok(visivel(pg, '#linkExcluirForma'), 'o link de excluir aparece, como em toda forma')
     ok(visivel(pg, '#linkSituacaoForma') and pg.inner_text('#linkSituacaoForma').strip() == 'Desabilitar', 'mas ha o de desabilitar')
     ok('não excluída nem renomeada' in pg.inner_text('#notaForma'), 'e a nota explica a trava antes do clique')
     ok(pg.inner_text('#inputUso .dropdown-select-label') == 'Receber e pagar', 'o painel abre com os dados da forma: vale para')
@@ -176,6 +176,20 @@ with sync_playwright() as p:
     clic(pg, '#btnCancelarForma')
     pg.wait_for_timeout(300)
     ok(pg.evaluate("FORMAS.filter(f => f.nome === 'Boleto')[0].tarifacao") == 'pagamento', 'cancelar nao grava nada do que foi mexido')
+
+    # 08/out: o usuario procurou o excluir numa forma do sistema e nao achou
+    # nada. O link agora aparece sempre; nas do sistema ele explica.
+    abrir(pg, 'Boleto')
+    clic(pg, '#linkExcluirForma')
+    pg.wait_for_timeout(650)
+    ok(pg.locator('#confirmModal.open').count() == 1 and 'não pode ser excluída' in pg.inner_text('#confirmModalTexto'),
+       'excluir forma do sistema explica por que nao pode: %s' % pg.inner_text('#confirmModalTexto')[:60])
+    ok('desabilite' in pg.inner_text('#confirmModalTexto').lower(), 'e diz o que fazer no lugar')
+    clic(pg, '#btnConfirmModalConfirmar')
+    pg.wait_for_timeout(350)
+    if pg.locator('#confirmModal.open').count():
+        clic(pg, '#btnConfirmModalCancelar'); pg.wait_for_timeout(300)
+    ok(pg.evaluate("FORMAS.filter(f => f.chave === 'boleto').length") == 1, 'e a forma continua no catalogo')
 
     print('\n[7] O que nao pode ser gravado e barrado antes de salvar')
     antes = pg.evaluate("FORMAS.length")

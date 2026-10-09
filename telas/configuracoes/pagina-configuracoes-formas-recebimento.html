@@ -1726,7 +1726,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const linkSit = document.getElementById('linkSituacaoForma');
     linkSit.style.display = f ? 'block' : 'none';
     linkSit.textContent = f && f.ativo ? 'Desabilitar' : 'Habilitar';
-    document.getElementById('linkExcluirForma').style.display = f && !f.sistema ? 'block' : 'none';
+    // O link aparece em toda forma ja cadastrada, inclusive nas do sistema: la ele
+    // explica por que nao pode. Opcao que some sem dizer nada parece defeito —
+    // foi assim que o usuario leu, em 08/out. Mesmo desenho de Contas financeiras.
+    document.getElementById('linkExcluirForma').style.display = f ? 'block' : 'none';
     atualizarNota();
     drawerBackdrop.classList.add('open');
     drawer.classList.add('open');
@@ -1840,7 +1843,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!f) return;
     if (f.sistema) {
       fecharDrawer();
-      setTimeout(() => avisarHTML('<b>' + f.nome + '</b> é uma forma do sistema e não pode ser excluída. Desabilite, se não for usar.'), 260);
+      setTimeout(() => avisarHTML('<b>' + f.nome + '</b> é uma forma do sistema e não pode ser excluída: o Pedido de Venda, Contas a Receber e Contas a Pagar contam com ela. Se não for usar, <b>desabilite</b>.'), 260);
       return;
     }
     armarSenhaModal('formasRecebimentoExclui');

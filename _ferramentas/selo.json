@@ -26,7 +26,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -76,12 +76,12 @@
     "pagina-vendas-performance-vendas.html": "c1e38d0778fa6623"
    },
    "script_sha": "424547c5cb74b395",
-   "selado_em": "2026-10-08"
+   "selado_em": "2026-10-09"
   },
   "oficial": {
-   "conjunto": "95f6f6b840cd2ec3",
+   "conjunto": "b50511d76fd7d1d7",
    "script_sha": "9cf9eea6ed84596a",
-   "selado_em": "2026-10-08"
+   "selado_em": "2026-10-09"
   }
  },
  "suites": {
@@ -124,7 +124,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -231,7 +231,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -360,7 +360,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -441,7 +441,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -522,7 +522,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -576,13 +576,13 @@
    "teste_sha": "8e0347e186b9d584"
   },
   "teste_formas_recebimento.py": {
-   "asseracoes": 100,
+   "asseracoes": 103,
    "asseracoes_de": "rodada completa 08/10",
    "cobertura": {
     "pagina-cadastros-vendedores-detalhe.html": "336450ff40699570",
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-registro-atividades.html": "e95f13d5a16f00dc",
     "pagina-configuracoes.html": "b647e8e580772407",
     "pagina-financas-contas-pagar-detalhe.html": "b62b77247cbd6bd5",
@@ -593,7 +593,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-08",
-   "teste_sha": "684172f55b7e9c5c"
+   "teste_sha": "6509e4aa80383e7a"
   },
   "teste_integra.py": {
    "asseracoes": 14,
@@ -671,7 +671,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -721,7 +721,7 @@
     "pagina-vendas-performance-vendas.html": "c1e38d0778fa6623"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-08",
+   "selado_em": "2026-10-09",
    "teste_sha": "76ca86a34d6b136e"
   },
   "teste_metas.py": {
@@ -835,7 +835,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -885,7 +885,7 @@
     "pagina-vendas-performance-vendas.html": "c1e38d0778fa6623"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-08",
+   "selado_em": "2026-10-09",
    "teste_sha": "ab245ec81b300514"
   },
   "teste_recibo_clone.py": {
@@ -926,7 +926,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -976,7 +976,7 @@
     "pagina-vendas-performance-vendas.html": "c1e38d0778fa6623"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-08",
+   "selado_em": "2026-10-09",
    "teste_sha": "fc155edb94f01c57"
   },
   "teste_separacao.py": {
@@ -1021,7 +1021,7 @@
     "pagina-configuracoes-confirmacoes-senha.html": "fee704b926183c3d",
     "pagina-configuracoes-contas-bancarias.html": "fa57fd8861c0244c",
     "pagina-configuracoes-contas-financeiras.html": "5a9a3aa3dc34981e",
-    "pagina-configuracoes-formas-recebimento.html": "439d8e690e737c80",
+    "pagina-configuracoes-formas-recebimento.html": "03a9e9b6f0e5dc72",
     "pagina-configuracoes-interface-usuario.html": "8430ad8f93db01fd",
     "pagina-configuracoes-motivos-devolucao.html": "d47da169bb18a0c1",
     "pagina-configuracoes-motivos-perda.html": "db111f6a91424425",
@@ -1071,7 +1071,7 @@
     "pagina-vendas-performance-vendas.html": "c1e38d0778fa6623"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-08",
+   "selado_em": "2026-10-09",
    "teste_sha": "c76107eb9506028d"
   }
  },
