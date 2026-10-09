@@ -23,6 +23,7 @@
 import sys
 from playwright.sync_api import sync_playwright
 
+import localiza
 URL = 'http://localhost:3000/'
 TELA = 'pagina-configuracoes-nomes-sistema.html'
 
@@ -48,12 +49,12 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erros.append(str(e)))
 
     print('[1] A tela existe e e alcancavel por Configuracoes')
-    pg.goto(URL + 'pagina-configuracoes.html')
+    pg.goto(localiza.http('pagina-configuracoes.html'))
     pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
-    alvo = pg.locator('[data-href="pagina-configuracoes-nomes-sistema.html"]')
+    alvo = pg.locator('[data-href$="pagina-configuracoes-nomes-sistema.html"]')
     ok(alvo.count() >= 1, 'o card aparece na tela de Configuracoes')
 
-    pg.goto(URL + TELA); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pg.goto(localiza.http(TELA)); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
     # O numero cresce conforme os conjuntos fechados vao entrando: 11 na
     # estreia (devolucao), 19 depois que entrada de notas entrou. A asserção
     # mede o CONTRATO, nao o numero: todo rotulo declarado tem campo na tela.
@@ -101,7 +102,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(600)
 
     print('[6] O novo nome chega nas OUTRAS telas — e a mesma lista')
-    pg.goto(URL + 'pagina-logistica-devolucao-detalhe.html?id=1')
+    pg.goto(localiza.http('pagina-logistica-devolucao-detalhe.html?id=1'))
     pg.wait_for_load_state('load'); pg.wait_for_timeout(800)
     corpo = pg.inner_text('.main')
     ok('Quebrada' in corpo, 'o detalhe da devolucao mostra o nome novo')
@@ -117,14 +118,14 @@ with sync_playwright() as p:
     # Renomeia o estado que o cadastro de Motivos DE FATO mostra. "Avaria" na
     # linha do motivo e o DEPOSITO de destino, nao o estado da mercadoria —
     # dois nomes parecidos, duas coisas diferentes.
-    pg.goto(URL + TELA); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pg.goto(localiza.http(TELA)); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
     pg.fill('[data-nome="devolucao.estado.revendavel"]', 'Pronta pra vitrine')
     pg.wait_for_timeout(200)
     clicar(pg, '#btnSalvarNomes'); pg.wait_for_timeout(500)
     if pg.locator('#campoSenhaModal').is_visible():
         pg.fill('#inputSenhaModal', 'seiasenha')
     clicar(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(500)
-    pg.goto(URL + 'pagina-operacional-motivos-devolucao.html')
+    pg.goto(localiza.http('pagina-operacional-motivos-devolucao.html'))
     pg.wait_for_load_state('load'); pg.wait_for_timeout(800)
     ok('pronta pra vitrine' in pg.inner_text('#listaMotivos').lower(),
        'a lista de motivos usa o nome novo')
@@ -132,7 +133,7 @@ with sync_playwright() as p:
        'e o dropdown de destino tambem — o rotulo nao fica so na metade da tela')
 
     print('[9] Restaurar padrao devolve tudo')
-    pg.goto(URL + TELA); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pg.goto(localiza.http(TELA)); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
     ok(pg.input_value('[data-nome="devolucao.estado.avaria"]') == 'Quebrada',
        'o nome salvo sobreviveu ao recarregar')
     clicar(pg, '#btnRestaurarNomes')

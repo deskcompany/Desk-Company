@@ -2,13 +2,14 @@ from playwright.sync_api import sync_playwright
 import os, sys, json
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g, tempfile as _tempfile
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
 CHROME = _ch[0] if _ch else None      # None = o Playwright usa o navegador dele
 # ------------------------------------------------------------------------
 
-ARQ = 'file://' + os.path.abspath('pagina-financas-caixa.html')
+ARQ = localiza.uri('pagina-financas-caixa.html')
 falhas = []
 def ok(c, m):
     print(('  ok   ' if c else '  FALHA ') + m)

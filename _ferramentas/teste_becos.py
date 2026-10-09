@@ -8,6 +8,7 @@
 from playwright.sync_api import sync_playwright
 import os, re, glob, json
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -31,10 +32,10 @@ PROIBIDO = re.compile(
     r"s[óo] (passa a )?funciona(r)? de verdade no Lovable|arquivo isolado|"
     r"[ée] a pr[óo]xima (tela|a ser constru)|pr[óo]xima tela da fase|no fim da fase|entra no fim da F5|"
     r"A tela entra depois de Entrada de Notas|Entra junto com a Confer[êe]ncia", re.I)
-for f in _filtrar(sorted(glob.glob('pagina-*.html'))):
+for f in [os.path.basename(c) for c in _filtrar(localiza.caminhos())]:
     if 'molde' in f: continue
     achados = []
-    for i, l in enumerate(open(f, encoding='utf-8'), 1):
+    for i, l in enumerate(open(localiza.onde(f), encoding='utf-8'), 1):
         t = l.strip()
         if t.startswith('//') or t.startswith('/*') or t.startswith('*'): continue
         if PROIBIDO.search(l): achados.append(i)
@@ -49,10 +50,10 @@ with sync_playwright() as p:
 
     def abre(arq, espera=250):
         erros.clear()
-        pg.goto(URL + arq); pg.wait_for_timeout(espera)
+        pg.goto(localiza.uri(arq)); pg.wait_for_timeout(espera)
 
     def destino():
-        return pg.url.replace(URL, '')
+        return localiza.nome(pg.url)
 
     def menu(item_acao, raiz='#menuMaisAcoes'):
         pg.locator(raiz + ' .dropdown-select-btn').first.click(); pg.wait_for_timeout(120)

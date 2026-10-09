@@ -5,6 +5,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, re
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -21,7 +22,7 @@ CHROME = _ch[0] if _ch else None      # None = o Playwright usa o navegador dele
 # senha tem modal de confirmacao de verdade. O teste descobre as telas sozinho — lista
 # escrita a mao envelhece, e foi assim que "8 telas" virou 23 sem ninguem perceber.
 PATCHADAS = []
-for _f in _filtrar(sorted(_g.glob('pagina-*.html'))):
+for _f in _filtrar(sorted(localiza.caminhos())):
     if 'molde' in _f: continue
     _c = open(_f, encoding='utf-8').read()
     if 'function confirmarAcao' in _c and 'id="confirmModal"' in _c:
@@ -45,7 +46,7 @@ with sync_playwright() as p:
     print('\n--- 1. telas com modal: a trava trava e a acao fica registrada ---')
     for n in PATCHADAS:
         erros.clear()
-        pg.goto('file://' + os.path.abspath(n)); pg.wait_for_timeout(250)
+        pg.goto(localiza.uri(n)); pg.wait_for_timeout(250)
         ok(not [e for e in erros if not ruido(e)], f'{n}: carrega sem erro de console')
         ok(pg.evaluate("typeof abrirModalConfirmacao === 'function'"), f'{n}: abrirModalConfirmacao existe')
         r = pg.evaluate("""() => { window.__ran=false;
@@ -91,7 +92,7 @@ with sync_playwright() as p:
     # tempo de execucao e exigir que `confirmarAcao` recuse, em vez de executar.
     for n in PATCHADAS[:3]:
         erros.clear()
-        pg.goto('file://' + os.path.abspath(n)); pg.wait_for_timeout(250)
+        pg.goto(localiza.uri(n)); pg.wait_for_timeout(250)
         r = pg.evaluate("""() => { window.__ran=false;
             abrirModalConfirmacao = undefined;
             confirmarAcao('__teste_qa__','x',()=>{window.__ran=true;});
@@ -101,7 +102,7 @@ with sync_playwright() as p:
 
     print('\n--- 3. as tres assinaturas do modal: o despacho entrega o callback ---')
     grupos = {}
-    for f in _filtrar(sorted(_g.glob(os.path.join(PASTA, 'pagina-*.html')))):
+    for f in _filtrar(sorted(localiza.caminhos())):
         c = open(f, encoding='utf-8').read()
         if 'function confirmarAcao' not in c: continue
         m = re.search(r'function\s+abrirModalConfirmacao\s*\(([^)]*)\)', c)
@@ -110,7 +111,7 @@ with sync_playwright() as p:
         grupos.setdefault(k, []).append(os.path.basename(f))
     for k in sorted(grupos):
         for n in grupos[k][:2]:
-            pg.goto('file://' + os.path.abspath(n)); pg.wait_for_timeout(250)
+            pg.goto(localiza.uri(n)); pg.wait_for_timeout(250)
             ar = pg.evaluate("abrirModalConfirmacao.length")
             pg.evaluate("() => { window.__ran=false; confirmarAcao('__qa__','t',()=>{window.__ran=true;}); }")
             pg.fill('#inputSenhaModal', '123456'); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)

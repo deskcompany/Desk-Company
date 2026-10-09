@@ -21,6 +21,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, glob, io
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -56,7 +57,7 @@ def ok(cond, texto):
 # dois existirem, a proxima tela copia o que estiver mais perto.
 APOSENTADOS = ['form-footer-bar', 'par-barra', 'par-barra-nota']
 
-arquivos = _filtrar(sorted(glob.glob(PASTA + '/pagina-*.html')))
+arquivos = _filtrar(sorted(localiza.caminhos()))
 
 print('[1] Os nomes antigos nao existem mais em lugar nenhum')
 for arq in arquivos:
@@ -97,7 +98,7 @@ with sync_playwright() as p:
         pg.on('pageerror', lambda e, box=erros: box.append(str(e)))
         # ?editar=1 porque varias destas telas abrem em modo leitura, e la o
         # rodape e escondido de proposito — nao ha o que salvar.
-        pg.goto('file://' + arq + sufixo(nome))
+        pg.goto(localiza.uri(arq) + sufixo(nome))
         pg.wait_for_load_state('load')
         pg.wait_for_timeout(700)
 
@@ -107,7 +108,7 @@ with sync_playwright() as p:
         if not pg.locator('.barra-salvar').is_visible():
             # O ?id=1 pode cair num documento ja fechado, e ai o rodape some de
             # proposito. Antes de desistir da tela, tenta sem o documento.
-            pg.goto('file://' + arq + '?editar=1')
+            pg.goto(localiza.uri(arq) + '?editar=1')
             pg.wait_for_load_state('load')
             pg.wait_for_timeout(700)
         if not pg.locator('.barra-salvar').is_visible():
@@ -186,11 +187,11 @@ with sync_playwright() as p:
         # rodape e escondido de proposito — nao ha o que salvar.
         if nome in ocultas:
             continue
-        pg.goto('file://' + arq + sufixo(nome))
+        pg.goto(localiza.uri(arq) + sufixo(nome))
         pg.wait_for_load_state('load')
         pg.wait_for_timeout(700)
         if not pg.locator('.barra-salvar').is_visible():
-            pg.goto('file://' + arq + '?editar=1')
+            pg.goto(localiza.uri(arq) + '?editar=1')
             pg.wait_for_load_state('load')
             pg.wait_for_timeout(700)
         tem = pg.evaluate("""() => {

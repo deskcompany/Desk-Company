@@ -4,6 +4,45 @@ Scripts que conferem as telas. **Não são parte do sistema** — nenhuma tela d
 
 Criados em 23/set/2026, junto com Contas a Pagar. Apertados em 28/set/2026, na revisão completa da pasta.
 
+## ONDE MORA CADA TELA — `localiza.py` (08/out/2026)
+
+Até 08/out as 71 telas ficavam soltas na raiz do projeto, e cada suíte achava a sua do jeito que
+quis: `glob('pagina-*.html')`, `os.path.abspath('pagina-x.html')`, `'file://' + PASTA + '/' + nome`,
+`URL + 'pagina-x.html'`. Eram sete formas para a mesma pergunta. No dia em que as telas foram para
+`telas/<módulo>/`, as sete quebraram juntas.
+
+Agora a pergunta tem um dono só. O nome do arquivo continua único no sistema, então a suíte cita a
+tela pelo **nome** e o `localiza.py` responde onde ela está:
+
+| chamada | devolve |
+|---|---|
+| `localiza.caminhos()` | caminho absoluto de todas as telas, na ordem alfabética do nome |
+| `localiza.nomes()` | só os nomes, na mesma ordem |
+| `localiza.onde('pagina-x.html')` | caminho no disco. **Falha alto** se a tela não existe |
+| `localiza.uri('pagina-x.html?id=3')` | endereço `file://` para o navegador, com a query |
+| `localiza.http('pagina-x.html')` | endereço no servidor de preview |
+| `localiza.nome(href)` | de um `href`, `data-href` ou URL, só o arquivo e a query |
+| `localiza.resolve(href, de)` | para onde um link relativo aponta, a partir da tela `de` |
+| `localiza.espelho_plano()` | cópia das telas numa pasta única, para a auditoria oficial |
+
+**Três coisas que a mudança ensinou, e que valem para a próxima suíte:**
+
+- **Comparar `href` com o nome da tela não funciona mais.** O link agora é
+  `../vendas/pagina-vendas-metas.html`. Quem quer saber "o item do menu leva a esta tela" compara
+  `localiza.nome(href)`. A pasta é conferida por quem navega de verdade e pela checagem de que
+  todo destino existe (`teste_menu.py`, seção 5).
+- **Lista de telas vinda do disco é caminho, não nome.** `arq == 'pagina-molde-referencia.html'`
+  virava falso calado quando `arq` passou a ser caminho absoluto. Se o código compara, imprime ou
+  monta mensagem, itere `localiza.nomes()` e abra com `localiza.onde(nome)`.
+- **A auditoria oficial audita ZERO arquivos e diz "tudo limpo"** quando recebe uma pasta em que
+  as telas estão em subpastas. Provado em 08/out: apontada para `telas/`, saiu verde sem abrir
+  nada. Por isso o selo entrega a ela o espelho plano **e** exige que a saída diga quantos
+  arquivos viu. Verde sem contagem não é verde.
+
+O servidor (`servidor.js`) entrega `telas/`, então o endereço é `/<pasta>/<arquivo>`. O endereço
+antigo, sem pasta, redireciona — de verdade, com 302, porque os links de uma tela são relativos à
+pasta dela e só resolvem certo se o navegador souber em que pasta está.
+
 ## O SELO — o que já está provado não roda de novo (30/set/2026)
 
 A verificação completa passou de **20 minutos**. Teste caro é teste que alguém começa a pular, e teste pulado não protege nada. Mas pular *por achismo* é pior: foi assim que a exclusão em massa ficou sem senha por 11 dias.
@@ -21,7 +60,7 @@ O selo guarda, por suíte, o SHA-256 de cada arquivo que ela cobre e o da própr
 | a própria suíte mudou | roda inteira — teste novo nunca nasce selado |
 | tela nova apareceu | toda suíte que varre a pasta roda nela |
 | `auditoria.py` ou a auditoria oficial mudaram | a auditoria correspondente roda inteira |
-| `alvos.py` mudou | **todas** as suítes rodam — o filtro é o que decide o que elas veem |
+| `alvos.py` ou `localiza.py` mudou | **todas** as suítes rodam — o filtro decide o que elas veem, e o localizador decide ONDE elas olham |
 
 ```bash
 python3 selo.py                 # o que está selado e o que precisa rodar
@@ -34,7 +73,7 @@ python3 selo.py --selar         # sela o estado atual sem rodar (só depois de u
 
 ### A cobertura sai do código, não de uma lista escrita à mão
 
-Lista escrita à mão envelhece — foi ela que fez "8 telas com o problema" virar 23 sem ninguém perceber. O `selo.py` lê a cobertura **da própria suíte**: os nomes de `pagina-*.html` que ela cita, ou "a pasta toda" quando ela faz `glob`.
+Lista escrita à mão envelhece — foi ela que fez "8 telas com o problema" virar 23 sem ninguém perceber. O `selo.py` lê a cobertura **da própria suíte**: os nomes de `pagina-*.html` que ela cita, ou "a pasta toda" quando ela pede `localiza.caminhos()` ou `localiza.nomes()` (até 08/out o sinal era um `glob`).
 
 **E isso foi provado por observação, não por leitura.** Cada suíte foi rodada com o `Page.goto` do Playwright instrumentado, registrando as telas que ela realmente abriu, e o resultado comparado com a cobertura declarada: **nenhuma suíte abre tela fora da sua cobertura**. Algumas cobrem mais do que abrem (o `teste_menu` lê as 54 como texto, o `teste_integra` chega no Caixa por clique e não por `goto`) — e essa é a direção segura do erro: cobrir demais custa uma rodada a mais, cobrir de menos é selo mentiroso. **Repetir essa prova sempre que uma suíte nova entrar.** Feito em 30/set para o `teste_pedidos.py`: cobertura declarada e telas realmente abertas deram **exatamente as mesmas duas** — nenhuma fora, nenhuma coberta sem abrir.
 
@@ -48,10 +87,10 @@ Os scripts acham a pasta sozinhos (sobem um nível a partir daqui) e acham o nav
 
 ```bash
 # auditoria estática de um arquivo (ou de vários)
-python3 auditoria.py ../pagina-financas-contas-pagar.html
+python3 auditoria.py ../telas/financas/pagina-financas-contas-pagar.html
 
 # a pasta inteira — uma chamada só, com o total no fim
-python3 auditoria.py ../pagina-*.html
+python3 auditoria.py ../telas/*/pagina-*.html
 
 # um teste de navegador
 python3 teste_cp.py
@@ -192,7 +231,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 | `teste_lanc.py` | Lançamento do Caixa | 44 |
 | `teste_integra.py` | Contas a pagar **escreve** no Caixa e o Caixa **lê** | 14 |
 | `teste_agenda_aviso.py` | recorrência que termina vira aviso na Agenda, e renovar cria o ano seguinte | 24 |
-| `teste_menu.py` | o menu lateral navega de verdade entre as telas | 13 |
+| `teste_menu.py` | o menu lateral navega de verdade entre as telas. Desde 08/out guarda tambem duas regras do sistema inteiro: nenhuma classe de botao sublinha quando vira link (secao 6), e **todo link entre telas diz a pasta, e a pasta tem a tela dentro** (secao 7, estatica, cobre as 3.360 citacoes e as fontes). As duas provadas nos dois sentidos | 18 |
 | `teste_datas.py` · `teste_pos.py` | o componente de data e o posicionamento do calendário | 24 |
 | `teste_dropdown_todas.py` | clica no dropdown das **54 telas**: abre, escolhe, fecha — e, desde 02/out, confere com `elementFromPoint` que o menu **aparece de verdade**, não só no DOM (ver abaixo) | 54 telas |
 | `teste_confirma_senha.py` | **(28/set)** modal de confirmação em **todas** as telas que carregam o bloco de senha — descobertas pelo próprio script, sem lista fixa: a trava trava, o Esc fecha, o "estou ciente" aparece com 2+, a ação entra no registro, e o despacho entrega o callback nas **três assinaturas** | 687 |
@@ -200,6 +239,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 | `teste_esc_dropdown.py` | **(28/set)** Esc fecha o dropdown aberto em todas as telas — e, sem dropdown aberto, continua fechando o modal | 120 |
 | `teste_recibo_clone.py` | **(29/set)** clonar conta (copia a despesa, não a data) e imprimir recibo (travado sem baixa, valor por extenso com a regra do "e") | 30 |
 | `teste_receber.py` | **(02/out)** Contas a Receber, listagem e página da conta — o que ele protege é o que separa o **receber** do **pagar**, que é o que um clone apaga em silêncio: a conta nasce do pedido e a Origem leva até ele; Valor, Líquido, Saldo e Recebido são quatro números diferentes; a **taxa retida quita o título sem entrar no Caixa**; **baixa é entrada e estorno é saída** (o clone trouxe invertido); recibo e duplicata têm travas **inversas**; o pedido define as parcelas e a sobra dos centavos fica na primeira; e cliente com conta vencida não compra de novo | 61 |
+| `localiza.py` | **(08/out)** o único lugar que sabe em que pasta cada tela mora. Ver a seção no topo | — |
 | `selo.py` · `alvos.py` | **(30/set)** o selo acima: decide o que roda e o que pula, e restringe as suítes que varrem a pasta às telas que mudaram (`DESK_ALVOS`) | — |
 | `teste_becos.py` | **(29/set, noite)** nenhuma tela diz que outra tela "ainda não existe" ou que "a navegação só funciona no Lovable" (varre as 54); 20 botões levam ao destino certo; `?receber=1`, `?clonar=1` e `?nota=` chegam certos; os 5 cadastros abrem em edição pelo Incluir e pelo Editar, e em leitura (ou conforme a preferência) na consulta; a senha fica no modal que **exclui**, nunca no aviso de que nada pode ser excluído (OC, Depósitos, Endereços); cancelar OC recebida pede senha; competência em massa no Caixa; hub sem marcadores | 110 |
 | `teste_pedidos.py` | **(30/set)** Pedidos de Venda, listagem e página do pedido — o que ele protege são as **decisões da barganha de 30/set**, não o desenho: as 11 abas cabem numa linha só e o que sobra vai para "mais"; contador e rodapé contam a mesma coisa e o cancelado fica fora do total; a reserva nasce com o pedido e volta no cancelamento; pedido expedido não se exclui; pedido sem saldo não nasce, e a mensagem diz **quanto existe**; os dois níveis de desconto, cada um na sua base; a loja escolhe o depósito; cadastro rápido nasce incompleto; comissão liberada no faturamento; campos fiscais visíveis e desabilitados. **(02/out)** mais 6 seções: o funil anda um passo por vez na ordem certa e termina em Entregue; avançar NÃO pede senha e alterar situação à mão PEDE; clonar abre o pedido preenchido com a data de hoje; os painéis de últimas vendas e de limite de crédito abrem sem sair do pedido; o limite bloqueia em boleto e deixa passar em Pix; e nenhum item do menu voltou a ser promessa vazia. **(02/out, noite)** situação virou filtro suspenso: as 10 opções abrem todas visíveis, os contadores acompanham os outros filtros, e devolução não é mais situação de pedido | 128 |
@@ -218,7 +258,7 @@ Mexe nos 64 arquivos — é decisão de arquitetura, não conserto de teste.
 
 | `teste_metas.py` | **(08/out)** Vendas → Metas e Performance de Vendas. Metas era um formulário solto e virou listagem com painel lateral: a listagem lê, o painel escreve. A suíte guarda os dois níveis (loja e vendedor), o ritmo por **dias corridos**, que "abaixo do ritmo" só existe no mês corrente, o aviso de diferença entre a meta da loja e a soma dos vendedores, os quatro modos de definir (mensal, trimestral, anual, progressivo) com a prévia do que será gravado, e que alterar meta de mês fechado **pede senha**. A **[9] é a que justifica as duas telas serem refeitas juntas**: compara o bloco de dados e o texto de `situacaoDaMeta` entre Metas e Performance. Performance tinha a sua própria cópia dos números e podia discordar calada. Provada nos dois sentidos — mudar uma meta só em Performance faz ela reprovar. A **[12]** guarda o link que sai de Performance: "Definir meta" chega em Metas com o painel aberto naquela loja e naquele mês | 74 |
 
-Total: **3.143 asserções** sob selo, medidas na rodada completa de 08/out/2026, em 28 suítes.
+Total: **3.146 asserções** sob selo, medidas na rodada completa de 08/out/2026 (já na estrutura por módulos), em 28 suítes.
 
 ### O contador estava errado nas duas direções (06/out/2026)
 

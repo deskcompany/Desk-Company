@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 import os, sys
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -24,7 +25,7 @@ with sync_playwright() as p:
         pg = b.new_page(viewport={'width':1440,'height':900})
         erros = []
         pg.on('pageerror', lambda e: erros.append(str(e)))
-        pg.goto('file://' + os.path.abspath(arq)); pg.wait_for_timeout(600)
+        pg.goto(localiza.uri(arq)); pg.wait_for_timeout(600)
         ok(not erros, '  sem erro de JS: %s' % erros[:2])
         # abrir o primeiro campo (pode estar dentro de aba/painel: forca a exibicao do pai)
         vis = pg.eval_on_selector('#' + df1, "e => { const r = e.getBoundingClientRect(); return r.width > 0; }")

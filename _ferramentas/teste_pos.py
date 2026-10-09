@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 import os, sys
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g, tempfile as _tempfile
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -17,7 +18,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={'width':1440,'height':900})
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)))
-    pg.goto('file://' + os.path.abspath('pagina-financas-caixa-lancamento.html')); pg.wait_for_timeout(500)
+    pg.goto(localiza.uri('pagina-financas-caixa-lancamento.html')); pg.wait_for_timeout(500)
 
     print('posicao do calendario')
     pg.click('#dfLancData .date-btn'); pg.wait_for_timeout(350)
@@ -48,7 +49,7 @@ with sync_playwright() as p:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
 
     print('campo no topo da tela desce, em vez de sair pra fora')
-    pg.goto('file://' + os.path.abspath('pagina-financas-caixa.html')); pg.wait_for_timeout(500)
+    pg.goto(localiza.uri('pagina-financas-caixa.html')); pg.wait_for_timeout(500)
     pg.evaluate("localStorage.removeItem('deskParametros')")
     pg.click('#btnTransferir'); pg.wait_for_timeout(350)
     pg.click('#dfTransfData .date-btn'); pg.wait_for_timeout(350)

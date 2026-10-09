@@ -3,11 +3,12 @@
 from playwright.sync_api import sync_playwright
 import os, sys
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
 CHROME = _ch[0] if _ch else None
-ARQ = 'file://' + os.path.abspath('pagina-financas-contas-pagar-detalhe.html')
+ARQ = localiza.uri('pagina-financas-contas-pagar-detalhe.html')
 
 falhas = []
 def ok(c, m):

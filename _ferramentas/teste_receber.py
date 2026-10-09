@@ -13,6 +13,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -40,7 +41,7 @@ with sync_playwright() as p:
 
     def abre(arq, espera=600):
         erros.clear()
-        pg.goto(URL + arq); pg.wait_for_timeout(espera)
+        pg.goto(localiza.uri(arq)); pg.wait_for_timeout(espera)
 
     def fecha_modal():
         pg.evaluate("fecharModalConfirmacao()"); pg.wait_for_timeout(150)
@@ -216,7 +217,7 @@ with sync_playwright() as p:
     # lugar conforme a tela. Elas valem para o SISTEMA, nao para estas duas — por
     # isso a varredura e por toda a pasta, nao por lista escrita a mao.
     import glob as _g, os as _o
-    telas = sorted(_o.path.basename(x) for x in _g.glob(PASTA + '/pagina-*.html')
+    telas = sorted(_o.path.basename(x) for x in localiza.caminhos()
                    if 'molde' not in x)
 
     fora_de_ordem, abas_acima = [], []

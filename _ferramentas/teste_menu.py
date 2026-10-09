@@ -2,6 +2,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, re, glob
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -25,7 +26,7 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erros.append(str(e)))
 
     print('1. de uma tela de Cadastros ate Contas a pagar, pelo menu')
-    pg.goto('file://' + os.path.abspath('pagina-cadastros-marcas.html')); pg.wait_for_timeout(500)
+    pg.goto(localiza.uri('pagina-cadastros-marcas.html')); pg.wait_for_timeout(500)
     # O menu abre no CLIQUE do modulo, nao no hover — foi assim que o molde
     # ficou. O teste segue o caminho do usuario: clica no modulo, depois no item.
     def abrirMenu(modulo):
@@ -33,7 +34,7 @@ with sync_playwright() as p:
     abrirMenu('financas')
     sel = '#flyout-financas .flyout-item[data-label="Contas a Pagar"]'
     ok(pg.query_selector(sel) is not None, 'o item existe no flyout de Financas')
-    ok(pg.get_attribute(sel, 'data-href') == 'pagina-financas-contas-pagar.html', 'e agora tem destino')
+    ok(localiza.nome(pg.get_attribute(sel, 'data-href')) == 'pagina-financas-contas-pagar.html', 'e agora tem destino')
     pg.click(sel); pg.wait_for_timeout(900)
     ok(pg.url.endswith('pagina-financas-contas-pagar.html'), 'o clique navegou de verdade: %s' % pg.url.split('/')[-1])
 
@@ -60,14 +61,14 @@ with sync_playwright() as p:
 
     print('5. todo destino do menu aponta para arquivo que existe')
     faltando = []
-    for arq in _filtrar(glob.glob('*.html')):
+    for arq in _filtrar(localiza.caminhos()):
         t = open(arq, encoding='utf-8').read()
         for h in set(re.findall(r'flyout-item" data-label="[^"]+" data-href="([^"]+)"', t)):
-            if not os.path.exists('' + h): faltando.append((os.path.basename(arq), h))
+            if not os.path.isfile(localiza.resolve(h, arq)): faltando.append((os.path.basename(arq), h))
     ok(not faltando, 'nenhum destino quebrado: %s' % faltando[:3])
 
     print('5. o painel de Pagamento abre vivo numa conta em LEITURA')
-    pg.goto('file://' + os.path.abspath('pagina-financas-contas-pagar-detalhe.html') + '?id=6'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri('pagina-financas-contas-pagar-detalhe.html') + '?id=6'); pg.wait_for_timeout(600)
     ok(pg.eval_on_selector('body', "e => e.classList.contains('modo-leitura')"), 'a conta abre em leitura')
     pg.click('#btnDarBaixa'); pg.wait_for_timeout(400)
     ok(pg.eval_on_selector('#inputDataPgto', "e => getComputedStyle(e).display") != 'none', 'o campo Data do painel esta visivel')
@@ -92,11 +93,30 @@ with sync_playwright() as p:
       return ruins.sort();
     }"""
     sublinhadas = []
-    for arq in sorted(_filtrar(glob.glob('pagina-*.html'))):
-        pg.goto('file://' + os.path.abspath(arq)); pg.wait_for_load_state('load')
+    for arq in sorted(_filtrar(localiza.caminhos())):
+        pg.goto(localiza.uri(arq)); pg.wait_for_load_state('load')
         ruins = pg.evaluate(SUBLINHA)
         if ruins: sublinhadas.append((os.path.basename(arq), ruins))
     ok(not sublinhadas, 'nenhuma classe de botao sublinha como link: %s' % sublinhadas[:3])
+    print('7. todo link entre telas diz a pasta, e a pasta existe')
+    # 08/out: as telas sairam da raiz e foram para telas/<modulo>/. O link entre
+    # elas passou a ser sempre ../<pasta>/<arquivo>. Um link nu (so o nome) abre
+    # 404 calado, e e exatamente o que nasce quando se copia um trecho de uma
+    # conversa antiga ou se escreve o destino de memoria. A checagem e estatica
+    # e cobre TODA citacao, nao so o menu: botao, href montado em JS, destino de
+    # salvar. As fontes entram junto, pelo mesmo motivo.
+    CITA = re.compile(r"(?:\.\./[a-z_]+/)?pagina-[a-z0-9-]+\.html")
+    nus, quebrados, fontes = [], [], []
+    for arq in sorted(_filtrar(localiza.caminhos())):
+        t = open(arq, encoding='utf-8').read()
+        for c in set(CITA.findall(t)):
+            if not c.startswith('../'): nus.append((os.path.basename(arq), c))
+            elif not os.path.isfile(localiza.resolve(c, arq)): quebrados.append((os.path.basename(arq), c))
+        for u in set(re.findall(r"url\('([^')]+)'\)", t)):
+            if not os.path.isfile(localiza.resolve(u, arq)): fontes.append((os.path.basename(arq), u))
+    ok(not nus, 'nenhuma citacao a tela sem a pasta: %s' % nus[:3])
+    ok(not quebrados, 'e toda pasta citada tem a tela la dentro: %s' % quebrados[:3])
+    ok(not fontes, 'e as fontes carregam de onde a tela esta: %s' % fontes[:3])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

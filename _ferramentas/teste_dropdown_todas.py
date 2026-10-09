@@ -5,6 +5,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, glob
 # --- ambiente: achado sozinho, para o teste servir em qualquer sessao ---
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -21,17 +22,17 @@ falhas = []
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path=CHROME)
     pg = b.new_page(viewport={'width':1440,'height':900})
-    arquivos = _filtrar(sorted(glob.glob(PASTA + '/pagina-*.html')))
+    arquivos = _filtrar(sorted(localiza.caminhos()))
     testadas = 0
     for arq in arquivos:
         nome = os.path.basename(arq)
         erros = []
         pg.on('pageerror', lambda e, box=erros: box.append(str(e)))
         try:
-            pg.goto('file://' + arq)
+            pg.goto(localiza.uri(arq))
         except Exception:
             pg.wait_for_timeout(600)
-            pg.goto('file://' + arq)
+            pg.goto(localiza.uri(arq))
         pg.wait_for_timeout(420)
         # primeiro dropdown visivel da tela
         idx = pg.evaluate("""(function(){
@@ -121,7 +122,7 @@ with sync_playwright() as p:
     print()
     print('E o toggle que reaproveita .theme-seg nao pode mexer no tema:')
     for nome in ['pagina-cadastros-clientes-detalhe.html', 'pagina-cadastros-fornecedores-detalhe.html']:
-        pg.goto('file://' + PASTA + '/' + nome); pg.wait_for_timeout(450)
+        pg.goto(localiza.uri(nome)); pg.wait_for_timeout(450)
         r = pg.evaluate("""(function(){
           var segs = document.querySelectorAll('.theme-seg');
           if (segs.length < 2) return { pulou: true };

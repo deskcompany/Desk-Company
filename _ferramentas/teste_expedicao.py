@@ -21,6 +21,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -41,7 +42,7 @@ def nova(pw, alvo, erros):
     pg = pw.chromium.launch(executable_path=CHROME).new_page(viewport={'width': 1440, 'height': 950})
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
-    pg.goto(URL + alvo)
+    pg.goto(localiza.uri(alvo))
     pg.wait_for_timeout(500)
     return pg
 
@@ -342,10 +343,10 @@ with sync_playwright() as pw:
            % (tela.replace('pagina-', ''), '' if not faltando else ' — falta ' + ', '.join(faltando)))
 
     sem, morto = [], []
-    for arq in sorted(glob.glob('pagina-*.html')):
-        txt = open(arq, encoding='utf-8').read()
+    for arq in localiza.nomes():
+        txt = open(localiza.onde(arq), encoding='utf-8').read()
         if 'data-label="Expedição"' not in txt: sem.append(arq)
-        elif 'data-href="pagina-logistica-expedicao.html"' not in txt: morto.append(arq)
+        elif 'data-href="../logistica/pagina-logistica-expedicao.html"' not in txt: morto.append(arq)
     ok(not sem, 'toda tela tem o item Expedição no menu%s' % ('' if not sem else ': falta em ' + ', '.join(sem)))
     ok(not morto, 'e nenhum deles e item morto%s' % ('' if not morto else ': ' + ', '.join(morto)))
 

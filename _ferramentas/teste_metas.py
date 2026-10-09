@@ -28,6 +28,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, glob
 
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -76,7 +77,7 @@ with sync_playwright() as p:
     pg = nav.new_page(viewport={'width': 1440, 'height': 950})
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)))
-    pg.goto(URL + METAS)
+    pg.goto(localiza.http(METAS))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(800)
 
@@ -215,14 +216,14 @@ with sync_playwright() as p:
     print('\n[9] A Performance le a MESMA base')
     # Esta e a asserção que impede a copia de voltar: as duas telas carregam o
     # mesmo bloco de dados, e aqui ele e comparado valor a valor.
-    pg.goto(URL + METAS)
+    pg.goto(localiza.http(METAS))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(700)
     base_metas = pg.evaluate("JSON.stringify([LOJAS, VENDEDORES, METAS, REALIZADO])")
     p2 = nav.new_page(viewport={'width': 1440, 'height': 950})
     err2 = []
     p2.on('pageerror', lambda e: err2.append(str(e)))
-    p2.goto(URL + PERF)
+    p2.goto(localiza.http(PERF))
     p2.wait_for_load_state('load')
     p2.wait_for_timeout(800)
     base_perf = p2.evaluate("JSON.stringify([LOJAS, VENDEDORES, METAS, REALIZADO])")
@@ -246,7 +247,7 @@ with sync_playwright() as p:
     ok(p2.locator('.card input, .estoque-toolbar input:not(#campoBusca)').count() == 0,
        'nao ha campo de digitacao na listagem alem da busca')
     ok(p2.evaluate("typeof salvarMeta === 'undefined'"), 'e a tela nao carrega a funcao de gravar meta')
-    ok(p2.locator('#btnIrMetas').get_attribute('href') == METAS, 'quem quer definir meta e levado para Metas')
+    ok(localiza.nome(p2.locator('#btnIrMetas').get_attribute('href')) == METAS, 'quem quer definir meta e levado para Metas')
     escolher(p2, 'filtroVisao', 'resultado')
     clic(p2, '#corpoTabela tr')
     p2.wait_for_timeout(450)
@@ -281,7 +282,7 @@ with sync_playwright() as p:
     p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
     e3 = []
     p3.on('pageerror', lambda e: e3.append(str(e)))
-    p3.goto(URL + PERF)
+    p3.goto(localiza.http(PERF))
     p3.wait_for_load_state('load')
     p3.wait_for_timeout(700)
     nome = p3.evaluate("document.querySelector('#corpoTabela tr td').innerText.split(String.fromCharCode(10))[0].trim()")
@@ -299,14 +300,14 @@ with sync_playwright() as p:
     alvo = p3.inner_text('#defAlvo .dropdown-select-label')
     ok(nome and nome.lower() in alvo.lower(), 'no alvo que estava clicado: %s / %s' % (nome, alvo))
 
-    p3.goto(URL + METAS + '?definir=vendedor:5&mes=3&ano=2026')
+    p3.goto(localiza.http(METAS + '?definir=vendedor:5&mes=3&ano=2026'))
     p3.wait_for_load_state('load')
     p3.wait_for_timeout(800)
     ok(p3.evaluate("document.querySelector('#abasNivel .aba-sit.active').getAttribute('data-nivel')") == 'vendedor',
        'link de vendedor abre na aba de vendedores')
     ok(p3.evaluate('mesSel') == 3 and 'Mar' in p3.inner_text('#defMes .dropdown-select-label'),
        'e no mes que o link pediu, na tela e no painel')
-    p3.goto(URL + METAS + '?definir=loja:999')
+    p3.goto(localiza.http(METAS + '?definir=loja:999'))
     p3.wait_for_load_state('load')
     p3.wait_for_timeout(800)
     ok(p3.locator('#defDrawer.open').count() == 0 and p3.locator('#confirmModal.open').count() == 1,

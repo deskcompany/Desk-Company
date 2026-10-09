@@ -15,13 +15,50 @@ arquivo não repete nada disso** — ele cobre apenas o que é específico desta
 
 ---
 
+## Onde fica cada coisa (desde 08/out/2026)
+
+O projeto mora em `C:\Claude AI\Desk Company\ERP System`, e essa pasta é a raiz do git.
+Até 08/out as 71 telas ficavam soltas na raiz; agora cada uma mora na pasta do seu módulo.
+
+```
+ERP System\
+├── CLAUDE.md
+├── telas\                 o que o servidor de preview entrega
+│   ├── inicio\            boas-vindas, agenda, minha conta e o dashboard de KPIs
+│   ├── cadastros\  estoque\  vendas\  logistica\  financas\
+│   ├── operacional\  configuracoes\
+│   ├── integracoes\       vazia: nenhuma tela construída ainda
+│   ├── _molde\            pagina-molde-referencia.html
+│   └── fontes\            Nunito, usada por todas as telas
+├── docs\                  design system, arquitetura, mapa dos módulos, pesquisas
+└── _ferramentas\          selo, suítes, auditoria e servidor de preview
+```
+
+Quatro regras seguram essa estrutura:
+
+- **O nome do arquivo continua único no sistema inteiro.** `pagina-vendas-metas.html` existe
+  uma vez só. É por isso que as suítes, o selo e os documentos seguem citando a tela pelo nome.
+- **A pasta é o módulo do MENU, não o prefixo do arquivo.** Quase sempre coincidem. A exceção
+  é `pagina-dashboard-kpis.html`, que fica em `inicio\` porque é lá que o menu a mostra.
+- **Link entre telas é sempre `../<pasta>/<arquivo>`**, mesmo quando as duas estão na mesma
+  pasta. Uma regra só, sem caso especial. Vale para `href`, `data-href` e `location.href`.
+  As fontes são `../fontes/...`.
+- **Só `_ferramentas/localiza.py` sabe onde cada tela mora.** Suíte nova pede a tela pelo
+  nome: `localiza.uri('pagina-x.html')`, `localiza.http(...)`, `localiza.caminhos()`. Nunca
+  `glob('pagina-*.html')` nem caminho montado à mão.
+
+**Tela nova nasce na pasta do módulo dela.** Copiou uma tela de outro módulo como base: os
+links já estão no formato `../<pasta>/`, então continuam certos. O que muda é só o arquivo.
+
+---
+
 ## Passo 0 aqui é diferente do Passo 0 da skill
 
 A skill descreve o fluxo do app da Claude: `device_stage_files` → trabalhar numa cópia em
 `/home/claude/desk-company/` → `device_commit_files` de volta. **Nada disso se aplica aqui.**
 
-Neste ambiente (Antigravity + extensão do Claude) a pasta do projeto é o diretório de
-trabalho: `C:\Claude AI\Desk Company`. Leitura e escrita acontecem **direto no arquivo final**.
+Neste ambiente (Antigravity + extensão do Claude) a pasta do projeto é
+`C:\Claude AI\Desk Company\ERP System`. Leitura e escrita acontecem **direto no arquivo final**.
 Não existe staging, não existe commit de volta, e não existe a classe de bug que vinha dessa
 ponte (três entregas que aterrissaram em `Claude outputs\` e ficaram semanas defasadas sem
 ninguém notar — ver `_ferramentas/LEIA-ME.md`).
@@ -37,9 +74,11 @@ O servidor de preview é Node puro, sem dependências:
 node _ferramentas/servidor.js        # porta 3000 (PORT=3001 muda)
 ```
 
-Depois é só abrir `http://localhost:3000/pagina-vendas-pedidos.html` (a raiz `/` cai no
-dashboard). Salvar o arquivo basta — um F5 já mostra a mudança. Não anuncie "entreguei" sem
-dizer qual URL abrir.
+Depois é só abrir `http://localhost:3000/vendas/pagina-vendas-pedidos.html`: o endereço é
+`/<pasta>/<arquivo>` (a raiz `/` cai no dashboard). O endereço antigo, sem a pasta
+(`/pagina-vendas-pedidos.html`), **redireciona** para o novo, então link velho em conversa ou
+documento continua abrindo. Salvar o arquivo basta — um F5 já mostra a mudança. Não anuncie
+"entreguei" sem dizer qual URL abrir.
 
 ## Verificação — rodar sempre antes de dar algo por pronto
 
@@ -49,7 +88,8 @@ A suíte é Python + Playwright e vive em `_ferramentas/`. Rodando de dentro des
 python selo.py                  # o que está selado e o que precisa rodar
 python selo.py --rodar          # roda só o que mudou, e sela o que passar
 python selo.py --rodar --tudo   # ignora o selo (~7 min)
-python auditoria.py ../pagina-*.html    # auditoria estática da pasta inteira
+python auditoria.py ../telas/*/pagina-*.html    # auditoria estática de todas as telas
+python localiza.py              # quantas telas há em cada pasta
 python varredura_cliques.py     # ~10 min, antes de fechar um módulo
 ```
 
@@ -77,6 +117,14 @@ Nunca instale Python de novo por causa disso — daria duas instalações concor
 | `_ferramentas/auditoria.py` | checagem 10 (tag literal em texto de modal) | — |
 | `assets/auditoria.py` da skill | seções 4B/5/6 (contraste WCAG medido) | checagem 10 |
 
+**A da skill não conhece a estrutura por módulo.** Ela mora fora do projeto, varre
+`pagina-*.html` numa pasta única e compara as telas entre si. Por isso o `selo.py` entrega a
+ela um **espelho plano**: as mesmas telas copiadas para uma pasta temporária, com os links de
+volta ao formato sem pasta (`localiza.espelho_plano()`). O HTML, o CSS e o JS auditados são os
+mesmos; só o endereço das vizinhas muda. Para rodá-la à mão, aponte para o espelho, nunca para
+`telas\` — lá ela encontra zero arquivos e sai dizendo que está tudo limpo. Quando a skill for
+atualizada na origem para entender as pastas, o espelho some.
+
 Nenhuma das duas é superconjunto da outra. **A do projeto é a canônica** para o dia a dia,
 porque é a que o `selo.py` lê e a que cobre o bug que já voltou duas vezes. Vale rodar a da
 skill também quando o assunto for contraste ou estouro de largura. Unificar as duas é dívida
@@ -96,11 +144,15 @@ auditar à mão só com a do projeto e achar que passou.
 A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o estado de
 06/out/2026, antes de qualquer alteração feita daqui.
 
+- **A raiz do repositório é `ERP System`** desde 08/out/2026. O que está acima dela
+  (`Desk Flash`, `C:\Claude AI\Skills`, os mapas) **não** é versionado aqui e não sobe para o
+  GitHub. O remoto (`deskcompany/Desk-Company`) guarda só o ERP.
+
 - `core.autocrlf=false` e `.gitattributes` com `* -text`: os arquivos nasceram com LF num
   ambiente Linux e os bytes ficam como estão. **Não mexa nisso** — mudar converteria 11 MB de
   HTML num único checkout e sujaria todo diff futuro.
 - Commite por tela ou por módulo fechado, depois da verificação verde — não no meio.
-- Antes de qualquer `sed`/substituição em massa nos 64 arquivos, confirme que a árvore está
+- Antes de qualquer `sed`/substituição em massa nas telas, confirme que a árvore está
   limpa (`git status`). O desfazer agora existe; use-o em vez de confiar na sorte.
 
 ## Estado atual (06/out/2026)
@@ -121,15 +173,17 @@ A dívida dos seis parâmetros da Expedição (`expedicaoAlertaHoras`, `expedica
 parâmetro que nasce no código sem tela de Configurações é dívida, e já custou isso duas vezes
 (`reservaExpiraDias` em 05/out foi a primeira).
 
-O estado real está sempre em [mapa-modulos-desk-company.md](mapa-modulos-desk-company.md), que
+O estado real está sempre em [mapa-modulos-desk-company.md](docs/mapa-modulos-desk-company.md), que
 é lido do próprio menu do sistema. Confie nele, não em memória de sessão.
 
 ## Os dois .md grandes: consulte, não leia inteiro
 
+Os dois ficam em `docs\`.
+
 | arquivo | tamanho | o que tem |
 |---|---|---|
-| `design-system-oficial-desk-company.md` | 261 KB | cores, fontes, medidas, componentes, §14 = histórico de bugs já corrigidos |
-| `arquitetura-roadmap-desk-company.md` | 374 KB | schema do backend, stack, fases, protocolo |
+| `docs/design-system-oficial-desk-company.md` | 282 KB | cores, fontes, medidas, componentes, §14 = histórico de bugs já corrigidos |
+| `docs/arquitetura-roadmap-desk-company.md` | 374 KB | schema do backend, stack, fases, protocolo |
 
 Ler qualquer um deles por inteiro queima contexto sem precisão. Use `grep -n` pelo termo e
 `sed -n 'X,Yp'` no trecho. Antes de investigar um sintoma, procure no §14 do design system:

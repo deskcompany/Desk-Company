@@ -50,6 +50,9 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(AQUI)
+# As telas moram em telas/<modulo>/ desde 08/out/2026; quem sabe onde e o localiza.
+sys.path.insert(0, AQUI)
+import localiza
 SELO = os.path.join(AQUI, 'selo.json')
 VERSAO = 1
 
@@ -77,7 +80,7 @@ def sha(caminho):
 
 
 def telas():
-    return sorted(a for a in os.listdir(PASTA) if a.startswith('pagina-') and a.endswith('.html'))
+    return localiza.nomes()
 
 
 def suites():
@@ -87,18 +90,21 @@ def suites():
 def cobertura(suite):
     """(arquivos cobertos, varre_a_pasta) lidos do codigo da propria suite."""
     fonte = open(os.path.join(AQUI, suite), encoding='utf-8').read()
-    varre = bool(re.search(r"glob\([^)]*'(?:\*|pagina-\*)\.html'", fonte)) or \
-        bool(re.search(r"glob\(PASTA \+ '/pagina-\*\.html'\)", fonte))
+    # Suite que pede "todas as telas" ao localiza cobre a pasta inteira. Antes
+    # isso era lido de um glob('pagina-*.html'); o sinal mudou junto com a pasta.
+    varre = 'localiza.caminhos()' in fonte or 'localiza.nomes()' in fonte
     if varre:
         return telas(), True
     citados = sorted(set(re.findall(r"pagina-[a-z0-9-]+\.html", fonte)))
-    return [c for c in citados if os.path.exists(os.path.join(PASTA, c))], False
+    return [c for c in citados if localiza.existe(c)], False
 
 
 def sha_ferramenta():
     """Muda quando o filtro DESK_ALVOS muda — invalida todo selo de suite."""
-    p = os.path.join(AQUI, 'alvos.py')
-    return sha(p) if os.path.exists(p) else '-'
+    # O localiza entra junto: se muda a regra de ONDE esta cada tela, toda
+    # suite passa a abrir outra coisa, e o selo antigo nao vale mais.
+    return '+'.join(sha(p) if os.path.exists(p) else '-'
+                    for p in (os.path.join(AQUI, 'alvos.py'), os.path.join(AQUI, 'localiza.py')))
 
 
 def ler_selo():
@@ -120,7 +126,7 @@ def gravar_selo(d):
 def estado():
     """Para cada suite: 'selada' ou o motivo de rodar, e em quais telas."""
     d = ler_selo()
-    hoje = {t: sha(os.path.join(PASTA, t)) for t in telas()}
+    hoje = {t: sha(localiza.onde(t)) for t in telas()}
     saida = []
     for s in suites():
         cob, varre = cobertura(s)
@@ -291,7 +297,7 @@ def principal():
         if motivo is None and not tudo:
             continue
         if nome == 'estrita':
-            alvo = [os.path.join(PASTA, t) for t in (alvos if (alvos and not tudo) else hoje)]
+            alvo = [localiza.onde(t) for t in (alvos if (alvos and not tudo) else hoje)]
             cod, saida, seg = roda([sys.executable, 'auditoria.py'] + alvo)
             # Codigo de saida PRIMEIRO: e o contrato que nao depende de formato
             # de texto. A linha de resumo fica como segunda confirmacao.
@@ -306,8 +312,12 @@ def principal():
             if not os.path.exists(AUDITORIA_OFICIAL):
                 print('  %-26s pulada (a skill nao esta montada nesta sessao)' % 'auditoria oficial')
                 continue
-            cod, saida, seg = roda([sys.executable, AUDITORIA_OFICIAL, PASTA])
-            verde = 'tudo limpo' in saida
+            # A auditoria oficial mora fora do projeto e so entende pasta unica.
+            # Ela recebe um espelho plano das telas (ver localiza.espelho_plano).
+            cod, saida, seg = roda([sys.executable, AUDITORIA_OFICIAL, localiza.espelho_plano()])
+            # "tudo limpo" sozinho nao basta: apontada para uma pasta sem telas, a
+            # oficial audita ZERO arquivos e sai limpa. Ela tem de dizer que viu todas.
+            verde = 'tudo limpo' in saida and ('%d arquivos em' % len(hoje)) in saida
             print('  %-26s %s  %5.1fs' % ('auditoria oficial', 'ok   ' if verde else 'FALHOU', seg))
             if verde:
                 d.setdefault('auditorias', {})['oficial'] = {'conjunto': conjunto, 'script_sha': sha(AUDITORIA_OFICIAL), 'selado_em': time.strftime('%Y-%m-%d')}

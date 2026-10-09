@@ -17,6 +17,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -36,7 +37,7 @@ def nova(pw, alvo, erros):
     pg = pw.chromium.launch(executable_path=CHROME).new_page(viewport={'width': 1440, 'height': 950})
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
-    pg.goto(URL + alvo)
+    pg.goto(localiza.uri(alvo))
     pg.wait_for_timeout(500)
     return pg
 
@@ -128,7 +129,7 @@ with sync_playwright() as pw:
        '"Outro", que e generico de proposito, exige descricao')
 
     print('\n[8] Inativar guarda a historia; excluir apaga, e a tela diz isso')
-    pg.goto(URL + TELA); pg.wait_for_timeout(500)
+    pg.goto(localiza.uri(TELA)); pg.wait_for_timeout(500)
     pg.locator('#listaMotivos .motivo-card').first.click(); pg.wait_for_timeout(400)
     pg.locator('#linkExcluirMotivo').click(); pg.wait_for_timeout(400)
     txt = pg.inner_text('#confirmModalTexto').lower()
@@ -153,13 +154,13 @@ with sync_playwright() as pw:
         p2.close()
 
     print('\n[11] O item de menu deixou de ser inerte')
-    pg.goto(URL + TELA); pg.wait_for_timeout(450)
+    pg.goto(localiza.uri(TELA)); pg.wait_for_timeout(450)
     href = pg.evaluate("""() => {
       const el = Array.from(document.querySelectorAll('.flyout-item'))
         .filter(e => (e.getAttribute('data-label') || '').indexOf('Motivos de Devolu') === 0)[0];
       return el ? el.getAttribute('data-href') : null;
     }""")
-    ok(href == TELA, 'o item do menu leva a esta tela: %s' % href)
+    ok(localiza.nome(href) == TELA, 'o item do menu leva a esta tela: %s' % href)
     bc = pg.inner_text('#breadcrumb').lower()
     ok('operacional' in bc and 'motivos' in bc, 'o caminho diz Operacional > Motivos: %s' % bc.replace(chr(10), ' '))
 

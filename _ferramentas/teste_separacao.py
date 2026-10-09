@@ -20,6 +20,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -40,7 +41,7 @@ def nova(pw, alvo, erros):
     pg = pw.chromium.launch(executable_path=CHROME).new_page(viewport={'width': 1440, 'height': 950})
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
-    pg.goto(URL + alvo)
+    pg.goto(localiza.uri(alvo))
     pg.wait_for_timeout(500)
     return pg
 
@@ -101,7 +102,7 @@ with sync_playwright() as pw:
     # ---------------------------------------------------------------- 4
     print('\n4. O MENU LOGISTICA LEVA A TELA, E A TELA LEVA A FICHA')
     destino = pg.get_attribute('.flyout-item[data-label="Separação"]', 'data-href')
-    ok(destino == FILA, 'o item de menu Separacao aponta para a tela: %s' % destino)
+    ok(localiza.nome(destino) == FILA, 'o item de menu Separacao aponta para a tela: %s' % destino)
     pg.click('#btnAbrirSeparacao')
     pg.wait_for_timeout(600)
     ok(FICHA in pg.url, 'o painel abre a ficha do pedido: %s' % pg.url.split('/')[-1])

@@ -19,6 +19,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -57,7 +58,7 @@ with sync_playwright() as pw:
     pg = nav.new_page(viewport={'width': 1440, 'height': 1000})
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
-    pg.goto(URL + LISTA); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(LISTA)); pg.wait_for_timeout(600)
 
     print('\n[1] A listagem carrega e a tabela cabe no card a 1440px')
     n = pg.locator('#corpoTabela tr').count()
@@ -132,7 +133,7 @@ with sync_playwright() as pw:
        'o caminho e o desta tela: %s' % bc.replace(chr(10), ' '))
 
     print('\n[7] O estado da mercadoria e POR ITEM')
-    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=1')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok(pg.locator('#corpoItens [data-estado]').count() == pg.locator('#corpoItens tr').count(),
        'toda linha tem o seu proprio estado')
     estados = pg.evaluate("Object.keys(ESTADOS_ITEM)")
@@ -181,7 +182,7 @@ with sync_playwright() as pw:
        'o botao some: confirmar duas vezes nao faz sentido')
 
     print('\n[9] Devolver mais do que foi vendido e barrado')
-    pg.goto(URL + DET + '?id=2'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=2')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     vendidas = pg.evaluate("DEV.itens[0].qtdVendida")
     antes = pg.evaluate("DEV.itens[0].qtd")
     pg.fill('#corpoItens input[data-qtd="0"]', str(vendidas + 5)); pg.wait_for_timeout(250)
@@ -193,7 +194,7 @@ with sync_playwright() as pw:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[10] Motivo que exige descricao nao salva sem ela')
-    pg.goto(URL + DET + '?id=2'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=2')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     exige = pg.evaluate("Object.keys(MOTIVOS).filter(k => MOTIVOS[k].exigeObs)[0]")
     pg.locator('#inputMotivo .dropdown-select-btn').click(); pg.wait_for_timeout(250)
     pg.locator('#inputMotivo .dropdown-select-item[data-value="' + exige + '"]').click(); pg.wait_for_timeout(300)
@@ -219,14 +220,14 @@ with sync_playwright() as pw:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[12] O codigo da reversa mora AQUI, nao no Rastreamento')
-    pg.goto(URL + DET + '?id=2'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=2')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok(pg.inner_text('#docRevCodigo').strip() not in ('', '—'),
        'a devolucao guarda o codigo da reversa: %s' % pg.inner_text('#docRevCodigo'))
     ok(pg.inner_text('#docRevTransp').strip() not in ('', '—'), 'e a transportadora da volta')
     # O funil do Rastreamento e a IDA: nove situacoes, previsao congelada, KPI de
     # atraso. Um movimento ao contrario caberia mal la.
     pg2 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    pg2.goto(URL + 'pagina-logistica-rastreamento.html'); pg2.wait_for_timeout(600)
+    pg2.goto(localiza.uri('pagina-logistica-rastreamento.html')); pg2.wait_for_timeout(600)
     semReversa = pg2.evaluate("SITUACOES.filter(s => s.id.indexOf('devol') >= 0 || s.id.indexOf('revers') >= 0).length")
     ok(semReversa == 0, 'o funil do Rastreamento nao ganhou situacao de volta (%d)' % semReversa)
     pg2.close()
@@ -235,7 +236,7 @@ with sync_playwright() as pw:
     # A escolha e a mesma do checkout: comparar ofertas e decidir. E ha uma
     # distincao que o cliente sente na pele — autorizacao de postagem (ele
     # leva um codigo) contra etiqueta invertida (ele PRECISA imprimir).
-    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pg.goto(localiza.uri(DET + '?id=1')); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
     ok(pg.evaluate("!DEV.reversa"), 'a DV-0012 ainda nao pediu reversa')
     # §9.3: dropdown de painel nasce com a TELA. Painel fechado tambem e pagina.
     ok(pg.evaluate("document.querySelectorAll('#revOfertas .oferta').length") > 0,
@@ -308,7 +309,7 @@ with sync_playwright() as pw:
     # Com uma excecao que muda a conta: nos Correios, Jadlog e Loggi, cubagem
     # de ate 5kg e desconsiderada e vale o peso real. Cotar so pelo peso real
     # subestima tudo o que e volumoso, e a diferenca volta como debito depois.
-    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
+    pg.goto(localiza.uri(DET + '?id=1')); pg.wait_for_load_state('load'); pg.wait_for_timeout(700)
     pe = pg.evaluate("pesoDaDevolucao()")
     ok(pe and pe.get('real', 0) > 0, 'a tela calcula o peso real dos itens que voltam: %s' % (pe or {}).get('real'))
     ok(pe and pe.get('cubado', 0) > 0, 'e a cubagem da embalagem: %s' % (pe or {}).get('cubado'))
@@ -373,7 +374,7 @@ with sync_playwright() as pw:
     ok(not pg.locator('#linhaReal').is_visible(), 'o campo some depois de registrado')
 
     print('\n[13] Finalizar com estoque pendente e barrado')
-    pg.goto(URL + DET + '?id=4'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=4')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok(pg.evaluate("!estoqueLancado(DEV)"), 'a DV-0009 ainda nao teve estoque lancado')
     temPendente = pg.evaluate("podeLancarEstoque(DEV)")
     pg.locator('#menuMaisAcoes .dropdown-select-btn').click(); pg.wait_for_timeout(250)
@@ -389,7 +390,7 @@ with sync_playwright() as pw:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[14] Cancelar depois de lancar o estoque e barrado')
-    pg.goto(URL + DET + '?id=3'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=3')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok(pg.evaluate("estoqueLancado(DEV)"), 'a DV-0010 ja teve o estoque lancado pela conferencia')
     pg.locator('#menuMaisAcoes .dropdown-select-btn').click(); pg.wait_for_timeout(250)
     pg.locator('#menuMaisAcoes [data-acao="cancelar"]').click(); pg.wait_for_timeout(450)
@@ -399,7 +400,7 @@ with sync_playwright() as pw:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[15] Nova devolucao nasce da VENDA, com tudo o que foi vendido')
-    pg.goto(URL + DET + '?venda=2'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?venda=2')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     ok('nova' in pg.inner_text('#tituloDev').lower(), 'a tela se apresenta como nova')
     vendaItens = pg.evaluate("vendaDe(2).itens.length")
     ok(pg.locator('#corpoItens tr').count() == vendaItens,
@@ -416,7 +417,7 @@ with sync_playwright() as pw:
 
     print('\n[17] Os dois parametros nasceram em Configuracoes')
     p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p3.goto(URL + 'pagina-configuracoes-parametros-estoque.html'); p3.wait_for_timeout(700)
+    p3.goto(localiza.uri('pagina-configuracoes-parametros-estoque.html')); p3.wait_for_timeout(700)
     ok(p3.locator('#devDeposito').count() == 1, 'o deposito da devolucao tem campo na tela')
     ok(p3.locator('[data-param="devolucaoPrazoDias"]').count() == 1, 'o prazo tambem')
     nas = p3.evaluate("CHAVES.indexOf('devolucaoDeposito') >= 0 && CHAVES.indexOf('devolucaoPrazoDias') >= 0")
@@ -438,7 +439,7 @@ with sync_playwright() as pw:
     # Parametro que a tela ignora e pior que parametro inexistente: ele promete.
     # Segue na MESMA pagina: no Playwright cada new_page nasce num contexto
     # proprio, e o localStorage de uma nao chega na outra.
-    p3.goto(URL + DET + '?id=1'); p3.wait_for_load_state('load'); p3.wait_for_timeout(700)
+    p3.goto(localiza.uri(DET + '?id=1')); p3.wait_for_load_state('load'); p3.wait_for_timeout(700)
     ok('geral' in p3.inner_text('#docEstDeposito').lower(),
        'com o parametro em Geral, o destino vira Geral: %s' % p3.inner_text('#docEstDeposito'))
     ok(p3.evaluate("PRAZO_DEV") == 21, 'e o prazo lido e o que foi salvo (%s)' % p3.evaluate("PRAZO_DEV"))
@@ -446,7 +447,7 @@ with sync_playwright() as pw:
     p3.close()
 
     print('\n[19] A trava nasce com a tela')
-    pg.goto(URL + DET + '?id=1'); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+    pg.goto(localiza.uri(DET + '?id=1')); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
     chaves = ['devolucaoCria', 'devolucaoConfirmaChegada', 'devolucaoFinaliza',
               'devolucaoCancela', 'devolucaoReversa']
     for k in chaves:
@@ -461,14 +462,14 @@ with sync_playwright() as pw:
         "ACOES_ESPECIFICAS.filter(a => a.chave === 'devolucaoConfirmaChegada')[0].exigePadrao === false")
     ok(semSenha, 'confirmar chegada nasce SEM senha: e fato da portaria, nao decisao de saldo')
     p5 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p5.goto(URL + 'pagina-configuracoes-confirmacoes-senha.html'); p5.wait_for_timeout(600)
+    p5.goto(localiza.uri('pagina-configuracoes-confirmacoes-senha.html')); p5.wait_for_timeout(600)
     todas = p5.evaluate("['%s'].every(k => ACOES_ESPECIFICAS.some(a => a.chave === k))" % "','".join(chaves))
     ok(todas, 'e Configuracoes conhece as cinco')
     p5.close()
 
     print('\n[20] Nos dois temas, sem erro de JS')
     for alvo in [LISTA, DET + '?id=1']:
-        pg.goto(URL + alvo); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+        pg.goto(localiza.uri(alvo)); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
         for tema in ['claro', 'escuro']:
             pg.evaluate("document.body.classList.%s('dark')" % ('remove' if tema == 'claro' else 'add'))
             pg.wait_for_timeout(220)
@@ -484,7 +485,7 @@ with sync_playwright() as pw:
     # A promessa do fluxo so vale se o documento aparecer do OUTRO lado. Sem
     # isto, "nasce uma nota de entrada" e texto na tela de devolucao.
     p6 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p6.goto(URL + 'pagina-estoque-entrada-notas.html'); p6.wait_for_timeout(800)
+    p6.goto(localiza.uri('pagina-estoque-entrada-notas.html')); p6.wait_for_timeout(800)
     temTransito = p6.evaluate("NOTAS.some(n => n.origem === 'devolucao' && n.situacao === 'transito')")
     ok(temTransito, 'Entrada de Notas tem devolucao em transito')
     ok(p6.locator('.aba-sit[data-sit="transito"]').count() == 1, 'e a aba Em transito existe la')
@@ -493,7 +494,7 @@ with sync_playwright() as pw:
       return celulaMde(n).indexOf('naoseaplica') >= 0;
     }""")
     ok(semMde, 'manifestacao nao se aplica a devolucao: a coluna mostra tracinho')
-    p6.goto(URL + 'pagina-estoque-conferencia-entrada.html'); p6.wait_for_timeout(800)
+    p6.goto(localiza.uri('pagina-estoque-conferencia-entrada.html')); p6.wait_for_timeout(800)
     naFila = p6.evaluate("NOTAS.some(n => n.origem === 'devolucao')")
     ok(naFila, 'e a devolucao entra na fila de Conferencia de Entrada')
     ok('Conferência de Entrada' in p6.inner_text('h1'),
@@ -506,7 +507,7 @@ with sync_playwright() as pw:
         .filter(e => (e.getAttribute('data-label') || '') === 'Devolução')[0];
       return el ? el.getAttribute('data-href') : null;
     }""")
-    ok(href == LISTA, 'o item do menu leva a listagem: %s' % href)
+    ok(localiza.nome(href) == LISTA, 'o item do menu leva a listagem: %s' % href)
 
     nav.close()
 

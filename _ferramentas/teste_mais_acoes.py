@@ -4,6 +4,7 @@
 from playwright.sync_api import sync_playwright
 import os, sys, re
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -45,7 +46,7 @@ with sync_playwright() as p:
 
     for n, alvo in COM_MENU.items():
         erros.clear()
-        pg.goto('file://' + os.path.abspath(n)); pg.wait_for_timeout(300)
+        pg.goto(localiza.uri(n)); pg.wait_for_timeout(300)
         ok(not [e for e in erros if not ruido(e)], f'{n}: carrega sem erro de console')
 
         r = pg.evaluate("""() => {

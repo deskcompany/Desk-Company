@@ -14,6 +14,7 @@ import pathlib as _pathlib
 from urllib.parse import urlparse as _urlparse
 from urllib.request import url2pathname as _url2path
 
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome')
 CH = _ch[0] if _ch else None      # None = o Playwright usa o navegador dele
@@ -34,7 +35,7 @@ def _caminho(u):
 
 def _relativo(u):
     """URL do navegador -> nome do arquivo relativo a pasta do projeto."""
-    return u[len(BASE):] if u.startswith(BASE) else u
+    return localiza.nome(u)
 
 
 HOOK = r"""
@@ -85,7 +86,7 @@ def pega(pg, i):
 
 def varre(arq):
     res = {'arq': arq, 'itens': [], 'erro_carga': []}
-    url = BASE + arq
+    url = localiza.uri(arq)
     with sync_playwright() as p:
         b = p.chromium.launch(executable_path=CH)
         ctx = b.new_context(viewport={'width': 1440, 'height': 900})
@@ -161,7 +162,7 @@ def varre(arq):
     return res
 
 if __name__ == '__main__':
-    arqs = sorted(os.path.basename(f) for f in glob.glob(os.path.join(PASTA, 'pagina-*.html')) if 'molde' not in f)
+    arqs = sorted(os.path.basename(f) for f in localiza.caminhos() if 'molde' not in f)
     if len(sys.argv) > 2: arqs = [a for a in arqs if any(s in a for s in sys.argv[2].split(','))]
     with Pool(6) as pool:
         out = pool.map(varre, arqs)

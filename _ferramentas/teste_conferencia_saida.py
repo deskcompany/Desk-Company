@@ -16,6 +16,7 @@
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
+import localiza
 PASTA = os.environ.get('DESK_PASTA') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(PASTA)
 _ch = glob.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + glob.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -38,7 +39,7 @@ def nova(pw, alvo, erros):
     pg = pw.chromium.launch(executable_path=CHROME).new_page(viewport={'width': 1440, 'height': 950})
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
-    pg.goto(URL + alvo)
+    pg.goto(localiza.uri(alvo))
     pg.wait_for_timeout(600)
     return pg
 
@@ -268,7 +269,7 @@ with sync_playwright() as pw:
     # E a bancada obedece ao que Configuracoes decidiu. Precisa ser a MESMA aba:
     # cada `nova()` abre um navegador proprio, e localStorage nao atravessa de um
     # para o outro — o parametro ficaria salvo num navegador e lido no outro.
-    pgc.goto(URL + BANCADA + '?id=24')
+    pgc.goto(localiza.uri(BANCADA + '?id=24'))
     pgc.wait_for_timeout(600)
     ok(pgc.locator('.qtd-oculta').count() == 0, 'desligada la, a bancada abre mostrando a separacao')
     ok('desligada' in pgc.locator('#notaCega').inner_text(),

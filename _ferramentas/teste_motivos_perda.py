@@ -27,6 +27,7 @@ from playwright.sync_api import sync_playwright
 import os, sys, glob
 
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/pw-browsers/chromium*/chrome-linux*/chrome')
@@ -56,7 +57,7 @@ with sync_playwright() as p:
     pg = nav.new_page(viewport={'width': 1440, 'height': 950})
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)))
-    pg.goto(URL + TELA)
+    pg.goto(localiza.http(TELA))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(800)
 
@@ -116,7 +117,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(300)
 
     print('\n[6] Excluir avisa que inativar guarda a historia')
-    pg.goto(URL + TELA)
+    pg.goto(localiza.http(TELA))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(700)
     antes = pg.evaluate("MOTIVOS.length")
@@ -135,7 +136,7 @@ with sync_playwright() as p:
         print('  --   excluir fica em "Mais ações" nesta tela')
 
     print('\n[7] A trava nasce com a tela')
-    pg.goto(URL + TELA)
+    pg.goto(localiza.http(TELA))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(700)
     tem = pg.evaluate("MODULOS_SENHA.some(m => m.base === 'motivosPerda')")
@@ -146,7 +147,7 @@ with sync_playwright() as p:
     })()""")
     ok(verbos == [True, True, True], 'com os tres verbos ligados: %s' % verbos)
     p2 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p2.goto(URL + 'pagina-configuracoes-confirmacoes-senha.html')
+    p2.goto(localiza.http('pagina-configuracoes-confirmacoes-senha.html'))
     p2.wait_for_timeout(700)
     ok(p2.evaluate("MODULOS_SENHA.some(m => m.base === 'motivosPerda')"),
        'e Configuracoes conhece o modulo — a chave entra nas telas que LEEM o catalogo')
@@ -166,7 +167,7 @@ with sync_playwright() as p:
       return fora;
     })()""")
     p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p3.goto(URL + ACERTO)
+    p3.goto(localiza.http(ACERTO))
     p3.wait_for_timeout(800)
     doAcerto = p3.evaluate("""(function () {
       var fora = {};
@@ -188,16 +189,16 @@ with sync_playwright() as p:
         .filter(function (e) { return (e.getAttribute('data-label') || '') === 'Motivos de Perda'; })[0];
       return el ? el.getAttribute('data-href') : null;
     })()""")
-    ok(href == TELA, 'o item leva ao cadastro: %s' % href)
+    ok(localiza.nome(href) == TELA, 'o item leva ao cadastro: %s' % href)
     p4 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p4.goto(URL + ACERTO)
+    p4.goto(localiza.http(ACERTO))
     p4.wait_for_timeout(700)
     hrefEst = p4.evaluate("""(function () {
       var el = Array.from(document.querySelectorAll('.flyout-item'))
         .filter(function (e) { return (e.getAttribute('data-label') || '') === 'Motivos de Perda'; })[0];
       return el ? el.getAttribute('data-href') : null;
     })()""")
-    ok(hrefEst == TELA, 'e o item do menu de Estoque tambem, que era onde ele nao levava a lugar nenhum')
+    ok(localiza.nome(hrefEst) == TELA, 'e o item do menu de Estoque tambem, que era onde ele nao levava a lugar nenhum')
     p4.close()
 
     print('\n[10] Nos dois temas, sem erro de JS')

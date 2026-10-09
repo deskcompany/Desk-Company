@@ -3,6 +3,7 @@
 from playwright.sync_api import sync_playwright
 import os, sys
 import os as _os, glob as _g
+import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
 import sys as _sys, os as _os2
@@ -23,10 +24,10 @@ def ok(c, m):
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path=CHROME)
     pg = b.new_page(viewport={'width': 1440, 'height': 900})
-    telas = [os.path.basename(f) for f in _filtrar(sorted(_g.glob('pagina-*.html'))) if 'molde' not in f]
+    telas = [os.path.basename(f) for f in _filtrar(sorted(localiza.caminhos())) if 'molde' not in f]
     testadas = 0
     for n in telas:
-        pg.goto('file://' + os.path.abspath(n)); pg.wait_for_timeout(200)
+        pg.goto(localiza.uri(n)); pg.wait_for_timeout(200)
         if not pg.evaluate("!!document.querySelector('.dropdown-select-menu')"): continue
         abriu = pg.evaluate("""() => {
             const b = [...document.querySelectorAll('.dropdown-select .dropdown-select-btn')]
