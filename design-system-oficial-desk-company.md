@@ -1658,3 +1658,31 @@ Devolução, e lá o Esc chamava `fecharDrawer()`, função que **não existe** 
 nome certo é `fecharPainel()`. O painel não fechava no Esc e o console acusava
 erro a cada tecla. Nenhuma suíte apertava Esc com o painel aberto; agora a de
 Devolução aperta. Clonar uma tela copia também o que ninguém testou nela.
+
+## 14.43 Botão que é link: uma regra só, e o link leva o contexto (08/out/2026)
+
+O sublinhado em botão voltou **duas vezes no mesmo dia** — primeiro no
+`.btn-mini`, depois no "Definir metas" de Performance. A primeira correção
+acrescentou uma classe a uma lista, e a lista não existia em todas as telas.
+Medido no navegador: em **10 das 71 telas** alguma classe `btn-*` sublinhava
+quando usada num link, a maioria em estado latente.
+
+Agora toda tela carrega uma regra só, que não depende de lembrar a classe:
+
+```css
+a[class^="btn-"], a[class*=" btn-"],
+a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+```
+
+A seção 6 de `teste_menu.py` mede isso nas 71 telas com **toda** classe `btn-*`
+que a tela declara, não só com as que hoje aparecem em link. Provada nos dois
+sentidos.
+
+**A segunda metade do mesmo botão.** Ele levava para a listagem de Metas
+inteira, e a pessoa tinha de achar de novo a loja em que já estava. Botão
+dentro do painel de um registro **leva o registro junto**:
+`pagina-vendas-metas.html?definir=loja:2&mes=10&ano=2026` abre Metas na aba,
+no período e com o painel de definição já naquele alvo. Alvo que não existe
+avisa, em vez de abrir painel vazio. É a mesma lição do "Ver a devolução" que
+caía na listagem, pela segunda vez no dia; vale conferir todo link que sai
+de dentro de um painel.

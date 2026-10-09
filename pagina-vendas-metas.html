@@ -825,6 +825,7 @@
   .meta-ano tr:last-child td { border-bottom:none; }
   .meta-ano tr.atual td { color:var(--active-text); }
 
+  a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
 </style>
 </head>
 <body class="dark">
@@ -2564,6 +2565,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   render();
+
+  // ===== CHEGADA POR LINK =====
+  // Performance de Vendas manda para ca com ?definir=loja:1&mes=10&ano=2026.
+  // A tela abre ja na aba, no periodo e com o painel de definicao naquele alvo.
+  (function () {
+    const q = new URLSearchParams(location.search);
+    const alvo = q.get('definir');
+    if (!alvo) return;
+    const p = alvo.split(':');
+    if ((p[0] !== 'loja' && p[0] !== 'vendedor') || !rotuloAlvo(alvo)) {
+      avisar('O link pedia uma loja ou um vendedor que não está no cadastro. Escolha na lista.');
+      return;
+    }
+    const m = Number(q.get('mes')), a = Number(q.get('ano'));
+    if (m >= 1 && m <= 12) { mesSel = m; setDrop('filtroMes', m, NOMES_MES[m - 1]); }
+    if (a >= 2000 && a <= 2100) { anoSel = a; setDrop('filtroAno', a, String(a)); }
+    nivel = p[0];
+    document.querySelectorAll('#abasNivel .aba-sit').forEach(function (x) {
+      x.classList.toggle('active', x.getAttribute('data-nivel') === nivel);
+    });
+    render();
+    abrirDefinir(alvo);
+  })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

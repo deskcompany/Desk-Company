@@ -75,6 +75,28 @@ with sync_playwright() as p:
     pg.click('#linkMaisOpcoes'); pg.wait_for_timeout(250)
     ok(pg.eval_on_selector('#inputJuros', "e => getComputedStyle(e).display") != 'none', 'e os campos de juros e desconto tambem')
     ok(not erros, 'sem erro de JS no caminho todo: %s' % erros[:3])
+    print('6. botao que vira link nao ganha sublinhado, em nenhuma tela')
+    # 08/out: o usuario viu "Definir metas" sublinhado, pela segunda vez no dia.
+    # Botao escrito como link herda o sublinhado do navegador, e cada tela
+    # resolvia isso classe por classe. A medida e feita com TODA classe btn-*
+    # que a tela declara, inclusive as que hoje so aparecem em botao de verdade:
+    # o defeito latente e o que volta na proxima tela clonada.
+    SUBLINHA = """() => {
+      const nomes = new Set();
+      for (const s of document.styleSheets) { let r; try { r = s.cssRules; } catch (e) { continue; }
+        for (const x of r) { const m = (x.selectorText || '').match(/[.]btn-[a-z0-9-]*/gi); if (m) m.forEach(n => nomes.add(n.slice(1))); } }
+      const ruins = [];
+      nomes.forEach(n => { const a = document.createElement('a'); a.href = '#'; a.className = n; a.textContent = 'x';
+        document.body.appendChild(a);
+        if (getComputedStyle(a).textDecorationLine.indexOf('underline') >= 0) ruins.push(n); a.remove(); });
+      return ruins.sort();
+    }"""
+    sublinhadas = []
+    for arq in sorted(_filtrar(glob.glob('pagina-*.html'))):
+        pg.goto('file://' + os.path.abspath(arq)); pg.wait_for_load_state('load')
+        ruins = pg.evaluate(SUBLINHA)
+        if ruins: sublinhadas.append((os.path.basename(arq), ruins))
+    ok(not sublinhadas, 'nenhuma classe de botao sublinha como link: %s' % sublinhadas[:3])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

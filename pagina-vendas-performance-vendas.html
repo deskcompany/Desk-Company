@@ -832,6 +832,7 @@
   body.dark .var-sobe { color:#4ADE80; }
   body.dark .var-desce { color:#FCA5A5; }
 
+  a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
 </style>
 </head>
 <body class="dark">
@@ -2223,7 +2224,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + (futuro || !nv ? '—' : moeda(real / nv)) + '</td></tr>';
     }
     corpo += '</tbody></table>';
-    corpo += '<div class="drawer-footer"><a class="btn-primary" href="pagina-vendas-metas.html">Definir metas</a>' +
+    corpo += '<div class="drawer-footer"><a class="btn-primary" id="btnDefinirDaqui" href="pagina-vendas-metas.html?definir=' + n + ':' + id + '&mes=' + mesSel + '&ano=' + anoSel + '">Definir meta</a>' +
       '<div class="drawer-link" id="btnFecharPainel">Fechar</div></div>';
     html('drawerCorpo', corpo);
     document.getElementById('btnFecharPainel').addEventListener('click', fecharDrawer);

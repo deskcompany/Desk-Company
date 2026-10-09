@@ -274,6 +274,45 @@ with sync_playwright() as p:
         ok(pg.evaluate('document.documentElement.scrollWidth') <= 1440, 'tema %s: nao estoura em 1440' % tema)
     ok(not erros, 'Metas sem erro de JS: %s' % erros[:2])
 
+    print(chr(10) + '[12] De Performance, "Definir meta" cai no painel daquela loja')
+    # 08/out: o botao levava para a listagem de Metas inteira, e a pessoa tinha
+    # de achar de novo a loja em que ja estava. O link agora carrega o alvo e o
+    # periodo, e Metas abre o painel de escrita ja preenchido.
+    p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
+    e3 = []
+    p3.on('pageerror', lambda e: e3.append(str(e)))
+    p3.goto(URL + PERF)
+    p3.wait_for_load_state('load')
+    p3.wait_for_timeout(700)
+    nome = p3.evaluate("document.querySelector('#corpoTabela tr td').innerText.split(String.fromCharCode(10))[0].trim()")
+    p3.evaluate("document.querySelector('#corpoTabela tr').click()")
+    p3.wait_for_timeout(450)
+    href = p3.get_attribute('#btnDefinirDaqui', 'href') or ''
+    ok('definir=loja:' in href and 'mes=' in href and 'ano=' in href, 'o link leva o alvo e o periodo: %s' % href)
+    ok(p3.evaluate("getComputedStyle(document.getElementById('btnDefinirDaqui')).textDecorationLine") == 'none',
+       'e o botao nao esta sublinhado')
+    p3.evaluate("document.getElementById('btnDefinirDaqui').click()")
+    p3.wait_for_load_state('load')
+    p3.wait_for_timeout(800)
+    ok(METAS in p3.url, 'chegou em Metas')
+    ok(p3.locator('#defDrawer.open').count() == 1, 'com o painel de definir ABERTO')
+    alvo = p3.inner_text('#defAlvo .dropdown-select-label')
+    ok(nome and nome.lower() in alvo.lower(), 'no alvo que estava clicado: %s / %s' % (nome, alvo))
+
+    p3.goto(URL + METAS + '?definir=vendedor:5&mes=3&ano=2026')
+    p3.wait_for_load_state('load')
+    p3.wait_for_timeout(800)
+    ok(p3.evaluate("document.querySelector('#abasNivel .aba-sit.active').getAttribute('data-nivel')") == 'vendedor',
+       'link de vendedor abre na aba de vendedores')
+    ok(p3.evaluate('mesSel') == 3 and 'Mar' in p3.inner_text('#defMes .dropdown-select-label'),
+       'e no mes que o link pediu, na tela e no painel')
+    p3.goto(URL + METAS + '?definir=loja:999')
+    p3.wait_for_load_state('load')
+    p3.wait_for_timeout(800)
+    ok(p3.locator('#defDrawer.open').count() == 0 and p3.locator('#confirmModal.open').count() == 1,
+       'alvo que nao existe avisa em vez de abrir painel vazio')
+    ok(not e3, 'sem erro de JS no caminho: %s' % e3[:2])
+
     nav.close()
 
 print('\nFALHAS: %d' % len(falhas))
