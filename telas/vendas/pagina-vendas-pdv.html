@@ -1280,7 +1280,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="form-field" style="margin-bottom:0;">
             <label>Cliente<span class="pdv-kbd">F8</span></label>
             <button type="button" class="pdv-cliente-btn" id="btnCliente"><span id="rotuloCliente">Consumidor final</span><span>trocar</span></button>
-            <div class="field-hint" id="hintCliente">Venda a prazo precisa de cliente identificado: o título tem de ter devedor.</div>
+            <div class="field-hint" id="hintCliente">Boleto, crediário e cheque precisam de cliente identificado: o título tem de ter devedor. Cartão não precisa.</div>
           </div>
         </div>
       </div>
@@ -2691,7 +2691,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setDrop('selVendedor', venda.vendedorId || '', v ? v.nome : 'Sem vendedor');
     texto('rotuloCliente', rotuloCliente());
     const c = clienteDe(venda.clienteId);
-    texto('hintCliente', c ? c.documento + ' · ' + c.telefone : 'Venda a prazo precisa de cliente identificado: o título tem de ter devedor.');
+    texto('hintCliente', c ? c.documento + ' · ' + c.telefone : 'Boleto, crediário e cheque precisam de cliente identificado: o título tem de ter devedor. Cartão não precisa.');
     pintarProduto();
   }
   function produtosDoTurno() { return CATALOGO.filter(p => p.loja === turno.lojaId); }
@@ -2986,7 +2986,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!r.valor || r.valor <= 0) p.push(f.nome + ': sem valor. Diminua o valor de outra forma, que o que faltar entra aqui, ou remova esta.');
       if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < r.valor - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(r.valor) + ').');
       if (f.destino === 'titulo') {
-        if (!cli) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
+        // Titulo precisa de devedor. No prazo fixo da operadora (cartao) o devedor e ela, e a venda passa sem cliente.
+        if (!cli && f.prazoUteis === null) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
         const somaParc = arred(r.parcelas.reduce((s, x) => s + (x.valor || 0), 0));
         if (!r.valor) { /* sem valor ja foi dito acima; parcela de zero nao e um segundo problema */ }
         else if (r.parcelas.length === 0) p.push(f.nome + ': gere as parcelas.');
@@ -3013,7 +3014,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     acertarRecebimentos();
     const cli = clienteDe(venda.clienteId);
     texto('rotuloClienteFin', rotuloCliente());
-    texto('docClienteFin', cli ? cli.documento + ' · limite de crédito disponível ' + moeda(disponivelDoCliente()) : 'Sem cliente identificado: só formas que entram na hora.');
+    texto('docClienteFin', cli ? cli.documento + ' · limite de crédito disponível ' + moeda(disponivelDoCliente()) : 'Sem cliente identificado: vale dinheiro, Pix e cartão. Boleto, crediário e cheque pedem cliente.');
     texto('finResumoTitulo', venda.itens.length + (venda.itens.length === 1 ? ' item' : ' itens'));
     html('finItens', venda.itens.map(it => '<div class="pdv-resumo-item"><span>' + fmtQtd(it.qtd, it.un) + ' × ' + esc(it.nome) + '</span><span>' + moeda(totalDoItem(it)) + '</span></div>').join(''));
     const d = descontoGeral();
@@ -3205,7 +3206,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (r.destino === 'conta') g.push('<b>' + moeda(r.valor) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + '). Aparece no Caixa de Finanças, sem título.');
       else {
         const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
-        g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), em nome de ' + esc(v.clienteNome) + '. ' +
+        g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), ' +
+          // No prazo fixo quem deve e a operadora: o titulo e a receber dela, com ou sem cliente na venda.
+          (r.prazoFixo && conta ? 'a receber de ' + esc(conta.nome) : 'em nome de ' + esc(v.clienteNome)) + '. ' +
           (r.parcelas.length === 1 ? 'Vencimento' : 'Primeiro vencimento') + ' em ' + primeiro + '.' +
           (cob > r.valor ? ' Inclui ' + moeda(arred(cob - r.valor)) + ' de taxa repassada ao cliente.' : ''));
       }

@@ -72,7 +72,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -81,7 +81,7 @@
    "selado_em": "2026-10-09"
   },
   "oficial": {
-   "conjunto": "ad316d7de422d7fc",
+   "conjunto": "c62a829fb71b54d0",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-09"
   }
@@ -172,7 +172,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -281,7 +281,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -412,7 +412,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -495,7 +495,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -578,7 +578,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -650,7 +650,7 @@
     "pagina-financas-caixa-lancamento.html": "56d24cb115469eaf",
     "pagina-financas-caixa.html": "957d903f8cf0e7ce",
     "pagina-financas-contas-pagar-detalhe.html": "c508acdf9c7d044d",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c"
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-09",
@@ -730,7 +730,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -790,7 +790,7 @@
    "teste_sha": "7779c70252c8e8c1"
   },
   "teste_pdv.py": {
-   "asseracoes": 195,
+   "asseracoes": 198,
    "asseracoes_de": "rodada completa 09/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "b909c6c6dec7ef0d",
@@ -863,14 +863,14 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-09",
-   "teste_sha": "bca078e3e6425536"
+   "teste_sha": "993b3137f8470bac"
   },
   "teste_pedidos.py": {
    "asseracoes": 128,
@@ -979,7 +979,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -1072,7 +1072,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"
@@ -1169,7 +1169,7 @@
     "pagina-logistica-separacao.html": "5f8a176a5ca94568",
     "pagina-molde-referencia.html": "7b0bdca42de6d22f",
     "pagina-vendas-metas.html": "03ddac09c0891556",
-    "pagina-vendas-pdv.html": "58c2a6532894dd8c",
+    "pagina-vendas-pdv.html": "7ca2bbe3f12be9b3",
     "pagina-vendas-pedidos-detalhe.html": "bd8631bf60754b9f",
     "pagina-vendas-pedidos.html": "e9302cf1a4e326f9",
     "pagina-vendas-performance-vendas.html": "f1ade454eb6278b1"

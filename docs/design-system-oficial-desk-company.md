@@ -1866,7 +1866,9 @@ sai dela para o cofre.
 
 - forma com destino em conta entra na hora, sem título;
 - forma com destino em título gera Contas a Receber, e por isso **exige cliente identificado**,
-  com "cliente obrigatório" ligado ou não: título precisa de devedor;
+  com "cliente obrigatório" ligado ou não: título precisa de devedor. **Menos no cartão**
+  (forma com prazo fixo da operadora): ali quem deve para a loja é a operadora, o título nasce
+  "a receber" dela e a venda passa para consumidor final (decisão do usuário em 09/out);
 - forma que valida limite barra a venda com os quatro números (limite, usado, disponível, pedido);
 - as parcelas são digitadas na venda, como `3x` ou `30 60 90`, **só nas formas de vencimento
   combinado** (boleto, crediário, cheque). Cartão tem prazo fixo da operadora e segue o §14.49.

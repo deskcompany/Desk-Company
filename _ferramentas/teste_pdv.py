@@ -368,7 +368,9 @@ with sync_playwright() as p:
     pg.fill('[data-receb-expr="2"]', '2x'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
     ok('Pode finalizar' in pg.inner_text('#faltaReceber'), 'com tudo fechando, a tela diz que pode finalizar')
     clic(pg, '#btnClienteFin'); pg.wait_for_timeout(300); clic(pg, '#btnConsumidorFinal'); pg.wait_for_timeout(300)
-    ok('precisa de cliente identificado' in pg.inner_text('#faltaReceber'), 'venda a prazo para consumidor final e barrada: titulo precisa de devedor')
+    f = pg.inner_text('#faltaReceber')
+    ok('Boleto vira título em Contas a Receber e precisa de cliente identificado' in f and 'Cartão de crédito vira' not in f,
+       'para consumidor final o boleto e barrado (titulo precisa de devedor) e o cartao NAO: %s' % f[:110])
     cliente(pg, 'rafael nog')
     f = pg.inner_text('#faltaReceber')
     ok('limite R$ 1.500,00' in f and 'já usado R$ 1.480,00' in f and 'disponível R$ 20,00' in f and 'esta venda a prazo R$ 200,00' in f,
@@ -613,6 +615,18 @@ with sync_playwright() as p:
     ok(pg.evaluate('momento') == 'finalizar', 'antes da senha, a venda nao finaliza')
     confirmar(pg)
     ok(pg.evaluate('momento') == 'concluida', 'com a senha, finaliza')
+    # Cartao para consumidor final: quem deve para a loja e a operadora, e a venda passa sem cliente.
+    clic(pg, '#btnOutraVenda'); pg.wait_for_timeout(350)
+    adicionar(pg, 'CAR-33W-01', '1')
+    clic(pg, '#btnContinuar'); pg.wait_for_timeout(350)
+    receber(pg, 'debito')
+    f = pg.inner_text('#faltaReceber')
+    ok(pg.evaluate('venda.clienteId') is None and 'Pode finalizar' in f and 'cliente' not in f.lower(), 'cartao para consumidor final pode finalizar, sem pedir cliente: %s' % f[:70])
+    ok('cartão' in pg.inner_text('#docClienteFin').lower() and 'Boleto' in pg.inner_text('#docClienteFin'), 'e a tela diz o que vale sem cliente e o que pede cliente')
+    clic(pg, '#btnFinalizar'); pg.wait_for_timeout(450)
+    g = pg.inner_text('#concGerado')
+    ok(pg.evaluate('momento') == 'concluida' and '1 título em Contas a Receber' in g and 'a receber de Mercado Pago' in g and 'em nome de Consumidor final' not in g,
+       'a venda finaliza e o titulo nasce a receber da operadora: %s' % [l for l in g.split(chr(10)) if 'título' in l][:1])
     acoes = pg.evaluate("ACOES_SENHA.filter(a => a.chave.indexOf('pdv') === 0).map(a => a.chave + '/' + a.exigePadrao)")
     ok(sorted(acoes) == ['pdvDescontoAcima/true', 'pdvFechaComDiferenca/true', 'pdvReforco/false', 'pdvSangria/true'], 'as quatro do PDV, com o padrao de cada: %s' % sorted(acoes))
     for arq in CATALOGOS:
