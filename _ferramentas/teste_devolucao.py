@@ -509,6 +509,50 @@ with sync_playwright() as pw:
     }""")
     ok(localiza.nome(href) == LISTA, 'o item do menu leva a listagem: %s' % href)
 
+    print(chr(10) + '[22] Os tres filtros da listagem filtram, e o Limpar desfaz')
+    # 08/out: a varredura de cliques achou 20 erros de JS nesta tela. Os filtros
+    # de responsavel, motivo e forma chamavam setDropdownValor, que a tela nunca
+    # definiu: o clique dava erro ANTES de filtrar, e a lista ficava como estava.
+    # Nenhuma secao desta suite escolhia uma opcao desses tres dropdowns. E a
+    # segunda funcao inexistente achada nesta tela (a primeira foi a do Esc):
+    # tela copiada traz chamada para o que ficou na tela de origem.
+    p7 = nav.new_page(viewport={'width': 1440, 'height': 1000})
+    e7 = []
+    p7.on('pageerror', lambda e: e7.append(str(e)))
+    p7.goto(localiza.uri(LISTA)); p7.wait_for_timeout(600)
+    linhas = "document.querySelectorAll('#corpoTabela tr').length"
+    total = p7.evaluate(linhas)
+    padrao = {}
+    for raiz, menu, var in (('filtroResponsavel', 'menuFiltroResponsavel', 'fResp'),
+                            ('filtroMotivo', 'menuFiltroMotivo', 'fMotivo'),
+                            ('filtroForma', 'menuFiltroForma', 'fForma')):
+        padrao[raiz] = p7.inner_text('#' + raiz + ' .dropdown-select-label')
+        opcao = p7.evaluate("""(m) => { const it = document.querySelectorAll('#' + m + ' .dropdown-select-item')[1];
+                                        return [it.getAttribute('data-value'), it.textContent]; }""", menu)
+        trocar(p7, raiz, menu, opcao[0])
+        ok(not e7, '%s: escolher uma opcao nao da erro de JS: %s' % (raiz, e7[:1]))
+        ok(p7.evaluate(var) == opcao[0], '%s: o filtro passa a valer (%s)' % (raiz, opcao[0]))
+        ok(p7.inner_text('#' + raiz + ' .dropdown-select-label') == opcao[1],
+           '%s: e o botao mostra o que foi escolhido: %s' % (raiz, opcao[1]))
+        depois = p7.evaluate(linhas)
+        ok(depois <= total, '%s: a lista nao cresce ao filtrar (%d de %d)' % (raiz, depois, total))
+        if raiz == 'filtroMotivo':
+            ok(depois < total, 'um motivo so mostra menos devolucoes que todos (%d de %d)' % (depois, total))
+        e7.clear()
+        trocar(p7, raiz, menu, 'todos')
+        ok(p7.evaluate(linhas) == total and not e7, '%s: voltar para "todos" devolve a lista inteira' % raiz)
+        e7.clear()
+    for raiz, menu in (('filtroResponsavel', 'menuFiltroResponsavel'), ('filtroMotivo', 'menuFiltroMotivo')):
+        v = p7.evaluate("(m) => document.querySelectorAll('#' + m + ' .dropdown-select-item')[1].getAttribute('data-value')", menu)
+        trocar(p7, raiz, menu, v)
+    clicarId(p7, 'btnLimparFiltros')
+    p7.wait_for_timeout(350)
+    ok(not e7, 'Limpar filtros nao da erro de JS: %s' % e7[:1])
+    ok(all(p7.inner_text('#' + r + ' .dropdown-select-label') == padrao[r] for r in padrao),
+       'Limpar filtros devolve os tres botoes ao rotulo inicial')
+    ok(p7.evaluate(linhas) == total, 'e a lista volta inteira (%d)' % total)
+    p7.close()
+
     nav.close()
 
 print('\nFALHAS: %d' % len(falhas))

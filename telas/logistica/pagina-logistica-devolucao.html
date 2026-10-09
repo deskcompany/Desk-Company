@@ -2475,6 +2475,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     pagina = 1; render();
   });
 
+  // Ajusta o valor e o rotulo de um dropdown de filtro. A tela chamava esta
+  // funcao em seis lugares sem nunca te-la definido: escolher um responsavel,
+  // um motivo ou uma forma dava erro ANTES de filtrar, e o "Limpar filtros"
+  // parava no meio. Mesma funcao das telas de cadastro (Motivos, Transportadoras).
+  function setDropdownValor(idRaiz, valor) {
+    const raiz = document.getElementById(idRaiz);
+    if (!raiz) return;
+    raiz.setAttribute('data-value', valor);
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === valor;
+      it.classList.toggle('active', ativo);
+      if (ativo && rotulo) rotulo.textContent = it.textContent;
+    });
+  }
+
   // ===== DROPDOWNS DE FILTRO =====
   function montarMenu(id, itens, aoEscolher) {
     document.getElementById(id).innerHTML = itens.map((i, n) => (

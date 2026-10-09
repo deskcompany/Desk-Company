@@ -189,6 +189,34 @@ Ler qualquer um deles por inteiro queima contexto sem precisão. Use `grep -n` p
 `sed -n 'X,Yp'` no trecho. Antes de investigar um sintoma, procure no §14 do design system:
 é provável que já tenha acontecido.
 
+## Ponytail e Graphify neste projeto (decidido em 08/out/2026)
+
+As duas ferramentas estão na máquina e valem para todos os projetos. Aqui elas têm regra própria.
+
+**Ponytail roda em `lite`** (`.claude/settings.json` define `PONYTAIL_DEFAULT_MODE=lite`). Ele
+continua injetando a regra "pedido vago recebe a menor versão que faz o essencial": o nível
+`lite` muda uma linha só do texto dele, não tira essa. Então, neste projeto, o que está abaixo
+**vale acima do Ponytail**:
+
+- **Tela não nasce na menor versão.** O usuário recusou Metas por estar "muito vaga, mais simples
+  que deveria". Tela nova segue o padrão das telas prontas do mesmo tipo: indicadores no topo,
+  busca e filtros, tabela, painel lateral. Enxugar é no **código** (reaproveitar o componente que
+  já existe, não inventar abstração), nunca no **escopo** da tela.
+- **A verificação não encolhe.** "Um teste pequeno" do Ponytail não substitui a regra da casa:
+  provar nos dois sentidos, rodar o selo, corrigir em todas as telas onde o defeito existe.
+- **A entrega continua fechando com o link e o que conferir.** A linha final do Ponytail (o que
+  ficou sem verificar, que risco existe) entra junto, não no lugar.
+
+Se o Ponytail propuser uma versão menor de algo, a proposta vai para o usuário em uma linha e
+ele decide. É para isso que o nível é `lite`.
+
+**Graphify não se usa aqui.** Não existe grafo deste projeto e não é para montar um: ele trata
+HTML como documento, que passa pelo modelo, e são 11 MB de telas quase iguais entre si. A
+descrição da skill dele pede para ser usada em "qualquer pergunta sobre a base de código"; neste
+projeto a resposta é não. "Em quantos arquivos isso existe?" se responde com busca por texto e
+com as suítes, que dão a contagem exata. Ele entra em cena nos projetos de código (o app que o
+Lovable gerar, a Desk Flash).
+
 ## Comunicação
 
 Português brasileiro, direto. O usuário corrige de forma específica e espera que a correção

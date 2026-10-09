@@ -58,7 +58,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -78,7 +78,7 @@
    "selado_em": "2026-10-08"
   },
   "oficial": {
-   "conjunto": "da82600c2dc707a1",
+   "conjunto": "97d20ad89289b98f",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-08"
   }
@@ -155,7 +155,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -261,7 +261,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -314,7 +314,7 @@
    "teste_sha": "702620637ef4e009"
   },
   "teste_devolucao.py": {
-   "asseracoes": 126,
+   "asseracoes": 145,
    "asseracoes_de": "rodada completa 08/10",
    "cobertura": {
     "pagina-configuracoes-confirmacoes-senha.html": "a0e15d64e7b8843a",
@@ -322,12 +322,12 @@
     "pagina-estoque-conferencia-entrada.html": "8096f7048307b67d",
     "pagina-estoque-entrada-notas.html": "9d9f04da954f7eec",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-rastreamento.html": "9622c3f0552473d5"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-08",
-   "teste_sha": "8c25588ba77d913e"
+   "teste_sha": "e1b0a7095b20cea2"
   },
   "teste_dropdown_todas.py": {
    "asseracoes": 2,
@@ -389,7 +389,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -469,7 +469,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -549,7 +549,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -677,7 +677,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -838,7 +838,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -928,7 +928,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",
@@ -1022,7 +1022,7 @@
     "pagina-logistica-conferencia-saida-detalhe.html": "8dccedcf7af8b4c4",
     "pagina-logistica-conferencia-saida.html": "3a7a1c84073f0571",
     "pagina-logistica-devolucao-detalhe.html": "35e1daba843bb8cf",
-    "pagina-logistica-devolucao.html": "297e12176c9107fc",
+    "pagina-logistica-devolucao.html": "728bcc659fbd7dca",
     "pagina-logistica-expedicao-detalhe.html": "3f4229545d607440",
     "pagina-logistica-expedicao.html": "b2c649593e2744c5",
     "pagina-logistica-rastreamento-detalhe.html": "718499ddc205c113",

@@ -1733,3 +1733,34 @@ página em silêncio. Reescrever um caminho exige olhar onde ele é **comparado*
 
 A regra do link ganhou guarda própria (`teste_menu.py`, seção 7): toda citação a uma tela diz a
 pasta, e a pasta tem a tela dentro. Provada nos dois sentidos.
+
+## 14.45 A varredura que nunca terminava, e o que ela escondia (08/out/2026)
+
+A varredura de cliques é a ferramenta de fechamento de módulo: abre cada tela e clica em tudo.
+Rodada depois da mudança de pastas, ela confirmou o que interessava (2.362 cliques em 70 telas,
+nenhuma navegação para arquivo inexistente) e achou o que ninguém procurava: **20 erros de
+JavaScript na listagem de Devolução**.
+
+Os três filtros da listagem (responsável, motivo, forma de ressarcimento) e o "Limpar filtros"
+chamavam `setDropdownValor`. A função existe em cinco telas de cadastro. Na de Devolução, nunca
+existiu. Escolher uma opção dava erro **antes** de filtrar: o botão não mudava, a lista ficava
+igual, e a tela parecia só não ter nada para filtrar.
+
+É a **segunda função inexistente nesta mesma tela** no mesmo dia (a primeira foi a do Esc, §14.42).
+As duas vieram do mesmo jeito: a tela nasceu de cópia, e a cópia trouxe a chamada sem trazer a
+definição. Nenhuma suíte apertava esses controles, e uma chamada que ninguém dispara não quebra
+nada à vista.
+
+**Quase não apareceu.** Na primeira rodada do dia a varredura clicou por dez minutos e quebrou na
+última linha, ao gravar o resultado: arquivo aberto sem `encoding`, cp1252 por padrão no Windows,
+e um texto de tela com seta derrubou a gravação. O relatório não saiu. Não se sabe desde quando
+ela quebrava assim; o defeito só dispara quando algum controle tem caractere fora do cp1252.
+
+Três regras que ficam:
+
+- **Ferramenta que não termina não acha nada, e o silêncio dela parece aprovação.** Ao rodar uma
+  verificação, confira que ela imprimiu o resumo final, não só que não reclamou.
+- **Tela copiada: procure chamada sem definição.** Antes de dar a tela por pronta, a varredura
+  roda nela (`python varredura_cliques.py - <nome>`), porque é a única que aperta tudo.
+- **Todo `open()` de script daqui diz o `encoding`.** O padrão do Windows não é o do Linux onde
+  as ferramentas nasceram.

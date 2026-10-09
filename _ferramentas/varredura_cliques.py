@@ -166,7 +166,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 2: arqs = [a for a in arqs if any(s in a for s in sys.argv[2].split(','))]
     with Pool(6) as pool:
         out = pool.map(varre, arqs)
-    json.dump(out, open(SAIDA, 'w'), ensure_ascii=False, indent=0)
+    # encoding explicito: no Windows o padrao e cp1252, e um texto de tela com
+    # seta ou travessao derrubava a gravacao DEPOIS dos 10 minutos de cliques.
+    with open(SAIDA, 'w', encoding='utf-8') as _f:
+        json.dump(out, _f, ensure_ascii=False, indent=0)
     tot = sum(len(r['itens']) for r in out)
     PROIB = re.compile(r"s[óo] (passa a )?funciona(r)? de verdade|arquivo isolado|pr[óo]xima (tela|a ser)|no fim da fase", re.I)
     erros = [(r['arq'], it['txt'][:40], it['erros'][0][:120]) for r in out for it in r['itens'] if it.get('erros')]
