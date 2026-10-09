@@ -1242,7 +1242,7 @@ O print mostrava **Banco** e **Descrição da conta**. A documentação (`config
 - **Grupo é entidade própria**, com cadastro separado e **um campo só** (descrição). E o ponto que importa: *"ao excluir um grupo que possui categorias vinculadas, as categorias não serão apagadas, mas passarão a ser da classificação Sem grupo"*. Está implementado assim, e a confirmação diz quantas vão se mover.
 - **Cada valor de *Considera no DRE* tem regra de sinal.** Deduções, despesas operacionais, tributos e taxas consideram **apenas lançamentos de saída**; *outras receitas ou despesas* considera os **dois sentidos** (entrada vira *Outras receitas*, saída vira *Outras despesas*). Isso virou **hint que muda com o valor escolhido** — sem ele, a escolha é chute e o erro só aparece no relatório, meses depois.
 - **"Agrupar categorias"** existe lá como ação em massa, para mover várias de uma vez. Virou o menu **Mover para grupo** da barra de seleção.
-- **Categoria pode ser padrão de uma operação** (venda, compra, PDV). PDV não existe no nosso projeto; ficaram **padrão de vendas** e **padrão de compras**, exclusivos na hora — marcar um desmarca o outro, mesma regra da conta preferencial.
+- **Categoria pode ser padrão de uma operação** (venda, compra, PDV). PDV não existe no nosso projeto; ficaram **padrão de vendas** e **padrão de compras**, exclusivos na hora — marcar um desmarca o outro, mesma regra da conta preferencial. *(09/out/2026: o PDV nasceu e usa o **padrão de vendas**; não ganhou um padrão só dele. Ver §14.48 do design system.)*
 - **Importar e exportar por planilha** (com o detalhe de que a atualização casa pela dupla *descrição + grupo*): registrado, não construído. Entra junto com o resto das importações.
 
 **Três decisões minhas, com o motivo:**

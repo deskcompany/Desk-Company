@@ -204,7 +204,7 @@ def audita(caminho):
     #                     Chave e do codigo e nao muda; rotulo e de quem usa o
     #                     sistema e se edita em Configuracoes > Nomes do sistema.
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
-    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes'}
+    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv'}
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))

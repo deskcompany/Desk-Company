@@ -388,6 +388,7 @@
   .drawer-close svg { width:15px; height:15px; }
 
   .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
   .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
   .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
@@ -463,14 +464,14 @@
   /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
-  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 6px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
   .estoque-table th.ordenavel { cursor:pointer; }
   .estoque-table th.ordenavel:hover { color:var(--text-heading); }
   .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
   .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
   .estoque-table th.ordenado { color:var(--text-heading); }
-  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td { padding:13px 6px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
   .estoque-table td.col-texto { text-align:left; }
   .estoque-table tbody tr { cursor:pointer; }
   .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
@@ -484,56 +485,25 @@
   .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
   .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
   .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+  /* Estagios do saldo (item 19). Cores de tempo reaproveitadas de Enderecamento,
+     onde ja passaram pela medicao de contraste nos dois temas. */
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .dias-ok { font-weight:700; color:var(--text-heading); }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  .dias-critico { font-weight:800; color:#B91C1C; }
+  body.dark .dias-alerta { color:#F5A623; }
+  body.dark .dias-critico { color:#FCA5A5; }
+  .estagio-bloqueado { font-weight:800; color:#B91C1C; }
+  body.dark .estagio-bloqueado { color:#FCA5A5; }
+  /* "em conferencia" NAO e estoque (item 19) — marcador apagado, nunca numero de coluna */
+  .marcador-conferencia { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.62; margin-top:3px; letter-spacing:0.1px; }
+  .disponivel-travado { color:var(--text); opacity:0.55; font-weight:700; }
 
   /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
   .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
   .estoque-total b { color:var(--active-text); font-weight:800; }
 
   /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
-
-  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
-  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
-  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
-  .aba-sit:hover { color:var(--text-heading); }
-  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
-  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
-  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
-
-  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
-  .sit-aberto      { background:#B45309; }
-  .sit-andamento   { background:#0A4EE4; }
-  .sit-atendida    { background:#15803D; }
-  .sit-cancelada   { background:#6B7280; }
-  body.dark .sit-aberto    { background:#F5A623; }
-  body.dark .sit-andamento { background:#9DB8F0; }
-  body.dark .sit-atendida  { background:#4ADE80; }
-  body.dark .sit-cancelada { background:#9CA3AF; }
-
-  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
-  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
-  .bs-aberto      { color:#B45309; }
-  .bs-andamento   { color:#0A4EE4; }
-  .bs-atendida    { color:#15803D; }
-  .bs-cancelada   { color:#6B7280; }
-  body.dark .bs-aberto    { color:#F5A623; }
-  body.dark .bs-andamento { color:#9DB8F0; }
-  body.dark .bs-atendida  { color:#4ADE80; }
-  body.dark .bs-cancelada { color:#9CA3AF; }
-
-  /* filtro de periodo em popover */
-  .periodo-wrap { position:relative; flex-shrink:0; }
-  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
-  .periodo-menu.open { display:block; }
-  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
-  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
-  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
-  .periodo-op:hover { background:rgba(120,120,140,0.08); }
-  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
-
-  .oc-numero { font-weight:800; color:var(--active-text); }
-  .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
-
   .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
   .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
 
@@ -576,118 +546,583 @@
   }
   .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
-  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
-     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
-  .sit-aconferir     { background:#B45309; }
-  .sit-emconferencia { background:#0A4EE4; }
-  .sit-divergencia   { background:#B91C1C; }
-  .sit-lancada       { background:#15803D; }
-  .sit-recusada      { background:#6B7280; }
-  body.dark .sit-aconferir     { background:#F5A623; }
-  body.dark .sit-emconferencia { background:#9DB8F0; }
-  body.dark .sit-divergencia   { background:#FCA5A5; }
-  body.dark .sit-lancada       { background:#4ADE80; }
-  body.dark .sit-recusada      { background:#9CA3AF; }
+  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
+  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
 
-  .bs-aconferir     { color:#B45309; }
-  .bs-emconferencia { color:#0A4EE4; }
-  .bs-divergencia   { color:#B91C1C; }
-  .bs-lancada       { color:#15803D; }
-  .bs-recusada      { color:#6B7280; }
-  body.dark .bs-aconferir     { color:#F5A623; }
-  body.dark .bs-emconferencia { color:#9DB8F0; }
-  body.dark .bs-divergencia   { color:#FCA5A5; }
-  body.dark .bs-lancada       { color:#4ADE80; }
-  body.dark .bs-recusada      { color:#9CA3AF; }
+  /* ===== DETALHE DO PRODUTO ===== */
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
 
-  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
-  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
-  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
-  .mde-prazo.alerta { color:#B45309; }
-  body.dark .mde-prazo.alerta { color:#F5A623; }
-  .mde-pendente      { color:#6B7280; }
-  .mde-ciencia       { color:#B45309; }
-  .mde-confirmada    { color:#15803D; }
-  .mde-naorealizada  { color:#B91C1C; }
-  .mde-desconhecida  { color:#B91C1C; }
-  body.dark .mde-pendente     { color:#9CA3AF; }
-  body.dark .mde-ciencia      { color:#F5A623; }
-  body.dark .mde-confirmada   { color:#4ADE80; }
-  body.dark .mde-naorealizada { color:#FCA5A5; }
-  body.dark .mde-desconhecida { color:#FCA5A5; }
-  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
-  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
+  /* Faixa de KPIs — e aqui que mora a quebra completa dos estagios (item 19),
+     por isso a listagem pode ficar rasa com 9 colunas. */
+  .kpi-faixa { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:4px 0; margin-bottom:16px; }
+  .kpi { flex:1 1 150px; min-width:140px; padding:14px 18px; border-right:1px solid var(--border); }
+  .kpi:last-child { border-right:none; }
+  .kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); line-height:1.15; }
+  .kpi-un { font-size:12px; font-weight:700; color:var(--text); margin-left:4px; }
+  .kpi-rotulo { font-size:11.5px; font-weight:700; color:var(--text); margin-top:3px; text-transform:lowercase; }
+  .kpi-nota { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.7; margin-top:2px; }
+  .kpi-fora { background:var(--page-bg); border-left:1px dashed var(--border); }
+  .kpi-fora .kpi-valor { color:var(--text); }
+  .kpi.destaque .kpi-valor { color:var(--active-text); }
+  .kpi-valor.travado { color:#B45309; }
+  body.dark .kpi-valor.travado { color:#F5A623; }
+  .kpi-valor.bloq { color:#B91C1C; }
+  body.dark .kpi-valor.bloq { color:#FCA5A5; }
+  .kpi-valor.apagado { color:var(--text); opacity:0.5; }
 
-  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .dif-divergente { color:#B91C1C; }
-  body.dark .dif-divergente { color:#FCA5A5; }
-  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
-  body.dark .pend-tag { color:#FCA5A5; }
+  /* Abas do detalhe — mesmo componente das abas de situacao (§7.2) */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
 
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
-     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
+  /* Ledger */
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .mov-obs { color:var(--text); font-size:12.5px; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
 
-  /* ===== LOGÍSTICA > CONFERÊNCIA DE SAÍDA (a fila da bancada) ===== */
-  /* Situacoes do TRABALHO da bancada. Para o pedido de venda, as tres cabem em
-     `conferenciasaida` — quem precisa distinguir quem ja pegou a caixa e o
-     galpao, nao o comercial. Mesma divisao da Separacao, um passo adiante. */
-  .sit-aguardando  { background:#B45309; }
-  .sit-conferindo  { background:#0A4EE4; }
-  .sit-conferido   { background:#15803D; }
-  body.dark .sit-aguardando { background:#F5A623; }
-  body.dark .sit-conferindo { background:#9DB8F0; }
-  body.dark .sit-conferido  { background:#4ADE80; }
+  /* Formulario do drawer de lancamento */
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
 
-  .bs-aguardando  { color:#B45309; }
-  .bs-conferindo  { color:#0A4EE4; }
-  .bs-conferido   { color:#15803D; }
-  body.dark .bs-aguardando { color:#F5A623; }
-  body.dark .bs-conferindo { color:#9DB8F0; }
-  body.dark .bs-conferido  { color:#4ADE80; }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
 
-  /* Duas marcas diferentes, e a diferenca importa: `falta` veio da SEPARACAO
-     (a caixa ja chegou aqui incompleta) e `divergência` nasceu AQUI (a contagem
-     da bancada nao bateu com o que a separacao disse). A segunda e mais grave:
-     significa que dois passos do nosso proprio fluxo discordam entre si. */
-  .marca-falta { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid #B45309; color:#B45309; }
-  body.dark .marca-falta { border-color:#F5A623; color:#F5A623; }
-  .marca-diverg { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid #B91C1C; color:#B91C1C; }
-  body.dark .marca-diverg { border-color:#FCA5A5; color:#FCA5A5; }
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
 
-  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
 
-  .operador-chip { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; color:var(--text-heading); }
-  .operador-ini { width:20px; height:20px; border-radius:50%; background:var(--active-bg); color:var(--active-text); font-size:9.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .operador-vazio { color:var(--text); font-weight:600; }
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
+  .previa-entrada.alerta { border-left-color:var(--danger-solid); }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-campo .dropdown-select { width:100%; }
 
-  /* Caixa separada e esperando bancada e o pior lugar para um pedido parar: o
-     estoque ja saiu da prateleira e o cliente ainda nao tem nota. Conta em horas. */
-  .espera-neutra { color:var(--text); }
-  .espera-ok { font-weight:700; color:var(--text); }
-  .espera-alerta { font-weight:800; color:#B45309; }
-  .espera-critica { font-weight:800; color:#B91C1C; }
-  body.dark .espera-alerta { color:#F5A623; }
-  body.dark .espera-critica { color:#FCA5A5; }
+  /* ===== INVENTÁRIO: índice dos três caminhos ===== */
+  .caminhos { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:8px; }
+  .caminho { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:10px; }
+  .caminho-icone { width:38px; height:38px; border-radius:11px; background:var(--active-bg); color:var(--active-text); display:flex; align-items:center; justify-content:center; }
+  .caminho-icone svg { width:19px; height:19px; }
+  .caminho-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
+  .caminho-texto { font-size:12.5px; color:var(--text); line-height:1.5; flex:1; }
+  .caminho .btn-mini { align-self:flex-start; margin-top:4px; }
 
-  .endereco-chip { display:inline-block; font-size:11px; font-weight:800; letter-spacing:0.9px; font-variant-numeric:tabular-nums; padding:2px 7px; border-radius:6px; background:var(--page-bg); border:1px solid var(--border); color:var(--text-heading); white-space:nowrap; }
+  /* ===== INVENTÁRIO: aviso de depósito travado ===== */
+  /* Nome próprio de propósito: .nota-reservado já tem fundo definido na base e
+     sobrescrever só a cor herdaria o fundo errado (ver design-system §14). */
+  .nota-travada { border-left:3px solid var(--warning); }
 
-  .drawer-itens { border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:16px; }
-  .drawer-item-linha { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border); }
-  .drawer-item-linha:last-child { border-bottom:none; }
-  .drawer-item-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); line-height:1.35; }
-  .drawer-item-sku { font-size:10.5px; font-weight:600; color:var(--text); }
-  .drawer-item-qtd { font-size:13px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  /* ===== INVENTÁRIO: área de arquivo ===== */
+  .dropzone { border:1.5px dashed var(--border); border-radius:11px; padding:22px 14px; text-align:center; cursor:pointer; background:var(--page-bg); color:var(--text); }
+  .dropzone:hover { border-color:var(--chart-2); }
+  .dropzone svg { width:22px; height:22px; margin-bottom:8px; }
+  .dropzone-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .dropzone-sub { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .dropzone.tem-arquivo { border-style:solid; border-color:var(--brand-blue); }
 
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); line-height:1.5; }
+  /* ===== INVENTÁRIO: cabeçalho de grupo dentro do dropdown ===== */
+  .dropdown-grupo { padding:8px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); white-space:nowrap; }
+
+  /* ===== INVENTÁRIO: colunas de contagem ===== */
+  .estoque-table .col-qtde-inv { display:none; }
+  .estoque-table.mostrar-qtde .col-qtde-inv { display:table-cell; }
+  .estoque-table.sem-clique tbody tr { cursor:default; }
+  .input-qtde-inv { width:88px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; text-align:right; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; }
+  .input-qtde-inv:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  /* Só cor, sem fundo — o par .mov-entrada/.mov-saida da base é pílula com fundo
+     próprio e reaproveitar aquele nome pintava retângulo verde/vermelho. */
+  .inv-mais { color:var(--success); font-weight:700; }
+  .inv-menos { color:var(--danger); font-weight:700; }
+  .inv-igual { color:var(--text); }
+  /* Sem `opacity` de proposito: opacidade nao entra no calculo de contraste do
+     auditor (ele so pula quem esta abaixo de 0.3), entao texto apagado por
+     opacity passa na auditoria e reprova na regua de verdade — este mesmo
+     rotulo media 3.28:1 no escuro. Diferenciacao aqui e tamanho, nao brilho. */
+  .inv-nao-contado { color:var(--text); font-size:12px; }
+  /* O input de arquivo nativo fica escondido: quem aparece é a .dropzone (§9 —
+     nada de controle nativo na tela). */
+  #inputArquivo { display:none; }
+
+  /* Imprimir a lista de contagem: só a tabela, em papel branco. */
+  @media print {
+    body { background:#fff; }
+    .sidebar-col, .flyout-col, .topbar, .page-header .header-acoes,
+    .estoque-toolbar, .nota-reservado, .event-drawer, .drawer-backdrop,
+    .modal-card, .breadcrumb { display:none !important; }
+    .card { border:none; box-shadow:none; }
+    .estoque-table th, .estoque-table td { color:#101010; }
+  }
+
+
+  /* ===== HUB DE CONFIGURAÇÕES ===== */
+  .cfg-busca { max-width:600px; margin-bottom:22px; }
+  .cfg-busca .search-wrap { max-width:none; }
+
+  /* Banner informativo da aba (o da RTC tem texto legal; os outros, contexto) */
+  .cfg-banner { display:flex; gap:13px; align-items:flex-start; background:var(--active-bg);
+                border:1px solid var(--border); border-radius:12px; padding:15px 17px; margin-bottom:22px; }
+  .cfg-banner-ico { width:30px; height:30px; border-radius:50%; background:var(--card-bg);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--active-text); }
+  .cfg-banner-ico svg { width:15px; height:15px; }
+  .cfg-banner-txt { font-size:12.5px; color:var(--text-heading); line-height:1.55; }
+  .cfg-banner-txt b { font-weight:800; }
+
+  /* Cabeçalho de subgrupo dentro da aba ("Outras configurações", "Reforma Tributária") */
+  .cfg-grupo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading);
+               margin:26px 0 2px; padding-top:20px; border-top:1px solid var(--border); }
+  .cfg-grupo:first-child { margin-top:0; padding-top:0; border-top:none; }
+
+  /* A lista de links — o corpo da aba */
+  .cfg-lista { display:flex; flex-direction:column; }
+  .cfg-item { display:flex; align-items:center; gap:10px; padding:15px 2px;
+              border-bottom:1px solid var(--border); cursor:pointer; }
+  .cfg-item:hover .cfg-item-nome { color:var(--active-text); }
+  .cfg-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); }
+  .cfg-item-ajuda { width:14px; height:14px; color:var(--text); flex-shrink:0; }
+  .cfg-item-seta { margin-left:auto; width:14px; height:14px; color:var(--text); flex-shrink:0; }
+
+  /* Badge de estado no próprio item — o índice diz o que falta, sem entrar na tela */
+  .cfg-badge { font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:lowercase;
+               letter-spacing:0.2px; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .cfg-badge-atencao { background:rgba(245,166,35,0.16); color:#B45309; }
+  body.dark .cfg-badge-atencao { color:#F5A623; }
+  .cfg-badge-neutro  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .cfg-badge-novo    { background:var(--active-bg); color:var(--active-text); }
+
+  /* Resultado de busca: o nome da aba aparece como origem do item */
+  .cfg-origem { font-size:11.5px; font-weight:700; color:var(--text); margin-left:2px; }
+
+  .cfg-vazio { padding:40px 0; text-align:center; }
+  .cfg-vazio-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-bottom:5px; }
+  .cfg-vazio-sub { font-size:12.5px; color:var(--text); }
+
+
+  /* ===== TELA DE CONFIGURAÇÃO: campo à esquerda, explicação à direita ===== */
+  /* Formato roubado da tela da GNRE do Olist. O `field-hint` embaixo do campo
+     serve para uma linha; parâmetro precisa de parágrafo, e parágrafo embaixo
+     do campo empurra o formulário todo pra baixo. */
+  .par-secao { background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+               padding:22px 24px; margin-bottom:18px; }
+  .par-secao-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+                      color:var(--text-heading); margin-bottom:4px; }
+  .par-secao-sub { font-size:12.5px; color:var(--text); line-height:1.5; margin-bottom:20px; max-width:620px; }
+
+  .par-linha { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:34px;
+               padding:18px 0; border-top:1px solid var(--border); align-items:start; }
+  .par-linha:first-of-type { border-top:none; padding-top:0; }
+  .par-exp { font-size:12.5px; color:var(--text); line-height:1.55; padding-top:2px; }
+  .par-exp b { color:var(--text-heading); font-weight:700; }
+  .par-onde { display:block; margin-top:7px; font-size:11.5px; color:var(--text); }
+  .par-onde b { color:var(--active-text); font-weight:700; }
+
+  .par-campos { display:flex; gap:14px; flex-wrap:wrap; }
+  .par-campo { display:flex; flex-direction:column; gap:6px; }
+  .par-campo label { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
+  .par-num { display:flex; align-items:center; gap:0; }
+  .par-num input { width:78px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+                   text-align:right; color:var(--text-heading); background:var(--page-bg);
+                   border:1px solid var(--border); border-right:none; border-radius:9px 0 0 9px;
+                   padding:9px 10px; outline:none; }
+  .par-num input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .par-num-sufixo { font-size:12px; font-weight:700; color:var(--text); background:var(--page-bg);
+                    border:1px solid var(--border); border-left:none; border-radius:0 9px 9px 0;
+                    padding:10px 12px; }
+  .par-campo.has-error input, .par-campo.has-error .par-num-sufixo { border-color:var(--danger); }
+  .par-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); }
+  .par-campo.has-error .par-erro { display:block; }
+
+  /* Pré-visualização: o efeito do número na fila de hoje, medido no mock */
+  .par-previa { margin-top:14px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
+                border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px;
+                color:var(--text); line-height:1.5; }
+  .par-previa b { color:var(--text-heading); }
+  .par-previa.alerta { border-left-color:var(--danger-solid); }
+
+  /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+
+  /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
+  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
+  .radio-nota { font-size:11.5px; color:var(--text); margin:2px 0 0 26px; }
+
+  /* Bloco do que ainda nao esta na tela — some no print, mas nao no protótipo */
+  .par-futuro { opacity:1; }
+  .par-futuro .par-secao-titulo { color:var(--text); }
+
+  /* ===== Confirmações por senha: linha de ação ===== */
+  /* Reusa .switch-row (§6) — nao inventa componente. So acrescenta o estado
+     "travado", que precisa existir sem apagar texto com opacity (§14). */
+  /* Acao de tela inexistente nao ganha interruptor: controle que nao controla
+     nada mente. Ganha um cadeado, que diz "isto e assim e nao se mexe aqui". */
+  .conf-cadeado { width:17px; height:17px; color:var(--text); flex-shrink:0; margin-right:2px; }
+  .conf-estado { font-size:11.5px; font-weight:700; margin-top:5px; }
+  .conf-estado.exige { color: var(--active-text); }
+  .conf-estado.livre { color: var(--danger); }
+  .conf-estado.indisponivel { color: var(--text); }
 
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
@@ -705,6 +1140,22 @@
   .confirm-senha-row.has-error input { border-color:var(--danger); }
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+  /* ===== Matriz módulo × verbo (Confirmações por senha / Permissões) ===== */
+  .mtz { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:4px; }
+  .mtz-linha { display:grid; grid-template-columns:minmax(0,1fr) 92px 92px 92px; align-items:center;
+               gap:10px; padding:12px 14px; border-top:1px solid var(--border); }
+  .mtz-linha:first-child { border-top:none; }
+  .mtz-cab { background:var(--page-bg); padding-top:9px; padding-bottom:9px; }
+  .mtz-cab-verbo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                   letter-spacing:0.5px; color:var(--text); text-align:center; }
+  .mtz-cab-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                    letter-spacing:0.5px; color:var(--text); }
+  .mtz-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .mtz-onde { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mtz-cel { display:flex; justify-content:center; align-items:center; }
+  .mtz-legenda { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text); margin:10px 2px 18px; }
+  .mtz-legenda .conf-cadeado { width:14px; height:14px; }
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
 </style>
@@ -736,7 +1187,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       <span class="label-text">Vendas</span>
     </div>
-    <div class="nav-item active" data-id="logistica" data-label="Logística">
+    <div class="nav-item" data-id="logistica" data-label="Logística">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       <span class="label-text">Logística</span>
     </div>
@@ -760,7 +1211,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span class="label-text">Central de Suporte</span>
       </div>
-      <div class="bottom-item" data-id="config" data-label="Configurações">
+      <div class="bottom-item active" data-id="config" data-label="Configurações">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="label-text">Configurações</span>
       </div>
@@ -906,170 +1357,175 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Conferência de Saída</h1>
-      <div class="subtitle">A última vez que a caixa fica aberta: confere, embala, etiqueta e emite a nota</div>
-    </div>
-    <div class="header-acoes">
-      <button class="btn-primary" id="btnConferirProximo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l3-1.73"/><polyline points="16 19 18 21 22 17"/></svg>
-        Conferir o próximo
-      </button>
-      <div class="dropdown-select" id="menuMaisAcoes">
-        <button type="button" class="btn-ghost dropdown-select-btn">
-          <span class="dropdown-select-label">Mais ações</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:320px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="separacao">Abrir a fila de separação</div>
-          <div class="dropdown-select-item" data-acao="pedidos">Abrir Pedidos de Venda</div>
-          <div class="dropdown-select-item" data-acao="exportar">Exportar fila para planilha</div>
-        </div>
-      </div>
+      <h1>Configurações do PDV</h1>
+      <div class="subtitle">O que a venda de balcão exige, o que ela vira e como o turno de caixa fecha.</div>
     </div>
   </div>
 
-  <div class="estoque-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Pesquise por pedido, cliente ou SKU">
-    </div>
-
-    <div class="periodo-wrap" id="periodoWrap">
-      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="rotuloPeriodo">Sem filtro de período</span>
-      </button>
-      <div class="periodo-menu" id="periodoMenu">
-        <div class="periodo-titulo">Separação concluída em</div>
-        <div class="periodo-opcoes" id="periodoOpcoes">
-          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
-          <button class="periodo-op" data-periodo="dia">Hoje</button>
-          <button class="periodo-op" data-periodo="3">Últimos 3 dias</button>
-          <button class="periodo-op" data-periodo="7">Últimos 7 dias</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroDeposito" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todos os depósitos</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Todos os depósitos</div>
-        <div class="dropdown-select-item" data-value="1">Geral</div>
-        <div class="dropdown-select-item" data-value="2">Galpão Centro</div>
-        <div class="dropdown-select-item" data-value="3">Loja Física Aldeota</div>
-        <div class="dropdown-select-item" data-value="4">Bancada Desk Tech</div>
-      </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroLoja" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todas as vitrines</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Todas as vitrines</div>
-        <div class="dropdown-select-item" data-value="1">Desk Shope</div>
-        <div class="dropdown-select-item" data-value="2">Desk Brands</div>
-        <div class="dropdown-select-item" data-value="3">Desk Tech</div>
-      </div>
-    </div>
+  <div class="nota-reservado">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>O caixa do PDV é o <b>turno do operador</b> (gaveta, troco, abertura e fechamento). Não é o Caixa de Finanças, que é o extrato das contas. Estes nove parâmetros são lidos por <b>Vendas → PDV</b> e valem a partir da próxima venda.</span>
   </div>
 
-  <div class="abas-situacao" id="abasSituacao">
-    <div class="aba-sit active" data-sit="todos"><span>Todas</span><span class="sit-contador" data-cont="todos">0</span></div>
-    <div class="aba-sit" data-sit="aguardando"><span class="sit-dot sit-aguardando"></span><span>Aguardando conferência</span><span class="sit-contador" data-cont="aguardando">0</span></div>
-    <div class="aba-sit" data-sit="conferindo"><span class="sit-dot sit-conferindo"></span><span>Em conferência</span><span class="sit-contador" data-cont="conferindo">0</span></div>
-    <div class="aba-sit" data-sit="conferido"><span class="sit-dot sit-conferido"></span><span>Conferidos</span><span class="sit-contador" data-cont="conferido">0</span></div>
-  </div>
+  <div class="par-secao">
+    <div class="par-secao-titulo">A venda</div>
+    <div class="par-secao-sub">O que precisa estar preenchido para continuar, e em que situação a venda entra em Pedidos de Venda.</div>
 
-  <div class="card">
-    <div class="nota-reservado" id="avisoFila">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-      <span id="avisoFilaTexto"></span>
-    </div>
-
-    <div class="selecionar-todos-row">
-      <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
-      <label for="checkSelecionarTodos">Selecionar todos</label>
-    </div>
-
-    <div class="estoque-table-wrap">
-      <table class="estoque-table">
-        <thead>
-          <tr>
-            <th class="col-texto" style="width:34px;"></th>
-            <th class="col-texto ordenavel" data-ordem="numero">Pedido <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="cliente">Cliente <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="itens" title="Itens diferentes · peças que a separação entregou">Itens <span class="seta">▲</span></th>
-            <th class="col-texto">Separou</th>
-            <th class="col-texto ordenavel" data-ordem="fechouSep">Fechou em <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="espera" title="Horas desde que a separação fechou sem a conferência começar ou terminar">Espera <span class="seta">▲</span></th>
-            <th class="col-texto">Situação</th>
-          </tr>
-        </thead>
-        <tbody id="corpoTabela"></tbody>
-      </table>
-    </div>
-
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="empty-state-title">Nada nesta fila</div>
-      <div class="empty-state-sub">Com os filtros atuais, não há pedido esperando conferência.</div>
-      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
-    </div>
-
-    <div class="selecao-bar" id="barraSelecao">
-      <span class="selecao-info" id="selecaoInfo">0 selecionados</span>
-      <div class="selecao-acoes">
-        <button class="btn-secundario" id="btnAtribuirMim">Atribuir a mim</button>
-        <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
-      </div>
-    </div>
-
-    <div class="estoque-rodape">
-      <span id="contagemPedidos">0 pedidos</span>
-      <span class="estoque-total">Esperando há mais tempo: <b id="maiorEspera">—</b></span>
-    </div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
+    <div class="par-linha">
+      <div>
+        <div class="par-campo">
+          <label>Situação da venda finalizada</label>
+          <div class="dropdown-select" id="selSituacao" data-value="entregue">
+            <button type="button" class="dropdown-select-btn form-style">
+              <span class="dropdown-select-label">Entregue</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-select-menu">
+              <div class="dropdown-select-item" data-value="faturado">Faturado</div>
+              <div class="dropdown-select-item" data-value="prontoenvio">Pronto para envio</div>
+              <div class="dropdown-select-item" data-value="enviado">Enviado</div>
+              <div class="dropdown-select-item active" data-value="entregue">Entregue</div>
+            </div>
           </div>
         </div>
+        <div class="par-previa" id="previaSituacao"></div>
       </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="par-exp">
+        <b>A venda do PDV não é uma lista à parte: ela vira Pedido de Venda.</b> É por isso que conta em Metas e em Performance de Vendas, que leem os pedidos faturados. Balcão entrega na hora, então o padrão é <b>Entregue</b>, e o pedido não passa por separação nem expedição.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, ao finalizar. Só as situações de faturado em diante servem: antes disso a venda não contaria.</span>
+      </div>
+    </div>
+
+    <div class="par-linha">
+      <div>
+        <div class="switch-row">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Vendedor obrigatório</div>
+            <div class="field-hint">A venda não avança sem vendedor escolhido.</div>
+          </div>
+          <div class="switch" id="swVendedor" data-param="pdvVendedorObrigatorio" role="switch"></div>
+        </div>
+        <div class="switch-row" style="margin-bottom:0;">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Cliente obrigatório</div>
+            <div class="field-hint">A venda não avança para consumidor final.</div>
+          </div>
+          <div class="switch" id="swCliente" data-param="pdvClienteObrigatorio" role="switch"></div>
+        </div>
+      </div>
+      <div class="par-exp">
+        Sem vendedor, a venda conta só para a meta da <b>loja</b>. Sem cliente, ela sai para consumidor final, o que é o normal no balcão. <b>Venda a prazo pede cliente de qualquer jeito</b>, ligado ou não: título em Contas a Receber precisa de devedor.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, no botão Continuar.</span>
       </div>
     </div>
   </div>
 
-<!-- PAINEL LATERAL: o que a separação entregou -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="eventDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="drawerTitulo">Pedido</div>
-    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  <div class="par-secao">
+    <div class="par-secao-titulo">Produto, preço e desconto</div>
+    <div class="par-secao-sub">O que o operador pode mexer sozinho e o que precisa de liberação.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="switch-row">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Bloquear venda sem estoque</div>
+            <div class="field-hint">Não deixa vender mais do que o depósito tem.</div>
+          </div>
+          <div class="switch on" id="swEstoque" data-param="pdvBloqueiaSemEstoque" role="switch"></div>
+        </div>
+        <div class="switch-row" style="margin-bottom:0;">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Agrupar produtos iguais</div>
+            <div class="field-hint">Passar o mesmo produto de novo soma na linha que já existe.</div>
+          </div>
+          <div class="switch on" id="swAgrupa" data-param="pdvAgrupaIguais" role="switch"></div>
+        </div>
+        <div class="par-previa" id="previaEstoque"></div>
+      </div>
+      <div class="par-exp">
+        O saldo conferido é o do <b>depósito da venda</b>, que nasce do padrão da loja e pode ser trocado na finalização. O bloqueio diz os números: quanto há e quanto foi pedido.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, ao adicionar o produto, ao editar o item e ao finalizar.</span>
+      </div>
+    </div>
+
+    <div class="par-linha">
+      <div>
+        <div class="switch-row">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Bloquear alteração de preço unitário</div>
+            <div class="field-hint">O preço é o do cadastro. Só desconto e acréscimo mexem no total.</div>
+          </div>
+          <div class="switch" id="swPreco" data-param="pdvBloqueiaAlterarPreco" role="switch"></div>
+        </div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoDescMax">
+            <label>Desconto máximo sem liberação</label>
+            <div class="par-num">
+              <input type="text" id="descMax" inputmode="decimal" value="10">
+              <span class="par-num-sufixo">%</span>
+            </div>
+            <span class="par-erro" id="erroDescMax">Informe um número de 0 a 100.</span>
+          </div>
+        </div>
+        <div class="par-previa" id="previaDesconto"></div>
+      </div>
+      <div class="par-exp">
+        <b>Desconto acima do máximo não é proibido: é liberado por quem pode.</b> O PDV pede a senha do gerente e registra quem liberou. Vale para o desconto do item e para o desconto na venda inteira. Zero quer dizer que todo desconto pede liberação.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, no painel do item e no campo de desconto da finalização. A exigência de senha fica em <b>Confirmações por senha</b>.</span>
+      </div>
+    </div>
   </div>
-  <div id="drawerCorpo"></div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Turno de caixa</div>
+    <div class="par-secao-sub">Como o caixa abre e o quanto quem fecha sabe antes de contar.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="switch-row">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Fechamento cego</div>
+            <div class="field-hint">O valor esperado por forma fica oculto até o caixa fechar.</div>
+          </div>
+          <div class="switch on" id="swCego" data-param="pdvFechamentoCego" role="switch"></div>
+        </div>
+        <div class="switch-row" style="margin-bottom:0;">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Abrir com o último valor de fechamento</div>
+            <div class="field-hint">O troco de abertura já vem com o dinheiro contado no fechamento anterior.</div>
+          </div>
+          <div class="switch" id="swUltimo" data-param="pdvAbreComUltimoFechamento" role="switch"></div>
+        </div>
+        <div class="par-previa" id="previaCego"></div>
+      </div>
+      <div class="par-exp">
+        <b>Contagem feita sabendo o número é confirmação, não conferência.</b> É a mesma regra da conferência de entrada e de saída. Com o fechamento cego, quem conta digita o que achou na gaveta; se não bater, o PDV diz em qual forma, não quanto era. Fechar com diferença pede senha.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, em Detalhes do caixa, na sangria e no fechamento. Desligar aqui <b>pede senha</b>.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvarParam">Salvar configurações</button>
+    <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
+    <span class="barra-info" id="notaBarra"></span>
+  </div>
 </div>
 
-<!-- MODAL: confirmação / aviso -->
+<!-- MODAL: aviso (telas ainda não construídas) -->
+<div class="drawer-backdrop" id="avisoBackdrop"></div>
+<div class="modal-card" id="avisoModal">
+  <div class="confirm-titulo">Confirmação</div>
+  <div class="confirm-texto" id="avisoTexto">Confirma esta ação?</div>
+  <div class="confirm-acoes">
+    <button class="btn-primary" id="btnAvisoOk">Entendi</button>
+    <div class="drawer-link" id="btnAvisoFechar">Fechar <span class="esc-hint">ESC</span></div>
+  </div>
+</div>
+
+
+
+<!-- MODAL: confirmação centralizada (reutilizável — excluir/inativar, individual e em massa) -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -1081,14 +1537,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="confirm-senha-row" id="campoSenhaModal">
     <label>Sua senha</label>
     <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
   </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
   </div>
-</div>
-
 </div>
 
 <script>
@@ -1119,16 +1573,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // empresa
     conferenciaCompraAlerta: 1,
     conferenciaCompraCritico: 3,
+    enderecamentoAlerta: 2,
+    enderecamentoCritico: 7,
+    estoqueZeroLimite: 7,
     separacaoAlertaHoras: 4,
     separacaoCriticoHoras: 12,
     separacaoOrdemPorEndereco: true,
+    romaneioSugereAutomatico: true,
     conferenciaSaidaCega: true,
     conferenciaSaidaAlertaHoras: 4,
     conferenciaSaidaCriticoHoras: 12,
     sugerirEmbalagem: true,
-    enderecamentoAlerta: 2,
-    enderecamentoCritico: 7,
-    estoqueZeroLimite: 7,
+    reservaExpiraDias: 3,
+    bloquearPedidoAtrasoDias: 1,
     conferenciaCega: true,
     ocultarItensFila: false,
     ocultarVolumesFila: false,
@@ -1136,6 +1593,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // PDV (esta tela grava, Vendas > PDV le). As mesmas nove chaves nas duas telas.
+    pdvSituacaoVenda: 'entregue',
+    pdvVendedorObrigatorio: false,
+    pdvClienteObrigatorio: false,
+    pdvBloqueiaSemEstoque: true,
+    pdvBloqueiaAlterarPreco: false,
+    pdvDescontoMaximoPct: 10,
+    pdvAgrupaIguais: true,
+    pdvAbreComUltimoFechamento: false,
+    pdvFechamentoCego: true,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1194,8 +1661,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
     // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
-    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1209,20 +1676,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
-    // que vira divergencia de estoque, entao e a que mais precisa de nome.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
-    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
-    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. A excecao e
+    // o que apaga um controle: desligar a contagem cega da saida e reabrir uma
+    // conferencia ja faturada nascem pedindo senha.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'pdvCegoDesliga', nome:'Desligar o fechamento cego do caixa do PDV', onde:'Configurações → Configurações do PDV', grupo:'Vendas', pronto:true,  exigePadrao:true },
     { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true }
@@ -1261,6 +1726,53 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
     if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
   }
+
+  // ===== MODAL DE CONFIRMAÇÃO (reutilizável — excluir/inativar, individual e em massa) =====
+  // Esta tela tinha um modal de AVISO com os ids do de confirmacao. Eram coisas
+  // diferentes usando o mesmo nome — e o resultado era que `confirmarAcao` nao
+  // achava `abrirModalConfirmacao` e falhava fechada. O aviso agora e #avisoModal.
+  let confirmAoConfirmarCallback = null;
+
+  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    const cienteRow = document.getElementById('confirmCienteRow');
+    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
+    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+    cienteCheckbox.checked = false;
+    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
+    if (quantidade > 1) {
+      cienteRow.style.display = 'flex';
+      btnConfirmar.disabled = true;
+    } else {
+      cienteRow.style.display = 'none';
+      btnConfirmar.disabled = false;
+    }
+    confirmAoConfirmarCallback = aoConfirmar;
+    document.getElementById('confirmModalBackdrop').classList.add('open');
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  function fecharModalConfirmacao() {
+    document.getElementById('confirmModalBackdrop').classList.remove('open');
+    document.getElementById('confirmModal').classList.remove('open');
+    confirmAoConfirmarCallback = null;
+  }
+  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
+    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  });
+  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
+    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
+    const callback = confirmAoConfirmarCallback;
+    fecharModalConfirmacao();
+    if (callback) callback();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
+      fecharModalConfirmacao();
+    }
+  });
 
   // ----- Senha dentro do modal de confirmacao compartilhado -----
   // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
@@ -1426,11 +1938,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
 
+
+
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Logística', 'Conferência de Saída'];
+  let path = ['Estoque', 'Controle de Estoques'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1566,389 +2080,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
-  // ===== DADOS (mock) =====
-  // No prototipo cada tela carrega o proprio mock. No Lovable isto e uma
-  // consulta sobre `pedidos` na etapa de conferencia de saida, com as colunas da
-  // bancada (conferente, inicio, fim, volumes) numa tabela irma — e os itens
-  // vindo com a quantidade que a SEPARACAO entregou, nao a que o pedido pediu.
-  const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
-  const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
 
-  const SITUACAO_LABEL = { aguardando: 'Aguardando conferência', conferindo: 'Em conferência', conferido: 'Conferido' };
-  const SITUACAO_CLASSE = { aguardando: 'bs-aguardando', conferindo: 'bs-conferindo', conferido: 'bs-conferido' };
 
-  const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius', 4: 'Tatiane Moura' };
-  const EU = 4;   // conferente logado — no Lovable vem da sessao
+  // ===== MODAL DE AVISO =====
+  const avisoModal = document.getElementById('avisoModal');
+  const avisoBackdrop = document.getElementById('avisoBackdrop');
 
-  const FILA = [
-    { id: 23, numero: 23, loja: 1, dep: 2, cliente: 'Sérgio Matos', transp: 'Correios · PAC',
-      situacao: 'aguardando', separador: 1, conferente: null, fechouSepHa: 26, falta: true, diverg: false, itens: [
-      { sku: 'POL-ALM-040', nome: 'Almofada decorativa 40x40', variacao: 'Terracota', pedido: 4, separado: 3, end: 'R06-P02-N2' },
-      { sku: 'TAP-SAL-200', nome: 'Tapete de sala 2,00x1,40', variacao: 'Bege', pedido: 1, separado: 1, end: 'R06-P05-N1' } ] },
-
-    { id: 7,  numero: 7,  loja: 3, dep: 4, cliente: 'Pedro Henrique Alves', transp: 'Correios · SEDEX',
-      situacao: 'aguardando', separador: 2, conferente: null, fechouSepHa: 20, falta: false, diverg: false, itens: [
-      { sku: 'NOT-ACE-015', nome: 'Notebook 15 polegadas i5', variacao: '8 GB / 512 GB', pedido: 1, separado: 1, end: 'B04-G01-N1' } ] },
-
-    { id: 24, numero: 24, loja: 2, dep: 2, cliente: 'Vanessa Coelho', transp: 'Correios · SEDEX',
-      situacao: 'conferindo', separador: 3, conferente: 2, fechouSepHa: 9, falta: false, diverg: false, itens: [
-      { sku: 'KIT-COZ-006', nome: 'Kit utensílios de cozinha 6 peças', variacao: 'Inox', pedido: 2, separado: 2, end: 'R08-P01-N2' } ] },
-
-    { id: 25, numero: 25, loja: 1, dep: 2, cliente: 'Lúcia Andrade', transp: 'Motoboy · entrega local',
-      situacao: 'aguardando', separador: 1, conferente: null, fechouSepHa: 6, falta: false, diverg: false, itens: [
-      { sku: 'CAD-FIX-110', nome: 'Cadeira fixa de espera', variacao: 'Azul', pedido: 4, separado: 4, end: 'R02-P07-N1' },
-      { sku: 'MES-ESC-120', nome: 'Mesa de escritório 1,20m', variacao: 'Carvalho', pedido: 1, separado: 1, end: 'R02-P01-N1' } ] },
-
-    { id: 26, numero: 26, loja: 3, dep: 4, cliente: 'Otávio Pacheco', transp: 'Correios · SEDEX',
-      situacao: 'aguardando', separador: 2, conferente: null, fechouSepHa: 3, falta: false, diverg: false, itens: [
-      { sku: 'TEC-MEC-087', nome: 'Teclado mecânico compacto', variacao: 'Switch marrom', pedido: 2, separado: 2, end: 'B03-G01-N3' },
-      { sku: 'MOU-SEM-012', nome: 'Mouse sem fio 2.4 GHz', variacao: 'Grafite', pedido: 2, separado: 2, end: 'B03-G01-N5' },
-      { sku: 'SSD-NVM-001', nome: 'SSD NVMe 1 TB', variacao: '—', pedido: 1, separado: 1, end: 'B01-G02-N1' } ] },
-
-    { id: 27, numero: 27, loja: 2, dep: 1, cliente: 'Papelaria Horizonte Ltda', transp: 'Retirada no balcão',
-      situacao: 'aguardando', separador: 3, conferente: null, fechouSepHa: 1, falta: false, diverg: false, itens: [
-      { sku: 'PAP-A4-500', nome: 'Papel sulfite A4 500 folhas', variacao: '—', pedido: 20, separado: 20, end: 'R07-P01-N1' } ] },
-
-    { id: 9,  numero: 9,  loja: 2, dep: 2, cliente: 'Larissa Monteiro', transp: 'Correios · PAC',
-      situacao: 'conferido', separador: 1, conferente: 4, fechouSepHa: 52, falta: false, diverg: false, itens: [
-      { sku: 'ORG-CAB-007', nome: 'Organizador de cabos adesivo', variacao: '—', pedido: 3, separado: 3, end: 'R05-P04-N1' } ] },
-
-    { id: 8,  numero: 8,  loja: 1, dep: 2, cliente: 'Thiago Almeida', transp: 'Transportadora Nordeste',
-      situacao: 'conferido', separador: 2, conferente: 4, fechouSepHa: 70, falta: false, diverg: true, itens: [
-      { sku: 'EST-MAD-004', nome: 'Estante de madeira 4 prateleiras', variacao: 'Branca', pedido: 2, separado: 2, end: 'R04-P01-N1' } ] },
-
-    { id: 10, numero: 10, loja: 3, dep: 4, cliente: 'Auto Peças Imperatriz Ltda', transp: 'Transportadora Nordeste',
-      situacao: 'conferido', separador: 3, conferente: 4, fechouSepHa: 96, falta: false, diverg: false, itens: [
-      { sku: 'CAB-SAT-050', nome: 'Cabo SATA 50 cm', variacao: '—', pedido: 10, separado: 10, end: 'B02-G01-N2' } ] }
-  ];
-
-  let buscaAtual = '';
-  let situacaoAtual = 'todos';
-  let periodoAtual = 'todos';
-  let filtroDepositoAtual = 'todos';
-  let filtroLojaAtual = 'todos';
-  let ordemCampo = 'espera';
-  let ordemAsc = false;
-  let itensSelecionados = new Set();
-  let paginaAtual = 1;
-  let itensPorPaginaAtual = PARAM.registrosPorPagina;
-
-  const AGORA = new Date('2026-10-05T15:00:00');
-
-  // O relogio para quando a conferencia fecha: dali em diante quem conta o tempo
-  // e a Expedicao.
-  function esperaDe(p) { return p.situacao === 'conferido' ? -1 : p.fechouSepHa; }
-  FILA.forEach(p => {
-    p.espera = esperaDe(p);
-    p.pecas = p.itens.reduce((s, i) => s + i.separado, 0);
-    p.qtdItens = p.itens.length;
-    p.fechouSep = new Date(AGORA.getTime() - p.fechouSepHa * 3600000);
-  });
-
-  const z2 = (n) => String(n).padStart(2, '0');
-  function fmtDataHora(d) {
-    return z2(d.getDate()) + '/' + z2(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + z2(d.getHours()) + ':' + z2(d.getMinutes());
+  function avisar(texto) {
+    document.getElementById('avisoTexto').textContent = texto;
+    avisoBackdrop.classList.add('open');
+    avisoModal.classList.add('open');
   }
-  function textoEspera(h) {
-    if (h < 0) return '—';
-    if (h < 1) return 'agora';
-    if (h < 24) return h + (h === 1 ? ' hora' : ' horas');
-    const d = Math.floor(h / 24);
-    return d + (d === 1 ? ' dia' : ' dias');
+  function fecharAviso() {
+    avisoBackdrop.classList.remove('open');
+    avisoModal.classList.remove('open');
   }
-  const classeEspera = (h) => h < 0 ? 'espera-neutra'
-    : (h >= PARAM.conferenciaSaidaCriticoHoras ? 'espera-critica'
-    : (h >= PARAM.conferenciaSaidaAlertaHoras ? 'espera-alerta' : 'espera-ok'));
-
-  function passaPeriodo(p) {
-    if (periodoAtual === 'todos') return true;
-    const h = p.fechouSepHa;
-    if (periodoAtual === 'dia') return h <= 24;
-    if (periodoAtual === '3') return h <= 72;
-    if (periodoAtual === '7') return h <= 168;
-    return true;
-  }
-
-  function combina(p, termo) {
-    if (termo === '') return true;
-    return p.cliente.toLowerCase().includes(termo) ||
-      String(p.numero) === termo ||
-      p.itens.some(i => i.sku.toLowerCase().includes(termo) || i.nome.toLowerCase().includes(termo));
-  }
-
-  function baseFiltrada() {
-    const termo = buscaAtual.trim().toLowerCase();
-    return FILA.filter(p => {
-      const passaDep = filtroDepositoAtual === 'todos' || String(p.dep) === filtroDepositoAtual;
-      const passaLoja = filtroLojaAtual === 'todos' || String(p.loja) === filtroLojaAtual;
-      return passaDep && passaLoja && combina(p, termo) && passaPeriodo(p);
-    });
-  }
-
-  function pedidosFiltrados() {
-    let lista = baseFiltrada().filter(p => situacaoAtual === 'todos' || p.situacao === situacaoAtual);
-    const valorDe = (p) => {
-      const v = p[ordemCampo];
-      return typeof v === 'string' ? v.toLowerCase() : (v instanceof Date ? v.getTime() : v);
-    };
-    lista.sort((a, b) => {
-      const va = valorDe(a), vb = valorDe(b);
-      if (va < vb) return ordemAsc ? -1 : 1;
-      if (va > vb) return ordemAsc ? 1 : -1;
-      return 0;
-    });
-    return lista;
-  }
-
-  function pedidosPagina() {
-    const listaCompleta = pedidosFiltrados();
-    const totalPaginas = Math.max(1, Math.ceil(listaCompleta.length / itensPorPaginaAtual));
-    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
-    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
-    const fim = Math.min(inicio + itensPorPaginaAtual, listaCompleta.length);
-    return { listaCompleta, inicio, fim, totalPaginas, lista: listaCompleta.slice(inicio, fim) };
-  }
-
-  function atualizarContadores() {
-    const base = baseFiltrada();
-    const cont = { todos: base.length, aguardando: 0, conferindo: 0, conferido: 0 };
-    base.forEach(p => { cont[p.situacao]++; });
-    document.querySelectorAll('.sit-contador').forEach(el => {
-      el.textContent = cont[el.getAttribute('data-cont')];
-    });
-  }
-
-  function atualizarAviso() {
-    const esperando = FILA.filter(p => p.situacao === 'aguardando').length;
-    const estourados = FILA.filter(p => p.espera >= PARAM.conferenciaSaidaCriticoHoras).length;
-    const comFalta = FILA.filter(p => p.falta && p.situacao !== 'conferido').length;
-    let txt = 'É aqui que a <b>nota fiscal sai</b> e a caixa fecha. Caixa separada esperando bancada é o pior lugar para um pedido parar: o estoque já saiu da prateleira e o cliente ainda não tem nota. ';
-    txt += esperando === 0
-      ? 'Nenhum pedido esperando conferência agora.'
-      : '<b>' + esperando + (esperando === 1 ? ' pedido está esperando' : ' pedidos estão esperando') + '</b>' +
-        (estourados > 0 ? ', e ' + estourados + (estourados === 1 ? ' passou' : ' passaram') + ' de ' + PARAM.conferenciaSaidaCriticoHoras + ' horas.' : '.');
-    if (comFalta > 0) {
-      txt += ' ' + comFalta + (comFalta === 1 ? ' já chegou com falta da separação' : ' já chegaram com falta da separação') +
-             ' — confira primeiro, porque é a nota desse pedido que muda de valor.';
-    }
-    document.getElementById('avisoFilaTexto').innerHTML = txt;
-  }
-
-  function celulaOperador(id) {
-    if (!id) return '<span class="operador-vazio">—</span>';
-    const nome = OPERADORES[id];
-    const ini = nome.split(' ').map(x => x[0]).slice(0, 2).join('');
-    return '<span class="operador-chip"><span class="operador-ini">' + ini + '</span>' + nome.split(' ')[0] + '</span>';
-  }
-
-  function renderTabela() {
-    const corpo = document.getElementById('corpoTabela');
-    const emptyState = document.getElementById('emptyState');
-    const wrap = document.querySelector('.estoque-table-wrap');
-    corpo.innerHTML = '';
-    const { listaCompleta, inicio, fim, totalPaginas, lista } = pedidosPagina();
-    atualizarContadores();
-    atualizarAviso();
-
-    document.getElementById('contagemPedidos').textContent =
-      listaCompleta.length + (listaCompleta.length === 1 ? ' pedido' : ' pedidos');
-    const pior = listaCompleta.reduce((m, p) => Math.max(m, p.espera), -1);
-    document.getElementById('maiorEspera').textContent = textoEspera(pior);
-
-    if (listaCompleta.length === 0) {
-      wrap.style.display = 'none';
-      emptyState.style.display = 'flex';
-      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
-      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
-      document.getElementById('btnPaginaAnterior').disabled = true;
-      document.getElementById('btnPaginaProxima').disabled = true;
-      atualizarBarraSelecao();
-      return;
-    }
-    wrap.style.display = '';
-    emptyState.style.display = 'none';
-
-    lista.forEach(p => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="col-texto"><input type="checkbox" class="item-checkbox" data-id="' + p.id + '" ' + (itensSelecionados.has(p.id) ? 'checked' : '') + '></td>' +
-        '<td class="col-texto"><span class="oc-numero">#' + p.numero + '</span>' +
-          (p.falta ? '<span class="marca-falta">falta</span>' : '') +
-          (p.diverg ? '<span class="marca-diverg">divergência</span>' : '') +
-          '<span class="pedido-vitrine">' + LOJAS[p.loja] + '</span></td>' +
-        '<td class="col-texto">' + p.cliente + '</td>' +
-        '<td>' + p.qtdItens + ' <span class="un-sufixo">· ' + p.pecas + ' pç</span></td>' +
-        '<td class="col-texto">' + celulaOperador(p.separador) + '</td>' +
-        '<td class="col-texto">' + fmtDataHora(p.fechouSep) + '</td>' +
-        '<td><span class="' + classeEspera(p.espera) + '">' + textoEspera(p.espera) + '</span></td>' +
-        '<td class="col-texto"><span class="badge-situacao ' + SITUACAO_CLASSE[p.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[p.situacao] + '</span></td>';
-      const chk = tr.querySelector('.item-checkbox');
-      chk.addEventListener('click', (e) => e.stopPropagation());
-      chk.addEventListener('change', (e) => toggleSelecao(p.id, e.target.checked));
-      tr.addEventListener('click', () => abrirResumo(p.id));
-      corpo.appendChild(tr);
-    });
-
-    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '-' + fim + ' de ' + listaCompleta.length;
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
-    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
-    atualizarCabecalhoOrdem();
-    atualizarBarraSelecao();
-  }
-
-  function atualizarCabecalhoOrdem() {
-    document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-      const ativo = th.getAttribute('data-ordem') === ordemCampo;
-      th.classList.toggle('ordenado', ativo);
-      const seta = th.querySelector('.seta');
-      if (seta) seta.textContent = ativo ? (ordemAsc ? '▲' : '▼') : '▲';
-    });
-  }
-
-  document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-    th.addEventListener('click', () => {
-      const campo = th.getAttribute('data-ordem');
-      if (ordemCampo === campo) ordemAsc = !ordemAsc; else { ordemCampo = campo; ordemAsc = true; }
-      paginaAtual = 1;
-      renderTabela();
-    });
-  });
-
-  // ===== SELEÇÃO EM MASSA (escopada à página atual, §7) =====
-  function toggleSelecao(id, marcado) {
-    if (marcado) itensSelecionados.add(id); else itensSelecionados.delete(id);
-    atualizarBarraSelecao();
-  }
-  function idsDaPagina() { return pedidosPagina().lista.map(p => p.id); }
-  function pedidosSelecionados() { return FILA.filter(p => itensSelecionados.has(p.id)); }
-  function atualizarBarraSelecao() {
-    const n = itensSelecionados.size;
-    document.getElementById('barraSelecao').classList.toggle('on', n > 0);
-    document.getElementById('selecaoInfo').textContent = n + (n === 1 ? ' pedido selecionado' : ' pedidos selecionados');
-    const ids = idsDaPagina();
-    const todosMarcados = ids.length > 0 && ids.every(id => itensSelecionados.has(id));
-    document.getElementById('checkSelecionarTodos').checked = todosMarcados;
-    document.getElementById('btnAtribuirMim').disabled =
-      pedidosSelecionados().filter(p => p.situacao !== 'conferido').length === 0;
-  }
-
-  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
-    const ids = idsDaPagina();
-    if (e.target.checked) ids.forEach(id => itensSelecionados.add(id));
-    else ids.forEach(id => itensSelecionados.delete(id));
-    renderTabela();
-  });
-  document.getElementById('btnCancelarSelecao').addEventListener('click', () => {
-    itensSelecionados.clear();
-    renderTabela();
-  });
-
-  // ===== DRAWER: o que a separação entregou =====
-  // O painel mostra o que VEIO da separacao, nao o que o pedido pediu — e quando
-  // os dois diferem, mostra os dois. Abrir a bancada sem saber que a caixa ja
-  // chegou incompleta e descobrir a falta contando, de novo.
-  const eventDrawer = document.getElementById('eventDrawer');
-  const drawerBackdrop = document.getElementById('drawerBackdrop');
-
-  function abrirResumo(id) {
-    const p = FILA.filter(x => x.id === id)[0];
-    if (!p) return;
-    document.getElementById('drawerTitulo').textContent = 'Pedido #' + p.numero;
-
-    let itensHtml = '';
-    p.itens.forEach(i => {
-      const faltou = i.separado < i.pedido;
-      itensHtml +=
-        '<div class="drawer-item-linha">' +
-          '<div><div class="drawer-item-nome">' + i.nome + (i.variacao && i.variacao !== '—' ? ' · ' + i.variacao : '') + '</div>' +
-          '<div class="drawer-item-sku">' + i.sku + ' · <span class="endereco-chip">' + i.end + '</span></div>' +
-          (faltou ? '<div class="drawer-item-sku"><b>a separação entregou ' + i.separado + ' de ' + i.pedido + '</b></div>' : '') + '</div>' +
-          '<div class="drawer-item-qtd">' + i.separado + '</div>' +
-        '</div>';
-    });
-
-    const acao = p.situacao === 'conferido'
-      ? '<button class="btn-secundario" id="btnVerConferencia" style="width:100%;">Abrir a conferência</button>'
-      : '<button class="btn-primary" id="btnAbrirConferencia" style="width:100%;">' +
-        (p.situacao === 'aguardando' ? 'Conferir este pedido' : 'Continuar a conferência') + '</button>';
-
-    document.getElementById('drawerCorpo').innerHTML =
-      '<div class="drawer-badges">' +
-        '<span class="badge-situacao ' + SITUACAO_CLASSE[p.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[p.situacao] + '</span>' +
-        (p.falta ? '<span class="marca-falta">falta na separação</span>' : '') +
-        (p.diverg ? '<span class="marca-diverg">divergência na bancada</span>' : '') +
-      '</div>' +
-      '<div class="chave-bloco"><div class="chave-rotulo">Cliente</div><div class="chave-valor">' + p.cliente + '</div></div>' +
-      '<div class="chave-bloco"><div class="chave-rotulo">Envio</div><div class="chave-valor">' + p.transp + '</div></div>' +
-      '<div class="chave-bloco"><div class="chave-rotulo">Veio da separação</div><div class="chave-valor">' +
-        OPERADORES[p.separador] + ' · ' + fmtDataHora(p.fechouSep) + ' · ' + DEPOSITOS[p.dep] + '</div></div>' +
-      '<div class="chave-rotulo" style="margin-bottom:7px;">O que a separação entregou · ' + p.qtdItens + ' itens · ' + p.pecas + ' peças</div>' +
-      '<div class="drawer-itens">' + itensHtml + '</div>' +
-      acao;
-
-    const btnAcao = document.getElementById('btnAbrirConferencia') || document.getElementById('btnVerConferencia');
-    btnAcao.addEventListener('click', () => irParaConferencia(p.id));
-    drawerBackdrop.classList.add('open');
-    eventDrawer.classList.add('open');
-  }
-  function fecharDrawer() {
-    drawerBackdrop.classList.remove('open');
-    eventDrawer.classList.remove('open');
-  }
-  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
-  drawerBackdrop.addEventListener('click', fecharDrawer);
-
-  function irParaConferencia(id) {
-    window.location.href = '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' + id;
-  }
-
-  // ===== MODAL =====
-  const confirmModal = document.getElementById('confirmModal');
-  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
-  const confirmCienteRow = document.getElementById('confirmCienteRow');
-  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
-  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-  let acaoConfirmada = null;
-
-  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    acaoConfirmada = aoConfirmar || null;
-    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
-    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
-    const precisaCiente = qtd >= 2 && modo !== 'aviso';
-    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
-    confirmCienteCheckbox.checked = false;
-    btnConfirmar.disabled = precisaCiente;
-    confirmModalBackdrop.classList.add('open');
-    confirmModal.classList.add('open');
-  }
-  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
-  function fecharModalConfirmacao() {
-    confirmModalBackdrop.classList.remove('open');
-    confirmModal.classList.remove('open');
-    acaoConfirmada = null;
-  }
-  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
-  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
-  // Antes isto executava o callback e so depois fechava. Callback que termina
-  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
-  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
-  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
-  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
-  // liberada" nunca apareceu para ninguem.
-  btnConfirmar.addEventListener('click', () => {
-    const executar = acaoConfirmada;
-    fecharModalConfirmacao();
-    if (executar) executar();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('btnAvisoOk').addEventListener('click', fecharAviso);
+  document.getElementById('btnAvisoFechar').addEventListener('click', fecharAviso);
+  avisoBackdrop.addEventListener('click', fecharAviso);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      else if (eventDrawer.classList.contains('open')) fecharDrawer();
-      else document.getElementById('periodoMenu').classList.remove('open');
+      if (avisoModal.classList.contains('open')) fecharAviso();
     }
   });
 
@@ -1995,134 +2147,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.remove('open');
-  });
+  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // ===== FILTRO DE PERÍODO (popover próprio, não é dropdown de valor) =====
-  const ROTULO_PERIODO = {
-    todos: 'Sem filtro de período', dia: 'Hoje', '3': 'Últimos 3 dias', '7': 'Últimos 7 dias'
-  };
-  const periodoMenu = document.getElementById('periodoMenu');
-  document.getElementById('btnPeriodo').addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    periodoMenu.classList.toggle('open');
-  });
-  periodoMenu.addEventListener('click', (e) => e.stopPropagation());
-  document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(op => {
-    op.addEventListener('click', () => {
-      document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
-      op.classList.add('active');
-      periodoAtual = op.getAttribute('data-periodo');
-      document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO[periodoAtual];
-      periodoMenu.classList.remove('open');
-      paginaAtual = 1;
-      renderTabela();
-    });
-  });
-
-  inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => {
-    filtroDepositoAtual = v; paginaAtual = 1; renderTabela();
-  });
-  inicializarDropdownSelect(document.getElementById('filtroLoja'), (v) => {
-    filtroLojaAtual = v; paginaAtual = 1; renderTabela();
-  });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
-    itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela();
-  });
-
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => {
-    if (paginaAtual > 1) { paginaAtual--; renderTabela(); }
-  });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
-
-  document.getElementById('campoBusca').addEventListener('input', (e) => {
-    buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
-  });
-
-  document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
-    aba.addEventListener('click', () => {
-      document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
-      aba.classList.add('active');
-      situacaoAtual = aba.getAttribute('data-sit');
-      paginaAtual = 1;
-      renderTabela();
-    });
-  });
-
-  document.getElementById('btnLimparFiltros').addEventListener('click', () => {
-    buscaAtual = ''; document.getElementById('campoBusca').value = '';
-    situacaoAtual = 'todos';
-    document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === 'todos'));
-    periodoAtual = 'todos';
-    document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === 'todos'));
-    document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO.todos;
-    [['filtroDeposito', 'Todos os depósitos'], ['filtroLoja', 'Todas as vitrines']].forEach(par => {
-      const el = document.getElementById(par[0]);
-      el.setAttribute('data-value', 'todos');
-      el.querySelector('.dropdown-select-label').textContent = par[1];
-      el.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i.getAttribute('data-value') === 'todos'));
-    });
-    filtroDepositoAtual = 'todos';
-    filtroLojaAtual = 'todos';
-    paginaAtual = 1;
-    renderTabela();
-  });
-
-  // ===== CONFERIR O PRÓXIMO =====
-  // A ordem e a espera, nao a escolha da pessoa — mesma regra da Separacao.
-  // A diferenca e que aqui o pedido COM FALTA passa na frente: e dele que a
-  // nota vai sair com outro valor, e quanto mais cedo isso se resolve, menos
-  // chance de a caixa seguir para a expedicao com a nota errada.
-  document.getElementById('btnConferirProximo').addEventListener('click', () => {
-    const meus = FILA.filter(p => p.situacao === 'conferindo' && p.conferente === EU);
-    if (meus.length) {
-      avisar('Você já está com o pedido #' + meus[0].numero + ' na bancada. Feche ou guarde ele antes de pegar o próximo — duas caixas abertas ao mesmo tempo é como item de uma acaba na outra.');
-      return;
-    }
-    const fila = FILA.filter(p => p.situacao === 'aguardando')
-      .sort((a, b) => (b.falta - a.falta) || (b.espera - a.espera));
-    if (!fila.length) {
-      avisar('Não há pedido esperando conferência agora. Quando a separação fechar um pedido, ele aparece aqui sozinho.');
-      return;
-    }
-    const p = fila[0];
-    armarSenhaModal('confSaidaAssume');
-    abrirModalConfirmacao('O próximo é o pedido #' + p.numero + ' — ' + p.cliente + ', ' + p.qtdItens + ' itens, ' + p.pecas + ' peças, esperando há ' + textoEspera(p.espera) + '.' +
-      (p.falta ? ' Ele veio da separação COM FALTA, por isso passou na frente: é a nota dele que muda de valor.' : '') +
-      ' Ele fica no seu nome e sai da fila dos outros conferentes.', 1, 'primary', () => {
-      p.situacao = 'conferindo';
-      p.conferente = EU;
-      irParaConferencia(p.id);
-    });
-  });
-
-  document.getElementById('btnAtribuirMim').addEventListener('click', () => {
-    const alvos = pedidosSelecionados().filter(p => p.situacao !== 'conferido');
-    if (!alvos.length) return;
-    armarSenhaModal('confSaidaAssume');
-    abrirModalConfirmacao(alvos.length === 1
-      ? 'O pedido #' + alvos[0].numero + ' fica no seu nome e sai da fila dos outros conferentes.'
-      : 'Os ' + alvos.length + ' pedidos selecionados ficam no seu nome e saem da fila dos outros conferentes. Pegar vários só faz sentido quando você vai conferir todos agora.',
-      alvos.length, 'primary', () => {
-      alvos.forEach(p => { p.situacao = 'conferindo'; p.conferente = EU; p.espera = esperaDe(p); });
-      itensSelecionados.clear();
-      renderTabela();
-    });
-  });
-
-  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio.
+  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio, sem
+  // passar pelo inicializarDropdownSelect (que marcaria item .active e trocaria o rotulo).
   (function bindMenuAcoes() {
     const raiz = document.getElementById('menuMaisAcoes');
-    if (!raiz) return;
+    if (!raiz) return;   // esta tela nao tem menu "Mais acoes"
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-      document.getElementById('periodoMenu').classList.remove('open');
+      const vaiAbrir = !menu.classList.contains('open');
+      if (vaiAbrir) {
+        menu.style.visibility = 'hidden'; menu.style.display = 'block';
+        const alturaMenu = menu.offsetHeight;
+        menu.style.display = ''; menu.style.visibility = '';
+        const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
+        menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+      }
       menu.classList.toggle('open');
     });
     menu.querySelectorAll('.dropdown-select-item').forEach(item => {
@@ -2130,16 +2174,139 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         e.stopPropagation();
         menu.classList.remove('open');
         const acao = item.getAttribute('data-acao');
-        if (acao === 'separacao') { window.location.href = '../logistica/pagina-logistica-separacao.html'; return; }
-        if (acao === 'pedidos') { window.location.href = '../vendas/pagina-vendas-pedidos.html'; return; }
-        avisar('A exportação sai em XLSX com as colunas da tela, respeitando os filtros ativos. No protótipo o arquivo não é gerado.');
+        if (acao === 'inventario') { window.location.href = '../estoque/pagina-estoque-inventario.html'; return; }
+        avisar('Impressão de relatório entra junto com o módulo de Relatórios.');
       });
     });
   })();
 
-  renderTabela();
+  // ===== CONFIGURAÇÕES DO PDV =====
+  // Nove parametros da EMPRESA, no bloco compartilhado do topo. Quem le e
+  // `../vendas/pagina-vendas-pdv.html`, e so ele. Nasceram no mesmo dia que o
+  // PDV (09/out/2026): parametro que nasce no codigo sem tela de Configuracoes
+  // e divida, e ja custou isso duas vezes aqui.
+  const CHAVES_PDV = ['pdvSituacaoVenda', 'pdvVendedorObrigatorio', 'pdvClienteObrigatorio', 'pdvBloqueiaSemEstoque',
+                      'pdvAgrupaIguais', 'pdvBloqueiaAlterarPreco', 'pdvDescontoMaximoPct',
+                      'pdvFechamentoCego', 'pdvAbreComUltimoFechamento'];
+  const SIT_VENDA = { faturado: 'Faturado', prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue' };
+  const elNota = document.getElementById('notaBarra');
 
-    // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
+  let edicao = {};
+  CHAVES_PDV.forEach(k => { edicao[k] = PARAM[k]; });
+
+  const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
+  const fmtPct = (n) => String(n).replace('.', ',');
+  // Vazio e texto que nao e numero devolvem null, para a tela reclamar em vez de gravar zero.
+  function lerPct(txt) {
+    const t = String(txt || '').trim().replace(',', '.');
+    if (t === '') return null;
+    const n = Number(t);
+    return isFinite(n) && n >= 0 && n <= 100 ? n : null;
+  }
+
+  function pintar() {
+    document.querySelectorAll('[data-param]').forEach(sw => {
+      sw.classList.toggle('on', !!edicao[sw.getAttribute('data-param')]);
+    });
+    const raiz = document.getElementById('selSituacao');
+    raiz.setAttribute('data-value', edicao.pdvSituacaoVenda);
+    raiz.querySelector('.dropdown-select-label').textContent = SIT_VENDA[edicao.pdvSituacaoVenda];
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', it.getAttribute('data-value') === edicao.pdvSituacaoVenda));
+    const campo = document.getElementById('descMax');
+    if (document.activeElement !== campo && edicao.pdvDescontoMaximoPct !== null) campo.value = fmtPct(edicao.pdvDescontoMaximoPct);
+    document.getElementById('campoDescMax').classList.toggle('has-error', edicao.pdvDescontoMaximoPct === null);
+  }
+
+  // A previa diz o que o operador passa a ver, nao repete o rotulo do interruptor.
+  function atualizarPrevias() {
+    document.getElementById('previaSituacao').innerHTML = edicao.pdvSituacaoVenda === 'entregue'
+      ? 'A venda entra em Pedidos de Venda como <b>entregue</b>: o cliente saiu com a mercadoria, e o pedido não aparece na fila de separação.'
+      : 'A venda entra em Pedidos de Venda como <b>' + SIT_VENDA[edicao.pdvSituacaoVenda].toLowerCase() + '</b> e segue o funil a partir daí. Serve quando o balcão vende para entregar depois.';
+
+    const est = document.getElementById('previaEstoque');
+    est.classList.toggle('alerta', !edicao.pdvBloqueiaSemEstoque);
+    est.innerHTML = edicao.pdvBloqueiaSemEstoque
+      ? 'Quem tenta vender além do saldo recebe o aviso com os números e <b>não consegue adicionar</b>.'
+      : 'O PDV <b>deixa vender sem saldo</b>. O estoque fica negativo e alguém acerta depois, no Acerto de Estoque.';
+
+    const desc = document.getElementById('previaDesconto');
+    const d = edicao.pdvDescontoMaximoPct;
+    desc.classList.toggle('alerta', d === 100);
+    desc.innerHTML = d === null ? 'Informe o desconto máximo para ver o que muda.'
+      : (d === 0 ? '<b>Todo desconto</b> pede a liberação do gerente.'
+      : (d === 100 ? '<b>Nenhum desconto pede liberação</b>: o operador pode zerar o preço sozinho.'
+      : 'Até <b>' + fmtPct(d) + '%</b> o operador aplica sozinho. Acima disso o PDV pede a senha de quem pode liberar.')) +
+      (edicao.pdvBloqueiaAlterarPreco ? ' O preço unitário fica travado no do cadastro.' : ' O preço unitário pode ser digitado no item.');
+
+    const cego = document.getElementById('previaCego');
+    cego.classList.toggle('alerta', !edicao.pdvFechamentoCego);
+    cego.innerHTML = (edicao.pdvFechamentoCego
+      ? 'O fechamento <b>abre cego</b>: quem conta não vê o valor esperado, e Detalhes do caixa só mostra o resumo por forma depois de fechado.'
+      : 'O fechamento <b>mostra o valor esperado</b> ao lado de cada campo. Quem fecha lê o número antes de contar, e a contagem vira cópia.') +
+      (edicao.pdvAbreComUltimoFechamento ? ' O troco de abertura vem sugerido com o dinheiro do último fechamento.' : ' O troco de abertura é digitado a cada turno.');
+  }
+
+  function mudadas() { return CHAVES_PDV.filter(k => edicao[k] !== PARAM[k]); }
+  function contar() {
+    const dif = mudadas().length;
+    elNota.textContent = dif ? plural(dif, 'configuração alterada', 'configurações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
+  }
+  function repintar() { pintar(); atualizarPrevias(); contar(); }
+
+  document.querySelectorAll('[data-param]').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const k = sw.getAttribute('data-param');
+      edicao[k] = !edicao[k];
+      repintar();
+    });
+  });
+  inicializarDropdownSelect(document.getElementById('selSituacao'), (v) => { edicao.pdvSituacaoVenda = v; repintar(); });
+  document.getElementById('descMax').addEventListener('input', (e) => { edicao.pdvDescontoMaximoPct = lerPct(e.target.value); repintar(); });
+
+  function salvarPdv(lista) {
+    CHAVES_PDV.forEach(k => { PARAM[k] = edicao[k]; });
+    const gravou = gravarParametros(PARAM);
+    contar();
+    avisar(plural(lista.length, 'configuração salva', 'configurações salvas') + '. Vale a partir da próxima venda do PDV' +
+      (PARAM.pdvFechamentoCego ? ', com o fechamento de caixa cego.' : ', com o fechamento de caixa mostrando o valor esperado.') +
+      (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então isto vale só nesta aba.)'));
+  }
+
+  document.getElementById('btnSalvarParam').addEventListener('click', () => {
+    if (edicao.pdvDescontoMaximoPct === null) { avisar('O desconto máximo precisa ser um número de 0 a 100.'); return; }
+    const lista = mudadas();
+    if (lista.length === 0) { avisar('Nenhuma configuração mudou.'); return; }
+    // Desligar o fechamento cego e a unica mudanca desta tela que apaga um
+    // controle em vez de ajustar um padrao: quem fecha passa a ver o esperado
+    // ANTES de contar. Confirma e registra, como na conferencia de saida.
+    if (PARAM.pdvFechamentoCego && edicao.pdvFechamentoCego === false) {
+      armarSenhaModal('pdvCegoDesliga');
+      abrirModalConfirmacao('Desligar o fechamento cego mostra, antes da contagem, o valor esperado de cada forma. O fechamento existe para pegar diferença de caixa; com o número à vista, quem conta copia. Confirma?',
+        1, 'primary', () => salvarPdv(lista));
+      return;
+    }
+    salvarPdv(lista);
+  });
+
+  document.getElementById('btnRestaurarParam').addEventListener('click', () => {
+    CHAVES_PDV.forEach(k => { edicao[k] = PARAM_PADRAO[k]; });
+    repintar();
+    avisar('Padrão de fábrica restaurado na tela: venda entregue, bloqueio sem estoque ligado, desconto máximo de 10% e fechamento cego. Clique em "Salvar configurações" para valer.');
+  });
+
+  repintar();
+
+  path = ['Configurações', 'Configurações ERP', 'Configurações do PDV'];
+  renderBreadcrumb();
+  setMainTitle('Configurações do PDV');
+
+  document.querySelectorAll('#breadcrumb .crumb').forEach(c => {
+    if (c.textContent.trim() === 'Configurações ERP') {
+      c.addEventListener('click', () => { window.location.href = '../configuracoes/pagina-configuracoes.html'; });
+    }
+  });
+
+  // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
   // chips). A cor de fundo desses elementos vem de mapa em JS, por style inline,
   // onde CSS nenhum alcanca. Entao a regra vira medicao: le a luminancia do fundo
@@ -2186,7 +2353,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
 
-</script>
+  // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
+  // alguma coisa, e ate la ficava vazia — e vazio nao informa.
+  contar();
 
+</script>
 </body>
 </html>

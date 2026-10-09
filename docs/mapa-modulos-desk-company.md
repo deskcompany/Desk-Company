@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída e em 06/out com a Expedição e o cadastro de Transportadoras. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras e em 09/out com o PDV. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**65 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**74 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **Onde estão os arquivos (desde 08/out/2026):** cada tela mora em `telas/<módulo>/`, na pasta do módulo em que este mapa a lista. O dashboard de KPIs fica em `telas/inicio/`. `telas/integracoes/` existe e está vazia. Ver §14.44 do design system.
 
@@ -49,13 +49,14 @@
 | ❌ | Giro de Estoque |
 | ❌ | Relatórios de Estoque |
 
-## 🛒 Vendas — 2 de 9
+## 🛒 Vendas — 4 de 10
 | | Submódulo |
 |---|---|
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
+| ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
+| ✅ | Metas |
 | ✅ | Performance de Vendas |
 | ❌ | CRM |
-| ❌ | PDV |
 | ❌ | Notas Fiscais |
 | ❌ | Vendas Afiliados |
 | ❌ | Margem de Contribuição |
@@ -65,6 +66,11 @@
 > ~~**Metas** existe e funciona, mas **não tem item no menu**.~~ **Resolvido em 08/out:** o item existia em **6 telas** e faltava em **64** — quem estivesse em qualquer outra não chegava lá pelo menu. Agora são 70 de 70.
 >
 > **Metas e Performance refeitas em 08/out.** Metas virou listagem com painel lateral (loja e vendedor, realizado dos pedidos faturados, ritmo por dias corridos). Performance lê o **mesmo bloco de dados** e a suíte `teste_metas.py` compara os dois. Pendências: **Desk Flash não está no cadastro de Lojas Desk**, então Metas mostra 3 lojas; e o detalhe de Lojas Desk e o Dashboard de KPIs ainda têm números de meta próprios. Ver §14.42.
+
+>
+> **PDV construído em 09/out**, a partir de 34 prints do Olist e três decisões do usuário: a venda vira **Pedido de Venda já entregue** (não é lista à parte, por isso conta em Metas e Performance); a **loja é escolhida ao abrir o caixa** e decide produtos, depósito e vendedores; e o **ciclo entrou inteiro**. Os nove parâmetros nasceram no mesmo dia em Configurações do PDV. **Ficou de fora:** salvar a venda para depois, faturar pré-venda, vale-presente, lista de preços, item não cadastrado, enviar recibo por e-mail ou WhatsApp e NFC-e. **E a venda ainda não aparece nas outras telas** (Pedidos, Contas a Receber, Caixa, Metas): cada uma tem os seus dados de exemplo, e o PDV diz na conclusão o que gerou. Ver §14.48.
+>
+> A tabela acima passou a listar **Metas**, que tem item de menu desde 08/out e não estava nela.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
@@ -99,7 +105,7 @@
 | ❌ | Gateways de Pagamento |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 16 telas, abertas pelo hub
+## ⚙️ Configurações — 17 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
@@ -109,6 +115,7 @@
 | ✅ | Nomes do sistema |
 | ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
 | ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui)* |
+| ✅ | Configurações do PDV *(09/out: o que a venda de balcão exige, em que situação ela entra em Pedidos, desconto máximo sem liberação e fechamento cego; desligar o fechamento cego pede senha)* |
 | ❌ | Formas de pagamento *(a lista fiscal da NF-e: só habilita, desabilita e elege a padrão; cartão reservado no hub)* |
 
 > ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
@@ -124,11 +131,13 @@
 | Início | 3 | 0 |
 | Cadastros | 12 | 1 |
 | Estoque | 9 | 3 |
-| Vendas | 2 | 7 |
+| Vendas | 4 | 6 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
-| Configurações | 16 | 0 |
-| **Total** | **41 entradas de menu · 72 telas** | **18** |
+| Configurações | 17 | 0 |
+| **Total** | **41 itens de menu com tela · 74 telas** | **17** |
+
+*Contado no menu em 09/out/2026: 58 itens, 41 com destino e 17 sem. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

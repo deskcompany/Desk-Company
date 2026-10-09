@@ -787,7 +787,167 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
+
+  /* ===== VENDAS > METAS ===== */
+  .ating { display:flex; align-items:center; gap:9px; min-width:150px; }
+  .ating-trilho { flex:1; height:7px; border-radius:6px; background:rgba(120,120,140,0.18); overflow:hidden; }
+  .ating-barra { display:block; height:100%; border-radius:6px; }
+  .ating-pct { font-size:12.5px; font-weight:800; color:var(--text-heading); min-width:42px; text-align:right; font-variant-numeric:tabular-nums; }
+  /* Cor de fundo do selo e cor do TEXTO vivem juntas, e o texto e redefinido
+     em body.dark: o mesmo tom nao passa em 4.5:1 nos dois temas. */
+  .mt-batida   { background:rgba(21,128,61,0.12);  color:#12692F; }
+  .mt-noritmo  { background:rgba(10,78,228,0.10);  color:#0A4EE4; }
+  .mt-abaixo   { background:rgba(180,83,9,0.12);   color:#8A5600; }
+  .mt-naobatida{ background:rgba(220,38,38,0.10);  color:#B91C1C; }
+  .mt-semmeta  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .mt-futuro   { background:rgba(120,120,140,0.14); color:var(--text); }
+  body.dark .mt-batida    { color:#4ADE80; }
+  body.dark .mt-noritmo   { color:#9DB8F0; }
+  body.dark .mt-abaixo    { color:#FBBF24; }
+  body.dark .mt-naobatida { color:#FCA5A5; }
+  .pt-batida   { background:#15803D; }
+  .pt-noritmo  { background:#0A4EE4; }
+  .pt-abaixo   { background:#B45309; }
+  .pt-naobatida{ background:#DC2626; }
+  .pt-semmeta  { background:#8A8A94; }
+  .pt-futuro   { background:#8A8A94; }
+  .meta-previa { border:1px solid var(--border); border-radius:12px; padding:4px 12px; background:var(--page-bg); }
+  .meta-previa-linha { display:grid; grid-template-columns:86px 1fr auto; gap:10px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .meta-previa-linha:last-child { border-bottom:none; }
+  .meta-previa-mes { font-weight:800; color:var(--text-heading); }
+  .meta-previa-obs { font-size:11px; font-weight:600; color:var(--text); }
+  .meta-previa-valor { font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .meta-previa-vazia { padding:10px 0; font-size:12px; font-weight:600; color:var(--text); }
+  .meta-ano { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .meta-ano th { text-align:right; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:6px 0; border-bottom:1px solid var(--border); }
+  .meta-ano th:first-child, .meta-ano td:first-child { text-align:left; }
+  .meta-ano td { text-align:right; padding:7px 0; border-bottom:1px solid var(--border); color:var(--text-heading); font-weight:700; font-variant-numeric:tabular-nums; }
+  .meta-ano tr:last-child td { border-bottom:none; }
+  .meta-ano tr.atual td { color:var(--active-text); }
+
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* ===== PDV ===== */
+  /* A tela tem quatro momentos (caixa fechado, vendendo, finalizando, venda
+     concluida) e so um aparece por vez. O que e comum aos quatro: a barra de
+     baixo, com a acao principal a esquerda e os numeros grandes a direita. */
+  .pdv-chip { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; white-space:nowrap; }
+  .pdv-chip-ponto { width:8px; height:8px; border-radius:50%; background:var(--success); flex-shrink:0; }
+  .pdv-kbd { display:inline-block; font-family:'Nunito',sans-serif; font-size:10px; font-weight:800; letter-spacing:0.3px; text-transform:uppercase; color:var(--text); border:1px solid var(--divisor); border-radius:5px; padding:1px 5px; margin-left:6px; background:transparent; vertical-align:1px; }
+  .btn-primary .pdv-kbd { color:#fff; border-color:rgba(255,255,255,0.55); }
+
+  .pdv-fechado { display:flex; flex-direction:column; align-items:center; text-align:center; padding:54px 24px 46px; }
+  .pdv-relogio { font-family:'Nunito',sans-serif; font-weight:800; font-size:76px; line-height:1; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .pdv-data { margin-top:10px; font-size:14px; color:var(--text); }
+  .pdv-fechado-acoes { display:flex; flex-direction:column; align-items:center; gap:14px; margin:30px 0 22px; }
+  .pdv-btn-grande { font-size:15px; padding:13px 26px; border-radius:26px; }
+  .pdv-centro { max-width:520px; text-align:center; }
+  .pdv-ultimo { margin-top:22px; padding-top:18px; border-top:1px solid var(--divisor); width:100%; max-width:620px; font-size:12.5px; color:var(--text); }
+  .pdv-ultimo b { color:var(--text-heading); }
+
+  .pdv-grade { display:grid; grid-template-columns:400px minmax(0, 1fr); gap:16px; align-items:start; }
+  .pdv-col { display:flex; flex-direction:column; gap:16px; min-width:0; }
+  .pdv-campo-busca { position:relative; }
+  /* dois seletores de proposito: `.form-row .form-field` tem flex:1 e ganharia de uma classe so */
+  .form-row .pdv-campo-busca { flex:1 1 auto; }
+  .form-row .pdv-campo-qtd { flex:0 0 108px; min-width:0; }
+  /* a tabela de itens mora numa coluna estreita: a largura minima das listagens nao serve aqui */
+  .pdv-grade .estoque-table { min-width:0; }
+  .pdv-sugestoes { position:absolute; left:0; right:0; top:100%; margin-top:4px; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 22px rgba(0,0,0,0.22); z-index:20; max-height:260px; overflow-y:auto; }
+  .pdv-sug { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:9px 12px; font-size:13px; color:var(--text-heading); cursor:pointer; border-top:1px solid var(--border); }
+  .pdv-sug:first-child { border-top:none; }
+  .pdv-sug:hover, .pdv-sug.foco { background:var(--active-bg); color:var(--active-text); }
+  .pdv-sug-sub { font-size:11.5px; color:var(--text); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .pdv-sug.foco .pdv-sug-sub, .pdv-sug:hover .pdv-sug-sub { color:var(--active-text); }
+  .pdv-sug-vazio { padding:11px 12px; font-size:12.5px; color:var(--text); }
+
+  .pdv-prod { margin-top:14px; padding-top:14px; border-top:1px solid var(--divisor); }
+  .pdv-prod-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-bottom:6px; }
+  .pdv-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; font-size:13px; color:var(--text); border-top:1px solid var(--border); }
+  .pdv-linha:first-of-type { border-top:none; }
+  .pdv-linha b { color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .pdv-linha.forte { font-size:14.5px; }
+  .pdv-linha.forte b { font-size:17px; font-weight:800; }
+  .pdv-linha .falta { color:var(--danger); font-weight:700; }
+  .pdv-prod-acoes { display:flex; align-items:center; gap:16px; margin-top:14px; }
+  .pdv-cliente-btn { width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; text-align:left; }
+  .pdv-cliente-btn:hover { border-color:var(--chart-2); }
+  .pdv-cliente-btn span:last-child { font-size:11.5px; font-weight:700; color:var(--active-text); white-space:nowrap; }
+
+  .pdv-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .pdv-item-sub { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .pdv-item-ajuste { font-size:11.5px; font-weight:700; color:var(--active-text); margin-top:2px; }
+  .pdv-icone-btn { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; }
+  .pdv-icone-btn:hover { color:var(--text-heading); border-color:var(--divisor); }
+  .pdv-icone-btn svg { width:14px; height:14px; }
+  .pdv-dica { margin-top:12px; font-size:12px; color:var(--text); }
+
+  .pdv-barra { position:sticky; bottom:0; z-index:30; display:flex; align-items:center; gap:18px; margin-top:16px; padding:14px 18px; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; box-shadow:0 -6px 18px rgba(0,0,0,0.10); }
+  .pdv-totais { margin-left:auto; display:flex; align-items:flex-end; gap:30px; }
+  .pdv-tot { text-align:right; }
+  .pdv-tot-rot { display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); }
+  .pdv-tot-val { display:block; font-family:'Nunito',sans-serif; font-weight:900; font-size:24px; line-height:1.15; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .pdv-tot-val.alerta { color:var(--danger); }
+  .pdv-tot-val.certo { color:var(--success); }
+
+  .pdv-resumo-item { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:8px 0; border-top:1px solid var(--border); font-size:13px; color:var(--text-heading); }
+  .pdv-resumo-item:first-child { border-top:none; }
+  .pdv-resumo-item span:last-child { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .pdv-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-heading); margin:0 0 10px; }
+  .pdv-receb { border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:12px; background:var(--page-bg); }
+  .pdv-receb-topo { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .pdv-receb-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
+  .pdv-receb-destino { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .pdv-receb-info { font-size:12px; color:var(--text); margin-top:8px; }
+  .pdv-receb-info b { color:var(--text-heading); }
+  .pdv-receb-erro { font-size:12px; font-weight:700; color:var(--danger); margin-top:8px; }
+  .pdv-parcelas { width:100%; border-collapse:collapse; margin-top:10px; font-size:12.5px; }
+  .pdv-parcelas th { text-align:left; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:0 8px 6px 0; }
+  .pdv-parcelas td { padding:5px 8px 5px 0; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .pdv-parcelas input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:8px; padding:7px 9px; outline:none; }
+  .pdv-parcelas input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .pdv-falta { margin-top:14px; padding:11px 13px; border-radius:10px; border:1px solid var(--border); background:var(--page-bg); font-size:13px; color:var(--text); }
+  .pdv-falta b { color:var(--text-heading); }
+  .pdv-falta.alerta { border-color:var(--danger); }
+  .pdv-falta.certo { border-color:var(--success); }
+
+  .pdv-concluida-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .pdv-concluida-sub { font-size:13.5px; color:var(--text); margin-top:4px; }
+  .pdv-numeros { display:flex; gap:38px; flex-wrap:wrap; margin:22px 0 4px; }
+  .pdv-gerado { display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--border); font-size:13px; color:var(--text); line-height:1.5; }
+  .pdv-gerado:first-of-type { border-top:none; }
+  .pdv-gerado b { color:var(--text-heading); }
+  .pdv-gerado-ponto { width:7px; height:7px; border-radius:50%; background:var(--chart-2); margin-top:7px; flex-shrink:0; }
+
+  .pdv-lista-cli { margin-top:6px; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .pdv-cli { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-top:1px solid var(--border); cursor:pointer; }
+  .pdv-cli:first-child { border-top:none; }
+  .pdv-cli:hover, .pdv-cli.foco { background:var(--active-bg); }
+  .pdv-cli-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
+  .pdv-cli-sub { font-size:11.5px; color:var(--text); margin-top:1px; font-variant-numeric:tabular-nums; }
+  .pdv-cli:hover .pdv-cli-nome, .pdv-cli.foco .pdv-cli-nome, .pdv-cli:hover .pdv-cli-sub, .pdv-cli.foco .pdv-cli-sub { color:var(--active-text); }
+  .pdv-atalho { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid var(--border); font-size:13px; color:var(--text-heading); }
+  .pdv-atalho:first-of-type { border-top:none; }
+  .pdv-atalho .pdv-kbd { margin-left:0; }
+  .pdv-nota { margin:14px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12.5px; color:var(--text); line-height:1.5; }
+  .pdv-nota b { color:var(--text-heading); }
+  .pdv-nota.alerta { border-color:var(--danger); }
+
+  /* ===== FOLHA DE IMPRESSAO (comprovantes e recibos) ===== */
+  .pdv-folha { display:none; }
+  .pdv-folha-emp { text-align:center; font-size:13px; font-weight:700; }
+  .pdv-folha-sub { text-align:center; font-size:11.5px; }
+  .pdv-folha-tit { text-align:center; font-size:13px; font-weight:800; margin:14px 0 10px; }
+  .pdv-folha-linha { display:flex; justify-content:space-between; gap:16px; font-size:12px; padding:2px 0; }
+  .pdv-folha-linha.forte { font-weight:800; }
+  .pdv-folha-sep { border-top:1px dashed #000; margin:8px 0; }
+  .pdv-folha-assina { margin-top:46px; text-align:center; font-size:11.5px; }
+  .pdv-folha-assina-linha { border-top:1px solid #000; width:260px; margin:0 auto 4px; }
+  @media print {
+    body * { visibility:hidden; }
+    .pdv-folha, .pdv-folha * { visibility:visible; }
+    .pdv-folha { display:block; position:absolute; left:0; top:0; width:100%; max-width:420px; padding:20px; background:#fff; color:#000; }
+  }
+  .form-field input[readonly], .form-field input:disabled { opacity:.65; cursor:not-allowed; }
 </style>
 </head>
 <body class="dark">
@@ -813,11 +973,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 7l3-4h14l3 4"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
       <span class="label-text">Estoque</span>
     </div>
-    <div class="nav-item" data-id="vendas" data-label="Vendas">
+    <div class="nav-item active" data-id="vendas" data-label="Vendas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       <span class="label-text">Vendas</span>
     </div>
-    <div class="nav-item active" data-id="logistica" data-label="Logística">
+    <div class="nav-item" data-id="logistica" data-label="Logística">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       <span class="label-text">Logística</span>
     </div>
@@ -987,205 +1147,445 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Devolução</h1>
-      <div class="subtitle">O que volta: por qual motivo, em que estado, e o que ainda falta resolver com o cliente</div>
+      <h1>PDV</h1>
+      <div class="subtitle">Venda de balcão. Cada turno de caixa é de uma loja, abre com o troco e fecha com conferência.</div>
     </div>
-    <div class="header-acoes">
-      <button class="btn-primary" id="btnIncluirDevolucao">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Incluir devolução
-      </button>
+    <div class="header-acoes" id="pdvAcoesTopo" style="display:none;">
+      <span class="pdv-chip" id="chipTurno"></span>
+      <button class="btn-secundario" id="btnDetalhesCaixa">Detalhes do caixa<span class="pdv-kbd">Ctrl+Y</span></button>
       <div class="dropdown-select" id="menuMaisAcoes">
         <button type="button" class="btn-ghost dropdown-select-btn">
           <span class="dropdown-select-label">Mais ações</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:340px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="motivos">Abrir Motivos de Devolução</div>
-          <div class="dropdown-select-item" data-acao="rastreamento">Abrir Rastreamento de Pedidos</div>
-          <div class="dropdown-select-item" data-acao="parametros">Abrir parâmetros da devolução</div>
-          <div class="dropdown-select-item" data-acao="exportar">Exportar devoluções para planilha</div>
-          <div class="dropdown-select-item" data-acao="valestroca">Gerenciar vales-troca</div>
+        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:270px; white-space:nowrap;">
+          <div class="dropdown-select-item" data-acao="sangria">Lançar sangria de caixa</div>
+          <div class="dropdown-select-item" data-acao="reforco">Lançar reforço de caixa</div>
+          <div class="dropdown-select-item" data-acao="ultima">Reimprimir a última venda</div>
+          <div class="dropdown-select-item" data-acao="atalhos">Mostrar atalhos</div>
+          <div class="dropdown-select-item" data-acao="cancelar">Cancelar venda</div>
+          <div class="dropdown-select-item" data-acao="fechar">Fechar caixa</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
-      <div class="kpi-label">Em aberto</div>
-      <div class="kpi-value" id="kpiAberto">0</div>
-      <div class="kpi-delta neutral" id="kpiAbertoSub">—</div>
+  <!-- ===== MOMENTO 1: caixa fechado ===== -->
+  <div class="card pdv-fechado" id="estadoFechado">
+    <div class="pdv-relogio" id="relogioFechado">00:00</div>
+    <div class="pdv-data" id="dataFechado"></div>
+    <div class="pdv-fechado-acoes">
+      <button class="btn-primary pdv-btn-grande" id="btnAbrirCaixa">Abrir caixa<span class="pdv-kbd">Ctrl+Enter</span></button>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
-      <div class="kpi-label">Aguardando a mercadoria</div>
-      <div class="kpi-value" id="kpiAndamento">0</div>
-      <div class="kpi-delta neutral" id="kpiAndamentoSub">—</div>
-    </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
-      <div class="kpi-label">Valor a devolver</div>
-      <div class="kpi-value" id="kpiValor">R$ 0,00</div>
-      <div class="kpi-delta neutral" id="kpiValorSub">—</div>
-    </div>
-    <div class="card kpi-card" style="border-left-color:var(--success)">
-      <div class="kpi-label">Estoque já lançado</div>
-      <div class="kpi-value" id="kpiEstoque">0</div>
-      <div class="kpi-delta neutral" id="kpiEstoqueSub">—</div>
-    </div>
+    <div class="field-hint pdv-centro">O caixa do PDV é o turno do operador: abre com o troco, recebe as vendas e fecha com conferência. Não é o Caixa de Finanças, que é o extrato das contas.</div>
+    <div class="pdv-ultimo" id="ultimoTurno" style="display:none;"></div>
   </div>
 
-  <div class="estoque-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Pesquise por devolução, pedido, cliente ou motivo">
-    </div>
+  <!-- ===== MOMENTO 2: vendendo ===== -->
+  <div id="estadoVenda" style="display:none;">
+    <div class="pdv-grade">
+      <div class="pdv-col">
+        <div class="card">
+          <div class="form-row">
+            <div class="form-field pdv-campo-busca" id="campoBuscaProduto">
+              <label>Produto</label>
+              <input type="text" id="buscaProduto" placeholder="Descrição, código (SKU) ou GTIN" autocomplete="off">
+              <div class="pdv-sugestoes" id="sugestoes" style="display:none;"></div>
+            </div>
+            <div class="form-field pdv-campo-qtd" id="campoQtdProduto">
+              <label>Quantidade</label>
+              <input type="text" id="qtdProduto" inputmode="decimal" value="1">
+            </div>
+          </div>
+          <div class="field-hint">Digite sem clicar no campo, ou use o leitor: código exato e Enter já adicionam.</div>
+          <div class="field-error-msg" id="erroProduto"></div>
 
-    <div class="periodo-wrap" id="periodoWrap">
-      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="rotuloPeriodo">Sem filtro de período</span>
-      </button>
-      <div class="periodo-menu" id="periodoMenu">
-        <div class="periodo-titulo">Aberta nos últimos</div>
-        <div class="periodo-opcoes" id="periodoOpcoes">
-          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
-          <button class="periodo-op" data-periodo="7">7 dias</button>
-          <button class="periodo-op" data-periodo="15">15 dias</button>
-          <button class="periodo-op" data-periodo="30">30 dias</button>
+          <div class="pdv-prod" id="prodSelecionado" style="display:none;">
+            <div class="pdv-prod-nome" id="prodNome"></div>
+            <div class="pdv-linha"><span>Código</span><b id="prodSku"></b></div>
+            <div class="pdv-linha"><span id="prodRotuloEstoque">Estoque</span><b id="prodEstoque"></b></div>
+            <div class="pdv-linha"><span>Preço un</span><b id="prodPreco"></b></div>
+            <div class="pdv-linha forte"><span>Total</span><b id="prodTotal"></b></div>
+            <div class="pdv-prod-acoes">
+              <button class="btn-primary" id="btnAdicionar">Adicionar<span class="pdv-kbd">Enter</span></button>
+              <div class="drawer-link" id="btnLimparProduto">Cancelar <span class="esc-hint">ESC</span></div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="dropdown-select" id="filtroResponsavel" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Qualquer responsável</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroResponsavel"></div>
-    </div>
-
-    <div class="dropdown-select" id="filtroMotivo" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todos os motivos</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroMotivo" style="max-height:300px; overflow-y:auto;"></div>
-    </div>
-
-    <div class="dropdown-select" id="filtroForma" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Qualquer forma</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroForma"></div>
-    </div>
-  </div>
-
-  <!-- Situacao aqui E aba contadora, ao contrario do Rastreamento: sao QUATRO
-       situacoes e as quatro cabem numa linha a 1440px. A medicao de 02/out que
-       derrubou as abas la era com dez. -->
-  <div class="abas-situacao" id="abasSituacao">
-    <div class="aba-sit active" data-sit="todas"><span>Todas</span><span class="sit-contador" data-cont="todas">0</span></div>
-    <div class="aba-sit" data-sit="aberta"><span class="sit-dot dev-aberta"></span><span>Em aberto</span><span class="sit-contador" data-cont="aberta">0</span></div>
-    <div class="aba-sit" data-sit="andamento"><span class="sit-dot dev-andamento"></span><span>Em andamento</span><span class="sit-contador" data-cont="andamento">0</span></div>
-    <div class="aba-sit" data-sit="finalizada"><span class="sit-dot dev-finalizada"></span><span>Finalizadas</span><span class="sit-contador" data-cont="finalizada">0</span></div>
-    <div class="aba-sit" data-sit="cancelada"><span class="sit-dot dev-cancelada"></span><span>Canceladas</span><span class="sit-contador" data-cont="cancelada">0</span></div>
-  </div>
-
-  <div class="card">
-    <!-- O que trava uma devolucao nao e ela existir, e o que falta nela: a
-         mercadoria que nao voltou e o estoque que nao foi lancado. Isso aparece
-         escrito, nao deduzido de contar linhas. -->
-    <div class="nota-reservado" id="avisoCodigos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-      <span id="avisoCodigosTexto"></span>
-    </div>
-
-    <div class="estoque-table-wrap">
-      <table class="estoque-table">
-        <thead>
-          <tr>
-            <th class="col-texto ordenavel" data-ordem="numero">Devolução <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="pedido">Pedido de origem <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="cliente">Cliente <span class="seta">▲</span></th>
-            <th class="col-texto" title="Vem de Configurações &gt; Motivos de Devolução">Motivo</th>
-            <th class="col-texto">Situação</th>
-            <th class="ordenavel" data-ordem="valor" title="Abaixo do valor, como o dinheiro volta ao cliente">A devolver <span class="seta">▲</span></th>
-          </tr>
-        </thead>
-        <tbody id="corpoTabela"></tbody>
-      </table>
-    </div>
-
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="empty-state-title">Nenhuma devolução neste filtro</div>
-      <div class="empty-state-sub">Com os filtros atuais, não há devolução para mostrar.</div>
-      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
-    </div>
-
-    <div class="estoque-rodape">
-      <span id="contagemPedidos">0 devoluções</span>
-      <span class="estoque-total">Soma do filtro: <b id="somaFiltro">R$ 0,00</b></span>
-    </div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
+        <div class="card">
+          <div class="form-field">
+            <label>Vendedor<span class="pdv-kbd">F9</span></label>
+            <div class="dropdown-select" id="selVendedor" data-value="">
+              <button type="button" class="dropdown-select-btn form-style">
+                <span class="dropdown-select-label">Sem vendedor</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="dropdown-select-menu" id="menuVendedor"></div>
+            </div>
+          </div>
+          <div class="form-field" style="margin-bottom:0;">
+            <label>Cliente<span class="pdv-kbd">F8</span></label>
+            <button type="button" class="pdv-cliente-btn" id="btnCliente"><span id="rotuloCliente">Consumidor final</span><span>trocar</span></button>
+            <div class="field-hint" id="hintCliente">Venda a prazo precisa de cliente identificado: o título tem de ter devedor.</div>
           </div>
         </div>
       </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+
+      <div class="pdv-col">
+        <div class="card">
+          <div id="listaItens"></div>
+          <div class="empty-state" id="vazioItens">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+            <div class="empty-state-title">Nenhum item na venda</div>
+            <div class="empty-state-sub">Busque um produto pela descrição ou passe o código no leitor.</div>
+          </div>
+          <div class="pdv-dica" id="dicaItens" style="display:none;">Clique num item para mudar quantidade, preço, desconto ou acréscimo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdv-barra">
+      <button class="btn-primary pdv-btn-grande" id="btnContinuar">Continuar<span class="pdv-kbd">Ctrl+Enter</span></button>
+      <div class="drawer-link" id="btnCancelarVenda">Cancelar venda</div>
+      <div class="pdv-totais">
+        <div class="pdv-tot"><span class="pdv-tot-rot">itens</span><span class="pdv-tot-val" id="totItens">0</span></div>
+        <div class="pdv-tot"><span class="pdv-tot-rot">quant.</span><span class="pdv-tot-val" id="totQtd">0</span></div>
+        <div class="pdv-tot"><span class="pdv-tot-rot">total da venda</span><span class="pdv-tot-val" id="totVenda">R$ 0,00</span></div>
       </div>
     </div>
   </div>
 
-<!-- PAINEL LATERAL: a devolucao por dentro, sem sair da lista -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="eventDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="drawerTitulo">Devolução</div>
-    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  <!-- ===== MOMENTO 3: finalizando ===== -->
+  <div id="estadoFinalizar" style="display:none;">
+    <div class="pdv-grade">
+      <div class="pdv-col">
+        <div class="card">
+          <div class="pdv-bloco-titulo">Cliente</div>
+          <button type="button" class="pdv-cliente-btn" id="btnClienteFin"><span id="rotuloClienteFin">Consumidor final</span><span>trocar</span></button>
+          <div class="field-hint" id="docClienteFin"></div>
+        </div>
+        <div class="card">
+          <div class="pdv-bloco-titulo" id="finResumoTitulo">Itens</div>
+          <div id="finItens"></div>
+          <div class="pdv-linha"><span>Subtotal</span><b id="finSubtotal">R$ 0,00</b></div>
+          <div class="pdv-linha"><span>Desconto na venda</span><b id="finDescontoValor">R$ 0,00</b></div>
+          <div class="pdv-linha forte"><span>Total</span><b id="finTotal">R$ 0,00</b></div>
+        </div>
+      </div>
+
+      <div class="pdv-col">
+        <div class="card">
+          <div class="form-row">
+            <div class="form-field">
+              <label>Vendedor</label>
+              <input type="text" id="finVendedor" readonly>
+            </div>
+            <div class="form-field">
+              <label>Depósito</label>
+              <div class="dropdown-select" id="finDeposito" data-value="">
+                <button type="button" class="dropdown-select-btn form-style">
+                  <span class="dropdown-select-label">Depósito</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-select-menu" id="menuFinDeposito"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Categoria financeira</label>
+              <div class="dropdown-select" id="finCategoria" data-value="">
+                <button type="button" class="dropdown-select-btn form-style">
+                  <span class="dropdown-select-label">Categoria</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="dropdown-select-menu" id="menuFinCategoria"></div>
+              </div>
+            </div>
+            <div class="form-field" id="campoFinDesconto">
+              <label>Desconto na venda</label>
+              <input type="text" id="finDesconto" placeholder="Ex: 3,00 ou 10%">
+              <div class="field-error-msg" id="erroFinDesconto"></div>
+            </div>
+          </div>
+          <div class="field-hint" id="hintFinDeposito"></div>
+        </div>
+
+        <div class="card">
+          <div class="pdv-bloco-titulo">Recebimentos</div>
+          <div class="dropdown-select" id="selAddReceb" data-value="">
+            <button type="button" class="btn-secundario dropdown-select-btn">
+              <span class="dropdown-select-label">Adicionar recebimento</span><span class="pdv-kbd">F4</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-select-menu" id="menuAddReceb" style="min-width:300px;"></div>
+          </div>
+          <div id="listaReceb"></div>
+          <div class="pdv-falta" id="faltaReceber"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pdv-barra">
+      <button class="btn-primary pdv-btn-grande" id="btnFinalizar">Finalizar venda<span class="pdv-kbd">Ctrl+Enter</span></button>
+      <div class="drawer-link" id="btnVoltarItens">Voltar e incluir itens <span class="esc-hint">ESC</span></div>
+      <div class="pdv-totais">
+        <div class="pdv-tot"><span class="pdv-tot-rot">troco</span><span class="pdv-tot-val" id="totTroco">R$ 0,00</span></div>
+        <div class="pdv-tot"><span class="pdv-tot-rot">total da venda</span><span class="pdv-tot-val" id="totVendaFin">R$ 0,00</span></div>
+      </div>
+    </div>
   </div>
-  <div id="drawerCorpo"></div>
+
+  <!-- ===== MOMENTO 4: venda concluida ===== -->
+  <div id="estadoConcluida" style="display:none;">
+    <div class="card">
+      <div class="pdv-concluida-titulo" id="concTitulo"></div>
+      <div class="pdv-concluida-sub" id="concSub"></div>
+      <div class="pdv-numeros">
+        <div><div class="kpi-label">total da venda</div><div class="kpi-value" id="concTotal"></div></div>
+        <div><div class="kpi-label">recebido em dinheiro</div><div class="kpi-value" id="concDinheiro"></div></div>
+        <div><div class="kpi-label">troco</div><div class="kpi-value" id="concTroco"></div></div>
+      </div>
+      <div class="pdv-prod-acoes">
+        <button class="btn-secundario" id="btnRecibo">Imprimir recibo<span class="pdv-kbd">Ctrl+1</span></button>
+        <button class="btn-secundario" id="btnReciboTroca">Recibo para troca<span class="pdv-kbd">Ctrl+2</span></button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="pdv-bloco-titulo">O que esta venda gerou</div>
+      <div id="concGerado"></div>
+    </div>
+    <div class="pdv-barra">
+      <button class="btn-primary pdv-btn-grande" id="btnOutraVenda">Iniciar outra venda<span class="pdv-kbd">Ctrl+Enter</span></button>
+      <div class="pdv-totais">
+        <div class="pdv-tot"><span class="pdv-tot-rot">vendas no turno</span><span class="pdv-tot-val" id="concVendasTurno">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdv-folha" id="folhaImpressao"></div>
+
+<!-- ===== PAINEIS LATERAIS (dentro do main, como nas outras telas) ===== -->
+<div class="drawer-backdrop" id="pdvBackdrop"></div>
+
+<!-- abrir caixa -->
+<div class="event-drawer" id="abrirDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Abertura de caixa</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="form-field">
+    <label>Loja do turno</label>
+    <div class="dropdown-select" id="abrirLoja" data-value="1">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Desk Shope</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuAbrirLoja"></div>
+    </div>
+    <div class="field-hint" id="hintAbrirLoja"></div>
+  </div>
+  <div class="form-field" id="campoTroco">
+    <label>Valor disponível em caixa (R$)</label>
+    <input type="text" id="abrirTroco" inputmode="decimal" placeholder="0,00">
+    <div class="field-error-msg" id="erroTroco">Use só números, com vírgula para os centavos.</div>
+    <div class="field-hint" id="hintTroco">É o troco que já está na gaveta. Entra na conta do fechamento.</div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnConfirmarAbertura">Abrir caixa</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar</div>
+  </div>
 </div>
 
-<!-- PAINEL LATERAL: escolher a venda que vai ser devolvida -->
-<!-- A devolucao NASCE de uma venda. Deixar criar uma devolucao solta seria abrir
-     a porta para devolver o que nunca foi vendido, e o estoque pagaria a conta. -->
-<div class="drawer-backdrop" id="vendaBackdrop"></div>
-<div class="event-drawer" id="vendaDrawer">
+<!-- encontrar cliente -->
+<div class="event-drawer" id="clienteDrawer">
   <div class="drawer-header">
-    <div class="drawer-title">Selecione a venda para devolver</div>
-    <div class="drawer-close" id="vendaClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+    <div class="drawer-title">Encontrar cliente</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
-  <div class="search-wrap" style="margin-bottom:14px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="buscaVenda" placeholder="Pesquise pelo cliente ou pelo número do pedido">
+  <div class="form-field">
+    <label>Nome ou CPF/CNPJ</label>
+    <input type="text" id="buscaCliente" placeholder="Digite para buscar" autocomplete="off">
   </div>
-  <div class="nota-reservado" style="margin-bottom:12px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-    <span id="notaSeletor">—</span>
+  <div class="pdv-lista-cli" id="listaClientes"></div>
+  <div class="pdv-prod-acoes">
+    <div class="drawer-link" id="btnConsumidorFinal">Usar consumidor final</div>
+    <div class="drawer-link" id="btnNovoCliente">Cadastrar novo cliente</div>
   </div>
-  <div id="listaVendas"></div>
-  <div class="drawer-footer" style="margin-top:16px;">
-    <button class="btn-primary" id="btnAbrirDevolucaoNova">Devolver esta venda</button>
-    <div class="drawer-link" id="btnCancelarSeletor">Cancelar</div>
+  <div id="blocoNovoCliente" style="display:none;">
+    <div class="section-title">Cadastro rápido</div>
+    <div class="form-field" id="campoNovoCliNome">
+      <label>Nome</label>
+      <input type="text" id="novoCliNome" placeholder="Nome ou razão social">
+      <div class="field-error-msg" id="erroNovoCli">Informe o nome e o CPF ou CNPJ.</div>
+    </div>
+    <div class="form-field">
+      <label>CPF ou CNPJ</label>
+      <input type="text" id="novoCliDoc" placeholder="Só números ou com pontuação">
+    </div>
+    <div class="form-field">
+      <label>Telefone</label>
+      <input type="text" id="novoCliFone" placeholder="(99) 99999-9999">
+      <div class="field-hint">Só o que a venda exige. O resto do cadastro fica para Cadastros → Clientes.</div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn-primary" id="btnSalvarCliente">Salvar e usar na venda</button>
+    </div>
   </div>
+</div>
+
+<!-- editar item -->
+<div class="event-drawer" id="itemDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="itemNome">Editar item</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="form-row">
+    <div class="form-field" id="campoItemQtd">
+      <label id="rotuloItemQtd">Quantidade</label>
+      <input type="text" id="itemQtd" inputmode="decimal">
+    </div>
+    <div class="form-field" id="campoItemPreco">
+      <label>Preço un (R$)</label>
+      <input type="text" id="itemPreco" inputmode="decimal">
+    </div>
+  </div>
+  <div class="field-hint" id="hintItemPreco"></div>
+  <div class="form-field" style="margin-top:14px;">
+    <label>Desconto ou acréscimo</label>
+    <div class="dropdown-select" id="itemAjusteTipo" data-value="nenhum">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Sem ajuste</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="nenhum">Sem ajuste</div>
+        <div class="dropdown-select-item" data-value="desconto">Desconto</div>
+        <div class="dropdown-select-item" data-value="acrescimo">Acréscimo</div>
+      </div>
+    </div>
+  </div>
+  <div id="blocoItemAjuste" style="display:none;">
+    <div class="form-row">
+      <div class="form-field">
+        <label>Em</label>
+        <div class="dropdown-select" id="itemAjusteModo" data-value="valor">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Valor (R$)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="valor">Valor (R$)</div>
+            <div class="dropdown-select-item" data-value="pct">Porcentagem (%)</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field" id="campoItemAjuste">
+        <label>Quanto</label>
+        <input type="text" id="itemAjusteValor" inputmode="decimal" placeholder="0,00">
+      </div>
+    </div>
+  </div>
+  <div class="field-error-msg" id="erroItem"></div>
+  <div class="pdv-nota" id="itemNota" style="display:none;"></div>
+  <div class="pdv-linha forte"><span>Total do item</span><b id="itemTotal">R$ 0,00</b></div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnAplicarItem">Aplicar</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar</div>
+  </div>
+  <div class="excluir-link" id="btnRemoverItem">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    Remover item da venda
+  </div>
+</div>
+
+<!-- detalhes do caixa -->
+<div class="event-drawer" id="caixaDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Detalhes do caixa</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="abas-situacao" id="abasCaixa">
+    <div class="aba-sit active" data-aba="geral">Dados gerais</div>
+    <div class="aba-sit" data-aba="mov">Sangrias e reforços</div>
+    <div class="aba-sit" data-aba="vendas">Vendas</div>
+  </div>
+  <div id="caixaCorpo"></div>
+  <div class="drawer-footer" id="caixaRodape">
+    <button class="btn-secundario" id="btnFecharCaixaPainel">Fechar caixa</button>
+    <div class="drawer-link" id="btnReimprimirTurno">Reimprimir comprovante</div>
+  </div>
+</div>
+
+<!-- sangria ou reforco -->
+<div class="event-drawer" id="movDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="movTitulo">Sangria de caixa</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="pdv-nota" id="movInfo"></div>
+  <div class="form-field" id="campoMovValor">
+    <label>Valor (R$)</label>
+    <input type="text" id="movValor" inputmode="decimal" placeholder="0,00">
+    <div class="field-error-msg" id="erroMovValor"></div>
+  </div>
+  <div class="form-field">
+    <label id="rotuloMovConta">Para onde vai</label>
+    <div class="dropdown-select" id="movConta" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Conta</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuMovConta"></div>
+    </div>
+    <div class="field-hint">Sangria e reforço são transferência entre contas financeiras: o dinheiro não some nem aparece, muda de lugar.</div>
+  </div>
+  <div class="form-field" id="campoMovMotivo">
+    <label>Motivo</label>
+    <input type="text" id="movMotivo" placeholder="Ex: excesso de dinheiro na gaveta">
+    <div class="field-error-msg" id="erroMovMotivo">Escreva o motivo: é o que explica o movimento no fechamento.</div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnSalvarMov">Lançar</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar</div>
+  </div>
+</div>
+
+<!-- fechamento de caixa -->
+<div class="event-drawer" id="fecharDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Fechamento de caixa</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="pdv-nota" id="fecharNota"></div>
+  <div id="fecharCampos"></div>
+  <div class="pdv-nota alerta" id="fecharDivergencia" style="display:none;"></div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnConfirmarFechamento">Fechar caixa</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar</div>
+  </div>
+  <div class="excluir-link" id="btnForcarFechamento" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Fechar mesmo com diferença
+  </div>
+</div>
+
+<!-- atalhos -->
+<div class="event-drawer" id="atalhosDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Atalhos do PDV</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="pdv-atalho"><span>Buscar produto</span><span class="pdv-kbd">é só digitar</span></div>
+  <div class="pdv-atalho"><span>Adicionar o produto escolhido</span><span class="pdv-kbd">Enter</span></div>
+  <div class="pdv-atalho"><span>Continuar, finalizar ou iniciar outra venda</span><span class="pdv-kbd">Ctrl+Enter</span></div>
+  <div class="pdv-atalho"><span>Escolher o cliente</span><span class="pdv-kbd">F8</span></div>
+  <div class="pdv-atalho"><span>Escolher o vendedor</span><span class="pdv-kbd">F9</span></div>
+  <div class="pdv-atalho"><span>Adicionar recebimento</span><span class="pdv-kbd">F4</span></div>
+  <div class="pdv-atalho"><span>Detalhes do caixa</span><span class="pdv-kbd">Ctrl+Y</span></div>
+  <div class="pdv-atalho"><span>Imprimir recibo e recibo para troca</span><span class="pdv-kbd">Ctrl+1 e Ctrl+2</span></div>
+  <div class="pdv-atalho"><span>Voltar ou fechar o que está aberto</span><span class="pdv-kbd">Esc</span></div>
 </div>
 
 <!-- MODAL: confirmação / aviso -->
@@ -1260,6 +1660,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // PDV (Configuracoes > Configuracoes do PDV). Numero e regra que decidem
+    // bloqueio nunca nascem literais dentro de um `if`.
+    pdvSituacaoVenda: 'entregue',
+    pdvVendedorObrigatorio: false,
+    pdvClienteObrigatorio: false,
+    pdvBloqueiaSemEstoque: true,
+    pdvBloqueiaAlterarPreco: false,
+    pdvDescontoMaximoPct: 10,
+    pdvAgrupaIguais: true,
+    pdvAbreComUltimoFechamento: false,
+    pdvFechamentoCego: true,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1435,6 +1846,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // avancar o funil nao pede senha e alterar a situacao a mao pede.
     { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvSangria',           nome:'Lançar sangria de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'pdvFechaComDiferenca', nome:'Fechar o caixa do PDV com diferença',            onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvDescontoAcima',     nome:'Liberar desconto acima do máximo no PDV',        onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -1653,7 +2068,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Logística', 'Devolução'];
+  let path = ['Vendas', 'PDV'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1789,221 +2204,101 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
-  // ===== DADOS (mock) =====
-  // DEVOLUCAO E DOCUMENTO PROPRIO, nao situacao do pedido (decisao de 02/out, ja
-  // gravada em Pedidos de Venda). Ela APONTA para o pedido, e o pedido mantem a
-  // situacao dele: faturamento, comissao e baixa fisica continuam tendo
-  // acontecido, e sobrescrever isso apagaria a venda que houve.
+  // ===== PDV =====
+  // Venda de balcao. Nasceu em 09/out/2026, com os prints do Olist como
+  // referencia de fluxo e tres decisoes do usuario:
   //
-  // `origem` nasce aqui mesmo sem o Help Desk existir, por decisao registrada no
-  // roadmap: a devolucao vai ter duas portas (pedido e chamado) e isso e barato
-  // agora e caro depois. UMA devolucao, duas portas — nunca duas telas.
-  const SIT_DEV = [
-    { id: 'aberta',     rotulo: nome('devolucao.situacao.aberta'),     fase: 'aberta' },
-    { id: 'andamento',  rotulo: nome('devolucao.situacao.andamento'),  fase: 'andamento' },
-    { id: 'finalizada', rotulo: nome('devolucao.situacao.finalizada'), fase: 'finalizada' },
-    { id: 'cancelada',  rotulo: nome('devolucao.situacao.cancelada'),  fase: 'cancelada' }
-  ];
+  //   1. A venda finalizada vira PEDIDO DE VENDA, ja na situacao do parametro
+  //      `pdvSituacaoVenda` (padrao: entregue). Nao existe "venda de balcao"
+  //      como entidade a parte: Metas e Performance leem os pedidos faturados,
+  //      e uma segunda lista obrigaria as duas a aprender a somar duas fontes.
+  //   2. O TURNO de caixa e de uma loja, escolhida na abertura. Produto pertence
+  //      a uma loja so, entao o turno so enxerga os produtos da loja dele.
+  //   3. O ciclo inteiro entra de uma vez: abrir, vender, receber em varias
+  //      formas, sangria, reforco e fechamento com conferencia.
+  //
+  // "Caixa" aqui e o TURNO do operador (gaveta, troco, abertura e fechamento).
+  // O Caixa de Financas e o extrato das contas. O dinheiro do PDV entra na
+  // conta financeira "Caixa" (GAVETA), e sangria e reforco sao TRANSFERENCIA
+  // entre contas: o dinheiro muda de lugar, nao some.
+  //
+  // Quem decide para onde vai o que foi recebido e a FORMA DE RECEBIMENTO
+  // (Configuracoes > Formas de recebimento): destino `conta` entra na hora,
+  // destino `titulo` vira conta a receber com parcelas, e a taxa da forma diz
+  // quanto fica pelo caminho. Titulo precisa de devedor: venda a prazo exige
+  // cliente identificado.
+  //
+  // O fechamento e CEGO por padrao (`pdvFechamentoCego`): quem conta nao ve o
+  // valor esperado. E a mesma regra da conferencia de entrada e de saida.
+  //
+  // Fica de fora de proposito (dito ao usuario): salvar para depois, faturar
+  // pre-venda, vale-presente, lista de precos, item nao cadastrado, compartilhar
+  // por e-mail ou WhatsApp e NFC-e.
 
-  // Como o dinheiro volta. Vale-troca existe na lista e fica RESERVADO: o
-  // submodulo de Vales-troca ainda nao existe, e oferecer uma forma que nao
-  // gera documento nenhum seria prometer um credito que ninguem consegue usar.
+  // ---------- ESPELHOS (no Lovable viram join; a suite compara cada um) ----------
+  // Pedido de Venda: lojas, depositos e catalogo com saldo por deposito.
+  const LOJAS = [{ id: 1, nome: 'Desk Shope' }, { id: 2, nome: 'Desk Brands' }, { id: 3, nome: 'Desk Tech' }];
+  const DEPOSITOS = [{ id: 1, nome: 'Geral' }, { id: 2, nome: 'Galpão Centro' }, { id: 3, nome: 'Loja Física Aldeota' }, { id: 4, nome: 'Bancada Desk Tech' }];
+  const DEPOSITO_PADRAO_DA_LOJA = { 1: 1, 2: 3, 3: 4 };
+  const UNIDADES_FRACIONAVEIS = ['M', 'M2', 'M3', 'CM', 'KG', 'G', 'TON', 'L', 'ML'];
+  const CATALOGO = [
+    { sku: 'FON-BT-200',  gtin: '7891000100011', nome: 'Fone de Ouvido Bluetooth X200', loja: 1, un: 'UN', preco: 249.90,  saldo: { 1: 34, 2: 12, 3: 0, 4: 0 } },
+    { sku: 'CAR-33W-01',  gtin: '7891000100028', nome: 'Carregador Turbo 33W',          loja: 1, un: 'UN', preco: 97.55,   saldo: { 1: 80, 2: 20, 3: 6, 4: 0 } },
+    { sku: 'MES-140-CZ',  gtin: '7891000100035', nome: 'Mesa de escritório 1,40m',      loja: 1, un: 'UN', preco: 1420.00, saldo: { 1: 9,  2: 14, 3: 2, 4: 0 } },
+    { sku: 'CAD-EXE-PT',  gtin: '7891000100042', nome: 'Cadeira giratória executiva',   loja: 1, un: 'UN', preco: 495.00,  saldo: { 1: 25, 2: 30, 3: 4, 4: 0 } },
+    { sku: 'CAM-BSC-PT',  gtin: '7891000200018', nome: 'Camiseta básica algodão',       loja: 2, un: 'UN', preco: 79.90,   saldo: { 1: 0,  2: 40, 3: 120, 4: 0 } },
+    { sku: 'BER-JEA-42',  gtin: '7891000200025', nome: 'Bermuda jeans 42',              loja: 2, un: 'UN', preco: 139.90,  saldo: { 1: 0,  2: 18, 3: 46, 4: 0 } },
+    { sku: 'NTB-PRO-14',  gtin: '7891000300015', nome: 'Notebook Desk Pro 14',          loja: 3, un: 'UN', preco: 5890.00, saldo: { 1: 0, 2: 3,  3: 0, 4: 5 } },
+    { sku: 'TEC-MEC-006', gtin: '7891000300022', nome: 'Teclado Mecânico Compacto',     loja: 3, un: 'UN', preco: 231.10,  saldo: { 1: 0,  2: 0,  3: 0, 4: 28 } },
+    { sku: 'CAB-HDM-009', gtin: '7891000300039', nome: 'Cabo HDMI 2.1 2m',              loja: 3, un: 'UN', preco: 9.50,    saldo: { 1: 0,  2: 0,  3: 0, 4: 140 } },
+    { sku: 'KIT-MAN-01',  gtin: '7891000300046', nome: 'Kit Manutenção Desk Tech',      loja: 3, un: 'UN', preco: 289.90,  saldo: { 1: 0,  2: 0,  3: 0, 4: 11 } }
+  ];
+  // Metas: os vendedores. `lojaId:null` e o vendedor sem loja, que vende em qualquer uma.
+  const VENDEDORES = [
+    { id: 1, nome: 'Marina Costa',                lojaId: 1,    ativo: true },
+    { id: 5, nome: 'Rafael Tenório',              lojaId: 2,    ativo: true },
+    { id: 6, nome: 'Bianca Furtado',              lojaId: 1,    ativo: true },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', lojaId: null, ativo: true },
+    { id: 3, nome: 'Rafael Andrade',              lojaId: 3,    ativo: false }
+  ];
+  // Cadastros > Clientes. `limite` e `usado` sao o lado financeiro do cliente
+  // (limite de credito e o que ja o consome), que no Lovable vem de contas a receber.
+  const CLIENTES = [
+    { id: 1, nome: 'Marina Duarte',                  documento: '123.456.789-00',     telefone: '(99) 98234-5501', limite: 2000.00,  usado: 350.00 },
+    { id: 2, nome: 'Rafael Nogueira',                documento: '234.567.890-11',     telefone: '(99) 98234-5502', limite: 1500.00,  usado: 1480.00 },
+    { id: 3, nome: 'Distribuidora Nordeste Ltda',    documento: '41.223.556/0001-09', telefone: '(99) 3524-1180',  limite: 25000.00, usado: 7130.50 },
+    { id: 4, nome: 'Juliana Prado',                  documento: '345.678.901-22',     telefone: '(99) 98234-5504', limite: 0,        usado: 0 },
+    { id: 5, nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', telefone: '(99) 3524-7788',  limite: 40000.00, usado: 12000.00 },
+    { id: 6, nome: 'Pedro Henrique Alves',           documento: '456.789.012-33',     telefone: '(99) 98234-5506', limite: 1000.00,  usado: 0 }
+  ];
+  // Configuracoes > Formas de recebimento: as formas do sistema, com a regra de cada uma.
   const FORMAS = [
-    { id: 'sem',         rotulo: 'Sem pagamento',  nota: 'não gera crédito ao cliente' },
-    { id: 'dinheiro',    rotulo: 'Dinheiro',       nota: 'lança a saída no Caixa' },
-    { id: 'valetroca',   rotulo: 'Vale-troca',     nota: 'gera um código para nova compra', reservado: true },
-    { id: 'contaspagar', rotulo: 'Contas a pagar', nota: 'gera a conta com o valor devolvido' }
+    { chave: 'dinheiro',      nome: 'Dinheiro',          uso: 'ambos',   destino: 'conta',  contaId: 1,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
+    { chave: 'pix',           nome: 'Pix',               uso: 'ambos',   destino: 'conta',  contaId: 2,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
+    { chave: 'debito',        nome: 'Cartão de débito',  uso: 'ambos',   destino: 'titulo', contaId: 3,    tarifacao: 'seguinte',  taxaPct: 1.39, taxaFixa: 0,    validaLimite: false, ativo: true },
+    { chave: 'credito',       nome: 'Cartão de crédito', uso: 'receber', destino: 'titulo', contaId: 3,    tarifacao: 'pagamento', taxaPct: 3.49, taxaFixa: 0,    validaLimite: true,  ativo: true },
+    { chave: 'boleto',        nome: 'Boleto',            uso: 'ambos',   destino: 'titulo', contaId: 2,    tarifacao: 'pagamento', taxaPct: 0,    taxaFixa: 2.90, validaLimite: true,  ativo: true },
+    { chave: 'crediario',     nome: 'Crediário',         uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: true,  ativo: true },
+    { chave: 'cheque',        nome: 'Cheque',            uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
+    { chave: 'deposito',      nome: 'Depósito',          uso: 'receber', destino: 'titulo', contaId: 2,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
+    { chave: 'valetroca',     nome: 'Vale-troca',        uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: false },
+    { chave: 'transferencia', nome: 'Transferência',     uso: 'pagar',   destino: null,     contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true }
   ];
-
-  // Estado do item que volta. O motivo SUGERE, quem recebe a caixa CONFIRMA —
-  // por isso o estado mora no item, nao na devolucao inteira: uma caixa de tres
-  // itens com um amassado nao cabe num estado so.
-  // O rotulo vem do dicionario; o destino e consequencia do codigo e fica aqui.
-  const ESTADOS_ITEM = {
-    revendavel: { rotulo: nome('devolucao.estado.revendavel'), destino: 'segue a regra de entrada' },
-    avaria:     { rotulo: nome('devolucao.estado.avaria'),     destino: 'Avaria, bloqueado' },
-    nenhum:     { rotulo: nome('devolucao.estado.nenhum'),     destino: 'nada entra no saldo' }
-  };
-
-  // Copia do cadastro de Configuracoes > Motivos de Devolucao. No Lovable isto vira
-  // a FK; aqui e o mesmo mock, com os mesmos ids.
-  const MOTIVOS = {
-    1: { nome: 'Produto com defeito de fábrica', grupo: 'nossa',      destino: 'avaria',     exigeObs: false },
-    2: { nome: 'Produto enviado errado',         grupo: 'nossa',      destino: 'revendavel', exigeObs: false },
-    3: { nome: 'Avaria no transporte',           grupo: 'transporte', destino: 'avaria',     exigeObs: true },
-    4: { nome: 'Extravio na entrega',            grupo: 'transporte', destino: 'nenhum',     exigeObs: true },
-    5: { nome: 'Arrependimento em até 7 dias',   grupo: 'cliente',    destino: 'revendavel', exigeObs: false },
-    6: { nome: 'Cliente comprou o item errado',  grupo: 'cliente',    destino: 'revendavel', exigeObs: false },
-    7: { nome: 'Recusa no ato da entrega',       grupo: 'cliente',    destino: 'revendavel', exigeObs: true },
-    8: { nome: 'Erro de emissão da nota',        grupo: 'fiscal',     destino: 'revendavel', exigeObs: true },
-    9: { nome: 'Outro',                          grupo: 'nossa',      destino: 'revendavel', exigeObs: true }
-  };
-  const GRUPOS = {
-    nossa:      nome('devolucao.grupo.nossa'),
-    transporte: nome('devolucao.grupo.transporte'),
-    cliente:    nome('devolucao.grupo.cliente'),
-    fiscal:     nome('devolucao.grupo.fiscal')
-  };
-
-  const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech', 4: 'Desk Flash' };
-  const DEPOSITOS = { 1: 'Galpão Centro', 2: 'Bancada Desk Tech', 3: 'Geral' };
-  const OPERADORES = { 1: 'Camila Nogueira', 2: 'Marcos Vinícius', 3: 'Elaine Castro', 4: 'Jonas Ribeiro' };
-  const EU = 2;
-  const HOJE = '2026-10-07';
-
-  // As vendas que ainda podem virar devolucao. No Lovable sai de `orders`; aqui e
-  // o mesmo conjunto que o Rastreamento usa, para as duas telas contarem a mesma
-  // historia quando alguem navegar de uma para a outra.
-  const VENDAS = [
-    { id: 1, numero: 'PV-4821', cliente: 'Mariana Rocha',          doc: '328.114.907-55', loja: 3, canal: 'Vitrine Desk Tech',
-      contato: '(11) 98844-2210', endereco: 'Rua das Acácias, 120 · Vila Mariana · São Paulo/SP · 04117-000',
-      dataVenda: '2026-09-25', entregaEm: '2026-09-30', vendedor: null, dep: 2, total: 1480.00,
-      itens: [ { sku: 'TEC-0912', nome: 'Headset gamer Desk Pro', qtd: 1, unit: 1480.00 } ] },
-    { id: 2, numero: 'PV-4862', cliente: 'Construtora Veredas Ltda', doc: '12.884.330/0001-47', loja: 2, canal: 'Venda interna · telefone',
-      contato: '(16) 3620-7788', endereco: 'Av. Independência, 2.870 · Alto da Boa Vista · Ribeirão Preto/SP · 14025-390',
-      dataVenda: '2026-09-29', entregaEm: null, vendedor: 'Rafael Tenório', dep: 1, total: 7830.00,
-      itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtd: 6, unit: 540.00 },
-               { sku: 'FER-3310', nome: 'Jogo de brocas aço rápido 19 peças', qtd: 10, unit: 189.00 },
-               { sku: 'EPI-0044', nome: 'Capacete de segurança classe B', qtd: 24, unit: 112.50 } ] },
-    { id: 3, numero: 'PV-4790', cliente: 'Ateliê Boa Forma ME',     doc: '09.221.455/0001-02', loja: 2, canal: 'Vitrine Desk Brands',
-      contato: '(81) 99912-4410', endereco: 'Rua do Sol, 88 · Boa Viagem · Recife/PE · 51020-100',
-      dataVenda: '2026-09-20', entregaEm: '2026-09-28', vendedor: 'Bianca Duarte', dep: 1, total: 2240.00,
-      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtd: 2, unit: 1120.00 } ] },
-    { id: 4, numero: 'PV-4903', cliente: 'Pedro Antunes',           doc: '771.209.338-10', loja: 1, canal: 'Vitrine Desk Shope',
-      contato: '(21) 98110-7755', endereco: 'Rua Haddock Lobo, 45 · Tijuca · Rio de Janeiro/RJ · 20260-140',
-      dataVenda: '2026-10-02', entregaEm: '2026-10-05', vendedor: null, dep: 3, total: 389.90,
-      itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtd: 1, unit: 389.90 } ] },
-    { id: 5, numero: 'PV-4845', cliente: 'Supermercados Lemos S/A', doc: '44.102.771/0001-88', loja: 4, canal: 'Venda interna · representante',
-      contato: '(62) 3255-9001', endereco: 'BR-153, km 12 · Distrito Industrial · Goiânia/GO · 74775-000',
-      dataVenda: '2026-09-27', entregaEm: '2026-10-01', vendedor: 'Camila Nogueira', dep: 1, total: 15600.00,
-      itens: [ { sku: 'FLA-0301', nome: 'Carrinho plataforma 300kg', qtd: 12, unit: 1300.00 } ] }
+  // Configuracoes > Contas financeiras (as ativas) e Categorias financeiras: as de receita de vendas,
+  // ativas, fora as de deducao ("Descontos concedidos" nao e categoria de uma venda).
+  const CONTAS_FINANCEIRAS = [
+    { id: 1, nome: 'Caixa' }, { id: 2, nome: 'Banco Inter — conta corrente' }, { id: 3, nome: 'Mercado Pago' },
+    { id: 4, nome: 'Cofre da loja' }, { id: 6, nome: 'Conta teste' }
   ];
-
-  const DEVOLUCOES = [
-    { id: 1, numero: 'DV-0012', origem: 'pedido', chamadoId: null, vendaId: 2,
-      abertaEm: '2026-10-06', situacao: 'aberta', motivoId: 3,
-      descricao: 'Duas caixas chegaram com a lateral amassada; o cliente mandou foto no mesmo dia.',
-      itens: [ { sku: 'FER-2201', nome: 'Furadeira de impacto 850W', qtdVendida: 6, qtd: 2, unit: 540.00, estado: 'avaria' } ],
-      frete: 0, desconto: 0, forma: 'contaspagar',
-      reversa: null, estoque: null,
-      eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4862.' } ] },
-
-    { id: 2, numero: 'DV-0011', origem: 'pedido', chamadoId: null, vendaId: 1,
-      abertaEm: '2026-10-03', situacao: 'andamento', motivoId: 5,
-      descricao: '',
-      itens: [ { sku: 'TEC-0912', nome: 'Headset gamer Desk Pro', qtdVendida: 1, qtd: 1, unit: 1480.00, estado: 'revendavel' } ],
-      frete: 0, desconto: 0, forma: 'dinheiro',
-      reversa: { transp: 'Correios · PAC', codigo: 'LR884471029BR', solicitadaEm: '2026-10-04' },
-      estoque: null,
-      eventos: [ { data: '2026-10-03', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4821.' },
-                 { data: '2026-10-04', tipo: 'reversa', nota: 'Logística reversa solicitada: Correios · PAC, código LR884471029BR.' } ] },
-
-    { id: 3, numero: 'DV-0010', origem: 'pedido', chamadoId: null, vendaId: 3,
-      abertaEm: '2026-09-29', situacao: 'finalizada', motivoId: 2,
-      descricao: 'Saiu o expositor de 1,20m no lugar do de 1,80m.',
-      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtdVendida: 2, qtd: 1, unit: 1120.00, estado: 'revendavel' } ],
-      frete: 0, desconto: 0, forma: 'sem',
-      reversa: { transp: 'RotaSul Transportes', codigo: 'RS2026092811', solicitadaEm: '2026-09-29' },
-      estoque: { em: '2026-10-02', por: 3, dep: 1 },
-      eventos: [ { data: '2026-09-29', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
-                 { data: '2026-09-29', tipo: 'reversa', nota: 'Logística reversa solicitada: RotaSul Transportes.' },
-                 { data: '2026-10-02', tipo: 'estoque', nota: '1 peça devolvida ao Galpão Centro, revendável.' },
-                 { data: '2026-10-02', tipo: 'finalizou', nota: 'Devolução finalizada sem crédito: o cliente ficou com o item certo.' } ] },
-
-    { id: 4, numero: 'DV-0009', origem: 'pedido', chamadoId: null, vendaId: 4,
-      abertaEm: '2026-10-06', situacao: 'aberta', motivoId: 4,
-      descricao: 'Transportadora confirmou o extravio por escrito.',
-      itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtdVendida: 1, qtd: 1, unit: 389.90, estado: 'nenhum' } ],
-      frete: 24.90, desconto: 0, forma: 'dinheiro',
-      reversa: null, estoque: null,
-      eventos: [ { data: '2026-10-06', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4903.' } ] },
-
-    { id: 5, numero: 'DV-0008', origem: 'pedido', chamadoId: null, vendaId: 5,
-      abertaEm: '2026-08-12', situacao: 'finalizada', motivoId: 6,
-      descricao: 'Pediram a plataforma de 300kg e precisavam da de 500kg.',
-      itens: [ { sku: 'FLA-0301', nome: 'Carrinho plataforma 300kg', qtdVendida: 12, qtd: 4, unit: 1300.00, estado: 'revendavel' } ],
-      frete: 0, desconto: 0, forma: 'contaspagar',
-      reversa: { transp: 'Frota Desk', codigo: '', solicitadaEm: '2026-08-13' },
-      estoque: { em: '2026-08-20', por: 4, dep: 1 },
-      eventos: [ { data: '2026-08-12', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4845.' },
-                 { data: '2026-08-20', tipo: 'estoque', nota: '4 peças devolvidas ao Galpão Centro, revendáveis.' },
-                 { data: '2026-08-21', tipo: 'finalizou', nota: 'Conta a pagar gerada em Finanças.' } ] },
-
-    { id: 6, numero: 'DV-0007', origem: 'pedido', chamadoId: null, vendaId: 3,
-      abertaEm: '2026-09-22', situacao: 'cancelada', motivoId: 9,
-      descricao: 'Aberta por engano no pedido errado.',
-      itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtdVendida: 2, qtd: 1, unit: 1120.00, estado: 'revendavel' } ],
-      frete: 0, desconto: 0, forma: 'sem',
-      reversa: null, estoque: null,
-      eventos: [ { data: '2026-09-22', tipo: 'abriu', nota: 'Aberta a partir do pedido PV-4790.' },
-                 { data: '2026-09-22', tipo: 'cancelou', nota: 'Cancelada: aberta no pedido errado.' } ] }
+  const CATEGORIAS = [
+    { id: 1, nome: 'Venda de mercadorias', padraoVenda: true },
+    { id: 2, nome: 'Venda em marketplace', padraoVenda: false },
+    { id: 3, nome: 'Frete cobrado do cliente', padraoVenda: false }
   ];
-
-  // ===== REGRAS DE DOMINIO =====
-  function fmtData(s) {
-    if (!s) return '—';
-    const p = String(s).split('-');
-    return p[2] + '/' + p[1] + '/' + p[0];
-  }
-  function deYmd(s) { const p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
-  function diasEntre(a, b) { return Math.round((deYmd(b) - deYmd(a)) / 86400000); }
-  function moeda(v) {
-    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  }
-
-  // Nome de classe COMPLETO num mapa, nunca 'dev-' + fase: a concatenacao deixa o
-  // literal no HTML, a auditoria reprova, e valor inesperado viraria classe morta
-  // calada em vez de aparecer.
-  const CLS_PONTO = { aberta:'dev-aberta', andamento:'dev-andamento', finalizada:'dev-finalizada', cancelada:'dev-cancelada' };
-  const CLS_BADGE = { aberta:'bd-aberta', andamento:'bd-andamento', finalizada:'bd-finalizada', cancelada:'bd-cancelada' };
-
-  function situacaoDe(id) { return SIT_DEV.filter(s => s.id === id)[0] || SIT_DEV[0]; }
-  function formaDe(id) { return FORMAS.filter(f => f.id === id)[0] || FORMAS[0]; }
-  function motivoDe(id) { return MOTIVOS[id] || { nome: '—', grupo: 'nossa', destino: 'revendavel', exigeObs: false }; }
-  function vendaDe(id) { return VENDAS.filter(v => v.id === id)[0] || null; }
-
-  function totalItens(d) { return d.itens.reduce((s, i) => s + i.qtd * i.unit, 0); }
-  function totalDevolver(d) { return totalItens(d) + (d.frete || 0) - (d.desconto || 0); }
-  function pecasDe(d) { return d.itens.reduce((s, i) => s + i.qtd, 0); }
-
-  // Devolucao PARCIAL e o caso normal, nao a excecao: quem devolve 2 de 6 caixas
-  // nao esta devolvendo o pedido. A tela precisa dizer isso em palavras, senao o
-  // valor da devolucao parece erro de conta diante do valor da venda.
-  function ehParcial(d) {
-    return d.itens.some(i => i.qtd < i.qtdVendida) ||
-           d.itens.length < ((vendaDe(d.vendaId) || { itens: [] }).itens.length);
-  }
-
-  // O prazo vem de Configuracoes > Parametros de estoque. Ele NAO trava nada: a
-  // devolucao fora do prazo continua possivel e so aparece marcada. Trava sem
-  // decisao humana atras seria o atendimento ligando para o TI em vez do cliente.
-  const PRAZO_DEV = Number(PARAM.devolucaoPrazoDias || 7);
-  function diasDesdeEntrega(d) {
-    const v = vendaDe(d.vendaId);
-    if (!v || !v.entregaEm) return null;
-    return diasEntre(v.entregaEm, d.abertaEm);
-  }
-  function foraDoPrazo(d) {
-    const dias = diasDesdeEntrega(d);
-    return dias !== null && dias > PRAZO_DEV;
-  }
-
-  // Onde o item revendavel entra. O deposito vem do parametro; o ENDERECO dentro
-  // dele continua sendo a regra de entrada que ja vale em cinco telas, e item
-  // avariado ignora as duas e cai em Avaria, bloqueado.
-  function depositoDestino(d) {
-    const regra = PARAM.devolucaoDeposito || 'vendaMesmo';
-    const v = vendaDe(d.vendaId);
-    if (regra === 'geral') return 3;
-    if (regra === 'padrao') return 1;
-    return v ? v.dep : 3;
-  }
-
-  function podeLancarEstoque(d) {
-    if (d.situacao === 'cancelada') return false;
-    if (d.estoque) return false;
-    return d.itens.some(i => i.estado !== 'nenhum');
-  }
+  const GAVETA = 1;          // conta financeira em que o dinheiro do PDV entra
+  const COFRE = 4;           // destino sugerido da sangria
+  const SIT_VENDA = { faturado: 'Faturado', prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue' };
+  const TARIFACOES = { seguinte: 'no dia seguinte', pagamento: 'no dia do pagamento', transacao: 'no dia da transação' };
 
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
@@ -2050,7 +2345,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.remove('open');
   });
 
   // ===== MODAL =====
@@ -2095,452 +2389,1062 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
   confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      // Nesta tela o painel fecha por `fecharPainel`. O nome herdado do
-      // Rastreamento (`fecharDrawer`) nao existe aqui: Esc com o painel aberto
-      // dava ReferenceError e o painel ficava na tela.
-      else if (eventDrawer.classList.contains('open')) fecharPainel();
-      else document.getElementById('periodoMenu').classList.remove('open');
-    }
+    if (e.key === 'Escape' && confirmModal.classList.contains('open')) fecharModalConfirmacao();
   });
 
-
-  // ===== FILTROS, ORDEM E PAGINACAO =====
-  let busca = '', abaSit = 'todas', fResp = 'todos', fMotivo = 'todos', fForma = 'todos';
-  let periodo = 'todos';
-  let ordem = 'numero', asc = false;
-  let pagina = 1, porPagina = PARAM.registrosPorPagina;
-  let selecionada = null;
-
-  function passaPeriodo(d) {
-    if (periodo === 'todos') return true;
-    return diasEntre(d.abertaEm, HOJE) <= Number(periodo);
+  // ---------- utilitarios ----------
+  function moeda(v) {
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
-
-  // Os contadores das abas contam COM os outros filtros aplicados, nunca o total
-  // bruto: aba que diz 12 e lista que mostra 3 e a aba mentindo sobre o filtro.
-  function semAba() {
-    return DEVOLUCOES.filter(d => {
-      const m = motivoDe(d.motivoId);
-      if (fResp !== 'todos' && m.grupo !== fResp) return false;
-      if (fMotivo !== 'todos' && String(d.motivoId) !== fMotivo) return false;
-      if (fForma !== 'todos' && d.forma !== fForma) return false;
-      if (!passaPeriodo(d)) return false;
-      const termo = busca.trim().toLowerCase();
-      if (!termo) return true;
-      const v = vendaDe(d.vendaId) || { numero: '', cliente: '' };
-      return (d.numero + ' ' + v.numero + ' ' + v.cliente + ' ' + m.nome + ' ' +
-              (d.descricao || '')).toLowerCase().indexOf(termo) >= 0;
-    });
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+  function mostrar(id, sim) { const el = document.getElementById(id); if (el) el.style.display = sim ? '' : 'none'; }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-
-  function filtradas() {
-    const base = semAba().filter(d => abaSit === 'todas' || d.situacao === abaSit);
-    const dir = asc ? 1 : -1;
-    return base.slice().sort((x, y) => {
-      if (ordem === 'valor') return (totalDevolver(x) - totalDevolver(y)) * dir;
-      if (ordem === 'cliente') {
-        const cx = (vendaDe(x.vendaId) || { cliente: '' }).cliente;
-        const cy = (vendaDe(y.vendaId) || { cliente: '' }).cliente;
-        return cx.localeCompare(cy) * dir;
-      }
-      if (ordem === 'pedido') {
-        const px = (vendaDe(x.vendaId) || { numero: '' }).numero;
-        const py = (vendaDe(y.vendaId) || { numero: '' }).numero;
-        return px.localeCompare(py) * dir;
-      }
-      return x.numero.localeCompare(y.numero) * dir;
-    });
+  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const arred = (n) => Math.round(Number(n) * 100) / 100;
+  // "3,49" e "3.49" valem. Vazio e texto que nao e numero devolvem null: quem
+  // chama decide se vazio e zero ou erro, em vez de gravar zero calado.
+  function numero(txt) {
+    let t = String(txt == null ? '' : txt).trim();
+    if (t === '') return null;
+    if (t.indexOf(',') !== -1) t = t.replace(/\./g, '').replace(',', '.');
+    const n = Number(t);
+    return isFinite(n) ? n : null;
   }
-
-  // ===== DESENHO DA LISTA =====
-  function render() {
-    const lista = filtradas();
-    const corpo = document.getElementById('corpoTabela');
-    const vazio = document.getElementById('emptyState');
-    const totalPaginas = Math.max(1, Math.ceil(lista.length / porPagina));
-    if (pagina > totalPaginas) pagina = totalPaginas;
-    const ini = (pagina - 1) * porPagina;
-    const pag = lista.slice(ini, ini + porPagina);
-
-    corpo.innerHTML = pag.map(d => {
-      const v = vendaDe(d.vendaId) || { numero: '—', cliente: '—', loja: 1, canal: '—' };
-      const s = situacaoDe(d.situacao);
-      const m = motivoDe(d.motivoId);
-      const f = formaDe(d.forma);
-      return '<tr data-id="' + d.id + '">' +
-        '<td class="col-texto"><span class="vol-nome">' + d.numero + '</span>' +
-          '<span class="vol-sub">aberta em ' + fmtData(d.abertaEm) +
-          (foraDoPrazo(d) ? ' · <span class="fora-prazo">fora do prazo</span>' : '') + '</span></td>' +
-        '<td class="col-texto"><span class="vol-nome">' + v.numero + '</span>' +
-          '<span class="vol-sub">' + LOJAS[v.loja] + ' · ' + v.canal + '</span></td>' +
-        '<td class="col-texto">' + v.cliente + '</td>' +
-        '<td class="col-texto"><span class="vol-nome">' + m.nome + '</span>' +
-          '<span class="vol-sub">' + GRUPOS[m.grupo] + '</span></td>' +
-        '<td class="col-texto"><span class="badge-situacao ' + CLS_BADGE[s.fase] + '">' +
-          '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' + s.rotulo + '</span>' +
-          (d.estoque ? '<span class="vol-sub">estoque lançado</span>'
-                     : (podeLancarEstoque(d) ? '<span class="vol-sub">estoque a lançar</span>' : '')) + '</td>' +
-        '<td><b>' + moeda(totalDevolver(d)) + '</b>' +
-          '<span class="vol-sub">' + f.rotulo +
-          (ehParcial(d) ? ' · parcial' : '') + '</span></td>' +
-      '</tr>';
-    }).join('');
-
-    corpo.querySelectorAll('tr').forEach(tr => {
-      tr.addEventListener('click', () => abrirPainel(Number(tr.getAttribute('data-id'))));
-    });
-
-    vazio.style.display = lista.length ? 'none' : 'flex';
-    document.getElementById('contagemPedidos').textContent =
-      lista.length + (lista.length === 1 ? ' devolução' : ' devoluções');
-    document.getElementById('somaFiltro').textContent =
-      moeda(lista.reduce((s, d) => s + totalDevolver(d), 0));
-    document.getElementById('paginacaoResumo').textContent = lista.length
-      ? 'Mostrando ' + (ini + 1) + '–' + Math.min(ini + porPagina, lista.length) + ' de ' + lista.length
-      : 'Mostrando 0 de 0';
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + pagina + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = pagina <= 1;
-    document.getElementById('btnPaginaProxima').disabled = pagina >= totalPaginas;
-
-    const semA = semAba();
-    document.querySelectorAll('[data-cont]').forEach(el => {
-      const k = el.getAttribute('data-cont');
-      el.textContent = k === 'todas' ? semA.length : semA.filter(d => d.situacao === k).length;
-    });
-
-    const aguardando = semA.filter(d => d.situacao !== 'cancelada' && d.situacao !== 'finalizada' && !d.reversa).length;
-    const aLancar = semA.filter(d => podeLancarEstoque(d)).length;
-    const partes = [];
-    if (aguardando) partes.push('<b>' + aguardando + '</b> sem logística reversa pedida');
-    if (aLancar) partes.push('<b>' + aLancar + '</b> com estoque a lançar');
-    document.getElementById('avisoCodigosTexto').innerHTML = partes.length
-      ? partes.join(' · ') + '. Enquanto o estoque não entra, o saldo conta uma mercadoria que já voltou.'
-      : 'Nenhuma devolução esperando mercadoria ou lançamento de estoque.';
-
-    pintarKpis();
-    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
+  function fracionavel(un) { return UNIDADES_FRACIONAVEIS.indexOf(un) !== -1; }
+  // Quantidade segue a unidade: contavel sai redonda, fracionavel com 2 casas.
+  function fmtQtd(q, un) {
+    return fracionavel(un) ? Number(q).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(Math.round(q));
   }
-
-  // Os KPIs leem a MESMA lista filtrada dos contadores: numero de topo que ignora
-  // o filtro e numero que contradiz a tela embaixo dele.
-  function pintarKpis() {
-    const base = semAba();
-    const abertas = base.filter(d => d.situacao === 'aberta');
-    const andamento = base.filter(d => d.situacao === 'andamento');
-    const vivas = base.filter(d => d.situacao !== 'cancelada' && d.situacao !== 'finalizada');
-    const aLancar = base.filter(d => podeLancarEstoque(d));
-    const lancadas = base.filter(d => d.estoque);
-
-    document.getElementById('kpiAberto').textContent = abertas.length;
-    document.getElementById('kpiAbertoSub').textContent = abertas.length
-      ? abertas.filter(d => foraDoPrazo(d)).length + ' fora do prazo de ' + PRAZO_DEV + ' dias'
-      : 'nada esperando decisão';
-
-    document.getElementById('kpiAndamento').textContent = andamento.length;
-    document.getElementById('kpiAndamentoSub').textContent = andamento.length
-      ? andamento.filter(d => d.reversa).length + ' com logística reversa pedida'
-      : 'nenhuma a caminho';
-
-    document.getElementById('kpiValor').textContent = moeda(vivas.reduce((s, d) => s + totalDevolver(d), 0));
-    document.getElementById('kpiValorSub').textContent = vivas.length
-      ? 'em ' + vivas.length + (vivas.length === 1 ? ' devolução ainda aberta' : ' devoluções ainda abertas')
-      : 'nada a devolver';
-
-    document.getElementById('kpiEstoque').textContent = lancadas.length;
-    document.getElementById('kpiEstoqueSub').textContent = aLancar.length
-      ? aLancar.length + (aLancar.length === 1 ? ' ainda esperando lançamento' : ' ainda esperando lançamento')
-      : 'nada pendente de lançamento';
-  }
-
-  // ===== PAINEL: a devolucao por dentro, sem sair da lista =====
-  // Mesma regra do Rastreamento (07/out): A LISTAGEM LE, O DETALHE ESCREVE.
-  // Decidir o estado de um item ou lancar estoque sem ver o pedido inteiro e
-  // decidir no escuro o que vai sair do saldo.
-  function abrirPainel(id) {
-    const d = DEVOLUCOES.filter(x => x.id === id)[0];
-    if (!d) return;
-    selecionada = id;
-    const v = vendaDe(d.vendaId) || { numero: '—', cliente: '—', loja: 1, canal: '—', entregaEm: null };
-    const s = situacaoDe(d.situacao);
-    const m = motivoDe(d.motivoId);
-    const f = formaDe(d.forma);
-
-    document.getElementById('drawerTitulo').textContent = 'Devolução ' + d.numero;
-
-    let h = '';
-    h += '<div class="vol-linha"><div><span class="chave-rotulo">Situação</span>' +
-         '<span class="badge-situacao ' + CLS_BADGE[s.fase] + '">' +
-         '<span class="sit-dot ' + CLS_PONTO[s.fase] + '"></span>' + s.rotulo + '</span></div>' +
-         '<div class="dev-item-valor">' + moeda(totalDevolver(d)) + '</div></div>';
-
-    h += '<div class="rt-sub">De onde ela veio</div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Pedido</span><span class="chave-valor">' + v.numero + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Cliente</span><span class="chave-valor">' + v.cliente + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Onde comprou</span><span class="chave-valor">' +
-         LOJAS[v.loja] + ' · ' + v.canal + '</span></div>';
-    // "pedido" hoje, "chamado" quando o Help Desk existir. O campo ja nasce aqui.
-    h += '<div class="rt-linha"><span class="chave-rotulo">Como nasceu</span><span class="chave-valor">' +
-         (d.origem === 'chamado' ? 'De um chamado do cliente' : 'Do pedido de venda') + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Aberta em</span><span class="chave-valor">' + fmtData(d.abertaEm) +
-         (diasDesdeEntrega(d) !== null ? ' · ' + diasDesdeEntrega(d) + ' dias após a entrega' : '') + '</span></div>';
-    if (foraDoPrazo(d)) {
-      h += '<div class="nota-reservado" style="margin-top:10px;"><span>Aberta fora do prazo de ' +
-           PRAZO_DEV + ' dias que está em Configurações. Não impede nada — fica registrado.</span></div>';
-    }
-
-    h += '<div class="rt-sub">Por que voltou</div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Motivo</span><span class="chave-valor">' + m.nome + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">De quem é a conta</span><span class="chave-valor">' + GRUPOS[m.grupo] + '</span></div>';
-    if (d.descricao) {
-      h += '<div class="ev-interno-nota" style="margin-top:6px;">' + d.descricao + '</div>';
-    }
-
-    h += '<div class="rt-sub">O que volta</div>';
-    if (ehParcial(d)) {
-      h += '<div class="nota-reservado" style="margin-bottom:10px;"><span>Devolução parcial: nem tudo o que foi vendido está voltando.</span></div>';
-    }
-    d.itens.forEach(i => {
-      h += '<div class="vol-linha">' +
-             '<div><span class="vol-nome">' + i.nome + '</span>' +
-               '<span class="vol-sub">' + i.sku + ' · ' + i.qtd + ' de ' + i.qtdVendida +
-               ' · ' + ESTADOS_ITEM[i.estado].rotulo + '</span></div>' +
-             '<div class="dev-item-valor">' + moeda(i.qtd * i.unit) + '</div>' +
-           '</div>';
-    });
-
-    h += '<div class="rt-sub">Dinheiro e estoque</div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Forma de devolução</span><span class="chave-valor">' +
-         f.rotulo + ' · ' + f.nota + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Estoque</span><span class="chave-valor">' +
-         (d.estoque
-           ? 'lançado em ' + fmtData(d.estoque.em) + ' no ' + DEPOSITOS[d.estoque.dep] + ', por ' + OPERADORES[d.estoque.por]
-           : (podeLancarEstoque(d) ? 'ainda não lançado' : 'não há o que lançar')) + '</span></div>';
-    h += '<div class="rt-linha"><span class="chave-rotulo">Logística reversa</span><span class="chave-valor">' +
-         (d.reversa
-           ? d.reversa.transp + (d.reversa.codigo ? ' · ' + d.reversa.codigo : ' · sem código')
-           : 'não solicitada') + '</span></div>';
-
-    h += '<div class="rt-sub">Histórico</div>';
-    h += '<div class="ev-lista">';
-    d.eventos.slice().reverse().forEach(e => {
-      h += '<div class="ev-item">' +
-             '<div class="ev-linha"></div>' +
-             '<div class="ev-marco ' + CLS_PONTO[s.fase] + '"></div>' +
-             '<div><div class="ev-rotulo">' + ROTULO_EVENTO[e.tipo] + '</div>' +
-               '<div class="ev-quando">' + fmtData(e.data) + '</div>' +
-               (e.nota ? '<div class="ev-interno-nota">' + e.nota + '</div>' : '') +
-             '</div></div>';
-    });
-    h += '</div>';
-
-    h += '<div class="nota-reservado" style="margin-top:12px;"><span>Este painel é só consulta. ' +
-         'Para mexer no estoque, no motivo ou na forma de devolução, abra a devolução.</span></div>';
-    h += '<div class="drawer-footer" style="margin-top:14px;">' +
-         '<button class="btn-primary" data-abrir-detalhe="' + d.id + '">' +
-         'Abrir a devolução</button></div>';
-
-    document.getElementById('drawerCorpo').innerHTML = h;
-    document.querySelectorAll('[data-abrir-detalhe]').forEach(el => {
-      el.addEventListener('click', () => irParaDetalhe(el.getAttribute('data-abrir-detalhe')));
-    });
-    document.getElementById('drawerBackdrop').classList.add('open');
-    document.getElementById('eventDrawer').classList.add('open');
-    if (typeof aplicarTintaContraste === 'function') aplicarTintaContraste();
-  }
-
-  const ROTULO_EVENTO = {
-    abriu: 'Devolução aberta', reversa: 'Logística reversa solicitada',
-    estoque: 'Estoque lançado', finalizou: 'Devolução finalizada',
-    cancelou: 'Devolução cancelada', editou: 'Devolução alterada'
-  };
-
-  function fecharPainel() {
-    document.getElementById('drawerBackdrop').classList.remove('open');
-    document.getElementById('eventDrawer').classList.remove('open');
-  }
-  document.getElementById('drawerClose').addEventListener('click', fecharPainel);
-  document.getElementById('drawerBackdrop').addEventListener('click', fecharPainel);
-
-  // ===== A PORTA PARA O DETALHE =====
-  function irParaDetalhe(id) {
-    window.location.href = '../logistica/pagina-logistica-devolucao-detalhe.html?id=' + id;
-  }
-
-  // ===== O SELETOR DE VENDA =====
-  // A devolucao NASCE de uma venda. Sem esta porta alguem criaria devolucao solta
-  // e o estoque receberia mercadoria que nunca saiu.
-  let vendaEscolhida = null;
-  function abrirSeletor() {
-    vendaEscolhida = null;
-    document.getElementById('buscaVenda').value = '';
-    pintarVendas();
-    document.getElementById('vendaBackdrop').classList.add('open');
-    document.getElementById('vendaDrawer').classList.add('open');
-  }
-  function fecharSeletor() {
-    document.getElementById('vendaBackdrop').classList.remove('open');
-    document.getElementById('vendaDrawer').classList.remove('open');
-  }
-  function pintarVendas() {
-    const termo = document.getElementById('buscaVenda').value.trim().toLowerCase();
-    const lista = VENDAS.filter(v => !termo ||
-      (v.numero + ' ' + v.cliente + ' ' + v.doc).toLowerCase().indexOf(termo) >= 0);
-    document.getElementById('notaSeletor').textContent = lista.length
-      ? 'Só aparece venda que já saiu. Pedido que ainda está no galpão se resolve com cancelamento, não com devolução.'
-      : 'Nenhuma venda encontrada com esse texto.';
-    document.getElementById('listaVendas').innerHTML = lista.map(v => (
-      '<div class="dev-item' + (vendaEscolhida === v.id ? ' sel' : '') + '" data-venda="' + v.id + '">' +
-        '<div><span class="dev-item-nome">' + v.numero + ' · ' + v.cliente + '</span>' +
-          '<span class="dev-item-sub">' + LOJAS[v.loja] + ' · venda de ' + fmtData(v.dataVenda) +
-          (v.entregaEm ? ' · entregue em ' + fmtData(v.entregaEm) : ' · ainda não entregue') + '</span></div>' +
-        '<div class="dev-item-valor">' + moeda(v.total) + '</div>' +
-      '</div>'
-    )).join('');
-    document.querySelectorAll('[data-venda]').forEach(el => {
-      el.addEventListener('click', () => {
-        vendaEscolhida = Number(el.getAttribute('data-venda'));
-        pintarVendas();
-      });
-    });
-  }
-  document.getElementById('btnIncluirDevolucao').addEventListener('click', abrirSeletor);
-  document.getElementById('vendaClose').addEventListener('click', fecharSeletor);
-  document.getElementById('vendaBackdrop').addEventListener('click', fecharSeletor);
-  document.getElementById('btnCancelarSeletor').addEventListener('click', fecharSeletor);
-  document.getElementById('buscaVenda').addEventListener('input', pintarVendas);
-  document.getElementById('btnAbrirDevolucaoNova').addEventListener('click', () => {
-    if (!vendaEscolhida) { avisar('Escolha a venda que vai ser devolvida.'); return; }
-    window.location.href = '../logistica/pagina-logistica-devolucao-detalhe.html?venda=' + vendaEscolhida;
-  });
-
-  // ===== ABAS, ORDENACAO, BUSCA E PAGINACAO =====
-  document.querySelectorAll('.aba-sit').forEach(ab => {
-    ab.addEventListener('click', () => {
-      document.querySelectorAll('.aba-sit').forEach(o => o.classList.remove('active'));
-      ab.classList.add('active');
-      abaSit = ab.getAttribute('data-sit');
-      pagina = 1; render();
-    });
-  });
-
-  document.querySelectorAll('th.ordenavel').forEach(th => {
-    th.addEventListener('click', () => {
-      const campo = th.getAttribute('data-ordem');
-      if (ordem === campo) asc = !asc; else { ordem = campo; asc = true; }
-      document.querySelectorAll('th.ordenavel .seta').forEach(s => { s.textContent = '▲'; s.style.opacity = '0.25'; });
-      const seta = th.querySelector('.seta');
-      if (seta) { seta.textContent = asc ? '▲' : '▼'; seta.style.opacity = '1'; }
-      render();
-    });
-  });
-
-  document.getElementById('campoBusca').addEventListener('input', (e) => {
-    busca = e.target.value; pagina = 1; render();
-  });
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (pagina > 1) { pagina--; render(); } });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { pagina++; render(); });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
-    porPagina = Number(v); pagina = 1; render();
-  });
-  document.getElementById('btnLimparFiltros').addEventListener('click', () => {
-    busca = ''; document.getElementById('campoBusca').value = '';
-    abaSit = 'todas';
-    document.querySelectorAll('.aba-sit').forEach(o => o.classList.toggle('active', o.getAttribute('data-sit') === 'todas'));
-    fResp = fMotivo = fForma = 'todos';
-    setDropdownValor('filtroResponsavel', 'todos');
-    setDropdownValor('filtroMotivo', 'todos');
-    setDropdownValor('filtroForma', 'todos');
-    periodo = 'todos';
-    document.getElementById('rotuloPeriodo').textContent = 'Sem filtro de período';
-    document.querySelectorAll('.periodo-op').forEach(o => o.classList.toggle('active', o.getAttribute('data-periodo') === 'todos'));
-    pagina = 1; render();
-  });
-
-  // Ajusta o valor e o rotulo de um dropdown de filtro. A tela chamava esta
-  // funcao em seis lugares sem nunca te-la definido: escolher um responsavel,
-  // um motivo ou uma forma dava erro ANTES de filtrar, e o "Limpar filtros"
-  // parava no meio. Mesma funcao das telas de cadastro (Motivos, Transportadoras).
-  function setDropdownValor(idRaiz, valor) {
-    const raiz = document.getElementById(idRaiz);
-    if (!raiz) return;
+  function fmtNum(n) { return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function doisDigitos(n) { return String(n).padStart(2, '0'); }
+  function hhmm(d) { return doisDigitos(d.getHours()) + ':' + doisDigitos(d.getMinutes()); }
+  function dataBr(d) { return doisDigitos(d.getDate()) + '/' + doisDigitos(d.getMonth() + 1) + '/' + d.getFullYear(); }
+  function maisDias(d, n) { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+  const MESES_NOME_PDV = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  function dataExtenso(d) { return DIAS_NOME[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES_NOME_PDV[d.getMonth()] + ' de ' + d.getFullYear(); }
+  function setDrop(id, valor, rotulo) {
+    const raiz = document.getElementById(id);
     raiz.setAttribute('data-value', valor);
-    const rotulo = raiz.querySelector('.dropdown-select-label');
-    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
-      const ativo = it.getAttribute('data-value') === valor;
+    const lab = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(function (it) {
+      const ativo = it.getAttribute('data-value') === String(valor);
       it.classList.toggle('active', ativo);
-      if (ativo && rotulo) rotulo.textContent = it.textContent;
+      if (ativo && lab && rotulo === undefined) lab.textContent = it.textContent;
+    });
+    if (lab && rotulo !== undefined) lab.textContent = rotulo;
+  }
+  function valDrop(id) { return document.getElementById(id).getAttribute('data-value'); }
+  function montar(idMenu, itens) {
+    document.getElementById(idMenu).innerHTML = itens.map(function (o) {
+      return '<div class="dropdown-select-item" data-value="' + o.v + '">' + esc(o.t) + '</div>';
+    }).join('');
+  }
+  function marcarErro(idCampo, idErro, mensagem) {
+    if (idCampo) document.getElementById(idCampo).classList.add('has-error');
+    const e = document.getElementById(idErro);
+    if (mensagem !== undefined) e.textContent = mensagem;
+    e.classList.add('show');
+  }
+  function limparErro(idCampo, idErro) {
+    if (idCampo) document.getElementById(idCampo).classList.remove('has-error');
+    document.getElementById(idErro).classList.remove('show');
+  }
+  const lojaDe = (id) => LOJAS.filter(l => l.id === id)[0] || null;
+  const depositoDe = (id) => DEPOSITOS.filter(d => d.id === id)[0] || null;
+  const formaDe = (chave) => FORMAS.filter(f => f.chave === chave)[0] || null;
+  const contaDe = (id) => CONTAS_FINANCEIRAS.filter(c => c.id === id)[0] || null;
+  const vendedorDe = (id) => VENDEDORES.filter(v => v.id === id)[0] || null;
+  const produtoDe = (sku) => CATALOGO.filter(p => p.sku === sku)[0] || null;
+
+  // ---------- estado, guardado no navegador ----------
+  // O turno aberto sobrevive ao F5: caixa que fecha sozinho quando a pagina
+  // recarrega nao e caixa. Fica em localStorage, na chave `deskPdv`.
+  const CHAVE_PDV = 'deskPdv';
+  let turno = null, ultimoTurno = null, venda = null, ultimaVenda = null;
+  let numeroVenda = 1, momento = 'fechado';
+  let baixas = {};          // sku -> { deposito: quantidade ja vendida aqui }
+  let usados = {};          // cliente -> quanto do limite de credito as vendas daqui ja consumiram
+  let clientesNovos = [];   // cadastro rapido feito no PDV
+  let produtoAtual = null, itemEmEdicao = -1, tipoMov = 'sangria', turnoNoPainel = null, abaCaixa = 'geral';
+  (function carregar() {
+    try {
+      const g = JSON.parse(localStorage.getItem(CHAVE_PDV) || 'null');
+      if (!g) return;
+      turno = g.turno || null; ultimoTurno = g.ultimoTurno || null; venda = g.venda || null;
+      ultimaVenda = g.ultimaVenda || null; numeroVenda = g.numeroVenda || 1;
+      baixas = g.baixas || {}; usados = g.usados || {}; clientesNovos = g.clientesNovos || []; momento = g.momento || 'fechado';
+    } catch (e) { /* armazenamento bloqueado: o PDV funciona, so nao lembra */ }
+  })();
+  function gravar() {
+    try {
+      localStorage.setItem(CHAVE_PDV, JSON.stringify({ turno, ultimoTurno, venda, ultimaVenda, numeroVenda, baixas, usados, clientesNovos, momento }));
+    } catch (e) { /* idem */ }
+  }
+  function todosClientes() { return CLIENTES.concat(clientesNovos); }
+  const clienteDe = (id) => todosClientes().filter(c => c.id === id)[0] || null;
+  function saldoDe(sku, dep) {
+    const p = produtoDe(sku);
+    const vendido = (baixas[sku] || {})[dep] || 0;
+    return p ? Math.max(0, (p.saldo[dep] || 0) - vendido) : 0;
+  }
+  function novaVenda() {
+    const cat = CATEGORIAS.filter(c => c.padraoVenda)[0] || CATEGORIAS[0];
+    return { itens: [], vendedorId: null, clienteId: null, depositoId: DEPOSITO_PADRAO_DA_LOJA[turno.lojaId],
+             categoriaId: cat.id, descontoTxt: '', recebimentos: [] };
+  }
+
+  // ---------- paineis laterais ----------
+  const PAINEIS = ['abrirDrawer', 'clienteDrawer', 'itemDrawer', 'caixaDrawer', 'movDrawer', 'fecharDrawer', 'atalhosDrawer'];
+  const pdvBackdrop = document.getElementById('pdvBackdrop');
+  function painelAberto() { return PAINEIS.filter(id => document.getElementById(id).classList.contains('open'))[0] || null; }
+  function fecharPaineis() {
+    PAINEIS.forEach(id => document.getElementById(id).classList.remove('open'));
+    pdvBackdrop.classList.remove('open');
+  }
+  function abrirPainel(id) {
+    fecharPaineis();
+    pdvBackdrop.classList.add('open');
+    document.getElementById(id).classList.add('open');
+  }
+  pdvBackdrop.addEventListener('click', fecharPaineis);
+  document.querySelectorAll('[data-fechar-painel]').forEach(el => el.addEventListener('click', fecharPaineis));
+
+  // ---------- os quatro momentos ----------
+  function irPara(m) {
+    momento = m;
+    mostrar('estadoFechado', m === 'fechado');
+    mostrar('estadoVenda', m === 'venda');
+    mostrar('estadoFinalizar', m === 'finalizar');
+    mostrar('estadoConcluida', m === 'concluida');
+    pintarTopo();
+    if (m === 'fechado') pintarFechado();
+    if (m === 'venda') { pintarVenda(); document.getElementById('buscaProduto').focus(); }
+    if (m === 'finalizar') pintarFinalizar();
+    if (m === 'concluida') pintarConcluida();
+    gravar();
+  }
+  function pintarTopo() {
+    mostrar('pdvAcoesTopo', !!turno);
+    if (!turno) return;
+    const ab = new Date(turno.abertoEm);
+    html('chipTurno', '<span class="pdv-chip-ponto"></span>' + esc(lojaDe(turno.lojaId).nome) + ' · caixa aberto às ' + hhmm(ab) + ' · ' + esc(turno.operador));
+  }
+  function tiqueRelogio() {
+    const d = new Date();
+    texto('relogioFechado', hhmm(d));
+    texto('dataFechado', dataExtenso(d));
+  }
+  setInterval(tiqueRelogio, 15000);
+
+  // ---------- MOMENTO 1: caixa fechado ----------
+  function pintarFechado() {
+    tiqueRelogio();
+    const u = ultimoTurno;
+    mostrar('ultimoTurno', !!u);
+    if (!u) return;
+    const total = u.vendas.reduce((s, v) => s + v.total, 0);
+    html('ultimoTurno', 'Último turno: <b>' + esc(lojaDe(u.lojaId).nome) + '</b>, fechado em ' + dataBr(new Date(u.fechadoEm)) + ' às ' + hhmm(new Date(u.fechadoEm)) +
+      ', com <b>' + u.vendas.length + (u.vendas.length === 1 ? ' venda' : ' vendas') + '</b> somando <b>' + moeda(total) + '</b>' +
+      (Math.abs(u.diferenca) > 0.005 ? ' e <b>diferença de ' + moeda(u.diferenca) + '</b> no fechamento' : ' e sem diferença no fechamento') +
+      '. <span class="drawer-link" id="linkUltimoTurno" style="display:inline;">Ver detalhes</span>');
+    document.getElementById('linkUltimoTurno').addEventListener('click', () => abrirDetalhesCaixa(ultimoTurno));
+  }
+  function pintarHintLoja() {
+    const lojaId = Number(valDrop('abrirLoja'));
+    const n = CATALOGO.filter(p => p.loja === lojaId).length;
+    texto('hintAbrirLoja', 'Depósito do turno: ' + depositoDe(DEPOSITO_PADRAO_DA_LOJA[lojaId]).nome + '. O turno vende os ' + n + ' produtos da ' + lojaDe(lojaId).nome + '.');
+  }
+  function abrirAbertura() {
+    if (turno) return;
+    setDrop('abrirLoja', ultimoTurno ? ultimoTurno.lojaId : 1);
+    pintarHintLoja();
+    // `pdvAbreComUltimoFechamento`: o troco de hoje e o dinheiro contado ontem.
+    const sugerido = PARAM.pdvAbreComUltimoFechamento && ultimoTurno ? (ultimoTurno.contado.dinheiro || 0) : null;
+    document.getElementById('abrirTroco').value = sugerido === null ? '' : fmtNum(sugerido);
+    texto('hintTroco', sugerido === null
+      ? 'É o troco que já está na gaveta. Entra na conta do fechamento.'
+      : 'Veio do dinheiro contado no último fechamento. Confira a gaveta antes de confirmar.');
+    limparErro('campoTroco', 'erroTroco');
+    abrirPainel('abrirDrawer');
+    document.getElementById('abrirTroco').focus();
+  }
+  function confirmarAbertura() {
+    const bruto = document.getElementById('abrirTroco').value;
+    const troco = bruto.trim() === '' ? 0 : numero(bruto);
+    if (troco === null || troco < 0) { marcarErro('campoTroco', 'erroTroco'); return; }
+    turno = { id: Date.now(), lojaId: Number(valDrop('abrirLoja')), operador: USUARIO_SESSAO.nome, abertoEm: new Date().toISOString(),
+              trocoInicial: arred(troco), movimentos: [], vendas: [], fechadoEm: null, contado: null, diferenca: 0 };
+    venda = novaVenda();
+    produtoAtual = null;
+    fecharPaineis();
+    montarMenusDoTurno();
+    irPara('venda');
+  }
+
+  // ---------- MOMENTO 2: vendendo ----------
+  function brutoDoItem(it) { return arred(it.qtd * it.preco); }
+  function ajusteDoItem(it) {
+    if (it.ajusteTipo === 'nenhum' || !it.ajusteValor) return 0;
+    const v = it.ajusteModo === 'pct' ? brutoDoItem(it) * it.ajusteValor / 100 : it.ajusteValor;
+    return arred(it.ajusteTipo === 'desconto' ? -v : v);
+  }
+  function totalDoItem(it) { return Math.max(0, arred(brutoDoItem(it) + ajusteDoItem(it))); }
+  function descontoPctDoItem(it) {
+    const b = brutoDoItem(it);
+    return it.ajusteTipo === 'desconto' && b > 0 ? arred(-ajusteDoItem(it) / b * 100) : 0;
+  }
+  function subtotal() { return arred(venda.itens.reduce((s, it) => s + totalDoItem(it), 0)); }
+  // "10%" e porcentagem do subtotal; "3,00" e valor. Devolve null se o texto nao serve.
+  function descontoGeral() {
+    const t = String(venda.descontoTxt || '').trim();
+    if (t === '') return 0;
+    const pct = t.slice(-1) === '%';
+    const n = numero(pct ? t.slice(0, -1) : t);
+    if (n === null || n < 0) return null;
+    const v = pct ? subtotal() * n / 100 : n;
+    return v > subtotal() + 0.005 ? null : arred(v);
+  }
+  function descontoGeralPct() { const s = subtotal(), d = descontoGeral(); return s > 0 && d ? arred(d / s * 100) : 0; }
+  function totalVenda() { return Math.max(0, arred(subtotal() - (descontoGeral() || 0))); }
+  function qtdNaVenda(sku) { return venda.itens.filter(it => it.sku === sku).reduce((s, it) => s + it.qtd, 0); }
+  function rotuloCliente() { const c = clienteDe(venda.clienteId); return c ? c.nome : 'Consumidor final'; }
+
+  function pintarVenda() {
+    const cx = document.getElementById('listaItens');
+    const tem = venda.itens.length > 0;
+    mostrar('vazioItens', !tem);
+    mostrar('dicaItens', tem);
+    cx.innerHTML = !tem ? '' :
+      '<div class="estoque-table-wrap"><table class="estoque-table"><thead><tr>' +
+        '<th class="col-texto">Descrição</th><th style="width:90px;">Quant.</th><th style="width:120px;">Preço un</th><th style="width:130px;">Total</th><th style="width:44px;"></th>' +
+      '</tr></thead><tbody>' +
+      venda.itens.map((it, i) => {
+        const aj = ajusteDoItem(it);
+        return '<tr data-item="' + i + '">' +
+          '<td class="col-texto"><div class="pdv-item-nome">' + esc(it.nome) + '</div><div class="pdv-item-sub">' + esc(it.sku) + '</div>' +
+            (aj !== 0 ? '<div class="pdv-item-ajuste">' + (aj < 0 ? 'desconto de ' + moeda(-aj) : 'acréscimo de ' + moeda(aj)) + '</div>' : '') + '</td>' +
+          '<td>' + fmtQtd(it.qtd, it.un) + ' ' + esc(it.un) + '</td>' +
+          '<td>' + moeda(it.preco) + '</td>' +
+          '<td>' + moeda(totalDoItem(it)) + '</td>' +
+          '<td><button type="button" class="pdv-icone-btn" data-remover="' + i + '" title="Remover item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>' +
+        '</tr>';
+      }).join('') + '</tbody></table></div>';
+    cx.querySelectorAll('tbody tr').forEach(tr => {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => abrirItem(Number(tr.getAttribute('data-item'))));
+    });
+    cx.querySelectorAll('[data-remover]').forEach(b => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      venda.itens.splice(Number(b.getAttribute('data-remover')), 1);
+      pintarVenda(); gravar();
+    }));
+    texto('totItens', String(venda.itens.length));
+    const q = venda.itens.reduce((s, it) => s + it.qtd, 0);
+    texto('totQtd', venda.itens.some(it => fracionavel(it.un)) ? fmtNum(q) : String(Math.round(q)));
+    texto('totVenda', moeda(subtotal()));
+    const v = vendedorDe(venda.vendedorId);
+    setDrop('selVendedor', venda.vendedorId || '', v ? v.nome : 'Sem vendedor');
+    texto('rotuloCliente', rotuloCliente());
+    const c = clienteDe(venda.clienteId);
+    texto('hintCliente', c ? c.documento + ' · ' + c.telefone : 'Venda a prazo precisa de cliente identificado: o título tem de ter devedor.');
+    pintarProduto();
+  }
+  function produtosDoTurno() { return CATALOGO.filter(p => p.loja === turno.lojaId); }
+  function buscarProdutos(termo) {
+    const t = semAcento(termo.trim());
+    if (t === '') return [];
+    return produtosDoTurno().filter(p => semAcento(p.nome).indexOf(t) !== -1 || semAcento(p.sku).indexOf(t) !== -1 || p.gtin.indexOf(t) !== -1).slice(0, 8);
+  }
+  let sugestaoFoco = 0, sugestoesAtuais = [];
+  function pintarSugestoes() {
+    const termo = document.getElementById('buscaProduto').value;
+    const cx = document.getElementById('sugestoes');
+    sugestoesAtuais = produtoAtual ? [] : buscarProdutos(termo);
+    if (termo.trim() === '' || produtoAtual) { cx.style.display = 'none'; return; }
+    if (sugestaoFoco >= sugestoesAtuais.length) sugestaoFoco = 0;
+    cx.innerHTML = sugestoesAtuais.length
+      ? sugestoesAtuais.map((p, i) => '<div class="pdv-sug' + (i === sugestaoFoco ? ' foco' : '') + '" data-sku="' + p.sku + '"><span>' + esc(p.nome) + '</span>' +
+          '<span class="pdv-sug-sub">' + p.sku + ' · ' + moeda(p.preco) + ' · saldo ' + fmtQtd(saldoDe(p.sku, venda.depositoId), p.un) + '</span></div>').join('')
+      : '<div class="pdv-sug-vazio">Nenhum produto da ' + esc(lojaDe(turno.lojaId).nome) + ' com esse texto. Produto de outra loja não entra neste turno.</div>';
+    cx.style.display = 'block';
+    cx.querySelectorAll('.pdv-sug').forEach(el => el.addEventListener('mousedown', (e) => { e.preventDefault(); selecionarProduto(produtoDe(el.getAttribute('data-sku'))); }));
+  }
+  function qtdDigitada() { return numero(document.getElementById('qtdProduto').value); }
+  function pintarProduto() {
+    const p = produtoAtual;
+    mostrar('prodSelecionado', !!p);
+    if (!p) return;
+    const q = qtdDigitada();
+    const disp = saldoDe(p.sku, venda.depositoId) - qtdNaVenda(p.sku);
+    texto('prodNome', p.nome);
+    texto('prodSku', p.sku);
+    texto('prodRotuloEstoque', 'Disponível em ' + depositoDe(venda.depositoId).nome);
+    html('prodEstoque', (disp <= 0 ? '<span class="falta">' : '<span>') + fmtQtd(Math.max(0, disp), p.un) + ' ' + p.un + '</span>');
+    texto('prodPreco', moeda(p.preco));
+    texto('prodTotal', moeda(q && q > 0 ? q * p.preco : 0));
+  }
+  function selecionarProduto(p) {
+    if (!p) return;
+    produtoAtual = p;
+    document.getElementById('buscaProduto').value = p.nome;
+    document.getElementById('sugestoes').style.display = 'none';
+    limparErro(null, 'erroProduto');
+    pintarProduto();
+    const q = document.getElementById('qtdProduto');
+    q.focus(); q.select();
+  }
+  function limparProduto() {
+    produtoAtual = null;
+    document.getElementById('buscaProduto').value = '';
+    document.getElementById('qtdProduto').value = '1';
+    document.getElementById('sugestoes').style.display = 'none';
+    limparErro(null, 'erroProduto');
+    pintarProduto();
+    document.getElementById('buscaProduto').focus();
+  }
+  // Devolve a mensagem de erro, ou null se a quantidade serve para o produto.
+  function erroDeQuantidade(p, q, jaNaVenda) {
+    if (q === null || q <= 0) return 'Informe uma quantidade maior que zero.';
+    if (!fracionavel(p.un) && Math.round(q) !== q) return 'Este produto é vendido por ' + p.un + ': a quantidade é inteira.';
+    const disp = saldoDe(p.sku, venda.depositoId) - jaNaVenda;
+    if (PARAM.pdvBloqueiaSemEstoque && q > disp + 0.0001) {
+      return 'Sem saldo em ' + depositoDe(venda.depositoId).nome + ': disponível ' + fmtQtd(Math.max(0, disp), p.un) + ' ' + p.un + ', pedido ' + fmtQtd(q, p.un) + ' ' + p.un + '.';
+    }
+    return null;
+  }
+  function adicionarProduto() {
+    const p = produtoAtual;
+    if (!p) return;
+    const q = qtdDigitada();
+    const erro = erroDeQuantidade(p, q, qtdNaVenda(p.sku));
+    if (erro) { marcarErro(null, 'erroProduto', erro); return; }
+    // `pdvAgrupaIguais`: o mesmo produto, sem preco mexido nem ajuste, soma na linha que ja existe.
+    const igual = PARAM.pdvAgrupaIguais ? venda.itens.filter(it => it.sku === p.sku && it.preco === p.preco && it.ajusteTipo === 'nenhum')[0] : null;
+    if (igual) igual.qtd = arred(igual.qtd + q);
+    else venda.itens.push({ sku: p.sku, nome: p.nome, un: p.un, qtd: q, preco: p.preco, precoOriginal: p.preco, ajusteTipo: 'nenhum', ajusteModo: 'valor', ajusteValor: 0 });
+    limparProduto();
+    pintarVenda(); gravar();
+  }
+
+  // ----- editar item -----
+  function lerItemDoPainel() {
+    const base = venda.itens[itemEmEdicao];
+    const tipo = valDrop('itemAjusteTipo');
+    return { sku: base.sku, nome: base.nome, un: base.un, precoOriginal: base.precoOriginal,
+             qtd: numero(document.getElementById('itemQtd').value),
+             preco: numero(document.getElementById('itemPreco').value),
+             ajusteTipo: tipo, ajusteModo: valDrop('itemAjusteModo'),
+             ajusteValor: tipo === 'nenhum' ? 0 : numero(document.getElementById('itemAjusteValor').value) };
+  }
+  function pintarPainelItem() {
+    const it = lerItemDoPainel();
+    mostrar('blocoItemAjuste', it.ajusteTipo !== 'nenhum');
+    const ok = it.qtd !== null && it.preco !== null && it.ajusteValor !== null;
+    texto('itemTotal', ok ? moeda(totalDoItem(it)) : '—');
+    const pct = ok ? descontoPctDoItem(it) : 0;
+    const acima = pct > PARAM.pdvDescontoMaximoPct + 0.0001;
+    mostrar('itemNota', acima);
+    if (acima) html('itemNota', 'Desconto de <b>' + fmtNum(pct) + '%</b>, acima do máximo de <b>' + fmtNum(PARAM.pdvDescontoMaximoPct) + '%</b>. Para aplicar, o sistema pede a liberação do gerente.');
+  }
+  function abrirItem(i) {
+    itemEmEdicao = i;
+    const it = venda.itens[i];
+    texto('itemNome', it.nome);
+    texto('rotuloItemQtd', 'Quantidade (' + it.un + ')');
+    document.getElementById('itemQtd').value = fracionavel(it.un) ? fmtNum(it.qtd) : String(it.qtd);
+    const preco = document.getElementById('itemPreco');
+    preco.value = fmtNum(it.preco);
+    // `pdvBloqueiaAlterarPreco`: o preco e o do cadastro; so desconto e acrescimo mexem no total.
+    preco.disabled = !!PARAM.pdvBloqueiaAlterarPreco;
+    texto('hintItemPreco', PARAM.pdvBloqueiaAlterarPreco
+      ? 'O preço unitário está travado em Configurações do PDV. Use desconto ou acréscimo.'
+      : 'Preço do cadastro: ' + moeda(it.precoOriginal) + '.');
+    setDrop('itemAjusteTipo', it.ajusteTipo);
+    setDrop('itemAjusteModo', it.ajusteModo);
+    document.getElementById('itemAjusteValor').value = it.ajusteValor ? fmtNum(it.ajusteValor) : '';
+    limparErro(null, 'erroItem');
+    pintarPainelItem();
+    abrirPainel('itemDrawer');
+  }
+  function aplicarItem() {
+    const it = lerItemDoPainel();
+    const base = venda.itens[itemEmEdicao];
+    limparErro(null, 'erroItem');
+    const outros = qtdNaVenda(base.sku) - base.qtd;
+    const erroQ = erroDeQuantidade(produtoDe(base.sku), it.qtd, outros);
+    if (erroQ) { marcarErro(null, 'erroItem', erroQ); return; }
+    if (it.preco === null || it.preco < 0) { marcarErro(null, 'erroItem', 'Informe o preço com números, usando vírgula para os centavos.'); return; }
+    if (it.ajusteTipo !== 'nenhum') {
+      if (it.ajusteValor === null || it.ajusteValor <= 0) { marcarErro(null, 'erroItem', 'Informe quanto de ' + (it.ajusteTipo === 'desconto' ? 'desconto' : 'acréscimo') + ', ou escolha "Sem ajuste".'); return; }
+      if (it.ajusteModo === 'pct' && it.ajusteValor > 100) { marcarErro(null, 'erroItem', 'A porcentagem não passa de 100%.'); return; }
+      if (it.ajusteTipo === 'desconto' && -ajusteDoItem(it) > brutoDoItem(it) + 0.005) { marcarErro(null, 'erroItem', 'O desconto não pode ser maior que o valor do item.'); return; }
+    }
+    const gravarItem = () => { venda.itens[itemEmEdicao] = it; fecharPaineis(); pintarVenda(); gravar(); };
+    const pct = descontoPctDoItem(it);
+    // Desconto acima do maximo nao e proibido: e liberado por quem pode, com senha.
+    if (pct > PARAM.pdvDescontoMaximoPct + 0.0001) {
+      confirmarAcao('pdvDescontoAcima', 'Liberar desconto de ' + fmtNum(pct) + '% em "' + it.nome + '"? O máximo sem liberação é ' + fmtNum(PARAM.pdvDescontoMaximoPct) + '%.', gravarItem);
+      return;
+    }
+    gravarItem();
+  }
+
+  // ----- cliente -----
+  function pintarClientes() {
+    const t = semAcento(document.getElementById('buscaCliente').value.trim());
+    const soDigitos = t.replace(/\D/g, '');
+    const lista = todosClientes().filter(c => t === '' || semAcento(c.nome).indexOf(t) !== -1 || (soDigitos !== '' && c.documento.replace(/\D/g, '').indexOf(soDigitos) !== -1)).slice(0, 8);
+    html('listaClientes', lista.length
+      ? lista.map(c => '<div class="pdv-cli' + (c.id === venda.clienteId ? ' foco' : '') + '" data-cliente="' + c.id + '"><div><div class="pdv-cli-nome">' + esc(c.nome) + '</div><div class="pdv-cli-sub">' + esc(c.documento) + ' · ' + esc(c.telefone) + '</div></div></div>').join('')
+      : '<div class="pdv-sug-vazio">Nenhum cliente com esse texto. Cadastre pelo link abaixo.</div>');
+    document.querySelectorAll('#listaClientes .pdv-cli').forEach(el => el.addEventListener('click', () => escolherCliente(Number(el.getAttribute('data-cliente')))));
+  }
+  function abrirCliente() {
+    if (momento !== 'venda' && momento !== 'finalizar') return;
+    document.getElementById('buscaCliente').value = '';
+    mostrar('blocoNovoCliente', false);
+    pintarClientes();
+    abrirPainel('clienteDrawer');
+    document.getElementById('buscaCliente').focus();
+  }
+  function escolherCliente(id) {
+    venda.clienteId = id;
+    fecharPaineis();
+    if (momento === 'finalizar') pintarFinalizar(); else pintarVenda();
+    gravar();
+  }
+  function salvarClienteRapido() {
+    const nome = document.getElementById('novoCliNome').value.trim();
+    const doc = document.getElementById('novoCliDoc').value.trim();
+    limparErro('campoNovoCliNome', 'erroNovoCli');
+    const digitos = doc.replace(/\D/g, '');
+    if (nome === '' || (digitos.length !== 11 && digitos.length !== 14)) {
+      marcarErro('campoNovoCliNome', 'erroNovoCli', nome === '' ? 'Informe o nome e o CPF ou CNPJ.' : 'CPF tem 11 números e CNPJ tem 14.');
+      return;
+    }
+    if (todosClientes().some(c => c.documento.replace(/\D/g, '') === digitos)) {
+      marcarErro('campoNovoCliNome', 'erroNovoCli', 'Já existe cliente com este CPF ou CNPJ. Busque por ele na lista.');
+      return;
+    }
+    const novo = { id: Date.now(), nome, documento: doc, telefone: document.getElementById('novoCliFone').value.trim() || 'sem telefone', limite: 0, usado: 0 };
+    clientesNovos.push(novo);
+    ['novoCliNome', 'novoCliDoc', 'novoCliFone'].forEach(id => { document.getElementById(id).value = ''; });
+    escolherCliente(novo.id);
+  }
+
+  function continuar() {
+    if (momento !== 'venda') return;
+    if (venda.itens.length === 0) { avisar('A venda ainda não tem item. Busque um produto para começar.'); return; }
+    // Os dois "obrigatorio" vem de Configuracoes do PDV.
+    if (PARAM.pdvVendedorObrigatorio && !venda.vendedorId) { avisar('Escolha o vendedor antes de continuar. Vender sem vendedor está desligado em Configurações do PDV.'); return; }
+    if (PARAM.pdvClienteObrigatorio && !venda.clienteId) { avisar('Identifique o cliente antes de continuar. Vender para consumidor final está desligado em Configurações do PDV.'); return; }
+    irPara('finalizar');
+  }
+  function cancelarVenda() {
+    if (!turno || (momento !== 'venda' && momento !== 'finalizar')) return;
+    if (venda.itens.length === 0) { avisar('Não há venda em andamento para cancelar.'); return; }
+    abrirModalConfirmacao('Cancelar a venda em andamento? Os ' + venda.itens.length + (venda.itens.length === 1 ? ' item some' : ' itens somem') + ' e nada é gravado.', 1, 'danger', () => {
+      venda = novaVenda(); produtoAtual = null;
+      irPara('venda');
     });
   }
 
-  // ===== DROPDOWNS DE FILTRO =====
-  function montarMenu(id, itens, aoEscolher) {
-    document.getElementById(id).innerHTML = itens.map((i, n) => (
-      '<div class="dropdown-select-item' + (n === 0 ? ' active' : '') + '" data-value="' + i.v + '">' + i.r + '</div>'
-    )).join('');
+  // ---------- MOMENTO 3: finalizando ----------
+  function formasDisponiveis() { return FORMAS.filter(f => f.ativo && f.uso !== 'pagar'); }
+  function somaRecebimentos() { return arred(venda.recebimentos.reduce((s, r) => s + (r.valor || 0), 0)); }
+  function taxaDe(r) {
+    const f = formaDe(r.chave);
+    if (!f || f.tarifacao === 'sem' || !r.valor) return 0;
+    return arred(r.valor * f.taxaPct / 100 + f.taxaFixa);
   }
-  montarMenu('menuFiltroResponsavel', [{ v: 'todos', r: 'Qualquer responsável' }]
-    .concat(Object.keys(GRUPOS).map(k => ({ v: k, r: GRUPOS[k] }))));
-  montarMenu('menuFiltroMotivo', [{ v: 'todos', r: 'Todos os motivos' }]
-    .concat(Object.keys(MOTIVOS).map(k => ({ v: k, r: MOTIVOS[k].nome }))));
-  montarMenu('menuFiltroForma', [{ v: 'todos', r: 'Qualquer forma' }]
-    .concat(FORMAS.map(f => ({ v: f.id, r: f.rotulo }))));
-
-  inicializarDropdownSelect(document.getElementById('filtroResponsavel'), (v) => {
-    setDropdownValor('filtroResponsavel', v); fResp = v; pagina = 1; render();
-  });
-  inicializarDropdownSelect(document.getElementById('filtroMotivo'), (v) => {
-    setDropdownValor('filtroMotivo', v); fMotivo = v; pagina = 1; render();
-  });
-  inicializarDropdownSelect(document.getElementById('filtroForma'), (v) => {
-    setDropdownValor('filtroForma', v); fForma = v; pagina = 1; render();
-  });
-
-  // ===== FILTRO DE PERIODO =====
-  const periodoWrap = document.getElementById('periodoWrap');
-  document.getElementById('btnPeriodo').addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.toggle('open');
-  });
-  document.getElementById('periodoMenu').addEventListener('click', (e) => e.stopPropagation());
-  document.addEventListener('click', () => document.getElementById('periodoMenu').classList.remove('open'));
-  document.querySelectorAll('.periodo-op').forEach(op => {
-    op.addEventListener('click', () => {
-      document.querySelectorAll('.periodo-op').forEach(o => o.classList.remove('active'));
-      op.classList.add('active');
-      periodo = op.getAttribute('data-periodo');
-      document.getElementById('rotuloPeriodo').textContent =
-        periodo === 'todos' ? 'Sem filtro de período' : 'Abertas nos últimos ' + periodo + ' dias';
-      document.getElementById('periodoMenu').classList.remove('open');
-      pagina = 1; render();
+  function trocoDe(r) {
+    if (r.chave !== 'dinheiro' || r.recebido === null || r.recebido === undefined) return 0;
+    return Math.max(0, arred(r.recebido - (r.valor || 0)));
+  }
+  function trocoTotal() { return arred(venda.recebimentos.reduce((s, r) => s + trocoDe(r), 0)); }
+  // "30 60 90" sao vencimentos em dias; "3x" sao tres parcelas de 30 em 30.
+  function gerarParcelas(r, expr) {
+    const t = String(expr || '').trim().toLowerCase();
+    let dias = [];
+    const vezes = t.match(/^(\d{1,2})\s*x$/);
+    if (vezes) { for (let i = 1; i <= Number(vezes[1]); i++) dias.push(i * 30); }
+    else dias = t.split(/[\s,;]+/).filter(x => x !== '').map(Number);
+    if (dias.length === 0 || dias.some(d => !isFinite(d) || d < 0) || dias.length > 24) return false;
+    const base = Math.floor((r.valor || 0) / dias.length * 100) / 100;
+    r.parcelas = dias.map((d, i) => ({ dias: d, valor: i === dias.length - 1 ? arred((r.valor || 0) - base * (dias.length - 1)) : base }));
+    return true;
+  }
+  function adicionarRecebimento(chave) {
+    const f = formaDe(chave);
+    if (!f || venda.recebimentos.some(r => r.chave === chave)) return;
+    const r = { chave, valor: Math.max(0, arred(totalVenda() - somaRecebimentos())), recebido: null, parcelas: [], expr: '1x' };
+    if (f.destino === 'titulo') gerarParcelas(r, chave === 'debito' ? '1' : '30');
+    venda.recebimentos.push(r);
+    pintarFinalizar(); gravar();
+  }
+  function usadoDoCliente(c) { return arred(c.usado + (usados[c.id] || 0)); }
+  function disponivelDoCliente() { const c = clienteDe(venda.clienteId); return c ? arred(c.limite - usadoDoCliente(c)) : 0; }
+  // Tudo que impede finalizar, em frases que dizem os numeros. Lista vazia = pode.
+  function pendenciasDaVenda() {
+    const p = [];
+    const total = totalVenda(), soma = somaRecebimentos();
+    if (descontoGeral() === null) p.push('O desconto da venda não é um valor válido. Use um valor (3,00) ou uma porcentagem (10%), sem passar do subtotal.');
+    if (venda.recebimentos.length === 0) p.push('Adicione ao menos um recebimento.');
+    else if (soma < total - 0.005) p.push('Falta receber ' + moeda(total - soma) + '.');
+    else if (soma > total + 0.005) p.push('Os recebimentos passam do total em ' + moeda(soma - total) + '. O troco sai do campo "recebido em dinheiro", não do valor.');
+    const cli = clienteDe(venda.clienteId);
+    let comLimite = 0;
+    venda.recebimentos.forEach(r => {
+      const f = formaDe(r.chave);
+      if (!r.valor || r.valor <= 0) p.push(f.nome + ': informe o valor.');
+      if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < r.valor - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(r.valor) + ').');
+      if (f.destino === 'titulo') {
+        if (!cli) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
+        const somaParc = arred(r.parcelas.reduce((s, x) => s + (x.valor || 0), 0));
+        if (r.parcelas.length === 0) p.push(f.nome + ': gere as parcelas.');
+        else if (r.parcelas.some(x => !(x.valor > 0) || !(x.dias >= 0))) p.push(f.nome + ': toda parcela precisa de dias e de valor.');
+        else if (Math.abs(somaParc - (r.valor || 0)) > 0.005) p.push(f.nome + ': as parcelas somam ' + moeda(somaParc) + ' e o valor é ' + moeda(r.valor) + '.');
+      }
+      if (f.validaLimite) comLimite = arred(comLimite + (r.valor || 0));
     });
+    // Limite de credito: o mesmo limite do Pedido de Venda, checado so nas formas que o cadastro manda validar.
+    if (cli && comLimite > 0 && comLimite > disponivelDoCliente() + 0.005) {
+      p.push('Limite de crédito de ' + cli.nome + ': limite ' + moeda(cli.limite) + ', já usado ' + moeda(usadoDoCliente(cli)) + ', disponível ' + moeda(disponivelDoCliente()) + ', esta venda a prazo ' + moeda(comLimite) + '.');
+    }
+    if (PARAM.pdvBloqueiaSemEstoque) {
+      const skus = {};
+      venda.itens.forEach(it => { skus[it.sku] = (skus[it.sku] || 0) + it.qtd; });
+      Object.keys(skus).forEach(sku => {
+        const disp = saldoDe(sku, venda.depositoId);
+        if (skus[sku] > disp + 0.0001) p.push('Sem saldo em ' + depositoDe(venda.depositoId).nome + ' para ' + produtoDe(sku).nome + ': disponível ' + fmtQtd(disp, produtoDe(sku).un) + ', na venda ' + fmtQtd(skus[sku], produtoDe(sku).un) + '.');
+      });
+    }
+    return p;
+  }
+  function pintarFinalizar() {
+    const cli = clienteDe(venda.clienteId);
+    texto('rotuloClienteFin', rotuloCliente());
+    texto('docClienteFin', cli ? cli.documento + ' · limite de crédito disponível ' + moeda(disponivelDoCliente()) : 'Sem cliente identificado: só formas que entram na hora.');
+    texto('finResumoTitulo', venda.itens.length + (venda.itens.length === 1 ? ' item' : ' itens'));
+    html('finItens', venda.itens.map(it => '<div class="pdv-resumo-item"><span>' + fmtQtd(it.qtd, it.un) + ' × ' + esc(it.nome) + '</span><span>' + moeda(totalDoItem(it)) + '</span></div>').join(''));
+    const d = descontoGeral();
+    texto('finSubtotal', moeda(subtotal()));
+    texto('finDescontoValor', d === null ? 'inválido' : (d > 0 ? '− ' + moeda(d) + ' (' + fmtNum(descontoGeralPct()) + '%)' : moeda(0)));
+    texto('finTotal', moeda(totalVenda()));
+    const v = vendedorDe(venda.vendedorId);
+    document.getElementById('finVendedor').value = v ? v.nome : 'Sem vendedor';
+    setDrop('finDeposito', venda.depositoId);
+    setDrop('finCategoria', venda.categoriaId);
+    const campoDesc = document.getElementById('finDesconto');
+    if (document.activeElement !== campoDesc) campoDesc.value = venda.descontoTxt || '';
+    if (d === null) marcarErro('campoFinDesconto', 'erroFinDesconto', 'Use um valor (3,00) ou uma porcentagem (10%).'); else limparErro('campoFinDesconto', 'erroFinDesconto');
+    texto('hintFinDeposito', 'A baixa de estoque sai de ' + depositoDe(venda.depositoId).nome + '. A venda entra em Pedidos de Venda como ' + SIT_VENDA[PARAM.pdvSituacaoVenda].toLowerCase() + '.');
+
+    // menu de formas: so as habilitadas que valem para receber, e que ainda nao estao na venda
+    const livres = formasDisponiveis().filter(f => !venda.recebimentos.some(r => r.chave === f.chave));
+    html('menuAddReceb', livres.length
+      ? livres.map(f => '<div class="dropdown-select-item" data-value="' + f.chave + '">' + esc(f.nome) + '</div>').join('')
+      : '<div class="pdv-sug-vazio">Todas as formas habilitadas já estão na venda.</div>');
+    setDrop('selAddReceb', '', 'Adicionar recebimento');
+
+    html('listaReceb', venda.recebimentos.map((r, i) => {
+      const f = formaDe(r.chave);
+      const conta = contaDe(f.contaId);
+      const taxa = taxaDe(r);
+      const destino = f.destino === 'conta'
+        ? 'entra na hora em ' + (conta ? conta.nome : 'conta financeira')
+        : 'vira título em Contas a Receber' + (conta ? ', baixa em ' + conta.nome : '');
+      let corpo = '<div class="form-row"><div class="form-field"><label>Valor (R$)</label><input type="text" inputmode="decimal" data-receb-valor="' + i + '" value="' + (r.valor ? fmtNum(r.valor) : '') + '"></div>';
+      if (r.chave === 'dinheiro') corpo += '<div class="form-field"><label>Recebido em dinheiro (R$)</label><input type="text" inputmode="decimal" data-receb-recebido="' + i + '" placeholder="igual ao valor" value="' + (r.recebido !== null && r.recebido !== undefined ? fmtNum(r.recebido) : '') + '"></div>';
+      if (f.destino === 'titulo') corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
+      corpo += '</div>';
+      if (r.chave === 'dinheiro' && trocoDe(r) > 0) corpo += '<div class="pdv-receb-info">Troco: <b>' + moeda(trocoDe(r)) + '</b></div>';
+      if (f.destino === 'titulo') {
+        corpo += '<table class="pdv-parcelas"><thead><tr><th style="width:40px;">Nº</th><th style="width:90px;">Dias</th><th>Vencimento</th><th style="width:130px;">Valor (R$)</th></tr></thead><tbody>' +
+          r.parcelas.map((x, n) => '<tr><td>' + (n + 1) + '</td>' +
+            '<td><input type="text" inputmode="numeric" data-parc-dias="' + i + ':' + n + '" value="' + x.dias + '"></td>' +
+            '<td>' + dataBr(maisDias(new Date(), x.dias)) + '</td>' +
+            '<td><input type="text" inputmode="decimal" data-parc-valor="' + i + ':' + n + '" value="' + fmtNum(x.valor) + '"></td></tr>').join('') +
+          '</tbody></table>';
+      }
+      if (taxa > 0) corpo += '<div class="pdv-receb-info">Taxa de <b>' + moeda(taxa) + '</b>, descontada ' + TARIFACOES[f.tarifacao] + '. Líquido: <b>' + moeda(r.valor - taxa) + '</b>.</div>';
+      if (f.validaLimite) corpo += '<div class="pdv-receb-info">Esta forma confere o limite de crédito do cliente.</div>';
+      return '<div class="pdv-receb" data-receb="' + r.chave + '"><div class="pdv-receb-topo"><div><div class="pdv-receb-nome">' + esc(f.nome) + '</div><div class="pdv-receb-destino">' + esc(destino) + '</div></div>' +
+        '<button type="button" class="pdv-icone-btn" data-receb-remover="' + i + '" title="Remover recebimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>' + corpo + '</div>';
+    }).join(''));
+    ligarRecebimentos();
+    pintarFalta();
+  }
+  function pintarFalta() {
+    const total = totalVenda(), soma = somaRecebimentos();
+    const el = document.getElementById('faltaReceber');
+    const pend = pendenciasDaVenda();
+    el.classList.toggle('alerta', pend.length > 0 && venda.recebimentos.length > 0);
+    el.classList.toggle('certo', pend.length === 0);
+    el.innerHTML = pend.length === 0
+      ? 'Recebimentos fecham com o total: <b>' + moeda(soma) + '</b>. Pode finalizar.'
+      : (venda.recebimentos.length === 0 ? 'Total a receber: <b>' + moeda(total) + '</b>. Escolha a forma de recebimento.' : pend.map(esc).join('<br>'));
+    texto('totTroco', moeda(trocoTotal()));
+    texto('totVendaFin', moeda(total));
+    texto('finTotal', moeda(total));
+  }
+  // Os campos dos recebimentos sao refeitos a cada pintura, entao gravam no `blur`
+  // (change) e nao a cada tecla: repintar no meio da digitacao tiraria o foco.
+  function ligarRecebimentos() {
+    const cx = document.getElementById('listaReceb');
+    cx.querySelectorAll('[data-receb-valor]').forEach(inp => inp.addEventListener('change', () => {
+      const r = venda.recebimentos[Number(inp.getAttribute('data-receb-valor'))];
+      const n = numero(inp.value);
+      r.valor = n === null || n < 0 ? 0 : arred(n);
+      if (formaDe(r.chave).destino === 'titulo') gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-recebido]').forEach(inp => inp.addEventListener('change', () => {
+      const r = venda.recebimentos[Number(inp.getAttribute('data-receb-recebido'))];
+      const n = numero(inp.value);
+      r.recebido = n === null || n < 0 ? null : arred(n);
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-expr]').forEach(inp => inp.addEventListener('change', () => {
+      const r = venda.recebimentos[Number(inp.getAttribute('data-receb-expr'))];
+      if (gerarParcelas(r, inp.value)) r.expr = inp.value.trim();
+      else avisar('Não entendi as parcelas. Escreva os vencimentos em dias (30 60 90) ou o número de vezes (3x).');
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-parc-dias]').forEach(inp => inp.addEventListener('change', () => {
+      const ij = inp.getAttribute('data-parc-dias').split(':').map(Number);
+      const n = numero(inp.value);
+      venda.recebimentos[ij[0]].parcelas[ij[1]].dias = n === null || n < 0 ? -1 : Math.round(n);
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-parc-valor]').forEach(inp => inp.addEventListener('change', () => {
+      const ij = inp.getAttribute('data-parc-valor').split(':').map(Number);
+      const n = numero(inp.value);
+      venda.recebimentos[ij[0]].parcelas[ij[1]].valor = n === null || n < 0 ? 0 : arred(n);
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-remover]').forEach(b => b.addEventListener('click', () => {
+      venda.recebimentos.splice(Number(b.getAttribute('data-receb-remover')), 1);
+      pintarFinalizar(); gravar();
+    }));
+  }
+  function gravarVenda() {
+    const agora = new Date();
+    const cli = clienteDe(venda.clienteId), vend = vendedorDe(venda.vendedorId);
+    const registro = {
+      numero: numeroVenda, quando: agora.toISOString(), lojaId: turno.lojaId, depositoId: venda.depositoId, categoriaId: venda.categoriaId,
+      vendedorId: venda.vendedorId, vendedorNome: vend ? vend.nome : null, clienteId: venda.clienteId, clienteNome: cli ? cli.nome : 'Consumidor final',
+      clienteDoc: cli ? cli.documento : '', situacao: PARAM.pdvSituacaoVenda,
+      itens: venda.itens.map(it => ({ sku: it.sku, nome: it.nome, un: it.un, qtd: it.qtd, preco: it.preco, total: totalDoItem(it) })),
+      subtotal: subtotal(), desconto: descontoGeral() || 0, total: totalVenda(), troco: trocoTotal(),
+      recebimentos: venda.recebimentos.map(r => {
+        const f = formaDe(r.chave);
+        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: f.contaId, valor: r.valor, recebido: r.chave === 'dinheiro' ? (r.recebido === null ? r.valor : r.recebido) : null,
+                 troco: trocoDe(r), taxa: taxaDe(r), tarifacao: f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })) };
+      })
+    };
+    registro.itens.forEach(it => { baixas[it.sku] = baixas[it.sku] || {}; baixas[it.sku][registro.depositoId] = arred((baixas[it.sku][registro.depositoId] || 0) + it.qtd); });
+    // O limite do cliente passa a contar o que ele acabou de comprar a prazo nas formas que validam.
+    if (cli) usados[cli.id] = arred((usados[cli.id] || 0) + registro.recebimentos.filter(r => formaDe(r.chave).validaLimite).reduce((s, r) => s + r.valor, 0));
+    turno.vendas.push(registro);
+    ultimaVenda = registro;
+    numeroVenda += 1;
+    venda = novaVenda();
+    produtoAtual = null;
+    irPara('concluida');
+  }
+  function finalizar() {
+    if (momento !== 'finalizar') return;
+    const pend = pendenciasDaVenda();
+    if (pend.length) { avisar('Não foi possível concluir a venda. ' + pend.join(' ')); return; }
+    const pct = descontoGeralPct();
+    if (pct > PARAM.pdvDescontoMaximoPct + 0.0001) {
+      confirmarAcao('pdvDescontoAcima', 'Liberar desconto de ' + fmtNum(pct) + '% na venda inteira? O máximo sem liberação é ' + fmtNum(PARAM.pdvDescontoMaximoPct) + '%.', gravarVenda);
+      return;
+    }
+    gravarVenda();
+  }
+
+  // ---------- MOMENTO 4: venda concluida ----------
+  function numeroPedido(v) { return 'PDV-' + String(v.numero).padStart(4, '0'); }
+  function oQueGerou(v) {
+    const g = [];
+    g.push('<b>Pedido de Venda ' + numeroPedido(v) + '</b>, já na situação <b>' + SIT_VENDA[v.situacao] + '</b>. Conta em Metas e em Performance de Vendas' + (v.vendedorNome ? ', na meta de ' + esc(v.vendedorNome) : ' da loja, sem vendedor') + '.');
+    const qtd = v.itens.reduce((s, it) => s + it.qtd, 0);
+    g.push('<b>Baixa de estoque</b> em ' + esc(depositoDe(v.depositoId).nome) + ': ' + fmtNum(qtd).replace(',00', '') + (qtd === 1 ? ' unidade' : ' unidades') + ' de ' + v.itens.length + (v.itens.length === 1 ? ' produto.' : ' produtos.'));
+    v.recebimentos.forEach(r => {
+      const conta = contaDe(r.contaId);
+      if (r.destino === 'conta') g.push('<b>' + moeda(r.valor) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + '). Aparece no Caixa de Finanças, sem título.');
+      else {
+        const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
+        g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(r.valor) + ' (' + esc(r.nome) + '), em nome de ' + esc(v.clienteNome) + '. Primeiro vencimento em ' + primeiro + '.');
+      }
+      if (r.taxa > 0) g.push('<b>Taxa de ' + moeda(r.taxa) + '</b> em ' + esc(r.nome) + ', descontada ' + TARIFACOES[r.tarifacao] + '. Entra líquido: ' + moeda(r.valor - r.taxa) + '.');
+    });
+    return g;
+  }
+  function pintarConcluida() {
+    const v = ultimaVenda;
+    if (!v) return;
+    texto('concTitulo', 'Venda nº ' + v.numero + ' finalizada');
+    texto('concSub', (v.vendedorNome ? 'por ' + v.vendedorNome + ' · ' : '') + 'para ' + v.clienteNome);
+    texto('concTotal', moeda(v.total));
+    const din = v.recebimentos.filter(r => r.chave === 'dinheiro')[0];
+    texto('concDinheiro', moeda(din ? din.recebido : 0));
+    texto('concTroco', moeda(v.troco));
+    html('concGerado', oQueGerou(v).map(l => '<div class="pdv-gerado"><span class="pdv-gerado-ponto"></span><span>' + l + '</span></div>').join(''));
+    texto('concVendasTurno', String(turno ? turno.vendas.length : 0));
+  }
+  function outraVenda() {
+    if (momento !== 'concluida' || !turno) return;
+    irPara('venda');
+  }
+
+  // ---------- TURNO: gaveta, sangria, reforco, fechamento ----------
+  function somaMov(t, tipo) { return arred(t.movimentos.filter(m => m.tipo === tipo).reduce((s, m) => s + m.valor, 0)); }
+  function recebidoNaForma(t, chave) { return arred(t.vendas.reduce((s, v) => s + v.recebimentos.filter(r => r.chave === chave).reduce((a, r) => a + r.valor, 0), 0)); }
+  function dinheiroNaGaveta(t) { return arred(t.trocoInicial + recebidoNaForma(t, 'dinheiro') - somaMov(t, 'sangria') + somaMov(t, 'reforco')); }
+  // O que o turno tem de cada forma. Dinheiro e o que esta na gaveta (troco, vendas, sangrias e reforcos); as outras, o que foi recebido.
+  function esperadoPorForma(t) {
+    const linhas = [{ chave: 'dinheiro', nome: 'Dinheiro', valor: dinheiroNaGaveta(t) }];
+    FORMAS.forEach(f => {
+      if (f.chave === 'dinheiro') return;
+      const v = recebidoNaForma(t, f.chave);
+      if (v > 0) linhas.push({ chave: f.chave, nome: f.nome, valor: v });
+    });
+    return linhas;
+  }
+  function linhaChave(rotulo, valor) { return '<div class="pdv-linha"><span>' + rotulo + '</span><b>' + valor + '</b></div>'; }
+  function pintarCaixa() {
+    const t = turnoNoPainel;
+    if (!t) return;
+    const fechado = !!t.fechadoEm;
+    document.querySelectorAll('#abasCaixa .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-aba') === abaCaixa));
+    let corpo = '';
+    if (abaCaixa === 'geral') {
+      const totalVendas = t.vendas.reduce((s, v) => s + v.total, 0);
+      corpo += linhaChave('Situação', fechado ? 'Caixa fechado' : 'Caixa aberto') +
+        linhaChave('Loja', esc(lojaDe(t.lojaId).nome)) +
+        linhaChave('Operador', esc(t.operador)) +
+        linhaChave('Abertura', dataBr(new Date(t.abertoEm)) + ' às ' + hhmm(new Date(t.abertoEm))) +
+        (fechado ? linhaChave('Fechamento', dataBr(new Date(t.fechadoEm)) + ' às ' + hhmm(new Date(t.fechadoEm))) : '') +
+        linhaChave('Troco inicial', moeda(t.trocoInicial)) +
+        linhaChave('Vendas', t.vendas.length + ' · ' + moeda(totalVendas)) +
+        linhaChave('Sangrias', moeda(somaMov(t, 'sangria'))) +
+        linhaChave('Reforços', moeda(somaMov(t, 'reforco')));
+      // `pdvFechamentoCego`: com o turno aberto, o esperado por forma nao aparece — senao a contagem vira copia.
+      if (fechado) {
+        corpo += '<div class="section-title">Resumo por forma de recebimento</div>' +
+          '<table class="pdv-parcelas"><thead><tr><th>Forma</th><th>Esperado</th><th>Contado</th><th>Diferença</th></tr></thead><tbody>' +
+          esperadoPorForma(t).map(l => { const c = (t.contado || {})[l.chave] || 0; return '<tr><td>' + esc(l.nome) + '</td><td>' + moeda(l.valor) + '</td><td>' + moeda(c) + '</td><td>' + moeda(arred(c - l.valor)) + '</td></tr>'; }).join('') +
+          '</tbody></table>' + (t.forcado ? '<div class="pdv-nota alerta">Fechado <b>com diferença de ' + moeda(t.diferenca) + '</b>, liberado com senha.</div>' : '');
+      } else if (PARAM.pdvFechamentoCego) {
+        corpo += '<div class="pdv-nota">O valor esperado por forma <b>não aparece com o caixa aberto</b>: o fechamento é cego. Ele aparece aqui depois de fechado, ao lado do que foi contado.</div>';
+      } else {
+        corpo += '<div class="section-title">Resumo por forma de recebimento</div>' +
+          esperadoPorForma(t).map(l => linhaChave(esc(l.nome), moeda(l.valor))).join('');
+      }
+    } else if (abaCaixa === 'mov') {
+      corpo += t.movimentos.length
+        ? t.movimentos.map(m => '<div class="pdv-gerado"><span class="pdv-gerado-ponto"></span><span><b>' + (m.tipo === 'sangria' ? 'Sangria' : 'Reforço') + ' de ' + moeda(m.valor) + '</b> às ' + hhmm(new Date(m.quando)) +
+            (m.tipo === 'sangria' ? ', para ' : ', vindo de ') + esc(contaDe(m.contaId).nome) + '. ' + esc(m.motivo) + '</span></div>').join('')
+        : '<div class="pdv-sug-vazio">Nenhuma sangria nem reforço neste turno.</div>';
+    } else {
+      corpo += t.vendas.length
+        ? t.vendas.slice().reverse().map(v => '<div class="pdv-gerado"><span class="pdv-gerado-ponto"></span><span><b>Venda nº ' + v.numero + ' · ' + moeda(v.total) + '</b> às ' + hhmm(new Date(v.quando)) + ', para ' + esc(v.clienteNome) + '. ' +
+            v.recebimentos.map(r => esc(r.nome) + ' ' + moeda(r.valor)).join(' · ') + '</span></div>').join('')
+        : '<div class="pdv-sug-vazio">Nenhuma venda neste turno ainda.</div>';
+    }
+    html('caixaCorpo', corpo);
+    mostrar('btnFecharCaixaPainel', !fechado);
+    texto('btnReimprimirTurno', fechado ? 'Imprimir comprovante de fechamento' : 'Imprimir comprovante de abertura');
+  }
+  function abrirDetalhesCaixa(t) {
+    turnoNoPainel = t || turno;
+    if (!turnoNoPainel) return;
+    abaCaixa = 'geral';
+    pintarCaixa();
+    abrirPainel('caixaDrawer');
+  }
+  function abrirMovimento(tipo) {
+    if (!turno) return;
+    tipoMov = tipo;
+    const sangria = tipo === 'sangria';
+    texto('movTitulo', sangria ? 'Sangria de caixa' : 'Reforço de caixa');
+    texto('rotuloMovConta', sangria ? 'Para onde vai' : 'De onde vem');
+    html('movInfo', sangria
+      ? 'Sangria tira dinheiro da gaveta. Não pode passar do que a gaveta tem, e <b>pede senha</b> por padrão.'
+      : 'Reforço põe dinheiro na gaveta, normalmente para troco. Fica no registro de atividades.');
+    montar('menuMovConta', CONTAS_FINANCEIRAS.filter(c => c.id !== GAVETA).map(c => ({ v: c.id, t: c.nome })));
+    setDrop('movConta', COFRE);
+    document.getElementById('movValor').value = '';
+    document.getElementById('movMotivo').value = '';
+    limparErro('campoMovValor', 'erroMovValor');
+    limparErro('campoMovMotivo', 'erroMovMotivo');
+    abrirPainel('movDrawer');
+    document.getElementById('movValor').focus();
+  }
+  function salvarMovimento() {
+    limparErro('campoMovValor', 'erroMovValor');
+    limparErro('campoMovMotivo', 'erroMovMotivo');
+    const valor = numero(document.getElementById('movValor').value);
+    const motivo = document.getElementById('movMotivo').value.trim();
+    const sangria = tipoMov === 'sangria';
+    let erro = false;
+    if (valor === null || valor <= 0) { marcarErro('campoMovValor', 'erroMovValor', 'Informe um valor maior que zero.'); erro = true; }
+    // Sangria maior que a gaveta e dinheiro que nao existe saindo. O numero da gaveta so aparece aqui se o fechamento nao for cego.
+    else if (sangria && valor > dinheiroNaGaveta(turno) + 0.005) {
+      marcarErro('campoMovValor', 'erroMovValor', PARAM.pdvFechamentoCego ? 'A gaveta não tem esse valor em dinheiro.' : 'A gaveta tem ' + moeda(dinheiroNaGaveta(turno)) + ' em dinheiro.');
+      erro = true;
+    }
+    if (motivo === '') { marcarErro('campoMovMotivo', 'erroMovMotivo'); erro = true; }
+    if (erro) return;
+    const contaId = Number(valDrop('movConta'));
+    confirmarAcao(sangria ? 'pdvSangria' : 'pdvReforco',
+      (sangria ? 'Lançar sangria de ' : 'Lançar reforço de ') + moeda(valor) + (sangria ? ' para ' : ' vindo de ') + contaDe(contaId).nome + '?',
+      () => {
+        turno.movimentos.push({ tipo: tipoMov, valor: arred(valor), contaId, motivo, quando: new Date().toISOString() });
+        fecharPaineis(); gravar();
+        avisar((sangria ? 'Sangria lançada. ' : 'Reforço lançado. ') + moeda(valor) + (sangria ? ' saíram da gaveta para ' : ' entraram na gaveta, vindos de ') + contaDe(contaId).nome + '. É uma transferência entre contas financeiras.');
+      });
+  }
+  function abrirFechamento() {
+    if (!turno) return;
+    if (momento === 'finalizar' || (venda && venda.itens.length > 0)) { fecharPaineis(); avisar('Há uma venda em andamento. Finalize ou cancele a venda antes de fechar o caixa.'); return; }
+    const linhas = esperadoPorForma(turno);
+    html('fecharNota', 'Conte o que está na gaveta e informe o total de cada forma. ' + (PARAM.pdvFechamentoCego
+      ? '<b>O valor esperado não aparece</b>: contagem feita sabendo o número é confirmação, não conferência.'
+      : 'O valor esperado aparece ao lado de cada campo: o <b>fechamento cego está desligado</b> em Configurações do PDV.'));
+    html('fecharCampos', linhas.map(l => '<div class="form-field" data-campo-fechar="' + l.chave + '"><label>' + esc(l.nome) + ' (R$)</label>' +
+      '<input type="text" inputmode="decimal" data-fechar="' + l.chave + '" placeholder="0,00">' +
+      (PARAM.pdvFechamentoCego ? '' : '<div class="field-hint">Esperado: ' + moeda(l.valor) + '</div>') + '</div>').join(''));
+    mostrar('fecharDivergencia', false);
+    mostrar('btnForcarFechamento', false);
+    abrirPainel('fecharDrawer');
+    const primeiro = document.querySelector('#fecharCampos input');
+    if (primeiro) primeiro.focus();
+  }
+  function lerContagem() {
+    const contado = {};
+    let falta = false;
+    document.querySelectorAll('#fecharCampos [data-fechar]').forEach(inp => {
+      const n = numero(inp.value);
+      const campo = inp.parentNode;
+      campo.classList.toggle('has-error', n === null || n < 0);
+      if (n === null || n < 0) falta = true; else contado[inp.getAttribute('data-fechar')] = arred(n);
+    });
+    return falta ? null : contado;
+  }
+  function concluirFechamento(contado, forcado) {
+    const linhas = esperadoPorForma(turno);
+    turno.contado = contado;
+    turno.diferenca = arred(linhas.reduce((s, l) => s + ((contado[l.chave] || 0) - l.valor), 0));
+    turno.forcado = !!forcado;
+    turno.fechadoEm = new Date().toISOString();
+    ultimoTurno = turno;
+    turno = null; venda = null; produtoAtual = null;
+    fecharPaineis();
+    irPara('fechado');
+    avisar('Caixa fechado. ' + (forcado ? 'Ficou registrada a diferença de ' + moeda(ultimoTurno.diferenca) + ', liberada com senha.' : 'A contagem bateu com o esperado em todas as formas.') + ' O comprovante está em "Ver detalhes" do último turno.');
+  }
+  function confirmarFechamento(forcar) {
+    const contado = lerContagem();
+    if (!contado) { mostrar('fecharDivergencia', true); html('fecharDivergencia', 'Informe o valor contado de <b>todas</b> as formas, mesmo que seja zero.'); return; }
+    const difs = esperadoPorForma(turno).filter(l => Math.abs((contado[l.chave] || 0) - l.valor) > 0.005);
+    if (difs.length === 0) { concluirFechamento(contado, false); return; }
+    if (!forcar) {
+      // Cego: diz ONDE nao bateu, nunca quanto era o esperado. Recontar e a primeira resposta.
+      mostrar('fecharDivergencia', true);
+      html('fecharDivergencia', 'O valor informado para <b>' + difs.map(l => esc(l.nome)).join(', ') + '</b> não confere com o caixa. Conte de novo. Se a diferença for real, use "Fechar mesmo com diferença", que pede senha.');
+      mostrar('btnForcarFechamento', true);
+      return;
+    }
+    // Quem libera ve os numeros: a senha e de quem responde pela diferenca.
+    confirmarAcao('pdvFechaComDiferenca',
+      'Fechar o caixa com diferença? ' + difs.map(l => l.nome + ': contado ' + moeda(contado[l.chave] || 0) + ', esperado ' + moeda(l.valor)).join('; ') + '.',
+      () => concluirFechamento(contado, true));
+  }
+
+  // ---------- impressao: uma folha so, preenchida na hora ----------
+  function folhaLinha(a, b, forte) { return '<div class="pdv-folha-linha' + (forte ? ' forte' : '') + '"><span>' + a + '</span><span>' + b + '</span></div>'; }
+  function folhaCabeca(lojaId, titulo) {
+    return '<div class="pdv-folha-emp">Desk Company · ' + esc(lojaDe(lojaId).nome) + '</div><div class="pdv-folha-tit">' + titulo + '</div>';
+  }
+  function imprimir(conteudo) {
+    html('folhaImpressao', conteudo);
+    window.print();
+  }
+  function folhaAbertura(t) {
+    const d = new Date(t.abertoEm);
+    return folhaCabeca(t.lojaId, 'Abertura de caixa') + folhaLinha('Data', dataBr(d)) + folhaLinha('Hora', hhmm(d)) + folhaLinha('Operador', esc(t.operador)) +
+      folhaLinha('Valor disponível', moeda(t.trocoInicial), true) + '<div class="pdv-folha-assina"><div class="pdv-folha-assina-linha"></div>Assinatura do responsável</div>';
+  }
+  function folhaFechamento(t) {
+    const d = new Date(t.fechadoEm);
+    const linhas = esperadoPorForma(t);
+    const entradas = arred(t.trocoInicial + t.vendas.reduce((s, v) => s + v.total, 0) + somaMov(t, 'reforco'));
+    const informado = arred(linhas.reduce((s, l) => s + ((t.contado || {})[l.chave] || 0), 0));
+    return folhaCabeca(t.lojaId, 'Comprovante de fechamento de caixa') + folhaLinha('Data', dataBr(d)) + folhaLinha('Hora', hhmm(d)) + folhaLinha('Operador', esc(t.operador)) +
+      '<div class="pdv-folha-sep"></div>' + folhaLinha('Abertura', moeda(t.trocoInicial)) +
+      FORMAS.map(f => { const v = recebidoNaForma(t, f.chave); return v > 0 ? folhaLinha('Vendas em ' + esc(f.nome.toLowerCase()), moeda(v)) : ''; }).join('') +
+      folhaLinha('Reforço', moeda(somaMov(t, 'reforco'))) + folhaLinha('Total entradas', moeda(entradas), true) +
+      folhaLinha('Sangrias', moeda(somaMov(t, 'sangria'))) + folhaLinha('Total saídas', moeda(somaMov(t, 'sangria')), true) +
+      '<div class="pdv-folha-sep"></div>' + folhaLinha('Dinheiro em caixa', moeda(dinheiroNaGaveta(t)), true) +
+      folhaLinha('Total esperado', moeda(arred(linhas.reduce((s, l) => s + l.valor, 0))), true) +
+      folhaLinha('Total informado no fechamento', moeda(informado), true) + folhaLinha('Diferença', moeda(t.diferenca), true) +
+      '<div class="pdv-folha-assina"><div class="pdv-folha-assina-linha"></div>Assinatura do responsável</div>';
+  }
+  function folhaRecibo(v, paraTroca) {
+    const d = new Date(v.quando);
+    let c = folhaCabeca(v.lojaId, paraTroca ? 'Recibo para troca' : 'Recibo de venda');
+    c += v.itens.map(it => folhaLinha(fmtQtd(it.qtd, it.un) + ' ' + esc(it.un) + ' × ' + esc(it.nome), paraTroca ? '' : moeda(it.total))).join('');
+    c += '<div class="pdv-folha-sep"></div>' + folhaLinha('Qtde. total de itens', String(v.itens.length));
+    // Recibo para troca nao leva valor: quem recebe o presente nao precisa saber quanto custou.
+    if (!paraTroca) {
+      c += folhaLinha('Valor total', moeda(v.subtotal)) + folhaLinha('Desconto', moeda(v.desconto)) + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
+        v.recebimentos.map(r => r.destino === 'titulo'
+          ? r.parcelas.map(x => folhaLinha(esc(r.nome) + ' · venc. ' + dataBr(maisDias(d, x.dias)), moeda(x.valor))).join('')
+          : folhaLinha(esc(r.nome) + ' · ' + dataBr(d), moeda(r.valor))).join('') +
+        (v.troco > 0 ? folhaLinha('Troco', moeda(v.troco)) : '');
+    }
+    c += '<div class="pdv-folha-sep"></div><div class="pdv-folha-sub">' + esc(v.clienteNome) + (v.clienteDoc ? ' · ' + esc(v.clienteDoc) : '') + '</div>' +
+      '<div class="pdv-folha-sub">Venda nº ' + v.numero + ' · ' + dataBr(d) + ' ' + hhmm(d) + (v.vendedorNome ? ' · Vendedor: ' + esc(v.vendedorNome) : '') + '</div>';
+    return c;
+  }
+
+  // ---------- menus que dependem do turno ----------
+  function montarMenusDoTurno() {
+    if (!turno) return;
+    const vend = VENDEDORES.filter(v => v.ativo && (v.lojaId === turno.lojaId || v.lojaId === null));
+    montar('menuVendedor', [{ v: '', t: 'Sem vendedor' }].concat(vend.map(v => ({ v: v.id, t: v.nome }))));
+    montar('menuFinDeposito', DEPOSITOS.map(d => ({ v: d.id, t: d.nome })));
+    montar('menuFinCategoria', CATEGORIAS.map(c => ({ v: c.id, t: c.nome })));
+  }
+
+  // ---------- ligacoes (os dropdowns nascem com a TELA, nao na abertura do painel) ----------
+  montar('menuAbrirLoja', LOJAS.map(l => ({ v: l.id, t: l.nome })));
+  inicializarDropdownSelect(document.getElementById('abrirLoja'), pintarHintLoja);
+  inicializarDropdownSelect(document.getElementById('selVendedor'), (v) => { venda.vendedorId = v === '' ? null : Number(v); gravar(); });
+  inicializarDropdownSelect(document.getElementById('finDeposito'), (v) => { venda.depositoId = Number(v); pintarFinalizar(); gravar(); });
+  inicializarDropdownSelect(document.getElementById('finCategoria'), (v) => { venda.categoriaId = Number(v); gravar(); });
+  inicializarDropdownSelect(document.getElementById('selAddReceb'), (v) => { if (v) adicionarRecebimento(v); });
+  inicializarDropdownSelect(document.getElementById('itemAjusteTipo'), pintarPainelItem);
+  inicializarDropdownSelect(document.getElementById('itemAjusteModo'), pintarPainelItem);
+  inicializarDropdownSelect(document.getElementById('movConta'), null);
+  ['itemQtd', 'itemPreco', 'itemAjusteValor'].forEach(id => document.getElementById(id).addEventListener('input', pintarPainelItem));
+
+  document.getElementById('btnAbrirCaixa').addEventListener('click', abrirAbertura);
+  document.getElementById('btnConfirmarAbertura').addEventListener('click', confirmarAbertura);
+  document.getElementById('buscaProduto').addEventListener('input', () => { produtoAtual = null; sugestaoFoco = 0; limparErro(null, 'erroProduto'); pintarProduto(); pintarSugestoes(); });
+  document.getElementById('buscaProduto').addEventListener('blur', () => setTimeout(() => { document.getElementById('sugestoes').style.display = 'none'; }, 150));
+  document.getElementById('buscaProduto').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' && sugestoesAtuais.length) { e.preventDefault(); sugestaoFoco = (sugestaoFoco + 1) % sugestoesAtuais.length; pintarSugestoes(); }
+    else if (e.key === 'ArrowUp' && sugestoesAtuais.length) { e.preventDefault(); sugestaoFoco = (sugestaoFoco - 1 + sugestoesAtuais.length) % sugestoesAtuais.length; pintarSugestoes(); }
+    else if (e.key === 'Enter' && !e.ctrlKey) {
+      e.preventDefault();
+      if (produtoAtual) { adicionarProduto(); return; }
+      // Leitor de codigo de barras: codigo exato e Enter ja adicionam, na quantidade que estiver no campo.
+      const t = document.getElementById('buscaProduto').value.trim().toLowerCase();
+      const exato = produtosDoTurno().filter(p => p.sku.toLowerCase() === t || p.gtin === t)[0];
+      if (exato) { produtoAtual = exato; document.getElementById('buscaProduto').value = exato.nome; pintarProduto(); adicionarProduto(); return; }
+      if (sugestoesAtuais.length) selecionarProduto(sugestoesAtuais[sugestaoFoco]);
+    }
   });
+  document.getElementById('qtdProduto').addEventListener('input', () => { limparErro(null, 'erroProduto'); pintarProduto(); });
+  document.getElementById('qtdProduto').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.ctrlKey) { e.preventDefault(); adicionarProduto(); } });
+  document.getElementById('btnAdicionar').addEventListener('click', adicionarProduto);
+  document.getElementById('btnLimparProduto').addEventListener('click', limparProduto);
+  document.getElementById('btnCliente').addEventListener('click', abrirCliente);
+  document.getElementById('btnClienteFin').addEventListener('click', abrirCliente);
+  document.getElementById('buscaCliente').addEventListener('input', pintarClientes);
+  document.getElementById('btnConsumidorFinal').addEventListener('click', () => escolherCliente(null));
+  document.getElementById('btnNovoCliente').addEventListener('click', () => { mostrar('blocoNovoCliente', true); document.getElementById('novoCliNome').focus(); });
+  document.getElementById('btnSalvarCliente').addEventListener('click', salvarClienteRapido);
+  document.getElementById('btnAplicarItem').addEventListener('click', aplicarItem);
+  document.getElementById('btnRemoverItem').addEventListener('click', () => { venda.itens.splice(itemEmEdicao, 1); fecharPaineis(); pintarVenda(); gravar(); });
+  document.getElementById('btnContinuar').addEventListener('click', continuar);
+  document.getElementById('btnCancelarVenda').addEventListener('click', cancelarVenda);
+  document.getElementById('finDesconto').addEventListener('change', (e) => { venda.descontoTxt = e.target.value.trim(); pintarFinalizar(); gravar(); });
+  document.getElementById('btnVoltarItens').addEventListener('click', () => irPara('venda'));
+  document.getElementById('btnFinalizar').addEventListener('click', finalizar);
+  document.getElementById('btnOutraVenda').addEventListener('click', outraVenda);
+  document.getElementById('btnRecibo').addEventListener('click', () => { if (ultimaVenda) imprimir(folhaRecibo(ultimaVenda, false)); });
+  document.getElementById('btnReciboTroca').addEventListener('click', () => { if (ultimaVenda) imprimir(folhaRecibo(ultimaVenda, true)); });
+  document.getElementById('btnDetalhesCaixa').addEventListener('click', () => abrirDetalhesCaixa(null));
+  document.querySelectorAll('#abasCaixa .aba-sit').forEach(a => a.addEventListener('click', () => { abaCaixa = a.getAttribute('data-aba'); pintarCaixa(); }));
+  document.getElementById('btnFecharCaixaPainel').addEventListener('click', abrirFechamento);
+  document.getElementById('btnReimprimirTurno').addEventListener('click', () => { const t = turnoNoPainel; if (t) imprimir(t.fechadoEm ? folhaFechamento(t) : folhaAbertura(t)); });
+  document.getElementById('btnSalvarMov').addEventListener('click', salvarMovimento);
+  document.getElementById('btnConfirmarFechamento').addEventListener('click', () => confirmarFechamento(false));
+  document.getElementById('btnForcarFechamento').addEventListener('click', () => confirmarFechamento(true));
 
   // ===== MAIS AÇÕES =====
   const menuMais = document.getElementById('menuMaisAcoes');
   inicializarDropdownSelect(menuMais, null);
-  menuMais.querySelectorAll('.dropdown-select-item').forEach(item => {
-    item.addEventListener('click', () => {
+  menuMais.querySelectorAll('.dropdown-select-item').forEach(function (item) {
+    item.addEventListener('click', function () {
       menuMais.classList.remove('open');
       const acao = item.getAttribute('data-acao');
-      if (acao === 'motivos') { window.location.href = '../configuracoes/pagina-configuracoes-motivos-devolucao.html'; return; }
-      if (acao === 'rastreamento') { window.location.href = '../logistica/pagina-logistica-rastreamento.html'; return; }
-      if (acao === 'parametros') { window.location.href = '../configuracoes/pagina-configuracoes-parametros-estoque.html'; return; }
-      if (acao === 'exportar') {
-        avisar('A exportação para planilha entra junto com os relatórios de Logística. Por enquanto a lista filtrada é o que existe.');
-        return;
-      }
-      if (acao === 'valestroca') {
-        // Promessa vazia e pior que ausencia: a tela diz o que falta e por que.
-        avisar('Vales-troca ainda não tem tela. Enquanto ela não existe, a forma "Vale-troca" fica desabilitada na devolução — oferecer um crédito que ninguém consegue usar seria pior que não oferecer.');
-        return;
-      }
+      if (acao === 'sangria') abrirMovimento('sangria');
+      else if (acao === 'reforco') abrirMovimento('reforco');
+      else if (acao === 'cancelar') cancelarVenda();
+      else if (acao === 'atalhos') abrirPainel('atalhosDrawer');
+      else if (acao === 'fechar') abrirFechamento();
+      else if (acao === 'ultima') { if (ultimaVenda) imprimir(folhaRecibo(ultimaVenda, false)); else avisar('Ainda não há venda finalizada neste navegador para reimprimir.'); }
     });
   });
 
-  render();
+  // ---------- atalhos de teclado ----------
+  // Rodam na captura, depois do Esc dos dropdowns (que e mais antigo). Com o
+  // modal de confirmacao aberto, ninguem aqui responde: o modal tem o proprio Esc.
+  document.addEventListener('keydown', (e) => {
+    if (confirmModal.classList.contains('open')) return;
+    const aberto = painelAberto();
+    if (e.key === 'Escape') {
+      // O Esc dos dropdowns para a propagacao quando fecha um menu, mas esta no mesmo no que este
+      // ouvinte e nao o impede de rodar. `cancelBubble` diz que aquele Esc ja foi gasto com o menu.
+      if (e.cancelBubble) return;
+      if (aberto) { fecharPaineis(); return; }
+      if (momento === 'venda' && produtoAtual) { limparProduto(); return; }
+      if (momento === 'finalizar') { irPara('venda'); return; }
+      return;
+    }
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      if (aberto === 'abrirDrawer') confirmarAbertura();
+      else if (aberto === 'itemDrawer') aplicarItem();
+      else if (aberto) return;
+      else if (momento === 'fechado') abrirAbertura();
+      else if (momento === 'venda') continuar();
+      else if (momento === 'finalizar') finalizar();
+      else if (momento === 'concluida') outraVenda();
+      return;
+    }
+    if (aberto) return;
+    if (e.key === 'F8') { e.preventDefault(); abrirCliente(); return; }
+    if (e.key === 'F9' && momento === 'venda') { e.preventDefault(); document.querySelector('#selVendedor .dropdown-select-btn').click(); return; }
+    if (e.key === 'F4' && momento === 'finalizar') { e.preventDefault(); document.querySelector('#selAddReceb .dropdown-select-btn').click(); return; }
+    if (e.ctrlKey && (e.key === 'y' || e.key === 'Y') && turno) { e.preventDefault(); abrirDetalhesCaixa(null); return; }
+    if (e.ctrlKey && e.key === '1' && momento === 'concluida') { e.preventDefault(); document.getElementById('btnRecibo').click(); return; }
+    if (e.ctrlKey && e.key === '2' && momento === 'concluida') { e.preventDefault(); document.getElementById('btnReciboTroca').click(); return; }
+    // "Digite sem clicar no campo": tecla de texto, sem campo em foco, vai para a busca de produto.
+    const emCampo = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || '');
+    if (momento === 'venda' && !emCampo && e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) document.getElementById('buscaProduto').focus();
+  }, true);
+
+  // ---------- partida ----------
+  // Estado guardado que nao fecha com o turno e descartado: melhor comecar limpo que abrir um momento impossivel.
+  if (!turno) { momento = 'fechado'; venda = null; }
+  else {
+    montarMenusDoTurno();
+    if (!venda) venda = novaVenda();
+    if (momento === 'fechado' || (momento === 'concluida' && !ultimaVenda) || (momento === 'finalizar' && venda.itens.length === 0)) momento = 'venda';
+  }
+  irPara(momento);
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

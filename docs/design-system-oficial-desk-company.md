@@ -1841,3 +1841,61 @@ e os rótulos das listas fechadas desta tela, que ainda não estão em Nomes do 
 **Enquanto não há backend, as cinco telas ficam como espelho**, como o Acerto com os Motivos de
 Perda (§14.41), e a seção 12 da suíte compara tudo. Forma criada pelo usuário ainda não chega
 sozinha a Contas a Receber e Contas a Pagar: o espelho cobre as formas do sistema.
+
+## 14.48 PDV: a venda de balcão é Pedido de Venda, e o caixa é turno (09/out/2026)
+
+`telas/vendas/pagina-vendas-pdv.html` e `telas/configuracoes/pagina-configuracoes-pdv.html`.
+Referência: 34 prints do PDV do Olist. Três decisões do usuário, que não se reabrem:
+
+1. **A venda vira Pedido de Venda já entregue.** Não existe "venda de balcão" como lista à
+   parte. É por isso que ela conta em Metas e em Performance, que leem os pedidos faturados. A
+   situação em que entra é parâmetro (`pdvSituacaoVenda`), e só as de faturado em diante servem.
+2. **A loja é escolhida ao abrir o caixa.** Produto pertence a uma loja só, então a loja do turno
+   decide o que a busca acha, o depósito de onde sai o estoque e os vendedores oferecidos.
+3. **O ciclo entrou inteiro:** abrir o caixa, vender, receber, concluir, sangria, reforço e fechar.
+
+**Uma tela, quatro momentos:** caixa fechado, venda, finalização e venda concluída. O estado fica
+em `deskPdv` no navegador e sobrevive ao F5: recarregar a página no meio do turno não fecha o caixa.
+
+**O caixa do PDV não é o Caixa de Finanças.** Um é o turno do operador (gaveta, troco, abertura e
+fechamento); o outro é o extrato das contas. A tela e as Configurações dizem isso com todas as
+letras, porque o nome é o mesmo. O dinheiro da venda entra na conta financeira "Caixa" e a sangria
+sai dela para o cofre.
+
+**Quem decide o recebimento é o cadastro de Formas de recebimento (§14.47), não o PDV:**
+
+- forma com destino em conta entra na hora, sem título;
+- forma com destino em título gera Contas a Receber, e por isso **exige cliente identificado**,
+  com "cliente obrigatório" ligado ou não: título precisa de devedor;
+- forma que valida limite barra a venda com os quatro números (limite, usado, disponível, pedido);
+- as parcelas são digitadas na venda, como `3x` ou `30 60 90`. O prazo padrão por forma, que o
+  §14.47 deixou para o PDV, continua sem cadastro.
+
+**Fechamento cego é a mesma regra da conferência: contagem sabendo o número é cópia.** Com o caixa
+aberto, Detalhes do caixa não mostra o esperado por forma. Contagem que não bate diz **em qual
+forma**, nunca quanto era. Sangria maior que a gaveta é barrada sem revelar quanto há. Fechar com
+diferença pede senha, e só quem libera vê contado e esperado. Desligar o fechamento cego é a única
+mudança das Configurações do PDV que pede senha (`pdvCegoDesliga`).
+
+**Desconto acima do máximo não é proibido: é liberado.** Até `pdvDescontoMaximoPct` o operador
+aplica sozinho; acima, o PDV pede a senha de quem pode (`pdvDescontoAcima`). Vale para o item e
+para a venda inteira.
+
+**Senhas do PDV:** sangria e fechar com diferença pedem; reforço não pede por padrão. As cinco
+ações estão no catálogo, nas três telas que o exibem.
+
+**Lição de componente: `stopPropagation` não cala ouvinte do mesmo nó.** O Esc dos dropdowns roda
+na captura do `document` e para a propagação quando fecha um menu. Os atalhos do PDV também estão
+na captura do `document`, e rodavam em seguida: um Esc fechava o menu **e** voltava da finalização
+para os itens. Quem registrar atalho de Esc na captura confere `e.cancelBubble` antes de agir.
+
+**Espelhos, enquanto não há backend:** catálogo, lojas e depósitos (Pedido de Venda), vendedores
+(Metas), clientes (Cadastros), formas de recebimento, contas e categorias financeiras. A seção 9
+de `teste_pdv.py` compara cada um com o cadastro de origem. Das categorias entram as de receita de
+vendas, fora as de dedução.
+
+**Ficou de fora, com o usuário sabendo:** salvar a venda para depois, faturar pré-venda,
+vale-presente, lista de preços, item não cadastrado, enviar o recibo por e-mail ou WhatsApp e
+NFC-e. **E a venda ainda não chega às outras telas**: Pedidos, Contas a Receber, Caixa e Metas
+têm cada uma os seus dados de exemplo. O PDV diz, na conclusão, o que a venda gerou; a ligação de
+verdade é do backend.

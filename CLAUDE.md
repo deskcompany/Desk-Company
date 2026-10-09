@@ -155,9 +155,11 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 - Antes de qualquer `sed`/substituição em massa nas telas, confirme que a árvore está
   limpa (`git status`). O desfazer agora existe; use-o em vez de confiar na sorte.
 
-## Estado atual (06/out/2026)
+## Estado atual (09/out/2026)
 
-**72 telas construídas**, 41 entradas de menu, 18 submódulos a fazer. F2 (Cadastros), F5
+**74 telas construídas**, 41 itens de menu com tela, 17 submódulos a fazer. Em 09/out entrou o
+**PDV** (Vendas) com as Configurações do PDV: a venda de balcão vira Pedido de Venda já entregue,
+e o caixa do PDV é o turno do operador, não o Caixa de Finanças (§14.48). F2 (Cadastros), F5
 (Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
 Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
 mais o cadastro de **Motivos de Devolução** (hoje em Configurações; o módulo Operacional saiu do menu em 08/out). De Logística falta só
