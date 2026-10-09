@@ -129,8 +129,9 @@ with sync_playwright() as pw:
     contar(pg, 1, 1)
     pg.click('[data-bancar="1"]')
     pg.wait_for_timeout(300)
-    ok('divergência aguardando reconferência' in texto_modal(pg),
-       'bancar avisa que vira divergencia de estoque: %s' % texto_modal(pg)[:70])
+    # 09/out: o que falta passa a ser bloqueado para venda, em vez de so esperar reconferencia.
+    ok('bloqueado para venda' in texto_modal(pg) and 'Itens Bloqueados' in texto_modal(pg),
+       'bancar avisa que o que faltar fica bloqueado: %s' % texto_modal(pg)[:70])
     confirmar(pg)
     ok(pg.locator('.cel-dif[data-i="1"]').inner_text().strip() == '-1', 'bancado, o tamanho aparece')
     ok(pg.locator('.cel-sep[data-i="1"]').inner_text().strip() == '2', 'e o numero da separacao tambem')
@@ -213,7 +214,8 @@ with sync_playwright() as pw:
     pg.click('#btnFechar'); pg.wait_for_timeout(320)
     t = texto_modal(pg)
     ok('Expedição' in t, 'a confirmacao diz para onde o pedido vai: %s' % t[:60])
-    ok('nenhum saldo é baixado' in t, 'e que o saldo NAO e baixado aqui')
+    # 09/out: o que faltou fica bloqueado para venda; baixa continua nao acontecendo aqui.
+    ok('nenhum saldo é baixado' in t.lower() and 'bloqueado para venda' in t, 'e que o saldo NAO e baixado aqui: o que faltou fica bloqueado')
     ok('restituir o valor' in t, 'e repete a compensacao escolhida')
     confirmar(pg)
     ok('faturado' in texto_modal(pg), 'o aviso final diz que o pedido foi faturado')

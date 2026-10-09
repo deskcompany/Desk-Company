@@ -7,7 +7,7 @@
 #   falta NAO e situacao: pedido com falta continua andando (design system §14.11/§14.14)
 #   item sem resposta TRAVA a conclusao — coletado ou em falta, o silencio nao conta
 #   o campo da quantidade achada nasce VAZIO (conferencia, nao confirmacao)
-#   falta NAO baixa estoque aqui: vira divergencia aguardando reconferencia
+#   falta NAO baixa estoque aqui: bloqueia a unidade, que espera auditoria em Itens Bloqueados (09/out)
 #   sobra nao se resolve na separacao
 #   a coleta sai na ordem do ENDERECO, e o parametro desliga isso
 #   numero que decide cor vive no PARAM, nao dentro de um `if`
@@ -186,8 +186,9 @@ with sync_playwright() as pw:
     pg.locator('.sep-item').first.locator('[data-confirma-falta]').click()
     pg.wait_for_timeout(250)
     t = texto_modal(pg)
-    ok('divergência' in t, 'a confirmacao diz que vira divergencia: %s' % t[:70])
-    ok('não é alterado' in t or 'não é baixado' in t, 'a confirmacao diz que o saldo nao muda')
+    # 09/out: a falta bloqueia a unidade (Estoque -> Itens Bloqueados). Continua nao sendo baixa.
+    ok('fica bloqueada para venda' in t and 'Itens Bloqueados' in t, 'a confirmacao diz que a diferenca fica bloqueada: %s' % t[:70])
+    ok('Não é baixa' in t and 'estoque físico não muda' in t, 'e que nao e baixa: o estoque fisico nao muda')
     ok('Conferência de Saída' in t, 'a confirmacao diz para onde o pedido vai mesmo com falta')
     confirmar(pg)
     ok(pg.locator('.sep-item').first.locator('.sep-falta-btn.tem-falta').count() == 1,
@@ -310,7 +311,8 @@ with sync_playwright() as pw:
     t = texto_modal(pg)
     ok('em falta' in t, 'a confirmacao da conclusao avisa da falta: %s' % t[:60])
     confirmar(pg)
-    ok('reconferência' in texto_modal(pg), 'o aviso final manda para a reconferencia')
+    # 09/out: a falta deixou de ser "divergencia aguardando reconferencia" e passou a bloquear a unidade.
+    ok('Itens Bloqueados' in texto_modal(pg) and 'reconferência' not in texto_modal(pg), 'o aviso final manda para Itens Bloqueados')
     confirmar(pg)
     ok(pg.locator('#blocoEntrega .badge-situacao').inner_text().upper() == 'SEPARADO',
        'o pedido com falta ANDOU — nao travou')

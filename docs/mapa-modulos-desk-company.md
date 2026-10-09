@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras e em 09/out com o PDV e o CRM. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras e em 09/out com o PDV, o CRM e Itens Bloqueados. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**78 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**79 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **Onde estão os arquivos (desde 08/out/2026):** cada tela mora em `telas/<módulo>/`, na pasta do módulo em que este mapa a lista. O dashboard de KPIs fica em `telas/inicio/`. `telas/integracoes/` existe e está vazia. Ver §14.44 do design system.
 
@@ -33,7 +33,7 @@
 | ✅ | Categorias |
 | ❌ | Relatórios de Cadastros |
 
-## 📦 Estoque — 9 de 12
+## 📦 Estoque — 10 de 13
 | | Submódulo |
 |---|---|
 | ✅ | Controle de Estoques *(+ detalhe)* |
@@ -43,11 +43,14 @@
 | ✅ | Reposição |
 | ✅ | Ordens de Compra *(+ detalhe)* |
 | ✅ | Transferência Entre Estoques *(+ nova transferência)* |
+| ✅ | Itens Bloqueados *(09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
 | ✅ | Acerto de Estoque |
 | ✅ | Inventário |
 | ❌ | Necessidades de Compra |
 | ❌ | Giro de Estoque |
 | ❌ | Relatórios de Estoque |
+
+> **Itens Bloqueados nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
 
 ## 🛒 Vendas — 5 de 10
 | | Submódulo |
@@ -133,14 +136,14 @@
 |---|---|---|
 | Início | 3 | 0 |
 | Cadastros | 12 | 1 |
-| Estoque | 9 | 3 |
+| Estoque | 10 | 3 |
 | Vendas | 5 | 5 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
 | Configurações | 19 | 0 |
-| **Total** | **42 itens de menu com tela · 78 telas** | **16** |
+| **Total** | **43 itens de menu com tela · 79 telas** | **16** |
 
-*Contado no menu em 09/out/2026, já com o CRM: 58 itens, 42 com destino e 16 sem. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 09/out/2026, já com o CRM e Itens Bloqueados: 59 itens, 43 com destino e 16 sem. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

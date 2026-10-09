@@ -564,6 +564,7 @@
   .kpi-un { font-size:12px; font-weight:700; color:var(--text); margin-left:4px; }
   .kpi-rotulo { font-size:11.5px; font-weight:700; color:var(--text); margin-top:3px; text-transform:lowercase; }
   .kpi-nota { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.7; margin-top:2px; }
+  .kpi-link { color:var(--active-text); opacity:1; text-decoration:none; text-transform:none; }
   .kpi-fora { background:var(--page-bg); border-left:1px dashed var(--border); }
   .kpi-fora .kpi-valor { color:var(--text); }
   .kpi.destaque .kpi-valor { color:var(--active-text); }
@@ -740,6 +741,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
       <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
       <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
       <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
@@ -848,7 +850,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="kpi-faixa">
     <div class="kpi"><div class="kpi-valor" id="kpiFisico">0<span class="kpi-un">UN</span></div><div class="kpi-rotulo">estoque físico</div></div>
     <div class="kpi"><div class="kpi-valor" id="kpiAEnderecar">0</div><div class="kpi-rotulo">a endereçar<span class="kpi-nota" id="notaTravado">&nbsp;</span></div></div>
-    <div class="kpi"><div class="kpi-valor" id="kpiBloqueado">0</div><div class="kpi-rotulo">bloqueado<span class="kpi-nota">avaria / quarentena</span></div></div>
+    <div class="kpi"><div class="kpi-valor" id="kpiBloqueado">0</div><div class="kpi-rotulo">bloqueado<span class="kpi-nota" id="notaBloqueado">avaria, falta ou análise</span><a class="kpi-nota kpi-link" id="linkBloqueados" href="../estoque/pagina-estoque-itens-bloqueados.html" style="display:none;">resolver em Itens Bloqueados</a></div></div>
     <div class="kpi"><div class="kpi-valor apagado" id="kpiReservado" title="Calculado quando o módulo de Pedidos existir">—</div><div class="kpi-rotulo">reservado<span class="kpi-nota">depende de Pedidos</span></div></div>
     <div class="kpi destaque"><div class="kpi-valor" id="kpiDisponivel">0</div><div class="kpi-rotulo">disponível<span class="kpi-nota">livre para venda</span></div></div>
     <div class="kpi kpi-fora"><div class="kpi-valor" id="kpiConferencia">0</div><div class="kpi-rotulo">em conferência<span class="kpi-nota">não entra no estoque</span></div></div>
@@ -893,6 +895,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-item" data-value="entrada_nota">Entrada por nota</div>
         <div class="dropdown-select-item" data-value="saida_venda">Saída por venda</div>
         <div class="dropdown-select-item" data-value="acerto">Acerto de estoque</div>
+        <div class="dropdown-select-item" data-value="bloqueio">Bloqueio</div>
         <div class="dropdown-select-item" data-value="enderecamento">Endereçamento</div>
         <div class="dropdown-select-item" data-value="transferencia">Transferência</div>
       </div>
@@ -996,6 +999,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-item active" data-value="entrada">Entrada</div>
         <div class="dropdown-select-item" data-value="saida">Saída</div>
         <div class="dropdown-select-item" data-value="balanco">Balanço (informar contagem)</div>
+        <div class="dropdown-select-item" data-value="bloqueio">Bloqueio (tirar da venda)</div>
       </div>
     </div>
   </div>
@@ -1029,7 +1033,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <input type="text" id="campoQuantidade" placeholder="0">
       <div class="field-error-msg" id="erroQuantidade">Informe uma quantidade maior que zero.</div>
     </div>
-    <div class="form-field">
+    <div class="form-field" id="wrapPreco">
       <label>Preço unitário</label>
       <input type="text" id="campoPreco" disabled>
       <div class="field-hint">Travado no custo médio vigente: sobra de contagem não é mercadoria nova, e o custo dela já passou pela média quando a nota foi lançada. Destrava com Composição de Kit.</div>
@@ -1216,6 +1220,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'estoqueBloqueia',   nome:'Bloquear saldo de produto',                    onde:'Estoque \u2192 Controle de Estoques',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    { chave:'bloqueadosLibera',  nome:'Liberar item bloqueado para venda',            onde:'Estoque \u2192 Itens Bloqueados',          grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    { chave:'bloqueadosBaixa',   nome:'Dar baixa em item bloqueado',                  onde:'Estoque \u2192 Itens Bloqueados',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
@@ -1758,6 +1765,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ],
     balanco: [ { v:'contagem', l:'Contagem física', fiscal:'depende' } ]
   };
+  // Motivos do bloqueio: os mesmos de Estoque > Itens Bloqueados, que e onde o bloqueio se resolve.
+  // Ficam fora de MOTIVOS de proposito: bloqueio nao e acerto e nao tem consequencia fiscal.
+  const MOTIVOS_BLOQUEIO = [
+    { v:'avaria', l:'Avaria' },
+    { v:'falta', l:'Falta a auditar' },
+    { v:'analise', l:'Em análise' },
+    { v:'decisao', l:'Travado por decisão' }
+  ];
 
   let produtoAtual = null;
   let depositoAtual = 'todos';
@@ -1811,6 +1826,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const elB = document.getElementById('kpiBloqueado');
     elB.textContent = bloq > 0 ? fmtQtd(bloq, p.unidade) : '0';
     elB.className = 'kpi-valor' + (bloq > 0 ? ' bloq' : ' apagado');
+    // Com saldo bloqueado, a nota vira o caminho para resolver: a fila abre filtrada neste produto.
+    document.getElementById('notaBloqueado').style.display = bloq > 0 ? 'none' : '';
+    const linkB = document.getElementById('linkBloqueados');
+    linkB.style.display = bloq > 0 ? '' : 'none';
+    linkB.href = '../estoque/pagina-estoque-itens-bloqueados.html?produto=' + encodeURIComponent(p.sku);
     const elD = document.getElementById('kpiDisponivel');
     elD.textContent = fmtQtd(disp, p.unidade);
     elD.className = 'kpi-valor' + (disp <= 0 && fis > 0 ? ' apagado' : '');
@@ -1923,7 +1943,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // tirar dali quebraria o pedido de um cliente calado.
   function origensElegiveis() {
     const p = produtoAtual; if (!p || depLanc == null) return [];
-    const OK = ['disponivel', 'a_enderecar', 'bloqueado'];
+    const OK = tipoLanc === 'bloqueio' ? ['disponivel', 'a_enderecar'] : ['disponivel', 'a_enderecar', 'bloqueado'];
     return p.saldos
       .map((linha, i) => ({ linha, i }))
       .filter(({linha}) => String(linha.dep) === String(depLanc) && OK.includes(linha.estagio) && linha.qtd > 0);
@@ -1966,6 +1986,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function atualizarPreviaEntrada() {
     const el = document.getElementById('previaEntrada');
     if (tipoLanc === 'saida') { el.style.display = 'none'; return; }
+    if (tipoLanc === 'bloqueio') {
+      el.innerHTML = 'Bloqueio <b>não muda o estoque físico nem o custo</b>: a quantidade só sai do disponível. ' +
+        (motivoLanc === 'avaria' ? 'Avaria vai para <b>endereço de Avaria</b>.' : 'Ela fica <b>no mesmo endereço</b>, travada.') +
+        ' Para liberar ou dar baixa: <b>Estoque → Itens Bloqueados</b>.';
+      el.style.display = ''; return;
+    }
     const bruto = (document.getElementById('campoQuantidade').value || '').replace('.','').replace(',','.');
     const qtd = parseFloat(bruto);
     const p = produtoAtual;
@@ -1998,8 +2024,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function preencherMotivos() {
     const raiz = document.getElementById('campoMotivo');
     const menu = document.getElementById('menuMotivo');
-    const lista = MOTIVOS[tipoLanc] || [];
+    const lista = tipoLanc === 'bloqueio' ? MOTIVOS_BLOQUEIO : (MOTIVOS[tipoLanc] || []);
     motivoLanc = '';
+    document.getElementById('erroMotivo').textContent = tipoLanc === 'bloqueio'
+      ? 'Escolha o motivo do bloqueio.' : 'Escolha o motivo — é ele que decide a consequência fiscal.';
     menu.innerHTML = lista.map(m => '<div class="dropdown-select-item" data-value="' + m.v + '">' + m.l + '</div>').join('');
     raiz.setAttribute('data-value','');
     raiz.querySelector('.dropdown-select-label').textContent = 'Selecione o motivo';
@@ -2009,6 +2037,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       motivoLanc = valor;
       document.getElementById('erroMotivo').classList.remove('show');
       atualizarAvisoFiscal();
+      if (tipoLanc === 'bloqueio') atualizarPreviaEntrada();
     });
     atualizarAvisoFiscal();
   }
@@ -2037,7 +2066,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const elegiveis = origensElegiveis();
     // O seletor so aparece quando ha saldo em MAIS DE UMA linha elegivel — na
     // maioria esmagadora dos casos o operador nao ve nada a mais.
-    if (tipoLanc !== 'saida' || elegiveis.length < 2) {
+    if ((tipoLanc !== 'saida' && tipoLanc !== 'bloqueio') || elegiveis.length < 2) {
       wrap.style.display = 'none';
       origemLanc = elegiveis.length ? elegiveis[0].i : null;
       return;
@@ -2114,6 +2143,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     if (!motivoLanc) { document.getElementById('erroMotivo').classList.add('show'); ok = false; }
     if (!ok) return;
+    if (tipoLanc === 'bloqueio') { salvarBloqueio(qtd); return; }
 
     let entrada = 0, saida = 0, estagio = 'a_enderecar', ondeTexto = '';
 
@@ -2170,6 +2200,64 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       avisar('Lançamento gravado. Ele entrou na fila de baixas pendentes de regularização fiscal — ' +
              'a NF-e de baixa (CFOP 5.927) e o estorno de crédito continuam devidos, e o contador zera essa fila quando a emissão existir.');
     }
+  }
+
+  // Bloqueio nao e acerto: nao entra nem sai nada, a quantidade so muda de estagio (item 19).
+  // Avaria vai para endereco de Avaria (ou espera um, na fila do Enderecamento); o resto
+  // fica no proprio endereco, travado. Decidido com o usuario em 09/out/2026.
+  function salvarBloqueio(qtd) {
+    const p = produtoAtual, elegiveis = origensElegiveis();
+    if (!elegiveis.length) {
+      avisar('Este produto não tem saldo livre neste depósito para bloquear. Reservado não entra: está comprometido com pedido, e a falta dele se registra na Separação.');
+      return;
+    }
+    const alvo = p.saldos[origemLanc != null ? origemLanc : elegiveis[0].i];
+    if (qtd > alvo.qtd) {
+      avisar('A origem escolhida tem apenas ' + fmtQtd(alvo.qtd, p.unidade) + ' ' + p.unidade + '. Ajuste a quantidade ou escolha outra origem.');
+      return;
+    }
+    const obs = document.getElementById('campoObs').value.trim();
+    if (motivoLanc === 'decisao' && obs === '') {
+      avisar('Escreva nas observações por que o produto está sendo travado. É o que vai ler quem for liberar.');
+      return;
+    }
+    const m = MOTIVOS_BLOQUEIO.find(x => x.v === motivoLanc);
+    const quanto = fmtQtd(qtd, p.unidade) + ' ' + p.unidade;
+    confirmarAcao('estoqueBloqueia', 'Bloquear ' + quanto + ' de ' + p.nome + ' (motivo: ' + m.l + '). A quantidade sai do disponível e o estoque físico não muda.', () => {
+      const avariaJa = p.saldos.find(x => String(x.dep) === String(depLanc) && x.tipoEnd === 'avaria' && x.estagio === 'bloqueado');
+      const destino = motivoLanc !== 'avaria' ? linhaDestino(alvo.endereco, alvo.tipoEnd, 'bloqueado')
+                    : (avariaJa || linhaDestino(null, null, 'bloqueado'));
+      alvo.qtd -= qtd;
+      destino.qtd += qtd;
+      const base = baseDe(p.id, depLanc);
+      const onde = destino.endereco || 'sem endereço';
+      const lista = LANCAMENTOS[p.id] || (LANCAMENTOS[p.id] = LANC_PADRAO.slice());
+      lista.push({
+        data: document.getElementById('campoData').value,
+        hora: document.getElementById('campoHora').value.slice(0, 5),
+        tipo: 'bloqueio', rotulo: 'Bloqueio',
+        doc: 'BL-' + String(1000 + Math.floor(Math.random() * 9000)),
+        dep: depLanc, entrada: 0, saida: 0, estagio: 'bloqueado', valor: p.custoMedio,
+        obs: quanto + ' · ' + m.l + ' · ' + onde + (obs ? ' · ' + obs : '')
+      });
+      publicarBloqueio({ chave: 'manual:' + p.sku + ':' + Date.now(), sku: p.sku, produto: p.nome, un: p.unidade, dep: Number(depLanc),
+        endereco: destino.endereco, tipoEnd: destino.tipoEnd, base: base ? base.endereco : null, qtd: qtd, custo: p.custoMedio,
+        motivo: motivoLanc, origem: 'manual', doc: '', quem: USUARIO_SESSAO.nome, obs: obs });
+      fecharLancamento();
+      renderTudo();
+      avisar('Bloqueio registrado: ' + quanto + ' de ' + p.nome + ', motivo ' + m.l + ', ' +
+        (destino.endereco ? 'em ' + destino.endereco : 'ainda sem endereço de Avaria (ele entra na fila do Endereçamento)') +
+        '. Para liberar ou dar baixa: Estoque → Itens Bloqueados.');
+    });
+  }
+  // Itens Bloqueados (Estoque) nao le o saldo desta tela: quem bloqueia deixa o caso na caixa de
+  // entrada, e a fila recolhe ao abrir. A chave evita que o mesmo caso entre duas vezes.
+  function publicarBloqueio(b) {
+    try {
+      const caixa = JSON.parse(localStorage.getItem('deskBloqueiosEntrada') || '{}') || {};
+      caixa[b.chave] = b;
+      localStorage.setItem('deskBloqueiosEntrada', JSON.stringify(caixa));
+    } catch (e) { /* armazenamento bloqueado: o bloqueio vale nesta tela, so nao chega a fila */ }
   }
 
   document.getElementById('campoQuantidade').addEventListener('input', atualizarPreviaEntrada);
@@ -2309,6 +2397,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     tipoLanc = valor;
     document.getElementById('rotuloQuantidade').textContent =
       valor === 'balanco' ? 'Quantidade contada' : 'Quantidade';
+    document.getElementById('wrapPreco').style.display = valor === 'bloqueio' ? 'none' : '';
     preencherMotivos();
     atualizarOrigem();
     atualizarPreviaEntrada();
@@ -2339,6 +2428,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     path = ['Estoque', 'Controle de Estoques', produtoAtual.nome];
     renderBreadcrumb();
     renderTudo();
+    if (params.get('lancar') === 'bloqueio') {
+      abrirLancamento();
+      document.querySelector('#campoTipo .dropdown-select-item[data-value="bloqueio"]').click();
+    }
   })();
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

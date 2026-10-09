@@ -867,6 +867,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
       <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
       <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
       <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
@@ -1688,7 +1689,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             '<input type="text" data-motivo="' + idx + '" value="' + i.motivo.replace(/"/g, '&quot;') + '" placeholder="Ex.: endereço vazio, item avariado, quantidade menor na caixa" style="width:100%;"></div>' +
           '<div class="sep-falta-campo"><label>&nbsp;</label>' +
             '<button class="btn-secundario" data-confirma-falta="' + idx + '">Registrar</button></div>' +
-          '<div class="sep-falta-nota">O pedido <b>não trava</b> por causa disto: ele segue para a Conferência de Saída com a quantidade que você achou. A diferença vira uma divergência aguardando reconferência — o saldo do estoque <b>não é mexido aqui</b>.</div>' +
+          '<div class="sep-falta-nota">O pedido <b>não trava</b> por causa disto: ele segue para a Conferência de Saída com a quantidade que você achou. A unidade que faltou fica <b>bloqueada para venda</b> em Estoque → Itens Bloqueados até alguém conferir o endereço. <b>Não é baixa</b>: o estoque físico não muda.</div>' +
         '</div>';
       if (faltou) div.querySelector('.item-checkbox').indeterminate = true;
       raiz.appendChild(div);
@@ -1736,7 +1737,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     const motivo = (motivoCampo.value || '').trim();
     if (achou < item.qtd && motivo === '') {
-      avisar('Escreva o que aconteceu. A reconferência vai começar por esta frase — quem for até a prateleira precisa saber o que procurar.');
+      avisar('Escreva o que aconteceu. A auditoria do item bloqueado vai começar por esta frase — quem for até a prateleira precisa saber o que procurar.');
       motivoCampo.focus(); return;
     }
     // A falta e a unica acao da separacao que vira divergencia de estoque, entao
@@ -1745,7 +1746,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     abrirModalConfirmacao(
       achou === item.qtd
         ? 'Você achou as ' + item.qtd + ' peças de ' + item.nome + '. O item fica marcado como coletado por inteiro.'
-        : 'Você achou ' + achou + ' de ' + item.qtd + ' peças de ' + item.nome + ', no endereço ' + (item.end || 'sem endereço') + '. O pedido segue para a Conferência de Saída com ' + achou + '. A diferença de ' + (item.qtd - achou) + ' vira uma divergência aguardando reconferência de estoque — o saldo não é alterado agora.',
+        : 'Você achou ' + achou + ' de ' + item.qtd + ' peças de ' + item.nome + ', no endereço ' + (item.end || 'sem endereço') + '. O pedido segue para a Conferência de Saída com ' + achou + '. Ao concluir a separação, a diferença de ' + (item.qtd - achou) + ' fica bloqueada para venda, aguardando auditoria em Estoque → Itens Bloqueados. Não é baixa: o estoque físico não muda.',
       1, 'primary', () => {
         item.separado = achou;
         item.motivo = achou < item.qtd ? motivo : '';
@@ -1923,17 +1924,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? 'Concluir a separação do pedido #' + PEDIDO.numero + ' com as ' + PEDIDO.pecas + ' peças coletadas. Ele sai da sua mão e entra na fila da Conferência de Saída, que vai contar a caixa de novo antes de emitir a nota.'
       : 'Concluir a separação do pedido #' + PEDIDO.numero + ' com ' + somaColetada() + ' de ' + PEDIDO.pecas + ' peças, em falta: ' +
         faltas.map(i => i.sku + ' (' + i.separado + ' de ' + i.qtd + ')').join(', ') + '. ' +
-        'O pedido continua, e a diferença vira divergência aguardando reconferência. Nenhum saldo é baixado agora.';
+        'O pedido continua, e o que faltou fica bloqueado para venda em Estoque → Itens Bloqueados, aguardando auditoria. Nenhum saldo é baixado agora.';
     armarSenhaModal('separacaoConclui');
     abrirModalConfirmacao(texto, 1, 'primary', () => {
       PEDIDO.situacao = 'separado';
       if (!PEDIDO.operador) PEDIDO.operador = EU;
+      // A falta bloqueia a unidade no proprio endereco, que e onde a auditoria vai procurar.
+      faltas.forEach(i => publicarBloqueio({ chave: 'sep:' + PEDIDO.numero + ':' + i.sku, sku: i.sku,
+        produto: i.nome + (i.variacao && i.variacao !== '—' ? ' · ' + i.variacao : ''), un: 'UN', dep: PEDIDO.dep,
+        endereco: i.end || null, tipoEnd: i.end ? 'picking' : null, base: i.end || null, qtd: i.qtd - i.separado,
+        motivo: 'falta', origem: 'separacao', doc: 'Pedido #' + PEDIDO.numero, quem: OPERADORES[PEDIDO.operador], obs: i.motivo }));
       pintarCabecalho();
       pintarItens();
       avisar(faltas.length === 0
         ? 'Separação concluída. O pedido #' + PEDIDO.numero + ' está com a Conferência de Saída. No protótipo nada persiste ao recarregar a página.'
-        : 'Separação concluída com falta. O pedido #' + PEDIDO.numero + ' seguiu para a Conferência de Saída, e ' + (faltas.length === 1 ? 'a diferença virou uma divergência aguardando' : 'as diferenças viraram divergências aguardando') + ' reconferência em Estoque → Acerto de Estoque. Nenhum saldo foi baixado. No protótipo nada persiste ao recarregar a página.');
+        : 'Separação concluída com falta. O pedido #' + PEDIDO.numero + ' seguiu para a Conferência de Saída, e ' + (faltas.length === 1 ? 'o item que faltou está bloqueado' : 'os itens que faltaram estão bloqueados') + ' para venda, aguardando auditoria em Estoque → Itens Bloqueados. Nenhum saldo foi baixado. No protótipo, só o bloqueio persiste ao recarregar a página.');
     });
+  }
+  // Itens Bloqueados (Estoque) nao le o saldo desta tela: quem bloqueia deixa o caso na caixa de
+  // entrada, e a fila recolhe ao abrir. A chave evita que o mesmo caso entre duas vezes.
+  function publicarBloqueio(b) {
+    try {
+      const caixa = JSON.parse(localStorage.getItem('deskBloqueiosEntrada') || '{}') || {};
+      caixa[b.chave] = b;
+      localStorage.setItem('deskBloqueiosEntrada', JSON.stringify(caixa));
+    } catch (e) { /* armazenamento bloqueado: o bloqueio vale nesta tela, so nao chega a fila */ }
   }
   document.getElementById('btnConcluir').addEventListener('click', concluir);
   document.getElementById('btnConcluirRodape').addEventListener('click', concluir);

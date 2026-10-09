@@ -157,13 +157,16 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 ## Estado atual (09/out/2026)
 
-**78 telas construídas**, 42 itens de menu com tela, 16 submódulos a fazer. Em 09/out entrou o
+**79 telas construídas**, 43 itens de menu com tela, 16 submódulos a fazer. Em 09/out entrou o
 **PDV** (Vendas) com as Configurações do PDV: a venda de balcão vira Pedido de Venda já entregue,
 e o caixa do PDV é o turno do operador, não o Caixa de Finanças (§14.48). No cartão, o prazo
 (próximo dia útil), a taxa de cada parcela e o repasse ao cliente vêm do cadastro de Formas de
 recebimento, e cartão não confere limite de crédito (§14.49). No mesmo dia entrou o **CRM** (Vendas),
 com a tela do assunto, Estágios do funil de vendas e Configurações do CRM: o status do contato mora
-no cadastro de Clientes e a ação com data vira aviso na Agenda (§14.50). F2 (Cadastros), F5
+no cadastro de Clientes e a ação com data vira aviso na Agenda (§14.50). E entrou **Itens Bloqueados**
+(Estoque): a fila de tudo que está no estoque e não pode ser vendido, com duas saídas, liberar ou dar
+baixa. A falta da Separação e da Conferência de Saída passou a bloquear a unidade, e o bloqueio manual
+é um tipo de lançamento na página do produto (§14.51). F2 (Cadastros), F5
 (Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
 Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
 mais o cadastro de **Motivos de Devolução** (hoje em Configurações; o módulo Operacional saiu do menu em 08/out). De Logística falta só

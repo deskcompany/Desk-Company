@@ -897,6 +897,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
       <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
       <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
       <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
@@ -1038,7 +1039,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     <div class="nota-reservado">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-      <span><b>O que vai na caixa é o que vai na nota.</b> A conferência <b>nunca trava</b>: divergente, o pedido é ajustado e o valor recalculado. A diferença vira divergência <b>aguardando reconferência</b> de estoque — nenhum saldo é baixado aqui. <span id="notaCega"></span></span>
+      <span><b>O que vai na caixa é o que vai na nota.</b> A conferência <b>nunca trava</b>: divergente, o pedido é ajustado e o valor recalculado. O que faltar fica <b>bloqueado para venda</b>, aguardando auditoria em Estoque → Itens Bloqueados — nenhum saldo é baixado aqui. <span id="notaCega"></span></span>
     </div>
 
     <div class="sep-bipar">
@@ -1876,7 +1877,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         // Bancar a contagem e a decisao que faz a divergencia existir de verdade:
         // vai mexer no valor da nota e nascer um acerto. Fica no registro.
         armarSenhaModal('confSaidaDivergencia');
-        abrirModalConfirmacao('Você está bancando a sua contagem de ' + ITENS[i].nome + '. A diferença aparece agora, a nota passa a sair pela quantidade que você contou, e o caso vira uma divergência aguardando reconferência de estoque.',
+        abrirModalConfirmacao('Você está bancando a sua contagem de ' + ITENS[i].nome + '. A diferença aparece agora, a nota passa a sair pela quantidade que você contou, e o que faltar fica bloqueado para venda ao fechar a conferência, aguardando auditoria em Estoque → Itens Bloqueados.',
           1, 'primary', () => {
             ITENS[i].bancou = true;
             atualizarLinha(i); atualizarResumo();
@@ -2157,7 +2158,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (semMotivo.length) {
       document.getElementById('erroItens').classList.add('show');
       ITENS.forEach((_, i) => atualizarLinha(i));
-      avisar('Divergência sem motivo não vira acerto: quem for fazer a reconferência precisa saber o que procurar. Informe o motivo de ' + semMotivo.map(i => i.sku).join(', ') + '.');
+      avisar('Divergência sem motivo não segue: quem for fazer a auditoria precisa saber o que procurar. Informe o motivo de ' + semMotivo.map(i => i.sku).join(', ') + '.');
       return;
     }
     const semEmb = VOLUMES.filter(v => !v.emb);
@@ -2176,8 +2177,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       VOLUMES.length + (VOLUMES.length === 1 ? ' volume' : ' volumes') + '. A nota sai por ' + fmtMoeda(valorFaturar()) +
       ' e o pedido vai para a Expedição.';
     if (divs.length) {
-      texto += ' ' + divs.length + (divs.length === 1 ? ' item divergiu da separação e vira' : ' itens divergiram da separação e viram') +
-        ' divergência aguardando reconferência de estoque — nenhum saldo é baixado agora.';
+      texto += ' ' + divs.length + (divs.length === 1 ? ' item divergiu da separação' : ' itens divergiram da separação') +
+        ': o que faltou fica bloqueado para venda em Estoque → Itens Bloqueados, aguardando auditoria. Nenhum saldo é baixado agora.';
     }
     if (faltantes.length) {
       texto += ' A compensação registrada é: ' + ROTULO_COMPENSA[compensaEscolhida] + '.';
@@ -2186,12 +2187,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     abrirModalConfirmacao(texto, 1, 'primary', () => {
       PEDIDO.situacao = 'conferido';
       fechada = true;
+      // So a diferenca PARA MENOS bloqueia: e a peca que a separacao disse ter coletado e a caixa nao tem.
+      divs.filter(it => it.conferida < it.separado).forEach(it => publicarBloqueio({ chave: 'conf:' + PEDIDO.numero + ':' + it.sku, sku: it.sku,
+        produto: it.nome + (it.variacao && it.variacao !== '—' ? ' · ' + it.variacao : ''), un: 'UN', dep: PEDIDO.dep,
+        endereco: null, tipoEnd: null, base: null, qtd: it.separado - it.conferida,
+        motivo: 'falta', origem: 'conferencia_saida', doc: 'Pedido #' + PEDIDO.numero, quem: OPERADORES[EU], obs: '' }));
       pintarCabecalho();
       pintarItens();
       pintarVolumes();
       avisar('Conferência fechada e pedido #' + PEDIDO.numero + ' faturado. Ele está na fila da Expedição, que confere os ' +
         VOLUMES.length + (VOLUMES.length === 1 ? ' volume' : ' volumes') + ' na saída do galpão. No protótipo nada persiste ao recarregar a página.');
     });
+  }
+  // Itens Bloqueados (Estoque) nao le o saldo desta tela: quem bloqueia deixa o caso na caixa de
+  // entrada, e a fila recolhe ao abrir. A chave evita que o mesmo caso entre duas vezes.
+  function publicarBloqueio(b) {
+    try {
+      const caixa = JSON.parse(localStorage.getItem('deskBloqueiosEntrada') || '{}') || {};
+      caixa[b.chave] = b;
+      localStorage.setItem('deskBloqueiosEntrada', JSON.stringify(caixa));
+    } catch (e) { /* armazenamento bloqueado: o bloqueio vale nesta tela, so nao chega a fila */ }
   }
   const ROTULO_COMPENSA = { restituicao: 'restituir o valor', credito: 'gerar crédito', reenvio: 'reenviar o item faltante' };
   document.getElementById('btnFechar').addEventListener('click', fechar);
