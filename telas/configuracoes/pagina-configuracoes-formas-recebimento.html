@@ -319,8 +319,7 @@
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
 
   /* ===== CADASTROS > MARCAS (listagem) ===== */
-  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
-  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .marcas-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
   .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
   .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
   .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
@@ -353,14 +352,14 @@
     background:#fff; border-radius:1px;
   }
 
-  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
-  .deposito-card:first-of-type { border-top:none; }
-  .deposito-card:hover { background: rgba(120,120,140,0.06); }
-  .deposito-info { flex:1; min-width:0; }
-  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
-  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
-  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
-  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+  .marcas-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .marcas-card:first-of-type { border-top:none; }
+  .marcas-card:hover { background: rgba(120,120,140,0.06); }
+  .marcas-info { flex:1; min-width:0; }
+  .marcas-nome-row { display:flex; align-items:center; gap:8px; }
+  .marcas-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .marcas-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .marcas-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
   .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
@@ -388,7 +387,6 @@
   .drawer-close svg { width:15px; height:15px; }
 
   .form-field { margin-bottom:18px; }
-  .form-field .dropdown-select { width:100%; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
   .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
   .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
@@ -423,115 +421,6 @@
 
   /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
      mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
-
-  /* ===== Filtro de situacao em abas (§7) ===== */
-  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
-  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
-  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
-
-  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
-  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
-  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
-     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
-     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
-  .av-geral           { background: var(--chart-2); color:#101010; }
-  .av-galpao          { background: var(--chart-3); color:#101010; }
-  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
-  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
-  .av-transito        { background: var(--warning); color:#101010; }
-  body.dark .av-geral           { color:#FFFFFF; }
-  body.dark .av-galpao          { color:#FFFFFF; }
-  body.dark .av-loja_fisica     { color:#101010; }
-  body.dark .av-trade_marketing { color:#101010; }
-  body.dark .av-transito        { color:#101010; }
-
-  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
-  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
-  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
-
-  /* ===== Formulario em duas colunas dentro do drawer ===== */
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; min-width:120px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-
-  /* ===== Linha de interruptor dentro do formulario ===== */
-  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
-  .switch-row-texto { flex:1; min-width:0; }
-  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .switch-row .field-hint { margin-top:4px; }
-
-
-  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
-  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
-  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
-  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 6px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
-  .estoque-table th.col-texto { text-align:left; }
-  .estoque-table th.ordenavel { cursor:pointer; }
-  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
-  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
-  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
-  .estoque-table th.ordenado { color:var(--text-heading); }
-  .estoque-table td { padding:13px 6px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
-  .estoque-table td.col-texto { text-align:left; }
-  .estoque-table tbody tr { cursor:pointer; }
-  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
-  .estoque-table tbody tr:last-child td { border-bottom:none; }
-  .col-produto { font-weight:700; }
-  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
-  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
-  .celula-reservada { color:var(--text); opacity:0.5; }
-  .saldo-critico { color:var(--danger); font-weight:800; }
-  .saldo-negativo { color:var(--danger); font-weight:800; }
-  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
-  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
-  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
-  /* Estagios do saldo (item 19). Cores de tempo reaproveitadas de Enderecamento,
-     onde ja passaram pela medicao de contraste nos dois temas. */
-  .estagio-zero { color:var(--text); opacity:0.45; }
-  .dias-ok { font-weight:700; color:var(--text-heading); }
-  .dias-alerta { font-weight:800; color:#B45309; }
-  .dias-critico { font-weight:800; color:#B91C1C; }
-  body.dark .dias-alerta { color:#F5A623; }
-  body.dark .dias-critico { color:#FCA5A5; }
-  .estagio-bloqueado { font-weight:800; color:#B91C1C; }
-  body.dark .estagio-bloqueado { color:#FCA5A5; }
-  /* "em conferencia" NAO e estoque (item 19) — marcador apagado, nunca numero de coluna */
-  .marcador-conferencia { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.62; margin-top:3px; letter-spacing:0.1px; }
-  .disponivel-travado { color:var(--text); opacity:0.55; font-weight:700; }
-
-  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
-  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
-  .estoque-total b { color:var(--active-text); font-weight:800; }
-
-  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
-  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
-  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-
-  /* acoes do cabecalho da pagina */
-  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
-  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
-  .btn-secundario-topo svg { width:14px; height:14px; }
-
-  /* extrato dentro do drawer */
-  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
-  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
-  .extrato-linha:first-of-type { border-top:none; }
-  .extrato-rotulo { color:var(--text); }
-  .extrato-valor { font-weight:700; color:var(--text-heading); }
-  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
-  .mov-item:first-of-type { border-top:none; }
-  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .mov-icone svg { width:13px; height:13px; }
-  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
-  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
-  .mov-info { flex:1; min-width:0; }
-  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
-  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
-  .mov-qtd.entrada { color:var(--success); }
-  .mov-qtd.saida { color:var(--danger); }
-
   .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
   .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-multi-item input[type="checkbox"] {
@@ -549,581 +438,6 @@
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
-
-  /* ===== DETALHE DO PRODUTO ===== */
-  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
-  .voltar-link:hover { color:var(--text-heading); }
-  .voltar-link svg { width:13px; height:13px; }
-
-  /* Faixa de KPIs — e aqui que mora a quebra completa dos estagios (item 19),
-     por isso a listagem pode ficar rasa com 9 colunas. */
-  .kpi-faixa { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:4px 0; margin-bottom:16px; }
-  .kpi { flex:1 1 150px; min-width:140px; padding:14px 18px; border-right:1px solid var(--border); }
-  .kpi:last-child { border-right:none; }
-  .kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); line-height:1.15; }
-  .kpi-un { font-size:12px; font-weight:700; color:var(--text); margin-left:4px; }
-  .kpi-rotulo { font-size:11.5px; font-weight:700; color:var(--text); margin-top:3px; text-transform:lowercase; }
-  .kpi-nota { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.7; margin-top:2px; }
-  .kpi-fora { background:var(--page-bg); border-left:1px dashed var(--border); }
-  .kpi-fora .kpi-valor { color:var(--text); }
-  .kpi.destaque .kpi-valor { color:var(--active-text); }
-  .kpi-valor.travado { color:#B45309; }
-  body.dark .kpi-valor.travado { color:#F5A623; }
-  .kpi-valor.bloq { color:#B91C1C; }
-  body.dark .kpi-valor.bloq { color:#FCA5A5; }
-  .kpi-valor.apagado { color:var(--text); opacity:0.5; }
-
-  /* Abas do detalhe — mesmo componente das abas de situacao (§7.2) */
-  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
-  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
-  .aba-sit:hover { color:var(--text-heading); }
-  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
-  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
-  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
-
-  /* Ledger */
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
-  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .mov-obs { color:var(--text); font-size:12.5px; }
-  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
-
-  /* Formulario do drawer de lancamento */
-  .form-field { margin-bottom:18px; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:74px; }
-  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; }
-  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color:var(--danger); }
-  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal.show { display:flex; }
-  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
-
-  /* ===== ACERTO MULTI-PRODUTO ===== */
-  .input-senha { position:relative; }
-  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
-  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-heading);
-    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
-    transition: background-color 9999s ease-in-out 0s;
-  }
-  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
-  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
-  .toggle-senha-btn svg { width:17px; height:17px; }
-  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
-  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
-  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
-  .busca-card { margin-bottom:16px; }
-  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
-  .busca-campo { flex:1 1 420px; min-width:0; }
-  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .busca-produto-wrap { position:relative; }
-  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
-  .sugestoes.open { display:block; }
-  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
-  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
-  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
-  .linha-montada { cursor:default; }
-  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
-  .remover-linha:hover { text-decoration:underline; }
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
-  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
-  .dias-alerta { font-weight:800; color:#B45309; }
-  body.dark .dias-alerta { color:#F5A623; }
-  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .estagio-zero { color:var(--text); opacity:0.45; }
-  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal.show { display:flex; }
-  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-  .form-field { margin-bottom:18px; }
-  .form-field .dropdown-select { width:100%; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:74px; }
-  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; }
-  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color:var(--danger); }
-  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
-  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
-  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
-  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
-  /* ===== ACERTO MULTI-PRODUTO ===== */
-  .input-senha { position:relative; }
-  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
-  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-heading);
-    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
-    transition: background-color 9999s ease-in-out 0s;
-  }
-  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
-  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
-  .toggle-senha-btn svg { width:17px; height:17px; }
-  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
-  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
-  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
-  .busca-card { margin-bottom:16px; }
-  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
-  .busca-campo { flex:1 1 420px; min-width:0; }
-  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .busca-produto-wrap { position:relative; }
-  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
-  .sugestoes.open { display:block; }
-  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
-  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
-  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
-  .linha-montada { cursor:default; }
-  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
-  .remover-linha:hover { text-decoration:underline; }
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
-  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
-  .dias-alerta { font-weight:800; color:#B45309; }
-  body.dark .dias-alerta { color:#F5A623; }
-  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .estagio-zero { color:var(--text); opacity:0.45; }
-  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal.show { display:flex; }
-  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-  .form-field { margin-bottom:18px; }
-  .form-field .dropdown-select { width:100%; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:74px; }
-  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; }
-  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color:var(--danger); }
-  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
-  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
-  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
-  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
-
-  /* ===== TRANSFERENCIA ===== */
-  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
-  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
-  .aba-sit:hover { color:var(--text-heading); }
-  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
-  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
-  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
-  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
-  .btn-mini:hover { background:rgba(120,120,140,0.10); }
-  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
-  .btn-mini:disabled:hover { background:var(--card-bg); }
-  .sit-transito { color:#B45309; border-color:#B45309; }
-  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
-  .sit-parcial { color:#B45309; }
-  body.dark .sit-parcial { color:#F5A623; }
-  .sit-recebida { color:#166534; }
-  body.dark .sit-recebida { color:#4ADE80; }
-  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
-  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
-  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
-  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
-  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
-  .rep-origem-info { flex:1 1 180px; min-width:0; }
-  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
-  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
-  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
-  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
-  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
-  .rep-acoes-linha { text-align:right; }
-  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
-  .link-tudo:hover { text-decoration:underline; }
-  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
-  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
-  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
-  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
-  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
-  /* ===== ACERTO MULTI-PRODUTO ===== */
-  .input-senha { position:relative; }
-  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
-  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-heading);
-    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
-    transition: background-color 9999s ease-in-out 0s;
-  }
-  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
-  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
-  .toggle-senha-btn svg { width:17px; height:17px; }
-  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
-  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
-  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
-  .busca-card { margin-bottom:16px; }
-  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
-  .busca-campo { flex:1 1 420px; min-width:0; }
-  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .busca-produto-wrap { position:relative; }
-  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
-  .sugestoes.open { display:block; }
-  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
-  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
-  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
-  .linha-montada { cursor:default; }
-  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
-  .remover-linha:hover { text-decoration:underline; }
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
-  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
-  .dias-alerta { font-weight:800; color:#B45309; }
-  body.dark .dias-alerta { color:#F5A623; }
-  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .estagio-zero { color:var(--text); opacity:0.45; }
-  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal.show { display:flex; }
-  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-  .form-field { margin-bottom:18px; }
-  .form-field .dropdown-select { width:100%; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:74px; }
-  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; }
-  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color:var(--danger); }
-  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
-  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
-  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
-  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
-  /* ===== ACERTO MULTI-PRODUTO ===== */
-  .input-senha { position:relative; }
-  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
-  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-heading);
-    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
-    transition: background-color 9999s ease-in-out 0s;
-  }
-  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
-  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
-  .toggle-senha-btn svg { width:17px; height:17px; }
-  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
-  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
-  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
-  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
-  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
-  .busca-card { margin-bottom:16px; }
-  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
-  .busca-campo { flex:1 1 420px; min-width:0; }
-  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .busca-produto-wrap { position:relative; }
-  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
-  .sugestoes.open { display:block; }
-  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
-  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
-  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
-  .linha-montada { cursor:default; }
-  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
-  .remover-linha:hover { text-decoration:underline; }
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
-  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
-  .dias-alerta { font-weight:800; color:#B45309; }
-  body.dark .dias-alerta { color:#F5A623; }
-  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .estagio-zero { color:var(--text); opacity:0.45; }
-  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .aviso-fiscal.show { display:flex; }
-  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
-  .form-field { margin-bottom:18px; }
-  .form-field .dropdown-select { width:100%; }
-  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
-  .form-field textarea { resize:vertical; min-height:74px; }
-  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
-  .form-row { display:flex; gap:12px; }
-  .form-row .form-field { flex:1; }
-  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
-  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
-  .field-error-msg.show { display:block; }
-  .form-field.has-error input { border-color:var(--danger); }
-  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
-  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
-  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
-  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
-  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
-  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
-
-  /* ===== TRANSFERENCIA ===== */
-  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
-  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
-  .aba-sit:hover { color:var(--text-heading); }
-  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
-  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
-  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
-  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
-  .btn-mini:hover { background:rgba(120,120,140,0.10); }
-  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
-  .btn-mini:disabled:hover { background:var(--card-bg); }
-  .sit-transito { color:#B45309; border-color:#B45309; }
-  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
-  .sit-parcial { color:#B45309; }
-  body.dark .sit-parcial { color:#F5A623; }
-  .sit-recebida { color:#166534; }
-  body.dark .sit-recebida { color:#4ADE80; }
-  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
-  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
-  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
-  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
-  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
-  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
-  .rep-origem-info { flex:1 1 180px; min-width:0; }
-  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
-  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
-  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
-  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
-  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
-  .rep-acoes-linha { text-align:right; }
-  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
-  .link-tudo:hover { text-decoration:underline; }
-  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
-  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
-  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
-  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
-  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
-
-  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
-  .voltar-link:hover { color:var(--text-heading); }
-  .voltar-link svg { width:13px; height:13px; }
-  .previa-entrada.alerta { border-left-color:var(--danger-solid); }
-  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
-  .busca-campo .dropdown-select { width:100%; }
-
-  /* ===== INVENTÁRIO: índice dos três caminhos ===== */
-  .caminhos { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:8px; }
-  .caminho { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:10px; }
-  .caminho-icone { width:38px; height:38px; border-radius:11px; background:var(--active-bg); color:var(--active-text); display:flex; align-items:center; justify-content:center; }
-  .caminho-icone svg { width:19px; height:19px; }
-  .caminho-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
-  .caminho-texto { font-size:12.5px; color:var(--text); line-height:1.5; flex:1; }
-  .caminho .btn-mini { align-self:flex-start; margin-top:4px; }
-
-  /* ===== INVENTÁRIO: aviso de depósito travado ===== */
-  /* Nome próprio de propósito: .nota-reservado já tem fundo definido na base e
-     sobrescrever só a cor herdaria o fundo errado (ver design-system §14). */
-  .nota-travada { border-left:3px solid var(--warning); }
-
-  /* ===== INVENTÁRIO: área de arquivo ===== */
-  .dropzone { border:1.5px dashed var(--border); border-radius:11px; padding:22px 14px; text-align:center; cursor:pointer; background:var(--page-bg); color:var(--text); }
-  .dropzone:hover { border-color:var(--chart-2); }
-  .dropzone svg { width:22px; height:22px; margin-bottom:8px; }
-  .dropzone-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
-  .dropzone-sub { font-size:11.5px; color:var(--text); margin-top:4px; }
-  .dropzone.tem-arquivo { border-style:solid; border-color:var(--brand-blue); }
-
-  /* ===== INVENTÁRIO: cabeçalho de grupo dentro do dropdown ===== */
-  .dropdown-grupo { padding:8px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); white-space:nowrap; }
-
-  /* ===== INVENTÁRIO: colunas de contagem ===== */
-  .estoque-table .col-qtde-inv { display:none; }
-  .estoque-table.mostrar-qtde .col-qtde-inv { display:table-cell; }
-  .estoque-table.sem-clique tbody tr { cursor:default; }
-  .input-qtde-inv { width:88px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; text-align:right; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; }
-  .input-qtde-inv:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  /* Só cor, sem fundo — o par .mov-entrada/.mov-saida da base é pílula com fundo
-     próprio e reaproveitar aquele nome pintava retângulo verde/vermelho. */
-  .inv-mais { color:var(--success); font-weight:700; }
-  .inv-menos { color:var(--danger); font-weight:700; }
-  .inv-igual { color:var(--text); }
-  /* Sem `opacity` de proposito: opacidade nao entra no calculo de contraste do
-     auditor (ele so pula quem esta abaixo de 0.3), entao texto apagado por
-     opacity passa na auditoria e reprova na regua de verdade — este mesmo
-     rotulo media 3.28:1 no escuro. Diferenciacao aqui e tamanho, nao brilho. */
-  .inv-nao-contado { color:var(--text); font-size:12px; }
-  /* O input de arquivo nativo fica escondido: quem aparece é a .dropzone (§9 —
-     nada de controle nativo na tela). */
-  #inputArquivo { display:none; }
-
-  /* Imprimir a lista de contagem: só a tabela, em papel branco. */
-  @media print {
-    body { background:#fff; }
-    .sidebar-col, .flyout-col, .topbar, .page-header .header-acoes,
-    .estoque-toolbar, .nota-reservado, .event-drawer, .drawer-backdrop,
-    .modal-card, .breadcrumb { display:none !important; }
-    .card { border:none; box-shadow:none; }
-    .estoque-table th, .estoque-table td { color:#101010; }
-  }
-
-
-  /* ===== HUB DE CONFIGURAÇÕES ===== */
-  .cfg-busca { max-width:600px; margin-bottom:22px; }
-  .cfg-busca .search-wrap { max-width:none; }
-
-  /* Banner informativo da aba (o da RTC tem texto legal; os outros, contexto) */
-  .cfg-banner { display:flex; gap:13px; align-items:flex-start; background:var(--active-bg);
-                border:1px solid var(--border); border-radius:12px; padding:15px 17px; margin-bottom:22px; }
-  .cfg-banner-ico { width:30px; height:30px; border-radius:50%; background:var(--card-bg);
-                    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--active-text); }
-  .cfg-banner-ico svg { width:15px; height:15px; }
-  .cfg-banner-txt { font-size:12.5px; color:var(--text-heading); line-height:1.55; }
-  .cfg-banner-txt b { font-weight:800; }
-
-  /* Cabeçalho de subgrupo dentro da aba ("Outras configurações", "Reforma Tributária") */
-  .cfg-grupo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading);
-               margin:26px 0 2px; padding-top:20px; border-top:1px solid var(--border); }
-  .cfg-grupo:first-child { margin-top:0; padding-top:0; border-top:none; }
-
-  /* A lista de links — o corpo da aba */
-  .cfg-lista { display:flex; flex-direction:column; }
-  .cfg-item { display:flex; align-items:center; gap:10px; padding:15px 2px;
-              border-bottom:1px solid var(--border); cursor:pointer; }
-  .cfg-item:hover .cfg-item-nome { color:var(--active-text); }
-  .cfg-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); }
-  .cfg-item-ajuda { width:14px; height:14px; color:var(--text); flex-shrink:0; }
-  .cfg-item-seta { margin-left:auto; width:14px; height:14px; color:var(--text); flex-shrink:0; }
-
-  /* Badge de estado no próprio item — o índice diz o que falta, sem entrar na tela */
-  .cfg-badge { font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:lowercase;
-               letter-spacing:0.2px; padding:3px 9px; border-radius:20px; white-space:nowrap; }
-  .cfg-badge-atencao { background:rgba(245,166,35,0.16); color:#B45309; }
-  body.dark .cfg-badge-atencao { color:#F5A623; }
-  .cfg-badge-neutro  { background:rgba(120,120,140,0.14); color:var(--text); }
-  .cfg-badge-novo    { background:var(--active-bg); color:var(--active-text); }
-
-  /* Resultado de busca: o nome da aba aparece como origem do item */
-  .cfg-origem { font-size:11.5px; font-weight:700; color:var(--text); margin-left:2px; }
-
-  .cfg-vazio { padding:40px 0; text-align:center; }
-  .cfg-vazio-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-bottom:5px; }
-  .cfg-vazio-sub { font-size:12.5px; color:var(--text); }
-
-
-  /* ===== TELA DE CONFIGURAÇÃO: campo à esquerda, explicação à direita ===== */
-  /* Formato roubado da tela da GNRE do Olist. O `field-hint` embaixo do campo
-     serve para uma linha; parâmetro precisa de parágrafo, e parágrafo embaixo
-     do campo empurra o formulário todo pra baixo. */
-  .par-secao { background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
-               padding:22px 24px; margin-bottom:18px; }
-  .par-secao-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
-                      color:var(--text-heading); margin-bottom:4px; }
-  .par-secao-sub { font-size:12.5px; color:var(--text); line-height:1.5; margin-bottom:20px; max-width:620px; }
-
-  .par-linha { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:34px;
-               padding:18px 0; border-top:1px solid var(--border); align-items:start; }
-  .par-linha:first-of-type { border-top:none; padding-top:0; }
-  .par-exp { font-size:12.5px; color:var(--text); line-height:1.55; padding-top:2px; }
-  .par-exp b { color:var(--text-heading); font-weight:700; }
-  .par-onde { display:block; margin-top:7px; font-size:11.5px; color:var(--text); }
-  .par-onde b { color:var(--active-text); font-weight:700; }
-
-  .par-campos { display:flex; gap:14px; flex-wrap:wrap; }
-  .par-campo { display:flex; flex-direction:column; gap:6px; }
-  .par-campo label { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
-  .par-num { display:flex; align-items:center; gap:0; }
-  .par-num input { width:78px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
-                   text-align:right; color:var(--text-heading); background:var(--page-bg);
-                   border:1px solid var(--border); border-right:none; border-radius:9px 0 0 9px;
-                   padding:9px 10px; outline:none; }
-  .par-num input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  .par-num-sufixo { font-size:12px; font-weight:700; color:var(--text); background:var(--page-bg);
-                    border:1px solid var(--border); border-left:none; border-radius:0 9px 9px 0;
-                    padding:10px 12px; }
-  .par-campo.has-error input, .par-campo.has-error .par-num-sufixo { border-color:var(--danger); }
-  .par-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); }
-  .par-campo.has-error .par-erro { display:block; }
-
-  /* Pré-visualização: o efeito do número na fila de hoje, medido no mock */
-  .par-previa { margin-top:14px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
-                border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px;
-                color:var(--text); line-height:1.5; }
-  .par-previa b { color:var(--text-heading); }
-  .par-previa.alerta { border-left-color:var(--danger-solid); }
-
-  /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
-  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
-  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
-
-  /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
-  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
-  .radio-option input[type="radio"] {
-    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
-  }
-  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
-  .radio-option input[type="radio"]:checked::after {
-    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
-  }
-  .radio-nota { font-size:11.5px; color:var(--text); margin:2px 0 0 26px; }
-
-  /* Bloco do que ainda nao esta na tela — some no print, mas nao no protótipo */
-  .par-futuro { opacity:1; }
-  .par-futuro .par-secao-titulo { color:var(--text); }
-
-  /* ===== Confirmações por senha: linha de ação ===== */
-  /* Reusa .switch-row (§6) — nao inventa componente. So acrescenta o estado
-     "travado", que precisa existir sem apagar texto com opacity (§14). */
-  /* Acao de tela inexistente nao ganha interruptor: controle que nao controla
-     nada mente. Ganha um cadeado, que diz "isto e assim e nao se mexe aqui". */
-  .conf-cadeado { width:17px; height:17px; color:var(--text); flex-shrink:0; margin-right:2px; }
-  .conf-estado { font-size:11.5px; font-weight:700; margin-top:5px; }
-  .conf-estado.exige { color: var(--active-text); }
-  .conf-estado.livre { color: var(--danger); }
-  .conf-estado.indisponivel { color: var(--text); }
-
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -1141,23 +455,59 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
-  /* ===== Matriz módulo × verbo (Confirmações por senha / Permissões) ===== */
-  .mtz { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:4px; }
-  .mtz-linha { display:grid; grid-template-columns:minmax(0,1fr) 92px 92px 92px; align-items:center;
-               gap:10px; padding:12px 14px; border-top:1px solid var(--border); }
-  .mtz-linha:first-child { border-top:none; }
-  .mtz-cab { background:var(--page-bg); padding-top:9px; padding-bottom:9px; }
-  .mtz-cab-verbo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
-                   letter-spacing:0.5px; color:var(--text); text-align:center; }
-  .mtz-cab-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
-                    letter-spacing:0.5px; color:var(--text); }
-  .mtz-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
-  .mtz-onde { font-size:11.5px; color:var(--text); margin-top:2px; }
-  .mtz-cel { display:flex; justify-content:center; align-items:center; }
-  .mtz-legenda { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text); margin:10px 2px 18px; }
-  .mtz-legenda .conf-cadeado { width:14px; height:14px; }
+  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th.col-texto { text-align:left; }
+  .estoque-table th.ordenavel { cursor:pointer; }
+  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
+  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
+  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado { color:var(--text-heading); }
+  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td.col-texto { text-align:left; }
+  .estoque-table tbody tr { cursor:pointer; }
+  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
+  .estoque-table tbody tr:last-child td { border-bottom:none; }
+  .col-produto { font-weight:700; }
+  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
+  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
+  .celula-reservada { color:var(--text); opacity:0.5; }
+  .saldo-critico { color:var(--danger); font-weight:800; }
+  .saldo-negativo { color:var(--danger); font-weight:800; }
+  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
+  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
+  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .cf-nota { display:none; margin:16px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
+             border-left:3px solid var(--danger-solid); border-radius:9px; font-size:12px; color:var(--text); line-height:1.55; }
+  .cf-nota b { color:var(--text-heading); }
+
+  /* ===== Contas financeiras ===== */
+  .cf-kpi { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:16px;
+            padding:14px 16px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; }
+  .cf-kpi-rotulo { font-size:12.5px; color:var(--text); }
+  .cf-kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .cf-kpi-nota { font-size:11.5px; color:var(--text); }
+  .cf-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .cf-chips { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .cf-chip { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;
+             padding:2px 8px; border-radius:20px; border:1px solid currentColor; white-space:nowrap; }
+  .cf-chip.pref  { color:#1E6B2E; }
+  .cf-chip.fora  { color:#B45309; }
+  .cf-chip.banco { color:var(--active-text); }
+  body.dark .cf-chip.pref { color:#6FCF97; }
+  body.dark .cf-chip.fora { color:#F5A623; }
+  .cf-cadeado { width:14px; height:14px; color:var(--text); vertical-align:-2px; margin-right:6px; }
+  .cf-contabil { font-variant-numeric:tabular-nums; }
+  .cf-vazio { color:var(--text); }
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  .form-field input:disabled { opacity:.6; cursor:not-allowed; }
 </style>
 </head>
 <body class="dark">
@@ -1351,65 +701,214 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
-
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div class="page-header">
     <div>
-      <h1>Confirmações por senha</h1>
-      <div class="subtitle">Quais ações exigem que a pessoa digite a própria senha antes de acontecer.</div>
+      <h1>Formas de recebimento</h1>
+      <div class="subtitle">Como o dinheiro entra e sai. A forma decide se a venda vira título ou cai direto numa conta, quanto de taxa fica pelo caminho e se o limite de crédito do cliente é conferido.</div>
+    </div>
+    <button class="btn-primary" id="btnNovaForma">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Incluir forma
+    </button>
+  </div>
+
+  <div class="cf-kpi">
+    <span class="cf-kpi-rotulo">Formas habilitadas</span>
+    <span class="cf-kpi-valor" id="kpiFormas">0</span>
+    <span class="cf-kpi-nota" id="kpiNota"></span>
+  </div>
+
+  <div class="marcas-toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="campoBusca" placeholder="Buscar por forma ou conta...">
+    </div>
+
+    <div class="dropdown-select" id="filtroUso" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Receber e pagar</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="todos">Receber e pagar</div>
+        <div class="dropdown-select-item" data-value="receber">Valem para receber</div>
+        <div class="dropdown-select-item" data-value="pagar">Valem para pagar</div>
+      </div>
+    </div>
+
+    <div class="dropdown-select" id="filtroSituacao" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todas as situações</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="todos">Todas as situações</div>
+        <div class="dropdown-select-item" data-value="ativo">Habilitadas</div>
+        <div class="dropdown-select-item" data-value="inativo">Desabilitadas</div>
+      </div>
     </div>
   </div>
 
-  <div class="nota-reservado">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    <span>Senha responde <b>"é você mesmo fazendo isto?"</b>. Não é a mesma pergunta que permissão — <i>"você pode fazer isto?"</i> —, que vive em <b>Permissões de usuários</b>. A mesma ação aparece nas duas telas: aqui se decide <b>se ela pede senha</b>; lá, <b>quem pode confirmar</b>.</span>
-  </div>
+  <div class="card">
+    <div id="listaFormas"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="empty-state-title">Nenhuma forma encontrada</div>
+      <div class="empty-state-sub">Tente ajustar a busca ou os filtros.</div>
+    </div>
 
-  <div class="par-secao">
-    <div class="par-secao-titulo">Ações do sistema</div>
-    <div class="par-secao-sub">A grade é o catálogo do sistema, não uma lista digitada aqui: módulo novo aparece sozinho no dia em que é construído. <b>Criar</b> e <b>editar</b> nascem desligados; <b>excluir</b> nasce ligado. Célula com cadeado é ação que a tela ainda não verifica — aparece assim em vez de virar um interruptor que não faz nada.</div>
-
-    <div id="listaAcoes"></div>
-    <div class="par-previa" id="previaAcoes"></div>
-  </div>
-
-  <div class="par-secao par-futuro">
-    <div class="par-secao-titulo">Ainda não estão nesta tela</div>
-    <div class="par-secao-sub">Duas peças do modelo de autorização que dependem de módulo que ainda não existe.</div>
-
-    <div class="par-linha">
-      <div class="par-exp">
-        <b>Quem pode confirmar cada ação.</b> É a outra metade da pergunta, e ela pertence a <b>Permissões de usuários</b>. Enquanto essa tela não existe, o checklist mora na aba <b>Acesso e Permissões</b> do cadastro de Vendedores — lendo <b>este mesmo catálogo</b>, não uma cópia.
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
       </div>
-      <div class="par-exp">
-        <b>Código de liberação de desconto.</b> É um mecanismo <b>diferente</b> de senha: a senha confirma <i>quem é você</i>; o código libera <i>uma exceção pontual</i> — o gerente autoriza um desconto acima do limite sem virar o dono da venda. Entra junto com Vendas.
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
     </div>
   </div>
 
-  <div class="barra-salvar" id="barraSalvar">
-    <button class="btn-primary" id="btnSalvarParam">Salvar confirmações</button>
-    <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
-    <span class="barra-info" id="notaBarra"></span>
+<!-- PAINEL LATERAL: nova / editar forma de recebimento -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitulo">Nova forma de recebimento</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+
+  <div class="form-field" id="campoNomeForma">
+    <label>Nome da forma</label>
+    <input type="text" id="inputNomeForma" placeholder="Ex: Carteira digital">
+    <div class="field-error-msg" id="erroNomeForma">Informe o nome da forma.</div>
+    <div class="field-hint" id="hintNomeForma">É este nome que aparece no Pedido de Venda, em Contas a Receber e em Contas a Pagar.</div>
+  </div>
+
+  <div class="form-field">
+    <label>Vale para</label>
+    <div class="dropdown-select" id="inputUso" data-value="receber">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Só receber</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item" data-value="ambos">Receber e pagar</div>
+        <div class="dropdown-select-item active" data-value="receber">Só receber</div>
+        <div class="dropdown-select-item" data-value="pagar">Só pagar</div>
+      </div>
+    </div>
+    <div class="field-hint">Forma que só vale para pagar não tem destino, taxa nem limite de crédito: esses campos somem.</div>
+  </div>
+
+  <div id="blocoReceber">
+    <div class="section-title">Quando recebemos por ela</div>
+
+    <div class="form-field">
+      <label>Destino dos valores</label>
+      <div class="dropdown-select" id="inputDestino" data-value="titulo">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Contas a receber</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="titulo">Contas a receber</div>
+          <div class="dropdown-select-item" data-value="conta">Conta financeira</div>
+        </div>
+      </div>
+      <div class="field-hint" id="hintDestino"></div>
+    </div>
+
+    <div class="form-field" id="campoConta">
+      <label id="rotuloConta">Conta preferencial</label>
+      <div class="dropdown-select" id="inputConta" data-value="">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Nenhuma</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuConta"></div>
+      </div>
+      <div class="field-error-msg" id="erroConta">Escolha a conta em que o valor entra.</div>
+      <div class="field-hint" id="hintConta"></div>
+    </div>
+
+    <div class="form-field">
+      <label>Taxa</label>
+      <div class="dropdown-select" id="inputTarifacao" data-value="sem">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Sem taxa</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="sem">Sem taxa</div>
+          <div class="dropdown-select-item" data-value="transacao">Descontada no dia da transação</div>
+          <div class="dropdown-select-item" data-value="seguinte">Descontada no dia seguinte</div>
+          <div class="dropdown-select-item" data-value="pagamento">Descontada no dia do pagamento</div>
+        </div>
+      </div>
+      <div class="field-hint">Quando a operadora ou o banco desconta a parte dela. É daqui que saem as taxas do título em Contas a Receber.</div>
+    </div>
+
+    <div id="blocoTaxa" style="display:none;">
+      <div class="form-field" id="campoTaxaPct">
+        <label>Percentual da taxa (%)</label>
+        <input type="text" id="inputTaxaPct" inputmode="decimal" placeholder="0,00">
+        <div class="field-error-msg" id="erroTaxa">Informe o percentual, o valor fixo ou os dois.</div>
+      </div>
+      <div class="form-field">
+        <label>Valor fixo por operação (R$)</label>
+        <input type="text" id="inputTaxaFixa" inputmode="decimal" placeholder="0,00">
+        <div class="field-hint">Use os dois quando a operadora cobra percentual mais um valor fixo.</div>
+      </div>
+    </div>
+
+    <div class="switch-row">
+      <div class="switch-row-texto">
+        <div class="switch-row-titulo">Antecipação dos recebíveis</div>
+        <div class="field-hint">O valor chega antes do vencimento, já com o desconto da antecipação.</div>
+      </div>
+      <div class="switch" id="swAntecipa"></div>
+    </div>
+
+    <div class="switch-row">
+      <div class="switch-row-texto">
+        <div class="switch-row-titulo">Validar limite de crédito</div>
+        <div class="field-hint">O Pedido de Venda confere o limite do cliente quando esta forma é escolhida. Faz sentido para venda a prazo.</div>
+      </div>
+      <div class="switch" id="swLimite"></div>
+    </div>
+  </div>
+
+  <div class="cf-nota" id="notaForma"></div>
+
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnSalvarForma">Salvar</button>
+    <div class="drawer-link" id="btnCancelarForma">Cancelar</div>
+    <div class="drawer-link" id="linkSituacaoForma">Desabilitar</div>
+  </div>
+
+  <div class="excluir-link" id="linkExcluirForma" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    Excluir forma
   </div>
 </div>
 
-<!-- MODAL: aviso (telas ainda não construídas) -->
-<div class="drawer-backdrop" id="avisoBackdrop"></div>
-<div class="modal-card" id="avisoModal">
-  <div class="confirm-titulo">Confirmação</div>
-  <div class="confirm-texto" id="avisoTexto">Confirma esta ação?</div>
-  <div class="confirm-acoes">
-    <button class="btn-primary" id="btnAvisoOk">Entendi</button>
-    <div class="drawer-link" id="btnAvisoFechar">Fechar <span class="esc-hint">ESC</span></div>
-  </div>
-</div>
-
-
-
-<!-- MODAL: confirmação centralizada (reutilizável — excluir/inativar, individual e em massa) -->
+<!-- MODAL: confirmação centralizada (reutilizável — exclusão individual e em massa) -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -1427,6 +926,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
   </div>
+</div>
+
 </div>
 
 <script>
@@ -1525,18 +1026,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
     // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
-    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'formasRecebimento', nome:'Formas de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
-    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
-    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configurações \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
-    // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
-    { base:'transportadoras', nome:'Transportadoras', onde:'Configurações \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'motivosDevolucao', nome:'Motivos de Devolução', onde:'Configurações → Motivos de Devolução', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'motivosPerda', nome:'Motivos de Perda', onde:'Configurações → Motivos de Perda', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'formasRecebimento', nome:'Formas de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', ligado:{ criar:true,  editar:true,  excluir:true } }
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1549,57 +1041,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
-    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
-    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
-    // que vira divergencia de estoque, entao e a que mais precisa de nome.
-    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
-    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
-    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
-    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
-    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
-    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
-    // devolve pecas ao estoque depois de o caminhao ter saido.
-    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
-    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
-    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
-    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
-    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
-    // avancar o funil nao pede senha e alterar a situacao a mao pede.
-    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
-    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
-    { chave:'formasRecebimentoRegra', nome:'Alterar destino, taxa ou limite de uma forma de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', pronto:true,  exigePadrao:true },
-    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
-    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
-    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
-    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
+    { chave:'formasRecebimentoRegra', nome:'Alterar destino, taxa ou limite de uma forma de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', pronto:true,  exigePadrao:true }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1635,53 +1078,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
     if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
   }
-
-  // ===== MODAL DE CONFIRMAÇÃO (reutilizável — excluir/inativar, individual e em massa) =====
-  // Esta tela tinha um modal de AVISO com os ids do de confirmacao. Eram coisas
-  // diferentes usando o mesmo nome — e o resultado era que `confirmarAcao` nao
-  // achava `abrirModalConfirmacao` e falhava fechada. O aviso agora e #avisoModal.
-  let confirmAoConfirmarCallback = null;
-
-  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    const cienteRow = document.getElementById('confirmCienteRow');
-    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
-    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-    cienteCheckbox.checked = false;
-    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
-    if (quantidade > 1) {
-      cienteRow.style.display = 'flex';
-      btnConfirmar.disabled = true;
-    } else {
-      cienteRow.style.display = 'none';
-      btnConfirmar.disabled = false;
-    }
-    confirmAoConfirmarCallback = aoConfirmar;
-    document.getElementById('confirmModalBackdrop').classList.add('open');
-    document.getElementById('confirmModal').classList.add('open');
-  }
-
-  function fecharModalConfirmacao() {
-    document.getElementById('confirmModalBackdrop').classList.remove('open');
-    document.getElementById('confirmModal').classList.remove('open');
-    confirmAoConfirmarCallback = null;
-  }
-  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
-    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
-  });
-  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
-    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
-    const callback = confirmAoConfirmarCallback;
-    fecharModalConfirmacao();
-    if (callback) callback();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
-      fecharModalConfirmacao();
-    }
-  });
 
   // ----- Senha dentro do modal de confirmacao compartilhado -----
   // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
@@ -1846,14 +1242,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
   }
 
-
-
-
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Estoque', 'Controle de Estoques'];
+  let path = ['Cadastros', 'Marcas'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1990,30 +1383,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
 
-
-  // ===== MODAL DE AVISO =====
-  const avisoModal = document.getElementById('avisoModal');
-  const avisoBackdrop = document.getElementById('avisoBackdrop');
-
-  function avisar(texto) {
-    document.getElementById('avisoTexto').textContent = texto;
-    avisoBackdrop.classList.add('open');
-    avisoModal.classList.add('open');
-  }
-  function fecharAviso() {
-    avisoBackdrop.classList.remove('open');
-    avisoModal.classList.remove('open');
-  }
-  document.getElementById('btnAvisoOk').addEventListener('click', fecharAviso);
-  document.getElementById('btnAvisoFechar').addEventListener('click', fecharAviso);
-  avisoBackdrop.addEventListener('click', fecharAviso);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (avisoModal.classList.contains('open')) fecharAviso();
-    }
-  });
-
-  // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
+  // ===== COMPONENTE: dropdown customizado (substitui <select> nativo) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
@@ -2058,189 +1428,449 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio, sem
-  // passar pelo inicializarDropdownSelect (que marcaria item .active e trocaria o rotulo).
-  (function bindMenuAcoes() {
-    const raiz = document.getElementById('menuMaisAcoes');
-    if (!raiz) return;   // esta tela nao tem menu "Mais acoes"
-    const btn = raiz.querySelector('.dropdown-select-btn');
-    const menu = raiz.querySelector('.dropdown-select-menu');
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-      const vaiAbrir = !menu.classList.contains('open');
-      if (vaiAbrir) {
-        menu.style.visibility = 'hidden'; menu.style.display = 'block';
-        const alturaMenu = menu.offsetHeight;
-        menu.style.display = ''; menu.style.visibility = '';
-        const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-        menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
-      }
-      menu.classList.toggle('open');
-    });
-    menu.querySelectorAll('.dropdown-select-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.remove('open');
-        const acao = item.getAttribute('data-acao');
-        if (acao === 'inventario') { window.location.href = '../estoque/pagina-estoque-inventario.html'; return; }
-        avisar('Impressão de relatório entra junto com o módulo de Relatórios.');
-      });
-    });
-  })();
+  // ===== MODAL DE CONFIRMAÇÃO (reutilizável) =====
+  // Mesmo bloco das listagens de cadastro. Esta tela nao tem selecao em massa
+  // (sao poucas contas e excluir em lote conta financeira nao e operacao real).
+  let confirmAoConfirmarCallback = null;
+  function abrirModalConfirmacao(texto, quantidade, aoConfirmar) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    const cienteRow = document.getElementById('confirmCienteRow');
+    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
+    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+    cienteCheckbox.checked = false;
+    if (quantidade > 1) { cienteRow.style.display = 'flex'; btnConfirmar.disabled = true; }
+    else { cienteRow.style.display = 'none'; btnConfirmar.disabled = false; }
+    confirmAoConfirmarCallback = aoConfirmar;
+    document.getElementById('confirmModalBackdrop').classList.add('open');
+    document.getElementById('confirmModal').classList.add('open');
+  }
+  function fecharModalConfirmacao() {
+    document.getElementById('confirmModalBackdrop').classList.remove('open');
+    document.getElementById('confirmModal').classList.remove('open');
+    confirmAoConfirmarCallback = null;
+  }
+  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
+    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  });
+  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
+    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
+    const callback = confirmAoConfirmarCallback;
+    fecharModalConfirmacao();
+    if (callback) callback();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
+      fecharModalConfirmacao();
+    }
+  });
 
-  // ===== CONFIRMAÇÕES POR SENHA =====
-  // A tela nao tem lista propria: ela edita o catalogo compartilhado ACOES_SENHA
-  // (topo do script), o mesmo que as telas que pedem senha leem e que o checklist
-  // do perfil em Vendedores mostra. No Lovable, `acoes_confirmacao` (catalogo) e
-  // `parametros.confirmacoes` (o que a empresa ligou ou desligou).
-  // E configuracao DA EMPRESA, nao do usuario: `usuario_id` nulo.
+  // ===== FORMAS DE RECEBIMENTO =====
+  // Ate 08/out/2026 a lista de formas vivia escrita no codigo de cinco telas
+  // (Pedido de Venda, Contas a Receber e Contas a Pagar, listagem e detalhe), e
+  // cada uma tinha a sua. A regra que importa nem era rotulo: o Pedido guardava
+  // quais formas validam o limite de credito, com um comentario dizendo que a
+  // constante sairia dali "quando a tela de Formas de recebimento existir".
+  //
+  // O que a forma DECIDE, e por isso precisa de dono:
+  //   destino        se a venda vira titulo (Contas a receber) ou entra direto
+  //                  numa conta financeira. Dinheiro entra na hora; cartao, boleto
+  //                  e crediario viram titulo, porque o dinheiro so chega depois.
+  //   taxa           quanto fica pelo caminho e QUANDO e descontado. E a origem
+  //                  de `taxas` e `liquido` do titulo em Contas a Receber.
+  //   validaLimite   se o Pedido confere o limite de credito do cliente.
+  //   uso            se vale para receber, para pagar ou para os dois. As formas
+  //                  de Contas a Pagar entraram aqui por decisao do usuario: uma
+  //                  lista so para manter. Forma que so paga nao tem destino,
+  //                  taxa nem limite — esses campos SOMEM (14.28).
+  //
+  // `sistema:true` e a forma que nasce com o ERP: pode ser desabilitada, nunca
+  // excluida nem renomeada, porque as outras telas a reconhecem pela `chave`.
+  // `reservada:true` e a que existe no catalogo mas ainda nao pode ser ligada.
+  //
+  // Fica de fora de proposito (decidido com o usuario): o painel "preferencias"
+  // do Olist e a tabela de varias contas por forma dependem de Gateways, que
+  // nao existe; prazo e parcelas entram com o PDV; cashback e vale-presente,
+  // com as vitrines.
 
-  const elNota = document.getElementById('notaBarra');
-  // Estado em edicao, comecando do que esta salvo. So vira PARAM no Salvar.
-  let edicao = {};
-  ACOES_SENHA.forEach(a => { edicao[a.chave] = exigeSenha(a.chave); });
+  // Espelho de Configuracoes > Contas financeiras: as contas ATIVAS. No Lovable
+  // isto vira join. Aqui a suite compara as duas listas.
+  const CONTAS_FINANCEIRAS = [
+    { id:1, nome:'Caixa' },
+    { id:2, nome:'Banco Inter — conta corrente' },
+    { id:3, nome:'Mercado Pago' },
+    { id:4, nome:'Cofre da loja' },
+    { id:6, nome:'Conta teste' }
+  ];
 
-  function render() {
-    // A grade sai do catalogo, nao de uma lista escrita aqui: modulo novo aparece
-    // sozinho no dia em que entra no catalogo. Cada grupo traz a matriz de verbos
-    // e, embaixo, as acoes que verbo nenhum descreve.
-    const grupos = [];
-    MODULOS_SENHA.forEach(m => {
-      let g = grupos.filter(x => x.nome === m.grupo)[0];
-      if (!g) { g = { nome:m.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.modulos.push(m);
-    });
-    ACOES_ESPECIFICAS.forEach(a => {
-      let g = grupos.filter(x => x.nome === a.grupo)[0];
-      if (!g) { g = { nome:a.grupo, modulos:[], especificas:[] }; grupos.push(g); }
-      g.especificas.push(a);
-    });
+  const USOS = { ambos:'Receber e pagar', receber:'Receber', pagar:'Pagar' };
+  const DESTINOS = { titulo:'Contas a receber', conta:'Conta financeira' };
+  const TARIFACOES = { sem:'Sem taxa', transacao:'no dia da transação', seguinte:'no dia seguinte', pagamento:'no dia do pagamento' };
 
-    const cadeado = '<svg class="conf-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  const FORMAS = [
+    { id:1,  chave:'dinheiro',      nome:'Dinheiro',          sistema:true,  uso:'ambos',   destino:'conta',  contaId:1,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    { id:2,  chave:'pix',           nome:'Pix',               sistema:true,  uso:'ambos',   destino:'conta',  contaId:2,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    { id:3,  chave:'debito',        nome:'Cartão de débito',  sistema:true,  uso:'ambos',   destino:'titulo', contaId:3,    tarifacao:'seguinte',  taxaPct:1.39, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    { id:4,  chave:'credito',       nome:'Cartão de crédito', sistema:true,  uso:'receber', destino:'titulo', contaId:3,    tarifacao:'pagamento', taxaPct:3.49, taxaFixa:0,    antecipa:false, validaLimite:true,  ativo:true },
+    { id:5,  chave:'boleto',        nome:'Boleto',            sistema:true,  uso:'ambos',   destino:'titulo', contaId:2,    tarifacao:'pagamento', taxaPct:0,    taxaFixa:2.90, antecipa:false, validaLimite:true,  ativo:true },
+    { id:6,  chave:'crediario',     nome:'Crediário',         sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:true,  ativo:true },
+    // Cheque NAO valida limite: decisao do usuario em 08/out/2026.
+    { id:7,  chave:'cheque',        nome:'Cheque',            sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    { id:8,  chave:'deposito',      nome:'Depósito',          sistema:true,  uso:'receber', destino:'titulo', contaId:2,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    // Reservada: a Devolucao ja oferece vale-troca como ressarcimento, tambem
+    // marcado como reservado. As duas pontas ligam juntas.
+    { id:9,  chave:'valetroca',     nome:'Vale-troca',        sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:false, reservada:true },
+    { id:10, chave:'transferencia', nome:'Transferência',     sistema:true,  uso:'pagar',   destino:null,     contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
+    // A unica forma criada pelo usuario no mock. Sem uma assim, o caminho de
+    // exclusao nunca seria exercitado — e trava que nunca deixa passar e bug.
+    { id:11, chave:null,            nome:'Carteira digital',  sistema:false, uso:'receber', destino:'conta',  contaId:3,    tarifacao:'transacao', taxaPct:0.99, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true }
+  ];
 
-    document.getElementById('listaAcoes').innerHTML = grupos.map(g => {
-      const cabecalho =
-        '<div class="mtz-linha mtz-cab">' +
-          '<div class="mtz-cab-titulo">M\u00f3dulo</div>' +
-          VERBOS_SENHA.map(v => '<div class="mtz-cab-verbo">' + v.rotulo + '</div>').join('') +
-        '</div>';
+  let formaEmEdicaoId = null;
+  let paginaAtual = 1;
+  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
+  let buscaAtual = '';
+  let filtroUsoAtual = 'todos';
+  let filtroSituacaoAtual = 'todos';
+  let antecipaEdicao = false, limiteEdicao = false;
 
-      const linhas = g.modulos.map(m =>
-        '<div class="mtz-linha">' +
-          '<div><div class="mtz-nome">' + m.nome + '</div><div class="mtz-onde">' + m.onde + '</div></div>' +
-          VERBOS_SENHA.map(v => {
-            const chave = m.base + v.sufixo;
-            if (!m.ligado[v.id]) {
-              return '<div class="mtz-cel" title="A tela de ' + m.nome + ' ainda não pede confirmação ao ' +
-                     v.rotulo.toLowerCase() + '. O interruptor aparece quando ela for ligada.">' + cadeado + '</div>';
-            }
-            return '<div class="mtz-cel"><div class="switch' + (edicao[chave] ? ' on' : '') +
-                   '" data-chave="' + chave + '" role="switch" title="' + v.rotulo + ' ' + m.nome + '"></div></div>';
-          }).join('') +
-        '</div>').join('');
+  const fmtNum = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const recebe = (f) => f.uso !== 'pagar';
+  const paga = (f) => f.uso !== 'receber';
+  const contaDe = (id) => CONTAS_FINANCEIRAS.filter(c => c.id === id)[0] || null;
+  const valorDe = (idRaiz) => document.getElementById(idRaiz).getAttribute('data-value');
 
-      const especificas = g.especificas.map(a => {
-        const exige = edicao[a.chave];
-        const travado = !a.pronto;
-        const estado = travado
-          ? '<div class="conf-estado indisponivel">tela ainda não constru\u00edda \u00b7 nasce exigindo senha</div>'
-          : (exige ? '<div class="conf-estado exige">exige senha</div>'
-                   : '<div class="conf-estado livre">acontece sem confirmação</div>');
-        return '<div class="switch-row">' +
-          '<div class="switch-row-texto">' +
-            '<div class="switch-row-titulo">' + a.nome + '</div>' +
-            '<div class="field-hint">' + a.onde + '</div>' + estado +
-          '</div>' +
-          (travado ? cadeado
-                   : '<div class="switch' + (exige ? ' on' : '') + '" data-chave="' + a.chave + '" role="switch"></div>') +
-        '</div>';
-      }).join('');
-
-      return '<div class="section-title">' + g.nome + '</div>' +
-             '<div class="mtz">' + cabecalho + linhas + '</div>' +
-             '<div class="mtz-legenda">' + cadeado + ' Cadeado = a tela ainda não pede confirmação nessa ação. O interruptor nasce junto com ela.</div>' +
-             especificas;
-    }).join('');
-
-    document.querySelectorAll('#listaAcoes .switch[role="switch"]').forEach(sw => {
-      sw.addEventListener('click', () => {
-        const k = sw.getAttribute('data-chave');
-        edicao[k] = !edicao[k];
-        render();
-      });
-    });
-
-    atualizarPrevia();
-    contarMudancas();
+  // "3,49" e "3.49" valem; texto que nao e numero devolve null, para a tela
+  // reclamar em vez de gravar zero calada.
+  function numero(txt) {
+    let t = String(txt || '').trim();
+    if (t === '') return 0;
+    if (t.indexOf(',') !== -1) t = t.replace(/\./g, '').replace(',', '.');
+    const n = Number(t);
+    return isFinite(n) && n >= 0 ? n : null;
   }
 
-  // A previa nao repete o obvio ("3 ligadas"): ela nomeia o que fica SEM trava,
-  // porque desligar aqui e sempre uma reducao de seguranca e tem de estar escrito.
-  function atualizarPrevia() {
-    // Conta so o que esta LIGADO: celula com cadeado nao pede senha hoje e nao
-    // pode entrar na conta como se pedisse.
-    // O VERMELHO e reservado a protecao RETIRADA — acao cujo padrao e exigir
-    // senha e que foi desligada aqui. Criar e editar nascem desligados de
-    // proposito; pinta-los de alerta ensinaria o usuario a ignorar a cor, que e
-    // o mesmo erro ja corrigido na previa de Parametros de estoque.
-    const ligadas   = ACOES_SENHA.filter(a => a.pronto && a.ligado);
-    const exigindo  = ligadas.filter(a => edicao[a.chave]);
-    const retiradas = ligadas.filter(a => !edicao[a.chave] && a.exigePadrao);
-    const el = document.getElementById('previaAcoes');
-    el.classList.toggle('alerta', retiradas.length > 0);
+  function taxaTexto(f) {
+    if (f.tarifacao === 'sem') return 'Sem taxa';
+    const partes = [];
+    if (f.taxaPct > 0) partes.push(fmtNum(f.taxaPct) + '%');
+    if (f.taxaFixa > 0) partes.push('R$ ' + fmtNum(f.taxaFixa));
+    return partes.join(' + ') + ' · ' + TARIFACOES[f.tarifacao];
+  }
 
-    const base = '<b>' + exigindo.length + ' de ' + ligadas.length + '</b> ações ligadas pedem senha hoje.';
-    if (retiradas.length === 0) {
-      el.innerHTML = base + ' <b>Nenhuma prote\u00e7\u00e3o de f\u00e1brica foi retirada</b> \u2014 o que est\u00e1 desligado nasceu assim.';
+  // O indicador existe para dar sentido ao campo "destino": sem ele, titulo ou
+  // conta seria uma escolha que nao muda nada na tela.
+  function atualizarKpi() {
+    const on = FORMAS.filter(f => f.ativo);
+    const titulo = on.filter(f => recebe(f) && f.destino === 'titulo').length;
+    const direto = on.filter(f => recebe(f) && f.destino === 'conta').length;
+    const pagar = on.filter(paga).length;
+    document.getElementById('kpiFormas').textContent = on.length;
+    document.getElementById('kpiNota').textContent =
+      '· ' + titulo + (titulo === 1 ? ' vira título' : ' viram título') +
+      ' · ' + direto + (direto === 1 ? ' entra direto na conta' : ' entram direto na conta') +
+      ' · ' + pagar + (pagar === 1 ? ' vale para pagar' : ' valem para pagar');
+  }
+
+  function listaFiltrada() {
+    const b = semAcento(buscaAtual);
+    return FORMAS.filter(f => {
+      const conta = contaDe(f.contaId);
+      return (filtroUsoAtual === 'todos' || (filtroUsoAtual === 'receber' ? recebe(f) : paga(f))) &&
+             (filtroSituacaoAtual === 'todos' || (filtroSituacaoAtual === 'ativo' ? f.ativo : !f.ativo)) &&
+             (b === '' || semAcento(f.nome).indexOf(b) !== -1 || (conta && semAcento(conta.nome).indexOf(b) !== -1));
+    });
+  }
+
+  function renderFormas() {
+    const cx = document.getElementById('listaFormas');
+    const vazio = document.getElementById('emptyState');
+    const completa = listaFiltrada();
+    const totalPaginas = Math.max(1, Math.ceil(completa.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
+    const fim = Math.min(inicio + itensPorPaginaAtual, completa.length);
+    const lista = completa.slice(inicio, fim);
+    const traco = '<span class="cf-vazio">—</span>';
+
+    if (completa.length === 0) {
+      cx.innerHTML = '';
+      vazio.style.display = 'flex';
+    } else {
+      vazio.style.display = 'none';
+      const cadeado = '<svg class="cf-cadeado" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+      cx.innerHTML =
+        '<div class="estoque-table-wrap"><table class="estoque-table"><thead><tr>' +
+          '<th class="col-texto">Forma</th>' +
+          '<th class="col-texto" style="width:140px;">Vale para</th>' +
+          '<th class="col-texto" style="width:170px;">Destino dos valores</th>' +
+          '<th class="col-texto" style="width:220px;">Conta preferencial</th>' +
+          '<th class="col-texto" style="width:230px;">Taxa</th>' +
+          '<th class="col-texto" style="width:120px;">Situação</th>' +
+        '</tr></thead><tbody>' +
+        lista.map(f => {
+          const chips = [];
+          if (f.reservada)                   chips.push('<span class="cf-chip fora">reservada</span>');
+          if (recebe(f) && f.validaLimite)   chips.push('<span class="cf-chip pref">valida limite de crédito</span>');
+          if (recebe(f) && f.antecipa)       chips.push('<span class="cf-chip banco">antecipada</span>');
+          const conta = contaDe(f.contaId);
+          const mostra = recebe(f) && !f.reservada;
+          return '<tr data-id="' + f.id + '">' +
+            '<td class="col-texto">' +
+              (f.sistema ? cadeado : '') + '<span class="cf-nome">' + f.nome + '</span>' +
+              (chips.length ? '<div class="cf-chips">' + chips.join('') + '</div>' : '') +
+            '</td>' +
+            '<td class="col-texto">' + USOS[f.uso] + '</td>' +
+            '<td class="col-texto">' + (mostra ? DESTINOS[f.destino] : traco) + '</td>' +
+            '<td class="col-texto">' + (mostra && conta ? conta.nome : traco) + '</td>' +
+            '<td class="col-texto">' + (mostra ? taxaTexto(f) : traco) + '</td>' +
+            '<td class="col-texto">' + (f.ativo ? 'Habilitada' : 'Desabilitada') + '</td>' +
+          '</tr>';
+        }).join('') + '</tbody></table></div>';
+      cx.querySelectorAll('tbody tr').forEach(tr => {
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', () => abrirDrawerForma(Number(tr.getAttribute('data-id'))));
+      });
+    }
+
+    document.getElementById('paginacaoResumo').textContent = completa.length === 0
+      ? 'Mostrando 0 de 0'
+      : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + completa.length;
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
+    atualizarKpi();
+  }
+
+  // ===== PAINEL LATERAL =====
+  const drawer = document.getElementById('eventDrawer');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+  // Ajusta valor, rotulo e item ativo de um dropdown do painel. O componente
+  // faz isso sozinho quando a PESSOA escolhe; ao abrir o painel com os dados de
+  // uma forma, quem escolhe e o codigo.
+  function setDropdownValor(idRaiz, valor) {
+    const raiz = document.getElementById(idRaiz);
+    if (!raiz) return;
+    raiz.setAttribute('data-value', valor);
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === String(valor);
+      it.classList.toggle('active', ativo);
+      if (ativo && rotulo) rotulo.textContent = it.textContent;
+    });
+  }
+
+  function limparErros() {
+    ['campoNomeForma', 'campoConta', 'campoTaxaPct'].forEach(id => document.getElementById(id).classList.remove('has-error'));
+    ['erroNomeForma', 'erroConta', 'erroTaxa'].forEach(id => document.getElementById(id).classList.remove('show'));
+  }
+  function marcarErro(idCampo, idErro, mensagem) {
+    document.getElementById(idCampo).classList.add('has-error');
+    const erro = document.getElementById(idErro);
+    erro.textContent = mensagem;
+    erro.classList.add('show');
+  }
+
+  // O que aparece depende do que foi escolhido: forma que so paga nao mostra o
+  // bloco de recebimento, e "sem taxa" nao mostra os campos de taxa. Campo que
+  // nao se aplica some, em vez de ficar cinza pedindo explicacao.
+  function pintarBlocos() {
+    const direto = valorDe('inputDestino') === 'conta';
+    document.getElementById('blocoReceber').style.display = valorDe('inputUso') === 'pagar' ? 'none' : 'block';
+    document.getElementById('blocoTaxa').style.display = valorDe('inputTarifacao') === 'sem' ? 'none' : 'block';
+    document.getElementById('rotuloConta').textContent = direto ? 'Conta em que o valor entra' : 'Conta preferencial para a baixa';
+    document.getElementById('hintDestino').textContent = direto
+      ? 'O valor entra na conta na hora da venda, sem título. É o caso do dinheiro.'
+      : 'A venda vira título em Contas a Receber, porque o dinheiro só chega depois. É o caso de cartão, boleto e crediário.';
+    document.getElementById('hintConta').textContent = direto
+      ? 'Obrigatória: sem ela a venda não tem onde cair.'
+      : 'Opcional. Vem escolhida quando o título desta forma é baixado.';
+    document.getElementById('swAntecipa').classList.toggle('on', antecipaEdicao);
+    document.getElementById('swLimite').classList.toggle('on', limiteEdicao);
+  }
+
+  // A nota do painel explica as travas ANTES de a pessoa esbarrar nelas.
+  function atualizarNota() {
+    const f = formaEmEdicaoId ? FORMAS.filter(x => x.id === formaEmEdicaoId)[0] : null;
+    const el = document.getElementById('notaForma');
+    const motivos = [];
+    if (f && f.sistema)   motivos.push('É uma forma do sistema: <b>pode ser desabilitada, mas não excluída nem renomeada</b>. As outras telas a reconhecem pelo nome.');
+    if (f && f.reservada) motivos.push('Está <b>reservada</b>: passa a valer quando o vale-troca da Devolução for ligado. Até lá não pode ser habilitada.');
+    el.innerHTML = motivos.join('<br>');
+    el.style.display = motivos.length ? 'block' : 'none';
+  }
+
+  function abrirDrawerForma(id) {
+    formaEmEdicaoId = id;
+    const f = id ? FORMAS.filter(x => x.id === id)[0] : null;
+    document.getElementById('drawerTitulo').textContent = f ? 'Editar forma de recebimento' : 'Nova forma de recebimento';
+    const inputNome = document.getElementById('inputNomeForma');
+    inputNome.value = f ? f.nome : '';
+    inputNome.disabled = !!(f && f.sistema);
+    document.getElementById('hintNomeForma').textContent = f && f.sistema
+      ? 'Forma do sistema: o nome é fixo.'
+      : 'É este nome que aparece no Pedido de Venda, em Contas a Receber e em Contas a Pagar.';
+    setDropdownValor('inputUso', f ? f.uso : 'receber');
+    setDropdownValor('inputDestino', f && f.destino ? f.destino : 'titulo');
+    setDropdownValor('inputConta', f && f.contaId ? String(f.contaId) : '');
+    setDropdownValor('inputTarifacao', f ? f.tarifacao : 'sem');
+    document.getElementById('inputTaxaPct').value = f && f.taxaPct ? fmtNum(f.taxaPct) : '';
+    document.getElementById('inputTaxaFixa').value = f && f.taxaFixa ? fmtNum(f.taxaFixa) : '';
+    antecipaEdicao = f ? f.antecipa : false;
+    limiteEdicao = f ? f.validaLimite : false;
+    limparErros();
+    pintarBlocos();
+    const linkSit = document.getElementById('linkSituacaoForma');
+    linkSit.style.display = f ? 'block' : 'none';
+    linkSit.textContent = f && f.ativo ? 'Desabilitar' : 'Habilitar';
+    document.getElementById('linkExcluirForma').style.display = f && !f.sistema ? 'block' : 'none';
+    atualizarNota();
+    drawerBackdrop.classList.add('open');
+    drawer.classList.add('open');
+  }
+  function fecharDrawer() {
+    drawerBackdrop.classList.remove('open');
+    drawer.classList.remove('open');
+    formaEmEdicaoId = null;
+  }
+
+  // O menu de contas nasce com a TELA, nao na abertura do painel (9.3).
+  document.getElementById('menuConta').innerHTML =
+    '<div class="dropdown-select-item active" data-value="">Nenhuma</div>' +
+    CONTAS_FINANCEIRAS.map(c => '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>').join('');
+  inicializarDropdownSelect(document.getElementById('inputUso'), pintarBlocos);
+  inicializarDropdownSelect(document.getElementById('inputDestino'), pintarBlocos);
+  inicializarDropdownSelect(document.getElementById('inputTarifacao'), pintarBlocos);
+  inicializarDropdownSelect(document.getElementById('inputConta'), () => {
+    document.getElementById('campoConta').classList.remove('has-error');
+    document.getElementById('erroConta').classList.remove('show');
+  });
+
+  document.getElementById('swAntecipa').addEventListener('click', () => { antecipaEdicao = !antecipaEdicao; pintarBlocos(); });
+  document.getElementById('swLimite').addEventListener('click', () => { limiteEdicao = !limiteEdicao; pintarBlocos(); });
+  document.getElementById('btnNovaForma').addEventListener('click', () => abrirDrawerForma(null));
+  document.getElementById('btnCancelarForma').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  drawerBackdrop.addEventListener('click', fecharDrawer);
+  // Esc fecha o painel, mas so quando nao ha modal por cima: o modal fecha primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('open') &&
+        !document.getElementById('confirmModal').classList.contains('open')) fecharDrawer();
+  }, true);
+
+  document.getElementById('btnSalvarForma').addEventListener('click', () => {
+    limparErros();
+    const editando = !!formaEmEdicaoId;
+    const nome = document.getElementById('inputNomeForma').value.trim();
+    const uso = valorDe('inputUso');
+    const vaiReceber = uso !== 'pagar';
+    const destino = vaiReceber ? valorDe('inputDestino') : null;
+    const contaId = vaiReceber && valorDe('inputConta') ? Number(valorDe('inputConta')) : null;
+    const tarifacao = vaiReceber ? valorDe('inputTarifacao') : 'sem';
+    const pct = tarifacao === 'sem' ? 0 : numero(document.getElementById('inputTaxaPct').value);
+    const fixa = tarifacao === 'sem' ? 0 : numero(document.getElementById('inputTaxaFixa').value);
+    let erro = false;
+
+    const repetido = FORMAS.some(x => x.id !== formaEmEdicaoId && semAcento(x.nome) === semAcento(nome));
+    if (nome === '' || repetido) {
+      marcarErro('campoNomeForma', 'erroNomeForma', nome === ''
+        ? 'Informe o nome da forma.'
+        : 'Já existe uma forma com este nome. Duas iguais na lista e ninguém sabe qual escolher.');
+      erro = true;
+    }
+    if (vaiReceber && destino === 'conta' && !contaId) {
+      marcarErro('campoConta', 'erroConta', 'Escolha a conta em que o valor entra.');
+      erro = true;
+    }
+    if (tarifacao !== 'sem') {
+      if (pct === null || fixa === null)   { marcarErro('campoTaxaPct', 'erroTaxa', 'Use só números, com vírgula para os centavos.'); erro = true; }
+      else if (pct > 100)                  { marcarErro('campoTaxaPct', 'erroTaxa', 'O percentual não passa de 100%.'); erro = true; }
+      else if (pct === 0 && fixa === 0)    { marcarErro('campoTaxaPct', 'erroTaxa', 'Informe o percentual, o valor fixo ou os dois. Se não há taxa, escolha "Sem taxa".'); erro = true; }
+    }
+    if (erro) return;
+
+    const dados = { uso, destino, contaId, tarifacao, taxaPct: pct, taxaFixa: fixa,
+                    antecipa: vaiReceber && antecipaEdicao, validaLimite: vaiReceber && limiteEdicao };
+    // Mudar para onde o dinheiro vai, quanto fica de taxa ou se o limite e
+    // conferido e mexer em regra de dinheiro: tem acao propria, que pede senha
+    // por padrao. Incluir forma nova, renomear ou mudar o "vale para" seguem a
+    // matriz do modulo, como em todo cadastro (criar e editar nascem sem senha).
+    const f0 = editando ? FORMAS.filter(x => x.id === formaEmEdicaoId)[0] : null;
+    const mudouRegra = !!f0 && ['destino', 'contaId', 'tarifacao', 'taxaPct', 'taxaFixa', 'antecipa', 'validaLimite']
+      .some(k => f0[k] !== dados[k]);
+    confirmarAcao(
+      !editando ? 'formasRecebimentoCriar' : (mudouRegra ? 'formasRecebimentoRegra' : 'formasRecebimentoEditar'),
+      !editando ? 'Confirma o cadastro da forma "' + nome + '"?'
+        : (mudouRegra ? 'Confirma a alteração das regras da forma "' + nome + '"? Destino, taxa e limite passam a valer para as próximas vendas.'
+                      : 'Confirma a alteração da forma "' + nome + '"?'),
+      () => {
+        if (editando) {
+          const f = FORMAS.filter(x => x.id === formaEmEdicaoId)[0];
+          Object.assign(f, dados);
+          if (!f.sistema) f.nome = nome;
+        } else {
+          FORMAS.push(Object.assign({ id: Date.now(), chave: null, nome, sistema: false, ativo: true }, dados));
+        }
+        renderFormas();
+        fecharDrawer();
+      });
+  });
+
+  document.getElementById('linkSituacaoForma').addEventListener('click', () => {
+    const f = FORMAS.filter(x => x.id === formaEmEdicaoId)[0];
+    if (!f) return;
+    if (!f.ativo && f.reservada) {
+      fecharDrawer();
+      setTimeout(() => avisarHTML('<b>' + f.nome + '</b> está reservada: passa a valer quando o vale-troca da Devolução for ligado.'), 260);
       return;
     }
-    const exclusoes = retiradas.filter(a => a.verbo === 'excluir');
-    const lista = retiradas.length <= 4
-      ? retiradas.map(a => a.nome.toLowerCase()).join('; ')
-      : (exclusoes.length ? '<b>' + exclusoes.length + '</b> delas s\u00e3o exclus\u00f5es de cadastro' : 'v\u00e1rias de uma vez');
-    el.innerHTML = base + ' <b>' + plural(retiradas.length, 'prote\u00e7\u00e3o retirada', 'prote\u00e7\u00f5es retiradas') +
-      '</b> em relação ao padr\u00e3o: ' + lista +
-      '. Quem alcan\u00e7ar a tela executa direto, e o hist\u00f3rico não guarda quem autorizou.';
-  }
-
-  const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
-
-  function contarMudancas() {
-    const dif = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave)).length;
-    elNota.textContent = dif ? plural(dif, 'ação alterada', 'ações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
-  }
-
-  document.getElementById('btnSalvarParam').addEventListener('click', () => {
-    const mudadas = ACOES_SENHA.filter(a => a.ligado && edicao[a.chave] !== exigeSenha(a.chave));
-    if (mudadas.length === 0) { avisar('Nenhuma confirmação mudou.'); return; }
-    const desligadas = mudadas.filter(a => !edicao[a.chave]);
-    PARAM.confirmacoes = Object.assign({}, PARAM.confirmacoes, edicao);
-    const gravou = gravarParametros(PARAM);
-    contarMudancas();
-    avisar(plural(mudadas.length, 'ação salva', 'ações salvas') + '. ' +
-      (desligadas.length
-        ? desligadas.length === 1
-          ? 'O painel de confirmação continua abrindo em "' + desligadas[0].nome.toLowerCase() + '" \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
-          : 'Os pain\u00e9is de confirmação continuam abrindo \u2014 com o resumo do que vai acontecer \u2014, s\u00f3 sem pedir senha.'
-        : 'As telas afetadas voltam a pedir senha na pr\u00f3xima abertura.') +
-      (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, ent\u00e3o isto vale s\u00f3 nesta aba.)'));
+    const vai = !f.ativo;
+    abrirModalConfirmacao(vai
+      ? 'Habilitar a forma "' + f.nome + '"? Ela volta a aparecer nas telas que a oferecem.'
+      : 'Desabilitar a forma "' + f.nome + '"? Ela some das listas de escolha, mas os títulos e pedidos antigos continuam com ela.', 1, () => {
+      f.ativo = vai; renderFormas(); fecharDrawer();
+    });
   });
 
-  document.getElementById('btnRestaurarParam').addEventListener('click', () => {
-    ACOES_SENHA.forEach(a => { edicao[a.chave] = a.exigePadrao; });   // inclui as travadas: o padrao delas vale quando forem ligadas
-    render();
-    avisar('Padr\u00e3o de f\u00e1brica restaurado na tela: toda ação do cat\u00e1logo exige senha. Clique em "Salvar confirmações" para valer.');
+  document.getElementById('linkExcluirForma').addEventListener('click', () => {
+    const f = FORMAS.filter(x => x.id === formaEmEdicaoId)[0];
+    if (!f) return;
+    if (f.sistema) {
+      fecharDrawer();
+      setTimeout(() => avisarHTML('<b>' + f.nome + '</b> é uma forma do sistema e não pode ser excluída. Desabilite, se não for usar.'), 260);
+      return;
+    }
+    armarSenhaModal('formasRecebimentoExclui');
+    abrirModalConfirmacao('Confirma exclusão da forma "' + f.nome + '"?', 1, () => {
+      const i = FORMAS.findIndex(x => x.id === f.id);
+      if (i !== -1) FORMAS.splice(i, 1);
+      renderFormas(); fecharDrawer();
+    });
   });
 
-  render();
+  function avisarHTML(html) {
+    document.getElementById('confirmModalTexto').innerHTML = html;
+    document.getElementById('confirmModalBackdrop').classList.add('open');
+    document.getElementById('confirmModal').classList.add('open');
+  }
 
-  path = ['Configurações', 'Configurações ERP', 'Confirmações por senha'];
+  // ===== FILTROS E PAGINAÇÃO =====
+  document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; renderFormas(); });
+  inicializarDropdownSelect(document.getElementById('filtroUso'), (v) => { filtroUsoAtual = v; paginaAtual = 1; renderFormas(); });
+  inicializarDropdownSelect(document.getElementById('filtroSituacao'), (v) => { filtroSituacaoAtual = v; paginaAtual = 1; renderFormas(); });
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; renderFormas(); });
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; renderFormas(); } });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderFormas(); });
+
+  renderFormas();
+
+  path = ['Configurações', 'Configurações ERP', 'Formas de recebimento'];
   renderBreadcrumb();
-  setMainTitle('Confirmações por senha');
+  setMainTitle('Formas de recebimento');
 
-  // O renderBreadcrumb compartilhado so mexe no flyout; o crumb do meio precisa
-  // voltar pro hub de verdade. Listener local, pra nao mexer no bloco dos 40.
   document.querySelectorAll('#breadcrumb .crumb').forEach(c => {
     if (c.textContent.trim() === 'Configurações ERP') {
       c.addEventListener('click', () => { window.location.href = '../configuracoes/pagina-configuracoes.html'; });
@@ -2293,11 +1923,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
 
-
-  // A nota nasce escrita. Ela so era preenchida quando alguem mexia em
-  // alguma coisa, e ate la ficava vazia — e vazio nao informa.
-  contarMudancas();
-
 </script>
+
 </body>
 </html>

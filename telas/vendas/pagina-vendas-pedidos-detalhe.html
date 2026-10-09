@@ -1985,9 +1985,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // Quais formas de recebimento VALIDAM o limite de credito do cliente. Decidido
   // no roadmap (§ formas de recebimento): crediario valida, dinheiro nao — e o
-  // mesmo limite, checado so onde importa. Quando a tela de Formas de
-  // recebimento existir, isto vira coluna `valida_limite` la, e esta constante
-  // sai. Nao nasce literal dentro de um `if`, pela mesma razao do bloco PARAM.
+  // mesmo limite, checado so onde importa. A tela existe desde 08/out/2026
+  // (Configuracoes > Formas de recebimento) e e ELA quem manda. Enquanto nao ha
+  // backend, as duas constantes abaixo sao ESPELHO do cadastro, e a suite
+  // teste_formas_recebimento.py compara nome e regra, forma a forma. No Lovable
+  // viram a coluna `valida_limite` e esta constante sai.
   const RECEBIMENTO_VALIDA_LIMITE = {
     pix: false, dinheiro: false, debito: false, credito: true, boleto: true, crediario: true
   };

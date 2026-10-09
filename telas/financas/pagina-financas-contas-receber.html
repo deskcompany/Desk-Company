@@ -1943,6 +1943,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // vinda de pedido traz o meio real, conta digitada a mao oferece o que da para
   // digitar. `Vale-troca` e `Crediario` ficam: sao meios que a Desk usa e que
   // NAO sao dinheiro entrando de fato.
+  // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
+  // valem para receber. Mudou la, muda aqui; teste_formas_recebimento.py compara.
   const FORMAS = ['Dinheiro', 'Pix', 'Cartão de crédito', 'Cartão de débito', 'Boleto',
                   'Cheque', 'Depósito', 'Crediário', 'Vale-troca', 'Não informada'];
   const OCORRENCIAS = ['Única', 'Semanal', 'Mensal', 'Trimestral', 'Semestral', 'Anual', 'Parcelada'];

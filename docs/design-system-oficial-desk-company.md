@@ -1797,3 +1797,47 @@ nasce em Configurações, com cartão no hub. Item de menu lateral é para o que
 
 **Nome antigo de arquivo não redireciona.** O servidor redireciona endereço sem pasta, não arquivo
 renomeado: `/operacional/pagina-operacional-transportadoras.html` agora dá 404.
+
+## 14.47 Forma de recebimento decide para onde o dinheiro vai (08/out/2026)
+
+O cadastro nasceu em Configurações → Finanças, no cartão que o hub já reservava. A pesquisa do
+Olist estava feita desde 17/set (arquitetura, lote da aba finanças); o que faltava era a tela.
+
+**As seis listas do código eram três coisas diferentes**, e só olhando as seis lado a lado isso
+apareceu:
+
+| onde | o que era | o que virou |
+|---|---|---|
+| Contas a Receber (2 telas) | como recebemos: 10 formas | espelho do cadastro, as que valem para receber |
+| Contas a Pagar (2 telas) | como pagamos: 5 formas | espelho do cadastro, as que valem para pagar |
+| Devolução (2 telas) | formas de ressarcimento: 4 | **fica no código**: é lista fechada, cada opção dispara um comportamento |
+| Pedido de Venda | 6 formas e quais validam limite de crédito | espelho do cadastro, com a regra junto |
+
+O que a forma decide, e por isso tem dono:
+
+- **Vale para** receber, pagar ou os dois. As formas de Contas a Pagar entraram no mesmo cadastro
+  por decisão do usuário: uma lista só para manter. Forma que só paga não tem destino, taxa nem
+  limite, e esses campos **somem** (§14.28).
+- **Destino dos valores:** vira título em Contas a Receber, ou entra direto numa conta financeira.
+  Com destino em conta, a conta é obrigatória: sem ela a venda não tem onde cair.
+- **Taxa**, em percentual, valor fixo ou os dois, e **quando** é descontada.
+- **Validar limite de crédito**, que o Pedido lê. Cheque não valida (decisão do usuário).
+
+**Senha: a matriz do módulo e a regra de dinheiro são coisas diferentes.** No sistema, criar e
+editar nascem sem senha e excluir nasce com. Aqui isso vale para incluir uma forma e para mudar o
+nome dela. Mexer no destino, na taxa ou no limite de uma forma que já existe muda para onde vai o
+dinheiro das próximas vendas: tem ação própria (`formasRecebimentoRegra`), que pede senha por
+padrão. É o mesmo desenho de "alterar meta de mês fechado" (§14.42).
+
+**Forma do sistema** pode ser desabilitada, nunca excluída nem renomeada: as outras telas a
+reconhecem pela chave. **Vale-troca** está no catálogo como reservada, do mesmo jeito que a
+Devolução já a oferece como ressarcimento reservado; as duas pontas ligam juntas.
+
+**Ficou de fora, com o usuário sabendo:** o painel "preferências" do Olist e a tabela de várias
+contas por forma (dependem de Gateways, que não existe); prazo de recebimento e parcelas (entram
+com o PDV); cashback e vale-presente (entram com as vitrines); a opção "usar como forma padrão";
+e os rótulos das listas fechadas desta tela, que ainda não estão em Nomes do sistema.
+
+**Enquanto não há backend, as cinco telas ficam como espelho**, como o Acerto com os Motivos de
+Perda (§14.41), e a seção 12 da suíte compara tudo. Forma criada pelo usuário ainda não chega
+sozinha a Contas a Receber e Contas a Pagar: o espelho cobre as formas do sistema.

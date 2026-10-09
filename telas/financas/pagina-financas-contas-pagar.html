@@ -1926,6 +1926,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:6, nome:'Embalagens Norte Ltda', fantasia:'Norte Embalagens' },
     { id:7, nome:'Receita Federal',       fantasia:'' }
   ];
+  // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
+  // valem para pagar. Mudou la, muda aqui; teste_formas_recebimento.py compara.
   const FORMAS = ['Boleto', 'Pix', 'Transferência', 'Cartão de débito', 'Dinheiro'];
   const OCORRENCIAS = ['Única', 'Semanal', 'Mensal', 'Trimestral', 'Semestral', 'Anual', 'Parcelada'];
 

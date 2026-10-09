@@ -99,7 +99,7 @@
 | ❌ | Gateways de Pagamento |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 15 telas, abertas pelo hub
+## ⚙️ Configurações — 16 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
@@ -108,7 +108,8 @@
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
 | ✅ | Nomes do sistema |
 | ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
-| ❌ | Formas de recebimento · Formas de pagamento *(próximas; cartões já reservados no hub, em Finanças)* |
+| ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui)* |
+| ❌ | Formas de pagamento *(a lista fiscal da NF-e: só habilita, desabilita e elege a padrão; cartão reservado no hub)* |
 
 > ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
 >
@@ -127,7 +128,7 @@
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
-| Configurações | 15 | 0 |
-| **Total** | **41 entradas de menu · 71 telas** | **18** |
+| Configurações | 16 | 0 |
+| **Total** | **41 entradas de menu · 72 telas** | **18** |
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
