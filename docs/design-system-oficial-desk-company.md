@@ -1734,7 +1734,7 @@ página em silêncio. Reescrever um caminho exige olhar onde ele é **comparado*
 A regra do link ganhou guarda própria (`teste_menu.py`, seção 7): toda citação a uma tela diz a
 pasta, e a pasta tem a tela dentro. Provada nos dois sentidos.
 
-## 14.45 A varredura que nunca terminava, e o que ela escondia (08/out/2026)
+## 14.45 A varredura que quebrou no fim, e o que ela quase escondeu (08/out/2026)
 
 A varredura de cliques é a ferramenta de fechamento de módulo: abre cada tela e clica em tudo.
 Rodada depois da mudança de pastas, ela confirmou o que interessava (2.362 cliques em 70 telas,
