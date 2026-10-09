@@ -1868,8 +1868,8 @@ sai dela para o cofre.
 - forma com destino em título gera Contas a Receber, e por isso **exige cliente identificado**,
   com "cliente obrigatório" ligado ou não: título precisa de devedor;
 - forma que valida limite barra a venda com os quatro números (limite, usado, disponível, pedido);
-- as parcelas são digitadas na venda, como `3x` ou `30 60 90`. O prazo padrão por forma, que o
-  §14.47 deixou para o PDV, continua sem cadastro.
+- as parcelas são digitadas na venda, como `3x` ou `30 60 90`, **só nas formas de vencimento
+  combinado** (boleto, crediário, cheque). Cartão tem prazo fixo da operadora e segue o §14.49.
 
 **Fechamento cego é a mesma regra da conferência: contagem sabendo o número é cópia.** Com o caixa
 aberto, Detalhes do caixa não mostra o esperado por forma. Contagem que não bate diz **em qual
@@ -1899,3 +1899,56 @@ vale-presente, lista de preços, item não cadastrado, enviar o recibo por e-mai
 NFC-e. **E a venda ainda não chega às outras telas**: Pedidos, Contas a Receber, Caixa e Metas
 têm cada uma os seus dados de exemplo. O PDV diz, na conclusão, o que a venda gerou; a ligação de
 verdade é do backend.
+
+## 14.49 Cartão no PDV: prazo da operadora, taxa por parcela e repasse (09/out/2026)
+
+Nasceu do primeiro teste do usuário no PDV. O cartão vinha tratado como crediário: o operador
+digitava "30 dias" e o valor de cada parcela. Quatro decisões do usuário mudaram isso.
+
+**Forma de recebimento ganha "vencimento do título"** (Configurações → Formas de recebimento):
+
+- **combinado na venda**: dias e parcelas são digitados no PDV. Boleto, crediário, cheque;
+- **prazo fixo da operadora**: o cadastro guarda em quantos **dias úteis** o valor cai, até
+  quantas parcelas a forma aceita, **a taxa de cada número de parcelas** (1x é o percentual da
+  forma; de 2x em diante, uma grade) e se a taxa é **repassada ao cliente**. É o caso dos cartões.
+
+Campo que não se aplica some (§14.28): sem prazo fixo não há dias úteis, parcelas nem repasse; sem
+taxa não há grade nem repasse. Mexer em qualquer um deles é regra de dinheiro e pede senha, pela
+mesma ação `formasRecebimentoRegra`.
+
+**No PDV, forma de prazo fixo não tem campo de dia nem de valor de parcela.** O operador informa o
+valor e escolhe as parcelas num menu. A tela mostra, só para leitura: a taxa da operadora, quanto
+passar no cartão do cliente e quanto a loja recebe, com a data. Nasce **um título só**, no valor
+que passou no cartão, seja qual for o número de parcelas: a operadora paga tudo no prazo.
+
+**Repasse é dividir, não somar.** Com repasse, o valor a passar é `venda ÷ (1 − taxa)`, para que
+tirada a taxa sobre exatamente o valor da venda. Somar a taxa por cima deixa a loja com menos:
+R$ 1.000 a 3,49% viram R$ 1.036,16 no cartão, e não R$ 1.034,90. O cadastro define o padrão e o
+operador pode trocar na venda. A diferença aparece como **acréscimo do cartão**, linha própria no
+resumo, no recibo e no total da venda. O que falta receber é medido pela venda, nunca pelo
+acréscimo; no fechamento do caixa, o esperado do cartão é o que passou na maquininha.
+
+**Dia útil** pula sábado, domingo e feriado nacional de data fixa. Carnaval, Sexta-feira Santa,
+Corpus Christi e feriado local esperam um calendário de feriados, que ainda não existe.
+
+**Cartão não confere o limite de crédito do cliente:** o risco é da operadora. O limite vale para
+boleto e crediário, no PDV e no Pedido de Venda, que espelha o cadastro.
+
+**O que falta receber entra sozinho.** Dividindo a venda em mais de uma forma, a primeira forma em
+que ninguém digitou valor recebe o restante toda vez que outra muda. Forma com valor digitado
+nunca é mexida; apagar o campo devolve a forma ao automático. Forma que ficou sem valor diz o que
+fazer, em vez de só pedir o valor.
+
+**Menu de ações não é menu de escolha.** O "Mais ações" do PDV usava o componente de dropdown de
+seleção, que troca o rótulo do botão pelo item clicado: depois de lançar um reforço, o botão
+passava a se chamar "Lançar reforço de caixa". Menu de ações tem rótulo fixo e nenhum item
+marcado, como nas outras telas. **Fechar caixa** virou botão próprio no topo.
+
+**Detalhes do caixa** segue o desenho do Olist: painel largo, situação do caixa com a data, fatos
+em grade (loja, operador, troco inicial, vendas, sangrias, reforços), resumo por forma em tabela e
+fechar caixa no rodapé. A aba de sangrias e reforços lança direto dali, e a de vendas reimprime o
+recibo de qualquer venda do turno. Com o fechamento cego ligado e o caixa aberto, o resumo mostra
+as formas usadas e quantas vendas, **sem valor**.
+
+Ficou de fora: o Pedido de Venda ainda não usa prazo fixo, taxa por parcela nem repasse; ele só
+deixou de conferir limite no cartão. As taxas por parcela do cadastro são exemplo.

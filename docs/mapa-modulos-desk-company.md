@@ -114,7 +114,7 @@
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
 | ✅ | Nomes do sistema |
 | ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
-| ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui)* |
+| ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui. 09/out: forma com prazo fixo da operadora, que é o cartão, guarda em quantos dias úteis cai, até quantas parcelas aceita, a taxa de cada parcela e se a taxa é repassada ao cliente)* |
 | ✅ | Configurações do PDV *(09/out: o que a venda de balcão exige, em que situação ela entra em Pedidos, desconto máximo sem liberação e fechamento cego; desligar o fechamento cego pede senha)* |
 | ❌ | Formas de pagamento *(a lista fiscal da NF-e: só habilita, desabilita e elege a padrão; cartão reservado no hub)* |
 

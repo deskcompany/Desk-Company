@@ -29,6 +29,8 @@ COM_MENU = {
  'pagina-cadastros-produtos-detalhe.html': 'linkExcluirProduto',
  'pagina-financas-caixa-lancamento.html': 'linkExcluirLanc',
  'pagina-financas-contas-pagar-detalhe.html': 'linkExcluirConta',
+ # 09/out: o menu do PDV usava o dropdown de selecao e trocava o rotulo pelo item clicado.
+ 'pagina-vendas-pdv.html': 'itemCancelarVenda',
 }
 falhas = []
 def ok(c, m):

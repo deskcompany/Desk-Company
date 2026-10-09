@@ -505,6 +505,8 @@
   .cf-cadeado { width:14px; height:14px; color:var(--text); vertical-align:-2px; margin-right:6px; }
   .cf-contabil { font-variant-numeric:tabular-nums; }
   .cf-vazio { color:var(--text); }
+  .cf-taxas { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+  .cf-taxa { display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:700; color:var(--text); }
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
   .form-field input:disabled { opacity:.6; cursor:not-allowed; }
@@ -847,6 +849,41 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="field-hint" id="hintConta"></div>
     </div>
 
+    <div class="form-field" id="campoVencimento">
+      <label>Vencimento do título</label>
+      <div class="dropdown-select" id="inputVencimento" data-value="combinado">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Combinado na venda</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="combinado">Combinado na venda</div>
+          <div class="dropdown-select-item" data-value="fixo">Prazo fixo da operadora</div>
+        </div>
+      </div>
+      <div class="field-hint" id="hintVencimento"></div>
+    </div>
+
+    <div id="blocoPrazoFixo" style="display:none;">
+      <div class="form-field" id="campoPrazoUteis">
+        <label>Cai em quantos dias úteis</label>
+        <input type="text" id="inputPrazoUteis" inputmode="numeric" placeholder="1">
+        <div class="field-error-msg" id="erroPrazoUteis">Informe o prazo em dias úteis, de 0 a 60.</div>
+        <div class="field-hint">1 é o próximo dia útil. Sábado, domingo e feriado nacional de data fixa não contam.</div>
+      </div>
+      <div class="form-field">
+        <label>Parcela em até</label>
+        <div class="dropdown-select" id="inputParcelasMax" data-value="1">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Não parcela</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuParcelasMax"></div>
+        </div>
+        <div class="field-hint">Parcelamento feito na maquininha. O valor cai inteiro no prazo acima, seja qual for o número de parcelas.</div>
+      </div>
+    </div>
+
     <div class="form-field">
       <label>Taxa</label>
       <div class="dropdown-select" id="inputTarifacao" data-value="sem">
@@ -874,6 +911,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <label>Valor fixo por operação (R$)</label>
         <input type="text" id="inputTaxaFixa" inputmode="decimal" placeholder="0,00">
         <div class="field-hint">Use os dois quando a operadora cobra percentual mais um valor fixo.</div>
+      </div>
+      <div class="form-field" id="campoTaxasParcela" style="display:none;">
+        <label>Percentual por número de parcelas (%)</label>
+        <div class="cf-taxas" id="gradeTaxasParcela"></div>
+        <div class="field-error-msg" id="erroTaxasParcela">Informe a taxa de cada parcela.</div>
+        <div class="field-hint">1x usa o percentual acima. No PDV, a parcela escolhida decide qual taxa vale.</div>
+      </div>
+      <div class="switch-row" id="linhaRepassa" style="display:none;">
+        <div class="switch-row-texto">
+          <div class="switch-row-titulo">Repassar a taxa ao cliente</div>
+          <div class="field-hint">O PDV calcula quanto passar no cartão para a loja receber o valor cheio da venda. O operador pode trocar em cada venda.</div>
+        </div>
+        <div class="switch" id="swRepassa"></div>
       </div>
     </div>
 
@@ -1491,8 +1541,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //
   // Fica de fora de proposito (decidido com o usuario): o painel "preferencias"
   // do Olist e a tabela de varias contas por forma dependem de Gateways, que
-  // nao existe; parcelas sao digitadas na venda do PDV e o prazo padrao por
-  // forma segue sem cadastro; cashback e vale-presente, com as vitrines.
+  // nao existe; cashback e vale-presente, com as vitrines.
+  //
+  // Prazo (09/out/2026): forma com "prazo fixo da operadora" (os cartoes) guarda
+  // em quantos dias uteis o valor cai, ate quantas parcelas aceita, a taxa de
+  // cada parcela e se a taxa e repassada ao cliente. Nas demais o vencimento e
+  // combinado na venda, e o PDV pede dias e parcelas.
 
   // Espelho de Configuracoes > Contas financeiras: as contas ATIVAS. No Lovable
   // isto vira join. Aqui a suite compara as duas listas.
@@ -1511,8 +1565,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const FORMAS = [
     { id:1,  chave:'dinheiro',      nome:'Dinheiro',          sistema:true,  uso:'ambos',   destino:'conta',  contaId:1,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
     { id:2,  chave:'pix',           nome:'Pix',               sistema:true,  uso:'ambos',   destino:'conta',  contaId:2,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
-    { id:3,  chave:'debito',        nome:'Cartão de débito',  sistema:true,  uso:'ambos',   destino:'titulo', contaId:3,    tarifacao:'seguinte',  taxaPct:1.39, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
-    { id:4,  chave:'credito',       nome:'Cartão de crédito', sistema:true,  uso:'receber', destino:'titulo', contaId:3,    tarifacao:'pagamento', taxaPct:3.49, taxaFixa:0,    antecipa:false, validaLimite:true,  ativo:true },
+    // Os dois cartoes caem no proximo dia util e NAO validam limite: o risco e da
+    // operadora, nao da loja (decisoes do usuario em 09/out/2026). As taxas por
+    // parcela sao exemplo: quem manda e a tabela da operadora de cada loja.
+    { id:3,  chave:'debito',        nome:'Cartão de débito',  sistema:true,  uso:'ambos',   destino:'titulo', contaId:3,    tarifacao:'seguinte',  taxaPct:1.39, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true,
+      prazoUteis:1, parcelasMax:1, taxasParcela:[], repassa:false },
+    { id:4,  chave:'credito',       nome:'Cartão de crédito', sistema:true,  uso:'receber', destino:'titulo', contaId:3,    tarifacao:'pagamento', taxaPct:3.49, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true,
+      prazoUteis:1, parcelasMax:12, taxasParcela:[4.59, 5.97, 7.33, 8.66, 9.96, 11.24, 12.50, 13.73, 14.93, 16.12, 17.28], repassa:false },
     { id:5,  chave:'boleto',        nome:'Boleto',            sistema:true,  uso:'ambos',   destino:'titulo', contaId:2,    tarifacao:'pagamento', taxaPct:0,    taxaFixa:2.90, antecipa:false, validaLimite:true,  ativo:true },
     { id:6,  chave:'crediario',     nome:'Crediário',         sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:true,  ativo:true },
     // Cheque NAO valida limite: decisao do usuario em 08/out/2026.
@@ -1526,6 +1585,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // exclusao nunca seria exercitado — e trava que nunca deixa passar e bug.
     { id:11, chave:null,            nome:'Carteira digital',  sistema:false, uso:'receber', destino:'conta',  contaId:3,    tarifacao:'transacao', taxaPct:0.99, taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true }
   ];
+  // Prazo fixo da operadora: `prazoUteis` em dias uteis (null = vencimento combinado
+  // na venda), `parcelasMax` na maquininha, `taxasParcela` com o percentual de 2x
+  // em diante (1x e o `taxaPct`) e `repassa`, o padrao do repasse da taxa ao cliente.
+  FORMAS.forEach(f => { if (f.prazoUteis === undefined) Object.assign(f, { prazoUteis: null, parcelasMax: 1, taxasParcela: [], repassa: false }); });
+  const PARCELAS_TETO = 12;
 
   let formaEmEdicaoId = null;
   let paginaAtual = 1;
@@ -1533,7 +1597,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let buscaAtual = '';
   let filtroUsoAtual = 'todos';
   let filtroSituacaoAtual = 'todos';
-  let antecipaEdicao = false, limiteEdicao = false;
+  let antecipaEdicao = false, limiteEdicao = false, repassaEdicao = false;
 
   const fmtNum = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
   const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -1552,6 +1616,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return isFinite(n) && n >= 0 ? n : null;
   }
 
+  function prazoTexto(n) { return n === 0 ? 'cai no mesmo dia' : (n === 1 ? 'cai no próximo dia útil' : 'cai em ' + n + ' dias úteis'); }
   function taxaTexto(f) {
     if (f.tarifacao === 'sem') return 'Sem taxa';
     const partes = [];
@@ -1615,6 +1680,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           if (f.reservada)                   chips.push('<span class="cf-chip fora">reservada</span>');
           if (recebe(f) && f.validaLimite)   chips.push('<span class="cf-chip pref">valida limite de crédito</span>');
           if (recebe(f) && f.antecipa)       chips.push('<span class="cf-chip banco">antecipada</span>');
+          if (recebe(f) && f.prazoUteis !== null) chips.push('<span class="cf-chip banco">' + prazoTexto(f.prazoUteis) + '</span>');
+          if (recebe(f) && f.parcelasMax > 1) chips.push('<span class="cf-chip banco">até ' + f.parcelasMax + 'x</span>');
+          if (recebe(f) && f.repassa)        chips.push('<span class="cf-chip pref">repassa a taxa</span>');
           const conta = contaDe(f.contaId);
           const mostra = recebe(f) && !f.reservada;
           return '<tr data-id="' + f.id + '">' +
@@ -1664,8 +1732,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function limparErros() {
-    ['campoNomeForma', 'campoConta', 'campoTaxaPct'].forEach(id => document.getElementById(id).classList.remove('has-error'));
-    ['erroNomeForma', 'erroConta', 'erroTaxa'].forEach(id => document.getElementById(id).classList.remove('show'));
+    ['campoNomeForma', 'campoConta', 'campoTaxaPct', 'campoPrazoUteis', 'campoTaxasParcela'].forEach(id => document.getElementById(id).classList.remove('has-error'));
+    ['erroNomeForma', 'erroConta', 'erroTaxa', 'erroPrazoUteis', 'erroTaxasParcela'].forEach(id => document.getElementById(id).classList.remove('show'));
   }
   function marcarErro(idCampo, idErro, mensagem) {
     document.getElementById(idCampo).classList.add('has-error');
@@ -1690,6 +1758,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : 'Opcional. Vem escolhida quando o título desta forma é baixado.';
     document.getElementById('swAntecipa').classList.toggle('on', antecipaEdicao);
     document.getElementById('swLimite').classList.toggle('on', limiteEdicao);
+    // Prazo fixo so existe em forma que vira titulo; parcelas e repasse, so com prazo fixo;
+    // a grade de taxas, so quando ha taxa e mais de uma parcela.
+    const fixo = !direto && valorDe('inputVencimento') === 'fixo';
+    const comTaxa = valorDe('inputTarifacao') !== 'sem';
+    const maxParcelas = fixo ? Number(valorDe('inputParcelasMax')) : 1;
+    document.getElementById('campoVencimento').style.display = direto ? 'none' : 'block';
+    document.getElementById('hintVencimento').textContent = fixo
+      ? 'A operadora paga num prazo fixo, não importa em quantas vezes o cliente parcelou. É o caso dos cartões: no PDV o título já nasce com a data e ninguém digita vencimento.'
+      : 'Dias e parcelas são digitados na venda. É o caso de boleto, crediário e cheque.';
+    document.getElementById('blocoPrazoFixo').style.display = fixo ? 'block' : 'none';
+    document.getElementById('campoTaxasParcela').style.display = comTaxa && maxParcelas > 1 ? 'block' : 'none';
+    document.getElementById('linhaRepassa').style.display = comTaxa && fixo ? 'flex' : 'none';
+    document.getElementById('swRepassa').classList.toggle('on', repassaEdicao);
+    const pct1x = document.getElementById('inputTaxaPct').value;
+    document.querySelectorAll('#gradeTaxasParcela .cf-taxa').forEach(cel => {
+      const mostra = Number(cel.getAttribute('data-vezes')) <= maxParcelas;
+      cel.style.display = mostra ? 'flex' : 'none';
+      // Parcela que acabou de entrar nasce com a taxa do 1x, para ninguem salvar zero sem ver.
+      const campo = cel.querySelector('input');
+      if (mostra && campo.value.trim() === '') campo.value = pct1x;
+    });
   }
 
   // A nota do painel explica as travas ANTES de a pessoa esbarrar nelas.
@@ -1721,6 +1810,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputTaxaFixa').value = f && f.taxaFixa ? fmtNum(f.taxaFixa) : '';
     antecipaEdicao = f ? f.antecipa : false;
     limiteEdicao = f ? f.validaLimite : false;
+    repassaEdicao = f ? f.repassa : false;
+    setDropdownValor('inputVencimento', f && f.prazoUteis !== null ? 'fixo' : 'combinado');
+    document.getElementById('inputPrazoUteis').value = f && f.prazoUteis !== null ? String(f.prazoUteis) : '1';
+    setDropdownValor('inputParcelasMax', f ? f.parcelasMax : 1);
+    document.querySelectorAll('#gradeTaxasParcela input').forEach((campo, i) => {
+      campo.value = f && f.taxasParcela[i] !== undefined ? fmtNum(f.taxasParcela[i]) : '';
+    });
     limparErros();
     pintarBlocos();
     const linkSit = document.getElementById('linkSituacaoForma');
@@ -1747,6 +1843,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('inputUso'), pintarBlocos);
   inicializarDropdownSelect(document.getElementById('inputDestino'), pintarBlocos);
   inicializarDropdownSelect(document.getElementById('inputTarifacao'), pintarBlocos);
+  // Parcelas e a grade de taxas tambem nascem com a tela: uma celula por parcela, de 2x ao teto.
+  const vezesAte = [];
+  for (let n = 2; n <= PARCELAS_TETO; n++) vezesAte.push(n);
+  document.getElementById('menuParcelasMax').innerHTML =
+    '<div class="dropdown-select-item active" data-value="1">Não parcela</div>' +
+    vezesAte.map(n => '<div class="dropdown-select-item" data-value="' + n + '">' + n + 'x</div>').join('');
+  document.getElementById('gradeTaxasParcela').innerHTML =
+    vezesAte.map(n => '<div class="cf-taxa" data-vezes="' + n + '">' + n + 'x<input type="text" inputmode="decimal" placeholder="0,00" data-taxa-parcela="' + n + '"></div>').join('');
+  inicializarDropdownSelect(document.getElementById('inputVencimento'), pintarBlocos);
+  inicializarDropdownSelect(document.getElementById('inputParcelasMax'), pintarBlocos);
+  document.getElementById('swRepassa').addEventListener('click', () => { repassaEdicao = !repassaEdicao; pintarBlocos(); });
   inicializarDropdownSelect(document.getElementById('inputConta'), () => {
     document.getElementById('campoConta').classList.remove('has-error');
     document.getElementById('erroConta').classList.remove('show');
@@ -1793,21 +1900,38 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       else if (pct > 100)                  { marcarErro('campoTaxaPct', 'erroTaxa', 'O percentual não passa de 100%.'); erro = true; }
       else if (pct === 0 && fixa === 0)    { marcarErro('campoTaxaPct', 'erroTaxa', 'Informe o percentual, o valor fixo ou os dois. Se não há taxa, escolha "Sem taxa".'); erro = true; }
     }
+    // Prazo fixo, parcelas e repasse: so entram em forma que vira titulo com prazo da operadora.
+    const prazoFixo = vaiReceber && destino === 'titulo' && valorDe('inputVencimento') === 'fixo';
+    const prazoTxt = document.getElementById('inputPrazoUteis').value.trim();
+    const prazoUteis = prazoFixo ? (/^\d{1,2}$/.test(prazoTxt) && Number(prazoTxt) <= 60 ? Number(prazoTxt) : -1) : null;
+    const parcelasMax = prazoFixo ? Number(valorDe('inputParcelasMax')) : 1;
+    const taxasParcela = tarifacao !== 'sem' && parcelasMax > 1
+      ? Array.from(document.querySelectorAll('#gradeTaxasParcela input')).slice(0, parcelasMax - 1).map(c => c.value.trim() === '' ? null : numero(c.value))
+      : [];
+    const repassa = prazoFixo && tarifacao !== 'sem' && repassaEdicao;
+    if (prazoUteis === -1) { marcarErro('campoPrazoUteis', 'erroPrazoUteis', 'Informe o prazo em dias úteis, de 0 a 60.'); erro = true; }
+    if (taxasParcela.some(t => t === null || t > 100)) {
+      marcarErro('campoTaxasParcela', 'erroTaxasParcela', 'Informe a taxa de cada parcela, em números de 0 a 100.'); erro = true;
+    } else if (repassa && [pct].concat(taxasParcela).some(t => t >= 100)) {
+      // Repassar e dividir por (1 - taxa): com 100% a conta nao existe.
+      marcarErro('campoTaxaPct', 'erroTaxa', 'Com repasse ao cliente, a taxa precisa ficar abaixo de 100%.'); erro = true;
+    }
     if (erro) return;
 
     const dados = { uso, destino, contaId, tarifacao, taxaPct: pct, taxaFixa: fixa,
-                    antecipa: vaiReceber && antecipaEdicao, validaLimite: vaiReceber && limiteEdicao };
+                    antecipa: vaiReceber && antecipaEdicao, validaLimite: vaiReceber && limiteEdicao,
+                    prazoUteis, parcelasMax, taxasParcela, repassa };
     // Mudar para onde o dinheiro vai, quanto fica de taxa ou se o limite e
     // conferido e mexer em regra de dinheiro: tem acao propria, que pede senha
     // por padrao. Incluir forma nova, renomear ou mudar o "vale para" seguem a
     // matriz do modulo, como em todo cadastro (criar e editar nascem sem senha).
     const f0 = editando ? FORMAS.filter(x => x.id === formaEmEdicaoId)[0] : null;
-    const mudouRegra = !!f0 && ['destino', 'contaId', 'tarifacao', 'taxaPct', 'taxaFixa', 'antecipa', 'validaLimite']
-      .some(k => f0[k] !== dados[k]);
+    const mudouRegra = !!f0 && (['destino', 'contaId', 'tarifacao', 'taxaPct', 'taxaFixa', 'antecipa', 'validaLimite', 'prazoUteis', 'parcelasMax', 'repassa']
+      .some(k => f0[k] !== dados[k]) || f0.taxasParcela.join() !== taxasParcela.join());
     confirmarAcao(
       !editando ? 'formasRecebimentoCriar' : (mudouRegra ? 'formasRecebimentoRegra' : 'formasRecebimentoEditar'),
       !editando ? 'Confirma o cadastro da forma "' + nome + '"?'
-        : (mudouRegra ? 'Confirma a alteração das regras da forma "' + nome + '"? Destino, taxa e limite passam a valer para as próximas vendas.'
+        : (mudouRegra ? 'Confirma a alteração das regras da forma "' + nome + '"? Destino, prazo, taxa e limite passam a valer para as próximas vendas.'
                       : 'Confirma a alteração da forma "' + nome + '"?'),
       () => {
         if (editando) {

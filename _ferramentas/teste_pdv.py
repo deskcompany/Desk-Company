@@ -24,6 +24,7 @@
 #   [12]  atalhos, os dois temas e erro de JS.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g
+import datetime
 import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
@@ -111,6 +112,25 @@ def cliente(pg, texto):
     clic(pg, '#btnCliente' if pg.evaluate('momento') == 'venda' else '#btnClienteFin'); pg.wait_for_timeout(300)
     pg.fill('#buscaCliente', texto); pg.wait_for_timeout(200)
     clic(pg, '#listaClientes .pdv-cli'); pg.wait_for_timeout(300)
+
+
+def vezes(pg, i, n):
+    """Escolhe o numero de parcelas do cartao no recebimento i."""
+    pg.evaluate("([i, n]) => { const r = document.querySelector('[data-receb-vezes=\"' + i + '\"]'); r.querySelector('.dropdown-select-btn').click();"
+                " r.querySelector('.dropdown-select-item[data-value=\"' + n + '\"]').click(); }", [i, n])
+    pg.wait_for_timeout(250)
+
+
+# A mesma regra da tela, escrita de novo aqui: se as duas divergirem, a suite acusa.
+FERIADOS_FIXOS = {(1, 1), (21, 4), (1, 5), (7, 9), (12, 10), (2, 11), (15, 11), (20, 11), (25, 12)}
+
+
+def prox_util(d, n=1):
+    while n > 0:
+        d += datetime.timedelta(days=1)
+        if d.weekday() < 5 and (d.day, d.month) not in FERIADOS_FIXOS:
+            n -= 1
+    return d
 
 
 def receber(pg, chave, valor=None, i=None):
@@ -257,7 +277,21 @@ with sync_playwright() as p:
     clic(pg, '#btnFinalizar'); pg.wait_for_timeout(350)
     ok(pg.evaluate('momento') == 'finalizar' and 'recebimento' in pg.inner_text('#confirmModalTexto'), 'sem recebimento nao finaliza')
     fechar_aviso(pg)
-    receber(pg, 'dinheiro', '300')
+    # O que falta entra sozinho na forma sem valor digitado; forma digitada nunca e mexida.
+    receber(pg, 'dinheiro')
+    ok(pg.evaluate('venda.recebimentos[0].valor') == 749.7, 'a primeira forma nasce com a venda inteira')
+    receber(pg, 'pix')
+    ok(pg.evaluate('venda.recebimentos[1].valor') == 0 and 'Pix: sem valor' in pg.inner_text('#faltaReceber') and 'Diminua' in pg.inner_text('#faltaReceber'),
+       'segunda forma com a venda ja coberta nasce vazia e a tela diz o que fazer: %s' % pg.inner_text('#faltaReceber')[:70])
+    pg.fill('[data-receb-valor="0"]', '300'); pg.locator('[data-receb-valor="0"]').blur(); pg.wait_for_timeout(250)
+    ok(pg.evaluate('venda.recebimentos[1].valor') == 449.7 and pg.input_value('[data-receb-valor="1"]') == '449,70' and 'Pode finalizar' in pg.inner_text('#faltaReceber'),
+       'baixar o valor da primeira preenche a segunda com o que falta')
+    pg.fill('[data-receb-valor="1"]', '100'); pg.locator('[data-receb-valor="1"]').blur(); pg.wait_for_timeout(250)
+    ok(pg.evaluate('venda.recebimentos[0].valor') == 300 and 'Falta receber R$ 349,70' in pg.inner_text('#faltaReceber'),
+       'forma com valor digitado nao e mexida sozinha: a tela diz quanto falta')
+    pg.fill('[data-receb-valor="1"]', ''); pg.locator('[data-receb-valor="1"]').blur(); pg.wait_for_timeout(250)
+    ok(pg.evaluate('venda.recebimentos[1].valor') == 449.7, 'apagar o valor devolve a forma ao automatico')
+    clic(pg, '[data-receb-remover="1"]'); pg.wait_for_timeout(250)
     ok('Falta receber R$ 449,70' in pg.inner_text('#faltaReceber'), 'recebimento parcial diz quanto falta: %s' % pg.inner_text('#faltaReceber')[:60])
     pg.fill('[data-receb-recebido="0"]', '250'); pg.locator('[data-receb-recebido="0"]').blur(); pg.wait_for_timeout(250)
     ok('recebido' in pg.inner_text('#faltaReceber') and 'menor' in pg.inner_text('#faltaReceber'), 'dinheiro recebido menor que o valor e barrado')
@@ -265,24 +299,57 @@ with sync_playwright() as p:
     ok(pg.inner_text('#totTroco') == 'R$ 50,00', 'recebido maior vira troco: %s' % pg.inner_text('#totTroco'))
     receber(pg, 'credito')
     ok(pg.evaluate('venda.recebimentos[1].valor') == 449.7, 'a segunda forma ja vem com o que falta')
-    ok('Taxa de R$ 15,69' in pg.inner_text('#listaReceb') and 'Líquido' in pg.inner_text('#listaReceb'), 'cartao mostra a taxa do cadastro e o liquido')
-    ok('limite de crédito' in pg.inner_text('#listaReceb'), 'e avisa que a forma confere o limite')
-    pg.fill('[data-receb-expr="1"]', '3x'); pg.locator('[data-receb-expr="1"]').blur(); pg.wait_for_timeout(250)
-    parc = pg.evaluate('venda.recebimentos[1].parcelas')
-    ok([x['dias'] for x in parc] == [30, 60, 90] and round(sum(x['valor'] for x in parc), 2) == 449.7,
+    # Cartao: prazo fixo da operadora. Ninguem digita dia nem parcela de titulo; a conta sai do cadastro.
+    lr = pg.inner_text('#listaReceb')
+    ok('Taxa da operadora (3,49%)' in lr and 'R$ 15,69' in lr and 'R$ 434,01' in lr, 'cartao em 1x mostra a taxa do cadastro e quanto a loja recebe')
+    ok('Passar no cartão do cliente' in lr and 'R$ 449,70' in lr, 'sem repasse, o valor a passar no cartao e o valor da venda')
+    util = prox_util(datetime.date.today()).strftime('%d/%m/%Y')
+    ok(('A loja recebe em ' + util) in lr and 'próximo dia útil' in lr, 'e a loja recebe no proximo dia util: %s' % util)
+    ok(pg.locator('[data-receb-expr="1"]').count() == 0 and pg.locator('[data-parc-dias^="1:"]').count() == 0 and pg.locator('[data-parc-valor^="1:"]').count() == 0,
+       'no cartao nao ha campo de dias nem de valor de parcela para digitar')
+    ok('limite de crédito' not in lr, 'e o cartao NAO confere o limite de credito do cliente')
+    ok([pg.evaluate("dataBr(maisDiasUteis(new Date(%s), %d))" % (d, n)) for d, n in [('2026, 9, 7', 1), ('2026, 9, 9', 1), ('2026, 9, 16', 1), ('2026, 9, 9', 0), ('2026, 11, 24', 2)]]
+       == ['08/10/2026', '13/10/2026', '19/10/2026', '09/10/2026', '29/12/2026'],
+       'dia util pula sabado, domingo e feriado nacional de data fixa (sexta 09/10 cai na terca 13/10)')
+    vezes(pg, 1, 3)
+    r1 = pg.evaluate('venda.recebimentos[1]')
+    ok(r1['vezes'] == 3 and pg.evaluate('taxaDe(venda.recebimentos[1])') == 26.85 and 'Taxa da operadora (5,97%)' in pg.inner_text('#listaReceb'),
+       'em 3x a taxa vem da tabela de parcelas do cadastro: 5,97% de 449,70 = 26,85')
+    ok(len(r1['parcelas']) == 1 and r1['parcelas'][0]['valor'] == 449.7, 'e continua UM titulo so, no valor cheio: a operadora paga tudo no prazo')
+    ok(not visivel(pg, '#finAcrescimoLinha') and pg.inner_text('#finTotal') == 'R$ 749,70', 'sem repasse, nao ha acrescimo e o total nao muda')
+    clic(pg, '[data-receb-repassa="1"]'); pg.wait_for_timeout(250)
+    lr = pg.inner_text('#listaReceb')
+    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 478.25 and 'R$ 478,25 em 3x' in lr,
+       'com repasse, passa no cartao 449,70 / (1 - 5,97%%) = 478,25: %s' % pg.evaluate('cobradoDe(venda.recebimentos[1])'))
+    ok(pg.evaluate('taxaDe(venda.recebimentos[1])') == 28.55 and lr.count('R$ 449,70') >= 1 and 'O cliente paga a taxa' in lr,
+       'e tirada a taxa de 28,55 a loja recebe os 449,70 cheios')
+    ok(visivel(pg, '#finAcrescimoLinha') and '+ R$ 28,55' in pg.inner_text('#finAcrescimo') and pg.inner_text('#finTotal') == 'R$ 778,25' and pg.inner_text('#totVendaFin') == 'R$ 778,25',
+       'o acrescimo aparece no resumo e o total da venda sobe junto: %s' % pg.inner_text('#finTotal'))
+    ok('Pode finalizar' in pg.inner_text('#faltaReceber') and 'R$ 778,25' in pg.inner_text('#faltaReceber'), 'e a venda continua fechando, agora no total com acrescimo')
+    pg.fill('[data-receb-valor="1"]', '249,70'); pg.locator('[data-receb-valor="1"]').blur(); pg.wait_for_timeout(250)
+    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 265.55 and pg.inner_text('#finTotal') == 'R$ 765,55' and 'Falta receber R$ 200,00' in pg.inner_text('#faltaReceber'),
+       'mudar o valor do cartao refaz o repasse (265,55) e o que falta e medido pela venda, nao pelo acrescimo')
+    # Boleto: vencimento combinado na venda. Aqui os dias e as parcelas sao digitados, e o limite e conferido.
+    receber(pg, 'boleto')
+    ok(pg.evaluate('venda.recebimentos[2].valor') == 200, 'a terceira forma ja vem com o que falta')
+    lr = pg.inner_text('#listaReceb')
+    ok('Taxa de R$ 2,90' in lr and 'Líquido' in lr and 'limite de crédito' in lr, 'boleto mostra a taxa fixa, o liquido e avisa que confere o limite')
+    pg.fill('[data-receb-expr="2"]', '3x'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
+    parc = pg.evaluate('venda.recebimentos[2].parcelas')
+    ok([x['dias'] for x in parc] == [30, 60, 90] and round(sum(x['valor'] for x in parc), 2) == 200,
        '"3x" gera tres parcelas de 30 em 30 que somam o valor: %s' % parc)
-    pg.fill('[data-receb-expr="1"]', '15 45'); pg.locator('[data-receb-expr="1"]').blur(); pg.wait_for_timeout(250)
-    ok([x['dias'] for x in pg.evaluate('venda.recebimentos[1].parcelas')] == [15, 45], '"15 45" gera as parcelas nos dias pedidos')
-    pg.fill('[data-parc-valor="1:0"]', '100'); pg.locator('[data-parc-valor="1:0"]').blur(); pg.wait_for_timeout(250)
+    pg.fill('[data-receb-expr="2"]', '15 45'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
+    ok([x['dias'] for x in pg.evaluate('venda.recebimentos[2].parcelas')] == [15, 45], '"15 45" gera as parcelas nos dias pedidos')
+    pg.fill('[data-parc-valor="2:0"]', '50'); pg.locator('[data-parc-valor="2:0"]').blur(); pg.wait_for_timeout(250)
     ok('as parcelas somam' in pg.inner_text('#faltaReceber'), 'parcela mexida a mao que nao fecha a soma e barrada, com os numeros')
-    pg.fill('[data-receb-expr="1"]', '2x'); pg.locator('[data-receb-expr="1"]').blur(); pg.wait_for_timeout(250)
+    pg.fill('[data-receb-expr="2"]', '2x'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
     ok('Pode finalizar' in pg.inner_text('#faltaReceber'), 'com tudo fechando, a tela diz que pode finalizar')
     clic(pg, '#btnClienteFin'); pg.wait_for_timeout(300); clic(pg, '#btnConsumidorFinal'); pg.wait_for_timeout(300)
     ok('precisa de cliente identificado' in pg.inner_text('#faltaReceber'), 'venda a prazo para consumidor final e barrada: titulo precisa de devedor')
     cliente(pg, 'rafael nog')
     f = pg.inner_text('#faltaReceber')
-    ok('limite R$ 1.500,00' in f and 'já usado R$ 1.480,00' in f and 'disponível R$ 20,00' in f and 'R$ 449,70' in f,
-       'cliente sem limite e barrado com os quatro numeros: %s' % f[:170])
+    ok('limite R$ 1.500,00' in f and 'já usado R$ 1.480,00' in f and 'disponível R$ 20,00' in f and 'esta venda a prazo R$ 200,00' in f,
+       'cliente sem limite e barrado com os quatro numeros, contando SO o boleto e nao o cartao: %s' % f[:190])
     cliente(pg, 'nordeste')
     pg.fill('#finDesconto', '200%'); pg.locator('#finDesconto').blur(); pg.wait_for_timeout(250)
     ok(visivel(pg, '#erroFinDesconto') and 'desconto' in pg.inner_text('#faltaReceber').lower(), 'desconto maior que a venda e barrado')
@@ -296,18 +363,23 @@ with sync_playwright() as p:
     clic(pg, '#btnFinalizar'); pg.wait_for_timeout(450)
     ok(pg.evaluate('momento') == 'concluida' and pg.inner_text('#concTitulo') == 'Venda nº 1 finalizada', 'a venda finaliza e ganha numero')
     ok('Bianca Furtado' in pg.inner_text('#concSub') and 'Nordeste' in pg.inner_text('#concSub'), 'com vendedor e cliente')
-    ok(pg.inner_text('#concTotal') == 'R$ 749,70' and pg.inner_text('#concDinheiro') == 'R$ 350,00' and pg.inner_text('#concTroco') == 'R$ 50,00', 'total, recebido em dinheiro e troco conferem')
+    ok(pg.inner_text('#concTotal') == 'R$ 765,55' and pg.inner_text('#concDinheiro') == 'R$ 350,00' and pg.inner_text('#concTroco') == 'R$ 50,00', 'total (com o acrescimo do cartao), recebido em dinheiro e troco conferem')
     g = pg.inner_text('#concGerado')
     ok('Pedido de Venda PDV-0001' in g and 'Entregue' in g and 'Bianca Furtado' in g, 'gerou o Pedido de Venda ja entregue, na meta do vendedor')
     ok('Baixa de estoque em Geral: 3 unidades de 1 produto' in g, 'gerou a baixa no deposito: %s' % [l for l in g.split(chr(10)) if 'Baixa' in l][:1])
     ok('R$ 300,00 entram na hora em Caixa' in g, 'o dinheiro entra direto na conta, sem titulo')
-    ok('2 títulos em Contas a Receber' in g and 'Distribuidora Nordeste' in g, 'o cartao gerou os titulos em nome do cliente')
-    ok('Taxa de R$ 15,69' in g and 'R$ 434,01' in g, 'e a taxa com o liquido')
+    ok('1 título em Contas a Receber, somando R$ 265,55 (Cartão de crédito em 3x)' in g and ('Vencimento em ' + util) in g and 'Inclui R$ 15,85 de taxa repassada' in g,
+       'o cartao gerou UM titulo, no valor cobrado, para o proximo dia util: %s' % [l for l in g.split(chr(10)) if 'Cartão' in l][:1])
+    ok('Taxa de R$ 15,85 em Cartão de crédito' in g and 'Entra líquido: R$ 249,70' in g, 'com a taxa e o liquido, que e o valor cheio da venda no cartao')
+    ok('2 títulos em Contas a Receber, somando R$ 200,00 (Boleto)' in g and 'Distribuidora Nordeste' in g and 'Taxa de R$ 2,90 em Boleto' in g,
+       'o boleto gerou os dois titulos combinados, em nome do cliente')
     ok(pg.evaluate("saldoDe('FON-BT-200', 1)") == 31, 'o saldo do produto baixou de 34 para 31')
-    ok(pg.evaluate('usados[3]') == 449.7, 'e o limite do cliente passou a contar a venda a prazo')
+    ok(pg.evaluate('usados[3]') == 200, 'e o limite do cliente passou a contar so o boleto, nao o cartao')
     clic(pg, '#btnRecibo'); pg.wait_for_timeout(250)
     r = pg.evaluate("document.getElementById('folhaImpressao').innerText")
-    ok(pg.evaluate('window.__imprimiu') == 1 and 'Recibo de venda' in r and 'R$ 749,70' in r and 'Troco' in r, 'o recibo traz itens, valores, formas e troco')
+    ok(pg.evaluate('window.__imprimiu') == 1 and 'Recibo de venda' in r and 'R$ 765,55' in r and 'Troco' in r, 'o recibo traz itens, valores, formas e troco')
+    ok('Acréscimo do cartão' in r and 'R$ 15,85' in r and 'Cartão de crédito · 3x' in r and 'R$ 265,55' in r and ('venc. ' + util) not in r,
+       'o recibo mostra o acrescimo e o cartao em 3x, sem "vencimento" de cartao para o cliente')
     clic(pg, '#btnReciboTroca'); pg.wait_for_timeout(250)
     r = pg.evaluate("document.getElementById('folhaImpressao').innerText")
     ok('Recibo para troca' in r and 'R$' not in r and 'Fone de Ouvido' in r, 'o recibo para troca traz os itens e NENHUM valor')
@@ -317,12 +389,30 @@ with sync_playwright() as p:
     print('\n[8] Turno: sangria, reforco e fechamento cego')
     clic(pg, '#btnDetalhesCaixa'); pg.wait_for_timeout(300)
     d = pg.inner_text('#caixaCorpo')
-    ok('Caixa aberto' in d and 'R$ 150,00' in d and '1 · R$ 749,70' in d, 'detalhes mostra abertura, troco e vendas')
-    ok('não aparece com o caixa aberto' in d and 'R$ 450,00' not in d, 'e NAO mostra o esperado por forma: o fechamento e cego')
+    ok('Caixa aberto em ' in d and 'R$ 150,00' in d and '1 · R$ 765,55' in d, 'detalhes mostra abertura, troco e vendas')
+    ok(all(x in d for x in ['Loja', 'Desk Shope', 'Operador de abertura', 'Troco inicial', 'Sangrias', 'Reforços']) and 'resumo por forma' in d.lower(),
+       'com loja, operador, troco, sangrias, reforcos e o resumo por forma')
+    ok('não aparece com o caixa aberto' in d and 'R$ 450,00' not in d and 'R$ 265,55' not in d, 'e NAO mostra o esperado por forma: o fechamento e cego')
+    ok(pg.evaluate("Array.from(document.querySelectorAll('#caixaCorpo .pdv-tab tbody tr')).map(tr => tr.innerText.replace(/\\s+/g, ' ').trim())") == ['Dinheiro 1', 'Cartão de crédito 1', 'Boleto 1'],
+       'no cego, o resumo diz as formas usadas e quantas vendas, sem valor')
+    ok(pg.evaluate("document.getElementById('caixaDrawer').getBoundingClientRect().width") >= 600 and pg.inner_text('#contVendasCaixa') == '1' and pg.inner_text('#contMovCaixa') == '0',
+       'o painel e largo e as abas contam vendas e lancamentos')
     clic(pg, '#abasCaixa [data-aba="vendas"]'); pg.wait_for_timeout(200)
-    ok('Venda nº 1' in pg.inner_text('#caixaCorpo') and 'Cartão de crédito' in pg.inner_text('#caixaCorpo'), 'a aba de vendas lista a venda com as formas')
+    dv = pg.inner_text('#caixaCorpo')
+    ok('Venda nº 1' in dv and 'Cartão de crédito 3x R$ 265,55' in dv and 'Boleto R$ 200,00' in dv and 'Distribuidora Nordeste' in dv and 'R$ 765,55' in dv,
+       'a aba de vendas lista a venda com cliente, formas e total')
+    antes = pg.evaluate('window.__imprimiu')
+    clic(pg, '#caixaCorpo [data-recibo-venda="1"]'); pg.wait_for_timeout(250)
+    ok(pg.evaluate('window.__imprimiu') == antes + 1 and 'Recibo de venda' in pg.evaluate("document.getElementById('folhaImpressao').innerText"), 'e reimprime o recibo de qualquer venda do turno')
+    clic(pg, '#abasCaixa [data-aba="mov"]'); pg.wait_for_timeout(200)
+    clic(pg, '#caixaCorpo [data-mov-painel="reforco"]'); pg.wait_for_timeout(300)
+    ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#movTitulo') == 'Reforço de caixa', 'a aba de sangrias e reforcos lanca direto dali')
+    clic(pg, '#movDrawer [data-fechar-painel]'); pg.wait_for_timeout(250)
+    ok(visivel(pg, '#btnFecharCaixaTopo') and pg.locator('#menuMaisAcoes [data-acao="fechar"]').count() == 0, 'Fechar caixa e botao proprio no topo, fora do menu')
     clic(pg, '#menuMaisAcoes [data-acao="sangria"]'); pg.wait_for_timeout(300)
     ok(pg.locator('#movDrawer.open').count() == 1 and pg.inner_text('#movTitulo') == 'Sangria de caixa', 'Mais acoes abre a sangria')
+    ok(pg.inner_text('#menuMaisAcoes .dropdown-select-label') == 'Mais ações' and pg.locator('#menuMaisAcoes .dropdown-select-item.active').count() == 0,
+       'e o botao continua se chamando "Mais ações", sem item marcado')
     ok(pg.inner_text('#movConta .dropdown-select-label') == 'Cofre da loja', 'com o cofre sugerido como destino')
     pg.fill('#movValor', '9000'); pg.fill('#movMotivo', 'teste'); clic(pg, '#btnSalvarMov'); pg.wait_for_timeout(250)
     e = pg.inner_text('#erroMovValor')
@@ -339,24 +429,25 @@ with sync_playwright() as p:
     fechar_aviso(pg)
     ok(pg.evaluate("dinheiroNaGaveta(turno)") == 400 and pg.evaluate("turno.movimentos.length") == 2, 'e entra na gaveta: 400')
     adicionar(pg, 'CAR-33W-01', '1')
-    clic(pg, '#menuMaisAcoes [data-acao="fechar"]'); pg.wait_for_timeout(350)
+    clic(pg, '#btnFecharCaixaTopo'); pg.wait_for_timeout(350)
     ok(pg.locator('#fecharDrawer.open').count() == 0 and 'venda em andamento' in pg.inner_text('#confirmModalTexto'), 'com venda em andamento o caixa nao fecha')
     fechar_aviso(pg)
     clic(pg, '#btnCancelarVenda'); pg.wait_for_timeout(300)
     ok('Cancelar a venda' in pg.inner_text('#confirmModalTexto'), 'cancelar a venda pergunta antes')
     confirmar(pg, senha=False)
     ok(pg.evaluate('venda.itens.length') == 0, 'e limpa os itens')
-    clic(pg, '#menuMaisAcoes [data-acao="fechar"]'); pg.wait_for_timeout(350)
+    clic(pg, '#btnFecharCaixaTopo'); pg.wait_for_timeout(350)
     campos = pg.evaluate("Array.from(document.querySelectorAll('#fecharCampos [data-fechar]')).map(e => e.getAttribute('data-fechar'))")
-    ok(campos == ['dinheiro', 'credito'], 'o fechamento pede as formas que o turno recebeu: %s' % campos)
+    ok(campos == ['dinheiro', 'credito', 'boleto'], 'o fechamento pede as formas que o turno recebeu: %s' % campos)
     ok('Esperado:' not in pg.inner_text('#fecharDrawer') and pg.input_value('[data-fechar="dinheiro"]') == '', 'os campos abrem vazios e sem o valor esperado')
     ok('não aparece' in pg.inner_text('#fecharNota'), 'e a nota do painel diz que o esperado nao aparece')
     clic(pg, '#btnConfirmarFechamento'); pg.wait_for_timeout(250)
     ok('todas' in pg.inner_text('#fecharDivergencia') and pg.evaluate('turno') is not None, 'campo em branco nao fecha')
-    pg.fill('[data-fechar="dinheiro"]', '380'); pg.fill('[data-fechar="credito"]', '449,70')
+    # No cartao o esperado e o que passou na maquininha (265,55, com a taxa repassada), nao a parte da venda (249,70).
+    pg.fill('[data-fechar="dinheiro"]', '380'); pg.fill('[data-fechar="credito"]', '265,55'); pg.fill('[data-fechar="boleto"]', '200')
     clic(pg, '#btnConfirmarFechamento'); pg.wait_for_timeout(300)
     dv = pg.inner_text('#fecharDivergencia')
-    ok('Dinheiro' in dv and 'Cartão de crédito' not in dv and '400' not in dv and pg.evaluate('turno') is not None,
+    ok('Dinheiro' in dv and 'Cartão de crédito' not in dv and 'Boleto' not in dv and '400' not in dv and pg.evaluate('turno') is not None,
        'contagem que nao bate diz ONDE, nunca quanto era: %s' % dv[:90])
     ok(visivel(pg, '#btnForcarFechamento'), 'e so entao aparece o fechar com diferenca')
     clic(pg, '#btnForcarFechamento'); pg.wait_for_timeout(350)
@@ -380,7 +471,7 @@ with sync_playwright() as p:
     clic(pg, '#caixaDrawer [data-fechar-painel]'); pg.wait_for_timeout(250)
     # fechar com diferenca de verdade, e abrir com o ultimo valor
     abrir_caixa(pg, 1, '100')
-    clic(pg, '#menuMaisAcoes [data-acao="fechar"]'); pg.wait_for_timeout(300)
+    clic(pg, '#btnFecharCaixaTopo'); pg.wait_for_timeout(300)
     pg.fill('[data-fechar="dinheiro"]', '90'); clic(pg, '#btnConfirmarFechamento'); pg.wait_for_timeout(250)
     clic(pg, '#btnForcarFechamento'); pg.wait_for_timeout(300); confirmar(pg); fechar_aviso(pg)
     ok(pg.evaluate('ultimoTurno.forcado') is True and pg.evaluate('ultimoTurno.diferenca') == -10 and 'diferença de' in pg.inner_text('#ultimoTurno'),
@@ -397,9 +488,12 @@ with sync_playwright() as p:
     p2.on('pageerror', lambda e: e2.append(str(e)))
     p2.goto(localiza.http(FORMAS_CAD)); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
     cad = p2.evaluate("FORMAS.filter(f => f.sistema)")
-    campos = ['chave', 'nome', 'uso', 'destino', 'contaId', 'tarifacao', 'taxaPct', 'taxaFixa', 'validaLimite', 'ativo']
+    campos = ['chave', 'nome', 'uso', 'destino', 'contaId', 'tarifacao', 'taxaPct', 'taxaFixa', 'validaLimite', 'ativo', 'prazoUteis', 'parcelasMax', 'taxasParcela', 'repassa']
     dif = [f['chave'] for f in cad if [f[c] for c in campos] != [next((x for x in pdv['formas'] if x['chave'] == f['chave']), {}).get(c) for c in campos]]
-    ok(len(cad) == len(pdv['formas']) and not dif, 'formas de recebimento: as dez, campo a campo: %s' % (dif or 'iguais'))
+    ok(len(cad) == len(pdv['formas']) and not dif, 'formas de recebimento: as dez, campo a campo, com prazo, parcelas e repasse: %s' % (dif or 'iguais'))
+    cartoes = dict((f['chave'], f) for f in cad if f['chave'] in ('debito', 'credito'))
+    ok(all(f['prazoUteis'] == 1 and f['validaLimite'] is False for f in cartoes.values()) and len(cartoes['credito']['taxasParcela']) == cartoes['credito']['parcelasMax'] - 1,
+       'no cadastro, os dois cartoes caem no proximo dia util, nao validam limite e o credito tem uma taxa por parcela')
     p2.goto(localiza.http(PEDIDO)); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
     ped = p2.evaluate("({ catalogo: CATALOGO, lojas: LOJAS, depositos: DEPOSITOS, padrao: DEPOSITO_PADRAO_DA_LOJA })")
     semg = [dict((k, v) for k, v in x.items() if k != 'gtin') for x in pdv['catalogo']]

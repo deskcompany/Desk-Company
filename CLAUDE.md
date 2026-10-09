@@ -159,7 +159,9 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 
 **74 telas construídas**, 41 itens de menu com tela, 17 submódulos a fazer. Em 09/out entrou o
 **PDV** (Vendas) com as Configurações do PDV: a venda de balcão vira Pedido de Venda já entregue,
-e o caixa do PDV é o turno do operador, não o Caixa de Finanças (§14.48). F2 (Cadastros), F5
+e o caixa do PDV é o turno do operador, não o Caixa de Finanças (§14.48). No cartão, o prazo
+(próximo dia útil), a taxa de cada parcela e o repasse ao cliente vêm do cadastro de Formas de
+recebimento, e cartão não confere limite de crédito (§14.49). F2 (Cadastros), F5
 (Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
 Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
 mais o cadastro de **Motivos de Devolução** (hoje em Configurações; o módulo Operacional saiu do menu em 08/out). De Logística falta só

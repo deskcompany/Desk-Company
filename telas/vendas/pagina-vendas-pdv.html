@@ -931,6 +931,26 @@
   .pdv-nota { margin:14px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12.5px; color:var(--text); line-height:1.5; }
   .pdv-nota b { color:var(--text-heading); }
   .pdv-nota.alerta { border-color:var(--danger); }
+  .dropdown-select-divider { border-top:1px solid var(--border); margin:5px 4px; }
+  /* Bloco do cartao: as contas (taxa, valor a passar, o que a loja recebe) ficam em linhas de leitura. */
+  .pdv-receb-conta { margin-top:4px; }
+  .pdv-receb .switch-row { margin:12px 0 4px; background:var(--card-bg); }
+  /* Detalhes do caixa: painel largo, com situacao, fatos em grade e tabelas. */
+  #caixaDrawer { width:680px; right:-700px; }
+  #caixaDrawer.open { right:0; }
+  .pdv-drawer-sub { font-size:12.5px; color:var(--text); margin:-12px 0 16px; line-height:1.5; }
+  .pdv-situacao { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:16px 0; border-bottom:1px solid var(--border); font-size:13.5px; color:var(--text-heading); }
+  .pdv-chip-ponto.fechado { background:var(--text); }
+  .pdv-fatos { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px 16px; padding:18px 0 6px; }
+  .pdv-fato-rot { font-size:12px; color:var(--text); }
+  .pdv-fato-val { font-size:14.5px; font-weight:700; color:var(--text-heading); margin-top:3px; font-variant-numeric:tabular-nums; }
+  .pdv-tab { width:100%; border-collapse:collapse; font-size:13px; }
+  .pdv-tab th { text-align:left; font-size:11.5px; font-weight:700; color:var(--text); padding:9px 10px 9px 0; border-bottom:1px solid var(--border); }
+  .pdv-tab td { padding:10px 10px 10px 0; color:var(--text-heading); border-bottom:1px solid var(--border); vertical-align:top; font-variant-numeric:tabular-nums; }
+  .pdv-tab .num { text-align:right; padding-right:0; white-space:nowrap; }
+  .pdv-tab-sub { display:block; font-size:11.5px; color:var(--text); margin-top:2px; }
+  .pdv-tab-link { color:var(--active-text); font-weight:700; cursor:pointer; white-space:nowrap; }
+  .pdv-painel-acoes { display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 4px; }
 
   /* ===== FOLHA DE IMPRESSAO (comprovantes e recibos) ===== */
   .pdv-folha { display:none; }
@@ -1153,6 +1173,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="header-acoes" id="pdvAcoesTopo" style="display:none;">
       <span class="pdv-chip" id="chipTurno"></span>
       <button class="btn-secundario" id="btnDetalhesCaixa">Detalhes do caixa<span class="pdv-kbd">Ctrl+Y</span></button>
+      <button class="btn-secundario" id="btnFecharCaixaTopo">Fechar caixa</button>
       <div class="dropdown-select" id="menuMaisAcoes">
         <button type="button" class="btn-ghost dropdown-select-btn">
           <span class="dropdown-select-label">Mais ações</span>
@@ -1161,10 +1182,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-menu" style="right:0; left:auto; min-width:270px; white-space:nowrap;">
           <div class="dropdown-select-item" data-acao="sangria">Lançar sangria de caixa</div>
           <div class="dropdown-select-item" data-acao="reforco">Lançar reforço de caixa</div>
+          <div class="dropdown-select-divider"></div>
           <div class="dropdown-select-item" data-acao="ultima">Reimprimir a última venda</div>
           <div class="dropdown-select-item" data-acao="atalhos">Mostrar atalhos</div>
-          <div class="dropdown-select-item" data-acao="cancelar">Cancelar venda</div>
-          <div class="dropdown-select-item" data-acao="fechar">Fechar caixa</div>
+          <div class="dropdown-select-divider"></div>
+          <div class="dropdown-select-item item-perigo" data-acao="cancelar" id="itemCancelarVenda">Cancelar venda</div>
         </div>
       </div>
     </div>
@@ -1270,6 +1292,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div id="finItens"></div>
           <div class="pdv-linha"><span>Subtotal</span><b id="finSubtotal">R$ 0,00</b></div>
           <div class="pdv-linha"><span>Desconto na venda</span><b id="finDescontoValor">R$ 0,00</b></div>
+          <div class="pdv-linha" id="finAcrescimoLinha" style="display:none;"><span>Acréscimo do cartão</span><b id="finAcrescimo">R$ 0,00</b></div>
           <div class="pdv-linha forte"><span>Total</span><b id="finTotal">R$ 0,00</b></div>
         </div>
       </div>
@@ -1506,10 +1529,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="drawer-title">Detalhes do caixa</div>
     <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
+  <div class="pdv-drawer-sub">Dados do turno, histórico de sangrias e reforços e as vendas feitas neste caixa.</div>
   <div class="abas-situacao" id="abasCaixa">
     <div class="aba-sit active" data-aba="geral">Dados gerais</div>
-    <div class="aba-sit" data-aba="mov">Sangrias e reforços</div>
-    <div class="aba-sit" data-aba="vendas">Vendas</div>
+    <div class="aba-sit" data-aba="mov">Sangrias e reforços<span class="sit-contador" id="contMovCaixa">0</span></div>
+    <div class="aba-sit" data-aba="vendas">Vendas<span class="sit-contador" id="contVendasCaixa">0</span></div>
   </div>
   <div id="caixaCorpo"></div>
   <div class="drawer-footer" id="caixaRodape">
@@ -2275,8 +2299,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const FORMAS = [
     { chave: 'dinheiro',      nome: 'Dinheiro',          uso: 'ambos',   destino: 'conta',  contaId: 1,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
     { chave: 'pix',           nome: 'Pix',               uso: 'ambos',   destino: 'conta',  contaId: 2,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
-    { chave: 'debito',        nome: 'Cartão de débito',  uso: 'ambos',   destino: 'titulo', contaId: 3,    tarifacao: 'seguinte',  taxaPct: 1.39, taxaFixa: 0,    validaLimite: false, ativo: true },
-    { chave: 'credito',       nome: 'Cartão de crédito', uso: 'receber', destino: 'titulo', contaId: 3,    tarifacao: 'pagamento', taxaPct: 3.49, taxaFixa: 0,    validaLimite: true,  ativo: true },
+    { chave: 'debito',        nome: 'Cartão de débito',  uso: 'ambos',   destino: 'titulo', contaId: 3,    tarifacao: 'seguinte',  taxaPct: 1.39, taxaFixa: 0,    validaLimite: false, ativo: true,
+      prazoUteis: 1, parcelasMax: 1, taxasParcela: [], repassa: false },
+    { chave: 'credito',       nome: 'Cartão de crédito', uso: 'receber', destino: 'titulo', contaId: 3,    tarifacao: 'pagamento', taxaPct: 3.49, taxaFixa: 0,    validaLimite: false, ativo: true,
+      prazoUteis: 1, parcelasMax: 12, taxasParcela: [4.59, 5.97, 7.33, 8.66, 9.96, 11.24, 12.50, 13.73, 14.93, 16.12, 17.28], repassa: false },
     { chave: 'boleto',        nome: 'Boleto',            uso: 'ambos',   destino: 'titulo', contaId: 2,    tarifacao: 'pagamento', taxaPct: 0,    taxaFixa: 2.90, validaLimite: true,  ativo: true },
     { chave: 'crediario',     nome: 'Crediário',         uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: true,  ativo: true },
     { chave: 'cheque',        nome: 'Cheque',            uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
@@ -2284,6 +2310,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave: 'valetroca',     nome: 'Vale-troca',        uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: false },
     { chave: 'transferencia', nome: 'Transferência',     uso: 'pagar',   destino: null,     contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true }
   ];
+  // Prazo fixo da operadora (os cartoes): dias uteis ate cair, parcelas na maquininha, taxa de 2x em
+  // diante e o padrao do repasse. `prazoUteis: null` e a forma com vencimento combinado na venda.
+  FORMAS.forEach(f => { if (f.prazoUteis === undefined) Object.assign(f, { prazoUteis: null, parcelasMax: 1, taxasParcela: [], repassa: false }); });
   // Configuracoes > Contas financeiras (as ativas) e Categorias financeiras: as de receita de vendas,
   // ativas, fora as de deducao ("Descontos concedidos" nao e categoria de uma venda).
   const CONTAS_FINANCEIRAS = [
@@ -2423,6 +2452,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function hhmm(d) { return doisDigitos(d.getHours()) + ':' + doisDigitos(d.getMinutes()); }
   function dataBr(d) { return doisDigitos(d.getDate()) + '/' + doisDigitos(d.getMonth() + 1) + '/' + d.getFullYear(); }
   function maisDias(d, n) { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  // shortcut: so feriado nacional de data fixa; Carnaval, Sexta-feira Santa, Corpus Christi e feriado local entram quando houver calendario de feriados.
+  const FERIADOS_FIXOS = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '20/11', '25/12'];
+  function diaUtil(d) { return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(dataBr(d).slice(0, 5)) === -1; }
+  function maisDiasUteis(d, n) { const x = new Date(d.getTime()); while (n > 0) { x.setDate(x.getDate() + 1); if (diaUtil(x)) n -= 1; } return x; }
+  function diasAte(d, alvo) { return Math.round((new Date(alvo.getFullYear(), alvo.getMonth(), alvo.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000); }
+  function prazoTexto(n) { return n === 0 ? 'no mesmo dia' : (n === 1 ? 'próximo dia útil' : n + ' dias úteis'); }
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   const MESES_NOME_PDV = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
   function dataExtenso(d) { return DIAS_NOME[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES_NOME_PDV[d.getMonth()] + ' de ' + d.getFullYear(); }
@@ -2856,10 +2891,45 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ---------- MOMENTO 3: finalizando ----------
   function formasDisponiveis() { return FORMAS.filter(f => f.ativo && f.uso !== 'pagar'); }
   function somaRecebimentos() { return arred(venda.recebimentos.reduce((s, r) => s + (r.valor || 0), 0)); }
+  // A taxa do cartao depende do numero de parcelas: 1x e o percentual da forma, de 2x em diante vem da tabela do cadastro.
+  function pctDe(f, vezes) {
+    if (f.tarifacao === 'sem') return 0;
+    return vezes > 1 && f.taxasParcela[vezes - 2] !== undefined ? f.taxasParcela[vezes - 2] : f.taxaPct;
+  }
+  // Quanto passa no cartao do cliente. Sem repasse e o valor da venda; com repasse, o bastante para
+  // que, tirada a taxa, sobre o valor da venda (dividir por 1 - taxa, e nao somar a taxa por cima).
+  function cobradoDe(r, vezes) {
+    const f = formaDe(r.chave), v = r.valor || 0;
+    if (!f || !r.repassa || f.tarifacao === 'sem' || !v) return v;
+    return arred((v + f.taxaFixa) / (1 - pctDe(f, vezes || r.vezes || 1) / 100));
+  }
   function taxaDe(r) {
     const f = formaDe(r.chave);
     if (!f || f.tarifacao === 'sem' || !r.valor) return 0;
-    return arred(r.valor * f.taxaPct / 100 + f.taxaFixa);
+    return arred(cobradoDe(r) * pctDe(f, r.vezes || 1) / 100 + f.taxaFixa);
+  }
+  function acrescimos() { return arred(venda.recebimentos.reduce((s, r) => s + cobradoDe(r) - (r.valor || 0), 0)); }
+  // Forma com prazo fixo da operadora: um titulo so, no valor que passa no cartao, vencendo no dia util do cadastro.
+  function acertarTitulo(r) {
+    const f = formaDe(r.chave);
+    if (!f || f.prazoUteis === null) return;
+    const hoje = new Date();
+    r.vezes = Math.min(r.vezes || 1, f.parcelasMax);
+    r.parcelas = [{ dias: diasAte(hoje, maisDiasUteis(hoje, f.prazoUteis)), valor: cobradoDe(r) }];
+  }
+  // O que falta receber entra sozinho na primeira forma em que ninguem digitou valor; as outras
+  // sem valor digitado ficam vazias. Forma com valor digitado nunca e mexida daqui.
+  function acertarRecebimentos() {
+    venda.recebimentos.forEach(r => { if (r.digitado === undefined) r.digitado = r.valor > 0; });
+    const digitado = arred(venda.recebimentos.filter(r => r.digitado).reduce((s, r) => s + (r.valor || 0), 0));
+    venda.recebimentos.filter(r => !r.digitado).forEach((r, i) => {
+      const novo = i === 0 ? Math.max(0, arred(totalVenda() - digitado)) : 0;
+      if (novo === r.valor) return;
+      r.valor = novo;
+      const f = formaDe(r.chave);
+      if (f.destino === 'titulo' && f.prazoUteis === null) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+    });
+    venda.recebimentos.forEach(acertarTitulo);
   }
   function trocoDe(r) {
     if (r.chave !== 'dinheiro' || r.recebido === null || r.recebido === undefined) return 0;
@@ -2881,8 +2951,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function adicionarRecebimento(chave) {
     const f = formaDe(chave);
     if (!f || venda.recebimentos.some(r => r.chave === chave)) return;
-    const r = { chave, valor: Math.max(0, arred(totalVenda() - somaRecebimentos())), recebido: null, parcelas: [], expr: '1x' };
-    if (f.destino === 'titulo') gerarParcelas(r, chave === 'debito' ? '1' : '30');
+    // Nasce sem valor: quem preenche o que falta e acertarRecebimentos, na pintura.
+    const r = { chave, valor: 0, digitado: false, recebido: null, parcelas: [], expr: '1x', vezes: 1,
+                repassa: f.prazoUteis !== null && f.tarifacao !== 'sem' && f.repassa };
     venda.recebimentos.push(r);
     pintarFinalizar(); gravar();
   }
@@ -2900,14 +2971,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     let comLimite = 0;
     venda.recebimentos.forEach(r => {
       const f = formaDe(r.chave);
-      if (!r.valor || r.valor <= 0) p.push(f.nome + ': informe o valor.');
+      if (!r.valor || r.valor <= 0) p.push(f.nome + ': sem valor. Diminua o valor de outra forma, que o que faltar entra aqui, ou remova esta.');
       if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < r.valor - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(r.valor) + ').');
       if (f.destino === 'titulo') {
         if (!cli) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
         const somaParc = arred(r.parcelas.reduce((s, x) => s + (x.valor || 0), 0));
-        if (r.parcelas.length === 0) p.push(f.nome + ': gere as parcelas.');
+        if (!r.valor) { /* sem valor ja foi dito acima; parcela de zero nao e um segundo problema */ }
+        else if (r.parcelas.length === 0) p.push(f.nome + ': gere as parcelas.');
         else if (r.parcelas.some(x => !(x.valor > 0) || !(x.dias >= 0))) p.push(f.nome + ': toda parcela precisa de dias e de valor.');
-        else if (Math.abs(somaParc - (r.valor || 0)) > 0.005) p.push(f.nome + ': as parcelas somam ' + moeda(somaParc) + ' e o valor é ' + moeda(r.valor) + '.');
+        else if (Math.abs(somaParc - cobradoDe(r)) > 0.005) p.push(f.nome + ': as parcelas somam ' + moeda(somaParc) + ' e o valor é ' + moeda(cobradoDe(r)) + '.');
       }
       if (f.validaLimite) comLimite = arred(comLimite + (r.valor || 0));
     });
@@ -2926,6 +2998,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return p;
   }
   function pintarFinalizar() {
+    acertarRecebimentos();
     const cli = clienteDe(venda.clienteId);
     texto('rotuloClienteFin', rotuloCliente());
     texto('docClienteFin', cli ? cli.documento + ' · limite de crédito disponível ' + moeda(disponivelDoCliente()) : 'Sem cliente identificado: só formas que entram na hora.');
@@ -2960,10 +3033,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         : 'vira título em Contas a Receber' + (conta ? ', baixa em ' + conta.nome : '');
       let corpo = '<div class="form-row"><div class="form-field"><label>Valor (R$)</label><input type="text" inputmode="decimal" data-receb-valor="' + i + '" value="' + (r.valor ? fmtNum(r.valor) : '') + '"></div>';
       if (r.chave === 'dinheiro') corpo += '<div class="form-field"><label>Recebido em dinheiro (R$)</label><input type="text" inputmode="decimal" data-receb-recebido="' + i + '" placeholder="igual ao valor" value="' + (r.recebido !== null && r.recebido !== undefined ? fmtNum(r.recebido) : '') + '"></div>';
-      if (f.destino === 'titulo') corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
+      // Prazo fixo da operadora (cartao): o operador escolhe so as parcelas; data e valor do titulo saem do cadastro.
+      const fixo = f.prazoUteis !== null;
+      if (fixo && f.parcelasMax > 1) {
+        const rotuloVezes = (n) => n + 'x' + (r.valor ? ' de ' + moeda(arred(cobradoDe(r, n) / n)) : '');
+        let itens = '';
+        for (let n = 1; n <= f.parcelasMax; n++) itens += '<div class="dropdown-select-item' + (n === r.vezes ? ' active' : '') + '" data-value="' + n + '">' + rotuloVezes(n) + '</div>';
+        corpo += '<div class="form-field"><label>Parcelas</label><div class="dropdown-select" data-receb-vezes="' + i + '" data-value="' + r.vezes + '">' +
+          '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + rotuloVezes(r.vezes) + '</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+          '<div class="dropdown-select-menu">' + itens + '</div></div></div>';
+      } else if (f.destino === 'titulo' && !fixo) corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
       corpo += '</div>';
       if (r.chave === 'dinheiro' && trocoDe(r) > 0) corpo += '<div class="pdv-receb-info">Troco: <b>' + moeda(trocoDe(r)) + '</b></div>';
-      if (f.destino === 'titulo') {
+      if (fixo) {
+        const cobrado = cobradoDe(r), pct = pctDe(f, r.vezes);
+        if (f.tarifacao !== 'sem') corpo += '<div class="switch-row"><div class="switch-row-texto"><div class="switch-row-titulo">Repassar a taxa ao cliente</div>' +
+          '<div class="field-hint">' + (r.repassa ? 'O cliente paga a taxa: o valor a passar no cartão já sai com ela por cima.' : 'A loja paga a taxa: o cliente passa o valor da venda.') + '</div></div>' +
+          '<div class="switch' + (r.repassa ? ' on' : '') + '" data-receb-repassa="' + i + '"></div></div>';
+        if (r.valor) corpo += '<div class="pdv-receb-conta">' +
+          (taxa > 0 ? linhaChave('Taxa da operadora (' + (pct ? fmtNum(pct) + '%' : '') + (pct && f.taxaFixa ? ' + ' : '') + (f.taxaFixa ? moeda(f.taxaFixa) : '') + ')', moeda(taxa)) : '') +
+          linhaChave('Passar no cartão do cliente', moeda(cobrado) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '')) +
+          linhaChave('A loja recebe em ' + dataBr(maisDiasUteis(new Date(), f.prazoUteis)) + ' (' + prazoTexto(f.prazoUteis) + ')', moeda(arred(cobrado - taxa))) + '</div>';
+      } else if (f.destino === 'titulo') {
         corpo += '<table class="pdv-parcelas"><thead><tr><th style="width:40px;">Nº</th><th style="width:90px;">Dias</th><th>Vencimento</th><th style="width:130px;">Valor (R$)</th></tr></thead><tbody>' +
           r.parcelas.map((x, n) => '<tr><td>' + (n + 1) + '</td>' +
             '<td><input type="text" inputmode="numeric" data-parc-dias="' + i + ':' + n + '" value="' + x.dias + '"></td>' +
@@ -2971,7 +3063,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             '<td><input type="text" inputmode="decimal" data-parc-valor="' + i + ':' + n + '" value="' + fmtNum(x.valor) + '"></td></tr>').join('') +
           '</tbody></table>';
       }
-      if (taxa > 0) corpo += '<div class="pdv-receb-info">Taxa de <b>' + moeda(taxa) + '</b>, descontada ' + TARIFACOES[f.tarifacao] + '. Líquido: <b>' + moeda(r.valor - taxa) + '</b>.</div>';
+      if (taxa > 0 && !fixo) corpo += '<div class="pdv-receb-info">Taxa de <b>' + moeda(taxa) + '</b>, descontada ' + TARIFACOES[f.tarifacao] + '. Líquido: <b>' + moeda(r.valor - taxa) + '</b>.</div>';
       if (f.validaLimite) corpo += '<div class="pdv-receb-info">Esta forma confere o limite de crédito do cliente.</div>';
       return '<div class="pdv-receb" data-receb="' + r.chave + '"><div class="pdv-receb-topo"><div><div class="pdv-receb-nome">' + esc(f.nome) + '</div><div class="pdv-receb-destino">' + esc(destino) + '</div></div>' +
         '<button type="button" class="pdv-icone-btn" data-receb-remover="' + i + '" title="Remover recebimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div>' + corpo + '</div>';
@@ -2985,12 +3077,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const pend = pendenciasDaVenda();
     el.classList.toggle('alerta', pend.length > 0 && venda.recebimentos.length > 0);
     el.classList.toggle('certo', pend.length === 0);
+    // Taxa repassada entra por cima do total: o cliente paga a venda mais o acrescimo do cartao.
+    const acresc = acrescimos();
     el.innerHTML = pend.length === 0
-      ? 'Recebimentos fecham com o total: <b>' + moeda(soma) + '</b>. Pode finalizar.'
+      ? 'Recebimentos fecham com o total: <b>' + moeda(arred(soma + acresc)) + '</b>. Pode finalizar.'
       : (venda.recebimentos.length === 0 ? 'Total a receber: <b>' + moeda(total) + '</b>. Escolha a forma de recebimento.' : pend.map(esc).join('<br>'));
+    mostrar('finAcrescimoLinha', acresc > 0);
+    texto('finAcrescimo', '+ ' + moeda(acresc));
     texto('totTroco', moeda(trocoTotal()));
-    texto('totVendaFin', moeda(total));
-    texto('finTotal', moeda(total));
+    texto('totVendaFin', moeda(arred(total + acresc)));
+    texto('finTotal', moeda(arred(total + acresc)));
   }
   // Os campos dos recebimentos sao refeitos a cada pintura, entao gravam no `blur`
   // (change) e nao a cada tecla: repintar no meio da digitacao tiraria o foco.
@@ -3000,7 +3096,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const r = venda.recebimentos[Number(inp.getAttribute('data-receb-valor'))];
       const n = numero(inp.value);
       r.valor = n === null || n < 0 ? 0 : arred(n);
-      if (formaDe(r.chave).destino === 'titulo') gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      // Campo apagado volta a ser "sem valor digitado": na pintura ele recebe de novo o que faltar.
+      r.digitado = r.valor > 0;
+      const f = formaDe(r.chave);
+      if (f.destino === 'titulo' && f.prazoUteis === null) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-vezes]').forEach(raiz => inicializarDropdownSelect(raiz, (v) => {
+      venda.recebimentos[Number(raiz.getAttribute('data-receb-vezes'))].vezes = Number(v);
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-repassa]').forEach(sw => sw.addEventListener('click', () => {
+      const r = venda.recebimentos[Number(sw.getAttribute('data-receb-repassa'))];
+      r.repassa = !r.repassa;
       pintarFinalizar(); gravar();
     }));
     cx.querySelectorAll('[data-receb-recebido]').forEach(inp => inp.addEventListener('change', () => {
@@ -3040,10 +3148,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       vendedorId: venda.vendedorId, vendedorNome: vend ? vend.nome : null, clienteId: venda.clienteId, clienteNome: cli ? cli.nome : 'Consumidor final',
       clienteDoc: cli ? cli.documento : '', situacao: PARAM.pdvSituacaoVenda,
       itens: venda.itens.map(it => ({ sku: it.sku, nome: it.nome, un: it.un, qtd: it.qtd, preco: it.preco, total: totalDoItem(it) })),
-      subtotal: subtotal(), desconto: descontoGeral() || 0, total: totalVenda(), troco: trocoTotal(),
+      // `total` e o que o cliente pagou: a venda mais a taxa de cartao repassada, quando ha.
+      subtotal: subtotal(), desconto: descontoGeral() || 0, acrescimo: acrescimos(), total: arred(totalVenda() + acrescimos()), troco: trocoTotal(),
       recebimentos: venda.recebimentos.map(r => {
         const f = formaDe(r.chave);
-        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: f.contaId, valor: r.valor, recebido: r.chave === 'dinheiro' ? (r.recebido === null ? r.valor : r.recebido) : null,
+        // `valor` e a parte da venda paga nesta forma; `cobrado`, o que passou no cartao (igual, sem repasse).
+        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: f.contaId, valor: r.valor, cobrado: cobradoDe(r), vezes: r.vezes || 1, prazoFixo: f.prazoUteis !== null,
+                 recebido: r.chave === 'dinheiro' ? (r.recebido === null ? r.valor : r.recebido) : null,
                  troco: trocoDe(r), taxa: taxaDe(r), tarifacao: f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })) };
       })
     };
@@ -3078,12 +3189,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     g.push('<b>Baixa de estoque</b> em ' + esc(depositoDe(v.depositoId).nome) + ': ' + fmtNum(qtd).replace(',00', '') + (qtd === 1 ? ' unidade' : ' unidades') + ' de ' + v.itens.length + (v.itens.length === 1 ? ' produto.' : ' produtos.'));
     v.recebimentos.forEach(r => {
       const conta = contaDe(r.contaId);
+      const cob = cobradoNo(r);
       if (r.destino === 'conta') g.push('<b>' + moeda(r.valor) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + '). Aparece no Caixa de Finanças, sem título.');
       else {
         const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
-        g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(r.valor) + ' (' + esc(r.nome) + '), em nome de ' + esc(v.clienteNome) + '. Primeiro vencimento em ' + primeiro + '.');
+        g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), em nome de ' + esc(v.clienteNome) + '. ' +
+          (r.parcelas.length === 1 ? 'Vencimento' : 'Primeiro vencimento') + ' em ' + primeiro + '.' +
+          (cob > r.valor ? ' Inclui ' + moeda(arred(cob - r.valor)) + ' de taxa repassada ao cliente.' : ''));
       }
-      if (r.taxa > 0) g.push('<b>Taxa de ' + moeda(r.taxa) + '</b> em ' + esc(r.nome) + ', descontada ' + TARIFACOES[r.tarifacao] + '. Entra líquido: ' + moeda(r.valor - r.taxa) + '.');
+      if (r.taxa > 0) g.push('<b>Taxa de ' + moeda(r.taxa) + '</b> em ' + esc(r.nome) + ', descontada ' + TARIFACOES[r.tarifacao] + '. Entra líquido: ' + moeda(arred(cob - r.taxa)) + '.');
     });
     return g;
   }
@@ -3106,7 +3220,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ---------- TURNO: gaveta, sangria, reforco, fechamento ----------
   function somaMov(t, tipo) { return arred(t.movimentos.filter(m => m.tipo === tipo).reduce((s, m) => s + m.valor, 0)); }
-  function recebidoNaForma(t, chave) { return arred(t.vendas.reduce((s, v) => s + v.recebimentos.filter(r => r.chave === chave).reduce((a, r) => a + r.valor, 0), 0)); }
+  // O que entrou de verdade numa forma: no cartao com repasse e o valor cobrado, maior que a parte da venda.
+  // Venda gravada antes de 09/out/2026 nao tem `cobrado`; ali os dois eram o mesmo numero.
+  function cobradoNo(r) { return r.cobrado === undefined ? r.valor : r.cobrado; }
+  function recebidoNaForma(t, chave) { return arred(t.vendas.reduce((s, v) => s + v.recebimentos.filter(r => r.chave === chave).reduce((a, r) => a + cobradoNo(r), 0), 0)); }
   function dinheiroNaGaveta(t) { return arred(t.trocoInicial + recebidoNaForma(t, 'dinheiro') - somaMov(t, 'sangria') + somaMov(t, 'reforco')); }
   // O que o turno tem de cada forma. Dinheiro e o que esta na gaveta (troco, vendas, sangrias e reforcos); as outras, o que foi recebido.
   function esperadoPorForma(t) {
@@ -3124,42 +3241,61 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!t) return;
     const fechado = !!t.fechadoEm;
     document.querySelectorAll('#abasCaixa .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-aba') === abaCaixa));
+    const doTurnoAberto = !fechado && t === turno;
+    const fato = (rotulo, valor) => '<div><div class="pdv-fato-rot">' + rotulo + '</div><div class="pdv-fato-val">' + valor + '</div></div>';
+    const quando = (iso) => dataBr(new Date(iso)) + ', às ' + hhmm(new Date(iso));
+    texto('contMovCaixa', String(t.movimentos.length));
+    texto('contVendasCaixa', String(t.vendas.length));
     let corpo = '';
     if (abaCaixa === 'geral') {
       const totalVendas = t.vendas.reduce((s, v) => s + v.total, 0);
-      corpo += linhaChave('Situação', fechado ? 'Caixa fechado' : 'Caixa aberto') +
-        linhaChave('Loja', esc(lojaDe(t.lojaId).nome)) +
-        linhaChave('Operador', esc(t.operador)) +
-        linhaChave('Abertura', dataBr(new Date(t.abertoEm)) + ' às ' + hhmm(new Date(t.abertoEm))) +
-        (fechado ? linhaChave('Fechamento', dataBr(new Date(t.fechadoEm)) + ' às ' + hhmm(new Date(t.fechadoEm))) : '') +
-        linhaChave('Troco inicial', moeda(t.trocoInicial)) +
-        linhaChave('Vendas', t.vendas.length + ' · ' + moeda(totalVendas)) +
-        linhaChave('Sangrias', moeda(somaMov(t, 'sangria'))) +
-        linhaChave('Reforços', moeda(somaMov(t, 'reforco')));
+      corpo += '<div class="pdv-situacao"><span class="pdv-chip"><span class="pdv-chip-ponto' + (fechado ? ' fechado' : '') + '"></span>' + (fechado ? 'Caixa fechado' : 'Caixa aberto') + '</span>' +
+        '<span>' + (fechado ? 'Aberto em ' + quando(t.abertoEm) + ' e fechado em ' + quando(t.fechadoEm) : 'Caixa aberto em ' + quando(t.abertoEm)) + '</span></div>' +
+        '<div class="pdv-fatos">' +
+          fato('Loja', esc(lojaDe(t.lojaId).nome)) + fato('Operador de abertura', esc(t.operador)) + fato('Troco inicial', moeda(t.trocoInicial)) +
+          fato('Vendas', t.vendas.length + ' · ' + moeda(totalVendas)) + fato('Sangrias', moeda(somaMov(t, 'sangria'))) + fato('Reforços', moeda(somaMov(t, 'reforco'))) +
+        '</div>' +
+        '<div class="section-title">Resumo por forma de recebimento</div>';
+      const vendasNa = (chave) => t.vendas.filter(v => v.recebimentos.some(r => r.chave === chave)).length;
       // `pdvFechamentoCego`: com o turno aberto, o esperado por forma nao aparece — senao a contagem vira copia.
       if (fechado) {
-        corpo += '<div class="section-title">Resumo por forma de recebimento</div>' +
-          '<table class="pdv-parcelas"><thead><tr><th>Forma</th><th>Esperado</th><th>Contado</th><th>Diferença</th></tr></thead><tbody>' +
-          esperadoPorForma(t).map(l => { const c = (t.contado || {})[l.chave] || 0; return '<tr><td>' + esc(l.nome) + '</td><td>' + moeda(l.valor) + '</td><td>' + moeda(c) + '</td><td>' + moeda(arred(c - l.valor)) + '</td></tr>'; }).join('') +
+        corpo += '<table class="pdv-tab"><thead><tr><th>Forma de recebimento</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferença</th></tr></thead><tbody>' +
+          esperadoPorForma(t).map(l => { const c = (t.contado || {})[l.chave] || 0; return '<tr><td>' + esc(l.nome) + '</td><td class="num">' + moeda(l.valor) + '</td><td class="num">' + moeda(c) + '</td><td class="num">' + moeda(arred(c - l.valor)) + '</td></tr>'; }).join('') +
           '</tbody></table>' + (t.forcado ? '<div class="pdv-nota alerta">Fechado <b>com diferença de ' + moeda(t.diferenca) + '</b>, liberado com senha.</div>' : '');
       } else if (PARAM.pdvFechamentoCego) {
-        corpo += '<div class="pdv-nota">O valor esperado por forma <b>não aparece com o caixa aberto</b>: o fechamento é cego. Ele aparece aqui depois de fechado, ao lado do que foi contado.</div>';
+        corpo += '<table class="pdv-tab"><thead><tr><th>Forma de recebimento</th><th class="num">Vendas</th></tr></thead><tbody>' +
+          esperadoPorForma(t).map(l => '<tr><td>' + esc(l.nome) + '</td><td class="num">' + vendasNa(l.chave) + '</td></tr>').join('') + '</tbody></table>' +
+          '<div class="pdv-nota">O valor esperado por forma <b>não aparece com o caixa aberto</b>: o fechamento é cego. Ele aparece aqui depois de fechado, ao lado do que foi contado.</div>';
       } else {
-        corpo += '<div class="section-title">Resumo por forma de recebimento</div>' +
-          esperadoPorForma(t).map(l => linhaChave(esc(l.nome), moeda(l.valor))).join('');
+        corpo += '<table class="pdv-tab"><thead><tr><th>Forma de recebimento</th><th class="num">Vendas</th><th class="num">Valor</th></tr></thead><tbody>' +
+          esperadoPorForma(t).map(l => '<tr><td>' + esc(l.nome) + (l.chave === 'dinheiro' ? '<span class="pdv-tab-sub">troco inicial + vendas − sangrias + reforços</span>' : '') + '</td><td class="num">' + vendasNa(l.chave) + '</td><td class="num">' + moeda(l.valor) + '</td></tr>').join('') +
+          '</tbody></table>';
       }
     } else if (abaCaixa === 'mov') {
-      corpo += t.movimentos.length
-        ? t.movimentos.map(m => '<div class="pdv-gerado"><span class="pdv-gerado-ponto"></span><span><b>' + (m.tipo === 'sangria' ? 'Sangria' : 'Reforço') + ' de ' + moeda(m.valor) + '</b> às ' + hhmm(new Date(m.quando)) +
-            (m.tipo === 'sangria' ? ', para ' : ', vindo de ') + esc(contaDe(m.contaId).nome) + '. ' + esc(m.motivo) + '</span></div>').join('')
-        : '<div class="pdv-sug-vazio">Nenhuma sangria nem reforço neste turno.</div>';
+      corpo += '<div class="pdv-fatos">' + fato('Sangrias', moeda(somaMov(t, 'sangria'))) + fato('Reforços', moeda(somaMov(t, 'reforco'))) + fato('Lançamentos', String(t.movimentos.length)) + '</div>' +
+        (doTurnoAberto ? '<div class="pdv-painel-acoes"><button class="btn-secundario" data-mov-painel="sangria">Lançar sangria</button><button class="btn-secundario" data-mov-painel="reforco">Lançar reforço</button></div>' : '') +
+        (t.movimentos.length
+          ? '<table class="pdv-tab"><thead><tr><th>Hora</th><th>Tipo</th><th>Conta</th><th>Motivo</th><th class="num">Valor</th></tr></thead><tbody>' +
+            t.movimentos.slice().reverse().map(m => '<tr><td>' + hhmm(new Date(m.quando)) + '</td><td>' + (m.tipo === 'sangria' ? 'Sangria' : 'Reforço') + '</td>' +
+              '<td>' + (m.tipo === 'sangria' ? 'para ' : 'de ') + esc(contaDe(m.contaId).nome) + '</td><td>' + esc(m.motivo) + '</td><td class="num">' + (m.tipo === 'sangria' ? '− ' : '+ ') + moeda(m.valor) + '</td></tr>').join('') +
+            '</tbody></table>'
+          : '<div class="pdv-sug-vazio">Nenhuma sangria nem reforço neste turno.</div>');
     } else {
       corpo += t.vendas.length
-        ? t.vendas.slice().reverse().map(v => '<div class="pdv-gerado"><span class="pdv-gerado-ponto"></span><span><b>Venda nº ' + v.numero + ' · ' + moeda(v.total) + '</b> às ' + hhmm(new Date(v.quando)) + ', para ' + esc(v.clienteNome) + '. ' +
-            v.recebimentos.map(r => esc(r.nome) + ' ' + moeda(r.valor)).join(' · ') + '</span></div>').join('')
+        ? '<table class="pdv-tab"><thead><tr><th>Venda</th><th>Cliente</th><th>Recebimento</th><th class="num">Total</th><th></th></tr></thead><tbody>' +
+          t.vendas.slice().reverse().map(v => '<tr><td>Venda nº ' + v.numero + '<span class="pdv-tab-sub">' + hhmm(new Date(v.quando)) + (v.vendedorNome ? ' · ' + esc(v.vendedorNome) : '') + '</span></td>' +
+            '<td>' + esc(v.clienteNome) + '</td>' +
+            '<td>' + v.recebimentos.map(r => esc(r.nome) + (r.vezes > 1 ? ' ' + r.vezes + 'x' : '') + ' ' + moeda(cobradoNo(r))).join('<br>') + '</td>' +
+            '<td class="num">' + moeda(v.total) + '</td><td class="num"><span class="pdv-tab-link" data-recibo-venda="' + v.numero + '">recibo</span></td></tr>').join('') +
+          '</tbody></table>'
         : '<div class="pdv-sug-vazio">Nenhuma venda neste turno ainda.</div>';
     }
     html('caixaCorpo', corpo);
+    document.querySelectorAll('#caixaCorpo [data-mov-painel]').forEach(b => b.addEventListener('click', () => abrirMovimento(b.getAttribute('data-mov-painel'))));
+    document.querySelectorAll('#caixaCorpo [data-recibo-venda]').forEach(l => l.addEventListener('click', () => {
+      const v = t.vendas.filter(x => x.numero === Number(l.getAttribute('data-recibo-venda')))[0];
+      if (v) imprimir(folhaRecibo(v, false));
+    }));
     mostrar('btnFecharCaixaPainel', !fechado);
     texto('btnReimprimirTurno', fechado ? 'Imprimir comprovante de fechamento' : 'Imprimir comprovante de abertura');
   }
@@ -3305,8 +3441,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     c += '<div class="pdv-folha-sep"></div>' + folhaLinha('Qtde. total de itens', String(v.itens.length));
     // Recibo para troca nao leva valor: quem recebe o presente nao precisa saber quanto custou.
     if (!paraTroca) {
-      c += folhaLinha('Valor total', moeda(v.subtotal)) + folhaLinha('Desconto', moeda(v.desconto)) + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
-        v.recebimentos.map(r => r.destino === 'titulo'
+      c += folhaLinha('Valor total', moeda(v.subtotal)) + folhaLinha('Desconto', moeda(v.desconto)) +
+        (v.acrescimo > 0 ? folhaLinha('Acréscimo do cartão', moeda(v.acrescimo)) : '') + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
+        // No cartao o cliente nao tem vencimento: o recibo diz em quantas vezes passou, nao quando a operadora paga a loja.
+        v.recebimentos.map(r => r.prazoFixo ? folhaLinha(esc(r.nome) + (r.vezes > 1 ? ' · ' + r.vezes + 'x' : '') + ' · ' + dataBr(d), moeda(cobradoNo(r)))
+          : r.destino === 'titulo'
           ? r.parcelas.map(x => folhaLinha(esc(r.nome) + ' · venc. ' + dataBr(maisDias(d, x.dias)), moeda(x.valor))).join('')
           : folhaLinha(esc(r.nome) + ' · ' + dataBr(d), moeda(r.valor))).join('') +
         (v.troco > 0 ? folhaLinha('Troco', moeda(v.troco)) : '');
@@ -3383,20 +3522,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnForcarFechamento').addEventListener('click', () => confirmarFechamento(true));
 
   // ===== MAIS AÇÕES =====
-  const menuMais = document.getElementById('menuMaisAcoes');
-  inicializarDropdownSelect(menuMais, null);
-  menuMais.querySelectorAll('.dropdown-select-item').forEach(function (item) {
-    item.addEventListener('click', function () {
-      menuMais.classList.remove('open');
+  // Menu de ACOES, nao de escolha: o rotulo do botao e sempre "Mais acoes" e nenhum item fica
+  // marcado. Por isso nao usa inicializarDropdownSelect, que troca o rotulo pelo item clicado
+  // (foi o defeito visto pelo usuario em 09/out). Mesmo desenho do Mais acoes das outras telas.
+  (function bindMenuMaisAcoes() {
+    const raiz = document.getElementById('menuMaisAcoes');
+    const btn = raiz.querySelector('.dropdown-select-btn');
+    const menu = raiz.querySelector('.dropdown-select-menu');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+      if (!menu.classList.contains('open')) {
+        // mede o espaco abaixo antes de abrir, igual a todo dropdown do sistema
+        menu.classList.remove('abrir-para-cima');
+        const r = btn.getBoundingClientRect();
+        menu.classList.add('open');
+        const alt = menu.offsetHeight;
+        menu.classList.remove('open');
+        if (r.bottom + alt + 12 > window.innerHeight && r.top - alt - 12 > 0) menu.classList.add('abrir-para-cima');
+      }
+      menu.classList.toggle('open');
+    });
+    menu.querySelectorAll('.dropdown-select-item').forEach(item => item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.remove('open');
       const acao = item.getAttribute('data-acao');
       if (acao === 'sangria') abrirMovimento('sangria');
       else if (acao === 'reforco') abrirMovimento('reforco');
       else if (acao === 'cancelar') cancelarVenda();
       else if (acao === 'atalhos') abrirPainel('atalhosDrawer');
-      else if (acao === 'fechar') abrirFechamento();
       else if (acao === 'ultima') { if (ultimaVenda) imprimir(folhaRecibo(ultimaVenda, false)); else avisar('Ainda não há venda finalizada neste navegador para reimprimir.'); }
-    });
-  });
+    }));
+  })();
+  document.getElementById('btnFecharCaixaTopo').addEventListener('click', abrirFechamento);
 
   // ---------- atalhos de teclado ----------
   // Rodam na captura, depois do Esc dos dropdowns (que e mais antigo). Com o
