@@ -118,6 +118,9 @@ with sync_playwright() as pw:
     ok(pg.locator('.cel-sep[data-i="1"]').inner_text().strip().lower() == 'oculta',
        'e continua sem dizer QUANTO — senao ajustar ate o sistema calar e trivial')
     ok(pg.locator('#validar-1').is_visible(), 'aparece a decisao: recontar ou bancar')
+    # 09/out: o botao dizia "Banco a contagem"; o usuario pediu outro nome.
+    ok(pg.locator('[data-bancar="1"]').inner_text() == 'Confirmar contagem' and 'confirme o que você contou' in pg.locator('#validar-1').inner_text(),
+       'e o botao diz o que faz: confirmar a contagem')
     ok(not pg.locator('#motivo-1').is_visible(), 'o motivo so entra depois da decisao')
 
     # ---------------------------------------------------------------- 6
@@ -138,6 +141,18 @@ with sync_playwright() as pw:
     ok(pg.locator('#motivo-1').is_visible(), 'o motivo passa a ser obrigatorio')
     ok(pg.evaluate("() => document.getElementById('motivo-1').classList.contains('campo-pendente')"),
        'e aparece marcado como pendente ate alguem escolher')
+    # 09/out: o menu do motivo abria DENTRO da tabela, que o cortava e ganhava barra de rolagem
+    # (print do usuario). A assercao e a do dedo: cada opcao tem de estar por cima no ponto dela.
+    pg.click('#motivo-1 .dropdown-select-btn'); pg.wait_for_timeout(250)
+    alcance = pg.evaluate("""() => { const m = document.querySelector('#motivo-1 .dropdown-select-menu'), w = document.querySelector('.itens-table-wrap');
+        const itens = Array.from(m.querySelectorAll('.dropdown-select-item'));
+        return { aberto: m.classList.contains('open'), itens: itens.length, rola: w.scrollHeight - w.clientHeight,
+                 toca: itens.every(it => { const r = it.getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e === it || it.contains(e); }) }; }""")
+    ok(alcance['aberto'] and alcance['itens'] >= 2 and alcance['toca'] and alcance['rola'] <= 1,
+       'o menu do motivo abre inteiro, por cima da tabela, sem barra de rolagem dentro dela: %s' % alcance)
+    pg.mouse.wheel(0, 120); pg.wait_for_timeout(250)
+    ok(pg.locator('#motivo-1 .dropdown-select-menu.open').count() == 0, 'e rolar a tela fecha o menu, para ele nao ficar solto')
+    pg.evaluate('window.scrollTo(0, 0)'); pg.wait_for_timeout(150)
 
     # ---------------------------------------------------------------- 7
     print('\n7. MEXER NA CONTAGEM DEPOIS DE BANCAR REABRE A DECISAO')

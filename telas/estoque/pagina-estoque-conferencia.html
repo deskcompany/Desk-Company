@@ -2163,6 +2163,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           menu.style.visibility = '';
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
           menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+          // Dropdown dentro de tabela com rolagem (09/out): a tabela cortava o menu e ganhava uma
+          // barra de rolagem propria. Ali o menu sai do fluxo e ancora no botao; rolar a tela fecha.
+          if (raiz.closest('.itens-table-wrap')) {
+            const r = btn.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.left = r.left + 'px'; menu.style.right = 'auto';
+            menu.style.minWidth = r.width + 'px';
+            menu.style.top = (espacoAbaixo < alturaMenu + 12 ? r.top - alturaMenu - 6 : r.bottom + 6) + 'px';
+            menu.style.bottom = 'auto';
+          }
         }
         menu.classList.toggle('open');
       });
@@ -2184,6 +2194,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
+  // Menu ancorado no botao nao acompanha a rolagem: rolar a tela (nao o proprio menu) fecha.
+  window.addEventListener('scroll', (e) => {
+    if (e.target.closest && e.target.closest('.dropdown-select-menu')) return;
+    document.querySelectorAll('.itens-table-wrap .dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
+  }, true);
 
 
   // "Ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio.

@@ -1303,7 +1303,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
     // que nasce pedindo senha — reabrir uma conferencia ja faturada.
     { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
-    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Confirmar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
     { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
     { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
@@ -1824,10 +1824,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="cel-dif" data-i="' + i + '"></td>' +
         '<td class="col-texto cel-motivo" data-i="' + i + '">' +
           '<div class="validar-bloco" id="validar-' + i + '" style="display:none;">' +
-            '<div class="validar-hint">A contagem não bateu. Reconte ou banque o que você contou.</div>' +
+            '<div class="validar-hint">A contagem não bateu. Reconte ou confirme o que você contou.</div>' +
             '<div class="validar-botoes">' +
               '<button type="button" class="btn-mini" data-recontar="' + i + '">Recontar</button>' +
-              '<button type="button" class="btn-mini destaque" data-bancar="' + i + '">Banco a contagem</button>' +
+              '<button type="button" class="btn-mini destaque" data-bancar="' + i + '">Confirmar contagem</button>' +
             '</div>' +
           '</div>' +
           '<div class="dropdown-select motivo-select" id="motivo-' + i + '" data-value="" style="display:none;">' +
@@ -1877,7 +1877,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         // Bancar a contagem e a decisao que faz a divergencia existir de verdade:
         // vai mexer no valor da nota e nascer um acerto. Fica no registro.
         armarSenhaModal('confSaidaDivergencia');
-        abrirModalConfirmacao('Você está bancando a sua contagem de ' + ITENS[i].nome + '. A diferença aparece agora, a nota passa a sair pela quantidade que você contou, e o que faltar fica bloqueado para venda ao fechar a conferência, aguardando auditoria em Estoque → Itens Bloqueados.',
+        abrirModalConfirmacao('Você está confirmando a sua contagem de ' + ITENS[i].nome + '. A diferença aparece agora, a nota passa a sair pela quantidade que você contou, e o que faltar fica bloqueado para venda ao fechar a conferência, aguardando auditoria em Estoque → Itens Bloqueados.',
           1, 'primary', () => {
             ITENS[i].bancou = true;
             atualizarLinha(i); atualizarResumo();
@@ -2151,7 +2151,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const pendentes = ITENS.filter(aguardandoValidacao);
     if (pendentes.length) {
       avisar('Há ' + pendentes.length + (pendentes.length === 1 ? ' item com divergência' : ' itens com divergência') +
-        ' esperando sua decisão: recontar ou bancar a contagem. Enquanto isso não for respondido, a nota não tem quantidade definida.');
+        ' esperando sua decisão: recontar ou confirmar a contagem. Enquanto isso não for respondido, a nota não tem quantidade definida.');
       return;
     }
     const semMotivo = ITENS.filter(i => temDivergencia(i) && !i.motivo);
@@ -2336,6 +2336,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           menu.style.visibility = '';
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
           menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+          // Dropdown dentro de tabela com rolagem (09/out): a tabela cortava o menu e ganhava uma
+          // barra de rolagem propria. Ali o menu sai do fluxo e ancora no botao; rolar a tela fecha.
+          if (raiz.closest('.itens-table-wrap')) {
+            const r = btn.getBoundingClientRect();
+            menu.style.position = 'fixed';
+            menu.style.left = r.left + 'px'; menu.style.right = 'auto';
+            menu.style.minWidth = r.width + 'px';
+            menu.style.top = (espacoAbaixo < alturaMenu + 12 ? r.top - alturaMenu - 6 : r.bottom + 6) + 'px';
+            menu.style.bottom = 'auto';
+          }
         }
         menu.classList.toggle('open');
       });
@@ -2357,6 +2367,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   }
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
+  // Menu ancorado no botao nao acompanha a rolagem: rolar a tela (nao o proprio menu) fecha.
+  window.addEventListener('scroll', (e) => {
+    if (e.target.closest && e.target.closest('.dropdown-select-menu')) return;
+    document.querySelectorAll('.itens-table-wrap .dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
+  }, true);
 
 
   // "Ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio.

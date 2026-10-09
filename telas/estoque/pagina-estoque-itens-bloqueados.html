@@ -682,25 +682,55 @@
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
   /* Itens Bloqueados (09/out/2026) */
-  .bq-produto { padding-bottom:12px; margin-bottom:2px; border-bottom:1px solid var(--border); }
-  .bq-opcoes { display:grid; gap:8px; }
+  #eventDrawer { width:560px; right:-580px; }
+  #eventDrawer.open { right:0; }
   .event-drawer .extrato-valor { text-align:right; }
   #corpoResolvidos tr { cursor:default; }
   .estoque-table td.col-texto .prod-sku { white-space:normal; }
   .form-field textarea { width:100%; min-height:72px; resize:vertical; font-family:'Nunito',sans-serif; font-size:13.5px; line-height:1.5; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
   .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
-  /* opcao de escolha unica: o mesmo radio de Cadastros > Vendedores */
-  .radio-option { display:flex; align-items:flex-start; gap:10px; padding:12px 14px; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; border:1px solid var(--border); border-radius:10px; background:var(--page-bg); }
-  .radio-option b { display:block; font-weight:800; }
-  .radio-option small { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
-  .radio-option input[type="radio"] {
-    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%; margin:2px 0 0;
-    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
-  }
-  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
-  .radio-option input[type="radio"]:checked::after {
-    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
-  }
+  .form-field.has-error textarea { border-color:var(--danger); }
+  /* cabecalho dos paineis: produto, etiqueta e a faixa de fatos */
+  .bq-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .bq-nome { font-size:16px; font-weight:800; color:var(--text-heading); line-height:1.3; }
+  .bq-fatos { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin:14px 0 4px; }
+  .bq-fatos-2 { grid-template-columns:repeat(2, minmax(0, 1fr)); margin-bottom:18px; }
+  .bq-fato { border:1px solid var(--border); border-radius:10px; background:var(--page-bg); padding:10px 12px; min-width:0; }
+  .bq-fato b { display:block; font-size:14.5px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  .bq-rot { display:block; font-size:11px; font-weight:700; color:var(--text); margin-top:2px; overflow-wrap:anywhere; }
+  .bq-abas { margin:14px 0 6px; }
+  /* resolver: a quantidade repartida entre as duas saidas */
+  .bq-triagem { border:1px solid var(--border); border-radius:10px; background:var(--page-bg); }
+  .bq-tri-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 14px; border-top:1px solid var(--border); }
+  .bq-tri-linha:first-child { border-top:none; }
+  .bq-tri-linha b { font-size:13.5px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .bq-tri-linha small { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .bq-tri-campo { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .bq-tri-campo input { width:78px; text-align:right; font-family:'Nunito',sans-serif; font-size:13.5px; font-variant-numeric:tabular-nums; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 10px; outline:none; }
+  .bq-tri-campo input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .bq-tri-linha.has-error input { border-color:var(--danger); }
+  .bq-proj { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .bq-proj th { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); text-align:right; padding:0 0 6px; }
+  .bq-proj td { padding:8px 0; border-top:1px solid var(--border); text-align:right; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .bq-proj td:first-child { text-align:left; color:var(--text); }
+  .bq-proj td.muda { font-weight:800; color:var(--active-text); }
+  /* saida que depende de NF-e: visivel e sem acao, como os campos fiscais */
+  .bq-reservado { margin-top:14px; padding:11px 14px; border:1px dashed var(--border); border-radius:10px; }
+  .bq-reservado b { display:block; font-size:13px; font-weight:800; color:var(--text); }
+  .bq-reservado small { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .bq-neutro { background:rgba(120,120,140,0.14); color:var(--text); }
+  .bq-link { display:inline-block; margin-top:14px; font-size:13px; font-weight:700; color:var(--active-text); text-decoration:none; }
+  /* busca padrao de produto: a mesma do Acerto de Estoque */
+  .event-drawer .search-wrap { max-width:none; }
+  .form-field .search-wrap input[type="text"] { background:var(--page-bg); border-radius:20px; padding:9px 14px 9px 34px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
 </style>
 </head>
 <body class="dark">
@@ -1669,24 +1699,60 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { v: 'deterioracao', l: 'Deterioração ou vencimento', fiscal: 'interno' },
     { v: 'erro_lancamento', l: 'Correção de lançamento', fiscal: 'nenhum' }
   ];
-  // Espelho de Controle de Estoques: o bloqueio manual e lancado na pagina do produto,
-  // que e onde estao o saldo e o endereco de cada deposito.
-  const PRODUTOS_ESPELHO = [
-    { id: 1, sku: 'CAD-ERG-001', nome: 'Cadeira Ergonômica Pro' },
-    { id: 2, sku: 'MES-SLM-002', nome: 'Mesa Escritório Slim' },
-    { id: 3, sku: 'SUP-MON-003', nome: 'Suporte Monitor Duplo' },
-    { id: 4, sku: 'LUM-LED-004', nome: 'Luminária LED Ajustável' },
-    { id: 5, sku: 'KIT-HOF-005', nome: 'Kit Home Office Completo' },
-    { id: 6, sku: 'TEC-MEC-006', nome: 'Teclado Mecânico Desk' },
-    { id: 7, sku: 'MAT-MDF-007', nome: 'Chapa MDF 18mm' },
-    { id: 8, sku: 'MAT-TEC-008', nome: 'Tecido Sintético Preto' },
-    { id: 9, sku: 'CAB-HDM-009', nome: 'Cabo HDMI 2.1 · 2m' },
-    { id: 10, sku: 'KIT-MNT-010', nome: 'Kit Manutenção Desk Tech' },
-    { id: 11, sku: 'CAM-DKB-011', nome: 'Camiseta Desk Brands · P' },
-    { id: 12, sku: 'CAM-DKB-012', nome: 'Camiseta Desk Brands · M' },
-    { id: 13, sku: 'FON-BLT-013', nome: 'Fone Bluetooth Desk One' },
-    { id: 14, sku: 'MAT-PAR-014', nome: 'Parafuso M6 · 100un' },
-    { id: 15, sku: 'MON-27I-015', nome: 'Monitor Desk 27" IPS' }
+  // Espelho de Controle de Estoques (PRODUTOS e BASES): o saldo de cada produto por deposito,
+  // endereco e estagio. E dele que sai o que ainda esta livre para bloquear e o retrato do
+  // produto que o painel de resolver mostra. A suite compara com a pagina do produto.
+  const PRODUTOS = [
+    { id: 1, sku: 'CAD-ERG-001', nome: 'Cadeira Ergonômica Pro', gtin: '7891234000011', un: 'UN', custo: 742.3,
+      saldos: [{ dep: 2, endereco: 'A-01-1-03', tipoEnd: 'picking', estagio: 'disponivel', qtd: 15 }, { dep: 2, endereco: 'P-02-3-01', tipoEnd: 'pulmao', estagio: 'disponivel', qtd: 6 }, { dep: 3, endereco: 'L-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 3 }] },
+    { id: 2, sku: 'MES-SLM-002', nome: 'Mesa Escritório Slim', gtin: '7891234000028', un: 'UN', custo: 512.75,
+      saldos: [{ dep: 2, endereco: 'A-03-2-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 4 }, { dep: 2, endereco: null, tipoEnd: null, estagio: 'em_conferencia', qtd: 6 }] },
+    { id: 3, sku: 'SUP-MON-003', nome: 'Suporte Monitor Duplo', gtin: '7891234000035', un: 'UN', custo: 138.4,
+      saldos: [{ dep: 4, endereco: 'B-02', tipoEnd: 'picking', estagio: 'disponivel', qtd: 2 }] },
+    { id: 4, sku: 'LUM-LED-004', nome: 'Luminária LED Ajustável', gtin: '7891234000042', un: 'UN', custo: 86.2,
+      saldos: [{ dep: 1, endereco: null, tipoEnd: null, estagio: 'a_enderecar', qtd: 7 }] },
+    { id: 5, sku: 'KIT-HOF-005', nome: 'Kit Home Office Completo', gtin: '7891234000059', un: 'UN', custo: 1398,
+      saldos: [{ dep: 2, endereco: 'B-02-1-04', tipoEnd: 'picking', estagio: 'disponivel', qtd: 4 }, { dep: 2, endereco: 'AV-01', tipoEnd: 'avaria', estagio: 'bloqueado', qtd: 1 }] },
+    { id: 6, sku: 'TEC-MEC-006', nome: 'Teclado Mecânico Desk', gtin: '7891234000066', un: 'UN', custo: 231.1,
+      saldos: [{ dep: 2, endereco: 'A-05-1-02', tipoEnd: 'picking', estagio: 'disponivel', qtd: 6 }, { dep: 2, endereco: 'P-01-2-05', tipoEnd: 'pulmao', estagio: 'disponivel', qtd: 28 }, { dep: 4, endereco: 'B-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 6 }] },
+    { id: 7, sku: 'MAT-MDF-007', nome: 'Chapa MDF 18mm', gtin: '7891234000073', un: 'M2', custo: 214.5,
+      saldos: [{ dep: 2, endereco: 'PAT-02', tipoEnd: 'pulmao', estagio: 'disponivel', qtd: 128.5 }] },
+    { id: 8, sku: 'MAT-TEC-008', nome: 'Tecido Sintético Preto', gtin: '7891234000080', un: 'M', custo: 62,
+      saldos: [{ dep: 2, endereco: 'A-10-1-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 12 }] },
+    { id: 9, sku: 'CAB-HDM-009', nome: 'Cabo HDMI 2.1 · 2m', gtin: '7891234000097', un: 'UN', custo: 32.4,
+      saldos: [{ dep: 1, endereco: 'G-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 61 }, { dep: 5, endereco: 'VIT-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 4 }] },
+    { id: 10, sku: 'KIT-MNT-010', nome: 'Kit Manutenção Desk Tech', gtin: '7891234000103', un: 'UN', custo: 180.9,
+      saldos: [{ dep: 4, endereco: 'B-03', tipoEnd: 'picking', estagio: 'disponivel', qtd: 9 }] },
+    { id: 11, sku: 'CAM-DKB-011', nome: 'Camiseta Desk Brands · P', gtin: '7891234000110', un: 'UN', custo: 41.8,
+      saldos: [{ dep: 2, endereco: 'C-01-1-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 22 }, { dep: 5, endereco: 'AR-02', tipoEnd: 'picking', estagio: 'disponivel', qtd: 6 }] },
+    { id: 12, sku: 'CAM-DKB-012', nome: 'Camiseta Desk Brands · M', gtin: '7891234000127', un: 'UN', custo: 41.8,
+      saldos: [{ dep: 2, endereco: 'C-01-1-02', tipoEnd: 'picking', estagio: 'disponivel', qtd: 0 }] },
+    { id: 13, sku: 'FON-BLT-013', nome: 'Fone Bluetooth Desk One', gtin: '7891234000134', un: 'UN', custo: 176.6,
+      saldos: [{ dep: 1, endereco: 'G-05', tipoEnd: 'picking', estagio: 'disponivel', qtd: -2 }] },
+    { id: 14, sku: 'MAT-PAR-014', nome: 'Parafuso M6 · 100un', gtin: '7891234000141', un: 'CX', custo: 18.9,
+      saldos: [{ dep: 2, endereco: 'G-07', tipoEnd: 'picking', estagio: 'disponivel', qtd: 44 }] },
+    { id: 15, sku: 'MON-27I-015', nome: "Monitor Desk 27\" IPS", gtin: '7891234000158', un: 'UN', custo: 1120,
+      saldos: [{ dep: 2, endereco: 'D-04-2-01', tipoEnd: 'picking', estagio: 'disponivel', qtd: 2 }, { dep: 2, endereco: null, tipoEnd: null, estagio: 'a_enderecar', qtd: 5 }, { dep: 2, endereco: 'AV-02', tipoEnd: 'avaria', estagio: 'bloqueado', qtd: 2 }, { dep: 2, endereco: null, tipoEnd: null, estagio: 'em_conferencia', qtd: 4 }] }
+  ];
+  const BASES = [
+    { produto: 1, dep: 2, endereco: 'A-01-1-03' },
+    { produto: 1, dep: 3, endereco: 'L-01' },
+    { produto: 2, dep: 2, endereco: 'A-03-2-01' },
+    { produto: 3, dep: 4, endereco: 'B-02' },
+    { produto: 5, dep: 2, endereco: 'B-02-1-04' },
+    { produto: 6, dep: 2, endereco: 'A-05-1-02' },
+    { produto: 6, dep: 4, endereco: 'B-01' },
+    { produto: 7, dep: 2, endereco: 'PAT-02' },
+    { produto: 8, dep: 2, endereco: 'A-10-1-01' },
+    { produto: 9, dep: 1, endereco: 'G-01' },
+    { produto: 9, dep: 5, endereco: 'VIT-01' },
+    { produto: 10, dep: 4, endereco: 'B-03' },
+    { produto: 11, dep: 2, endereco: 'C-01-1-01' },
+    { produto: 11, dep: 5, endereco: 'AR-02' },
+    { produto: 12, dep: 2, endereco: 'C-01-1-02' },
+    { produto: 13, dep: 1, endereco: 'G-05' },
+    { produto: 14, dep: 2, endereco: 'G-07' },
+    { produto: 15, dep: 2, endereco: 'D-04-2-01' }
   ];
 
   // ---------- auxiliares ----------
@@ -1733,7 +1799,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         { id: 6, sku: 'TEC-MEC-006', produto: 'Teclado Mecânico Desk', un: 'UN', dep: 2, endereco: 'A-05-1-02', tipoEnd: 'picking', base: 'A-05-1-02', qtd: 2, custo: 231.10,
           motivo: 'analise', origem: 'manual', doc: '', quando: diasAtras(1), quem: 'Fernanda Lima', obs: 'Teclas falhando no teste de bancada.' },
         { id: 7, sku: 'CAM-DKB-011', produto: 'Camiseta Desk Brands · P', un: 'UN', dep: 2, endereco: 'C-01-1-01', tipoEnd: 'picking', base: 'C-01-1-01', qtd: 8, custo: 41.80,
-          motivo: 'decisao', origem: 'manual', doc: '', quando: diasAtras(12), quem: 'Administrador Desk', obs: 'Lote com estampa fora do padrão: travado até a marca decidir se reimprime.' }
+          motivo: 'decisao', origem: 'manual', doc: '', quando: diasAtras(12), quem: 'Administrador Desk', obs: 'Lote com estampa fora do padrão: travado até a marca decidir se reimprime.',
+          notas: [{ quando: diasAtras(7), quem: 'Administrador Desk', titulo: 'Anotação', texto: 'Marca acionada por e-mail; resposta prometida para a próxima semana.' }] }
       ],
       resolvidos: [
         { id: 2, sku: 'MES-SLM-002', produto: 'Mesa Escritório Slim', un: 'UN', dep: 2, qtd: 1, custo: 512.75, motivo: 'falta', origem: 'conferencia_saida', doc: 'Pedido #19',
@@ -1767,7 +1834,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ITENS.push({ id: ESTADO.proxId++, sku: String(b.sku), produto: String(b.produto || b.sku), un: String(b.un || 'UN'), dep: Number(b.dep) || null,
         endereco: b.endereco || null, tipoEnd: b.tipoEnd || null, base: b.base || null, qtd: qtd, custo: Number(b.custo) || null,
         motivo: b.motivo, origem: ORIGENS[b.origem] ? b.origem : 'manual', doc: String(b.doc || ''),
-        quando: /^\d{4}-\d{2}-\d{2}$/.test(b.quando) ? b.quando : HOJE_ISO, quem: String(b.quem || ''), obs: String(b.obs || '') });
+        quando: /^\d{4}-\d{2}-\d{2}$/.test(b.quando) ? b.quando : HOJE_ISO, quem: String(b.quem || ''), obs: String(b.obs || ''),
+        saiuDe: b.saiuDe === undefined ? undefined : (b.saiuDe || null) });
       chegou++;
     });
     try { localStorage.removeItem(CHAVE_ENTRADA); } catch (e) { /* sem armazenamento nao ha caixa para esvaziar */ }
@@ -1954,10 +2022,40 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function linhaFato(rotulo, valor) {
     return '<div class="extrato-linha"><span class="extrato-rotulo">' + rotulo + '</span><span class="extrato-valor">' + valor + '</span></div>';
   }
-  function dropdownHtml(id, vazio, itens) {
-    return '<div class="dropdown-select" id="' + id + '" data-value=""><button type="button" class="dropdown-select-btn form-style">' +
-      '<span class="dropdown-select-label">' + vazio + '</span>' + SETA + '</button><div class="dropdown-select-menu">' +
-      itens.map(o => '<div class="dropdown-select-item" data-value="' + o.v + '">' + esc(o.t) + '</div>').join('') + '</div></div>';
+  function dropdownHtml(id, vazio, itens, atual) {
+    const escolhido = itens.filter(o => String(o.v) === String(atual))[0];
+    return '<div class="dropdown-select" id="' + id + '" data-value="' + (escolhido ? escolhido.v : '') + '"><button type="button" class="dropdown-select-btn form-style">' +
+      '<span class="dropdown-select-label">' + (escolhido ? esc(escolhido.t) : vazio) + '</span>' + SETA + '</button><div class="dropdown-select-menu">' +
+      itens.map(o => '<div class="dropdown-select-item' + (o === escolhido ? ' active' : '') + '" data-value="' + o.v + '">' + esc(o.t) + '</div>').join('') + '</div></div>';
+  }
+
+  // ---------- saldo: o espelho diz o que existe, a fila diz o que esta travado ----------
+  const arred = (n) => Math.round(n * 1000) / 1000;
+  const produtoDe = (sku) => PRODUTOS.find(p => p.sku === sku) || null;
+  function baseDe(p, dep) { const b = BASES.find(x => x.produto === p.id && x.dep === dep); return b ? b.endereco : null; }
+  // De qual endereco a quantidade saiu ao ser bloqueada. O que nao e avaria ficou no proprio endereco.
+  function saiuDe(x) { return x.saiuDe !== undefined ? x.saiuDe : (x.motivo !== 'avaria' ? x.endereco : undefined); }
+  // O que ainda esta livre numa linha de saldo. O espelho nao muda, entao desconta-se o que a fila
+  // travou ali e o que ja foi baixado dali.
+  function livreEm(p, s) {
+    const dali = (x) => x.sku === p.sku && x.dep === s.dep && saiuDe(x) === s.endereco;
+    const fora = ITENS.filter(dali).reduce((t, x) => t + x.qtd, 0) +
+                 RESOLVIDOS.filter(r => r.desfecho === 'baixado' && dali(r)).reduce((t, r) => t + r.qtd, 0);
+    return Math.max(0, arred(s.qtd - fora));
+  }
+  // Reservado nunca entra: esta comprometido com pedido, e a falta dele se registra na Separacao.
+  function linhasLivres(p, dep) {
+    return p.saldos.filter(s => s.dep === dep && (s.estagio === 'disponivel' || s.estagio === 'a_enderecar'))
+      .map(s => ({ s: s, livre: livreEm(p, s) })).filter(x => x.livre > 0);
+  }
+  // Retrato do produto num deposito, para quem decide ver o efeito antes de confirmar.
+  function estoqueDe(sku, dep) {
+    const p = produtoDe(sku);
+    if (!p) return null;   // produto das telas de galpao, que tem outro cadastro de exemplo
+    const soma = (estagio) => p.saldos.filter(s => s.dep === dep && s.estagio === estagio).reduce((t, s) => t + livreEm(p, s), 0);
+    const disp = arred(soma('disponivel')), aEnd = arred(soma('a_enderecar'));
+    const bloq = arred(ITENS.filter(i => i.sku === sku && i.dep === dep).reduce((t, i) => t + i.qtd, 0));
+    return { disp: disp, aEnd: aEnd, bloq: bloq, fisico: arred(disp + aEnd + bloq) };
   }
 
   // Para onde vai o que e liberado. Bloqueio que nao e avaria ficou no proprio endereco, so travado:
@@ -1965,51 +2063,118 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // base de picking no deposito, ou fila de enderecar.
   function destinoDaLiberacao(i) {
     if (i.motivo !== 'avaria') {
-      return { onde: i.endereco, texto: i.endereco ? 'disponível, no mesmo endereço (' + i.endereco + ')' : 'disponível' };
+      return { onde: i.endereco, estagio: 'disp', texto: i.endereco ? 'disponível, no mesmo endereço (' + i.endereco + ')' : 'disponível' };
     }
-    if (i.base) return { onde: i.base, texto: 'disponível, na base de picking ' + i.base };
-    return { onde: 'a endereçar', texto: 'fila de endereçar, porque o produto não tem base de picking neste depósito. Só vende depois de ganhar endereço' };
+    if (i.base) return { onde: i.base, estagio: 'disp', texto: 'disponível, na base de picking ' + i.base };
+    return { onde: 'a endereçar', estagio: 'aEnd', texto: 'fila de endereçar, porque o produto não tem base de picking neste depósito. Só vende depois de ganhar endereço' };
   }
 
-  function abrirResolver(id) {
+  // Tudo que aconteceu com o bloqueio, do mais antigo para o mais novo: o bloqueio, as anotacoes
+  // e o que ja foi resolvido em parte.
+  function historicoDe(i) {
+    const partes = RESOLVIDOS.filter(r => r.bloqueio === i.id).slice().reverse();
+    const original = arred(i.qtd + partes.reduce((t, r) => t + r.qtd, 0));
+    const h = [{ quando: i.quando, quem: i.quem, tipo: 'bloqueio', titulo: 'Bloqueio de ' + qtdTexto(original, esc(i.un)),
+                 texto: ORIGENS[i.origem] + (i.doc ? ' · ' + esc(i.doc) : '') + (i.obs ? '. ' + esc(i.obs) : '') }];
+    (i.notas || []).forEach(n => h.push({ quando: n.quando, quem: n.quem, tipo: 'nota', titulo: esc(n.titulo), texto: esc(n.texto) }));
+    partes.forEach(r => h.push({ quando: r.quando, quem: r.quem, tipo: r.desfecho,
+      titulo: (r.desfecho === 'baixado' ? 'Baixa de ' : 'Liberação de ') + qtdTexto(r.qtd, esc(r.un)), texto: desfechoTexto(r) + (r.obs ? '. ' + esc(r.obs) : '') }));
+    return h;
+  }
+  const IC_HIST = {
+    bloqueio: IC_CADEADO,
+    nota: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+    liberado: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="20 6 9 17 4 12"/></svg>',
+    baixado: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+  };
+  const CLASSE_HIST = { bloqueio: 'bq-neutro', nota: 'bq-neutro', liberado: 'mov-entrada', baixado: 'mov-saida' };
+
+  // ---------- painel: resolver bloqueio ----------
+  // Tres abas. Resolver reparte a quantidade entre as duas saidas, de uma vez so (de 3 pecas, 2
+  // recuperadas e 1 perdida); Manter bloqueado corrige o motivo ou anota o andamento; Historico
+  // mostra o que ja aconteceu com aquela linha.
+  function abrirResolver(id, abaInicial) {
     const i = ITENS.find(x => x.id === id);
     if (!i) return;
-    const m = MOTIVOS_BLOQ[i.motivo], d = diasDe(i.quando);
-    const html =
-      '<div class="bq-produto"><div class="prod-nome">' + esc(i.produto) + '</div><div class="prod-sku">' + esc(i.sku) + '</div></div>' +
-      linhaFato('Bloqueado', '<span id="resBloqueado">' + qtdTexto(i.qtd, esc(i.un)) + '</span>') +
-      linhaFato('Motivo', '<span class="badge-situacao ' + m.classe + '">' + m.rotulo + '</span>') +
-      linhaFato('Onde está', esc(DEPOSITOS[i.dep] || '—') + ' · ' + ondeTexto(i)) +
-      linhaFato('De onde veio', ORIGENS[i.origem] + (i.doc ? ' · ' + esc(i.doc) : '')) +
-      linhaFato('Bloqueado em', fmtData(i.quando) + ' · há ' + textoDias(d) + (i.quem ? ' · ' + esc(i.quem) : '')) +
-      (i.obs ? '<div class="nota-reservado" style="margin:12px 0 0;">' + IC_CADEADO + '<span id="resObsOrigem">' + esc(i.obs) + '</span></div>' : '') +
-      '<div class="extrato-bloco-titulo">O que fazer</div>' +
-      '<div class="bq-opcoes">' +
-        '<label class="radio-option"><input type="radio" name="resAcao" value="liberar"><span><b>Liberar para venda</b><small>A quantidade volta para o disponível.</small></span></label>' +
-        '<label class="radio-option"><input type="radio" name="resAcao" value="baixar"><span><b>Dar baixa</b><small>Perda de fato: a quantidade sai do estoque.</small></span></label>' +
-      '</div>' +
-      '<div class="field-error-msg" id="erroAcao">Escolha o que fazer com o item.</div>' +
-      '<div id="resCampos" style="display:none; margin-top:18px;">' +
-        '<div class="form-field" id="wrapResQtd"><label for="resQtd">Quantidade</label>' +
-          '<input type="text" id="resQtd" inputmode="decimal" autocomplete="off">' +
-          '<div class="field-hint">De ' + qtdTexto(i.qtd, esc(i.un)) + ' bloqueadas. Menos que isso resolve só uma parte; o resto continua na fila.</div>' +
-          '<div class="field-error-msg" id="erroResQtd"></div></div>' +
-        '<div class="form-field" id="wrapCausa" style="display:none;"><label>O que a auditoria achou</label>' +
-          dropdownHtml('resCausa', 'Selecione a causa', Object.keys(CAUSAS_FALTA).map(k => ({ v: k, t: CAUSAS_FALTA[k] }))) +
-          '<div class="field-error-msg" id="erroCausa">Escolha a causa: é ela que diz de quem foi o erro.</div></div>' +
-        '<div class="form-field" id="wrapPerda" style="display:none;"><label>Motivo da perda</label>' +
-          dropdownHtml('resPerda', 'Selecione o motivo', MOTIVOS_BAIXA.map(x => ({ v: x.v, t: x.l }))) +
-          '<div class="field-error-msg" id="erroPerda">Escolha o motivo: é ele que decide a consequência fiscal.</div></div>' +
-        '<div class="form-field"><label for="resObs">Observações</label><textarea id="resObs" placeholder="Opcional" maxlength="300"></textarea></div>' +
-        '<div class="nota-reservado" style="margin:0;">' + IC_CADEADO + '<span id="resPrevia"></span></div>' +
-      '</div>' +
-      '<div class="drawer-footer"><button class="btn-primary" id="btnConfirmarResolver">Confirmar</button>' +
-        '<div class="drawer-link" id="btnFecharResolver">Fechar <span class="esc-hint">ESC</span></div></div>';
-    abrirDrawer('Resolver bloqueio', html);
+    const m = MOTIVOS_BLOQ[i.motivo], d = diasDe(i.quando), p = produtoDe(i.sku), un = esc(i.un);
+    const hist = historicoDe(i), est = estoqueDe(i.sku, i.dep);
+    const fato = (valor, rotulo, id2) => '<div class="bq-fato"><b' + (id2 ? ' id="' + id2 + '"' : '') + '>' + valor + '</b><span class="bq-rot">' + rotulo + '</span></div>';
+    const FECHAR = '<div class="drawer-link" data-fechar-painel>Fechar <span class="esc-hint">ESC</span></div>';
 
-    let acao = '', causa = '', perda = '';
-    const campoQtd = document.getElementById('resQtd');
-    campoQtd.value = fmtQtd(i.qtd, i.un);
+    const abaResolver =
+      linhaFato('De onde veio', ORIGENS[i.origem] + (i.doc ? ' · ' + esc(i.doc) : '')) +
+      linhaFato('Bloqueado em', fmtData(i.quando) + (i.quem ? ' · ' + esc(i.quem) : '')) +
+      (i.obs ? '<div class="nota-reservado" style="margin:12px 0 0;">' + IC_CADEADO + '<span>' + esc(i.obs) + '</span></div>' : '') +
+      '<div class="extrato-bloco-titulo">O que fazer com ' + qtdTexto(i.qtd, un) + '</div>' +
+      '<div class="bq-triagem">' +
+        '<div class="bq-tri-linha" id="wrapResLiberar"><div><b>Volta para a venda</b><small>Recuperado ou encontrado: fica disponível.</small></div>' +
+          '<div class="bq-tri-campo"><input type="text" id="resLiberar" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quantidade que volta para a venda">' +
+            '<span class="un-sufixo">' + un + '</span><button type="button" class="btn-mini" id="btnLiberarTudo">tudo</button></div></div>' +
+        '<div class="bq-tri-linha" id="wrapResBaixar"><div><b>Baixa por perda</b><small>Perda de fato: sai do estoque.</small></div>' +
+          '<div class="bq-tri-campo"><input type="text" id="resBaixar" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quantidade baixada por perda">' +
+            '<span class="un-sufixo">' + un + '</span><button type="button" class="btn-mini" id="btnBaixarTudo">tudo</button></div></div>' +
+        '<div class="bq-tri-linha"><div><b>Continua bloqueado</b><small>O que não for resolvido agora fica na fila.</small></div><b id="resResto"></b></div>' +
+      '</div>' +
+      '<div class="field-error-msg" id="erroTriagem"></div>' +
+      '<div class="form-field" id="wrapCausa" style="display:none; margin-top:16px;"><label>O que a auditoria achou</label>' +
+        dropdownHtml('resCausa', 'Selecione a causa', Object.keys(CAUSAS_FALTA).map(k => ({ v: k, t: CAUSAS_FALTA[k] }))) +
+        '<div class="field-error-msg" id="erroCausa">Escolha a causa: é ela que diz de quem foi o erro.</div></div>' +
+      '<div class="form-field" id="wrapPerda" style="display:none; margin-top:16px;"><label>Motivo da perda</label>' +
+        dropdownHtml('resPerda', 'Selecione o motivo', MOTIVOS_BAIXA.map(x => ({ v: x.v, t: x.l }))) +
+        '<div class="field-error-msg" id="erroPerda">Escolha o motivo: é ele que decide a consequência fiscal.</div></div>' +
+      '<div class="form-field" style="margin-top:16px;"><label for="resObs">Observações</label><textarea id="resObs" placeholder="Opcional" maxlength="300"></textarea></div>' +
+      (est ? '<div class="extrato-bloco-titulo">Estoque do produto em ' + esc(DEPOSITOS[i.dep] || 'depósito') + '</div>' +
+        '<table class="bq-proj" id="resProjecao"><thead><tr><th></th><th>Hoje</th><th>Depois</th></tr></thead><tbody></tbody></table>' : '') +
+      '<div class="nota-reservado" style="margin:14px 0 0;">' + IC_CADEADO + '<span id="resPrevia"></span></div>' +
+      (i.origem === 'conferencia_entrada' ? '<div class="bq-reservado"><b>Devolver ao fornecedor</b><small>Reservado: a devolução exige NF-e nossa, e entra quando a emissão de NF-e for habilitada.</small></div>' : '') +
+      '<div class="drawer-footer"><button class="btn-primary" id="btnConfirmarResolver">Confirmar</button>' + FECHAR + '</div>';
+
+    const abaManter =
+      '<div class="nota-reservado">' + IC_CADEADO + '<span>O item <b>continua fora da venda</b>. Use para corrigir o motivo do bloqueio ou registrar o andamento da auditoria.</span></div>' +
+      '<div class="form-field"><label>Motivo do bloqueio</label>' +
+        dropdownHtml('manterMotivo', '', Object.keys(MOTIVOS_BLOQ).map(k => ({ v: k, t: MOTIVOS_BLOQ[k].rotulo })), i.motivo) + '</div>' +
+      '<div class="form-field" id="wrapManterNota"><label for="manterNota">Anotação</label>' +
+        '<textarea id="manterNota" maxlength="300" placeholder="Ex.: fornecedor acionado, aguardando laudo, peça enviada para teste."></textarea>' +
+        '<div class="field-error-msg" id="erroManter">Mude o motivo ou escreva uma anotação.</div></div>' +
+      '<div class="drawer-footer"><button class="btn-primary" id="btnSalvarManter">Salvar</button>' + FECHAR + '</div>';
+
+    const abaHistorico =
+      hist.map(h => '<div class="mov-item"><div class="mov-icone ' + CLASSE_HIST[h.tipo] + '">' + IC_HIST[h.tipo] + '</div><div class="mov-info">' +
+        '<div class="mov-tipo">' + h.titulo + '</div><div class="mov-meta">' + h.texto + '</div>' +
+        '<div class="mov-meta">' + fmtData(h.quando) + (h.quem ? ' · ' + esc(h.quem) : '') + '</div></div></div>').join('') +
+      (p ? '<a class="bq-link" id="linkProduto" href="' + URL_PRODUTO + p.id + '">Abrir a página do produto em Controle de Estoques</a>' : '') +
+      '<div class="drawer-footer">' + FECHAR + '</div>';
+
+    abrirDrawer('Resolver bloqueio',
+      '<div class="bq-topo"><div><div class="bq-nome">' + esc(i.produto) + '</div>' +
+        '<div class="prod-sku">' + esc(i.sku) + (i.custo ? ' · custo médio ' + moeda(i.custo) : '') + '</div></div>' +
+        '<span class="badge-situacao ' + m.classe + '">' + m.rotulo + '</span></div>' +
+      '<div class="bq-fatos">' +
+        fato(qtdTexto(i.qtd, un), 'bloqueado', 'resBloqueado') +
+        fato(i.custo ? moeda(i.qtd * i.custo) : '—', 'custo parado') +
+        fato('<span class="' + classeDias(d) + '">' + textoDias(d) + '</span>', 'bloqueado há') +
+        fato(esc(DEPOSITOS[i.dep] || '—'), ondeTexto(i)) +
+      '</div>' +
+      '<div class="abas-situacao bq-abas" id="abasResolver">' +
+        '<div class="aba-sit" data-aba="Resolver">Resolver</div>' +
+        '<div class="aba-sit" data-aba="Manter">Manter bloqueado</div>' +
+        '<div class="aba-sit" data-aba="Historico">Histórico<span class="sit-contador">' + hist.length + '</span></div>' +
+      '</div>' +
+      '<div id="abaResolver">' + abaResolver + '</div><div id="abaManter">' + abaManter + '</div><div id="abaHistorico">' + abaHistorico + '</div>');
+
+    function mostrarAba(qual) {
+      document.querySelectorAll('#abasResolver .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-aba') === qual));
+      ['Resolver', 'Manter', 'Historico'].forEach(a => { document.getElementById('aba' + a).style.display = a === qual ? '' : 'none'; });
+    }
+    document.querySelectorAll('#abasResolver .aba-sit').forEach(a => a.addEventListener('click', () => mostrarAba(a.getAttribute('data-aba'))));
+    document.querySelectorAll('#drawerCorpo [data-fechar-painel]').forEach(b => b.addEventListener('click', fecharDrawer));
+    mostrarAba(abaInicial || 'Resolver');
+
+    // ----- aba Resolver -----
+    let causa = '', perda = '';
+    const campoLib = document.getElementById('resLiberar'), campoBai = document.getElementById('resBaixar');
+    // Vazio vale zero; texto que nao e numero volta NaN e e barrado na confirmacao.
+    const lerParte = (campo) => campo.value.trim() === '' ? 0 : lerQtd(campo.value);
     const erro = (idErro, idWrap, texto) => {
       const el = document.getElementById(idErro);
       if (texto != null) el.textContent = texto;
@@ -2022,105 +2187,271 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (idWrap) document.getElementById(idWrap).classList.remove('has-error');
     };
     const acertoPrevisto = () => 'AC-' + String(ESTADO.proxAcerto).padStart(4, '0');
-    function pintarPrevia() {
-      const q = lerQtd(campoQtd.value), quanto = q > 0 ? qtdTexto(q, i.un) : 'a quantidade informada';
-      const alvo = document.getElementById('resPrevia');
-      if (acao === 'liberar') {
-        alvo.textContent = 'Destino de ' + quanto + ': ' + destinoDaLiberacao(i).texto + '.' +
-          (i.motivo === 'avaria' ? ' Liberar item de avaria é dizer que ele foi recuperado e pode ser vendido.' : '');
-        return;
-      }
-      const mp = MOTIVOS_BAIXA.find(x => x.v === perda);
-      let t = 'Gera o acerto de saída ' + acertoPrevisto() + ', com baixa de ' + quanto +
-        (q > 0 && i.custo ? ' (' + moeda(q * i.custo) + ' de custo)' : '') + '.';
-      if (mp && mp.fiscal === 'nfe') t += ' Gera obrigação fiscal: baixa por ' + mp.l.toLowerCase() + ' exige NF-e própria (CFOP 5.927) e estorno do crédito. Como a Desk ainda não emite NF-e, ela entra na fila de baixas pendentes de regularização fiscal.';
-      else if (mp && mp.fiscal === 'interno') t += ' Não gera NF-e: resolve com documento interno, e o estorno de crédito continua devido.';
-      alvo.textContent = t;
-    }
-    document.querySelectorAll('input[name="resAcao"]').forEach(r => r.addEventListener('change', () => {
-      acao = r.value;
-      limpar('erroAcao');
-      document.getElementById('resCampos').style.display = '';
+    function pintarResolver() {
+      const lib = lerParte(campoLib) || 0, bai = lerParte(campoBai) || 0, dest = destinoDaLiberacao(i);
+      const resto = arred(i.qtd - lib - bai);
+      document.getElementById('resResto').textContent = resto >= 0 ? qtdTexto(resto, i.un) : '—';
       // Campo que nao se aplica some: a causa so existe ao liberar uma falta, o motivo da perda so na baixa.
-      document.getElementById('wrapCausa').style.display = (acao === 'liberar' && i.motivo === 'falta') ? '' : 'none';
-      document.getElementById('wrapPerda').style.display = acao === 'baixar' ? '' : 'none';
-      document.getElementById('btnConfirmarResolver').textContent = acao === 'baixar' ? 'Dar baixa' : 'Liberar para venda';
-      pintarPrevia();
-    }));
+      document.getElementById('wrapCausa').style.display = (lib > 0 && i.motivo === 'falta') ? '' : 'none';
+      document.getElementById('wrapPerda').style.display = bai > 0 ? '' : 'none';
+      document.getElementById('btnConfirmarResolver').textContent = (lib > 0 && bai > 0) ? 'Liberar e dar baixa' : (bai > 0 ? 'Dar baixa' : (lib > 0 ? 'Liberar para venda' : 'Confirmar'));
+      if (est) {
+        const depois = { disp: est.disp + (dest.estagio === 'disp' ? lib : 0), aEnd: est.aEnd + (dest.estagio === 'aEnd' ? lib : 0), bloq: est.bloq - lib - bai, fisico: est.fisico - bai };
+        const linha = (rotulo, k) => '<tr data-linha="' + k + '"><td>' + rotulo + '</td><td>' + fmtQtd(est[k], i.un) + '</td>' +
+          '<td' + (arred(depois[k]) !== est[k] ? ' class="muda"' : '') + '>' + fmtQtd(arred(depois[k]), i.un) + '</td></tr>';
+        document.querySelector('#resProjecao tbody').innerHTML = linha('Disponível', 'disp') +
+          ((est.aEnd > 0 || depois.aEnd > 0) ? linha('A endereçar', 'aEnd') : '') + linha('Bloqueado', 'bloq') + linha('Estoque físico', 'fisico');
+      }
+      const mp = MOTIVOS_BAIXA.find(x => x.v === perda), frases = [];
+      if (lib > 0) frases.push('Destino de ' + qtdTexto(lib, i.un) + ': ' + dest.texto + '.' + (i.motivo === 'avaria' ? ' Liberar item de avaria é dizer que ele foi recuperado e pode ser vendido.' : ''));
+      if (bai > 0) {
+        let t = 'Gera o acerto de saída ' + acertoPrevisto() + ', com baixa de ' + qtdTexto(bai, i.un) + (i.custo ? ' (' + moeda(bai * i.custo) + ' de custo)' : '') + '.';
+        if (mp && mp.fiscal === 'nfe') t += ' Gera obrigação fiscal: baixa por ' + mp.l.toLowerCase() + ' exige NF-e própria (CFOP 5.927) e estorno do crédito. Como a Desk ainda não emite NF-e, ela entra na fila de baixas pendentes de regularização fiscal.';
+        else if (mp && mp.fiscal === 'interno') t += ' Não gera NF-e: resolve com documento interno, e o estorno de crédito continua devido.';
+        frases.push(t);
+      }
+      document.getElementById('resPrevia').textContent = frases.join(' ') || 'Informe quanto volta para a venda e quanto é perda. O que sobrar continua bloqueado.';
+    }
+    const limparTriagem = () => { limpar('erroTriagem', 'wrapResLiberar'); limpar('erroTriagem', 'wrapResBaixar'); };
+    [campoLib, campoBai].forEach(c => c.addEventListener('input', () => { limparTriagem(); pintarResolver(); }));
+    // "tudo" joga na saida escolhida o que a outra ainda nao levou.
+    const tudo = (alvo, outro) => () => {
+      alvo.value = fmtQtd(Math.max(0, arred(i.qtd - (lerParte(outro) || 0))), i.un);
+      limparTriagem(); pintarResolver();
+    };
+    document.getElementById('btnLiberarTudo').addEventListener('click', tudo(campoLib, campoBai));
+    document.getElementById('btnBaixarTudo').addEventListener('click', tudo(campoBai, campoLib));
     inicializarDropdownSelect(document.getElementById('resCausa'), (v) => { causa = v; limpar('erroCausa', 'wrapCausa'); });
-    inicializarDropdownSelect(document.getElementById('resPerda'), (v) => { perda = v; limpar('erroPerda', 'wrapPerda'); pintarPrevia(); });
-    campoQtd.addEventListener('input', () => { limpar('erroResQtd', 'wrapResQtd'); pintarPrevia(); });
-    document.getElementById('btnFecharResolver').addEventListener('click', fecharDrawer);
+    inicializarDropdownSelect(document.getElementById('resPerda'), (v) => { perda = v; limpar('erroPerda', 'wrapPerda'); pintarResolver(); });
+    pintarResolver();
 
     document.getElementById('btnConfirmarResolver').addEventListener('click', () => {
-      if (!acao) { erro('erroAcao'); return; }
-      const q = lerQtd(campoQtd.value);
+      const lib = lerParte(campoLib), bai = lerParte(campoBai);
       let ok = true;
-      if (!(q > 0)) ok = erro('erroResQtd', 'wrapResQtd', 'Informe uma quantidade maior que zero.');
-      else if (q > i.qtd) ok = erro('erroResQtd', 'wrapResQtd', 'Só há ' + qtdTexto(i.qtd, i.un) + ' bloqueadas nesta linha.');
-      else if (!fracionavel(i.un) && !Number.isInteger(q)) ok = erro('erroResQtd', 'wrapResQtd', 'Este produto é contado em ' + i.un + ': informe um número inteiro.');
-      if (acao === 'liberar' && i.motivo === 'falta' && !causa) ok = erro('erroCausa', 'wrapCausa');
-      if (acao === 'baixar' && !perda) ok = erro('erroPerda', 'wrapPerda');
+      const inteiro = (n) => fracionavel(i.un) || Number.isInteger(n);
+      if (isNaN(lib) || isNaN(bai)) ok = erro('erroTriagem', isNaN(lib) ? 'wrapResLiberar' : 'wrapResBaixar', 'Informe as quantidades em número.');
+      else if (!inteiro(lib) || !inteiro(bai)) ok = erro('erroTriagem', !inteiro(lib) ? 'wrapResLiberar' : 'wrapResBaixar', 'Este produto é contado em ' + i.un + ': informe números inteiros.');
+      else if (lib + bai <= 0) ok = erro('erroTriagem', null, 'Informe quanto volta para a venda ou quanto é baixado.');
+      else if (arred(lib + bai) > i.qtd) ok = erro('erroTriagem', null, 'Só há ' + qtdTexto(i.qtd, i.un) + ' bloqueadas nesta linha.');
+      if (ok && lib > 0 && i.motivo === 'falta' && !causa) ok = erro('erroCausa', 'wrapCausa');
+      if (ok && bai > 0 && !perda) ok = erro('erroPerda', 'wrapPerda');
       if (!ok) return;
       const obs = document.getElementById('resObs').value.trim();
-      if (acao === 'liberar') {
-        const dest = destinoDaLiberacao(i);
-        confirmarAcao('bloqueadosLibera', 'Liberar ' + qtdTexto(q, i.un) + ' de ' + i.produto + ' para venda. Destino: ' + dest.texto + '.', () => {
-          resolver(i, q, { desfecho: 'liberado', causa: causa || null, destino: dest.onde, obs: obs },
-            'Liberação registrada: ' + qtdTexto(q, i.un) + ' de ' + i.produto + '. Destino: ' + dest.texto + '.' +
-            (causa ? ' Causa apontada: ' + CAUSAS_FALTA[causa].toLowerCase() + '.' : ''));
-        });
-      } else {
-        const mp = MOTIVOS_BAIXA.find(x => x.v === perda), ac = acertoPrevisto();
-        confirmarAcao('bloqueadosBaixa', 'Dar baixa em ' + qtdTexto(q, i.un) + ' de ' + i.produto + ' por ' + mp.l.toLowerCase() +
-          '. A quantidade sai do estoque e gera o acerto de saída ' + ac + '.', () => {
+      const dest = destinoDaLiberacao(i), mp = MOTIVOS_BAIXA.find(x => x.v === perda), ac = acertoPrevisto();
+      const passos = [], avisos = [];
+      if (lib > 0) passos.push('liberar ' + qtdTexto(lib, i.un) + ' para venda (destino: ' + dest.texto + ')');
+      if (bai > 0) passos.push('dar baixa em ' + qtdTexto(bai, i.un) + ' por ' + mp.l.toLowerCase() + ', no acerto de saída ' + ac);
+      const texto = i.produto + ': ' + passos.join(' e ') + '.';
+      // Uma confirmacao so para as duas saidas: vale a mais exigente, e as duas vao para o registro.
+      const pedeBaixa = bai > 0 && exigeSenha('bloqueadosBaixa'), pedeLibera = lib > 0 && exigeSenha('bloqueadosLibera');
+      const chave = (bai > 0 && (pedeBaixa || !pedeLibera)) ? 'bloqueadosBaixa' : 'bloqueadosLibera';
+      confirmarAcao(chave, texto, () => {
+        if (lib > 0 && bai > 0) registrarLog(chave === 'bloqueadosBaixa' ? 'bloqueadosLibera' : 'bloqueadosBaixa', texto, pedeBaixa || pedeLibera);
+        const comum = { bloqueio: i.id, endereco: i.endereco, saiuDe: saiuDe(i), obs: obs };
+        if (bai > 0) {
           ESTADO.proxAcerto++;
-          resolver(i, q, { desfecho: 'baixado', motivoPerda: mp.l, acerto: ac, obs: obs },
-            'Baixa registrada no acerto ' + ac + ': ' + qtdTexto(q, i.un) + ' de ' + i.produto + ', por ' + mp.l.toLowerCase() + '.' +
+          registrar(i, bai, Object.assign({ desfecho: 'baixado', motivoPerda: mp.l, acerto: ac }, comum));
+          avisos.push('Baixa registrada no acerto ' + ac + ': ' + qtdTexto(bai, i.un) + ' de ' + i.produto + ', por ' + mp.l.toLowerCase() + '.' +
             (mp.fiscal === 'nfe' ? ' Ela entrou na fila de baixas pendentes de regularização fiscal: a NF-e de baixa (CFOP 5.927) e o estorno de crédito continuam devidos.' : ''));
-        });
+        }
+        if (lib > 0) {
+          registrar(i, lib, Object.assign({ desfecho: 'liberado', causa: causa || null, destino: dest.onde }, comum));
+          avisos.push('Liberação registrada: ' + qtdTexto(lib, i.un) + ' de ' + i.produto + '. Destino: ' + dest.texto + '.' +
+            (causa ? ' Causa apontada: ' + CAUSAS_FALTA[causa].toLowerCase() + '.' : ''));
+        }
+        if (i.qtd <= 0) ITENS.splice(ITENS.indexOf(i), 1);
+        gravar();
+        fecharDrawer();
+        renderTabela();
+        avisar(avisos.join(' ') + ' No protótipo, as outras telas de Estoque têm os próprios dados de exemplo e não mostram esta mudança.');
+      });
+    });
+
+    // ----- aba Manter bloqueado -----
+    let motivoNovo = i.motivo;
+    inicializarDropdownSelect(document.getElementById('manterMotivo'), (v) => { motivoNovo = v; limpar('erroManter', 'wrapManterNota'); });
+    document.getElementById('manterNota').addEventListener('input', () => limpar('erroManter', 'wrapManterNota'));
+    document.getElementById('btnSalvarManter').addEventListener('click', () => {
+      const nota = document.getElementById('manterNota').value.trim();
+      if (motivoNovo === i.motivo && nota === '') { erro('erroManter', 'wrapManterNota'); return; }
+      i.notas = i.notas || [];
+      if (motivoNovo !== i.motivo) {
+        i.notas.push({ quando: HOJE_ISO, quem: USUARIO_SESSAO.nome, titulo: 'Motivo alterado',
+          texto: 'De ' + MOTIVOS_BLOQ[i.motivo].rotulo + ' para ' + MOTIVOS_BLOQ[motivoNovo].rotulo + (nota ? '. ' + nota : '') });
+        // Virou avaria: sai do endereco de venda e espera um endereco de Avaria. Deixou de ser: fica onde esta.
+        if (motivoNovo === 'avaria' && i.tipoEnd !== 'avaria') { i.saiuDe = saiuDe(i); i.endereco = null; i.tipoEnd = null; }
+        i.motivo = motivoNovo;
+      } else {
+        i.notas.push({ quando: HOJE_ISO, quem: USUARIO_SESSAO.nome, titulo: 'Anotação', texto: nota });
       }
+      gravar();
+      renderTabela();
+      abrirResolver(i.id, 'Historico');   // reabre no historico: e la que o registro aparece
     });
   }
 
-  // Tira a quantidade da fila e guarda o desfecho. Resolver parte deixa o resto bloqueado, na mesma linha.
-  function resolver(i, q, registro, aviso) {
-    i.qtd = Math.round((i.qtd - q) * 1000) / 1000;
-    if (i.qtd <= 0) ITENS.splice(ITENS.indexOf(i), 1);
+  // Tira a quantidade da linha e guarda o desfecho. O resto continua bloqueado, na mesma linha.
+  function registrar(i, q, registro) {
+    i.qtd = arred(i.qtd - q);
     RESOLVIDOS.unshift(Object.assign({ id: ESTADO.proxResolvido++, sku: i.sku, produto: i.produto, un: i.un, dep: i.dep, qtd: q, custo: i.custo,
       motivo: i.motivo, origem: i.origem, doc: i.doc, quando: HOJE_ISO, quem: USUARIO_SESSAO.nome }, registro));
-    gravar();
-    fecharDrawer();
-    renderTabela();
-    avisar(aviso + ' No protótipo, as outras telas de Estoque têm os próprios dados de exemplo e não mostram esta mudança.');
   }
 
-  // O bloqueio manual mora na pagina do produto: aqui so se escolhe qual.
+  // ---------- painel: bloquear item ----------
+  // O bloqueio e feito aqui mesmo (pedido do usuario em 09/out): busca o produto, escolhe de qual
+  // endereco sai e por que. Nao muda o fisico nem o custo; a quantidade so deixa de estar livre.
+  const IC_LUPA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
   function abrirBloquear() {
     abrirDrawer('Bloquear item',
-      '<div class="nota-reservado">' + IC_CADEADO + '<span>O bloqueio é lançado na <b>página do produto</b>, em Controle de Estoques, porque é lá que estão o saldo e o endereço de cada depósito. Escolha o produto e o lançamento abre no tipo <b>Bloqueio</b>.</span></div>' +
-      '<div class="form-field" id="wrapBloqProduto"><label>Produto</label>' +
-        dropdownHtml('bloqProduto', 'Selecione o produto', PRODUTOS_ESPELHO.map(p => ({ v: p.id, t: p.nome + ' · ' + p.sku }))) +
+      '<div class="form-field" id="wrapBloqBusca"><label for="bloqBusca">Produto</label>' +
+        '<div class="search-wrap busca-produto-wrap">' + IC_LUPA +
+          '<input type="text" id="bloqBusca" placeholder="Pesquise por descrição, código (SKU) ou GTIN" autocomplete="off">' +
+          '<div class="sugestoes" id="bloqSugestoes"></div></div>' +
+        '<div class="field-hint"><b>Enter</b> escolhe o primeiro da lista.</div>' +
         '<div class="field-error-msg" id="erroBloqProduto">Escolha o produto que vai ser bloqueado.</div></div>' +
-      '<div class="drawer-footer"><button class="btn-primary" id="btnContinuarBloqueio">Continuar</button>' +
+      '<div id="bloqEscolhido" style="display:none;"></div>' +
+      '<div id="bloqCampos" style="display:none;">' +
+        '<div class="form-row">' +
+          '<div class="form-field"><label>Depósito</label>' + dropdownHtml('bloqDep', '—', []) + '</div>' +
+          '<div class="form-field"><label>De qual endereço</label>' + dropdownHtml('bloqOrigem', '—', []) + '</div></div>' +
+        '<div class="form-row">' +
+          '<div class="form-field" id="wrapBloqQtd"><label for="bloqQtd">Quantidade</label><input type="text" id="bloqQtd" inputmode="decimal" autocomplete="off" placeholder="0">' +
+            '<div class="field-hint" id="bloqLivre"></div><div class="field-error-msg" id="erroBloqQtd"></div></div>' +
+          '<div class="form-field" id="wrapBloqMotivo"><label>Motivo</label>' +
+            dropdownHtml('bloqMotivo', 'Selecione o motivo', Object.keys(MOTIVOS_BLOQ).map(k => ({ v: k, t: MOTIVOS_BLOQ[k].rotulo }))) +
+            '<div class="field-error-msg" id="erroBloqMotivo">Escolha o motivo do bloqueio.</div></div></div>' +
+        '<div class="form-field" id="wrapBloqObs"><label for="bloqObs">Observações</label>' +
+          '<textarea id="bloqObs" maxlength="300" placeholder="O que foi visto. Obrigatório para travar por decisão."></textarea>' +
+          '<div class="field-error-msg" id="erroBloqObs">Escreva por que o produto está sendo travado. É o que vai ler quem for liberar.</div></div>' +
+        '<div class="nota-reservado" style="margin:0;">' + IC_CADEADO + '<span id="bloqPrevia"></span></div>' +
+      '</div>' +
+      '<div class="nota-reservado" id="bloqSemSaldo" style="display:none; margin:14px 0 0;">' + IC_CADEADO +
+        '<span>Este produto <b>não tem saldo livre</b> para bloquear. Reservado não entra: está comprometido com pedido, e a falta dele se registra na Separação.</span></div>' +
+      '<div class="drawer-footer"><button class="btn-primary" id="btnConfirmarBloqueio">Bloquear</button>' +
         '<div class="drawer-link" id="btnFecharBloqueio">Fechar <span class="esc-hint">ESC</span></div></div>');
-    let produto = '';
-    inicializarDropdownSelect(document.getElementById('bloqProduto'), (v) => {
-      produto = v;
-      document.getElementById('erroBloqProduto').classList.remove('show');
-      document.getElementById('wrapBloqProduto').classList.remove('has-error');
+
+    let p = null, dep = null, linha = null, motivo = '', sugeridos = [];
+    const busca = document.getElementById('bloqBusca'), cx = document.getElementById('bloqSugestoes');
+    const some = (id, sim) => { document.getElementById(id).style.display = sim ? '' : 'none'; };
+    const limpar = (idErro, idWrap) => { document.getElementById(idErro).classList.remove('show'); document.getElementById(idWrap).classList.remove('has-error'); };
+    const erro = (idErro, idWrap, texto) => {
+      if (texto != null) document.getElementById(idErro).textContent = texto;
+      document.getElementById(idErro).classList.add('show'); document.getElementById(idWrap).classList.add('has-error'); return false;
+    };
+    function encher(idRaiz, itens, atual) {
+      const raiz = document.getElementById(idRaiz);
+      raiz.querySelector('.dropdown-select-menu').innerHTML = itens.map(o =>
+        '<div class="dropdown-select-item' + (String(o.v) === String(atual) ? ' active' : '') + '" data-value="' + o.v + '">' + esc(o.t) + '</div>').join('');
+      const escolhido = itens.filter(o => String(o.v) === String(atual))[0];
+      raiz.setAttribute('data-value', escolhido ? escolhido.v : '');
+      raiz.querySelector('.dropdown-select-label').textContent = escolhido ? escolhido.t : '—';
+    }
+    const rotuloLinha = (x) => (x.s.endereco ? x.s.endereco + ' · ' + (TIPO_END_LABEL[x.s.tipoEnd] || '—') : 'sem endereço (a endereçar)') + ' — ' + qtdTexto(x.livre, p.un) + ' livres';
+    // Avaria vai para endereco de Avaria: o que o produto ja usa neste deposito, ou a fila do Enderecamento.
+    function enderecoDeAvaria() {
+      const naFila = ITENS.find(x => x.sku === p.sku && x.dep === dep && x.tipoEnd === 'avaria');
+      const noEspelho = p.saldos.find(s => s.dep === dep && s.tipoEnd === 'avaria');
+      return naFila ? naFila.endereco : (noEspelho ? noEspelho.endereco : null);
+    }
+    function pintarPrevia() {
+      const q = lerQtd(document.getElementById('bloqQtd').value);
+      document.getElementById('bloqLivre').textContent = linha ? 'Livre neste endereço: ' + qtdTexto(linha.livre, p.un) + '.' : '';
+      if (!linha) { document.getElementById('bloqPrevia').textContent = ''; return; }
+      const av = enderecoDeAvaria();
+      const destino = motivo !== 'avaria' ? 'o mesmo endereço, só travado'
+        : (av ? av + ', endereço de Avaria' : 'fila do Endereçamento, à espera de um endereço de Avaria');
+      document.getElementById('bloqPrevia').textContent = 'Bloqueio não muda o estoque físico nem o custo: tira ' +
+        (q > 0 ? qtdTexto(q, p.un) : 'a quantidade informada') + ' do disponível' + (linha.s.endereco ? ' de ' + linha.s.endereco : '') + '. Destino: ' + destino + '.';
+    }
+    function escolherDeposito(d) {
+      dep = Number(d);
+      const livres = linhasLivres(p, dep);
+      linha = livres[0] || null;
+      encher('bloqOrigem', livres.map((x, n) => ({ v: n, t: rotuloLinha(x) })), 0);
+      inicializarDropdownSelect(document.getElementById('bloqOrigem'), (v) => { linha = linhasLivres(p, dep)[Number(v)]; limpar('erroBloqQtd', 'wrapBloqQtd'); pintarPrevia(); });
+      pintarPrevia();
+    }
+    function escolherProduto(id) {
+      p = PRODUTOS.find(x => x.id === id);
+      if (!p) return;
+      cx.classList.remove('open');
+      limpar('erroBloqProduto', 'wrapBloqBusca');
+      const deps = Array.from(new Set(p.saldos.map(s => s.dep))).filter(d => linhasLivres(p, d).length);
+      const livre = arred(deps.reduce((t, d) => t + linhasLivres(p, d).reduce((u, x) => u + x.livre, 0), 0));
+      const travado = arred(ITENS.filter(x => x.sku === p.sku).reduce((t, x) => t + x.qtd, 0));
+      document.getElementById('bloqEscolhido').innerHTML =
+        '<div class="bq-topo"><div><div class="bq-nome">' + esc(p.nome) + '</div><div class="prod-sku">' + esc(p.sku) + ' · custo médio ' + moeda(p.custo) + '</div></div>' +
+          '<div class="drawer-link" id="btnTrocarProduto">trocar produto</div></div>' +
+        '<div class="bq-fatos bq-fatos-2">' +
+          '<div class="bq-fato"><b id="bloqLivreTotal">' + qtdTexto(livre, esc(p.un)) + '</b><span class="bq-rot">livre para bloquear</span></div>' +
+          '<div class="bq-fato"><b id="bloqJaTravado">' + qtdTexto(travado, esc(p.un)) + '</b><span class="bq-rot">já bloqueado na fila</span></div></div>';
+      document.getElementById('btnTrocarProduto').addEventListener('click', () => {
+        p = null; dep = null; linha = null;
+        some('wrapBloqBusca', true); some('bloqEscolhido', false); some('bloqCampos', false); some('bloqSemSaldo', false);
+        busca.value = ''; busca.focus();
+      });
+      some('wrapBloqBusca', false); some('bloqEscolhido', true); some('bloqCampos', deps.length > 0); some('bloqSemSaldo', deps.length === 0);
+      if (!deps.length) { dep = null; linha = null; return; }
+      encher('bloqDep', deps.map(d => ({ v: d, t: DEPOSITOS[d] })), deps[0]);
+      inicializarDropdownSelect(document.getElementById('bloqDep'), escolherDeposito);
+      escolherDeposito(deps[0]);
+      document.getElementById('bloqQtd').focus();
+    }
+    // Busca padrao de produto: a mesma do Acerto de Estoque.
+    function sugerir(termo) {
+      const t = termo.trim().toLowerCase();
+      if (!t) { cx.classList.remove('open'); cx.innerHTML = ''; sugeridos = []; return; }
+      sugeridos = PRODUTOS.filter(x => x.nome.toLowerCase().includes(t) || x.sku.toLowerCase().includes(t) || x.gtin.includes(t)).slice(0, 8);
+      cx.innerHTML = sugeridos.length
+        ? sugeridos.map((x, n) => '<div class="sugestao-item' + (n === 0 ? ' ativo' : '') + '" data-id="' + x.id + '"><div class="sugestao-nome">' + esc(x.nome) + '</div>' +
+            '<div class="sugestao-meta">' + esc(x.sku) + ' · ' + esc(x.gtin) + ' · custo médio ' + moeda(x.custo) + '</div></div>').join('')
+        : '<div class="sugestao-vazia">Nenhum produto encontrado para “' + esc(termo) + '”.</div>';
+      cx.classList.add('open');
+      cx.querySelectorAll('.sugestao-item').forEach(el => el.addEventListener('click', () => escolherProduto(Number(el.getAttribute('data-id')))));
+    }
+    busca.addEventListener('input', (e) => { limpar('erroBloqProduto', 'wrapBloqBusca'); sugerir(e.target.value); });
+    busca.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && sugeridos.length) { e.preventDefault(); escolherProduto(sugeridos[0].id); }
+      // Esc fecha primeiro a lista; so com ela fechada o Esc chega ao painel.
+      if (e.key === 'Escape' && cx.classList.contains('open')) { e.stopPropagation(); cx.classList.remove('open'); }
     });
+    inicializarDropdownSelect(document.getElementById('bloqMotivo'), (v) => { motivo = v; limpar('erroBloqMotivo', 'wrapBloqMotivo'); limpar('erroBloqObs', 'wrapBloqObs'); pintarPrevia(); });
+    document.getElementById('bloqQtd').addEventListener('input', () => { limpar('erroBloqQtd', 'wrapBloqQtd'); pintarPrevia(); });
+    document.getElementById('bloqObs').addEventListener('input', () => limpar('erroBloqObs', 'wrapBloqObs'));
     document.getElementById('btnFecharBloqueio').addEventListener('click', fecharDrawer);
-    document.getElementById('btnContinuarBloqueio').addEventListener('click', () => {
-      if (!produto) {
-        document.getElementById('erroBloqProduto').classList.add('show');
-        document.getElementById('wrapBloqProduto').classList.add('has-error');
-        return;
-      }
-      window.location.href = URL_PRODUTO + produto + '&lancar=bloqueio';
+    busca.focus();
+
+    document.getElementById('btnConfirmarBloqueio').addEventListener('click', () => {
+      if (!p) { erro('erroBloqProduto', 'wrapBloqBusca'); return; }
+      if (!linha) return;   // sem saldo livre: o aviso ja esta na tela
+      const q = lerQtd(document.getElementById('bloqQtd').value), obs = document.getElementById('bloqObs').value.trim();
+      let ok = true;
+      if (!(q > 0)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Informe uma quantidade maior que zero.');
+      else if (q > linha.livre) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Só há ' + qtdTexto(linha.livre, p.un) + ' livres neste endereço.');
+      else if (!fracionavel(p.un) && !Number.isInteger(q)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Este produto é contado em ' + p.un + ': informe um número inteiro.');
+      if (!motivo) ok = erro('erroBloqMotivo', 'wrapBloqMotivo');
+      else if (motivo === 'decisao' && obs === '') ok = erro('erroBloqObs', 'wrapBloqObs');
+      if (!ok) return;
+      const av = motivo === 'avaria' ? enderecoDeAvaria() : null;
+      const quanto = qtdTexto(q, p.un), rot = MOTIVOS_BLOQ[motivo].rotulo;
+      confirmarAcao('estoqueBloqueia', 'Bloquear ' + quanto + ' de ' + p.nome + ' (motivo: ' + rot + '). A quantidade sai do disponível e o estoque físico não muda.', () => {
+        ITENS.push({ id: ESTADO.proxId++, sku: p.sku, produto: p.nome, un: p.un, dep: dep,
+          endereco: motivo === 'avaria' ? av : linha.s.endereco, tipoEnd: motivo === 'avaria' ? (av ? 'avaria' : null) : linha.s.tipoEnd,
+          base: baseDe(p, dep), qtd: q, custo: p.custo, motivo: motivo, origem: 'manual', doc: '', quando: HOJE_ISO,
+          quem: USUARIO_SESSAO.nome, obs: obs, saiuDe: linha.s.endereco });
+        gravar();
+        fecharDrawer();
+        renderTabela();
+        const onde = motivo !== 'avaria' ? (linha.s.endereco ? 'em ' + linha.s.endereco : 'sem endereço')
+          : (av ? 'em ' + av : 'ainda sem endereço de Avaria (ele entra na fila do Endereçamento)');
+        avisar('Bloqueio registrado: ' + quanto + ' de ' + p.nome + ', motivo ' + rot + ', ' + onde + '.');
+      });
     });
   }
 
+  eventDrawer.addEventListener('click', (e) => {
+    if (!e.target.closest('.busca-produto-wrap')) eventDrawer.querySelectorAll('.sugestoes.open').forEach(s => s.classList.remove('open'));
+  });
   document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
   drawerBackdrop.addEventListener('click', fecharDrawer);
   document.getElementById('btnBloquearItem').addEventListener('click', abrirBloquear);

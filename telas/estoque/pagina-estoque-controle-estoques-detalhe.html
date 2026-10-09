@@ -2242,7 +2242,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
       publicarBloqueio({ chave: 'manual:' + p.sku + ':' + Date.now(), sku: p.sku, produto: p.nome, un: p.unidade, dep: Number(depLanc),
         endereco: destino.endereco, tipoEnd: destino.tipoEnd, base: base ? base.endereco : null, qtd: qtd, custo: p.custoMedio,
-        motivo: motivoLanc, origem: 'manual', doc: '', quem: USUARIO_SESSAO.nome, obs: obs });
+        motivo: motivoLanc, origem: 'manual', doc: '', quem: USUARIO_SESSAO.nome, obs: obs, saiuDe: alvo.endereco });
       fecharLancamento();
       renderTudo();
       avisar('Bloqueio registrado: ' + quanto + ' de ' + p.nome + ', motivo ' + m.l + ', ' +
