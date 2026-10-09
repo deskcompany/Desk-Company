@@ -155,22 +155,16 @@ A pasta ficou até hoje sem versionamento. O commit inicial (`862c9ce`) é o est
 - Antes de qualquer `sed`/substituição em massa nas telas, confirme que a árvore está
   limpa (`git status`). O desfazer agora existe; use-o em vez de confiar na sorte.
 
-## Estado atual (09/out/2026)
+## Estado atual: está no PROGRESSO.md
 
-**79 telas construídas**, 43 itens de menu com tela, 16 submódulos a fazer. Em 09/out entrou o
-**PDV** (Vendas) com as Configurações do PDV: a venda de balcão vira Pedido de Venda já entregue,
-e o caixa do PDV é o turno do operador, não o Caixa de Finanças (§14.48). No cartão, o prazo
-(próximo dia útil), a taxa de cada parcela e o repasse ao cliente vêm do cadastro de Formas de
-recebimento, e cartão não confere limite de crédito (§14.49). No mesmo dia entrou o **CRM** (Vendas),
-com a tela do assunto, Estágios do funil de vendas e Configurações do CRM: o status do contato mora
-no cadastro de Clientes e a ação com data vira aviso na Agenda (§14.50). E entrou **Itens Bloqueados**
-(Estoque): a fila de tudo que está no estoque e não pode ser vendido, com duas saídas, liberar ou dar
-baixa. A falta da Separação e da Conferência de Saída passou a bloquear a unidade, e o bloqueio manual
-é um tipo de lançamento na página do produto (§14.51). F2 (Cadastros), F5
-(Estoque + Financeiro) e **F4 (Logística, fechada em 07/out)**. A F4 saiu com Separação,
-Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução (todas com detalhe),
-mais o cadastro de **Motivos de Devolução** (hoje em Configurações; o módulo Operacional saiu do menu em 08/out). De Logística falta só
-Relatórios, que entra junto com os dos outros módulos.
+Onde o projeto está, o que vem depois e o que espera decisão do usuário moram em
+[PROGRESSO.md](PROGRESSO.md), na raiz do ERP. **Numa conversa nova, leia ele primeiro**: é uma
+página e dispensa reler o resto para saber onde paramos.
+
+**Toda entrega reescreve o PROGRESSO.md, no mesmo commit.** Reescreve, não acrescenta: ele mostra o
+estado de hoje, e o histórico fica no `git log` e no §14 do design system. Decisão que o usuário
+deixou em aberto entra em "Esperando decisão do usuário" e sai de lá quando ele responder. A seção
+10 de `teste_menu.py` confere os números dele contra o menu, então número velho reprova o selo.
 
 **Padrão que vale para tudo que vier:** cadastro de que a tela depende nasce **antes** dela,
 e parâmetro nasce **no mesmo dia** que o código que o lê — as duas regras vieram de bugs

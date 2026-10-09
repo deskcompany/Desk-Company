@@ -876,7 +876,7 @@
    "teste_sha": "cf02e76eb2523558"
   },
   "teste_menu.py": {
-   "asseracoes": 21,
+   "asseracoes": 22,
    "asseracoes_de": "rodada completa 09/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
@@ -961,7 +961,7 @@
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-09",
-   "teste_sha": "cc461aa1018a3077"
+   "teste_sha": "2f13c10bb1db0e7b"
   },
   "teste_metas.py": {
    "asseracoes": 74,

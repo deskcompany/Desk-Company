@@ -149,6 +149,18 @@ with sync_playwright() as p:
         marcados = re.findall(r'class="(?:nav|bottom)-item active" data-id="([a-z]+)"', t)
         if marcados != [PASTA_ID[pasta]]: marca_errada.append((os.path.basename(arq), marcados))
     ok(not marca_errada, 'toda tela marca o proprio modulo, e so ele: %s' % marca_errada[:4])
+    print('10. O PROGRESSO.md diz o que o menu diz')
+    # 09/out: o usuario pediu uma pagina com o estado do projeto, para comecar conversa nova sem
+    # reler tudo. Pagina de estado com numero velho manda a proxima sessao para o lugar errado,
+    # entao os numeros dela sao conferidos contra o proprio sistema.
+    menu = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
+    itens = re.findall(r'<div class="flyout-item"([^>]*)>', menu)
+    com_tela = len([i for i in itens if 'data-href' in i])
+    progresso = open(os.path.join(PASTA, 'PROGRESSO.md'), encoding='utf-8').read()
+    dito = re.search(r'\*\*(\d+) de (\d+) \((\d+)%\)\*\*, em (\d+) telas', progresso)
+    medido = (com_tela, len(itens), round(100.0 * com_tela / len(itens)), len(localiza.caminhos()))
+    ok(dito is not None and tuple(int(x) for x in dito.groups()) == medido,
+       'itens de menu com tela, percentual e total de telas batem com o sistema: medido %s, escrito %s' % (medido, dito.groups() if dito else None))
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))
