@@ -1972,3 +1972,53 @@ Ficou de fora: o Pedido de Venda ainda não usa prazo fixo, taxa por parcela nem
 deixou de conferir limite no cartão. As taxas por parcela do cadastro são exemplo. Os atalhos do
 Olist para remover item (Ctrl+Backspace) e trocar valor fixo por porcentagem (Ctrl+A, Ctrl+B) não
 entraram: são teclas que o campo de texto já usa para apagar palavra e selecionar tudo.
+
+## 14.50 CRM: assunto, estágio, ação e linha do tempo (09/out/2026)
+
+Funil de pré-venda em Vendas → CRM, construído sobre 13 prints do Olist. Um **assunto** é uma
+conversa de venda com um cliente: tem estágio, ações (o que fazer e quando) e uma linha do tempo
+com tudo que aconteceu. Quatro decisões do usuário mudam o que o print mostra.
+
+**O status do contato é do cliente, não do CRM.** Lead, prospect e cliente são o campo
+`contato` de Cadastros → Clientes; "inativo" é a situação que o cadastro já tinha. O CRM lê e
+altera esse campo pelo menu da linha, e o rodapé da lista conta os contatos por status. Cadastro
+inativo conta como inativo, seja qual for o status do contato.
+
+**Encerrar pede resultado.** O último estágio do funil encerra o assunto, e encerrar pergunta se
+foi **ganho ou perdido**; perdido pede o motivo. Por isso ninguém chega ao último estágio por
+atalho: o botão do próximo estágio, o menu "mais" e o quadro abrem o painel de encerrar. Assunto
+encerrado não recebe ação nova; **reabrir** devolve ao estágio em que estava. Motivo de perda é
+lista fechada no código, até a operação querer editar.
+
+**Ação com data vira aviso na Agenda.** A próxima ação tem "previsto para": data, quanto antes,
+esperar ou sem data. Campo que não se aplica some: data e horário só existem em "data". A ação
+pendente com data, de assunto aberto, é publicada em `deskAvisos` (o mesmo caminho de Contas a
+Pagar) e o aviso leva para o assunto. Concluir, excluir, encerrar ou arquivar tira o aviso.
+
+**Ação nova nasce no cartão da tela; a edição abre o painel "Ação do CRM".** É o desenho do
+print. Os dois usam o mesmo formulário, com o campo de data da casa.
+
+**WhatsApp e e-mail abrem o aplicativo e registram.** O sistema não envia nada sozinho: monta o
+link (`wa.me` com o telefone do cliente, `mailto` com o e-mail e o assunto) e guarda o contato na
+linha do tempo. **Proposta** é registro do assunto: valor, validade, condições e situação;
+aceita, oferece o pedido de venda. O módulo de Propostas comerciais com itens não existe.
+
+**A ordem é o dado.** Configurações → Estágios do funil de vendas é o único cadastro em que a
+posição significa algo. Reordena por seta e por arrastar; o estágio que encerra não sai do fim
+nem é excluído, e estágio com assunto dentro também não. O quadro por estágio mostra uma coluna
+por estágio, nessa ordem.
+
+**Aviso de assunto parado obedece a um parâmetro.** `crmDiasSemInteracao` (30 por padrão),
+gravado em Configurações → Configurações do CRM. Interação é qualquer registro no assunto.
+
+**Lista e assunto dividem o estado** em `deskCrm`: a ação criada no assunto aparece na lista ao
+voltar. Estágios, clientes, vendedores, pedidos e contas em aberto são espelhos, e a seção 16 de
+`teste_crm.py` compara cada um com o cadastro de origem.
+
+**Lição de código:** a chave do armazenamento ficou sem declarar, e os dois `try/catch` vazios em
+volta de `localStorage` engoliram o `ReferenceError`. Nada era gravado e nenhuma tela reclamava;
+quem acusou foi a asserção "sobrevive ao F5". `catch` vazio em volta de armazenamento esconde erro
+de digitação junto com o bloqueio do navegador.
+
+Ficou de fora, com o usuário sabendo: marcadores, a visão "por período", cadastro de motivos de
+perda, cadastro rápido de cliente dentro do CRM e o módulo de Propostas comerciais.

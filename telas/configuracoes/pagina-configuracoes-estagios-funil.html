@@ -388,6 +388,7 @@
   .drawer-close svg { width:15px; height:15px; }
 
   .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
   .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
   .form-field input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
   .form-field input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
@@ -463,14 +464,14 @@
   /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
-  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 6px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
   .estoque-table th.ordenavel { cursor:pointer; }
   .estoque-table th.ordenavel:hover { color:var(--text-heading); }
   .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
   .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
   .estoque-table th.ordenado { color:var(--text-heading); }
-  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td { padding:13px 6px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
   .estoque-table td.col-texto { text-align:left; }
   .estoque-table tbody tr { cursor:pointer; }
   .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
@@ -484,56 +485,25 @@
   .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
   .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
   .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+  /* Estagios do saldo (item 19). Cores de tempo reaproveitadas de Enderecamento,
+     onde ja passaram pela medicao de contraste nos dois temas. */
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .dias-ok { font-weight:700; color:var(--text-heading); }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  .dias-critico { font-weight:800; color:#B91C1C; }
+  body.dark .dias-alerta { color:#F5A623; }
+  body.dark .dias-critico { color:#FCA5A5; }
+  .estagio-bloqueado { font-weight:800; color:#B91C1C; }
+  body.dark .estagio-bloqueado { color:#FCA5A5; }
+  /* "em conferencia" NAO e estoque (item 19) — marcador apagado, nunca numero de coluna */
+  .marcador-conferencia { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.62; margin-top:3px; letter-spacing:0.1px; }
+  .disponivel-travado { color:var(--text); opacity:0.55; font-weight:700; }
 
   /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
   .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
   .estoque-total b { color:var(--active-text); font-weight:800; }
 
   /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
-
-  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
-  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
-  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
-  .aba-sit:hover { color:var(--text-heading); }
-  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
-  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
-  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
-
-  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
-  .sit-aberto      { background:#B45309; }
-  .sit-andamento   { background:#0A4EE4; }
-  .sit-atendida    { background:#15803D; }
-  .sit-cancelada   { background:#6B7280; }
-  body.dark .sit-aberto    { background:#F5A623; }
-  body.dark .sit-andamento { background:#9DB8F0; }
-  body.dark .sit-atendida  { background:#4ADE80; }
-  body.dark .sit-cancelada { background:#9CA3AF; }
-
-  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
-  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
-  .bs-aberto      { color:#B45309; }
-  .bs-andamento   { color:#0A4EE4; }
-  .bs-atendida    { color:#15803D; }
-  .bs-cancelada   { color:#6B7280; }
-  body.dark .bs-aberto    { color:#F5A623; }
-  body.dark .bs-andamento { color:#9DB8F0; }
-  body.dark .bs-atendida  { color:#4ADE80; }
-  body.dark .bs-cancelada { color:#9CA3AF; }
-
-  /* filtro de periodo em popover */
-  .periodo-wrap { position:relative; flex-shrink:0; }
-  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
-  .periodo-menu.open { display:block; }
-  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
-  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
-  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
-  .periodo-op:hover { background:rgba(120,120,140,0.08); }
-  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
-
-  .oc-numero { font-weight:800; color:var(--active-text); }
-  .marcador-tag { display:inline-block; font-size:10px; font-weight:700; color:var(--text); border:1px solid var(--border); border-radius:5px; padding:1px 6px; margin-right:4px; white-space:nowrap; }
-
   .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
   .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
 
@@ -576,124 +546,584 @@
   }
   .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
 
-  /* ===== ESTOQUE > ENTRADA DE NOTAS ===== */
-  /* Situacoes da nota de entrada. Mesma logica de contraste das cores da OC:
-     par claro/escuro aferido contra o fundo de cada tema, nunca uma cor so. */
-  .sit-aconferir     { background:#B45309; }
-  .sit-emconferencia { background:#0A4EE4; }
-  .sit-divergencia   { background:#B91C1C; }
-  .sit-lancada       { background:#15803D; }
-  .sit-recusada      { background:#6B7280; }
-  body.dark .sit-aconferir     { background:#F5A623; }
-  body.dark .sit-emconferencia { background:#9DB8F0; }
-  body.dark .sit-divergencia   { background:#FCA5A5; }
-  body.dark .sit-lancada       { background:#4ADE80; }
-  body.dark .sit-recusada      { background:#9CA3AF; }
-
-  .bs-aconferir     { color:#B45309; }
-  .bs-emconferencia { color:#0A4EE4; }
-  .bs-divergencia   { color:#B91C1C; }
-  .bs-lancada       { color:#15803D; }
-  .bs-recusada      { color:#6B7280; }
-  body.dark .bs-aconferir     { color:#F5A623; }
-  body.dark .bs-emconferencia { color:#9DB8F0; }
-  body.dark .bs-divergencia   { color:#FCA5A5; }
-  body.dark .bs-lancada       { color:#4ADE80; }
-  body.dark .bs-recusada      { color:#9CA3AF; }
-
-  /* Manifestacao do destinatario: badge do evento + prazo que ainda corre */
-  .mde-cell { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
-  .mde-prazo { font-size:10.5px; font-weight:700; color:var(--text); white-space:nowrap; }
-  .mde-prazo.alerta { color:#B45309; }
-  body.dark .mde-prazo.alerta { color:#F5A623; }
-  .mde-pendente      { color:#6B7280; }
-  .mde-ciencia       { color:#B45309; }
-  .mde-confirmada    { color:#15803D; }
-  .mde-naorealizada  { color:#B91C1C; }
-  .mde-desconhecida  { color:#B91C1C; }
-  body.dark .mde-pendente     { color:#9CA3AF; }
-  body.dark .mde-ciencia      { color:#F5A623; }
-  body.dark .mde-confirmada   { color:#4ADE80; }
-  body.dark .mde-naorealizada { color:#FCA5A5; }
-  body.dark .mde-desconhecida { color:#FCA5A5; }
-  .mde-acoes { display:flex; flex-wrap:wrap; gap:8px; }
-  .mde-acoes .btn-secundario { font-size:12px; padding:7px 12px; }
-
-  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .dif-divergente { color:#B91C1C; }
-  body.dark .dif-divergente { color:#FCA5A5; }
-  .pend-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:#B91C1C; border:1px solid currentColor; border-radius:5px; padding:1px 6px; margin-left:4px; }
-  body.dark .pend-tag { color:#FCA5A5; }
-
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  /* A chave tem 44 digitos: precisa de fonte tabular e quebra por grupo, senao
-     vira uma linha que estoura o drawer e ninguem consegue conferir digito. */
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
-
-  /* ===== ESTOQUE > CONFERÊNCIA DE COMPRA (fila do galpão) ===== */
-  .conf-dequem { display:block; font-size:13px; font-weight:700; color:var(--text-heading); }
-  .conf-origem { display:block; font-size:11px; font-weight:700; color:var(--text); }
-  .sit-aguardando    { background:#6B7280; }
-  .sit-pronto        { background:#B45309; }
-  .sit-emconferencia { background:#0A4EE4; }
-  .sit-conferida     { background:#15803D; }
-  body.dark .sit-aguardando    { background:#9CA3AF; }
-  body.dark .sit-pronto        { background:#F5A623; }
-  body.dark .sit-emconferencia { background:#9DB8F0; }
-  body.dark .sit-conferida     { background:#4ADE80; }
-
-  .bs-aguardando    { color:#6B7280; }
-  .bs-pronto        { color:#B45309; }
-  .bs-emconferencia { color:#0A4EE4; }
-  .bs-conferida     { color:#15803D; }
-  body.dark .bs-aguardando    { color:#9CA3AF; }
-  body.dark .bs-pronto        { color:#F5A623; }
-  body.dark .bs-emconferencia { color:#9DB8F0; }
-  body.dark .bs-conferida     { color:#4ADE80; }
-
-  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
-  .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
-
-  /* Espera é o relógio da doca: mercadoria parada não é estoque */
-  .espera-neutra { color:var(--text); }
-  .espera-ok { font-weight:700; color:var(--text); }
-  .espera-alerta { font-weight:800; color:#B45309; }
-  .espera-critica { font-weight:800; color:#B91C1C; }
-  body.dark .espera-alerta { color:#F5A623; }
-  body.dark .espera-critica { color:#FCA5A5; }
-
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
-
-  /* Modal de receber mercadorias: bottom-sheet, mesmo padrão do modal de
-     confirmação (§8), mas com campo de leitura e resultados ao vivo. */
-  .modal-receber { max-height:78vh; overflow-y:auto; }
-  .receber-topo { text-align:center; margin-bottom:18px; }
-  .receber-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:19px; color:var(--text-heading); }
-  .receber-sub { font-size:13px; color:var(--text); margin-top:6px; }
-  .receber-campo { position:relative; max-width:620px; margin:0 auto 16px; }
-  .receber-campo svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--text); pointer-events:none; }
-  .receber-campo input { width:100%; font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px 12px 38px; outline:none; }
-  .receber-campo input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .receber-resultados { max-width:620px; margin:0 auto 18px; }
-  .receber-vazio { font-size:12.5px; color:var(--text); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 13px; }
-  .receber-erro { border-color:#B91C1C; }
-  body.dark .receber-erro { border-color:#FCA5A5; }
-  .receber-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 13px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; cursor:pointer; background:var(--page-bg); }
-  .receber-item:hover { background: rgba(120,120,140,0.08); }
-  .receber-item.ativo { border-color: var(--brand-blue); box-shadow: inset 0 0 0 1px var(--brand-blue); }
-  .btn-primary .esc-hint { color:#fff; }
-  .receber-item-info { flex:1; min-width:0; }
-  .receber-item-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
-  .receber-item-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+
+  /* ===== DETALHE DO PRODUTO ===== */
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
+
+  /* Faixa de KPIs — e aqui que mora a quebra completa dos estagios (item 19),
+     por isso a listagem pode ficar rasa com 9 colunas. */
+  .kpi-faixa { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:4px 0; margin-bottom:16px; }
+  .kpi { flex:1 1 150px; min-width:140px; padding:14px 18px; border-right:1px solid var(--border); }
+  .kpi:last-child { border-right:none; }
+  .kpi-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); line-height:1.15; }
+  .kpi-un { font-size:12px; font-weight:700; color:var(--text); margin-left:4px; }
+  .kpi-rotulo { font-size:11.5px; font-weight:700; color:var(--text); margin-top:3px; text-transform:lowercase; }
+  .kpi-nota { display:block; font-size:10.5px; font-weight:700; color:var(--text); opacity:0.7; margin-top:2px; }
+  .kpi-fora { background:var(--page-bg); border-left:1px dashed var(--border); }
+  .kpi-fora .kpi-valor { color:var(--text); }
+  .kpi.destaque .kpi-valor { color:var(--active-text); }
+  .kpi-valor.travado { color:#B45309; }
+  body.dark .kpi-valor.travado { color:#F5A623; }
+  .kpi-valor.bloq { color:#B91C1C; }
+  body.dark .kpi-valor.bloq { color:#FCA5A5; }
+  .kpi-valor.apagado { color:var(--text); opacity:0.5; }
+
+  /* Abas do detalhe — mesmo componente das abas de situacao (§7.2) */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+
+  /* Ledger */
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .mov-obs { color:var(--text); font-size:12.5px; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+
+  /* Formulario do drawer de lancamento */
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+  /* ===== ACERTO MULTI-PRODUTO ===== */
+  .input-senha { position:relative; }
+  .input-senha input[type="password"], .input-senha input[type="text"] { padding-right:38px; }
+  .input-senha input:-webkit-autofill, .input-senha input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text-heading);
+    -webkit-box-shadow: 0 0 0px 1000px var(--page-bg) inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+  .toggle-senha-btn { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; cursor:pointer; color:var(--text); border-radius:6px; }
+  .toggle-senha-btn:hover { color:var(--text-heading); background:rgba(120,120,140,0.1); }
+  .toggle-senha-btn svg { width:17px; height:17px; }
+  .senha-usuario-label { font-size:13px; color:var(--text); margin-bottom:2px; }
+  .senha-usuario-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); margin-bottom:18px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+  .section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .busca-card { margin-bottom:16px; }
+  .busca-linha { display:flex; gap:14px; flex-wrap:wrap; }
+  .busca-campo { flex:1 1 420px; min-width:0; }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .linha-montada { cursor:default; }
+  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
+  .remover-linha:hover { text-decoration:underline; }
+  .qtd-entrada { color:#166534; font-weight:800; }
+  body.dark .qtd-entrada { color:#4ADE80; }
+  .qtd-saida { color:#B91C1C; font-weight:800; }
+  body.dark .qtd-saida { color:#FCA5A5; }
+  .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
+  .dias-alerta { font-weight:800; color:#B45309; }
+  body.dark .dias-alerta { color:#F5A623; }
+  .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  .estagio-zero { color:var(--text); opacity:0.45; }
+  .previa-entrada { padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal { display:none; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:18px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .aviso-fiscal.show { display:flex; }
+  .aviso-fiscal svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+  .form-field { margin-bottom:18px; }
+  .form-field .dropdown-select { width:100%; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field input[type="password"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:74px; }
+  .form-field input:focus, .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .field-error-msg { display:none; color:var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input { border-color:var(--danger); }
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+  .resumo-lote { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .lote-num { font-family:'Nunito',sans-serif; font-weight:800; font-size:22px; color:var(--text-heading); }
+  .lote-meta { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .lote-fiscal { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:9px; font-size:12px; color:var(--text); line-height:1.45; }
+  .lote-ok { margin-top:12px; padding:10px 12px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px; color:var(--text); }
+
+  /* ===== TRANSFERENCIA ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--brand-blue); }
+  .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
+  .btn-mini { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .btn-mini:hover { background:rgba(120,120,140,0.10); }
+  .btn-mini:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn-mini:disabled:hover { background:var(--card-bg); }
+  .sit-transito { color:#B45309; border-color:#B45309; }
+  body.dark .sit-transito { color:#F5A623; border-color:#6b4c12; }
+  .sit-parcial { color:#B45309; }
+  body.dark .sit-parcial { color:#F5A623; }
+  .sit-recebida { color:#166534; }
+  body.dark .sit-recebida { color:#4ADE80; }
+  .perfil-tag { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--active-bg); color:var(--active-text); margin-left:8px; vertical-align:middle; }
+  .rep-resumo { padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border); }
+  .rep-produto { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .rep-meta { font-size:12px; color:var(--text); margin-top:2px; }
+  .rep-origens-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:10px; }
+  .rep-origem { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; padding:12px 13px; margin-bottom:10px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+  .rep-origem-info { flex:1 1 180px; min-width:0; }
+  .rep-origem-end { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rep-origem-saldo { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .rep-origem-campo { display:flex; flex-direction:column; gap:4px; min-width:118px; }
+  .rep-origem-campo label { font-size:11px; font-weight:700; color:var(--text); }
+  .rep-input { width:118px; font-family:'Nunito',sans-serif; font-size:13.5px; font-weight:700; text-align:right; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:8px 11px; outline:none; }
+  .rep-input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .rep-origem-campo.has-error .rep-input { border-color:var(--danger); }
+  .rep-acoes-linha { text-align:right; }
+  .link-tudo { font-size:11px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-tudo:hover { text-decoration:underline; }
+  .rep-total-linha { display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--text); }
+  .rep-total-linha b { font-family:'Nunito',sans-serif; font-size:17px; font-weight:800; color:var(--text-heading); }
+  .rep-previa { margin-top:10px; margin-bottom:6px; padding:10px 12px; border-radius:9px; font-size:12px; line-height:1.45; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
+  .rep-previa.ok { border-left:3px solid var(--brand-blue); }
+  .rep-previa.alerta { border-left:3px solid var(--danger-solid); }
+
+  .voltar-link { display:inline-flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; margin-bottom:8px; }
+  .voltar-link:hover { color:var(--text-heading); }
+  .voltar-link svg { width:13px; height:13px; }
+  .previa-entrada.alerta { border-left-color:var(--danger-solid); }
+  .busca-campo > label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .busca-campo .dropdown-select { width:100%; }
+
+  /* ===== INVENTÁRIO: índice dos três caminhos ===== */
+  .caminhos { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; margin-bottom:8px; }
+  .caminho { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:10px; }
+  .caminho-icone { width:38px; height:38px; border-radius:11px; background:var(--active-bg); color:var(--active-text); display:flex; align-items:center; justify-content:center; }
+  .caminho-icone svg { width:19px; height:19px; }
+  .caminho-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
+  .caminho-texto { font-size:12.5px; color:var(--text); line-height:1.5; flex:1; }
+  .caminho .btn-mini { align-self:flex-start; margin-top:4px; }
+
+  /* ===== INVENTÁRIO: aviso de depósito travado ===== */
+  /* Nome próprio de propósito: .nota-reservado já tem fundo definido na base e
+     sobrescrever só a cor herdaria o fundo errado (ver design-system §14). */
+  .nota-travada { border-left:3px solid var(--warning); }
+
+  /* ===== INVENTÁRIO: área de arquivo ===== */
+  .dropzone { border:1.5px dashed var(--border); border-radius:11px; padding:22px 14px; text-align:center; cursor:pointer; background:var(--page-bg); color:var(--text); }
+  .dropzone:hover { border-color:var(--chart-2); }
+  .dropzone svg { width:22px; height:22px; margin-bottom:8px; }
+  .dropzone-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .dropzone-sub { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .dropzone.tem-arquivo { border-style:solid; border-color:var(--brand-blue); }
+
+  /* ===== INVENTÁRIO: cabeçalho de grupo dentro do dropdown ===== */
+  .dropdown-grupo { padding:8px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); white-space:nowrap; }
+
+  /* ===== INVENTÁRIO: colunas de contagem ===== */
+  .estoque-table .col-qtde-inv { display:none; }
+  .estoque-table.mostrar-qtde .col-qtde-inv { display:table-cell; }
+  .estoque-table.sem-clique tbody tr { cursor:default; }
+  .input-qtde-inv { width:88px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; text-align:right; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; }
+  .input-qtde-inv:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  /* Só cor, sem fundo — o par .mov-entrada/.mov-saida da base é pílula com fundo
+     próprio e reaproveitar aquele nome pintava retângulo verde/vermelho. */
+  .inv-mais { color:var(--success); font-weight:700; }
+  .inv-menos { color:var(--danger); font-weight:700; }
+  .inv-igual { color:var(--text); }
+  /* Sem `opacity` de proposito: opacidade nao entra no calculo de contraste do
+     auditor (ele so pula quem esta abaixo de 0.3), entao texto apagado por
+     opacity passa na auditoria e reprova na regua de verdade — este mesmo
+     rotulo media 3.28:1 no escuro. Diferenciacao aqui e tamanho, nao brilho. */
+  .inv-nao-contado { color:var(--text); font-size:12px; }
+  /* O input de arquivo nativo fica escondido: quem aparece é a .dropzone (§9 —
+     nada de controle nativo na tela). */
+  #inputArquivo { display:none; }
+
+  /* Imprimir a lista de contagem: só a tabela, em papel branco. */
+  @media print {
+    body { background:#fff; }
+    .sidebar-col, .flyout-col, .topbar, .page-header .header-acoes,
+    .estoque-toolbar, .nota-reservado, .event-drawer, .drawer-backdrop,
+    .modal-card, .breadcrumb { display:none !important; }
+    .card { border:none; box-shadow:none; }
+    .estoque-table th, .estoque-table td { color:#101010; }
+  }
+
+
+  /* ===== HUB DE CONFIGURAÇÕES ===== */
+  .cfg-busca { max-width:600px; margin-bottom:22px; }
+  .cfg-busca .search-wrap { max-width:none; }
+
+  /* Banner informativo da aba (o da RTC tem texto legal; os outros, contexto) */
+  .cfg-banner { display:flex; gap:13px; align-items:flex-start; background:var(--active-bg);
+                border:1px solid var(--border); border-radius:12px; padding:15px 17px; margin-bottom:22px; }
+  .cfg-banner-ico { width:30px; height:30px; border-radius:50%; background:var(--card-bg);
+                    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--active-text); }
+  .cfg-banner-ico svg { width:15px; height:15px; }
+  .cfg-banner-txt { font-size:12.5px; color:var(--text-heading); line-height:1.55; }
+  .cfg-banner-txt b { font-weight:800; }
+
+  /* Cabeçalho de subgrupo dentro da aba ("Outras configurações", "Reforma Tributária") */
+  .cfg-grupo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading);
+               margin:26px 0 2px; padding-top:20px; border-top:1px solid var(--border); }
+  .cfg-grupo:first-child { margin-top:0; padding-top:0; border-top:none; }
+
+  /* A lista de links — o corpo da aba */
+  .cfg-lista { display:flex; flex-direction:column; }
+  .cfg-item { display:flex; align-items:center; gap:10px; padding:15px 2px;
+              border-bottom:1px solid var(--border); cursor:pointer; }
+  .cfg-item:hover .cfg-item-nome { color:var(--active-text); }
+  .cfg-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); }
+  .cfg-item-ajuda { width:14px; height:14px; color:var(--text); flex-shrink:0; }
+  .cfg-item-seta { margin-left:auto; width:14px; height:14px; color:var(--text); flex-shrink:0; }
+
+  /* Badge de estado no próprio item — o índice diz o que falta, sem entrar na tela */
+  .cfg-badge { font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:lowercase;
+               letter-spacing:0.2px; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .cfg-badge-atencao { background:rgba(245,166,35,0.16); color:#B45309; }
+  body.dark .cfg-badge-atencao { color:#F5A623; }
+  .cfg-badge-neutro  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .cfg-badge-novo    { background:var(--active-bg); color:var(--active-text); }
+
+  /* Resultado de busca: o nome da aba aparece como origem do item */
+  .cfg-origem { font-size:11.5px; font-weight:700; color:var(--text); margin-left:2px; }
+
+  .cfg-vazio { padding:40px 0; text-align:center; }
+  .cfg-vazio-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-bottom:5px; }
+  .cfg-vazio-sub { font-size:12.5px; color:var(--text); }
+
+
+  /* ===== TELA DE CONFIGURAÇÃO: campo à esquerda, explicação à direita ===== */
+  /* Formato roubado da tela da GNRE do Olist. O `field-hint` embaixo do campo
+     serve para uma linha; parâmetro precisa de parágrafo, e parágrafo embaixo
+     do campo empurra o formulário todo pra baixo. */
+  .par-secao { background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+               padding:22px 24px; margin-bottom:18px; }
+  .par-secao-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px;
+                      color:var(--text-heading); margin-bottom:4px; }
+  .par-secao-sub { font-size:12.5px; color:var(--text); line-height:1.5; margin-bottom:20px; max-width:620px; }
+
+  .par-linha { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:34px;
+               padding:18px 0; border-top:1px solid var(--border); align-items:start; }
+  .par-linha:first-of-type { border-top:none; padding-top:0; }
+  .par-exp { font-size:12.5px; color:var(--text); line-height:1.55; padding-top:2px; }
+  .par-exp b { color:var(--text-heading); font-weight:700; }
+  .par-onde { display:block; margin-top:7px; font-size:11.5px; color:var(--text); }
+  .par-onde b { color:var(--active-text); font-weight:700; }
+
+  .par-campos { display:flex; gap:14px; flex-wrap:wrap; }
+  .par-campo { display:flex; flex-direction:column; gap:6px; }
+  .par-campo label { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
+  .par-num { display:flex; align-items:center; gap:0; }
+  .par-num input { width:78px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px;
+                   text-align:right; color:var(--text-heading); background:var(--page-bg);
+                   border:1px solid var(--border); border-right:none; border-radius:9px 0 0 9px;
+                   padding:9px 10px; outline:none; }
+  .par-num input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .par-num-sufixo { font-size:12px; font-weight:700; color:var(--text); background:var(--page-bg);
+                    border:1px solid var(--border); border-left:none; border-radius:0 9px 9px 0;
+                    padding:10px 12px; }
+  .par-campo.has-error input, .par-campo.has-error .par-num-sufixo { border-color:var(--danger); }
+  .par-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); }
+  .par-campo.has-error .par-erro { display:block; }
+
+  /* Pré-visualização: o efeito do número na fila de hoje, medido no mock */
+  .par-previa { margin-top:14px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border);
+                border-left:3px solid var(--brand-blue); border-radius:9px; font-size:12px;
+                color:var(--text); line-height:1.5; }
+  .par-previa b { color:var(--text-heading); }
+  .par-previa.alerta { border-left-color:var(--danger-solid); }
+
+  /* Barra de salvar fixa — o formulário é longo e o botão não pode fugir da tela */
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+
+  /* ===== Radio customizado (§11 — mesmo de Vendedores-detalhe) ===== */
+  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
+  .radio-nota { font-size:11.5px; color:var(--text); margin:2px 0 0 26px; }
+
+  /* Bloco do que ainda nao esta na tela — some no print, mas nao no protótipo */
+  .par-futuro { opacity:1; }
+  .par-futuro .par-secao-titulo { color:var(--text); }
+
+  /* ===== Confirmações por senha: linha de ação ===== */
+  /* Reusa .switch-row (§6) — nao inventa componente. So acrescenta o estado
+     "travado", que precisa existir sem apagar texto com opacity (§14). */
+  /* Acao de tela inexistente nao ganha interruptor: controle que nao controla
+     nada mente. Ganha um cadeado, que diz "isto e assim e nao se mexe aqui". */
+  .conf-cadeado { width:17px; height:17px; color:var(--text); flex-shrink:0; margin-right:2px; }
+  .conf-estado { font-size:11.5px; font-weight:700; margin-top:5px; }
+  .conf-estado.exige { color: var(--active-text); }
+  .conf-estado.livre { color: var(--danger); }
+  .conf-estado.indisponivel { color: var(--text); }
+
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -711,7 +1141,37 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
+  /* ===== Matriz módulo × verbo (Confirmações por senha / Permissões) ===== */
+  .mtz { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:4px; }
+  .mtz-linha { display:grid; grid-template-columns:minmax(0,1fr) 92px 92px 92px; align-items:center;
+               gap:10px; padding:12px 14px; border-top:1px solid var(--border); }
+  .mtz-linha:first-child { border-top:none; }
+  .mtz-cab { background:var(--page-bg); padding-top:9px; padding-bottom:9px; }
+  .mtz-cab-verbo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                   letter-spacing:0.5px; color:var(--text); text-align:center; }
+  .mtz-cab-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase;
+                    letter-spacing:0.5px; color:var(--text); }
+  .mtz-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .mtz-onde { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mtz-cel { display:flex; justify-content:center; align-items:center; }
+  .mtz-legenda { display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--text); margin:10px 2px 18px; }
+  .mtz-legenda .conf-cadeado { width:14px; height:14px; }
+
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* ===== Estagios do funil: a ordem e o dado ===== */
+  .ef-linha { display:flex; align-items:center; gap:12px; padding:13px 6px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .ef-linha:last-child { border-bottom:none; }
+  .ef-linha:hover { background:rgba(120,120,140,0.07); }
+  .ef-alca { display:flex; color:var(--text); cursor:grab; }
+  .ef-alca.fixo { opacity:0.35; cursor:not-allowed; }
+  .ef-alca svg { width:16px; height:16px; }
+  .ef-num { width:22px; text-align:right; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text); font-variant-numeric:tabular-nums; }
+  .ef-nome { flex:1; min-width:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); }
+  .ef-chip { display:inline-block; margin-left:10px; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--active-text); border:1px solid var(--active-text); border-radius:20px; padding:1px 8px; }
+  .ef-usos { font-size:12px; color:var(--text); white-space:nowrap; }
+  .ef-seta { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--text-heading); cursor:pointer; padding:0; }
+  .ef-seta svg { width:13px; height:13px; }
+  .ef-seta:disabled { opacity:0.3; cursor:not-allowed; }
 </style>
 </head>
 <body class="dark">
@@ -733,7 +1193,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
       <span class="label-text">Cadastros</span>
     </div>
-    <div class="nav-item active" data-id="estoque" data-label="Estoque">
+    <div class="nav-item" data-id="estoque" data-label="Estoque">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 7l3-4h14l3 4"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
       <span class="label-text">Estoque</span>
     </div>
@@ -765,7 +1225,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span class="label-text">Central de Suporte</span>
       </div>
-      <div class="bottom-item" data-id="config" data-label="Configurações">
+      <div class="bottom-item active" data-id="config" data-label="Configurações">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span class="label-text">Configurações</span>
       </div>
@@ -911,185 +1371,60 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Conferência de Entrada</h1>
-      <div class="subtitle">A fila do galpão: o que está a caminho, o que chegou e ainda não foi conferido, e o que já passou pela conferência</div>
+      <h1>Estágios do funil de vendas</h1>
+      <div class="subtitle">O caminho de um assunto no CRM, do primeiro contato ao fechamento. A ordem da lista é a ordem do funil.</div>
     </div>
     <div class="header-acoes">
-      <button class="btn-secundario-topo" id="btnImportarXML">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Importar XML
-      </button>
-      <button class="btn-primary" id="btnReceber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-6 9 6v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
-        Receber mercadorias
-      </button>
-      <div class="dropdown-select" id="menuMaisAcoes">
-        <button type="button" class="btn-ghost dropdown-select-btn">
-          <span class="dropdown-select-label">Mais ações</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:300px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="notas">Abrir Entrada de Notas</div>
-          <div class="dropdown-select-item" data-acao="romaneio">Imprimir romaneio do dia</div>
-          <div class="dropdown-select-item" data-acao="exportar">Exportar fila para planilha</div>
-        </div>
-      </div>
+      <button class="btn-primary" id="btnNovoEstagio">Novo estágio</button>
     </div>
   </div>
 
-  <div class="estoque-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Pesquise por fornecedor, nº da nota ou chave de acesso">
-    </div>
-
-    <div class="periodo-wrap" id="periodoWrap">
-      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="rotuloPeriodo">Sem filtro de período</span>
-      </button>
-      <div class="periodo-menu" id="periodoMenu">
-        <div class="periodo-titulo">Período de chegada</div>
-        <div class="periodo-opcoes" id="periodoOpcoes">
-          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
-          <button class="periodo-op" data-periodo="dia">Do dia</button>
-          <button class="periodo-op" data-periodo="7">Últimos 7 dias</button>
-          <button class="periodo-op" data-periodo="30">Últimos 30 dias</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroDeposito" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todos os depósitos</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Todos os depósitos</div>
-        <div class="dropdown-select-item" data-value="1">Geral</div>
-        <div class="dropdown-select-item" data-value="2">Galpão Centro</div>
-        <div class="dropdown-select-item" data-value="3">Loja Física Aldeota</div>
-        <div class="dropdown-select-item" data-value="4">Bancada Desk Tech</div>
-      </div>
-    </div>
+  <div class="nota-reservado">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <span>Arraste pela alça ou use as setas para mudar a ordem. O <b>último estágio encerra o assunto</b>: pode ser renomeado, mas não sai do fim nem é excluído. Estágio com assunto dentro também não é excluído.</span>
   </div>
 
-  <div class="abas-situacao" id="abasSituacao">
-    <div class="aba-sit active" data-sit="todos"><span>Todas</span><span class="sit-contador" data-cont="todos">0</span></div>
-    <div class="aba-sit" data-sit="aguardando"><span class="sit-dot sit-aguardando"></span><span>Aguardando entrada</span><span class="sit-contador" data-cont="aguardando">0</span></div>
-    <div class="aba-sit" data-sit="pronto"><span class="sit-dot sit-pronto"></span><span>Pronto para conferir</span><span class="sit-contador" data-cont="pronto">0</span></div>
-    <div class="aba-sit" data-sit="emconferencia"><span class="sit-dot sit-emconferencia"></span><span>Em conferência</span><span class="sit-contador" data-cont="emconferencia">0</span></div>
-    <div class="aba-sit" data-sit="conferida"><span class="sit-dot sit-conferida"></span><span>Conferidas</span><span class="sit-contador" data-cont="conferida">0</span></div>
+  <div class="par-secao">
+    <div id="listaEstagios"></div>
   </div>
 
-  <div class="card">
-    <div class="nota-reservado" id="avisoFila">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-      <span id="avisoFilaTexto"></span>
+  <div class="drawer-backdrop" id="efBackdrop"></div>
+  <div class="event-drawer" id="efDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="efTitulo">Novo estágio</div>
+      <div class="drawer-close" id="efFechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
     </div>
-
-    <div class="selecionar-todos-row">
-      <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
-      <label for="checkSelecionarTodos">Selecionar todas</label>
+    <div class="form-field" id="efCampoNome">
+      <label for="efNome">Descrição do estágio</label>
+      <input type="text" id="efNome" maxlength="40" placeholder="Ex: Demonstração feita">
+      <div class="field-error-msg" id="efErro">Informe a descrição do estágio.</div>
+      <div class="field-hint" id="efHint">Estágio novo entra antes do último, que é o que encerra.</div>
     </div>
-
-    <div class="estoque-table-wrap">
-      <table class="estoque-table">
-        <thead>
-          <tr>
-            <th class="col-texto" style="width:34px;"></th>
-            <th class="col-texto ordenavel" data-ordem="numero">Nota <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="fornecedor">Fornecedor <span class="seta">▲</span></th>
-            <th class="col-texto">Depósito</th>
-            <th class="ordenavel" data-ordem="itens" title="Quantidade de itens diferentes na nota">Itens <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="chegada">Chegou em <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="espera" title="Dias desde a chegada sem a conferência ter fechado">Espera <span class="seta">▲</span></th>
-            <th class="col-texto">Situação</th>
-          </tr>
-        </thead>
-        <tbody id="corpoTabela"></tbody>
-      </table>
+    <div class="drawer-footer">
+      <button class="btn-primary" id="efSalvar">Salvar</button>
+      <div class="drawer-link" id="efCancelar">Cancelar</div>
     </div>
-
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="empty-state-title">Nada nesta fila</div>
-      <div class="empty-state-sub">Com os filtros atuais, não há nota esperando conferência.</div>
-      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
-    </div>
-
-    <div class="selecao-bar" id="barraSelecao">
-      <span class="selecao-info" id="selecaoInfo">0 selecionadas</span>
-      <div class="selecao-acoes">
-        <button class="btn-secundario" id="btnMarcarRecebidas">Marcar mercadoria como recebida</button>
-        <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
-      </div>
-    </div>
-
-    <div class="estoque-rodape">
-      <span id="contagemNotas">0 notas</span>
-      <span class="estoque-total">Esperando há mais tempo: <b id="maiorEspera">—</b></span>
-    </div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
-          </div>
-        </div>
-      </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-      </div>
+    <div class="excluir-link" id="efExcluir" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Excluir estágio
     </div>
   </div>
-
-<!-- PAINEL LATERAL: resumo da nota -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="eventDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="drawerTitulo">Nota</div>
-    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-  <div id="drawerCorpo"></div>
 </div>
 
-<!-- MODAL: receber mercadorias (leitor de código / busca da nota) -->
-<div class="drawer-backdrop" id="receberBackdrop"></div>
-<div class="modal-card modal-receber" id="receberModal">
-  <div class="receber-topo">
-    <div class="receber-titulo">Escaneie a nota de entrada para começar</div>
-    <div class="receber-sub">Bipe o código de barras do DANFE, ou digite fornecedor, número ou chave de acesso</div>
-  </div>
-  <div class="receber-campo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="campoReceber" placeholder="Pesquise por fornecedor, número ou chave de acesso" autocomplete="off">
-  </div>
-  <div class="receber-resultados" id="receberResultados"></div>
-  <div class="confirm-senha-row" id="campoSenhaModal">
-    <label>Sua senha</label>
-    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
-  </div>
+<!-- MODAL: aviso (telas ainda não construídas) -->
+<div class="drawer-backdrop" id="avisoBackdrop"></div>
+<div class="modal-card" id="avisoModal">
+  <div class="confirm-titulo">Confirmação</div>
+  <div class="confirm-texto" id="avisoTexto">Confirma esta ação?</div>
   <div class="confirm-acoes">
-    <button class="btn-primary" id="btnConfirmarReceber">Receber mercadorias <span class="esc-hint">ENTER</span></button>
-    <div class="drawer-link" id="btnCancelarReceber">Cancelar <span class="esc-hint">ESC</span></div>
+    <button class="btn-primary" id="btnAvisoOk">Entendi</button>
+    <div class="drawer-link" id="btnAvisoFechar">Fechar <span class="esc-hint">ESC</span></div>
   </div>
 </div>
 
-<!-- MODAL: confirmação / aviso -->
+
+
+<!-- MODAL: confirmação centralizada (reutilizável — excluir/inativar, individual e em massa) -->
 <div class="drawer-backdrop" id="confirmModalBackdrop"></div>
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
@@ -1098,12 +1433,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
     Estou ciente destas ações e desejo continuar.
   </label>
+  <div class="confirm-senha-row" id="campoSenhaModal">
+    <label>Sua senha</label>
+    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+  </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
   </div>
-</div>
-
 </div>
 
 <script>
@@ -1137,6 +1475,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
+    separacaoAlertaHoras: 4,
+    separacaoCriticoHoras: 12,
+    separacaoOrdemPorEndereco: true,
+    romaneioSugereAutomatico: true,
+    conferenciaSaidaCega: true,
+    conferenciaSaidaAlertaHoras: 4,
+    conferenciaSaidaCriticoHoras: 12,
+    sugerirEmbalagem: true,
+    reservaExpiraDias: 3,
+    bloquearPedidoAtrasoDias: 1,
     conferenciaCega: true,
     ocultarItensFila: false,
     ocultarVolumesFila: false,
@@ -1144,6 +1492,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // CRM (esta tela grava, Vendas > CRM le)
+    crmDiasSemInteracao: 30,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1161,75 +1511,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const PARAM = lerParametros();
-
-  // ===== DICIONÁRIO DE NOMES =====
-  // Rotulos de listas FECHADAS — aquelas em que cada entrada dispara um
-  // comportamento no codigo. A CHAVE (`revendavel`, `avaria`, `nenhum`) e do
-  // codigo e nunca muda; o ROTULO e de quem usa o sistema e se edita em
-  // Configuracoes > Nomes do sistema.
-  //
-  // Nao confundir com cadastro: cadastro e para lista que CRESCE (motivos,
-  // depositos, categorias). Aqui nao da para criar nem excluir, so renomear —
-  // um quarto estado inventado nao teria codigo que o entendesse.
-  //
-  // Mesmo molde do catalogo de acoes: uma lista so, lida por todas as telas
-  // que mostram esses rotulos. Duas copias divergiriam.
-  const NOMES_PADRAO = {
-    // Devolucao — estado da mercadoria que voltou
-    'devolucao.estado.revendavel': 'Boa para revenda',
-    'devolucao.estado.avaria':     'Avariada',
-    'devolucao.estado.nenhum':     'Não voltou',
-    // Devolucao — de quem e a conta
-    'devolucao.grupo.nossa':      'Nossa operação',
-    'devolucao.grupo.transporte': 'Transporte',
-    'devolucao.grupo.cliente':    'Cliente',
-    'devolucao.grupo.fiscal':     'Fiscal',
-    // Devolucao — situacao do documento
-    'devolucao.situacao.aberta':     'Em aberto',
-    'devolucao.situacao.andamento':  'Em andamento',
-    'devolucao.situacao.finalizada': 'Finalizada',
-    'devolucao.situacao.cancelada':  'Cancelada',
-    // Entrada de notas — de onde a nota veio
-    'entrada.origem.compra':    'Compra',
-    'entrada.origem.devolucao': 'Devolução',
-    // Entrada de notas — situacao do documento
-    'entrada.situacao.transito':      'Em trânsito',
-    'entrada.situacao.aconferir':     'A conferir',
-    'entrada.situacao.emconferencia': 'Em conferência',
-    'entrada.situacao.divergencia':   'Com divergência',
-    'entrada.situacao.lancada':       'Lançada',
-    'entrada.situacao.recusada':      'Recusada',
-    // Motivos de perda — em que movimento o motivo vale
-    'perda.movimento.entrada': 'Entrada',
-    'perda.movimento.saida':   'Saída',
-    'perda.movimento.balanco': 'Balanço',
-    // Motivos de perda — o que a baixa obriga
-    'perda.fiscal.nfe':     'Exige NF-e própria',
-    'perda.fiscal.interno': 'Resolve com documento interno',
-    'perda.fiscal.depende': 'Depende da diferença',
-    'perda.fiscal.nenhum':  'Não gera obrigação',
-    // Metas — situacao da meta no mes
-    'metas.situacao.batida':    'Meta batida',
-    'metas.situacao.noritmo':   'No ritmo',
-    'metas.situacao.abaixo':    'Abaixo do ritmo',
-    'metas.situacao.naobatida': 'Não bateu',
-    'metas.situacao.semmeta':   'Sem meta',
-    'metas.situacao.futuro':    'Ainda não começou'
-  };
-  function lerNomes() {
-    try {
-      const bruto = localStorage.getItem('deskNomes');
-      return Object.assign({}, NOMES_PADRAO, bruto ? JSON.parse(bruto) : {});
-    } catch (e) { return Object.assign({}, NOMES_PADRAO); }
-  }
-  function gravarNomes(n) {
-    try { localStorage.setItem('deskNomes', JSON.stringify(n)); return true; }
-    catch (e) { return false; }
-  }
-  const NOMES = lerNomes();
-  // Chave sem rotulo devolve a propria chave, e nao string vazia: um rotulo
-  // que some e pior que um rotulo feio — some sem avisar.
-  function nome(chave) { return NOMES[chave] || NOMES_PADRAO[chave] || chave; }
 
   // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
   // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
@@ -1271,8 +1552,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
     // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
-    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
-    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'estagiosFunil', nome:'Estágios do funil de vendas', onde:'Configurações → Estágios do funil de vendas', grupo:'Vendas', ligado:{ criar:true, editar:true, excluir:true } }
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1285,7 +1567,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. A excecao e
+    // o que apaga um controle: desligar a contagem cega da saida e reabrir uma
+    // conferencia ja faturada nascem pedindo senha.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1321,6 +1617,53 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
     if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
   }
+
+  // ===== MODAL DE CONFIRMAÇÃO (reutilizável — excluir/inativar, individual e em massa) =====
+  // Esta tela tinha um modal de AVISO com os ids do de confirmacao. Eram coisas
+  // diferentes usando o mesmo nome — e o resultado era que `confirmarAcao` nao
+  // achava `abrirModalConfirmacao` e falhava fechada. O aviso agora e #avisoModal.
+  let confirmAoConfirmarCallback = null;
+
+  function abrirModalConfirmacao(texto, quantidade, corBotao, aoConfirmar) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    const cienteRow = document.getElementById('confirmCienteRow');
+    const cienteCheckbox = document.getElementById('confirmCienteCheckbox');
+    const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+    cienteCheckbox.checked = false;
+    btnConfirmar.className = corBotao === 'danger' ? 'btn-danger' : 'btn-primary';
+    if (quantidade > 1) {
+      cienteRow.style.display = 'flex';
+      btnConfirmar.disabled = true;
+    } else {
+      cienteRow.style.display = 'none';
+      btnConfirmar.disabled = false;
+    }
+    confirmAoConfirmarCallback = aoConfirmar;
+    document.getElementById('confirmModalBackdrop').classList.add('open');
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  function fecharModalConfirmacao() {
+    document.getElementById('confirmModalBackdrop').classList.remove('open');
+    document.getElementById('confirmModal').classList.remove('open');
+    confirmAoConfirmarCallback = null;
+  }
+  document.getElementById('confirmCienteCheckbox').addEventListener('change', (e) => {
+    document.getElementById('btnConfirmModalConfirmar').disabled = !e.target.checked;
+  });
+  document.getElementById('btnConfirmModalConfirmar').addEventListener('click', () => {
+    if (document.getElementById('btnConfirmModalConfirmar').disabled) return;
+    const callback = confirmAoConfirmarCallback;
+    fecharModalConfirmacao();
+    if (callback) callback();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('confirmModalBackdrop').addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('open')) {
+      fecharModalConfirmacao();
+    }
+  });
 
   // ----- Senha dentro do modal de confirmacao compartilhado -----
   // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
@@ -1486,11 +1829,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
 
+
+
   const card = document.getElementById('card');
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Estoque', 'Conferência de Entrada'];
+  let path = ['Estoque', 'Controle de Estoques'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1626,545 +1971,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
-  // ===== DADOS (mock) =====
-  const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
 
-  // Esta tela e a fila do GALPAO. Entrada de Notas e a mesma nota vista pelo lado
-  // do documento (manifestacao, prazos, valor); aqui o que importa e onde ela esta
-  // no trabalho fisico: a caminho, na doca esperando, sendo contada, ou fechada.
-  // De onde a peca da fila veio. Conferencia de ENTRADA recebe compra e
-  // devolucao, e quem abre a caixa precisa saber qual das duas antes de
-  // contar: numa devolucao o esperado e o que o cliente disse que mandou.
-  function origemDaFila(n) {
-    if (n.origem !== 'devolucao') return nome('entrada.origem.compra');
-    return nome('entrada.origem.devolucao') + (n.pedido ? ' · ' + n.pedido : '');
+
+  // ===== MODAL DE AVISO =====
+  const avisoModal = document.getElementById('avisoModal');
+  const avisoBackdrop = document.getElementById('avisoBackdrop');
+
+  function avisar(texto) {
+    document.getElementById('avisoTexto').textContent = texto;
+    avisoBackdrop.classList.add('open');
+    avisoModal.classList.add('open');
   }
-
-  const SITUACAO_LABEL = {
-    aguardando: 'Aguardando entrada', pronto: 'Pronto para conferir',
-    emconferencia: 'Em conferência', conferida: 'Conferida'
-  };
-  const SITUACAO_CLASSE = {
-    aguardando: 'bs-aguardando', pronto: 'bs-pronto',
-    emconferencia: 'bs-emconferencia', conferida: 'bs-conferida'
-  };
-
-  function dvChave(d43) {
-    let soma = 0, peso = 2;
-    for (let i = d43.length - 1; i >= 0; i--) {
-      soma += Number(d43[i]) * peso;
-      peso = peso === 9 ? 2 : peso + 1;
-    }
-    const dv = 11 - (soma % 11);
-    return String(dv >= 10 ? 0 : dv);
+  function fecharAviso() {
+    avisoBackdrop.classList.remove('open');
+    avisoModal.classList.remove('open');
   }
-  const zf = (v, n) => String(v).padStart(n, '0');
-  function chaveDe(uf, aamm, cnpj, serie, numero) {
-    const d43 = uf + aamm + cnpj.replace(/\D/g, '') + '55' + zf(serie, 3) + zf(numero, 9) + '1' + zf(numero * 7919 % 100000000, 8);
-    return d43 + dvChave(d43);
-  }
-  const fmtChave = (c) => c.replace(/(\d{4})(?=\d)/g, '$1 ');
-
-  const FORNECEDORES = {
-    'Móveis Nordeste Ltda':    { cnpj: '12.345.678/0001-90', uf: '23' },
-    'TechParts Distribuidora': { cnpj: '98.765.432/0001-10', uf: '35' },
-    'Nordic Home Importação':  { cnpj: '45.222.111/0001-33', uf: '35' },
-    'Tecidos Ceará S/A':       { cnpj: '77.888.999/0001-44', uf: '23' },
-    'Papelaria Central':       { cnpj: '11.222.333/0001-55', uf: '23' },
-    'Embalagens do Vale':      { cnpj: '55.666.777/0001-66', uf: '23' },
-    'Luminárias Brasil':       { cnpj: '33.444.555/0001-77', uf: '31' }
-  };
-
-  const NOTAS = [
-    { id: 1,  origem: 'compra', numero: 9051, serie: 1, fornecedor: 'Nordic Home Importação',  dep: 2, emissao: '2026-09-08', chegada: '2026-09-10', itens: 4, volumes: 9,  valor: 24890.00, situacao: 'emconferencia', oc: 3 },
-    { id: 2,  origem: 'compra', numero: 2301, serie: 1, fornecedor: 'Embalagens do Vale',      dep: 2, emissao: '2026-09-09', chegada: '2026-09-10', itens: 2, volumes: 30, valor: 1780.00,  situacao: 'emconferencia', oc: 14 },
-    { id: 3,  origem: 'compra', numero: 4476, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-09', chegada: '2026-09-11', itens: 1, volumes: 2,  valor: 890.00,   situacao: 'pronto',        oc: 12 },
-    { id: 4,  origem: 'compra', numero: 1190, serie: 2, fornecedor: 'Tecidos Ceará S/A',       dep: 2, emissao: '2026-08-31', chegada: '2026-09-03', itens: 3, volumes: 12, valor: 11200.00, situacao: 'pronto',        oc: 11 },
-    { id: 5,  origem: 'compra', numero: 4479, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-11', chegada: '',           itens: 2, volumes: 4,  valor: 1580.00,  situacao: 'aguardando',    oc: 7 },
-    { id: 6,  origem: 'compra', numero: 731,  serie: 1, fornecedor: 'Papelaria Central',       dep: 1, emissao: '2026-09-10', chegada: '',           itens: 5, volumes: 5,  valor: 412.90,   situacao: 'aguardando',    oc: 5 },
-    { id: 7,  origem: 'compra', numero: 7720, serie: 1, fornecedor: 'Móveis Nordeste Ltda',    dep: 2, emissao: '2026-09-09', chegada: '',           itens: 6, volumes: 22, valor: 9750.00,  situacao: 'aguardando',    oc: 6 },
-    // Devolucoes de venda. A de id 8 ainda esta na rua (chegada vazia); a 9
-    // chegou e espera alguem abrir a caixa.
-    { id: 8,  origem: 'devolucao', numero: 9001, serie: 1, fornecedor: 'Construtora Veredas Ltda', dep: 1, emissao: '2026-10-06', chegada: '',           itens: 1, volumes: 1, valor: 1080.00, situacao: 'aguardando', oc: null, pedido: 'PV-4862' },
-    { id: 9,  origem: 'devolucao', numero: 9002, serie: 1, fornecedor: 'Marcos Aurélio Pinheiro',  dep: 1, emissao: '2026-10-03', chegada: '2026-10-07', itens: 2, volumes: 1, valor: 349.90,  situacao: 'pronto',     oc: null, pedido: 'PV-4790' },
-    { id: 8,  numero: 8840, serie: 1, fornecedor: 'Luminárias Brasil',       dep: 2, emissao: '2026-09-10', chegada: '',           itens: 3, volumes: 7,  valor: 5380.00,  situacao: 'aguardando',    oc: 10 },
-    { id: 9,  numero: 4471, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-02', chegada: '2026-09-04', itens: 2, volumes: 6,  valor: 7313.00,  situacao: 'conferida',     oc: 2 },
-    { id: 10, numero: 1182, serie: 2, fornecedor: 'Tecidos Ceará S/A',       dep: 2, emissao: '2026-09-03', chegada: '2026-09-05', itens: 2, volumes: 8,  valor: 3960.00,  situacao: 'conferida',     oc: 4 },
-    { id: 11, numero: 4468, serie: 1, fornecedor: 'Móveis Nordeste Ltda',    dep: 2, emissao: '2026-08-28', chegada: '2026-09-01', itens: 2, volumes: 26, valor: 18420.00, situacao: 'conferida',     oc: 1 },
-    { id: 12, numero: 2290, serie: 1, fornecedor: 'Embalagens do Vale',      dep: 2, emissao: '2026-09-05', chegada: '2026-09-08', itens: 1, volumes: 40, valor: 2240.00,  situacao: 'conferida',     oc: 8 },
-    { id: 13, numero: 6614, serie: 1, fornecedor: 'Luminárias Brasil',       dep: 2, emissao: '2026-08-30', chegada: '2026-09-02', itens: 3, volumes: 11, valor: 5380.00,  situacao: 'conferida',     oc: 10 },
-    { id: 14, numero: 736,  serie: 1, fornecedor: 'Papelaria Central',       dep: 1, emissao: '2026-08-22', chegada: '2026-08-26', itens: 4, volumes: 4,  valor: 320.00,   situacao: 'conferida',     oc: 13 }
-  ];
-  // Cliente pessoa fisica nao emite NF-e: nesses casos a nota de entrada e
-  // emitida por NOS, contra o nosso proprio CNPJ. Cliente pessoa juridica
-  // emite a dele, e a nota chega como qualquer outra.
-  const EMPRESA = { nome: 'Desk Company', cnpj: '41.903.556/0001-02', uf: '21' };
-  const CLIENTES = {
-    'Construtora Veredas Ltda': { cnpj: '12.884.330/0001-47', uf: '21', pj: true },
-    'Marcos Aurélio Pinheiro':  { cnpj: '', uf: '21', pj: false }
-  };
-  NOTAS.forEach(n => {
-    if (n.origem === 'devolucao') {
-      const c = CLIENTES[n.fornecedor] || { cnpj: '', uf: '21', pj: false };
-      const propria = !c.pj;
-      n.cnpj = propria ? EMPRESA.cnpj : c.cnpj;
-      n.chave = chaveDe(propria ? EMPRESA.uf : c.uf,
-                        n.emissao.slice(2, 4) + n.emissao.slice(5, 7), n.cnpj, n.serie, n.numero);
-      return;
-    }
-    const f = FORNECEDORES[n.fornecedor];
-    n.cnpj = f.cnpj;
-    n.chave = chaveDe(f.uf, n.emissao.slice(2, 4) + n.emissao.slice(5, 7), f.cnpj, n.serie, n.numero);
-  });
-
-  let buscaAtual = '';
-  let situacaoAtual = 'todos';
-  let periodoAtual = 'todos';
-  let filtroDepositoAtual = 'todos';
-  let ordemCampo = 'espera';
-  let ordemAsc = false;
-  let itensSelecionados = new Set();
-  let paginaAtual = 1;
-  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
-
-  const HOJE = new Date('2026-09-11T12:00:00');
-
-  const fmtNum = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtMoeda = (n) => 'R$ ' + fmtNum(n);
-  function fmtData(iso) {
-    if (!iso) return 'a caminho';
-    const [a, m, d] = iso.split('-');
-    return d + '/' + m + '/' + a;
-  }
-  const diasDesde = (iso) => Math.round((HOJE - new Date(iso + 'T12:00:00')) / 86400000);
-
-  // Espera so existe depois que a mercadoria chegou: nota a caminho nao esta
-  // atrasada, esta viajando. E conferencia fechada parou o relogio.
-  function esperaDe(n) {
-    if (!n.chegada || n.situacao === 'conferida') return -1;
-    return diasDesde(n.chegada);
-  }
-  function textoEspera(d) {
-    if (d < 0) return '—';
-    if (d === 0) return 'hoje';
-    return d + (d === 1 ? ' dia' : ' dias');
-  }
-  // Configuracoes > estoque > Configuracoes da conferência. Esconder a contagem
-  // esperada e a mesma ideia da conferencia cega, um nivel acima: quem recebe
-  // conta sem saber o numero que "deveria" dar. Padrao: visivel.
-  const mostraItens   = () => !PARAM.ocultarItensFila;
-  const mostraVolumes = () => !PARAM.ocultarVolumesFila;
-  const OCULTO_TITULO = 'Oculto por configura\u00e7\u00e3o \u2014 quem recebe conta sem saber o esperado.';
-  function resumoItensVolumes(n) {
-    const i = mostraItens()   ? n.itens + ' itens'     : 'itens ocultos';
-    const v = mostraVolumes() ? n.volumes + ' volumes' : 'volumes ocultos';
-    return i + ' \u00b7 ' + v;
-  }
-
-  const classeEspera = (d) => d < 0 ? 'espera-neutra' : (d > PARAM.conferenciaCompraCritico ? 'espera-critica' : (d > PARAM.conferenciaCompraAlerta ? 'espera-alerta' : 'espera-ok'));
-
-  NOTAS.forEach(n => { n.espera = esperaDe(n); });
-
-  function passaPeriodo(n) {
-    if (periodoAtual === 'todos') return true;
-    if (!n.chegada) return false;
-    const d = diasDesde(n.chegada);
-    if (periodoAtual === 'dia') return d === 0;
-    if (periodoAtual === '7') return d >= 0 && d <= 7;
-    if (periodoAtual === '30') return d >= 0 && d <= 30;
-    return true;
-  }
-
-  function combina(n, termo) {
-    if (termo === '') return true;
-    const digitos = termo.replace(/\D/g, '');
-    return n.fornecedor.toLowerCase().includes(termo) ||
-      String(n.numero) === termo ||
-      (digitos.length >= 4 && n.chave.includes(digitos));
-  }
-
-  // Filtro SEM a aba de situacao — e ele que alimenta os contadores das abas (§7.2).
-  function baseFiltrada() {
-    const termo = buscaAtual.trim().toLowerCase();
-    return NOTAS.filter(n => {
-      const passaDep = filtroDepositoAtual === 'todos' || String(n.dep) === filtroDepositoAtual;
-      return passaDep && combina(n, termo) && passaPeriodo(n);
-    });
-  }
-
-  function notasFiltradas() {
-    let lista = baseFiltrada().filter(n => situacaoAtual === 'todos' || n.situacao === situacaoAtual);
-    const valorDe = (n) => {
-      const v = n[ordemCampo];
-      return typeof v === 'string' ? v.toLowerCase() : v;
-    };
-    lista.sort((a, b) => {
-      const va = valorDe(a), vb = valorDe(b);
-      if (va < vb) return ordemAsc ? -1 : 1;
-      if (va > vb) return ordemAsc ? 1 : -1;
-      return 0;
-    });
-    return lista;
-  }
-
-  function notasPagina() {
-    const listaCompleta = notasFiltradas();
-    const totalPaginas = Math.max(1, Math.ceil(listaCompleta.length / itensPorPaginaAtual));
-    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
-    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
-    const fim = Math.min(inicio + itensPorPaginaAtual, listaCompleta.length);
-    return { listaCompleta, inicio, fim, totalPaginas, lista: listaCompleta.slice(inicio, fim) };
-  }
-
-  function atualizarContadores() {
-    const base = baseFiltrada();
-    const cont = { todos: base.length, aguardando: 0, pronto: 0, emconferencia: 0, conferida: 0 };
-    base.forEach(n => { cont[n.situacao]++; });
-    document.querySelectorAll('.sit-contador').forEach(el => {
-      el.textContent = cont[el.getAttribute('data-cont')];
-    });
-  }
-
-  function atualizarAviso() {
-    const prontas = NOTAS.filter(n => n.situacao === 'pronto').length;
-    const atrasadas = NOTAS.filter(n => n.espera > PARAM.conferenciaCompraCritico).length;
-    let txt = 'Mercadoria que chegou e não foi conferida <b>não vira estoque</b> — ela não existe para a venda até a conferência fechar. ';
-    txt += prontas === 0
-      ? 'Nenhuma nota esperando conferência agora.'
-      : '<b>' + prontas + (prontas === 1 ? ' nota está pronta' : ' notas estão prontas') + '</b> para conferir' +
-        (atrasadas > 0 ? ', e ' + atrasadas + (atrasadas === 1 ? ' está parada' : ' estão paradas') + ' há mais de 3 dias.' : '.');
-    document.getElementById('avisoFilaTexto').innerHTML = txt;
-  }
-
-  function renderTabela() {
-    const corpo = document.getElementById('corpoTabela');
-    const emptyState = document.getElementById('emptyState');
-    const wrap = document.querySelector('.estoque-table-wrap');
-    corpo.innerHTML = '';
-    const { listaCompleta, inicio, fim, totalPaginas, lista } = notasPagina();
-    atualizarContadores();
-    atualizarAviso();
-
-    document.getElementById('contagemNotas').textContent =
-      listaCompleta.length + (listaCompleta.length === 1 ? ' nota' : ' notas');
-    const pior = listaCompleta.reduce((m, n) => Math.max(m, n.espera), -1);
-    document.getElementById('maiorEspera').textContent = textoEspera(pior);
-
-    if (listaCompleta.length === 0) {
-      wrap.style.display = 'none';
-      emptyState.style.display = 'flex';
-      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
-      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
-      document.getElementById('btnPaginaAnterior').disabled = true;
-      document.getElementById('btnPaginaProxima').disabled = true;
-      atualizarBarraSelecao();
-      return;
-    }
-    wrap.style.display = '';
-    emptyState.style.display = 'none';
-
-    lista.forEach(n => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="col-texto"><input type="checkbox" class="item-checkbox" data-id="' + n.id + '" ' + (itensSelecionados.has(n.id) ? 'checked' : '') + '></td>' +
-        '<td class="col-texto"><span class="oc-numero">' + n.numero + '</span><span class="nota-serie">série ' + n.serie + '</span></td>' +
-        '<td class="col-texto"><span class="conf-dequem">' + n.fornecedor + '</span>' +
-          '<span class="conf-origem">' + origemDaFila(n) + '</span></td>' +
-        '<td class="col-texto">' + DEPOSITOS[n.dep] + '</td>' +
-        '<td' + (mostraItens() ? '' : ' title="' + OCULTO_TITULO + '"') + '>' +
-          (mostraItens() ? n.itens : '\u2014') +
-          ' <span class="un-sufixo">' + (n.volumes && mostraVolumes() ? n.volumes + ' vol' : '') + '</span></td>' +
-        '<td class="col-texto">' + fmtData(n.chegada) + '</td>' +
-        '<td><span class="' + classeEspera(n.espera) + '">' + textoEspera(n.espera) + '</span></td>' +
-        '<td class="col-texto"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></td>';
-      const chk = tr.querySelector('.item-checkbox');
-      chk.addEventListener('click', (e) => e.stopPropagation());
-      chk.addEventListener('change', (e) => toggleSelecao(n.id, e.target.checked));
-      tr.addEventListener('click', () => abrirResumo(n.id));
-      corpo.appendChild(tr);
-    });
-
-    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '-' + fim + ' de ' + listaCompleta.length;
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
-    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
-    atualizarCabecalhoOrdem();
-    atualizarBarraSelecao();
-  }
-
-  function atualizarCabecalhoOrdem() {
-    document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-      const ativo = th.getAttribute('data-ordem') === ordemCampo;
-      th.classList.toggle('ordenado', ativo);
-      const seta = th.querySelector('.seta');
-      if (seta) seta.textContent = ativo ? (ordemAsc ? '▲' : '▼') : '▲';
-    });
-  }
-
-  document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-    th.addEventListener('click', () => {
-      const campo = th.getAttribute('data-ordem');
-      if (ordemCampo === campo) ordemAsc = !ordemAsc; else { ordemCampo = campo; ordemAsc = true; }
-      paginaAtual = 1;
-      renderTabela();
-    });
-  });
-
-  // ===== SELEÇÃO EM MASSA (escopada à página atual, §7) =====
-  function toggleSelecao(id, marcado) {
-    if (marcado) itensSelecionados.add(id); else itensSelecionados.delete(id);
-    atualizarBarraSelecao();
-  }
-
-  function atualizarBarraSelecao() {
-    const bar = document.getElementById('barraSelecao');
-    const count = itensSelecionados.size;
-    document.getElementById('selecaoInfo').textContent = count + (count === 1 ? ' selecionada' : ' selecionadas');
-    bar.classList.toggle('show', count > 0);
-    const visiveis = notasPagina().lista;
-    const checkTodos = document.getElementById('checkSelecionarTodos');
-    checkTodos.checked = visiveis.length > 0 && visiveis.every(n => itensSelecionados.has(n.id));
-  }
-
-  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
-    notasPagina().lista.forEach(n => {
-      if (e.target.checked) itensSelecionados.add(n.id); else itensSelecionados.delete(n.id);
-    });
-    renderTabela();
-  });
-
-  document.getElementById('btnCancelarSelecao').addEventListener('click', () => {
-    itensSelecionados.clear();
-    renderTabela();
-  });
-
-  // Registrar a chegada da mercadoria e o unico passo que muda de situacao em
-  // massa aqui: conferir e um a um, com a tela propria.
-  function receberNotas(notas, aoTerminar) {
-    const alvo = notas.filter(n => n.situacao === 'aguardando');
-    if (alvo.length === 0) {
-      avisar('Nenhuma das notas selecionadas está aguardando entrada. Registrar chegada só se aplica a nota cuja mercadoria ainda não chegou.');
-      return;
-    }
-    const texto = alvo.length === 1
-      ? 'Registrar a chegada da mercadoria da nota ' + alvo[0].numero + '? Ela passa a "pronto para conferir" — o estoque só se mexe quando a conferência fechar.'
-      : 'Registrar a chegada da mercadoria das ' + alvo.length + ' notas selecionadas? Elas passam a "pronto para conferir" — o estoque só se mexe quando cada conferência fechar.';
-    abrirModalConfirmacao(texto, alvo.length, 'primary', () => {
-      alvo.forEach(n => {
-        n.situacao = 'pronto';
-        n.chegada = '2026-09-11';
-        n.espera = esperaDe(n);
-      });
-      itensSelecionados.clear();
-      renderTabela();
-      if (aoTerminar) aoTerminar(alvo);
-    });
-  }
-
-  document.getElementById('btnMarcarRecebidas').addEventListener('click', () => {
-    receberNotas([...itensSelecionados].map(id => NOTAS.find(n => n.id === id)).filter(Boolean));
-  });
-
-  // ===== DRAWER: resumo da nota =====
-  const drawerBackdrop = document.getElementById('drawerBackdrop');
-  const eventDrawer = document.getElementById('eventDrawer');
-  function fecharDrawer() {
-    drawerBackdrop.classList.remove('open');
-    eventDrawer.classList.remove('open');
-  }
-
-  function abrirResumo(id) {
-    const n = NOTAS.find(x => x.id === id);
-    if (!n) return;
-    document.getElementById('drawerTitulo').textContent = 'Nota ' + n.numero + ' · série ' + n.serie;
-
-    let html =
-      '<div class="drawer-badges"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></div>' +
-      '<div class="chave-bloco"><div class="chave-rotulo">Chave de acesso</div><div class="chave-valor">' + fmtChave(n.chave) + '</div></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Fornecedor</span><span class="extrato-valor">' + n.fornecedor + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">CNPJ</span><span class="extrato-valor">' + n.cnpj + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Depósito de destino</span><span class="extrato-valor">' + DEPOSITOS[n.dep] + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Ordem de compra</span><span class="extrato-valor">nº ' + n.oc + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Itens / volumes</span><span class="extrato-valor">' + resumoItensVolumes(n) + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Chegou em</span><span class="extrato-valor">' + fmtData(n.chegada) + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Valor da nota</span><span class="extrato-valor">' + fmtMoeda(n.valor) + '</span></div>';
-
-    if (n.situacao === 'aguardando') {
-      html += '<div class="field-hint" style="margin-top:16px;">A mercadoria ainda não chegou. Quando o caminhão encostar, registre a chegada — é isso que coloca a nota na fila de conferência.</div>';
-    } else if (n.situacao === 'pronto') {
-      html += '<div class="field-hint" style="margin-top:16px;">Mercadoria na doca esperando contagem. Enquanto a conferência não fechar, <b>nada disso é estoque</b>.</div>';
-    } else if (n.situacao === 'emconferencia') {
-      html += '<div class="field-hint" style="margin-top:16px;">Conferência em andamento. A contagem parcial fica salva; o estoque só nasce no fechamento.</div>';
-    } else {
-      html += '<div class="field-hint" style="margin-top:16px;">Conferência fechada. O saldo entrou no depósito: o que já tem base de picking lá segue para <b>reposição</b> e vende normalmente; o que não tem fica <b>a endereçar</b> e aparece em Endereçamento até ganhar posição.</div>';
-    }
-
-    html += '<div class="drawer-footer">';
-    if (n.situacao === 'aguardando') {
-      html += '<button class="btn-primary" id="btnReceberUma">Registrar chegada</button>';
-    } else if (n.situacao === 'pronto' || n.situacao === 'emconferencia') {
-      html += '<button class="btn-primary" id="btnAbrirConferencia">' + (n.situacao === 'pronto' ? 'Iniciar conferência' : 'Continuar conferência') + '</button>';
-    }
-    html += '<div class="drawer-link" id="btnFecharResumo">Fechar</div></div>';
-
-    document.getElementById('drawerCorpo').innerHTML = html;
-    document.getElementById('btnFecharResumo').addEventListener('click', fecharDrawer);
-
-    const bRec = document.getElementById('btnReceberUma');
-    if (bRec) bRec.addEventListener('click', () => { fecharDrawer(); receberNotas([n]); });
-
-    const bConf = document.getElementById('btnAbrirConferencia');
-    if (bConf) bConf.addEventListener('click', () => {
-      // A fila LEVA para a contagem da nota escolhida. Ate 29/set isto era um aviso
-      // dizendo que a navegacao so funcionaria no Lovable — texto que ficou obsoleto
-      // em 22/set, quando o menu passou a navegar de verdade nas 53 telas. Foi esse
-      // aviso que fez nascer um segundo item de menu apontando para a contagem, que
-      // largava o usuario numa nota que ninguem escolheu.
-      window.location.href = '../estoque/pagina-estoque-conferencia.html?nota=' + n.numero;
-    });
-
-    drawerBackdrop.classList.add('open');
-    eventDrawer.classList.add('open');
-  }
-
-  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
-  drawerBackdrop.addEventListener('click', fecharDrawer);
-
-  // ===== MODAL: RECEBER MERCADORIAS (leitor de código) =====
-  // Quem recebe está com as mãos ocupadas e um leitor na mão: o leitor "digita"
-  // os 44 dígitos da chave e dá Enter. Por isso o campo abre focado, a busca é ao
-  // vivo, e Enter resolve sozinho quando há um único candidato.
-  const receberModal = document.getElementById('receberModal');
-  const receberBackdrop = document.getElementById('receberBackdrop');
-  const campoReceber = document.getElementById('campoReceber');
-  let candidatos = [];
-  let escolhida = null;
-
-  function abrirReceber() {
-    campoReceber.value = '';
-    escolhida = null;
-    atualizarResultados();
-    receberBackdrop.classList.add('open');
-    receberModal.classList.add('open');
-    setTimeout(() => campoReceber.focus(), 60);
-  }
-  function fecharReceber() {
-    receberBackdrop.classList.remove('open');
-    receberModal.classList.remove('open');
-  }
-
-  function atualizarResultados() {
-    const termo = campoReceber.value.trim().toLowerCase();
-    const alvo = document.getElementById('receberResultados');
-    const btn = document.getElementById('btnConfirmarReceber');
-
-    if (termo === '') {
-      candidatos = [];
-      escolhida = null;
-      alvo.innerHTML = '<div class="receber-vazio">Aguardando a leitura. As notas <b>aguardando entrada</b> e <b>prontas para conferir</b> aparecem aqui conforme você digita.</div>';
-      btn.disabled = true;
-      return;
-    }
-
-    candidatos = NOTAS.filter(n => n.situacao === 'aguardando' || n.situacao === 'pronto').filter(n => combina(n, termo));
-    if (candidatos.length === 0) {
-      escolhida = null;
-      const digitos = termo.replace(/\D/g, '');
-      alvo.innerHTML = '<div class="receber-vazio receber-erro">Nada encontrado para <b>' + (digitos.length === 44 ? 'essa chave' : campoReceber.value) + '</b>. ' +
-        'Pode ser nota de outro depósito, já conferida, ou ainda não cadastrada — nesse caso, importe o XML primeiro.</div>';
-      btn.disabled = true;
-      return;
-    }
-
-    if (!escolhida || !candidatos.includes(escolhida)) escolhida = candidatos[0];
-    alvo.innerHTML = candidatos.slice(0, 5).map(n =>
-      '<div class="receber-item' + (n === escolhida ? ' ativo' : '') + '" data-id="' + n.id + '">' +
-        '<div class="receber-item-info">' +
-          '<div class="receber-item-nome">Nota ' + n.numero + ' · série ' + n.serie + ' · ' + n.fornecedor + '</div>' +
-          '<div class="receber-item-meta">' + DEPOSITOS[n.dep] + ' · ' + resumoItensVolumes(n) + ' · ' + fmtMoeda(n.valor) + '</div>' +
-        '</div>' +
-        '<span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span>' +
-      '</div>').join('');
-    if (candidatos.length > 5) {
-      alvo.innerHTML += '<div class="receber-vazio">Mais ' + (candidatos.length - 5) + ' resultado(s). Refine a busca ou bipe a chave.</div>';
-    }
-    alvo.querySelectorAll('.receber-item').forEach(el => {
-      el.addEventListener('click', () => {
-        escolhida = NOTAS.find(n => n.id === Number(el.dataset.id));
-        atualizarResultados();
-      });
-    });
-    btn.disabled = false;
-  }
-
-  function confirmarReceber() {
-    if (!escolhida) return;
-    const n = escolhida;
-    fecharReceber();
-    if (n.situacao === 'pronto') {
-      avisar('A nota ' + n.numero + ' já está pronta para conferir — a chegada dela já foi registrada. Abra a conferência por ela na lista.');
-      return;
-    }
-    receberNotas([n]);
-  }
-
-  document.getElementById('btnReceber').addEventListener('click', abrirReceber);
-  // Vindo da Ordem de Compra ("Receber mercadorias"): chega com o modal aberto.
-  if (new URLSearchParams(window.location.search).get('receber') === '1') abrirReceber();
-  document.getElementById('btnCancelarReceber').addEventListener('click', fecharReceber);
-  receberBackdrop.addEventListener('click', fecharReceber);
-  document.getElementById('btnConfirmarReceber').addEventListener('click', confirmarReceber);
-  campoReceber.addEventListener('input', atualizarResultados);
-  campoReceber.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); confirmarReceber(); }
-  });
-
-  // ===== MODAL =====
-  const confirmModal = document.getElementById('confirmModal');
-  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
-  const confirmCienteRow = document.getElementById('confirmCienteRow');
-  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
-  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-  let acaoConfirmada = null;
-
-  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    acaoConfirmada = aoConfirmar || null;
-    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
-    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
-    const precisaCiente = qtd >= 2 && modo !== 'aviso';
-    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
-    confirmCienteCheckbox.checked = false;
-    btnConfirmar.disabled = precisaCiente;
-    confirmModalBackdrop.classList.add('open');
-    confirmModal.classList.add('open');
-  }
-  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
-  function fecharModalConfirmacao() {
-    confirmModalBackdrop.classList.remove('open');
-    confirmModal.classList.remove('open');
-    acaoConfirmada = null;
-  }
-  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
-  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
-  // Antes isto executava o callback e so depois fechava. Callback que termina
-  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
-  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
-  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
-  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
-  // liberada" nunca apareceu para ninguem.
-  btnConfirmar.addEventListener('click', () => {
-    const executar = acaoConfirmada;
-    fecharModalConfirmacao();
-    if (executar) executar();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.getElementById('btnAvisoOk').addEventListener('click', fecharAviso);
+  document.getElementById('btnAvisoFechar').addEventListener('click', fecharAviso);
+  avisoBackdrop.addEventListener('click', fecharAviso);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      else if (eventDrawer.classList.contains('open')) fecharDrawer();
-      else document.getElementById('periodoMenu').classList.remove('open');
+      if (avisoModal.classList.contains('open')) fecharAviso();
     }
   });
 
@@ -2211,109 +2038,167 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.remove('open');
-  });
+  document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
-  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio.
+  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio, sem
+  // passar pelo inicializarDropdownSelect (que marcaria item .active e trocaria o rotulo).
   (function bindMenuAcoes() {
     const raiz = document.getElementById('menuMaisAcoes');
-    if (!raiz) return;   // esta tela nao tem menu "Mais acoes" — sem a guarda, o
-                         // script inteiro morre aqui e nada depois disso roda
+    if (!raiz) return;   // esta tela nao tem menu "Mais acoes"
     const btn = raiz.querySelector('.dropdown-select-btn');
     const menu = raiz.querySelector('.dropdown-select-menu');
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-      document.getElementById('periodoMenu').classList.remove('open');
+      const vaiAbrir = !menu.classList.contains('open');
+      if (vaiAbrir) {
+        menu.style.visibility = 'hidden'; menu.style.display = 'block';
+        const alturaMenu = menu.offsetHeight;
+        menu.style.display = ''; menu.style.visibility = '';
+        const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
+        menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+      }
       menu.classList.toggle('open');
     });
     menu.querySelectorAll('.dropdown-select-item').forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         menu.classList.remove('open');
-        if (item.getAttribute('data-acao') === 'notas') { window.location.href = '../estoque/pagina-estoque-entrada-notas.html'; return; }
-        avisar('Impressão e exportação entram junto com Relatórios de Estoque.');
+        const acao = item.getAttribute('data-acao');
+        if (acao === 'inventario') { window.location.href = '../estoque/pagina-estoque-inventario.html'; return; }
+        avisar('Impressão de relatório entra junto com o módulo de Relatórios.');
       });
     });
   })();
 
-  // ===== FILTRO DE PERÍODO (popover próprio, não é dropdown de valor) =====
-  const ROTULO_PERIODO = {
-    todos: 'Sem filtro de período', dia: 'Do dia', '7': 'Últimos 7 dias', '30': 'Últimos 30 dias'
-  };
-  const periodoMenu = document.getElementById('periodoMenu');
-  document.getElementById('btnPeriodo').addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    periodoMenu.classList.toggle('open');
-  });
-  periodoMenu.addEventListener('click', (e) => e.stopPropagation());
-  document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(op => {
-    op.addEventListener('click', () => {
-      document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
-      op.classList.add('active');
-      periodoAtual = op.getAttribute('data-periodo');
-      document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO[periodoAtual];
-      periodoMenu.classList.remove('open');
-      paginaAtual = 1;
-      renderTabela();
+  // ===== ESTÁGIOS DO FUNIL DE VENDAS =====
+  // Cadastro de que o CRM depende, nascido no mesmo dia (09/out/2026). E o
+  // unico cadastro do sistema em que a ORDEM e o dado: o funil e sequencial, e
+  // o estagio seguinte de um assunto e o proximo desta lista.
+  //
+  // O ULTIMO estagio encerra o assunto (`final:true`). Pode ser renomeado, mas
+  // nao sai do fim nem e excluido, porque encerrar e a regra que pergunta se o
+  // assunto foi ganho ou perdido. Estagio com assunto dentro tambem nao e
+  // excluido: a trava nasce com a tela.
+  //
+  // `usos` e quantos assuntos do CRM estao no estagio. No Lovable vira contagem
+  // na tabela de assuntos; aqui o CRM carrega o espelho e a suite compara.
+  const ESTAGIOS = [
+    { id: 1, nome: 'Prospecção',           usos: 3 },
+    { id: 2, nome: 'Contato realizado',    usos: 2 },
+    { id: 3, nome: 'Proposta apresentada', usos: 1 },
+    { id: 4, nome: 'Negociação',           usos: 1 },
+    { id: 5, nome: 'Encerrado',            usos: 2, final: true }
+  ];
+  let estagioEmEdicao = null;
+  const efDrawer = document.getElementById('efDrawer'), efBackdrop = document.getElementById('efBackdrop');
+  const escEf = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const semAcentoEf = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const IC_ALCA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/></svg>';
+  const IC_CIMA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>';
+  const IC_BAIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
+
+  // Mover de `de` para `para` (indices). O estagio final nao se move e ninguem passa para depois dele.
+  function mover(de, para) {
+    const ultimo = ESTAGIOS.length - 1;
+    if (de === para || de < 0 || para < 0 || de >= ultimo || para >= ultimo) return false;
+    ESTAGIOS.splice(para, 0, ESTAGIOS.splice(de, 1)[0]);
+    pintarEstagios();
+    return true;
+  }
+  function pintarEstagios() {
+    const ultimo = ESTAGIOS.length - 1;
+    document.getElementById('listaEstagios').innerHTML = ESTAGIOS.map((e, i) =>
+      '<div class="ef-linha" data-id="' + e.id + '" data-pos="' + i + '"' + (e.final ? '' : ' draggable="true"') + '>' +
+        '<span class="ef-alca' + (e.final ? ' fixo' : '') + '" title="' + (e.final ? 'O último estágio não muda de lugar' : 'Arraste para mudar a ordem') + '">' + IC_ALCA + '</span>' +
+        '<span class="ef-num">' + (i + 1) + '</span>' +
+        '<span class="ef-nome">' + escEf(e.nome) + (e.final ? '<span class="ef-chip">encerra o assunto</span>' : '') + '</span>' +
+        '<span class="ef-usos">' + e.usos + (e.usos === 1 ? ' assunto' : ' assuntos') + '</span>' +
+        '<button type="button" class="ef-seta" data-subir="' + i + '" aria-label="Mover para cima"' + (e.final || i === 0 ? ' disabled' : '') + '>' + IC_CIMA + '</button>' +
+        '<button type="button" class="ef-seta" data-descer="' + i + '" aria-label="Mover para baixo"' + (e.final || i >= ultimo - 1 ? ' disabled' : '') + '>' + IC_BAIXO + '</button>' +
+      '</div>').join('');
+    const cx = document.getElementById('listaEstagios');
+    cx.querySelectorAll('.ef-linha').forEach(l => {
+      l.addEventListener('click', (ev) => { if (!ev.target.closest('button')) abrirEstagio(Number(l.getAttribute('data-id'))); });
+      l.addEventListener('dragstart', (ev) => { ev.dataTransfer.setData('text/plain', l.getAttribute('data-pos')); });
+      l.addEventListener('dragover', (ev) => { ev.preventDefault(); });
+      l.addEventListener('drop', (ev) => { ev.preventDefault(); mover(Number(ev.dataTransfer.getData('text/plain')), Number(l.getAttribute('data-pos'))); });
     });
-  });
+    cx.querySelectorAll('[data-subir]').forEach(b => b.addEventListener('click', () => { const i = Number(b.getAttribute('data-subir')); mover(i, i - 1); }));
+    cx.querySelectorAll('[data-descer]').forEach(b => b.addEventListener('click', () => { const i = Number(b.getAttribute('data-descer')); mover(i, i + 1); }));
+  }
 
-  inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => {
-    filtroDepositoAtual = v; paginaAtual = 1; renderTabela();
-  });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
-    itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela();
-  });
-
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => {
-    if (paginaAtual > 1) { paginaAtual--; renderTabela(); }
-  });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
-
-  document.getElementById('campoBusca').addEventListener('input', (e) => {
-    buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
-  });
-
-  document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
-    aba.addEventListener('click', () => {
-      document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
-      aba.classList.add('active');
-      situacaoAtual = aba.getAttribute('data-sit');
-      paginaAtual = 1;
-      renderTabela();
+  function fecharEstagio() { efDrawer.classList.remove('open'); efBackdrop.classList.remove('open'); estagioEmEdicao = null; }
+  function abrirEstagio(id) {
+    estagioEmEdicao = id || null;
+    const e = id ? ESTAGIOS.filter(x => x.id === id)[0] : null;
+    document.getElementById('efTitulo').textContent = e ? 'Editar estágio' : 'Novo estágio';
+    document.getElementById('efNome').value = e ? e.nome : '';
+    document.getElementById('efHint').textContent = e
+      ? (e.final ? 'Este é o estágio que encerra o assunto: o nome pode mudar, a posição não.' : 'O nome aparece no CRM, na lista, no quadro e na tela do assunto.')
+      : 'Estágio novo entra antes do último, que é o que encerra.';
+    document.getElementById('efCampoNome').classList.remove('has-error');
+    document.getElementById('efErro').classList.remove('show');
+    // O link aparece em todo estagio ja cadastrado; quando nao pode excluir, ele explica.
+    document.getElementById('efExcluir').style.display = e ? 'flex' : 'none';
+    efBackdrop.classList.add('open'); efDrawer.classList.add('open');
+    document.getElementById('efNome').focus();
+  }
+  function salvarEstagio() {
+    const nome = document.getElementById('efNome').value.trim();
+    const repetido = ESTAGIOS.some(x => x.id !== estagioEmEdicao && semAcentoEf(x.nome) === semAcentoEf(nome));
+    if (nome === '' || repetido) {
+      document.getElementById('efCampoNome').classList.add('has-error');
+      const er = document.getElementById('efErro');
+      er.textContent = nome === '' ? 'Informe a descrição do estágio.' : 'Já existe um estágio com esta descrição.';
+      er.classList.add('show');
+      return;
+    }
+    const editando = !!estagioEmEdicao;
+    confirmarAcao(editando ? 'estagiosFunilEditar' : 'estagiosFunilCriar',
+      editando ? 'Confirma a alteração do estágio para "' + nome + '"?' : 'Confirma o estágio "' + nome + '"? Ele entra antes do último.', () => {
+        if (editando) ESTAGIOS.filter(x => x.id === estagioEmEdicao)[0].nome = nome;
+        else ESTAGIOS.splice(ESTAGIOS.length - 1, 0, { id: Date.now(), nome, usos: 0 });
+        pintarEstagios(); fecharEstagio();
+      });
+  }
+  function excluirEstagio() {
+    const e = ESTAGIOS.filter(x => x.id === estagioEmEdicao)[0];
+    if (!e) return;
+    if (e.final || e.usos > 0) {
+      fecharEstagio();
+      setTimeout(() => avisar(e.final
+        ? '"' + e.nome + '" é o estágio que encerra o assunto e não pode ser excluído. Se o nome não serve, renomeie.'
+        : '"' + e.nome + '" tem ' + e.usos + (e.usos === 1 ? ' assunto' : ' assuntos') + ' no CRM e não pode ser excluído. Passe os assuntos para outro estágio primeiro.'), 260);
+      return;
+    }
+    confirmarAcao('estagiosFunilExclui', 'Excluir o estágio "' + e.nome + '"? Ele sai do funil.', () => {
+      ESTAGIOS.splice(ESTAGIOS.indexOf(e), 1);
+      pintarEstagios(); fecharEstagio();
     });
-  });
+  }
 
-  document.getElementById('btnLimparFiltros').addEventListener('click', () => {
-    buscaAtual = ''; document.getElementById('campoBusca').value = '';
-    situacaoAtual = 'todos';
-    document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === 'todos'));
-    periodoAtual = 'todos';
-    document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === 'todos'));
-    document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO.todos;
-    filtroDepositoAtual = 'todos';
-    const fd = document.getElementById('filtroDeposito');
-    fd.setAttribute('data-value', 'todos');
-    fd.querySelector('.dropdown-select-label').textContent = 'Todos os depósitos';
-    fd.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i.getAttribute('data-value') === 'todos'));
-    paginaAtual = 1;
-    renderTabela();
-  });
-
-  document.getElementById('btnImportarXML').addEventListener('click', () => {
-    avisar('A importação por XML aceita arquivo de até 2 MB e cria a nota já com fornecedor, itens e valores. O upload de verdade só funciona no Lovable, com o parser rodando no servidor.');
-  });
-
-  // Esc fecha primeiro o que estiver por cima: modal de receber, depois confirmação, depois drawer.
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && receberModal.classList.contains('open')) fecharReceber();
+  document.getElementById('btnNovoEstagio').addEventListener('click', () => abrirEstagio(null));
+  document.getElementById('efSalvar').addEventListener('click', salvarEstagio);
+  document.getElementById('efCancelar').addEventListener('click', fecharEstagio);
+  document.getElementById('efFechar').addEventListener('click', fecharEstagio);
+  document.getElementById('efExcluir').addEventListener('click', excluirEstagio);
+  efBackdrop.addEventListener('click', fecharEstagio);
+  // Esc fecha o painel, mas so quando nao ha modal por cima: o modal fecha primeiro.
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && efDrawer.classList.contains('open') && !document.getElementById('confirmModal').classList.contains('open')) fecharEstagio();
   }, true);
+  pintarEstagios();
 
-  renderTabela();
+  path = ['Configurações', 'Configurações ERP', 'Estágios do funil de vendas'];
+  renderBreadcrumb();
+  setMainTitle('Estágios do funil de vendas');
+
+  document.querySelectorAll('#breadcrumb .crumb').forEach(c => {
+    if (c.textContent.trim() === 'Configurações ERP') {
+      c.addEventListener('click', () => { window.location.href = '../configuracoes/pagina-configuracoes.html'; });
+    }
+  });
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -2362,7 +2247,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
 
-</script>
 
+
+</script>
 </body>
 </html>

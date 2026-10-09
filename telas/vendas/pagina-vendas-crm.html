@@ -100,6 +100,43 @@
 
   /* ===== KPI CARD ===== */
   .kpi-card { border-left:3px solid; }
+
+  /* ABAS CONTADORAS. Cabem aqui porque sao quatro situacoes; no Rastreamento,
+     com dez, a medicao de 02/out mostrou que nao cabem a 1440px. */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* Cores das situacoes da devolucao, aferidas contra o fundo da pagina nos dois temas. */
+  .dev-aberta     { background:#B45309; }
+  .dev-andamento  { background:#0A4EE4; }
+  .dev-finalizada { background:#15803D; }
+  .dev-cancelada  { background:#6B7280; }
+  body.dark .dev-aberta     { background:#F5A623; }
+  body.dark .dev-andamento  { background:#4D8DFF; }
+  body.dark .dev-finalizada { background:#34C759; }
+  body.dark .dev-cancelada  { background:#9AA0A6; }
+
+  .bd-aberta     { background:rgba(180,83,9,0.12);  color:#B45309; }
+  .bd-andamento  { background:var(--active-bg);     color:var(--active-text); }
+  .bd-finalizada { background:rgba(21,128,61,0.12); color:#15803D; }
+  .bd-cancelada  { background:rgba(107,114,128,0.14); color:#6B7280; }
+  body.dark .bd-aberta     { background:rgba(245,166,35,0.16); color:#F5A623; }
+  body.dark .bd-finalizada { background:rgba(52,199,89,0.16);  color:#34C759; }
+  body.dark .bd-cancelada  { background:rgba(154,160,166,0.18); color:#C7CBD1; }
+
+  .dev-item { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+  .dev-item:last-child { border-bottom:none; }
+  .dev-item.sel { background:var(--active-bg); border-radius:9px; padding-left:9px; padding-right:9px; }
+  .dev-item-nome { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .dev-item-sub { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .dev-item-valor { margin-left:auto; font-size:13px; font-weight:800; color:var(--text-heading); white-space:nowrap; }
+  .fora-prazo { font-weight:800; color:#B45309; }
+  body.dark .fora-prazo { color:#F5A623; }
   .kpi-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text); margin-bottom:10px; }
   .kpi-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:var(--text-heading); margin-bottom:6px; }
   .kpi-delta { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:4px; }
@@ -632,68 +669,107 @@
   .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
   .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
 
-  /* ===== ESTOQUE > CONFERÊNCIA DE COMPRA (fila do galpão) ===== */
-  .conf-dequem { display:block; font-size:13px; font-weight:700; color:var(--text-heading); }
-  .conf-origem { display:block; font-size:11px; font-weight:700; color:var(--text); }
-  .sit-aguardando    { background:#6B7280; }
-  .sit-pronto        { background:#B45309; }
-  .sit-emconferencia { background:#0A4EE4; }
-  .sit-conferida     { background:#15803D; }
-  body.dark .sit-aguardando    { background:#9CA3AF; }
-  body.dark .sit-pronto        { background:#F5A623; }
-  body.dark .sit-emconferencia { background:#9DB8F0; }
-  body.dark .sit-conferida     { background:#4ADE80; }
+  /* ===== LOGÍSTICA > RASTREAMENTO DE PEDIDOS (o que acontece depois da doca) ===== */
+  /* As situacoes daqui sao as do PEDIDO DE VENDA — o mesmo funil de 9 passos da
+     barganha de 02/out, nao um funil proprio. Esta tela nao inventa status: ela
+     mostra o que o pedido ja diz e acrescenta o que so existe depois do envio
+     (codigo de rastreio, previsao congelada, eventos). Devolucao continua fora:
+     e documento proprio, e o pedido devolvido mantem a situacao dele. */
 
-  .bs-aguardando    { color:#6B7280; }
-  .bs-pronto        { color:#B45309; }
-  .bs-emconferencia { color:#0A4EE4; }
-  .bs-conferida     { color:#15803D; }
-  body.dark .bs-aguardando    { color:#9CA3AF; }
-  body.dark .bs-pronto        { color:#F5A623; }
-  body.dark .bs-emconferencia { color:#9DB8F0; }
-  body.dark .bs-conferida     { color:#4ADE80; }
+  /* O ponto colore a FASE, nao a situacao. Nove cores ninguem memoriza, e nove
+     cores no tema claro e campo minado de contraste; o rotulo ao lado ja diz a
+     situacao exata. Tres fases + cancelado dao a leitura de relance que o
+     galpao precisa: "ainda esta aqui", "esta na rua", "acabou". */
+  .fase-processando { background:#B45309; }
+  .fase-transito    { background:#0A4EE4; }
+  .fase-final       { background:#15803D; }
+  .fase-cancelado   { background:#DC2626; }
+  body.dark .fase-processando { background:#F5A623; }
+  body.dark .fase-transito    { background:#9DB8F0; }
+  body.dark .fase-final       { background:#4ADE80; }
+  body.dark .fase-cancelado   { background:#EF4444; }
 
-  .nota-serie { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .tx-processando { color:#B45309; }
+  .tx-transito    { color:#0A4EE4; }
+  .tx-final       { color:#15803D; }
+  .tx-cancelado   { color:#DC2626; }
+  body.dark .tx-processando { color:#F5A623; }
+  body.dark .tx-transito    { color:#9DB8F0; }
+  body.dark .tx-final       { color:#4ADE80; }
+  body.dark .tx-cancelado   { color:#EF4444; }
+
+  /* PAGAMENTO E EIXO SEPARADO (barganha de 07/out), nao passo do funil. Boleto de
+     30 dias fica enviado e nao pago; Pix fica pago ainda em aberto. Quem manda
+     aqui e Financas > Contas a Receber: esta coluna LE, nunca escreve. */
+  .pg-chip { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:2px 9px; border-radius:20px; border:1px solid var(--border); white-space:nowrap; }
+  .pg-pago       { color:#15803D; border-color:#15803D; }
+  .pg-parcial    { color:#B45309; border-color:#B45309; }
+  .pg-aguardando { color:var(--text); }
+  .pg-vencido    { color:#DC2626; border-color:#DC2626; }
+  body.dark .pg-pago    { color:#4ADE80; border-color:#4ADE80; }
+  body.dark .pg-parcial { color:#F5A623; border-color:#F5A623; }
+  body.dark .pg-vencido { color:#EF4444; border-color:#EF4444; }
+
+  /* A PREVISAO E CONGELADA NO ENVIO (barganha de 07/out): gravada a partir do prazo
+     da transportadora no momento do despacho, nunca recalculada. Mudar o prazo no
+     cadastro depois NAO reescreve se um pedido antigo atrasou — historico que muda
+     sozinho e historico que mente. */
+  .prazo-ok       { font-weight:700; color:var(--text-heading); }
+  .prazo-atencao  { font-weight:800; color:#B45309; }
+  .prazo-atrasado { font-weight:800; color:#DC2626; }
+  body.dark .prazo-atencao  { color:#F5A623; }
+  body.dark .prazo-atrasado { color:#EF4444; }
+  .prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* CODIGO DE RASTREIO E POR VOLUME (barganha de 07/out). Os volumes ja nascem na
+     Conferencia de Saida; um pedido de 3 caixas que chegam em dias diferentes tem
+     3 codigos. A celula resume e o painel mostra um por um. */
+  .cod-resumo { font-weight:700; color:var(--text-heading); }
+  .vol-prazo-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); margin-bottom:3px; }
+  .cod-falta { font-weight:800; color:#B45309; }
+  body.dark .cod-falta { color:#F5A623; }
+  .cod-chip { display:inline-flex; align-items:center; gap:5px; font-family:inherit; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border); color:var(--text-heading); background:var(--page-bg); }
+
+  .cliente-nome { font-weight:700; color:var(--text-heading); }
+  .cliente-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* ===== O HISTORICO, DENTRO DO PAINEL ===== */
+  /* Cada evento carrega um rotulo PROPRIO para o cliente e um marcador de quem o
+     ve (barganha de 07/out). "Conferencia de saida" e vocabulario de deposito:
+     o cliente le "Pedido embalado". A vitrine consome so os publicos. */
+  .ev-lista { display:flex; flex-direction:column; gap:0; margin-top:4px; }
+  .ev-item { display:grid; grid-template-columns:18px 1fr; gap:11px; padding:0 0 15px 0; position:relative; }
+  .ev-item:last-child { padding-bottom:2px; }
+  .ev-marco { width:11px; height:11px; border-radius:50%; margin-top:4px; margin-left:3px; }
+  .ev-linha { position:absolute; left:8px; top:17px; bottom:0; width:2px; background:var(--border); }
+  .ev-item:last-child .ev-linha { display:none; }
+  .ev-rotulo { font-size:13px; font-weight:800; color:var(--text-heading); }
+  .ev-quando { font-size:11px; font-weight:600; color:var(--text); margin-top:1px; }
+  .ev-interno-nota { font-size:11px; font-weight:600; color:var(--text); margin-top:3px; font-style:italic; }
+  .ev-visto { display:inline-flex; align-items:center; gap:4px; margin-left:7px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:1px 7px; border-radius:20px; border:1px solid var(--border); color:var(--text); }
+
+  /* Volume dentro do painel: uma linha por caixa, com o campo do codigo. */
+  .vol-linha { display:grid; grid-template-columns:1fr 210px; gap:11px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); }
+  .vol-linha:last-child { border-bottom:none; }
+  .vol-nome { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .vol-sub { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+
+  /* Vinham do bloco da Expedicao, que esta tela substituiu. Classe usada sem CSS
+     e o "componente copiado pela metade" que a auditoria pega na secao 3. */
+  .transp-nome { font-weight:700; color:var(--text-heading); }
+  .transp-tipo { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
+  .pedido-vitrine { display:block; font-size:10.5px; font-weight:600; color:var(--text); }
   .un-sufixo { font-size:11px; font-weight:600; color:var(--text); }
+  .dropdown-select-item.item-perigo { color: var(--danger); }
 
-  /* Espera é o relógio da doca: mercadoria parada não é estoque */
-  .espera-neutra { color:var(--text); }
-  .espera-ok { font-weight:700; color:var(--text); }
-  .espera-alerta { font-weight:800; color:#B45309; }
-  .espera-critica { font-weight:800; color:#B91C1C; }
-  body.dark .espera-alerta { color:#F5A623; }
-  body.dark .espera-critica { color:#FCA5A5; }
+  /* A linha inteira abre o painel, entao o cursor precisa dizer isso. */
+  .estoque-table tbody tr.linha-clicavel { cursor:pointer; }
 
-  .drawer-badges { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-  .chave-bloco { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:16px; }
-  .chave-rotulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:4px; }
-  .chave-valor { font-size:12px; font-weight:700; color:var(--text-heading); font-variant-numeric:tabular-nums; word-spacing:2px; line-height:1.5; }
-
-  /* Modal de receber mercadorias: bottom-sheet, mesmo padrão do modal de
-     confirmação (§8), mas com campo de leitura e resultados ao vivo. */
-  .modal-receber { max-height:78vh; overflow-y:auto; }
-  .receber-topo { text-align:center; margin-bottom:18px; }
-  .receber-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:19px; color:var(--text-heading); }
-  .receber-sub { font-size:13px; color:var(--text); margin-top:6px; }
-  .receber-campo { position:relative; max-width:620px; margin:0 auto 16px; }
-  .receber-campo svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; stroke:var(--text); pointer-events:none; }
-  .receber-campo input { width:100%; font-family:'Nunito',sans-serif; font-size:14px; font-weight:600; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px 12px 38px; outline:none; }
-  .receber-campo input:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
-  .receber-resultados { max-width:620px; margin:0 auto 18px; }
-  .receber-vazio { font-size:12.5px; color:var(--text); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:12px 13px; }
-  .receber-erro { border-color:#B91C1C; }
-  body.dark .receber-erro { border-color:#FCA5A5; }
-  .receber-item { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 13px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; cursor:pointer; background:var(--page-bg); }
-  .receber-item:hover { background: rgba(120,120,140,0.08); }
-  .receber-item.ativo { border-color: var(--brand-blue); box-shadow: inset 0 0 0 1px var(--brand-blue); }
-  .btn-primary .esc-hint { color:#fff; }
-  .receber-item-info { flex:1; min-width:0; }
-  .receber-item-nome { font-size:13px; font-weight:700; color:var(--text-heading); }
-  .receber-item-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
-
-  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
-  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
-  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* Painel: linha de rotulo e valor usando o par canonico chave-rotulo /
+     chave-valor, mais o titulo que separa os blocos. */
+  .rt-linha { display:grid; grid-template-columns:150px 1fr; gap:11px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
+  .rt-linha:last-child { border-bottom:none; }
+  .rt-sub { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:17px 0 7px; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -711,7 +787,199 @@
   .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
   .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
 
+
+  /* ===== VENDAS > METAS ===== */
+  .ating { display:flex; align-items:center; gap:9px; min-width:150px; }
+  .ating-trilho { flex:1; height:7px; border-radius:6px; background:rgba(120,120,140,0.18); overflow:hidden; }
+  .ating-barra { display:block; height:100%; border-radius:6px; }
+  .ating-pct { font-size:12.5px; font-weight:800; color:var(--text-heading); min-width:42px; text-align:right; font-variant-numeric:tabular-nums; }
+  /* Cor de fundo do selo e cor do TEXTO vivem juntas, e o texto e redefinido
+     em body.dark: o mesmo tom nao passa em 4.5:1 nos dois temas. */
+  .mt-batida   { background:rgba(21,128,61,0.12);  color:#12692F; }
+  .mt-noritmo  { background:rgba(10,78,228,0.10);  color:#0A4EE4; }
+  .mt-abaixo   { background:rgba(180,83,9,0.12);   color:#8A5600; }
+  .mt-naobatida{ background:rgba(220,38,38,0.10);  color:#B91C1C; }
+  .mt-semmeta  { background:rgba(120,120,140,0.14); color:var(--text); }
+  .mt-futuro   { background:rgba(120,120,140,0.14); color:var(--text); }
+  body.dark .mt-batida    { color:#4ADE80; }
+  body.dark .mt-noritmo   { color:#9DB8F0; }
+  body.dark .mt-abaixo    { color:#FBBF24; }
+  body.dark .mt-naobatida { color:#FCA5A5; }
+  .pt-batida   { background:#15803D; }
+  .pt-noritmo  { background:#0A4EE4; }
+  .pt-abaixo   { background:#B45309; }
+  .pt-naobatida{ background:#DC2626; }
+  .pt-semmeta  { background:#8A8A94; }
+  .pt-futuro   { background:#8A8A94; }
+  .meta-previa { border:1px solid var(--border); border-radius:12px; padding:4px 12px; background:var(--page-bg); }
+  .meta-previa-linha { display:grid; grid-template-columns:86px 1fr auto; gap:10px; align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .meta-previa-linha:last-child { border-bottom:none; }
+  .meta-previa-mes { font-weight:800; color:var(--text-heading); }
+  .meta-previa-obs { font-size:11px; font-weight:600; color:var(--text); }
+  .meta-previa-valor { font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .meta-previa-vazia { padding:10px 0; font-size:12px; font-weight:600; color:var(--text); }
+  .meta-ano { width:100%; border-collapse:collapse; font-size:12.5px; }
+  .meta-ano th { text-align:right; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); padding:6px 0; border-bottom:1px solid var(--border); }
+  .meta-ano th:first-child, .meta-ano td:first-child { text-align:left; }
+  .meta-ano td { text-align:right; padding:7px 0; border-bottom:1px solid var(--border); color:var(--text-heading); font-weight:700; font-variant-numeric:tabular-nums; }
+  .meta-ano tr:last-child td { border-bottom:none; }
+  .meta-ano tr.atual td { color:var(--active-text); }
+
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* ===== CRM ===== */
+  .crm-barra { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .crm-busca { flex:1; min-width:260px; max-width:520px; }
+  .crm-busca input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; outline:none; }
+  .crm-busca input[type="text"]:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .crm-visao { display:flex; border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .crm-visao-btn { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; background:transparent; border:none; color:var(--text); cursor:pointer; user-select:none; }
+  .crm-visao-btn.ativo { background:var(--active-bg); color:var(--active-text); }
+  .crm-ponto { display:inline-block; width:10px; height:10px; border-radius:50%; flex-shrink:0; background:var(--text); }
+  .crm-ponto.prospect { background:var(--warning); }
+  .crm-ponto.cliente { background:var(--success); }
+  .crm-ponto.inativo { background:transparent; box-shadow:inset 0 0 0 2px var(--text); }
+  .crm-cli { display:flex; align-items:center; gap:9px; font-weight:700; color:var(--text-heading); }
+  .crm-sub { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
+  .crm-estrela { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:none; background:transparent; color:var(--text); cursor:pointer; border-radius:7px; padding:0; }
+  .crm-estrela svg { width:16px; height:16px; }
+  .crm-estrela.on { color:var(--warning); }
+  .crm-estrela.on svg { fill:currentColor; }
+  .crm-mais { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border:none; background:transparent; color:var(--text); cursor:pointer; border-radius:7px; padding:0; }
+  .crm-mais:hover, .crm-estrela:hover { background:rgba(120,120,140,0.14); }
+  .crm-mais svg { width:16px; height:16px; }
+  .crm-quando { display:inline-block; font-size:11.5px; font-weight:800; color:var(--text-heading); border:1px solid var(--border); border-radius:20px; padding:2px 10px; white-space:nowrap; }
+  .crm-quando.hoje { color:var(--active-text); border-color:var(--active-text); }
+  .crm-quando.atrasada { color:var(--danger); border-color:var(--danger); }
+  .crm-chip { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); border:1px solid var(--border); border-radius:20px; padding:1px 8px; margin-left:6px; white-space:nowrap; }
+  .crm-chip.ganho { color:var(--success); border-color:var(--success); }
+  .crm-chip.perdido, .crm-chip.parado { color:var(--danger); border-color:var(--danger); }
+  .crm-menu-flutuante { position:fixed; left:0; top:0; min-width:250px; z-index:40; }
+  .crm-menu-titulo { font-size:11.5px; font-weight:700; color:var(--text); padding:6px 12px 4px; }
+  .crm-menu-contatos { display:flex; gap:6px; padding:4px 10px 8px; flex-wrap:wrap; }
+  .crm-menu-contato { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--text-heading); background:transparent; border:1px solid var(--border); border-radius:20px; padding:4px 10px; cursor:pointer; }
+  .crm-menu-contato.ativo { border-color:var(--active-text); color:var(--active-text); }
+  .crm-rodape { display:flex; justify-content:flex-end; gap:26px; flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
+  .crm-cont { display:flex; flex-direction:column; align-items:flex-start; font-size:12px; color:var(--text); }
+  .crm-cont b { display:flex; align-items:center; gap:7px; font-size:15px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  /* quadro por estagio */
+  .crm-quadro-wrap { overflow-x:auto; padding-bottom:6px; }
+  .crm-quadro { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(170px, 1fr); gap:12px; min-width:100%; }
+  .crm-col { background:var(--page-bg); border:1px solid var(--border); border-radius:12px; padding:12px; min-height:180px; }
+  .crm-col.alvo { border-color:var(--active-text); }
+  .crm-col-topo { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12.5px; font-weight:800; color:var(--text-heading); margin-bottom:10px; }
+  .crm-col-topo span { font-size:11.5px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 8px; }
+  .crm-cartao { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:11px 12px; margin-bottom:8px; cursor:pointer; }
+  .crm-cartao:hover { border-color:var(--active-text); }
+  .crm-cartao .crm-cli { font-size:12.5px; }
+  /* colunas de texto quebram linha: e o que faz a tabela caber no cartao em 1440 */
+  .estoque-table td.crm-quebra { white-space:normal; min-width:120px; line-height:1.45; }
+  .estoque-table td.crm-quebra .crm-chip { margin-left:0; margin-right:6px; }
+  .crm-cartao-tit { font-size:13px; font-weight:800; color:var(--text-heading); margin-top:5px; }
+  .crm-cartao-pe { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:9px; font-size:12px; color:var(--text); }
+  .crm-avancar { font-family:'Nunito',sans-serif; font-size:11.5px; font-weight:800; color:var(--active-text); background:transparent; border:none; cursor:pointer; padding:2px 0; }
+  .crm-col-vazia { font-size:12px; color:var(--text); padding:8px 2px; }
+  /* tela do assunto */
+  .crm-topo-assunto { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .crm-assunto-nome { display:flex; align-items:center; gap:8px; font-size:16px; color:var(--text); margin-top:2px; }
+  .crm-cab { display:flex; align-items:center; gap:16px; padding:18px 0; }
+  .crm-avatar { display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--page-bg); flex-shrink:0; }
+  .crm-avatar .crm-ponto { width:16px; height:16px; }
+  .crm-cab-nome { font-size:17px; font-weight:800; color:var(--text-heading); }
+  .crm-cab-sub { font-size:12.5px; color:var(--text); margin-top:3px; }
+  .crm-secao { font-size:14.5px; font-weight:800; color:var(--text-heading); margin:18px 0 12px; }
+  .crm-estagios { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-bottom:18px; border-bottom:1px solid var(--border); }
+  .crm-estagio { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-size:13px; font-weight:700; border:1px solid var(--border); border-radius:20px; padding:7px 14px; background:transparent; color:var(--text-heading); }
+  .crm-estagio.atual { color:var(--active-text); border-color:var(--active-text); }
+  .crm-estagio.proximo { cursor:pointer; }
+  .crm-estagio.proximo:hover { border-color:var(--active-text); }
+  .crm-estagio svg { width:13px; height:13px; }
+  .crm-duas { display:grid; grid-template-columns:minmax(0, 480px) minmax(0, 1fr); gap:28px; align-items:start; }
+  .crm-link { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--active-text); cursor:pointer; user-select:none; background:transparent; border:none; font-family:'Nunito',sans-serif; padding:0; }
+  .crm-link svg { width:14px; height:14px; }
+  .crm-card { background:var(--page-bg); border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:12px; }
+  .crm-card-topo { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .crm-card-texto { font-size:14px; color:var(--text-heading); margin:12px 0 14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+  .crm-card-sub { font-size:12px; color:var(--text); margin-bottom:12px; }
+  .crm-icone { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border:none; background:transparent; color:var(--text); cursor:pointer; border-radius:7px; padding:0; }
+  .crm-icone:hover { background:rgba(120,120,140,0.14); color:var(--text-heading); }
+  .crm-icone svg { width:14px; height:14px; }
+  .crm-campo { margin-bottom:14px; }
+  .crm-campo label { display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .crm-campo textarea, .crm-campo input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:9px; padding:9px 12px; outline:none; }
+  .crm-campo textarea { min-height:96px; resize:vertical; line-height:1.5; }
+  .crm-campo textarea:focus, .crm-campo input[type="text"]:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .crm-campo.has-error textarea, .crm-campo.has-error input[type="text"] { border-color:var(--danger); }
+  .crm-contador { font-size:11.5px; color:var(--text); margin-top:5px; }
+  .crm-campo .field-hint a { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .crm-par { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .crm-botoes { display:flex; align-items:center; gap:16px; margin-top:4px; }
+  /* linha do tempo */
+  .crm-lt { position:relative; margin:18px 0 0 14px; padding-left:28px; border-left:2px solid var(--border); }
+  .crm-lt-item { position:relative; display:flex; gap:14px; padding:0 0 22px; }
+  .crm-lt-no { position:absolute; left:-41px; top:14px; width:24px; height:24px; border-radius:50%; border:2px solid var(--border); background:var(--card-bg); display:flex; align-items:center; justify-content:center; color:var(--text); }
+  .crm-lt-no svg { width:12px; height:12px; }
+  .crm-lt-no.feito { border-color:var(--success); color:var(--success); }
+  .crm-lt-data { flex-shrink:0; width:58px; text-align:center; background:var(--active-bg); color:var(--active-text); border-radius:6px; padding:6px 4px; font-size:13px; font-weight:700; line-height:1.35; align-self:flex-start; }
+  .crm-lt-corpo { flex:1; min-width:0; }
+  .crm-lt-tit { font-size:14px; font-weight:800; color:var(--text-heading); }
+  .crm-lt-txt { font-size:13.5px; color:var(--text); margin-top:2px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+  .crm-lt-quem { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .crm-lt-acoes { display:flex; gap:2px; flex-shrink:0; align-self:flex-start; }
+  .crm-vazio { font-size:13.5px; color:var(--text); padding:18px 0; }
+  .crm-tab { width:100%; border-collapse:collapse; font-size:13px; }
+  .crm-tab th { text-align:left; font-size:11.5px; font-weight:700; color:var(--text); padding:9px 10px 9px 0; border-bottom:1px solid var(--border); }
+  .crm-tab td { padding:10px 10px 10px 0; color:var(--text-heading); border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+  .crm-tab .num { text-align:right; padding-right:0; white-space:nowrap; }
+  .crm-tab a { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .crm-nota { margin:12px 0 4px; padding:11px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12.5px; color:var(--text); line-height:1.5; }
+  .crm-nota b { color:var(--text-heading); }
+  .crm-drawer-largo { width:520px; right:-540px; }
+  .crm-drawer-largo.open { right:0; }
+  .crm-outro { display:block; padding:11px 0; border-bottom:1px solid var(--border); text-decoration:none; color:var(--text-heading); font-size:13.5px; font-weight:700; }
+  .crm-resultado { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+  .dropdown-select-divider { border-top:1px solid var(--border); margin:5px 4px; }
+  .radio-option { display:flex; align-items:center; gap:10px; padding:12px 14px; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; border:1px solid var(--border); border-radius:10px; background:var(--page-bg); }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative; margin:0;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
+  .date-field { position:relative; }
+  .date-field input[type="text"] { padding-right:34px; }
+  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
+              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
+              color:var(--text); cursor:pointer; }
+  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
+  .date-btn svg { width:13px; height:13px; }
+  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
+     o campo esta no topo da tela e nao ha espaco acima. */
+  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
+              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
+  .date-pop.open { display:block; }
+  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
+  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
+  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
+              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
+  .date-nav:hover { background: rgba(120,120,140,0.12); }
+  .date-nav svg { width:11px; height:11px; }
+  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
+             padding-bottom:4px; text-transform:uppercase; }
+  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
+              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
+  .date-dia:hover { background: rgba(120,120,140,0.14); }
+  .date-dia.vazio { cursor:default; }
+  .date-dia.vazio:hover { background:transparent; }
+  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
+  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off:hover { background:transparent; }
+  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
+  .date-rodape b { color:var(--text-heading); }
 </style>
 </head>
 <body class="dark">
@@ -733,11 +1001,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
       <span class="label-text">Cadastros</span>
     </div>
-    <div class="nav-item active" data-id="estoque" data-label="Estoque">
+    <div class="nav-item" data-id="estoque" data-label="Estoque">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 7l3-4h14l3 4"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
       <span class="label-text">Estoque</span>
     </div>
-    <div class="nav-item" data-id="vendas" data-label="Vendas">
+    <div class="nav-item active" data-id="vendas" data-label="Vendas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       <span class="label-text">Vendas</span>
     </div>
@@ -911,181 +1179,149 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1>Conferência de Entrada</h1>
-      <div class="subtitle">A fila do galpão: o que está a caminho, o que chegou e ainda não foi conferido, e o que já passou pela conferência</div>
+      <h1>CRM</h1>
+      <div class="subtitle">Gestão do relacionamento com os clientes. Cada assunto é uma conversa de venda, do primeiro contato ao fechamento.</div>
     </div>
     <div class="header-acoes">
-      <button class="btn-secundario-topo" id="btnImportarXML">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Importar XML
-      </button>
-      <button class="btn-primary" id="btnReceber">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-6 9 6v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
-        Receber mercadorias
-      </button>
-      <div class="dropdown-select" id="menuMaisAcoes">
-        <button type="button" class="btn-ghost dropdown-select-btn">
-          <span class="dropdown-select-label">Mais ações</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" style="right:0; left:auto; min-width:300px; white-space:nowrap;">
-          <div class="dropdown-select-item" data-acao="notas">Abrir Entrada de Notas</div>
-          <div class="dropdown-select-item" data-acao="romaneio">Imprimir romaneio do dia</div>
-          <div class="dropdown-select-item" data-acao="exportar">Exportar fila para planilha</div>
-        </div>
-      </div>
+      <button class="btn-primary" id="btnIncluirAssunto">Incluir assunto</button>
     </div>
   </div>
 
-  <div class="estoque-toolbar">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Pesquise por fornecedor, nº da nota ou chave de acesso">
+  <div class="crm-barra">
+    <div class="crm-busca">
+      <input type="text" id="buscaCrm" placeholder="Pesquise por contato, CPF/CNPJ ou assunto" autocomplete="off" aria-label="Pesquisar assuntos">
     </div>
-
-    <div class="periodo-wrap" id="periodoWrap">
-      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span id="rotuloPeriodo">Sem filtro de período</span>
-      </button>
-      <div class="periodo-menu" id="periodoMenu">
-        <div class="periodo-titulo">Período de chegada</div>
-        <div class="periodo-opcoes" id="periodoOpcoes">
-          <button class="periodo-op active" data-periodo="todos">Sem filtro</button>
-          <button class="periodo-op" data-periodo="dia">Do dia</button>
-          <button class="periodo-op" data-periodo="7">Últimos 7 dias</button>
-          <button class="periodo-op" data-periodo="30">Últimos 30 dias</button>
-        </div>
-      </div>
+    <div class="crm-visao" id="visaoCrm">
+      <button type="button" class="crm-visao-btn ativo" data-visao="lista">Lista</button>
+      <button type="button" class="crm-visao-btn" data-visao="quadro">Por estágio</button>
     </div>
-
-    <div class="dropdown-select" id="filtroDeposito" data-value="todos">
+    <div class="dropdown-select pill" id="filtroQuando" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Todos os depósitos</span>
+        <span class="dropdown-select-label">Qualquer data</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Todos os depósitos</div>
-        <div class="dropdown-select-item" data-value="1">Geral</div>
-        <div class="dropdown-select-item" data-value="2">Galpão Centro</div>
-        <div class="dropdown-select-item" data-value="3">Loja Física Aldeota</div>
-        <div class="dropdown-select-item" data-value="4">Bancada Desk Tech</div>
+        <div class="dropdown-select-item active" data-value="todos">Qualquer data</div>
+        <div class="dropdown-select-item" data-value="atrasadas">Ação atrasada</div>
+        <div class="dropdown-select-item" data-value="hoje">Ação para hoje</div>
+        <div class="dropdown-select-item" data-value="semana">Ação nos próximos 7 dias</div>
+        <div class="dropdown-select-item" data-value="semacao">Sem ação marcada</div>
       </div>
     </div>
-  </div>
-
-  <div class="abas-situacao" id="abasSituacao">
-    <div class="aba-sit active" data-sit="todos"><span>Todas</span><span class="sit-contador" data-cont="todos">0</span></div>
-    <div class="aba-sit" data-sit="aguardando"><span class="sit-dot sit-aguardando"></span><span>Aguardando entrada</span><span class="sit-contador" data-cont="aguardando">0</span></div>
-    <div class="aba-sit" data-sit="pronto"><span class="sit-dot sit-pronto"></span><span>Pronto para conferir</span><span class="sit-contador" data-cont="pronto">0</span></div>
-    <div class="aba-sit" data-sit="emconferencia"><span class="sit-dot sit-emconferencia"></span><span>Em conferência</span><span class="sit-contador" data-cont="emconferencia">0</span></div>
-    <div class="aba-sit" data-sit="conferida"><span class="sit-dot sit-conferida"></span><span>Conferidas</span><span class="sit-contador" data-cont="conferida">0</span></div>
+    <div class="dropdown-select pill" id="filtroResp" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Todos os responsáveis</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuFiltroResp"></div>
+    </div>
   </div>
 
   <div class="card">
-    <div class="nota-reservado" id="avisoFila">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-      <span id="avisoFilaTexto"></span>
-    </div>
+    <div class="abas-situacao" id="abasCrm"></div>
 
-    <div class="selecionar-todos-row">
-      <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
-      <label for="checkSelecionarTodos">Selecionar todas</label>
-    </div>
-
-    <div class="estoque-table-wrap">
-      <table class="estoque-table">
-        <thead>
-          <tr>
-            <th class="col-texto" style="width:34px;"></th>
-            <th class="col-texto ordenavel" data-ordem="numero">Nota <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="fornecedor">Fornecedor <span class="seta">▲</span></th>
-            <th class="col-texto">Depósito</th>
-            <th class="ordenavel" data-ordem="itens" title="Quantidade de itens diferentes na nota">Itens <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="chegada">Chegou em <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="espera" title="Dias desde a chegada sem a conferência ter fechado">Espera <span class="seta">▲</span></th>
-            <th class="col-texto">Situação</th>
-          </tr>
-        </thead>
-        <tbody id="corpoTabela"></tbody>
-      </table>
-    </div>
-
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="empty-state-title">Nada nesta fila</div>
-      <div class="empty-state-sub">Com os filtros atuais, não há nota esperando conferência.</div>
-      <button class="btn-primary" id="btnLimparFiltros" style="margin-top:14px;">Limpar filtros</button>
-    </div>
-
-    <div class="selecao-bar" id="barraSelecao">
-      <span class="selecao-info" id="selecaoInfo">0 selecionadas</span>
-      <div class="selecao-acoes">
-        <button class="btn-secundario" id="btnMarcarRecebidas">Marcar mercadoria como recebida</button>
-        <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
+    <div id="visaoLista">
+      <label class="selecionar-todos-row">
+        <input type="checkbox" class="checkbox-todos" id="checkSelecionarTodos">
+        Selecionar todos
+      </label>
+      <div id="listaCrm"></div>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/></svg>
+        <div class="empty-state-title">Nenhum assunto encontrado</div>
+        <div class="empty-state-sub">Ajuste a busca ou os filtros, ou inclua um assunto novo.</div>
       </div>
-    </div>
-
-    <div class="estoque-rodape">
-      <span id="contagemNotas">0 notas</span>
-      <span class="estoque-total">Esperando há mais tempo: <b id="maiorEspera">—</b></span>
-    </div>
-
-    <div class="paginacao-bar">
-      <div class="paginacao-info">
-        <span id="paginacaoResumo">Mostrando 1–10 de 10</span>
-        <span>· Por página:</span>
-        <div class="dropdown-select" id="itensPorPagina" data-value="10">
-          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
-            <span class="dropdown-select-label">10</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="10">10</div>
-            <div class="dropdown-select-item" data-value="25">25</div>
-            <div class="dropdown-select-item" data-value="50">50</div>
-            <div class="dropdown-select-item" data-value="100">100</div>
-          </div>
+      <div class="selecao-bar" id="barraSelecao">
+        <span class="selecao-info" id="selecaoInfo">0 selecionados</span>
+        <div class="selecao-acoes">
+          <button class="btn-secundario" id="btnArquivarSelecionados">Arquivar selecionados</button>
+          <button class="btn-danger" id="btnExcluirSelecionados">Excluir selecionados</button>
+          <div class="drawer-link" id="btnCancelarSelecao">Cancelar seleção</div>
         </div>
       </div>
-      <div class="paginacao-nav">
-        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
-        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      <div class="paginacao-bar">
+        <div class="paginacao-info">
+          <span id="paginacaoResumo">Mostrando 0 de 0</span>
+          <span>· Por página:</span>
+          <div class="dropdown-select" id="itensPorPagina" data-value="10">
+            <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+              <span class="dropdown-select-label">10</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="dropdown-select-menu">
+              <div class="dropdown-select-item active" data-value="10">10</div>
+              <div class="dropdown-select-item" data-value="25">25</div>
+              <div class="dropdown-select-item" data-value="50">50</div>
+              <div class="dropdown-select-item" data-value="100">100</div>
+            </div>
+          </div>
+        </div>
+        <div class="paginacao-nav">
+          <button class="paginacao-btn" id="btnPaginaAnterior" aria-label="Página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+          <button class="paginacao-btn" id="btnPaginaProxima" aria-label="Próxima página"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
       </div>
     </div>
+
+    <div id="visaoQuadro" style="display:none;">
+      <div class="crm-quadro-wrap"><div class="crm-quadro" id="quadroCrm"></div></div>
+    </div>
+
+    <div class="crm-rodape" id="rodapeCrm"></div>
   </div>
 
-<!-- PAINEL LATERAL: resumo da nota -->
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
-<div class="event-drawer" id="eventDrawer">
+<!-- menu da linha: um so, flutuante, para nao ser cortado pela rolagem da tabela -->
+<div class="dropdown-select-menu crm-menu-flutuante" id="menuLinha"></div>
+
+<div class="drawer-backdrop" id="crmBackdrop"></div>
+
+<!-- incluir ou editar assunto -->
+<div class="event-drawer crm-drawer-largo" id="assuntoDrawer">
   <div class="drawer-header">
-    <div class="drawer-title" id="drawerTitulo">Nota</div>
-    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+    <div class="drawer-title" id="assuntoDrawerTitulo">Incluir assunto</div>
+    <div class="drawer-close" data-fechar-painel><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
-  <div id="drawerCorpo"></div>
-</div>
-
-<!-- MODAL: receber mercadorias (leitor de código / busca da nota) -->
-<div class="drawer-backdrop" id="receberBackdrop"></div>
-<div class="modal-card modal-receber" id="receberModal">
-  <div class="receber-topo">
-    <div class="receber-titulo">Escaneie a nota de entrada para começar</div>
-    <div class="receber-sub">Bipe o código de barras do DANFE, ou digite fornecedor, número ou chave de acesso</div>
+  <div class="crm-campo" id="novoCampoCliente">
+    <label>Cliente</label>
+    <div class="dropdown-select" id="novoCliente" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Selecione</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuNovoCliente"></div>
+    </div>
+    <div class="field-error-msg" id="novoErroCliente">Escolha o cliente do assunto.</div>
+    <div class="field-hint">Cliente novo? Cadastre primeiro em <a href="../cadastros/pagina-cadastros-clientes.html">Cadastros → Clientes</a>.</div>
   </div>
-  <div class="receber-campo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="campoReceber" placeholder="Pesquise por fornecedor, número ou chave de acesso" autocomplete="off">
+  <div class="crm-campo" id="novoCampoTitulo">
+    <label for="novoTitulo">Assunto</label>
+    <input type="text" id="novoTitulo" maxlength="80" placeholder="Ex: Cadeiras para o escritório novo">
+    <div class="field-error-msg" id="novoErroTitulo">Diga em poucas palavras qual é o assunto.</div>
   </div>
-  <div class="receber-resultados" id="receberResultados"></div>
-  <div class="confirm-senha-row" id="campoSenhaModal">
-    <label>Sua senha</label>
-    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+  <div class="crm-campo" id="novoCampoEstagio">
+    <label>Estágio</label>
+    <div class="dropdown-select" id="novoEstagio" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Selecione</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuNovoEstagio"></div>
+    </div>
   </div>
-  <div class="confirm-acoes">
-    <button class="btn-primary" id="btnConfirmarReceber">Receber mercadorias <span class="esc-hint">ENTER</span></button>
-    <div class="drawer-link" id="btnCancelarReceber">Cancelar <span class="esc-hint">ESC</span></div>
+  <div class="crm-campo">
+    <label>Responsável</label>
+    <div class="dropdown-select" id="novoResp" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Selecione</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu" id="menuNovoResp"></div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnSalvarAssunto">Salvar</button>
+    <div class="drawer-link" data-fechar-painel>Cancelar</div>
   </div>
 </div>
 
@@ -1098,6 +1334,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
     Estou ciente destas ações e desejo continuar.
   </label>
+  <div class="confirm-senha-row" id="campoSenhaModal">
+    <label>Sua senha</label>
+    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
+  </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
     <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
@@ -1134,6 +1375,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // empresa
     conferenciaCompraAlerta: 1,
     conferenciaCompraCritico: 3,
+    separacaoAlertaHoras: 4,
+    separacaoCriticoHoras: 12,
+    separacaoOrdemPorEndereco: true,
+    expedicaoAlertaHoras: 8,
+    expedicaoCriticoHoras: 24,
+    romaneioSugereAutomatico: true,
+    // Obrigacao do MDF-e na carga propria. NAO e `if` dentro da tela: muda de
+    // estado para estado (pesquisa de 06/out/2026). Quem nao esta no mapa cai
+    // no padrao conservador. Valores: intermunicipal | interestadual |
+    // interestadualMulti.
+    mdfeRegraUF: { SP: 'interestadualMulti', RS: 'intermunicipal', MG: 'intermunicipal' },
+    mdfeRegraPadrao: 'interestadual',
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -1144,6 +1397,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // CRM (Configuracoes > Configuracoes do CRM)
+    crmDiasSemInteracao: 30,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1273,6 +1528,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
     { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configura\u00e7\u00f5es \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
     { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configura\u00e7\u00f5es \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'crm', nome:'CRM', onde:'Vendas \u2192 CRM', grupo:'Vendas', ligado:{ criar:true, editar:true, excluir:true } }
   ];
   // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
   const ACOES_ESPECIFICAS = [
@@ -1285,7 +1541,54 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // registrado: e o momento em que a contagem deixa de ser independente.
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
-    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false }
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separa\u00e7\u00e3o',               onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separa\u00e7\u00e3o de um pedido',            onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separa\u00e7\u00e3o',         onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separa\u00e7\u00e3o parcial para continuar depois', onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separa\u00e7\u00e3o j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separa\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Bancar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configura\u00e7\u00f5es \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
+    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
+    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
+    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
+    // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                           onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                            onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',     onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
+    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -1490,7 +1793,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Estoque', 'Conferência de Entrada'];
+  let path = ['Vendas', 'CRM'];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
   let moduloDoFlyout = null;
@@ -1626,548 +1929,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
-  // ===== DADOS (mock) =====
-  const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
-
-  // Esta tela e a fila do GALPAO. Entrada de Notas e a mesma nota vista pelo lado
-  // do documento (manifestacao, prazos, valor); aqui o que importa e onde ela esta
-  // no trabalho fisico: a caminho, na doca esperando, sendo contada, ou fechada.
-  // De onde a peca da fila veio. Conferencia de ENTRADA recebe compra e
-  // devolucao, e quem abre a caixa precisa saber qual das duas antes de
-  // contar: numa devolucao o esperado e o que o cliente disse que mandou.
-  function origemDaFila(n) {
-    if (n.origem !== 'devolucao') return nome('entrada.origem.compra');
-    return nome('entrada.origem.devolucao') + (n.pedido ? ' · ' + n.pedido : '');
-  }
-
-  const SITUACAO_LABEL = {
-    aguardando: 'Aguardando entrada', pronto: 'Pronto para conferir',
-    emconferencia: 'Em conferência', conferida: 'Conferida'
-  };
-  const SITUACAO_CLASSE = {
-    aguardando: 'bs-aguardando', pronto: 'bs-pronto',
-    emconferencia: 'bs-emconferencia', conferida: 'bs-conferida'
-  };
-
-  function dvChave(d43) {
-    let soma = 0, peso = 2;
-    for (let i = d43.length - 1; i >= 0; i--) {
-      soma += Number(d43[i]) * peso;
-      peso = peso === 9 ? 2 : peso + 1;
-    }
-    const dv = 11 - (soma % 11);
-    return String(dv >= 10 ? 0 : dv);
-  }
-  const zf = (v, n) => String(v).padStart(n, '0');
-  function chaveDe(uf, aamm, cnpj, serie, numero) {
-    const d43 = uf + aamm + cnpj.replace(/\D/g, '') + '55' + zf(serie, 3) + zf(numero, 9) + '1' + zf(numero * 7919 % 100000000, 8);
-    return d43 + dvChave(d43);
-  }
-  const fmtChave = (c) => c.replace(/(\d{4})(?=\d)/g, '$1 ');
-
-  const FORNECEDORES = {
-    'Móveis Nordeste Ltda':    { cnpj: '12.345.678/0001-90', uf: '23' },
-    'TechParts Distribuidora': { cnpj: '98.765.432/0001-10', uf: '35' },
-    'Nordic Home Importação':  { cnpj: '45.222.111/0001-33', uf: '35' },
-    'Tecidos Ceará S/A':       { cnpj: '77.888.999/0001-44', uf: '23' },
-    'Papelaria Central':       { cnpj: '11.222.333/0001-55', uf: '23' },
-    'Embalagens do Vale':      { cnpj: '55.666.777/0001-66', uf: '23' },
-    'Luminárias Brasil':       { cnpj: '33.444.555/0001-77', uf: '31' }
-  };
-
-  const NOTAS = [
-    { id: 1,  origem: 'compra', numero: 9051, serie: 1, fornecedor: 'Nordic Home Importação',  dep: 2, emissao: '2026-09-08', chegada: '2026-09-10', itens: 4, volumes: 9,  valor: 24890.00, situacao: 'emconferencia', oc: 3 },
-    { id: 2,  origem: 'compra', numero: 2301, serie: 1, fornecedor: 'Embalagens do Vale',      dep: 2, emissao: '2026-09-09', chegada: '2026-09-10', itens: 2, volumes: 30, valor: 1780.00,  situacao: 'emconferencia', oc: 14 },
-    { id: 3,  origem: 'compra', numero: 4476, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-09', chegada: '2026-09-11', itens: 1, volumes: 2,  valor: 890.00,   situacao: 'pronto',        oc: 12 },
-    { id: 4,  origem: 'compra', numero: 1190, serie: 2, fornecedor: 'Tecidos Ceará S/A',       dep: 2, emissao: '2026-08-31', chegada: '2026-09-03', itens: 3, volumes: 12, valor: 11200.00, situacao: 'pronto',        oc: 11 },
-    { id: 5,  origem: 'compra', numero: 4479, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-11', chegada: '',           itens: 2, volumes: 4,  valor: 1580.00,  situacao: 'aguardando',    oc: 7 },
-    { id: 6,  origem: 'compra', numero: 731,  serie: 1, fornecedor: 'Papelaria Central',       dep: 1, emissao: '2026-09-10', chegada: '',           itens: 5, volumes: 5,  valor: 412.90,   situacao: 'aguardando',    oc: 5 },
-    { id: 7,  origem: 'compra', numero: 7720, serie: 1, fornecedor: 'Móveis Nordeste Ltda',    dep: 2, emissao: '2026-09-09', chegada: '',           itens: 6, volumes: 22, valor: 9750.00,  situacao: 'aguardando',    oc: 6 },
-    // Devolucoes de venda. A de id 8 ainda esta na rua (chegada vazia); a 9
-    // chegou e espera alguem abrir a caixa.
-    { id: 8,  origem: 'devolucao', numero: 9001, serie: 1, fornecedor: 'Construtora Veredas Ltda', dep: 1, emissao: '2026-10-06', chegada: '',           itens: 1, volumes: 1, valor: 1080.00, situacao: 'aguardando', oc: null, pedido: 'PV-4862' },
-    { id: 9,  origem: 'devolucao', numero: 9002, serie: 1, fornecedor: 'Marcos Aurélio Pinheiro',  dep: 1, emissao: '2026-10-03', chegada: '2026-10-07', itens: 2, volumes: 1, valor: 349.90,  situacao: 'pronto',     oc: null, pedido: 'PV-4790' },
-    { id: 8,  numero: 8840, serie: 1, fornecedor: 'Luminárias Brasil',       dep: 2, emissao: '2026-09-10', chegada: '',           itens: 3, volumes: 7,  valor: 5380.00,  situacao: 'aguardando',    oc: 10 },
-    { id: 9,  numero: 4471, serie: 1, fornecedor: 'TechParts Distribuidora', dep: 4, emissao: '2026-09-02', chegada: '2026-09-04', itens: 2, volumes: 6,  valor: 7313.00,  situacao: 'conferida',     oc: 2 },
-    { id: 10, numero: 1182, serie: 2, fornecedor: 'Tecidos Ceará S/A',       dep: 2, emissao: '2026-09-03', chegada: '2026-09-05', itens: 2, volumes: 8,  valor: 3960.00,  situacao: 'conferida',     oc: 4 },
-    { id: 11, numero: 4468, serie: 1, fornecedor: 'Móveis Nordeste Ltda',    dep: 2, emissao: '2026-08-28', chegada: '2026-09-01', itens: 2, volumes: 26, valor: 18420.00, situacao: 'conferida',     oc: 1 },
-    { id: 12, numero: 2290, serie: 1, fornecedor: 'Embalagens do Vale',      dep: 2, emissao: '2026-09-05', chegada: '2026-09-08', itens: 1, volumes: 40, valor: 2240.00,  situacao: 'conferida',     oc: 8 },
-    { id: 13, numero: 6614, serie: 1, fornecedor: 'Luminárias Brasil',       dep: 2, emissao: '2026-08-30', chegada: '2026-09-02', itens: 3, volumes: 11, valor: 5380.00,  situacao: 'conferida',     oc: 10 },
-    { id: 14, numero: 736,  serie: 1, fornecedor: 'Papelaria Central',       dep: 1, emissao: '2026-08-22', chegada: '2026-08-26', itens: 4, volumes: 4,  valor: 320.00,   situacao: 'conferida',     oc: 13 }
-  ];
-  // Cliente pessoa fisica nao emite NF-e: nesses casos a nota de entrada e
-  // emitida por NOS, contra o nosso proprio CNPJ. Cliente pessoa juridica
-  // emite a dele, e a nota chega como qualquer outra.
-  const EMPRESA = { nome: 'Desk Company', cnpj: '41.903.556/0001-02', uf: '21' };
-  const CLIENTES = {
-    'Construtora Veredas Ltda': { cnpj: '12.884.330/0001-47', uf: '21', pj: true },
-    'Marcos Aurélio Pinheiro':  { cnpj: '', uf: '21', pj: false }
-  };
-  NOTAS.forEach(n => {
-    if (n.origem === 'devolucao') {
-      const c = CLIENTES[n.fornecedor] || { cnpj: '', uf: '21', pj: false };
-      const propria = !c.pj;
-      n.cnpj = propria ? EMPRESA.cnpj : c.cnpj;
-      n.chave = chaveDe(propria ? EMPRESA.uf : c.uf,
-                        n.emissao.slice(2, 4) + n.emissao.slice(5, 7), n.cnpj, n.serie, n.numero);
-      return;
-    }
-    const f = FORNECEDORES[n.fornecedor];
-    n.cnpj = f.cnpj;
-    n.chave = chaveDe(f.uf, n.emissao.slice(2, 4) + n.emissao.slice(5, 7), f.cnpj, n.serie, n.numero);
-  });
-
-  let buscaAtual = '';
-  let situacaoAtual = 'todos';
-  let periodoAtual = 'todos';
-  let filtroDepositoAtual = 'todos';
-  let ordemCampo = 'espera';
-  let ordemAsc = false;
-  let itensSelecionados = new Set();
-  let paginaAtual = 1;
-  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
-
-  const HOJE = new Date('2026-09-11T12:00:00');
-
-  const fmtNum = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtMoeda = (n) => 'R$ ' + fmtNum(n);
-  function fmtData(iso) {
-    if (!iso) return 'a caminho';
-    const [a, m, d] = iso.split('-');
-    return d + '/' + m + '/' + a;
-  }
-  const diasDesde = (iso) => Math.round((HOJE - new Date(iso + 'T12:00:00')) / 86400000);
-
-  // Espera so existe depois que a mercadoria chegou: nota a caminho nao esta
-  // atrasada, esta viajando. E conferencia fechada parou o relogio.
-  function esperaDe(n) {
-    if (!n.chegada || n.situacao === 'conferida') return -1;
-    return diasDesde(n.chegada);
-  }
-  function textoEspera(d) {
-    if (d < 0) return '—';
-    if (d === 0) return 'hoje';
-    return d + (d === 1 ? ' dia' : ' dias');
-  }
-  // Configuracoes > estoque > Configuracoes da conferência. Esconder a contagem
-  // esperada e a mesma ideia da conferencia cega, um nivel acima: quem recebe
-  // conta sem saber o numero que "deveria" dar. Padrao: visivel.
-  const mostraItens   = () => !PARAM.ocultarItensFila;
-  const mostraVolumes = () => !PARAM.ocultarVolumesFila;
-  const OCULTO_TITULO = 'Oculto por configura\u00e7\u00e3o \u2014 quem recebe conta sem saber o esperado.';
-  function resumoItensVolumes(n) {
-    const i = mostraItens()   ? n.itens + ' itens'     : 'itens ocultos';
-    const v = mostraVolumes() ? n.volumes + ' volumes' : 'volumes ocultos';
-    return i + ' \u00b7 ' + v;
-  }
-
-  const classeEspera = (d) => d < 0 ? 'espera-neutra' : (d > PARAM.conferenciaCompraCritico ? 'espera-critica' : (d > PARAM.conferenciaCompraAlerta ? 'espera-alerta' : 'espera-ok'));
-
-  NOTAS.forEach(n => { n.espera = esperaDe(n); });
-
-  function passaPeriodo(n) {
-    if (periodoAtual === 'todos') return true;
-    if (!n.chegada) return false;
-    const d = diasDesde(n.chegada);
-    if (periodoAtual === 'dia') return d === 0;
-    if (periodoAtual === '7') return d >= 0 && d <= 7;
-    if (periodoAtual === '30') return d >= 0 && d <= 30;
-    return true;
-  }
-
-  function combina(n, termo) {
-    if (termo === '') return true;
-    const digitos = termo.replace(/\D/g, '');
-    return n.fornecedor.toLowerCase().includes(termo) ||
-      String(n.numero) === termo ||
-      (digitos.length >= 4 && n.chave.includes(digitos));
-  }
-
-  // Filtro SEM a aba de situacao — e ele que alimenta os contadores das abas (§7.2).
-  function baseFiltrada() {
-    const termo = buscaAtual.trim().toLowerCase();
-    return NOTAS.filter(n => {
-      const passaDep = filtroDepositoAtual === 'todos' || String(n.dep) === filtroDepositoAtual;
-      return passaDep && combina(n, termo) && passaPeriodo(n);
-    });
-  }
-
-  function notasFiltradas() {
-    let lista = baseFiltrada().filter(n => situacaoAtual === 'todos' || n.situacao === situacaoAtual);
-    const valorDe = (n) => {
-      const v = n[ordemCampo];
-      return typeof v === 'string' ? v.toLowerCase() : v;
-    };
-    lista.sort((a, b) => {
-      const va = valorDe(a), vb = valorDe(b);
-      if (va < vb) return ordemAsc ? -1 : 1;
-      if (va > vb) return ordemAsc ? 1 : -1;
-      return 0;
-    });
-    return lista;
-  }
-
-  function notasPagina() {
-    const listaCompleta = notasFiltradas();
-    const totalPaginas = Math.max(1, Math.ceil(listaCompleta.length / itensPorPaginaAtual));
-    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
-    const inicio = (paginaAtual - 1) * itensPorPaginaAtual;
-    const fim = Math.min(inicio + itensPorPaginaAtual, listaCompleta.length);
-    return { listaCompleta, inicio, fim, totalPaginas, lista: listaCompleta.slice(inicio, fim) };
-  }
-
-  function atualizarContadores() {
-    const base = baseFiltrada();
-    const cont = { todos: base.length, aguardando: 0, pronto: 0, emconferencia: 0, conferida: 0 };
-    base.forEach(n => { cont[n.situacao]++; });
-    document.querySelectorAll('.sit-contador').forEach(el => {
-      el.textContent = cont[el.getAttribute('data-cont')];
-    });
-  }
-
-  function atualizarAviso() {
-    const prontas = NOTAS.filter(n => n.situacao === 'pronto').length;
-    const atrasadas = NOTAS.filter(n => n.espera > PARAM.conferenciaCompraCritico).length;
-    let txt = 'Mercadoria que chegou e não foi conferida <b>não vira estoque</b> — ela não existe para a venda até a conferência fechar. ';
-    txt += prontas === 0
-      ? 'Nenhuma nota esperando conferência agora.'
-      : '<b>' + prontas + (prontas === 1 ? ' nota está pronta' : ' notas estão prontas') + '</b> para conferir' +
-        (atrasadas > 0 ? ', e ' + atrasadas + (atrasadas === 1 ? ' está parada' : ' estão paradas') + ' há mais de 3 dias.' : '.');
-    document.getElementById('avisoFilaTexto').innerHTML = txt;
-  }
-
-  function renderTabela() {
-    const corpo = document.getElementById('corpoTabela');
-    const emptyState = document.getElementById('emptyState');
-    const wrap = document.querySelector('.estoque-table-wrap');
-    corpo.innerHTML = '';
-    const { listaCompleta, inicio, fim, totalPaginas, lista } = notasPagina();
-    atualizarContadores();
-    atualizarAviso();
-
-    document.getElementById('contagemNotas').textContent =
-      listaCompleta.length + (listaCompleta.length === 1 ? ' nota' : ' notas');
-    const pior = listaCompleta.reduce((m, n) => Math.max(m, n.espera), -1);
-    document.getElementById('maiorEspera').textContent = textoEspera(pior);
-
-    if (listaCompleta.length === 0) {
-      wrap.style.display = 'none';
-      emptyState.style.display = 'flex';
-      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
-      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
-      document.getElementById('btnPaginaAnterior').disabled = true;
-      document.getElementById('btnPaginaProxima').disabled = true;
-      atualizarBarraSelecao();
-      return;
-    }
-    wrap.style.display = '';
-    emptyState.style.display = 'none';
-
-    lista.forEach(n => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="col-texto"><input type="checkbox" class="item-checkbox" data-id="' + n.id + '" ' + (itensSelecionados.has(n.id) ? 'checked' : '') + '></td>' +
-        '<td class="col-texto"><span class="oc-numero">' + n.numero + '</span><span class="nota-serie">série ' + n.serie + '</span></td>' +
-        '<td class="col-texto"><span class="conf-dequem">' + n.fornecedor + '</span>' +
-          '<span class="conf-origem">' + origemDaFila(n) + '</span></td>' +
-        '<td class="col-texto">' + DEPOSITOS[n.dep] + '</td>' +
-        '<td' + (mostraItens() ? '' : ' title="' + OCULTO_TITULO + '"') + '>' +
-          (mostraItens() ? n.itens : '\u2014') +
-          ' <span class="un-sufixo">' + (n.volumes && mostraVolumes() ? n.volumes + ' vol' : '') + '</span></td>' +
-        '<td class="col-texto">' + fmtData(n.chegada) + '</td>' +
-        '<td><span class="' + classeEspera(n.espera) + '">' + textoEspera(n.espera) + '</span></td>' +
-        '<td class="col-texto"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></td>';
-      const chk = tr.querySelector('.item-checkbox');
-      chk.addEventListener('click', (e) => e.stopPropagation());
-      chk.addEventListener('change', (e) => toggleSelecao(n.id, e.target.checked));
-      tr.addEventListener('click', () => abrirResumo(n.id));
-      corpo.appendChild(tr);
-    });
-
-    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '-' + fim + ' de ' + listaCompleta.length;
-    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
-    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
-    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
-    atualizarCabecalhoOrdem();
-    atualizarBarraSelecao();
-  }
-
-  function atualizarCabecalhoOrdem() {
-    document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-      const ativo = th.getAttribute('data-ordem') === ordemCampo;
-      th.classList.toggle('ordenado', ativo);
-      const seta = th.querySelector('.seta');
-      if (seta) seta.textContent = ativo ? (ordemAsc ? '▲' : '▼') : '▲';
-    });
-  }
-
-  document.querySelectorAll('.estoque-table th.ordenavel').forEach(th => {
-    th.addEventListener('click', () => {
-      const campo = th.getAttribute('data-ordem');
-      if (ordemCampo === campo) ordemAsc = !ordemAsc; else { ordemCampo = campo; ordemAsc = true; }
-      paginaAtual = 1;
-      renderTabela();
-    });
-  });
-
-  // ===== SELEÇÃO EM MASSA (escopada à página atual, §7) =====
-  function toggleSelecao(id, marcado) {
-    if (marcado) itensSelecionados.add(id); else itensSelecionados.delete(id);
-    atualizarBarraSelecao();
-  }
-
-  function atualizarBarraSelecao() {
-    const bar = document.getElementById('barraSelecao');
-    const count = itensSelecionados.size;
-    document.getElementById('selecaoInfo').textContent = count + (count === 1 ? ' selecionada' : ' selecionadas');
-    bar.classList.toggle('show', count > 0);
-    const visiveis = notasPagina().lista;
-    const checkTodos = document.getElementById('checkSelecionarTodos');
-    checkTodos.checked = visiveis.length > 0 && visiveis.every(n => itensSelecionados.has(n.id));
-  }
-
-  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
-    notasPagina().lista.forEach(n => {
-      if (e.target.checked) itensSelecionados.add(n.id); else itensSelecionados.delete(n.id);
-    });
-    renderTabela();
-  });
-
-  document.getElementById('btnCancelarSelecao').addEventListener('click', () => {
-    itensSelecionados.clear();
-    renderTabela();
-  });
-
-  // Registrar a chegada da mercadoria e o unico passo que muda de situacao em
-  // massa aqui: conferir e um a um, com a tela propria.
-  function receberNotas(notas, aoTerminar) {
-    const alvo = notas.filter(n => n.situacao === 'aguardando');
-    if (alvo.length === 0) {
-      avisar('Nenhuma das notas selecionadas está aguardando entrada. Registrar chegada só se aplica a nota cuja mercadoria ainda não chegou.');
-      return;
-    }
-    const texto = alvo.length === 1
-      ? 'Registrar a chegada da mercadoria da nota ' + alvo[0].numero + '? Ela passa a "pronto para conferir" — o estoque só se mexe quando a conferência fechar.'
-      : 'Registrar a chegada da mercadoria das ' + alvo.length + ' notas selecionadas? Elas passam a "pronto para conferir" — o estoque só se mexe quando cada conferência fechar.';
-    abrirModalConfirmacao(texto, alvo.length, 'primary', () => {
-      alvo.forEach(n => {
-        n.situacao = 'pronto';
-        n.chegada = '2026-09-11';
-        n.espera = esperaDe(n);
-      });
-      itensSelecionados.clear();
-      renderTabela();
-      if (aoTerminar) aoTerminar(alvo);
-    });
-  }
-
-  document.getElementById('btnMarcarRecebidas').addEventListener('click', () => {
-    receberNotas([...itensSelecionados].map(id => NOTAS.find(n => n.id === id)).filter(Boolean));
-  });
-
-  // ===== DRAWER: resumo da nota =====
-  const drawerBackdrop = document.getElementById('drawerBackdrop');
-  const eventDrawer = document.getElementById('eventDrawer');
-  function fecharDrawer() {
-    drawerBackdrop.classList.remove('open');
-    eventDrawer.classList.remove('open');
-  }
-
-  function abrirResumo(id) {
-    const n = NOTAS.find(x => x.id === id);
-    if (!n) return;
-    document.getElementById('drawerTitulo').textContent = 'Nota ' + n.numero + ' · série ' + n.serie;
-
-    let html =
-      '<div class="drawer-badges"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></div>' +
-      '<div class="chave-bloco"><div class="chave-rotulo">Chave de acesso</div><div class="chave-valor">' + fmtChave(n.chave) + '</div></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Fornecedor</span><span class="extrato-valor">' + n.fornecedor + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">CNPJ</span><span class="extrato-valor">' + n.cnpj + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Depósito de destino</span><span class="extrato-valor">' + DEPOSITOS[n.dep] + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Ordem de compra</span><span class="extrato-valor">nº ' + n.oc + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Itens / volumes</span><span class="extrato-valor">' + resumoItensVolumes(n) + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Chegou em</span><span class="extrato-valor">' + fmtData(n.chegada) + '</span></div>' +
-      '<div class="extrato-linha"><span class="extrato-rotulo">Valor da nota</span><span class="extrato-valor">' + fmtMoeda(n.valor) + '</span></div>';
-
-    if (n.situacao === 'aguardando') {
-      html += '<div class="field-hint" style="margin-top:16px;">A mercadoria ainda não chegou. Quando o caminhão encostar, registre a chegada — é isso que coloca a nota na fila de conferência.</div>';
-    } else if (n.situacao === 'pronto') {
-      html += '<div class="field-hint" style="margin-top:16px;">Mercadoria na doca esperando contagem. Enquanto a conferência não fechar, <b>nada disso é estoque</b>.</div>';
-    } else if (n.situacao === 'emconferencia') {
-      html += '<div class="field-hint" style="margin-top:16px;">Conferência em andamento. A contagem parcial fica salva; o estoque só nasce no fechamento.</div>';
-    } else {
-      html += '<div class="field-hint" style="margin-top:16px;">Conferência fechada. O saldo entrou no depósito: o que já tem base de picking lá segue para <b>reposição</b> e vende normalmente; o que não tem fica <b>a endereçar</b> e aparece em Endereçamento até ganhar posição.</div>';
-    }
-
-    html += '<div class="drawer-footer">';
-    if (n.situacao === 'aguardando') {
-      html += '<button class="btn-primary" id="btnReceberUma">Registrar chegada</button>';
-    } else if (n.situacao === 'pronto' || n.situacao === 'emconferencia') {
-      html += '<button class="btn-primary" id="btnAbrirConferencia">' + (n.situacao === 'pronto' ? 'Iniciar conferência' : 'Continuar conferência') + '</button>';
-    }
-    html += '<div class="drawer-link" id="btnFecharResumo">Fechar</div></div>';
-
-    document.getElementById('drawerCorpo').innerHTML = html;
-    document.getElementById('btnFecharResumo').addEventListener('click', fecharDrawer);
-
-    const bRec = document.getElementById('btnReceberUma');
-    if (bRec) bRec.addEventListener('click', () => { fecharDrawer(); receberNotas([n]); });
-
-    const bConf = document.getElementById('btnAbrirConferencia');
-    if (bConf) bConf.addEventListener('click', () => {
-      // A fila LEVA para a contagem da nota escolhida. Ate 29/set isto era um aviso
-      // dizendo que a navegacao so funcionaria no Lovable — texto que ficou obsoleto
-      // em 22/set, quando o menu passou a navegar de verdade nas 53 telas. Foi esse
-      // aviso que fez nascer um segundo item de menu apontando para a contagem, que
-      // largava o usuario numa nota que ninguem escolheu.
-      window.location.href = '../estoque/pagina-estoque-conferencia.html?nota=' + n.numero;
-    });
-
-    drawerBackdrop.classList.add('open');
-    eventDrawer.classList.add('open');
-  }
-
-  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
-  drawerBackdrop.addEventListener('click', fecharDrawer);
-
-  // ===== MODAL: RECEBER MERCADORIAS (leitor de código) =====
-  // Quem recebe está com as mãos ocupadas e um leitor na mão: o leitor "digita"
-  // os 44 dígitos da chave e dá Enter. Por isso o campo abre focado, a busca é ao
-  // vivo, e Enter resolve sozinho quando há um único candidato.
-  const receberModal = document.getElementById('receberModal');
-  const receberBackdrop = document.getElementById('receberBackdrop');
-  const campoReceber = document.getElementById('campoReceber');
-  let candidatos = [];
-  let escolhida = null;
-
-  function abrirReceber() {
-    campoReceber.value = '';
-    escolhida = null;
-    atualizarResultados();
-    receberBackdrop.classList.add('open');
-    receberModal.classList.add('open');
-    setTimeout(() => campoReceber.focus(), 60);
-  }
-  function fecharReceber() {
-    receberBackdrop.classList.remove('open');
-    receberModal.classList.remove('open');
-  }
-
-  function atualizarResultados() {
-    const termo = campoReceber.value.trim().toLowerCase();
-    const alvo = document.getElementById('receberResultados');
-    const btn = document.getElementById('btnConfirmarReceber');
-
-    if (termo === '') {
-      candidatos = [];
-      escolhida = null;
-      alvo.innerHTML = '<div class="receber-vazio">Aguardando a leitura. As notas <b>aguardando entrada</b> e <b>prontas para conferir</b> aparecem aqui conforme você digita.</div>';
-      btn.disabled = true;
-      return;
-    }
-
-    candidatos = NOTAS.filter(n => n.situacao === 'aguardando' || n.situacao === 'pronto').filter(n => combina(n, termo));
-    if (candidatos.length === 0) {
-      escolhida = null;
-      const digitos = termo.replace(/\D/g, '');
-      alvo.innerHTML = '<div class="receber-vazio receber-erro">Nada encontrado para <b>' + (digitos.length === 44 ? 'essa chave' : campoReceber.value) + '</b>. ' +
-        'Pode ser nota de outro depósito, já conferida, ou ainda não cadastrada — nesse caso, importe o XML primeiro.</div>';
-      btn.disabled = true;
-      return;
-    }
-
-    if (!escolhida || !candidatos.includes(escolhida)) escolhida = candidatos[0];
-    alvo.innerHTML = candidatos.slice(0, 5).map(n =>
-      '<div class="receber-item' + (n === escolhida ? ' ativo' : '') + '" data-id="' + n.id + '">' +
-        '<div class="receber-item-info">' +
-          '<div class="receber-item-nome">Nota ' + n.numero + ' · série ' + n.serie + ' · ' + n.fornecedor + '</div>' +
-          '<div class="receber-item-meta">' + DEPOSITOS[n.dep] + ' · ' + resumoItensVolumes(n) + ' · ' + fmtMoeda(n.valor) + '</div>' +
-        '</div>' +
-        '<span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span>' +
-      '</div>').join('');
-    if (candidatos.length > 5) {
-      alvo.innerHTML += '<div class="receber-vazio">Mais ' + (candidatos.length - 5) + ' resultado(s). Refine a busca ou bipe a chave.</div>';
-    }
-    alvo.querySelectorAll('.receber-item').forEach(el => {
-      el.addEventListener('click', () => {
-        escolhida = NOTAS.find(n => n.id === Number(el.dataset.id));
-        atualizarResultados();
-      });
-    });
-    btn.disabled = false;
-  }
-
-  function confirmarReceber() {
-    if (!escolhida) return;
-    const n = escolhida;
-    fecharReceber();
-    if (n.situacao === 'pronto') {
-      avisar('A nota ' + n.numero + ' já está pronta para conferir — a chegada dela já foi registrada. Abra a conferência por ela na lista.');
-      return;
-    }
-    receberNotas([n]);
-  }
-
-  document.getElementById('btnReceber').addEventListener('click', abrirReceber);
-  // Vindo da Ordem de Compra ("Receber mercadorias"): chega com o modal aberto.
-  if (new URLSearchParams(window.location.search).get('receber') === '1') abrirReceber();
-  document.getElementById('btnCancelarReceber').addEventListener('click', fecharReceber);
-  receberBackdrop.addEventListener('click', fecharReceber);
-  document.getElementById('btnConfirmarReceber').addEventListener('click', confirmarReceber);
-  campoReceber.addEventListener('input', atualizarResultados);
-  campoReceber.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); confirmarReceber(); }
-  });
-
-  // ===== MODAL =====
-  const confirmModal = document.getElementById('confirmModal');
-  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
-  const confirmCienteRow = document.getElementById('confirmCienteRow');
-  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
-  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
-  let acaoConfirmada = null;
-
-  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
-    document.getElementById('confirmModalTexto').textContent = texto;
-    acaoConfirmada = aoConfirmar || null;
-    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
-    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
-    const precisaCiente = qtd >= 2 && modo !== 'aviso';
-    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
-    confirmCienteCheckbox.checked = false;
-    btnConfirmar.disabled = precisaCiente;
-    confirmModalBackdrop.classList.add('open');
-    confirmModal.classList.add('open');
-  }
-  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
-  function fecharModalConfirmacao() {
-    confirmModalBackdrop.classList.remove('open');
-    confirmModal.classList.remove('open');
-    acaoConfirmada = null;
-  }
-  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
-  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
-  // Antes isto executava o callback e so depois fechava. Callback que termina
-  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
-  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
-  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
-  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
-  // liberada" nunca apareceu para ninguem.
-  btnConfirmar.addEventListener('click', () => {
-    const executar = acaoConfirmada;
-    fecharModalConfirmacao();
-    if (executar) executar();
-  });
-  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
-  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (confirmModal.classList.contains('open')) fecharModalConfirmacao();
-      else if (eventDrawer.classList.contains('open')) fecharDrawer();
-      else document.getElementById('periodoMenu').classList.remove('open');
-    }
-  });
-
+  // ===== CRM =====
+  // Funil de pre-venda. Nasceu em 09/out/2026, com os prints do Olist como piso
+  // e quatro decisoes do usuario:
+  //
+  //   1. O STATUS DO CONTATO (lead, prospect, cliente) e do CLIENTE e mora em
+  //      Cadastros > Clientes. "Inativo" e a situacao que o cadastro ja tinha.
+  //      O CRM le e altera; nao existe um segundo status so dele.
+  //   2. ENCERRAR pergunta se o assunto foi ganho ou perdido e, se perdeu, o
+  //      motivo. Sem isso o funil nao mede conversao.
+  //   3. A proxima acao com DATA vira aviso na Agenda do Inicio, pelo mesmo
+  //      caminho de Contas a Pagar (`deskAvisos`).
+  //   4. Entram o quadro por estagio, WhatsApp e e-mail (abrem o aplicativo e
+  //      registram o contato; o sistema nao envia nada sozinho) e a proposta,
+  //      como registro dentro do assunto. Marcadores ficam de fora.
+  //
+  // Um ASSUNTO e uma conversa de venda com um cliente. Tem estagio, acoes
+  // (o que fazer e quando) e uma linha do tempo com tudo que aconteceu.
+  //
+  // Lista e tela do assunto dividem o mesmo estado, guardado em `deskCrm`: a
+  // acao criada no assunto tem de aparecer na lista ao voltar.
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
@@ -2213,107 +1994,761 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    document.getElementById('periodoMenu').classList.remove('open');
   });
 
-  // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio.
-  (function bindMenuAcoes() {
-    const raiz = document.getElementById('menuMaisAcoes');
-    if (!raiz) return;   // esta tela nao tem menu "Mais acoes" — sem a guarda, o
-                         // script inteiro morre aqui e nada depois disso roda
-    const btn = raiz.querySelector('.dropdown-select-btn');
-    const menu = raiz.querySelector('.dropdown-select-menu');
+  // ===== MODAL =====
+  const confirmModal = document.getElementById('confirmModal');
+  const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
+  const confirmCienteRow = document.getElementById('confirmCienteRow');
+  const confirmCienteCheckbox = document.getElementById('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
+
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    document.getElementById('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() {
+    confirmModalBackdrop.classList.remove('open');
+    confirmModal.classList.remove('open');
+    acaoConfirmada = null;
+  }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // FECHA ANTES DE EXECUTAR — correcao de COMPONENTE, nao de tela (§13).
+  // Antes isto executava o callback e so depois fechava. Callback que termina
+  // chamando `avisar(...)` abria a folha de confirmacao e o fechamento seguinte
+  // a derrubava na mesma linha: a explicacao do que acabou de acontecer era
+  // escrita e apagada antes de qualquer pessoa ler. Valia em 8 telas — o funil
+  // do Pedido de Venda era uma delas, e por isso "a comissao do vendedor esta
+  // liberada" nunca apareceu para ninguem.
+  btnConfirmar.addEventListener('click', () => {
+    const executar = acaoConfirmada;
+    fecharModalConfirmacao();
+    if (executar) executar();
+  });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && confirmModal.classList.contains('open')) fecharModalConfirmacao();
+  });
+
+  // ===== COMPONENTE: campo de data com mini calendário =====
+  // Decidido na barganha de 22/set/2026. O campo continua aceitando DIGITACAO —
+  // quem sabe a data digita mais rapido — e ganha o icone que abre o calendario,
+  // para quem nao lembra o dia. Os dois caminhos, como no Olist.
+  //
+  // O motivo que nao e estetico: e no calendario que a TRAVA FICA VISIVEL. Dia
+  // dentro de periodo financeiro fechado aparece desabilitado, com o motivo no
+  // `title`, em vez de o usuario digitar, mandar salvar e so entao descobrir.
+  // Trava que aparece antes do clique e informacao; depois, e punicao.
+  //
+  // `min` e `max` aceitam string ISO ou FUNCAO — precisam ser funcao quando o
+  // limite muda durante a sessao, que e o caso do fechamento financeiro.
+  const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const MESES_NOME = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  function inicializarDataField(raiz, opcoes) {
+    if (!raiz || raiz.dataset.dateInit) return;
+    raiz.dataset.dateInit = '1';
+    const op = opcoes || {};
+    const input = raiz.querySelector('input');
+    const btn = raiz.querySelector('.date-btn');
+    const pop = raiz.querySelector('.date-pop');
+    if (!input || !btn || !pop) return;
+    let mesVisivel = null;
+
+    const limite = (v) => (typeof v === 'function' ? v() : v) || null;
+    const isoDoInput = () => {
+      const m = String(input.value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return null;
+      const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+      return m[3] + '-' + m[2] + '-' + m[1];
+    };
+
+    function desenhar() {
+      const sel = isoDoInput();
+      const base = mesVisivel || (sel ? new Date(Number(sel.slice(0, 4)), Number(sel.slice(5, 7)) - 1, 1) : new Date());
+      base.setDate(1);
+      mesVisivel = base;
+      const ano = base.getFullYear(), mes = base.getMonth();
+      const primeiro = new Date(ano, mes, 1).getDay();
+      const ultimo = new Date(ano, mes + 1, 0).getDate();
+      const min = limite(op.min), max = limite(op.max);
+      const hojeIso = (function () { const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); })();
+
+      let celulas = '';
+      for (let i = 0; i < primeiro; i++) celulas += '<div class="date-dia vazio"></div>';
+      for (let d = 1; d <= ultimo; d++) {
+        const isoD = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const fora = (min && isoD < min) || (max && isoD > max);
+        const classes = 'date-dia' + (fora ? ' off' : '') + (isoD === sel ? ' sel' : '') + (isoD === hojeIso ? ' hoje' : '');
+        const txt = (v, padrao) => (typeof v === 'function' ? v() : v) || padrao;
+        const motivo = fora ? ' title="' + ((min && isoD < min) ? txt(op.motivoMin, 'Data anterior ao permitido.') : txt(op.motivoMax, 'Data posterior ao permitido.')) + '"' : '';
+        celulas += '<div class="' + classes + '"' + (fora ? '' : ' data-iso="' + isoD + '"') + motivo + '>' + d + '</div>';
+      }
+      pop.innerHTML =
+        '<div class="date-cab">' +
+          '<button type="button" class="date-nav" data-passo="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+          '<span class="date-mes">' + MESES_NOME[mes] + ' ' + ano + '</span>' +
+          '<button type="button" class="date-nav" data-passo="1" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>' +
+        '<div class="date-grade">' + DIAS_SEMANA.map(s => '<div class="date-ds">' + s + '</div>').join('') + celulas + '</div>' +
+        (op.rodape ? '<div class="date-rodape">' + op.rodape() + '</div>' : '');
+
+      pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mesVisivel = new Date(ano, mes + Number(b.getAttribute('data-passo')), 1);
+        desenhar();
+      }));
+      pop.querySelectorAll('.date-dia[data-iso]').forEach(c => c.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = c.getAttribute('data-iso');
+        input.value = v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
+        fechar();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        if (op.aoMudar) op.aoMudar(v);
+      }));
+    }
+
+    function abrir() {
+      document.querySelectorAll('.date-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+      mesVisivel = null;
+      desenhar();
+      // POSICAO: colado no icone, e ACIMA por padrao.
+      //  - Horizontal: o popover alinha pela DIREITA, que e onde o icone fica.
+      //    Abrindo pela esquerda, o mouse atravessa o campo inteiro para chegar
+      //    no dia — foi o que o print de 22/set mostrou.
+      //  - Vertical: para cima. Num formulario preenchido de cima para baixo,
+      //    quando se chega na data os campos de cima ja foram resolvidos; o que
+      //    esta ABAIXO e o proximo passo e o botao de salvar. Cobrir o que ja
+      //    passou custa menos que cobrir o que vem.
+      //  - Desce so quando nao ha espaco acima (campo no topo da tela).
+      pop.style.visibility = 'hidden'; pop.style.display = 'block';
+      const alturaPop = pop.offsetHeight;
+      pop.style.display = ''; pop.style.visibility = '';
+      const caixaBtn = btn.getBoundingClientRect();
+      const espacoAcima = caixaBtn.top;
+      const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
+      pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
+      pop.classList.add('open');
+    }
+    function fechar() { pop.classList.remove('open'); }
+
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-      document.getElementById('periodoMenu').classList.remove('open');
-      menu.classList.toggle('open');
+      if (pop.classList.contains('open')) fechar(); else abrir();
     });
-    menu.querySelectorAll('.dropdown-select-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.remove('open');
-        if (item.getAttribute('data-acao') === 'notas') { window.location.href = '../estoque/pagina-estoque-entrada-notas.html'; return; }
-        avisar('Impressão e exportação entram junto com Relatórios de Estoque.');
-      });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', () => { if (pop.classList.contains('open')) { mesVisivel = null; desenhar(); } });
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
+  }
+
+
+  // ---------- auxiliares ----------
+  const HOJE = new Date(); HOJE.setHours(0, 0, 0, 0);
+  function iso(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  const HOJE_ISO = iso(HOJE);
+  function dMais(n) { const d = new Date(HOJE); d.setDate(d.getDate() + n); return d; }
+  function fmtData(s) { const p = String(s).slice(0, 10).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function parseData(txt) {
+    const m = String(txt || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return null;
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+    return iso(d);
+  }
+  function diasEntre(aIso, bIso) {
+    return Math.round((new Date(String(bIso).slice(0, 10) + 'T00:00:00') - new Date(String(aIso).slice(0, 10) + 'T00:00:00')) / 86400000);
+  }
+  const MESES_CURTO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
+  function mostrar(id, sim) { const el = document.getElementById(id); if (el) el.style.display = sim ? '' : 'none'; }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  function moeda(v) {
+    return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function fmtNum(n) { return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  // "1.234,56" e "1234.56" valem; texto que nao e numero devolve null.
+  function numero(txt) {
+    let t = String(txt == null ? '' : txt).trim();
+    if (t === '') return null;
+    if (t.indexOf(',') !== -1) t = t.replace(/\./g, '').replace(',', '.');
+    const n = Number(t);
+    return isFinite(n) ? n : null;
+  }
+  function setDrop(id, valor, rotulo) {
+    const raiz = document.getElementById(id);
+    raiz.setAttribute('data-value', valor);
+    const lab = raiz.querySelector('.dropdown-select-label');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(function (it) {
+      const ativo = it.getAttribute('data-value') === String(valor);
+      it.classList.toggle('active', ativo);
+      if (ativo && lab && rotulo === undefined) lab.textContent = it.textContent;
     });
+    if (lab && rotulo !== undefined) lab.textContent = rotulo;
+  }
+  function valDrop(id) { return document.getElementById(id).getAttribute('data-value'); }
+  function montar(idMenu, itens) {
+    document.getElementById(idMenu).innerHTML = itens.map(function (o) {
+      return '<div class="dropdown-select-item" data-value="' + o.v + '">' + esc(o.t) + '</div>';
+    }).join('');
+  }
+  function marcarErro(idCampo, idErro, mensagem) {
+    if (idCampo) document.getElementById(idCampo).classList.add('has-error');
+    const e = document.getElementById(idErro);
+    if (mensagem !== undefined) e.textContent = mensagem;
+    e.classList.add('show');
+  }
+  function limparErro(idCampo, idErro) {
+    if (idCampo) document.getElementById(idCampo).classList.remove('has-error');
+    document.getElementById(idErro).classList.remove('show');
+  }
+
+  // ---------- espelhos de cadastro (no Lovable viram join) ----------
+  // Configuracoes > Estagios do funil de vendas. A ORDEM e o dado; o ultimo encerra o assunto.
+  const ESTAGIOS = [
+    { id: 1, nome: 'Prospecção' },
+    { id: 2, nome: 'Contato realizado' },
+    { id: 3, nome: 'Proposta apresentada' },
+    { id: 4, nome: 'Negociação' },
+    { id: 5, nome: 'Encerrado', final: true }
+  ];
+  // Cadastros > Clientes. `contato` e o status do contato; `status` e a situacao do cadastro.
+  const CLIENTES = [
+    { id: 1,  nome: 'Marina Duarte',                  documento: '123.456.789-00',     email: 'marina.duarte@gmail.com',       telefone: '(99) 98234-5501', contato: 'cliente',  status: 'ativo' },
+    { id: 2,  nome: 'Rafael Nogueira',                documento: '234.567.890-11',     email: 'rafael.nogueira@hotmail.com',   telefone: '(99) 98234-5502', contato: 'cliente',  status: 'ativo' },
+    { id: 3,  nome: 'Distribuidora Nordeste Ltda',    documento: '41.223.556/0001-09', email: 'contato@distnordeste.com.br',   telefone: '(99) 3524-1180',  contato: 'cliente',  status: 'ativo' },
+    { id: 4,  nome: 'Juliana Prado',                  documento: '345.678.901-22',     email: 'juliana.prado@outlook.com',     telefone: '(99) 98234-5504', contato: 'prospect', status: 'ativo' },
+    { id: 5,  nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br',  telefone: '(99) 3524-7788',  contato: 'cliente',  status: 'ativo' },
+    { id: 6,  nome: 'Pedro Henrique Alves',           documento: '456.789.012-33',     email: 'pedro.alves@gmail.com',         telefone: '(99) 98234-5506', contato: 'cliente',  status: 'inativo' },
+    { id: 7,  nome: 'Camila Rêgo',                    documento: '567.890.123-44',     email: 'camila.rego@gmail.com',         telefone: '(99) 98234-5507', contato: 'lead',     status: 'ativo' },
+    { id: 8,  nome: 'Móveis Bom Preço Ltda',          documento: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br', telefone: '(99) 3524-9910',  contato: 'prospect', status: 'ativo' },
+    { id: 9,  nome: 'Thiago Almeida',                 documento: '678.901.234-55',     email: 'thiago.almeida@yahoo.com',      telefone: '(99) 98234-5509', contato: 'lead',     status: 'ativo' },
+    { id: 10, nome: 'Larissa Monteiro',               documento: '789.012.345-66',     email: 'larissa.monteiro@gmail.com',    telefone: '(99) 98234-5510', contato: 'lead',     status: 'inativo' },
+    { id: 11, nome: 'Auto Peças Imperatriz Ltda',     documento: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br',   telefone: '(99) 3524-3320',  contato: 'cliente',  status: 'ativo' },
+    { id: 12, nome: 'Bruno Carvalho',                 documento: '890.123.456-77',     email: 'bruno.carvalho@hotmail.com',    telefone: '(99) 98234-5512', contato: 'prospect', status: 'ativo' },
+    { id: 13, nome: 'Patrícia Farias',                documento: '901.234.567-88',     email: 'patricia.farias@gmail.com',     telefone: '(99) 98234-5513', contato: 'cliente',  status: 'ativo' },
+    { id: 14, nome: 'Papelaria Central Ltda',         documento: '44.556.778/0001-90', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', contato: 'cliente',  status: 'inativo' }
+  ];
+  // Cadastros > Vendedores (os mesmos de Metas): quem responde por uma acao.
+  const VENDEDORES = [
+    { id: 1, nome: 'Marina Costa',                lojaId: 1,    ativo: true },
+    { id: 5, nome: 'Rafael Tenório',              lojaId: 2,    ativo: true },
+    { id: 6, nome: 'Bianca Furtado',              lojaId: 1,    ativo: true },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', lojaId: null, ativo: true },
+    { id: 3, nome: 'Rafael Andrade',              lojaId: 3,    ativo: false }
+  ];
+
+  // ---------- listas fechadas ----------
+  const CONTATOS = { lead: 'Lead', prospect: 'Prospect', cliente: 'Cliente', inativo: 'Inativo' };
+  const ORDEM_CONTATOS = ['lead', 'prospect', 'cliente', 'inativo'];
+  const PREVISTOS = { data: 'Data', quantoantes: 'Quanto antes', esperar: 'Esperar', semdata: 'Sem data' };
+  // shortcut: motivo de perda e lista fechada no codigo; vira cadastro quando a operacao quiser editar a lista.
+  const MOTIVOS_PERDA = ['Preço', 'Prazo de entrega', 'Comprou do concorrente', 'Sem retorno do cliente', 'Desistiu da compra', 'Outro'];
+  const PROPOSTA_SIT = { apresentada: 'Apresentada', aceita: 'Aceita', recusada: 'Recusada' };
+  const EVENTO_TITULO = {
+    criado: 'Assunto criado', estagio: 'Estágio alterado', anotacao: 'Anotação', whatsapp: 'WhatsApp', email: 'E-mail',
+    proposta: 'Proposta', pedido: 'Pedido de venda', encerrado: 'Assunto encerrado', reaberto: 'Assunto reaberto',
+    arquivado: 'Assunto arquivado', contato: 'Status do contato'
+  };
+
+  // ---------- estado ----------
+  const CHAVE_CRM = 'deskCrm';
+  let ASSUNTOS = [];
+  let contatos = {};        // status do contato alterado pelo CRM, por id de cliente
+  let proxId = 100;
+  function quandoIso(dias, hora) { return iso(dMais(dias)) + 'T' + (hora || '10:00') + ':00'; }
+  function semente() {
+    const ev = (id, dias, tipo, txt, hora) => ({ id, quando: quandoIso(dias, hora), tipo, texto: txt, usuario: 'Administrador Desk' });
+    const acao = (id, txt, previsto, dias, hora, resp, concluidaDias) => ({
+      id, texto: txt, previsto, data: previsto === 'data' ? iso(dMais(dias)) : null, hora: hora || null, responsavelId: resp,
+      criadaEm: quandoIso(Math.min(dias || 0, 0) - 1), concluidaEm: concluidaDias === undefined ? null : quandoIso(concluidaDias, '16:00')
+    });
+    return [
+      { id: 1, clienteId: 7, titulo: 'Cadeiras para o escritório novo', estagioId: 1, estrela: true, arquivado: false, criadoEm: quandoIso(-2), responsavelId: 1,
+        resultado: null, proposta: null,
+        acoes: [acao(11, 'Ligar para apresentar o catálogo de cadeiras', 'data', 0, '15:00', 1)],
+        eventos: [ev(12, -2, 'criado', 'Chegou pelo Instagram da Desk Shope perguntando por cadeiras.')] },
+      { id: 2, clienteId: 8, titulo: 'Revenda de periféricos', estagioId: 3, estrela: false, arquivado: false, criadoEm: quandoIso(-12), responsavelId: 6,
+        resultado: null, proposta: { valor: 8450.00, validade: iso(dMais(5)), condicoes: '30/60 dias no boleto, frete por conta da Desk.', situacao: 'apresentada', criadaEm: quandoIso(-3) },
+        acoes: [acao(21, 'Cobrar retorno da proposta', 'data', 1, null, 6), acao(22, 'Apresentar a linha de periféricos', 'data', -8, null, 6, -8)],
+        eventos: [ev(23, -12, 'criado', 'Quer revender teclados e mouses na loja deles.'), ev(24, -8, 'estagio', 'De Prospecção para Contato realizado.'),
+                  ev(25, -3, 'proposta', 'Proposta de R$ 8.450,00 apresentada, válida por 8 dias.'), ev(26, -3, 'estagio', 'De Contato realizado para Proposta apresentada.')] },
+      { id: 3, clienteId: 3, titulo: 'Renovação do contrato de suprimentos', estagioId: 4, estrela: true, arquivado: false, criadoEm: quandoIso(-20), responsavelId: 1,
+        resultado: null, proposta: { valor: 12300.00, validade: iso(dMais(10)), condicoes: 'Contrato de 12 meses, reajuste anual.', situacao: 'apresentada', criadaEm: quandoIso(-9) },
+        acoes: [acao(31, 'Enviar a tabela revisada com o desconto por volume', 'data', -2, null, 1)],
+        eventos: [ev(32, -20, 'criado', 'Contrato atual vence no fim do mês.'), ev(33, -9, 'proposta', 'Proposta de R$ 12.300,00 apresentada.'),
+                  ev(34, -5, 'anotacao', 'Pediram desconto por volume acima de 50 caixas.'), ev(35, -5, 'estagio', 'De Proposta apresentada para Negociação.')] },
+      { id: 4, clienteId: 9, titulo: 'Notebook para edição de vídeo', estagioId: 2, estrela: false, arquivado: false, criadoEm: quandoIso(-45), responsavelId: 5,
+        resultado: null, proposta: null, acoes: [],
+        eventos: [ev(41, -45, 'criado', 'Procura notebook com placa de vídeo dedicada.'), ev(42, -40, 'whatsapp', 'Enviadas três opções de configuração.'),
+                  ev(43, -40, 'estagio', 'De Prospecção para Contato realizado.')] },
+      { id: 5, clienteId: 4, titulo: 'Kit home office', estagioId: 2, estrela: false, arquivado: false, criadoEm: quandoIso(-6), responsavelId: 6,
+        resultado: null, proposta: null,
+        acoes: [acao(51, 'Confirmar a cor da mesa e fechar o kit', 'quantoantes', 0, null, 6)],
+        eventos: [ev(52, -6, 'criado', 'Indicada por outra cliente.'), ev(53, -4, 'estagio', 'De Prospecção para Contato realizado.')] },
+      { id: 6, clienteId: 5, titulo: 'Upgrade dos monitores', estagioId: 5, estrela: false, arquivado: false, criadoEm: quandoIso(-30), responsavelId: 1,
+        resultado: 'ganho', motivoPerda: '', obsEncerramento: 'Fechou os 12 monitores.', encerradoEm: quandoIso(-3),
+        proposta: { valor: 5980.00, validade: iso(dMais(-1)), condicoes: 'À vista no Pix.', situacao: 'aceita', criadaEm: quandoIso(-10) },
+        acoes: [acao(61, 'Enviar a proposta dos monitores', 'data', -10, null, 1, -10)],
+        eventos: [ev(62, -30, 'criado', 'Trocar 12 monitores do escritório.'), ev(63, -10, 'proposta', 'Proposta de R$ 5.980,00 apresentada.'),
+                  ev(64, -3, 'encerrado', 'Ganho. Fechou os 12 monitores.')] },
+      { id: 7, clienteId: 12, titulo: 'Impressora para a loja', estagioId: 5, estrela: false, arquivado: false, criadoEm: quandoIso(-25), responsavelId: 5,
+        resultado: 'perdido', motivoPerda: 'Preço', obsEncerramento: 'Achou mais barato no marketplace.', encerradoEm: quandoIso(-8),
+        proposta: null, acoes: [],
+        eventos: [ev(71, -25, 'criado', 'Precisa de impressora térmica.'), ev(72, -8, 'encerrado', 'Perdido por Preço. Achou mais barato no marketplace.')] },
+      { id: 8, clienteId: 13, titulo: 'Mochilas para brinde', estagioId: 1, estrela: false, arquivado: true, criadoEm: quandoIso(-60), responsavelId: 6,
+        resultado: null, proposta: null,
+        // Acao com data num assunto ARQUIVADO: nao vira aviso na Agenda, e a suite cobra isso.
+        acoes: [acao(83, 'Retomar o orçamento no começo do ano', 'data', 20, null, 6)],
+        eventos: [ev(81, -60, 'criado', 'Orçamento para brinde de fim de ano.'), ev(82, -50, 'arquivado', 'Cliente adiou para o ano que vem.')] },
+      { id: 9, clienteId: 1, titulo: 'Troca do fone por um modelo superior', estagioId: 1, estrela: false, arquivado: false, criadoEm: quandoIso(-1), responsavelId: 1,
+        resultado: null, proposta: null,
+        acoes: [acao(91, 'Esperar a cliente voltar de viagem', 'esperar', 0, null, 1)],
+        eventos: [ev(92, -1, 'criado', 'Comprou o X200 no balcão e perguntou pelo modelo com cancelamento de ruído.')] }
+    ];
+  }
+  (function carregarCrm() {
+    try {
+      const g = JSON.parse(localStorage.getItem(CHAVE_CRM) || 'null');
+      if (g && Array.isArray(g.assuntos)) { ASSUNTOS = g.assuntos; contatos = g.contatos || {}; proxId = g.proxId || 100; return; }
+    } catch (e) { /* armazenamento indisponivel: segue com a semente */ }
+    ASSUNTOS = semente();
   })();
 
-  // ===== FILTRO DE PERÍODO (popover próprio, não é dropdown de valor) =====
-  const ROTULO_PERIODO = {
-    todos: 'Sem filtro de período', dia: 'Do dia', '7': 'Últimos 7 dias', '30': 'Últimos 30 dias'
-  };
-  const periodoMenu = document.getElementById('periodoMenu');
-  document.getElementById('btnPeriodo').addEventListener('click', (e) => {
-    e.stopPropagation();
+  // ---------- regras ----------
+  function clienteDe(id) { return CLIENTES.filter(c => c.id === id)[0] || { id: 0, nome: 'Cliente removido', documento: '', email: '', telefone: '', contato: 'lead', status: 'ativo' }; }
+  function vendedorDe(id) { return VENDEDORES.filter(v => v.id === id)[0] || null; }
+  function vendedorNome(id) { const v = vendedorDe(id); return v ? v.nome : 'Sem responsável'; }
+  function estagioDe(id) { return ESTAGIOS.filter(e => e.id === id)[0] || ESTAGIOS[0]; }
+  function assuntoDe(id) { return ASSUNTOS.filter(a => a.id === id)[0] || null; }
+  // Cadastro inativo e "inativo" seja qual for o status do contato: um cliente desligado nao e lead de ninguem.
+  function contatoDe(c) { return contatos[c.id] || (c.status === 'inativo' ? 'inativo' : c.contato); }
+  function acoesPendentes(a) { return a.acoes.filter(x => !x.concluidaEm); }
+  // Ordem das pendentes: o que e para ja, depois as datadas (a mais antiga primeiro), depois o que espera.
+  const PESO_PREVISTO = { quantoantes: 0, data: 1, esperar: 2, semdata: 3 };
+  function ordenarAcoes(lista) {
+    return lista.slice().sort((x, y) => (PESO_PREVISTO[x.previsto] - PESO_PREVISTO[y.previsto]) ||
+      String(x.data || '').localeCompare(String(y.data || '')) || String(x.hora || '').localeCompare(String(y.hora || '')) || (x.id - y.id));
+  }
+  function proximaAcao(a) { return ordenarAcoes(acoesPendentes(a))[0] || null; }
+  // O "quando" de uma acao, em palavras, e se ela esta atrasada.
+  function quandoDe(x) {
+    if (x.previsto !== 'data' || !x.data) return { rotulo: PREVISTOS[x.previsto], classe: x.previsto === 'quantoantes' ? 'hoje' : '' };
+    const d = diasEntre(HOJE_ISO, x.data);
+    const hora = x.hora ? ' às ' + x.hora : '';
+    if (d < 0) return { rotulo: 'Atrasada · ' + fmtData(x.data).slice(0, 5) + hora, classe: 'atrasada' };
+    if (d === 0) return { rotulo: 'Hoje' + hora, classe: 'hoje' };
+    if (d === 1) return { rotulo: 'Amanhã' + hora, classe: '' };
+    const p = x.data.split('-');
+    return { rotulo: p[2] + ' / ' + MESES_CURTO[Number(p[1]) - 1] + hora, classe: '' };
+  }
+  function ultimaInteracao(a) {
+    let u = a.criadoEm;
+    a.eventos.forEach(e => { if (e.quando > u) u = e.quando; });
+    a.acoes.forEach(x => { if (x.concluidaEm && x.concluidaEm > u) u = x.concluidaEm; if (x.criadaEm > u) u = x.criadaEm; });
+    return u;
+  }
+  function diasSemInteracao(a) { return Math.max(0, diasEntre(ultimaInteracao(a), HOJE_ISO)); }
+  // `crmDiasSemInteracao` (Configuracoes > Configuracoes do CRM): assunto aberto parado ha mais dias que isso ganha o aviso.
+  function semInteracao(a) { return !a.resultado && !a.arquivado && diasSemInteracao(a) > PARAM.crmDiasSemInteracao; }
+  function registrar(a, tipo, txt) {
+    a.eventos.push({ id: proxId++, quando: new Date().toISOString().slice(0, 19), tipo, texto: txt, usuario: USUARIO_SESSAO.nome });
+  }
+  // A proxima acao com data vira aviso na Agenda do Inicio. O aviso leva para o assunto, nao para um compromisso novo.
+  function publicarAvisos() {
+    try {
+      const mapa = JSON.parse(localStorage.getItem('deskAvisos') || '{}') || {};
+      Object.keys(mapa).forEach(k => { if (k.indexOf('crm:') === 0) delete mapa[k]; });
+      ASSUNTOS.forEach(a => {
+        if (a.arquivado || a.resultado) return;
+        acoesPendentes(a).forEach(x => {
+          if (x.previsto !== 'data' || !x.data) return;
+          mapa['crm:' + a.id + ':' + x.id] = {
+            data: x.data, hora: x.hora || '09:00', tipo: 'tarefa', titulo: x.texto,
+            meta: 'Vendas → CRM · ' + clienteDe(a.clienteId).nome + ' · ' + a.titulo,
+            usuario: 'Desk Company', href: '../vendas/pagina-vendas-crm-detalhe.html?id=' + a.id
+          };
+        });
+      });
+      localStorage.setItem('deskAvisos', JSON.stringify(mapa));
+    } catch (e) { /* sem armazenamento, a Agenda fica sem o aviso */ }
+  }
+  function gravarCrm() {
+    try { localStorage.setItem(CHAVE_CRM, JSON.stringify({ assuntos: ASSUNTOS, contatos, proxId })); } catch (e) { /* idem */ }
+    publicarAvisos();
+  }
+  // Mudar o status do contato: "inativo" e os outros tres sao o mesmo campo para quem usa.
+  function mudarContato(c, novo) {
+    if (contatoDe(c) === novo) return;
+    contatos[c.id] = novo;
+    ASSUNTOS.filter(a => a.clienteId === c.id && !a.arquivado).forEach(a => registrar(a, 'contato', 'Passou a ' + CONTATOS[novo] + '.'));
+    gravarCrm();
+  }
+  // Mudar de estagio. O ultimo estagio encerra, e encerrar pede resultado: por isso nao se chega nele por aqui.
+  function mudarEstagio(a, estagioId) {
+    const de = estagioDe(a.estagioId), para = estagioDe(estagioId);
+    if (de.id === para.id || para.final) return false;
+    a.estagioId = para.id;
+    registrar(a, 'estagio', 'De ' + de.nome + ' para ' + para.nome + '.');
+    gravarCrm();
+    return true;
+  }
+  function encerrarAssunto(a, resultado, motivo, obs) {
+    const fim = ESTAGIOS.filter(e => e.final)[0];
+    a.estagioAntesId = a.estagioId;
+    a.estagioId = fim.id; a.resultado = resultado; a.motivoPerda = resultado === 'perdido' ? motivo : '';
+    a.obsEncerramento = obs || ''; a.encerradoEm = new Date().toISOString().slice(0, 19);
+    registrar(a, 'encerrado', (resultado === 'ganho' ? 'Ganho.' : 'Perdido por ' + motivo + '.') + (obs ? ' ' + obs : ''));
+    gravarCrm();
+  }
+  function reabrirAssunto(a) {
+    a.estagioId = a.estagioAntesId && !estagioDe(a.estagioAntesId).final ? a.estagioAntesId : ESTAGIOS[0].id;
+    a.resultado = null; a.motivoPerda = ''; a.obsEncerramento = ''; a.encerradoEm = null;
+    registrar(a, 'reaberto', 'Voltou para ' + estagioDe(a.estagioId).nome + '.');
+    gravarCrm();
+  }
+  function rotuloResultado(a) {
+    return a.resultado === 'ganho' ? 'Ganho' : (a.resultado === 'perdido' ? 'Perdido · ' + a.motivoPerda : '');
+  }
+  function pontoContato(c) { return '<span class="crm-ponto ' + contatoDe(c) + '" title="' + CONTATOS[contatoDe(c)] + '"></span>'; }
+
+  // ===== LISTA DO CRM =====
+  let abaAtual = 'todos';
+  let visao = 'lista';                       // 'lista' ou 'quadro' (por estagio)
+  let buscaAtual = '', filtroQuando = 'todos', filtroResp = 'todos';
+  let paginaAtual = 1;
+  let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
+  let selecionados = [];
+  let assuntoEmEdicao = null;                // id do assunto aberto no painel, ou null ao incluir
+  let assuntoDoMenu = null;                  // id do assunto cujo menu de linha esta aberto
+  const ABAS = [['todos', 'Todos'], ['pendentes', 'Com ações pendentes'], ['encerrados', 'Encerrados'], ['estrela', 'Com estrela'], ['arquivados', 'Arquivados']];
+  const IC_ESTRELA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  const IC_MAIS = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>';
+  const TRACO = '<span class="crm-sub" style="margin:0;">—</span>';
+  const URL_ASSUNTO = '../vendas/pagina-vendas-crm-detalhe.html?id=';
+
+  // ---------- filtros ----------
+  function daAba(a, aba) {
+    if (aba === 'arquivados') return a.arquivado;
+    if (a.arquivado) return false;
+    if (aba === 'pendentes') return !a.resultado && acoesPendentes(a).length > 0;
+    if (aba === 'encerrados') return !!a.resultado;
+    if (aba === 'estrela') return !!a.estrela;
+    return true;
+  }
+  function passaFiltros(a) {
+    const c = clienteDe(a.clienteId), b = semAcento(buscaAtual.trim());
+    if (b !== '') {
+      const dig = b.replace(/\D/g, '');
+      const acha = semAcento(c.nome).indexOf(b) !== -1 || semAcento(a.titulo).indexOf(b) !== -1 || (dig !== '' && c.documento.replace(/\D/g, '').indexOf(dig) !== -1);
+      if (!acha) return false;
+    }
+    if (filtroResp !== 'todos' && String(a.responsavelId) !== filtroResp) return false;
+    if (filtroQuando === 'todos') return true;
+    if (a.resultado) return false;                     // filtro de acao so faz sentido em assunto aberto
+    const x = proximaAcao(a);
+    if (filtroQuando === 'semacao') return !x;
+    if (!x) return false;
+    const d = x.previsto === 'data' && x.data ? diasEntre(HOJE_ISO, x.data) : null;
+    if (filtroQuando === 'atrasadas') return d !== null && d < 0;
+    if (filtroQuando === 'hoje') return d === 0 || x.previsto === 'quantoantes';
+    return d !== null && d >= 0 && d <= 7;             // semana
+  }
+  // Ordem: abertos antes de encerrados; entre os abertos, o que tem acao mais urgente; sem acao por ultimo.
+  function chaveDeOrdem(a) {
+    const x = a.resultado ? null : proximaAcao(a);
+    return [a.resultado ? 1 : 0, x ? PESO_PREVISTO[x.previsto] : 9, x && x.data ? x.data : '9999', x && x.hora ? x.hora : '99:99'].join('|');
+  }
+  function listaFiltrada() {
+    return ASSUNTOS.filter(a => daAba(a, abaAtual) && passaFiltros(a))
+      .sort((x, y) => chaveDeOrdem(x).localeCompare(chaveDeOrdem(y)) || String(y.criadoEm).localeCompare(String(x.criadoEm)));
+  }
+
+  // ---------- desenho ----------
+  function chipsDoAssunto(a) {
+    return (semInteracao(a) ? '<span class="crm-chip parado">sem interação há ' + diasSemInteracao(a) + ' dias</span>' : '') +
+           (a.arquivado ? '<span class="crm-chip">arquivado</span>' : '');
+  }
+  function linhaHtml(a) {
+    const c = clienteDe(a.clienteId), e = estagioDe(a.estagioId);
+    const x = a.resultado ? null : proximaAcao(a), q = x ? quandoDe(x) : null;
+    return '<tr data-id="' + a.id + '">' +
+      '<td style="width:34px;"><input type="checkbox" class="item-checkbox" data-id="' + a.id + '"' + (selecionados.indexOf(a.id) !== -1 ? ' checked' : '') + ' aria-label="Selecionar assunto"></td>' +
+      '<td style="width:34px;"><button type="button" class="crm-mais" data-menu="' + a.id + '" title="Ações do assunto" aria-label="Ações do assunto">' + IC_MAIS + '</button></td>' +
+      '<td style="width:34px;"><button type="button" class="crm-estrela' + (a.estrela ? ' on' : '') + '" data-estrela="' + a.id + '" title="Marcar com estrela" aria-label="Marcar com estrela">' + IC_ESTRELA + '</button></td>' +
+      '<td class="col-texto crm-quebra"><span class="crm-cli">' + pontoContato(c) + esc(c.nome) + '</span></td>' +
+      '<td class="col-texto crm-quebra">' + esc(a.titulo) + chipsDoAssunto(a) + '</td>' +
+      '<td class="col-texto crm-quebra">' + esc(e.nome) + (a.resultado ? '<span class="crm-chip ' + a.resultado + '">' + esc(rotuloResultado(a)) + '</span>' : '') + '</td>' +
+      '<td class="col-texto crm-quebra">' + (x ? esc(x.texto) : TRACO) + '<span class="crm-sub">' + esc(vendedorNome(x ? x.responsavelId : a.responsavelId)) + '</span></td>' +
+      '<td class="col-texto">' + (q ? '<span class="crm-quando ' + q.classe + '">' + esc(q.rotulo) + '</span>' : TRACO) + '</td>' +
+      '<td class="col-texto">' + (a.proposta ? moeda(a.proposta.valor) + '<span class="crm-sub">' + PROPOSTA_SIT[a.proposta.situacao] + '</span>' : TRACO) + '</td></tr>';
+  }
+  function pintarAbas() {
+    html('abasCrm', ABAS.map(p => '<div class="aba-sit' + (p[0] === abaAtual ? ' active' : '') + '" data-aba="' + p[0] + '">' + p[1] +
+      '<span class="sit-contador">' + ASSUNTOS.filter(a => daAba(a, p[0]) && passaFiltros(a)).length + '</span></div>').join(''));
+    document.querySelectorAll('#abasCrm .aba-sit').forEach(t => t.addEventListener('click', () => {
+      abaAtual = t.getAttribute('data-aba'); paginaAtual = 1; selecionados = []; pintar();
+    }));
+  }
+  function pintarLista(completa) {
+    const totalPaginas = Math.max(1, Math.ceil(completa.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual, fim = Math.min(inicio + itensPorPaginaAtual, completa.length);
+    const pagina = completa.slice(inicio, fim);
+    mostrar('emptyState', completa.length === 0);
+    document.getElementById('emptyState').style.display = completa.length === 0 ? 'flex' : 'none';
+    html('listaCrm', completa.length === 0 ? '' :
+      '<div class="estoque-table-wrap"><table class="estoque-table"><thead><tr><th></th><th></th><th></th>' +
+      '<th class="col-texto">Cliente</th><th class="col-texto">Assunto</th><th class="col-texto">Estágio</th><th class="col-texto">Próxima ação</th>' +
+      '<th class="col-texto">Quando</th><th class="col-texto">Proposta</th></tr></thead><tbody>' +
+      pagina.map(linhaHtml).join('') + '</tbody></table></div>');
+    texto('paginacaoResumo', completa.length === 0 ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + completa.length);
+    texto('paginacaoPaginas', 'Página ' + paginaAtual + ' de ' + totalPaginas);
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
+    const cx = document.getElementById('listaCrm');
+    cx.querySelectorAll('tbody tr').forEach(tr => {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', (e) => {
+        if (e.target.closest('input, button')) return;
+        window.location.href = URL_ASSUNTO + tr.getAttribute('data-id');
+      });
+    });
+    cx.querySelectorAll('.item-checkbox').forEach(ck => ck.addEventListener('change', () => {
+      const id = Number(ck.getAttribute('data-id'));
+      selecionados = ck.checked ? selecionados.concat([id]) : selecionados.filter(x => x !== id);
+      pintarSelecao(pagina);
+    }));
+    cx.querySelectorAll('[data-estrela]').forEach(b => b.addEventListener('click', () => {
+      const a = assuntoDe(Number(b.getAttribute('data-estrela')));
+      a.estrela = !a.estrela; gravarCrm(); pintar();
+    }));
+    cx.querySelectorAll('[data-menu]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); abrirMenuLinha(Number(b.getAttribute('data-menu')), b); }));
+    pintarSelecao(pagina);
+  }
+  function pintarSelecao(pagina) {
+    const n = selecionados.length;
+    document.getElementById('barraSelecao').classList.toggle('show', n > 0);
+    texto('selecaoInfo', n + (n === 1 ? ' selecionado' : ' selecionados'));
+    const todos = document.getElementById('checkSelecionarTodos');
+    todos.checked = pagina.length > 0 && pagina.every(a => selecionados.indexOf(a.id) !== -1);
+  }
+  // Quadro por estagio: uma coluna por estagio do funil, na ordem do cadastro.
+  function pintarQuadro(completa) {
+    html('quadroCrm', ESTAGIOS.map((e, n) => {
+      const doEstagio = completa.filter(a => a.estagioId === e.id);
+      const prox = ESTAGIOS[n + 1];
+      return '<div class="crm-col" data-estagio="' + e.id + '"><div class="crm-col-topo">' + esc(e.nome) + '<span>' + doEstagio.length + '</span></div>' +
+        (doEstagio.map(a => {
+          const c = clienteDe(a.clienteId), x = a.resultado ? null : proximaAcao(a), q = x ? quandoDe(x) : null;
+          return '<div class="crm-cartao" data-id="' + a.id + '"' + (a.resultado ? '' : ' draggable="true"') + '><span class="crm-cli">' + pontoContato(c) + esc(c.nome) + '</span>' +
+            '<div class="crm-cartao-tit">' + esc(a.titulo) + '</div>' +
+            (a.proposta ? '<div class="crm-sub">Proposta de ' + moeda(a.proposta.valor) + '</div>' : '') +
+            '<div class="crm-cartao-pe">' +
+              (a.resultado ? '<span class="crm-chip ' + a.resultado + '" style="margin-left:0;">' + esc(rotuloResultado(a)) + '</span>'
+                           : (q ? '<span class="crm-quando ' + q.classe + '">' + esc(q.rotulo) + '</span>' : '<span>sem ação marcada</span>')) +
+              (!a.resultado && prox ? '<button type="button" class="crm-avancar" data-avancar="' + a.id + '" title="Passar para ' + esc(prox.nome) + '">' + (prox.final ? 'encerrar' : 'avançar') + ' →</button>' : '') +
+            '</div></div>';
+        }).join('') || '<div class="crm-col-vazia">Nenhum assunto neste estágio.</div>') + '</div>';
+    }).join(''));
+    const cx = document.getElementById('quadroCrm');
+    cx.querySelectorAll('.crm-cartao').forEach(card => {
+      card.addEventListener('click', (e) => { if (!e.target.closest('button')) window.location.href = URL_ASSUNTO + card.getAttribute('data-id'); });
+      card.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', card.getAttribute('data-id')); });
+    });
+    cx.querySelectorAll('[data-avancar]').forEach(b => b.addEventListener('click', () => {
+      const a = assuntoDe(Number(b.getAttribute('data-avancar')));
+      const prox = ESTAGIOS[ESTAGIOS.indexOf(estagioDe(a.estagioId)) + 1];
+      moverParaEstagio(a, prox.id);
+    }));
+    cx.querySelectorAll('.crm-col').forEach(col => {
+      col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('alvo'); });
+      col.addEventListener('dragleave', () => col.classList.remove('alvo'));
+      col.addEventListener('drop', (e) => {
+        e.preventDefault(); col.classList.remove('alvo');
+        const a = assuntoDe(Number(e.dataTransfer.getData('text/plain')));
+        if (a) moverParaEstagio(a, Number(col.getAttribute('data-estagio')));
+      });
+    });
+  }
+  // O ultimo estagio encerra, e encerrar pede ganho ou perdido: a pergunta e feita na tela do assunto.
+  function moverParaEstagio(a, estagioId) {
+    if (a.resultado) return;
+    if (estagioDe(estagioId).final) { window.location.href = URL_ASSUNTO + a.id + '&encerrar=1'; return; }
+    if (mudarEstagio(a, estagioId)) pintar();
+  }
+  function pintarRodape(completa) {
+    const vistos = {};
+    completa.forEach(a => { vistos[a.clienteId] = contatoDe(clienteDe(a.clienteId)); });
+    const conta = (k) => Object.keys(vistos).filter(id => vistos[id] === k).length;
+    html('rodapeCrm', '<div class="crm-cont"><b id="contAssuntos">' + completa.length + '</b>' + (completa.length === 1 ? 'assunto' : 'assuntos') + '</div>' +
+      ORDEM_CONTATOS.map(k => '<div class="crm-cont"><b data-cont="' + k + '">' + conta(k) + '<span class="crm-ponto ' + k + '"></span></b>' +
+        ({ lead: 'leads', prospect: 'prospects', cliente: 'clientes', inativo: 'inativos' })[k] + '</div>').join(''));
+  }
+  function pintar() {
+    fecharMenuLinha();
+    const completa = listaFiltrada();
+    pintarAbas();
+    document.querySelectorAll('#visaoCrm .crm-visao-btn').forEach(b => b.classList.toggle('ativo', b.getAttribute('data-visao') === visao));
+    mostrar('visaoLista', visao === 'lista');
+    mostrar('visaoQuadro', visao === 'quadro');
+    if (visao === 'lista') pintarLista(completa); else pintarQuadro(completa);
+    pintarRodape(completa);
+  }
+
+  // ---------- menu da linha ----------
+  const menuLinha = document.getElementById('menuLinha');
+  function fecharMenuLinha() { menuLinha.classList.remove('open'); assuntoDoMenu = null; }
+  function abrirMenuLinha(id, botao) {
+    const a = assuntoDe(id), c = clienteDe(a.clienteId), atual = contatoDe(c);
     document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
-    periodoMenu.classList.toggle('open');
+    assuntoDoMenu = id;
+    menuLinha.innerHTML = '<div class="crm-menu-titulo">' + esc(c.nome) + '</div>' +
+      '<div class="dropdown-select-item" data-linha="abrir">Abrir assunto</div>' +
+      '<div class="dropdown-select-item" data-linha="editar">Editar assunto</div>' +
+      '<div class="dropdown-select-item" data-linha="arquivar">' + (a.arquivado ? 'Desarquivar assunto' : 'Arquivar assunto') + '</div>' +
+      '<div class="dropdown-select-divider"></div><div class="crm-menu-titulo">Alterar status do contato</div><div class="crm-menu-contatos">' +
+      ORDEM_CONTATOS.map(k => '<button type="button" class="crm-menu-contato' + (k === atual ? ' ativo' : '') + '" data-contato="' + k + '"><span class="crm-ponto ' + k + '"></span>' + CONTATOS[k] + '</button>').join('') +
+      '</div><div class="dropdown-select-divider"></div><div class="dropdown-select-item item-perigo" data-linha="excluir">Excluir assunto</div>';
+    menuLinha.classList.add('open');
+    // posicao fixa junto do botao; sobe quando nao cabe embaixo
+    const r = botao.getBoundingClientRect(), alt = menuLinha.offsetHeight;
+    menuLinha.style.left = Math.max(8, r.left) + 'px';
+    menuLinha.style.top = (r.bottom + alt + 12 > window.innerHeight ? Math.max(8, r.top - alt - 4) : r.bottom + 4) + 'px';
+  }
+  menuLinha.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const a = assuntoDe(assuntoDoMenu);
+    if (!a) return;
+    const ct = e.target.closest('[data-contato]'), it = e.target.closest('[data-linha]');
+    if (ct) { mudarContato(clienteDe(a.clienteId), ct.getAttribute('data-contato')); pintar(); return; }
+    if (!it) return;
+    const acao = it.getAttribute('data-linha');
+    fecharMenuLinha();
+    if (acao === 'abrir') window.location.href = URL_ASSUNTO + a.id;
+    else if (acao === 'editar') abrirAssunto(a.id);
+    else if (acao === 'arquivar') arquivar([a.id], !a.arquivado);
+    else if (acao === 'excluir') excluir([a.id]);
   });
-  periodoMenu.addEventListener('click', (e) => e.stopPropagation());
-  document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(op => {
-    op.addEventListener('click', () => {
-      document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
-      op.classList.add('active');
-      periodoAtual = op.getAttribute('data-periodo');
-      document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO[periodoAtual];
-      periodoMenu.classList.remove('open');
-      paginaAtual = 1;
-      renderTabela();
+  window.addEventListener('scroll', fecharMenuLinha, true);
+
+  // ---------- arquivar e excluir (um ou varios) ----------
+  function arquivar(ids, vai) {
+    const n = ids.length, um = n === 1 ? assuntoDe(ids[0]) : null;
+    abrirModalConfirmacao((vai ? 'Arquivar ' : 'Desarquivar ') + (um ? 'o assunto "' + um.titulo + '"' : n + ' assuntos') + '? ' +
+      (vai ? 'Ele sai das listas e do quadro, e pode ser desarquivado depois.' : 'Ele volta para as listas.'), n, 'primary', () => {
+      ids.forEach(id => { const a = assuntoDe(id); a.arquivado = vai; if (vai) registrar(a, 'arquivado', 'Assunto arquivado.'); });
+      selecionados = []; gravarCrm(); pintar();
     });
-  });
-
-  inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => {
-    filtroDepositoAtual = v; paginaAtual = 1; renderTabela();
-  });
-  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
-    itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela();
-  });
-
-  document.getElementById('btnPaginaAnterior').addEventListener('click', () => {
-    if (paginaAtual > 1) { paginaAtual--; renderTabela(); }
-  });
-  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
-
-  document.getElementById('campoBusca').addEventListener('input', (e) => {
-    buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
-  });
-
-  document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
-    aba.addEventListener('click', () => {
-      document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
-      aba.classList.add('active');
-      situacaoAtual = aba.getAttribute('data-sit');
-      paginaAtual = 1;
-      renderTabela();
+  }
+  function excluir(ids) {
+    const n = ids.length, um = n === 1 ? assuntoDe(ids[0]) : null;
+    armarSenhaModal('crmExclui');
+    abrirModalConfirmacao('Excluir ' + (um ? 'o assunto "' + um.titulo + '" de ' + clienteDe(um.clienteId).nome : n + ' assuntos') + '? As ações e a linha do tempo somem junto.', n, 'danger', () => {
+      ASSUNTOS = ASSUNTOS.filter(a => ids.indexOf(a.id) === -1);
+      selecionados = []; gravarCrm(); pintar();
     });
-  });
+  }
 
-  document.getElementById('btnLimparFiltros').addEventListener('click', () => {
-    buscaAtual = ''; document.getElementById('campoBusca').value = '';
-    situacaoAtual = 'todos';
-    document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === 'todos'));
-    periodoAtual = 'todos';
-    document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === 'todos'));
-    document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO.todos;
-    filtroDepositoAtual = 'todos';
-    const fd = document.getElementById('filtroDeposito');
-    fd.setAttribute('data-value', 'todos');
-    fd.querySelector('.dropdown-select-label').textContent = 'Todos os depósitos';
-    fd.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i.getAttribute('data-value') === 'todos'));
-    paginaAtual = 1;
-    renderTabela();
-  });
+  // ---------- incluir e editar assunto ----------
+  const crmBackdrop = document.getElementById('crmBackdrop');
+  const assuntoDrawer = document.getElementById('assuntoDrawer');
+  function fecharPaineis() { assuntoDrawer.classList.remove('open'); crmBackdrop.classList.remove('open'); }
+  function abrirAssunto(id) {
+    assuntoEmEdicao = id || null;
+    const a = id ? assuntoDe(id) : null;
+    texto('assuntoDrawerTitulo', a ? 'Editar assunto' : 'Incluir assunto');
+    montar('menuNovoCliente', CLIENTES.filter(c => c.status === 'ativo' || (a && c.id === a.clienteId)).map(c => ({ v: c.id, t: c.nome })));
+    if (a) setDrop('novoCliente', a.clienteId); else setDrop('novoCliente', '', 'Selecione');
+    document.getElementById('novoTitulo').value = a ? a.titulo : '';
+    // O estagio so e escolhido ao incluir: depois ele muda no assunto ou no quadro, e a mudanca fica na linha do tempo.
+    mostrar('novoCampoEstagio', !a);
+    setDrop('novoEstagio', ESTAGIOS[0].id);
+    const ativos = VENDEDORES.filter(v => v.ativo);
+    setDrop('novoResp', a && ativos.some(v => v.id === a.responsavelId) ? a.responsavelId : ativos[0].id);
+    limparErro('novoCampoCliente', 'novoErroCliente'); limparErro('novoCampoTitulo', 'novoErroTitulo');
+    crmBackdrop.classList.add('open'); assuntoDrawer.classList.add('open');
+  }
+  function salvarAssunto() {
+    limparErro('novoCampoCliente', 'novoErroCliente'); limparErro('novoCampoTitulo', 'novoErroTitulo');
+    const clienteId = Number(valDrop('novoCliente')), titulo = document.getElementById('novoTitulo').value.trim();
+    let erro = false;
+    if (!clienteId) { marcarErro('novoCampoCliente', 'novoErroCliente'); erro = true; }
+    if (titulo === '') { marcarErro('novoCampoTitulo', 'novoErroTitulo'); erro = true; }
+    if (erro) return;
+    const responsavelId = Number(valDrop('novoResp'));
+    if (assuntoEmEdicao) {
+      const a = assuntoDe(assuntoEmEdicao);
+      confirmarAcao('crmEditar', 'Confirma a alteração do assunto "' + a.titulo + '"?', () => {
+        a.clienteId = clienteId; a.titulo = titulo; a.responsavelId = responsavelId;
+        gravarCrm(); fecharPaineis(); pintar();
+      });
+      return;
+    }
+    confirmarAcao('crmCriar', 'Confirma o assunto "' + titulo + '" para ' + clienteDe(clienteId).nome + '?', () => {
+      const a = { id: proxId++, clienteId, titulo, estagioId: Number(valDrop('novoEstagio')), estrela: false, arquivado: false,
+                  criadoEm: new Date().toISOString().slice(0, 19), responsavelId, resultado: null, proposta: null, acoes: [], eventos: [] };
+      registrar(a, 'criado', 'Assunto criado.');
+      ASSUNTOS.push(a);
+      gravarCrm();
+      // Assunto novo abre direto: o passo seguinte e marcar a primeira acao.
+      window.location.href = URL_ASSUNTO + a.id;
+    });
+  }
 
-  document.getElementById('btnImportarXML').addEventListener('click', () => {
-    avisar('A importação por XML aceita arquivo de até 2 MB e cria a nota já com fornecedor, itens e valores. O upload de verdade só funciona no Lovable, com o parser rodando no servidor.');
+  // ---------- partida ----------
+  montar('menuFiltroResp', [{ v: 'todos', t: 'Todos os responsáveis' }].concat(VENDEDORES.map(v => ({ v: v.id, t: v.nome }))));
+  montar('menuNovoEstagio', ESTAGIOS.filter(e => !e.final).map(e => ({ v: e.id, t: e.nome })));
+  montar('menuNovoResp', VENDEDORES.filter(v => v.ativo).map(v => ({ v: v.id, t: v.nome })));
+  setDrop('filtroResp', 'todos');
+  setDrop('itensPorPagina', itensPorPaginaAtual);
+  inicializarDropdownSelect(document.getElementById('filtroQuando'), (v) => { filtroQuando = v; paginaAtual = 1; selecionados = []; pintar(); });
+  inicializarDropdownSelect(document.getElementById('filtroResp'), (v) => { filtroResp = v; paginaAtual = 1; selecionados = []; pintar(); });
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; pintar(); });
+  ['novoCliente', 'novoEstagio', 'novoResp'].forEach(id => inicializarDropdownSelect(document.getElementById(id), null));
+  document.getElementById('buscaCrm').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; selecionados = []; pintar(); });
+  document.querySelectorAll('#visaoCrm .crm-visao-btn').forEach(b => b.addEventListener('click', () => { visao = b.getAttribute('data-visao'); selecionados = []; pintar(); }));
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual -= 1; pintar(); } });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual += 1; pintar(); });
+  document.getElementById('checkSelecionarTodos').addEventListener('change', (e) => {
+    const completa = listaFiltrada(), inicio = (paginaAtual - 1) * itensPorPaginaAtual;
+    const ids = completa.slice(inicio, inicio + itensPorPaginaAtual).map(a => a.id);
+    selecionados = e.target.checked ? selecionados.filter(x => ids.indexOf(x) === -1).concat(ids) : selecionados.filter(x => ids.indexOf(x) === -1);
+    pintar();
   });
-
-  // Esc fecha primeiro o que estiver por cima: modal de receber, depois confirmação, depois drawer.
+  document.getElementById('btnCancelarSelecao').addEventListener('click', () => { selecionados = []; pintar(); });
+  document.getElementById('btnArquivarSelecionados').addEventListener('click', () => arquivar(selecionados.slice(), abaAtual !== 'arquivados'));
+  document.getElementById('btnExcluirSelecionados').addEventListener('click', () => excluir(selecionados.slice()));
+  document.getElementById('btnIncluirAssunto').addEventListener('click', () => abrirAssunto(null));
+  document.getElementById('btnSalvarAssunto').addEventListener('click', salvarAssunto);
+  crmBackdrop.addEventListener('click', fecharPaineis);
+  document.querySelectorAll('[data-fechar-painel]').forEach(el => el.addEventListener('click', fecharPaineis));
+  // Esc fecha o painel; o modal tem o proprio Esc e o dos dropdowns ja gastou a tecla quando fechou um menu.
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && receberModal.classList.contains('open')) fecharReceber();
+    if (e.key !== 'Escape' || e.cancelBubble || confirmModal.classList.contains('open')) return;
+    if (assuntoDrawer.classList.contains('open')) fecharPaineis();
   }, true);
-
-  renderTabela();
+  pintar();
+  publicarAvisos();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

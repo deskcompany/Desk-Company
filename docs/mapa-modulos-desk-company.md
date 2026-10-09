@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras e em 09/out com o PDV. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras e em 09/out com o PDV e o CRM. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**74 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**78 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **Onde estão os arquivos (desde 08/out/2026):** cada tela mora em `telas/<módulo>/`, na pasta do módulo em que este mapa a lista. O dashboard de KPIs fica em `telas/inicio/`. `telas/integracoes/` existe e está vazia. Ver §14.44 do design system.
 
@@ -49,14 +49,14 @@
 | ❌ | Giro de Estoque |
 | ❌ | Relatórios de Estoque |
 
-## 🛒 Vendas — 4 de 10
+## 🛒 Vendas — 5 de 10
 | | Submódulo |
 |---|---|
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
 | ✅ | Metas |
 | ✅ | Performance de Vendas |
-| ❌ | CRM |
+| ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ❌ | Notas Fiscais |
 | ❌ | Vendas Afiliados |
 | ❌ | Margem de Contribuição |
@@ -71,6 +71,8 @@
 > **PDV construído em 09/out**, a partir de 34 prints do Olist e três decisões do usuário: a venda vira **Pedido de Venda já entregue** (não é lista à parte, por isso conta em Metas e Performance); a **loja é escolhida ao abrir o caixa** e decide produtos, depósito e vendedores; e o **ciclo entrou inteiro**. Os nove parâmetros nasceram no mesmo dia em Configurações do PDV. **Ficou de fora:** salvar a venda para depois, faturar pré-venda, vale-presente, lista de preços, item não cadastrado, enviar recibo por e-mail ou WhatsApp e NFC-e. **E a venda ainda não aparece nas outras telas** (Pedidos, Contas a Receber, Caixa, Metas): cada uma tem os seus dados de exemplo, e o PDV diz na conclusão o que gerou. Ver §14.48.
 >
 > A tabela acima passou a listar **Metas**, que tem item de menu desde 08/out e não estava nela.
+>
+> **CRM construído em 09/out**, a partir de 13 prints do Olist e quatro decisões do usuário: o **status do contato** (lead, prospect, cliente) mora em **Cadastros → Clientes** e o CRM lê e altera dali; **encerrar pergunta ganho ou perdido**, com motivo quando perde; a **próxima ação com data vira aviso na Agenda** do Início; e entram o **quadro por estágio**, WhatsApp e e-mail (abrem o aplicativo e registram o contato, o sistema não envia nada) e a **proposta** como registro do assunto. Nasceram junto, em Configurações, **Estágios do funil de vendas** (a ordem é o dado; o último encerra) e **Configurações do CRM** (dias para avisar assunto sem interação). Ficou de fora: marcadores, o módulo de Propostas comerciais com itens, o calendário "por período" e cadastro de motivos de perda (hoje é lista fechada).
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
@@ -105,7 +107,7 @@
 | ❌ | Gateways de Pagamento |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 17 telas, abertas pelo hub
+## ⚙️ Configurações — 19 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
@@ -116,6 +118,7 @@
 | ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
 | ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui. 09/out: forma com prazo fixo da operadora, que é o cartão, guarda em quantos dias úteis cai, até quantas parcelas aceita, a taxa de cada parcela e se a taxa é repassada ao cliente)* |
 | ✅ | Configurações do PDV *(09/out: o que a venda de balcão exige, em que situação ela entra em Pedidos, desconto máximo sem liberação e fechamento cego; desligar o fechamento cego pede senha)* |
+| ✅ | Estágios do funil de vendas · Configurações do CRM *(09/out: os estágios em ordem, com reordenação por seta e por arrastar, e em quantos dias um assunto parado passa a ser avisado)* |
 | ❌ | Formas de pagamento *(a lista fiscal da NF-e: só habilita, desabilita e elege a padrão; cartão reservado no hub)* |
 
 > ~~**Dívida conhecida (06/out):** os seis parâmetros da Expedição — `expedicaoAlertaHoras`, `expedicaoCriticoHoras`, `romaneioSugereAutomatico`, `expedicaoDesvioPesoPct`, `mdfeRegraUF` e `mdfeRegraPadrao` — **existem no código e não aparecem em tela nenhuma** de Configurações.~~
@@ -131,13 +134,13 @@
 | Início | 3 | 0 |
 | Cadastros | 12 | 1 |
 | Estoque | 9 | 3 |
-| Vendas | 4 | 6 |
+| Vendas | 5 | 5 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
-| Configurações | 17 | 0 |
-| **Total** | **41 itens de menu com tela · 74 telas** | **17** |
+| Configurações | 19 | 0 |
+| **Total** | **42 itens de menu com tela · 78 telas** | **16** |
 
-*Contado no menu em 09/out/2026: 58 itens, 41 com destino e 17 sem. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 09/out/2026, já com o CRM: 58 itens, 42 com destino e 16 sem. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
