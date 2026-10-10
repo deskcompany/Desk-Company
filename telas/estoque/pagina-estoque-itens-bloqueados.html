@@ -958,6 +958,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <input type="text" id="campoBusca" placeholder="Pesquise por produto, SKU ou documento">
     </div>
 
+    <div class="periodo-wrap" id="periodoWrap">
+      <button type="button" class="dropdown-select-btn pill" id="btnPeriodo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="rotuloPeriodo">Sem filtro de período</span>
+      </button>
+      <div class="periodo-menu" id="periodoMenu">
+        <div class="periodo-titulo" id="periodoTitulo">Bloqueado em</div>
+        <div class="periodo-opcoes" id="periodoOpcoes">
+          <button type="button" class="periodo-op active" data-periodo="todos">Sem filtro</button>
+          <button type="button" class="periodo-op" data-periodo="dia">Do dia</button>
+          <button type="button" class="periodo-op" data-periodo="7">Últimos 7 dias</button>
+          <button type="button" class="periodo-op" data-periodo="30">Últimos 30 dias</button>
+          <button type="button" class="periodo-op" data-periodo="mes">Do mês</button>
+          <button type="button" class="periodo-op" data-periodo="mespassado">Mês passado</button>
+        </div>
+      </div>
+    </div>
+
     <div class="dropdown-select" id="filtroDeposito" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
         <span class="dropdown-select-label">Todos os depósitos</span>
@@ -1844,6 +1862,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ---------- lista ----------
   let buscaAtual = '', situacaoAtual = 'todos', filtroDepositoAtual = 'todos', filtroTempoAtual = 'todos';
+  let periodoAtual = 'todos';   // filtro de periodo da casa: vale para a data que a aba mostra
   let ordemCampo = 'dias', ordemAsc = false;
   let paginaAtual = 1;
   let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
@@ -1851,6 +1870,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function ondeTexto(i) {
     if (i.endereco) return esc(i.endereco) + (TIPO_END_LABEL[i.tipoEnd] ? ' · ' + TIPO_END_LABEL[i.tipoEnd] : '');
     return i.motivo === 'avaria' ? 'aguardando endereço de Avaria' : 'endereço não informado';
+  }
+  // Na fila, a data e a do bloqueio; no historico, a da resolucao. E o que impede as duas listas
+  // de virarem uma lista sem fim: o mes fecha, e o que ja passou sai da frente.
+  function passaPeriodo(i) {
+    if (periodoAtual === 'todos') return true;
+    const d = diasDe(i.quando);
+    if (periodoAtual === 'dia') return d === 0;
+    if (periodoAtual === '7' || periodoAtual === '30') return d >= 0 && d <= Number(periodoAtual);
+    const mes = new Date(HOJE.getFullYear(), HOJE.getMonth() - (periodoAtual === 'mespassado' ? 1 : 0), 1);
+    return i.quando.slice(0, 7) === iso(mes).slice(0, 7);
   }
   function passaTempo(i) {
     const d = diasDe(i.quando);
@@ -1864,7 +1893,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return lista.filter(i => {
       const passaDep = filtroDepositoAtual === 'todos' || String(i.dep) === filtroDepositoAtual;
       const passaBusca = termo === '' || [i.produto, i.sku, i.endereco || '', i.doc || ''].some(t => String(t).toLowerCase().includes(termo));
-      return passaDep && passaBusca && passaTempo(i);
+      return passaDep && passaBusca && passaTempo(i) && passaPeriodo(i);
     });
   }
   function itensFiltrados() {
@@ -2533,6 +2562,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => { filtroDepositoAtual = v; paginaAtual = 1; renderTabela(); });
   inicializarDropdownSelect(document.getElementById('filtroTempo'), (v) => { filtroTempoAtual = v; paginaAtual = 1; renderTabela(); });
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela(); });
+  // Filtro de periodo: popover proprio, nao e dropdown de valor. O mesmo de Entrada de Notas.
+  const ROTULO_PERIODO = { todos: 'Sem filtro de período', dia: 'Do dia', '7': 'Últimos 7 dias', '30': 'Últimos 30 dias', mes: 'Do mês', mespassado: 'Mês passado' };
+  const periodoMenu = document.getElementById('periodoMenu');
+  document.getElementById('btnPeriodo').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
+    periodoMenu.classList.toggle('open');
+  });
+  periodoMenu.addEventListener('click', (e) => e.stopPropagation());
+  document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(op => op.addEventListener('click', () => {
+    document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
+    op.classList.add('active');
+    periodoAtual = op.getAttribute('data-periodo');
+    document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO[periodoAtual];
+    periodoMenu.classList.remove('open');
+    paginaAtual = 1;
+    renderTabela();
+  }));
   document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; renderTabela(); } });
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
   document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; renderTabela(); });
@@ -2540,6 +2587,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
     aba.classList.add('active');
     situacaoAtual = aba.getAttribute('data-sit');
+    document.getElementById('periodoTitulo').textContent = situacaoAtual === 'resolvidos' ? 'Resolvido em' : 'Bloqueado em';
     paginaAtual = 1;
     renderTabela();
   }));
@@ -2547,6 +2595,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoBusca').value = ''; buscaAtual = '';
     document.querySelector('#filtroDeposito .dropdown-select-item[data-value="todos"]').click();
     document.querySelector('#filtroTempo .dropdown-select-item[data-value="todos"]').click();
+    document.querySelector('#periodoOpcoes .periodo-op[data-periodo="todos"]').click();
     document.querySelector('#abasSituacao .aba-sit[data-sit="todos"]').click();
   });
 

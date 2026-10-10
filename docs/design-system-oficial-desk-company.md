@@ -2160,7 +2160,22 @@ fecha o menu. A varredura das 79 telas não achou o caso em mais nenhuma. No mes
 contagem" virou **"Confirmar contagem"**, no botão, nos avisos e no nome da ação em Confirmações por
 senha.
 
+**Calendário cortado pela borda do painel** (achado pelo usuário na Agenda, em 10/out). A caixa do
+calendário tem 252px e abria alinhada pela direita do campo, sem medir se cabia. Na Agenda o campo
+de data fica colado na borda esquerda do painel e é mais estreito que a caixa: a primeira coluna,
+domingo, saía cortada. O componente passou a medir depois de abrir e, se a caixa passar da borda da
+área que a contém, alinha pela esquerda do campo (`.date-pop.esquerda`). A correção entrou nas
+15 telas que têm o componente; a varredura achou o mesmo corte no painel de transferência do Caixa
+e Bancos. `teste_datas.py` agora abre cada calendário de cada tela, inclusive os de formulário que
+nasce escondido, e cobra que a caixa caiba.
+
+**Filtro de período na fila** (pedido do usuário em 10/out, para a fila e o histórico não virarem
+uma lista sem fim). É o popover de período da casa, o mesmo de Entrada de Notas: sem filtro, do
+dia, últimos 7 dias, últimos 30 dias, do mês, e mais "mês passado", que serve ao fechamento das
+perdas. Vale para a data que a aba mostra: a do bloqueio, na fila; a da resolução, em Resolvidos,
+onde o total baixado como perda acompanha o período.
+
 Ficou de fora, com o usuário sabendo: cadastro de motivos de bloqueio, devolução ao fornecedor
 (depende de NF-e), resolver vários bloqueios de uma vez, mover para endereço de Quarentena no ato
-do bloqueio, abrir o histórico de um bloqueio já resolvido, e o excedente de nota ("chegou a
+do bloqueio, abrir o histórico de um bloqueio já resolvido, intervalo de datas livre no filtro de período, e o excedente de nota ("chegou a
 mais"), que depende da nota complementar.

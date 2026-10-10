@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 09/out/2026, depois do fechamento dos pontos em aberto de PDV, CRM e Itens Bloqueados.*
+*Atualizado em 10/out/2026, depois dos ajustes no calendário e do filtro de período em Itens Bloqueados.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -33,7 +33,14 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## Última entrega
 
-**Fechamento dos pontos em aberto**, em 09/out/2026. Nenhum módulo novo; as três entregas do dia
+**Ajustes de 10/out/2026**, a partir do teste do usuário:
+
+- **Calendário:** a caixa saía cortada pela borda do painel na Agenda (faltava a coluna de
+  domingo). Corrigido no componente, nas 15 telas que o usam.
+- **Itens Bloqueados:** ganhou o filtro de período da casa, para a fila e o histórico não virarem
+  uma lista sem fim.
+
+Antes disso, em 09/out, o **fechamento dos pontos em aberto**. As três entregas daquele dia
 ficaram sem pendência de tela:
 
 - **PDV** (§14.48 e §14.49): fechado. As taxas do cartão por parcela são de exemplo, de propósito.
@@ -45,7 +52,7 @@ ficaram sem pendência de tela:
 - **Conferência de Saída:** o menu do motivo deixou de ser cortado pela tabela, e "Banco a
   contagem" virou "Confirmar contagem".
 
-Verificação no fechamento: 32 suítes, 4.021 asserções, 0 falhas.
+Verificação no fechamento: 32 suítes, 4.029 asserções, 0 falhas.
 
 ## Próximo da fila
 
@@ -58,8 +65,8 @@ tomadas: começa pela barganha.
 Nenhuma destas trava o próximo módulo.
 
 1. **Lovable:** nenhum prompt foi pedido para PDV, CRM e Itens Bloqueados.
-2. **GitHub:** o envio de 09/out/2026 foi autorizado para aquela rodada. Falta definir se passa a
-   ser a cada entrega ou continua sob pedido.
+2. **GitHub:** o envio de 09/out/2026 foi autorizado para aquela rodada, e o que veio depois está
+   só neste computador. Falta definir se o envio passa a ser a cada entrega ou continua sob pedido.
 
 **Já decidido, fica para depois:** os dados de exemplo (taxas do cartão, cadastros, saldos) não
 serão ajustados agora. Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.

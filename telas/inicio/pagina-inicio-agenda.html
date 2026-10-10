@@ -435,6 +435,7 @@
               background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
   .date-pop.open { display:block; }
   .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-pop.esquerda { right:auto; left:0; }
   .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
   .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
   .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
@@ -1827,6 +1828,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
       pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
       pop.classList.add('open');
+      // A caixa tem 252px. Num campo estreito, colado na borda esquerda de um painel, alinhar
+      // pela direita jogava a primeira coluna (domingo) para fora da area visivel: era cortada
+      // (Agenda, 09/out/2026). Entao mede: passou da borda de quem a contem, alinha pela esquerda.
+      pop.classList.remove('esquerda');
+      let bordaEsquerda = 0;
+      for (let el = raiz.parentElement; el && el !== document.body; el = el.parentElement) {
+        const o = getComputedStyle(el);
+        if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) { bordaEsquerda = el.getBoundingClientRect().left; break; }
+      }
+      if (pop.getBoundingClientRect().left < bordaEsquerda) pop.classList.add('esquerda');
     }
     function fechar() { pop.classList.remove('open'); }
 

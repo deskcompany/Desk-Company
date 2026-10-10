@@ -61,6 +61,38 @@ with sync_playwright() as p:
         n = pg.evaluate("Array.from(document.querySelectorAll('.date-field')).filter(d => !d.querySelector('input') || !d.querySelector('.date-btn') || !d.querySelector('.date-pop')).length")
         if n: capengas.append('%s: %d' % (nome, n))
     ok(not capengas, '  nenhum campo de data sem uma das tres pecas: %s' % capengas[:4])
+    # 09/out: na Agenda o calendario abria alinhado pela direita do campo e, como o campo fica
+    # colado na borda esquerda do painel, a primeira coluna (domingo) saia cortada. A caixa tem
+    # 252px e abria para a esquerda sem medir se cabia. Aqui cada calendario que da para abrir e
+    # aberto, e a caixa tem de caber na area que a contem (o painel, ou a janela).
+    print('toda tela: calendario aberto cabe na area que o contem')
+    ABRIR_ANTES = {'pagina-inicio-agenda.html': "abrirFormulario('2026-10-15')",
+                   'pagina-vendas-crm-detalhe.html': "document.querySelector('#acoesPendentes [data-editar-acao]').click()"}
+    cortados = []
+    for caminho in sorted(localiza.caminhos()):
+        if 'date-field' not in open(caminho, encoding='utf-8').read(): continue
+        nome = _os.path.basename(caminho)
+        pg.goto(localiza.uri(nome)); pg.wait_for_timeout(350)
+        # Formulario que nasce escondido nao e medido se ninguem o abrir: a Agenda era o caso.
+        if nome in ABRIR_ANTES: pg.evaluate(ABRIR_ANTES[nome]); pg.wait_for_timeout(450)
+        achados = pg.evaluate("""() => { const ruins = [];
+            document.querySelectorAll('.date-field').forEach(df => {
+              const btn = df.querySelector('.date-btn'), pop = df.querySelector('.date-pop');
+              if (!btn || !pop || pop.classList.contains('hora-pop') || df.getBoundingClientRect().width === 0) return;
+              btn.click();
+              if (!pop.classList.contains('open')) return;
+              const r = pop.getBoundingClientRect();
+              let lim = { left: 0, right: window.innerWidth, nome: 'janela' };
+              for (let el = df.parentElement; el && el !== document.body; el = el.parentElement) {
+                const o = getComputedStyle(el);
+                if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) { const c = el.getBoundingClientRect(); lim = { left: c.left, right: c.right, nome: el.id || String(el.className).split(' ')[0] }; break; }
+              }
+              if (r.left < lim.left - 0.5 || r.right > lim.right + 0.5) ruins.push((df.id || '?') + ' em ' + lim.nome + ' (' + Math.round(Math.max(lim.left - r.left, r.right - lim.right)) + 'px)');
+              btn.click();
+            });
+            return ruins; }""")
+        if achados: cortados.append('%s: %s' % (nome.replace('pagina-', '').replace('.html', ''), ', '.join(achados)))
+    ok(not cortados, '  nenhum calendario cortado: %s' % cortados[:6])
     pg.close()
     b.close()
 print(); print('FALHAS: %d' % len(falhas))

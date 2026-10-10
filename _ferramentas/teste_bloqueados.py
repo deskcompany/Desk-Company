@@ -30,7 +30,7 @@
 #   [13] separacao; [14] conferencia de saida; [15] espelhos; [16] catalogo e
 #   registro; [17] Esc, temas e erros.
 from playwright.sync_api import sync_playwright
-import os as _os, glob as _g, re
+import os as _os, glob as _g, re, datetime
 import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
@@ -221,6 +221,43 @@ with sync_playwright() as p:
     ok(visivel(pg, '#emptyState') and not visivel(pg, '#painelBloqueados .estoque-table-wrap') and pg.inner_text('#contagemItens') == '0 itens', 'deposito sem bloqueio mostra o estado vazio')
     clic(pg, '#btnLimparFiltros'); pg.wait_for_timeout(300)
     ok(len(skus(pg)) == 7 and pg.inner_text('#filtroDeposito .dropdown-select-label') == 'Todos os depósitos', '"limpar filtros" devolve a fila inteira')
+    # 09/out: filtro de periodo, pedido pelo usuario para a fila e o historico nao virarem uma
+    # lista sem fim. E o popover da casa; vale para a data que a aba mostra.
+    def periodo(qual):
+        clic(pg, '#btnPeriodo'); pg.wait_for_timeout(150)
+        clic(pg, '#periodoOpcoes [data-periodo="%s"]' % qual); pg.wait_for_timeout(250)
+    hoje = datetime.date.today()
+    DIAS = [3, 9, 1, 5, 2, 1, 12]          # ha quantos dias cada bloqueio da semente foi feito
+    datas = [hoje - datetime.timedelta(days=n) for n in DIAS]
+    passado = (hoje.replace(day=1) - datetime.timedelta(days=1))
+    clic(pg, '#btnPeriodo'); pg.wait_for_timeout(200)
+    opcoes = pg.evaluate("Array.from(document.querySelectorAll('#periodoOpcoes .periodo-op')).map(b => b.textContent)")
+    ok(pg.locator('#periodoMenu.open').count() == 1 and opcoes == ['Sem filtro', 'Do dia', 'Últimos 7 dias', 'Últimos 30 dias', 'Do mês', 'Mês passado'] and pg.inner_text('#periodoTitulo') == 'BLOQUEADO EM',
+       'o filtro de periodo abre com as opcoes da casa e diz de qual data e: %s' % opcoes)
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    ok(pg.locator('#periodoMenu.open').count() == 0 and pg.inner_text('#rotuloPeriodo') == 'Sem filtro de período', 'Esc fecha o popover sem filtrar')
+    periodo('7')
+    ok(pg.inner_text('#rotuloPeriodo') == 'Últimos 7 dias' and sorted(skus(pg)) == ['CAB-HDM-009', 'KIT-HOF-005', 'MAT-TEC-008', 'POL-ALM-040', 'TEC-MEC-006']
+       and abas(pg) == ['todos:5', 'avaria:3', 'falta:1', 'analise:1', 'decisao:0', 'resolvidos:2'] and pg.locator('#periodoMenu.open').count() == 0,
+       'ultimos 7 dias tira da frente o que foi bloqueado antes, e os contadores acompanham: %s' % abas(pg))
+    contagens = {}
+    for qual in ['30', 'mes', 'mespassado']:
+        periodo(qual); contagens[qual] = len(skus(pg))
+    ok(contagens == {'30': 7, 'mes': len([d for d in datas if (d.year, d.month) == (hoje.year, hoje.month)]),
+                     'mespassado': len([d for d in datas if (d.year, d.month) == (passado.year, passado.month)])},
+       'ultimos 30 dias, do mes e mes passado contam pela data do bloqueio: %s' % contagens)
+    periodo('dia')
+    ok(visivel(pg, '#emptyState') and abas(pg)[0] == 'todos:0' and abas(pg)[5] == 'resolvidos:0', 'do dia, sem nenhum bloqueio hoje, mostra o estado vazio')
+    clic(pg, '#abasSituacao [data-sit="resolvidos"]'); pg.wait_for_timeout(250)
+    vazio = visivel(pg, '#emptyResolvidos')
+    periodo('7')
+    ok(vazio and pg.evaluate("document.getElementById('periodoTitulo').textContent") == 'Resolvido em' and pg.locator('#corpoResolvidos tr').count() == 2 and pg.inner_text('#totalBaixado') == 'R$ 86,20',
+       'no historico o periodo vale para a data da resolucao, e o total baixado acompanha')
+    clic(pg, '#abasSituacao [data-sit="todos"]'); pg.wait_for_timeout(250)
+    periodo('dia')
+    clic(pg, '#btnLimparFiltros'); pg.wait_for_timeout(300)
+    ok(len(skus(pg)) == 7 and pg.inner_text('#rotuloPeriodo') == 'Sem filtro de período' and pg.evaluate("document.getElementById('periodoTitulo').textContent") == 'Bloqueado em',
+       '"limpar filtros" tambem tira o periodo')
     clic(pg, '#painelBloqueados th[data-ordem="qtd"]'); pg.wait_for_timeout(250)
     qts = pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).map(tr => ITENS.find(i => i.id === Number(tr.getAttribute('data-id'))).qtd)")
     ok(qts == sorted(qts) and qts[-1] == 8, 'clicar no cabecalho ordena pela coluna: %s' % qts)
