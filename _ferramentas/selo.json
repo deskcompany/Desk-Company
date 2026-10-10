@@ -105,7 +105,7 @@
   },
   "teste_becos.py": {
    "asseracoes": 136,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -307,7 +307,7 @@
   },
   "teste_confirma_senha.py": {
    "asseracoes": 1025,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -542,7 +542,7 @@
   },
   "teste_dropdown_todas.py": {
    "asseracoes": 2,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -626,11 +626,11 @@
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-10",
-   "teste_sha": "95c7970be4999e6d"
+   "teste_sha": "b23e651ef2b5a85c"
   },
   "teste_esc_dropdown.py": {
    "asseracoes": 192,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -718,7 +718,7 @@
   },
   "teste_expedicao.py": {
    "asseracoes": 97,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -877,7 +877,7 @@
   },
   "teste_menu.py": {
    "asseracoes": 22,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -965,18 +965,18 @@
   },
   "teste_metas.py": {
    "asseracoes": 74,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-vendas-metas.html": "d47b44087119f497",
     "pagina-vendas-performance-vendas.html": "9d543c0fefa47498"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-09",
+   "selado_em": "2026-10-10",
    "teste_sha": "f0e1f3c7d1b8ce6a"
   },
   "teste_motivos_devolucao.py": {
    "asseracoes": 41,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-configuracoes-confirmacoes-senha.html": "a9e36403a0cb15fc",
     "pagina-configuracoes-motivos-devolucao.html": "89ac7482dcb6eab7",
@@ -984,12 +984,12 @@
     "pagina-configuracoes.html": "a8c03968be706211"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-09",
+   "selado_em": "2026-10-10",
    "teste_sha": "d6a5a1718e25dcfc"
   },
   "teste_motivos_perda.py": {
    "asseracoes": 27,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-configuracoes-confirmacoes-senha.html": "a9e36403a0cb15fc",
     "pagina-configuracoes-motivos-perda.html": "d209d9bbc0dfcee9",
@@ -997,7 +997,7 @@
     "pagina-estoque-acerto.html": "90822721e3832bd6"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-09",
+   "selado_em": "2026-10-10",
    "teste_sha": "21371c52dd5b2dc6"
   },
   "teste_nomes_sistema.py": {
@@ -1015,7 +1015,7 @@
   },
   "teste_pdv.py": {
    "asseracoes": 198,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -1136,7 +1136,7 @@
   },
   "teste_receber.py": {
    "asseracoes": 61,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -1234,7 +1234,7 @@
   },
   "teste_rodape.py": {
    "asseracoes": 547,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",
@@ -1336,7 +1336,7 @@
   },
   "teste_transportadoras.py": {
    "asseracoes": 82,
-   "asseracoes_de": "rodada completa 09/10",
+   "asseracoes_de": "rodada completa 10/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "83e8e414b88cfc5f",
     "pagina-cadastros-clientes-detalhe.html": "0bea0c932c17994f",

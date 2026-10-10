@@ -2,9 +2,14 @@
 
 ERP multi-loja (Desk Shope, Desk Brands, Desk Tech, Desk Flash). Protótipos em HTML/CSS/JS
 puros, sem build e sem framework: cada `pagina-*.html` é um arquivo autocontido. Eles são
-validados aqui e só depois viram prompt pro Lovable.
+validados aqui e só depois viram sistema de verdade.
 
-**Regra de ouro:** protótipo HTML → aprovação do usuário → prompt pro Lovable. Nunca pular etapa.
+**Regra de ouro:** protótipo HTML → aprovação do usuário → construção. Nunca pular etapa.
+
+**O Lovable saiu do projeto em 10/out/2026**, por decisão do usuário, que vale para todos os
+projetos da Desk. Não gere prompt para o Lovable. A ferramenta de produção do ERP ainda não foi
+escolhida; pergunte antes de planejar essa etapa. As skills do ERP e os documentos em `docs/`
+ainda citam o Lovable e estão desatualizados nesse ponto.
 
 Quando o usuário disser **"vamos barganhar"**, pare e negocie antes de implementar: apresente
 trade-offs, pergunte o que estiver ambíguo e só construa depois do aval.
@@ -166,6 +171,12 @@ estado de hoje, e o histórico fica no `git log` e no §14 do design system. Dec
 deixou em aberto entra em "Esperando decisão do usuário" e sai de lá quando ele responder. A seção
 10 de `teste_menu.py` confere os números dele contra o menu, então número velho reprova o selo.
 
+**Fechar uma conversa** (pedido do usuário em 10/out/2026, para a próxima começar limpa): árvore
+do git sem nada pendente, selo completo (`python selo.py --rodar --tudo`) verde, PROGRESSO.md
+reescrito com o que está pronto, o que está pendente e o que vem depois. A resposta final é só
+"ok", mais uma linha se algo ficou de fora. Ele abre a próxima dizendo "vamos para onde paramos",
+já com os prints: é para ler o PROGRESSO.md e seguir do próximo da fila.
+
 **Padrão que vale para tudo que vier:** cadastro de que a tela depende nasce **antes** dela,
 e parâmetro nasce **no mesmo dia** que o código que o lê — as duas regras vieram de bugs
 pagos aqui. E desde o Rastreamento: **a listagem lê, o detalhe escreve**.
@@ -217,8 +228,8 @@ ele decide. É para isso que o nível é `lite`.
 HTML como documento, que passa pelo modelo, e são 11 MB de telas quase iguais entre si. A
 descrição da skill dele pede para ser usada em "qualquer pergunta sobre a base de código"; neste
 projeto a resposta é não. "Em quantos arquivos isso existe?" se responde com busca por texto e
-com as suítes, que dão a contagem exata. Ele entra em cena nos projetos de código (o app que o
-Lovable gerar, a Desk Flash).
+com as suítes, que dão a contagem exata. Ele entra em cena nos projetos de código (o sistema de
+produção do ERP, a Desk Flash).
 
 ## Comunicação
 

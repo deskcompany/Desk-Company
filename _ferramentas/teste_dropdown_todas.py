@@ -24,6 +24,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={'width':1440,'height':900})
     arquivos = _filtrar(sorted(localiza.caminhos()))
     testadas = 0
+    em_tabela = 0
     for arq in arquivos:
         nome = os.path.basename(arq)
         erros = []
@@ -34,6 +35,28 @@ with sync_playwright() as p:
             pg.wait_for_timeout(600)
             pg.goto(localiza.uri(arq))
         pg.wait_for_timeout(420)
+        # 09/out: dropdown dentro de tabela com rolagem era cortado pela propria tabela, que ainda
+        # ganhava barra de rolagem (motivo da divergencia, na Conferencia de Saida). Onde houver
+        # um, o componente da tela tem de ancorar o menu fora da tabela. A checagem olha a tela
+        # como ela abre e cobra o trecho no codigo, porque esses dropdowns costumam nascer escondidos.
+        tabelas = pg.evaluate("""(function(){ var achou = {};
+          document.querySelectorAll('.dropdown-select').forEach(function(d){
+            for (var el = d.parentElement; el && el !== document.body; el = el.parentElement) {
+              var o = getComputedStyle(el);
+              if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) {
+                var classe = String(el.className || '').split(' ')[0];
+                if (/table-wrap/.test(classe)) achou[classe] = 1;
+                return;
+              }
+            }
+          });
+          return Object.keys(achou); })()""")
+        if tabelas:
+            em_tabela += 1
+            fonte = open(arq, encoding='utf-8').read()
+            for classe in tabelas:
+                if ("raiz.closest('." + classe + "')") not in fonte:
+                    falhas.append('%s: dropdown dentro de .%s sem o menu ancorado fora da tabela' % (nome, classe))
         # primeiro dropdown visivel da tela
         idx = pg.evaluate("""(function(){
           var ds = document.querySelectorAll('.dropdown-select');
@@ -118,6 +141,8 @@ with sync_playwright() as p:
         except Exception:
             pass
     print('telas com dropdown testadas: %d de %d' % (testadas, len(arquivos)))
+    print('telas com dropdown dentro de tabela com rolagem: %d, todas com o menu ancorado fora dela' % em_tabela if not [f for f in falhas if 'ancorado' in f]
+          else 'FALHA: dropdown dentro de tabela sem o menu ancorado')
 
     print()
     print('E o toggle que reaproveita .theme-seg nao pode mexer no tema:')
