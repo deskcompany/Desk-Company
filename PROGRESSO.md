@@ -12,8 +12,10 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 duas telas, a suíte nova (`teste_compra_giro.py`) e os encaixes nas telas vizinhas estão em commit,
 com o selo verde.
 
-O próximo passo é o usuário abrir as duas telas e dizer o que ajustar. Depois disso, o próximo
-módulo da fila.
+O usuário já testou a maior parte das duas telas e não apontou ajuste; falta ele terminar o teste
+para aprovar. Em seguida pediu a varredura de melhorias dos módulos prontos, que está entregue como
+lista e espera aprovação (item 5 de "Esperando decisão do usuário"). O próximo passo é dele: dizer
+quais itens da lista entram, ou seguir para o próximo módulo da fila.
 
 ## Onde estamos
 
@@ -91,6 +93,11 @@ Nenhuma destas trava o próximo módulo.
 4. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
+5. **Melhorias nos módulos prontos:** o usuário pediu, em 10/out/2026, uma varredura do que pode
+   melhorar, linkar ou sair em cada tela pronta. A lista está em
+   `docs/melhorias-modulos-prontos.md`, com um código por item (G, C, E, V, L, F, I, K, R e D).
+   **Nada dela foi feito.** Falta o usuário dizer quais códigos aprova; os quatro defeitos (D1 a
+   D4) valem ser corrigidos de qualquer jeito.
 
 ## Ficou de fora de Necessidades de Compra e Giro, de propósito
 
