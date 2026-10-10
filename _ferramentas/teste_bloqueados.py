@@ -213,11 +213,10 @@ with sync_playwright() as p:
     pg.fill('#campoBusca', 'av-01'); pg.wait_for_timeout(250)
     ok(sorted(skus(pg)) == ['CAB-HDM-009', 'KIT-HOF-005'], 'e pelo endereco: %s' % skus(pg))
     pg.fill('#campoBusca', ''); pg.wait_for_timeout(200)
-    escolher(pg, 'filtroTempo', 'critico')
-    criticos = skus(pg)
-    escolher(pg, 'filtroTempo', 'alerta')
-    ok(criticos == ['CAM-DKB-011', 'MON-27I-015'] and len(skus(pg)) == 4, 'o filtro de tempo usa os dois prazos: %s e %d' % (criticos, len(skus(pg))))
-    escolher(pg, 'filtroTempo', 'todos'); escolher(pg, 'filtroDeposito', '1')
+    # 10/out: o filtro "ha mais de N dias" saiu, a pedido do usuario; no lugar entrou o periodo entre datas.
+    ok(pg.locator('#filtroTempo').count() == 0 and pg.evaluate("Array.from(document.querySelectorAll('.estoque-toolbar .dropdown-select-btn')).map(b => b.textContent.trim())") == ['Sem filtro de período', 'Todos os depósitos'],
+       'a barra tem a busca, o periodo e o deposito; o filtro por dias saiu')
+    escolher(pg, 'filtroDeposito', '1')
     ok(visivel(pg, '#emptyState') and not visivel(pg, '#painelBloqueados .estoque-table-wrap') and pg.inner_text('#contagemItens') == '0 itens', 'deposito sem bloqueio mostra o estado vazio')
     clic(pg, '#btnLimparFiltros'); pg.wait_for_timeout(300)
     ok(len(skus(pg)) == 7 and pg.inner_text('#filtroDeposito .dropdown-select-label') == 'Todos os depósitos', '"limpar filtros" devolve a fila inteira')
@@ -258,14 +257,49 @@ with sync_playwright() as p:
     clic(pg, '#btnLimparFiltros'); pg.wait_for_timeout(300)
     ok(len(skus(pg)) == 7 and pg.inner_text('#rotuloPeriodo') == 'Sem filtro de período' and pg.evaluate("document.getElementById('periodoTitulo').textContent") == 'Bloqueado em',
        '"limpar filtros" tambem tira o periodo')
+    # 10/out: periodo entre datas, com inicio e fim, para olhar 3 meses, 6 meses ou um ano de historico.
+    def dma(n): return (hoje - datetime.timedelta(days=n)).strftime('%d/%m/%Y')
+    def entre(de, ate):
+        if not pg.locator('#periodoMenu.open').count(): clic(pg, '#btnPeriodo'); pg.wait_for_timeout(150)
+        pg.fill('#periodoDe', de); pg.fill('#periodoAte', ate); clic(pg, '#btnAplicarPeriodo'); pg.wait_for_timeout(250)
+    erros_periodo = []
+    for de, ate in [('', ''), ('31/02/2026', ''), (dma(1), dma(6))]:
+        entre(de, ate); erros_periodo.append(pg.inner_text('#erroPeriodo') if visivel(pg, '#erroPeriodo') else '')
+    ok(erros_periodo == ['Informe a data inicial, a final, ou as duas.', 'Use o formato dd/mm/aaaa.', 'A data inicial é depois da final.'] and pg.locator('#periodoMenu.open').count() == 1 and len(skus(pg)) == 7,
+       'sem data, data que nao existe e inicio depois do fim nao filtram: %s' % erros_periodo)
+    entre(dma(6), dma(1))
+    ok(pg.inner_text('#rotuloPeriodo') == dma(6) + ' a ' + dma(1) and sorted(skus(pg)) == ['CAB-HDM-009', 'KIT-HOF-005', 'MAT-TEC-008', 'POL-ALM-040', 'TEC-MEC-006']
+       and pg.locator('#periodoMenu.open').count() == 0 and pg.locator('#periodoOpcoes .periodo-op.active').count() == 0 and abas(pg)[0] == 'todos:5',
+       'entre duas datas mostra so o que foi bloqueado nelas, e o botao passa a dizer o intervalo: %s' % pg.inner_text('#rotuloPeriodo'))
+    entre(dma(10), '')
+    desde = (pg.inner_text('#rotuloPeriodo'), len(skus(pg)))
+    entre('', dma(8))
+    ok(desde == ('Desde ' + dma(10), 6) and pg.inner_text('#rotuloPeriodo') == 'Até ' + dma(8) and sorted(skus(pg)) == ['CAM-DKB-011', 'MON-27I-015'], 'uma data so tambem vale: desde, ou ate: %s' % (desde,))
+    clic(pg, '#abasSituacao [data-sit="resolvidos"]'); pg.wait_for_timeout(250)
+    entre(dma(5), dma(3))
+    ok(pg.locator('#corpoResolvidos tr').count() == 1 and 'Mesa Escritório Slim' in pg.inner_text('#corpoResolvidos') and pg.inner_text('#totalBaixado') == '—', 'no historico o intervalo vale para a data da resolucao')
+    clic(pg, '#abasSituacao [data-sit="todos"]'); pg.wait_for_timeout(250)
+    clic(pg, '#btnPeriodo'); pg.wait_for_timeout(200)
+    pg.click('#dfPeriodoDe .date-btn'); pg.wait_for_timeout(300)
+    caixa_cal = pg.evaluate("(() => { const c = document.querySelector('#dfPeriodoDe .date-pop').getBoundingClientRect(), f = document.getElementById('dfPeriodoDe').getBoundingClientRect(); return [Math.round(c.left - f.left), c.top >= f.bottom]; })()")
+    ok(pg.locator('#dfPeriodoDe .date-pop.open').count() == 1 and pg.locator('#periodoMenu.open').count() == 1 and caixa_cal == [0, True]
+       and pg.locator('#dfPeriodoDe .date-dia.off').count() > 0, 'o calendario da data inicial abre embaixo do campo, com o popover aberto, e risca os dias depois da data final')
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    ok(pg.locator('#dfPeriodoDe .date-pop.open').count() == 0 and pg.locator('#periodoMenu.open').count() == 1, 'Esc fecha primeiro o calendario, e o popover fica')
+    pg.click('#filtroDeposito .dropdown-select-btn'); pg.wait_for_timeout(250)
+    ok(pg.locator('#periodoMenu.open').count() == 0 and pg.locator('#filtroDeposito .dropdown-select-menu.open').count() == 1, 'abrir o filtro de deposito fecha o de periodo: os dois nao ficam abertos juntos')
+    pg.click('#btnPeriodo'); pg.wait_for_timeout(250)
+    ok(pg.locator('#periodoMenu.open').count() == 1 and pg.locator('#filtroDeposito .dropdown-select-menu.open').count() == 0, 'e abrir o de periodo fecha o de deposito')
+    clic(pg, '#periodoOpcoes [data-periodo="7"]'); pg.wait_for_timeout(250)
+    ok(pg.input_value('#periodoDe') == '' and pg.input_value('#periodoAte') == '' and pg.inner_text('#rotuloPeriodo') == 'Últimos 7 dias', 'escolher uma opcao pronta limpa as datas: e um filtro so')
+    periodo('todos')
     clic(pg, '#painelBloqueados th[data-ordem="qtd"]'); pg.wait_for_timeout(250)
     qts = pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).map(tr => ITENS.find(i => i.id === Number(tr.getAttribute('data-id'))).qtd)")
     ok(qts == sorted(qts) and qts[-1] == 8, 'clicar no cabecalho ordena pela coluna: %s' % qts)
     ir(pg, BLOQ, '?produto=MON-27I-015')
     ok(pg.input_value('#campoBusca') == 'MON-27I-015' and skus(pg) == ['MON-27I-015'], 'vindo da pagina do produto, a fila abre filtrada nele')
     zerar(pg, {'enderecamentoAlerta': 4})
-    ok(pg.evaluate("document.querySelector('#corpoTabela tr[data-id=\"1\"] td:last-child span').className") == 'dias-ok'
-       and 'Há mais de 4 dias' in pg.evaluate("document.getElementById('menuFiltroTempo').textContent"), 'mudar o prazo em Parametros de estoque muda a cor e o filtro')
+    ok(pg.evaluate("document.querySelector('#corpoTabela tr[data-id=\"1\"] td:last-child span').className") == 'dias-ok', 'mudar o prazo em Parametros de estoque muda a cor do tempo bloqueado')
     zerar(pg)
 
     print('\n[4] O painel de resolver: o retrato do bloqueio e a quantidade repartida')

@@ -1225,6 +1225,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     e.stopPropagation();
   }, true);
 
+  // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
+  // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
+  // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+  }, true);
+
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e

@@ -2175,7 +2175,25 @@ dia, últimos 7 dias, últimos 30 dias, do mês, e mais "mês passado", que serv
 perdas. Vale para a data que a aba mostra: a do bloqueio, na fila; a da resolução, em Resolvidos,
 onde o total baixado como perda acompanha o período.
 
+No mesmo dia o usuário pediu **data inicial e data final**, para olhar 3 meses, 6 meses ou um ano
+de histórico, e mandou tirar o filtro "há mais de N dias", que não servia. O popover ganhou
+"Entre datas": dois campos de data da casa e o botão Aplicar. Uma data só também vale (desde, ou
+até); o calendário de cada campo risca os dias que o outro proíbe; opção pronta e intervalo são um
+filtro só, e escolher um limpa o outro. Aqui o calendário abre para baixo do campo, porque para
+cima cobria as opções prontas. O tempo bloqueado continua mudando de cor na coluna; só o filtro
+por dias saiu. É a única tela em que o popover de período tem intervalo livre.
+
+**O popover de período ficava aberto por baixo do dropdown vizinho** (print do usuário, 10/out). Os
+dropdowns param a propagação do clique, então o fechamento geral da tela nunca chegava ao popover.
+Das dez telas com filtro de período, o defeito estava em **quatro**: Itens Bloqueados, Devolução,
+Expedição e Rastreamento. Nas outras seis o próprio dropdown já fechava o período. Nas quatro, na
+fase de captura, todo clique fora do popover o fecha antes de qualquer outro menu abrir.
+`teste_datas.py` varre as dez. **Lição:** a primeira conta dizia dez, por semelhança do código; a
+prova do avesso feita em Entrada de Notas passou sem acusar nada, e só medindo tela por tela, sem o
+conserto, o número certo apareceu. Conserto que não muda o resultado de teste nenhum não era
+conserto.
+
 Ficou de fora, com o usuário sabendo: cadastro de motivos de bloqueio, devolução ao fornecedor
 (depende de NF-e), resolver vários bloqueios de uma vez, mover para endereço de Quarentena no ato
-do bloqueio, abrir o histórico de um bloqueio já resolvido, intervalo de datas livre no filtro de período, e o excedente de nota ("chegou a
+do bloqueio, abrir o histórico de um bloqueio já resolvido, e o excedente de nota ("chegou a
 mais"), que depende da nota complementar.

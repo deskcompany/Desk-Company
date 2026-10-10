@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 10/out/2026, depois dos ajustes no calendário e do filtro de período em Itens Bloqueados.*
+*Atualizado em 10/out/2026, depois dos ajustes no calendário e nos filtros de período.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -37,8 +37,11 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 - **Calendário:** a caixa saía cortada pela borda do painel na Agenda (faltava a coluna de
   domingo). Corrigido no componente, nas 15 telas que o usam.
-- **Itens Bloqueados:** ganhou o filtro de período da casa, para a fila e o histórico não virarem
-  uma lista sem fim.
+- **Itens Bloqueados:** ganhou o filtro de período, com as opções prontas da casa e mais data
+  inicial e data final, para a fila e o histórico não virarem uma lista sem fim. O filtro "há mais
+  de N dias" saiu.
+- **Filtro de período:** em quatro telas (Itens Bloqueados, Devolução, Expedição e Rastreamento)
+  ele ficava aberto por baixo do dropdown vizinho. Corrigido.
 
 Antes disso, em 09/out, o **fechamento dos pontos em aberto**. As três entregas daquele dia
 ficaram sem pendência de tela:
@@ -52,7 +55,7 @@ ficaram sem pendência de tela:
 - **Conferência de Saída:** o menu do motivo deixou de ser cortado pela tabela, e "Banco a
   contagem" virou "Confirmar contagem".
 
-Verificação no fechamento: 32 suítes, 4.029 asserções, 0 falhas.
+Verificação no fechamento: 32 suítes, 4.039 asserções, 0 falhas.
 
 ## Próximo da fila
 

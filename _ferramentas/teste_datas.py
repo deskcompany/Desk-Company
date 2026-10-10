@@ -67,7 +67,8 @@ with sync_playwright() as p:
     # aberto, e a caixa tem de caber na area que a contem (o painel, ou a janela).
     print('toda tela: calendario aberto cabe na area que o contem')
     ABRIR_ANTES = {'pagina-inicio-agenda.html': "abrirFormulario('2026-10-15')",
-                   'pagina-vendas-crm-detalhe.html': "document.querySelector('#acoesPendentes [data-editar-acao]').click()"}
+                   'pagina-vendas-crm-detalhe.html': "document.querySelector('#acoesPendentes [data-editar-acao]').click()",
+                   'pagina-estoque-itens-bloqueados.html': "document.getElementById('btnPeriodo').click()"}
     cortados = []
     for caminho in sorted(localiza.caminhos()):
         if 'date-field' not in open(caminho, encoding='utf-8').read(): continue
@@ -93,6 +94,26 @@ with sync_playwright() as p:
             return ruins; }""")
         if achados: cortados.append('%s: %s' % (nome.replace('pagina-', '').replace('.html', ''), ', '.join(achados)))
     ok(not cortados, '  nenhum calendario cortado: %s' % cortados[:6])
+    # 10/out: o popover de periodo ficava aberto por baixo do dropdown vizinho (print do usuario em
+    # Itens Bloqueados). Os dropdowns param a propagacao do clique, e o fechamento geral da tela
+    # nunca chegava ao popover. Das dez telas com filtro de periodo, o defeito estava em quatro:
+    # Itens Bloqueados, Devolucao, Expedicao e Rastreamento. Nas outras seis o proprio dropdown
+    # ja fechava o periodo. A primeira conta dizia dez; a prova do avesso em Entrada de Notas
+    # passou sem acusar nada, e foi medindo tela por tela que o numero certo apareceu.
+    print('toda tela com filtro de periodo: abrir outro menu fecha o de periodo')
+    juntos, medidas = [], 0
+    for caminho in sorted(localiza.caminhos()):
+        if 'class="periodo-menu"' not in open(caminho, encoding='utf-8').read(): continue
+        nome = _os.path.basename(caminho)
+        pg.goto(localiza.uri(nome)); pg.wait_for_timeout(350)
+        pg.click('.periodo-wrap > button'); pg.wait_for_timeout(200)
+        abriu = pg.locator('.periodo-menu.open').count() == 1
+        tem = pg.evaluate("(() => { const b = Array.from(document.querySelectorAll('.dropdown-select .dropdown-select-btn')).find(x => !x.closest('.periodo-wrap') && x.offsetParent !== null && !x.disabled && !x.closest('.event-drawer') && !x.closest('.paginacao-bar')); if (b) b.setAttribute('data-vizinho', '1'); return !!b; })()")
+        if not (abriu and tem): juntos.append('%s: nao deu para medir' % nome); continue
+        pg.click('[data-vizinho]'); pg.wait_for_timeout(250)
+        medidas += 1
+        if pg.locator('.periodo-menu.open').count(): juntos.append(nome.replace('pagina-', '').replace('.html', ''))
+    ok(medidas >= 10 and not juntos, '  em %d telas, nenhuma deixa os dois abertos juntos: %s' % (medidas, juntos[:5]))
     pg.close()
     b.close()
 print(); print('FALHAS: %d' % len(falhas))
