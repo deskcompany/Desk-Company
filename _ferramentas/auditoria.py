@@ -203,8 +203,17 @@ def audita(caminho):
     #   deskNomes       - o dicionario de rotulos das listas FECHADAS (08/out).
     #                     Chave e do codigo e nao muda; rotulo e de quem usa o
     #                     sistema e se edita em Configuracoes > Nomes do sistema.
+    #   deskMinMax        - minimo e maximo alterados em Necessidades de Compra; o
+    #                       Controle de Estoques le, para o aviso das duas telas valer
+    #                       pelo mesmo numero (10/out).
+    #   deskOrdensGeradas - ordens criadas em Necessidades de Compra; Ordens de Compra
+    #                       le, e devolve quando a ordem e excluida ou cancelada (10/out).
+    # Os dois de cima sao deposito compartilhado no mesmo sentido dos cinco: uma tela
+    # grava e outra le. O estado proprio do PDV, do CRM e de Itens Bloqueados tambem
+    # esta na lista. A lista e que manda.
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
-    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada'}
+    OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada',
+             'deskMinMax', 'deskOrdensGeradas'}
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))

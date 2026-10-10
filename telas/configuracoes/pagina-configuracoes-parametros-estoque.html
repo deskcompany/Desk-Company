@@ -1236,8 +1236,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Reposição" data-href="../estoque/pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="../estoque/pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
-      <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
-      <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Necessidades de Compra" data-href="../estoque/pagina-estoque-necessidades-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
+      <div class="flyout-item" data-label="Giro de Estoque" data-href="../estoque/pagina-estoque-giro-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
       <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
@@ -1429,6 +1429,67 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="par-exp">
         <b>É sugestão, nunca ação automática.</b> Quem libera a vaga é uma pessoa, e o botão continua <b>desabilitado</b> enquanto houver ordem de compra em aberto para o produto — mercadoria a caminho não libera vaga.
         <span class="par-onde">Aparece em <b>Estoque → Endereçamento → aba Estoque Zero</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPRA E GIRO -->
+  <div class="par-secao">
+    <div class="par-secao-titulo">Compra e giro de estoque</div>
+    <div class="par-secao-sub">Os números que decidem o que a tela de compra sugere: em que faixa de giro um produto é encalhe, que período o giro olha e quantos dias de venda a compra deve cobrir.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoGiroEncalhe">
+            <label>Encalhe: giro até</label>
+            <div class="par-num">
+              <input type="text" id="giroEncalhe" data-param="giroEncalheAte" value="0">
+              <span class="par-num-sufixo">vezes</span>
+            </div>
+            <span class="par-erro" id="erroGiroEncalhe">Informe um número de 0 a 99, com até duas casas.</span>
+          </div>
+          <div class="par-campo" id="campoGiroBaixo">
+            <label>Baixo giro: giro até</label>
+            <div class="par-num">
+              <input type="text" id="giroBaixo" data-param="giroBaixoAte" value="1">
+              <span class="par-num-sufixo">vezes</span>
+            </div>
+            <span class="par-erro" id="erroGiroBaixo">Precisa ser igual ou maior que o encalhe, até 99.</span>
+          </div>
+        </div>
+        <div class="par-previa" id="previaGiro"></div>
+      </div>
+      <div class="par-exp">
+        <b>Giro é quantas vezes o estoque médio foi vendido no período.</b> Acima do segundo número o giro é normal. Produto em encalhe que cai abaixo do mínimo entra em Necessidades de Compra <b>sem quantidade sugerida</b>: quem decide comprar o que não vende é uma pessoa. A régua da tela Giro de Estoque simula outras faixas antes de salvar.
+        <span class="par-onde">Aparece em <b>Estoque → Giro de Estoque</b> e em <b>Estoque → Necessidades de Compra</b></span>
+      </div>
+    </div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoGiroJanela">
+            <label>Período do giro</label>
+            <div class="par-num">
+              <input type="text" id="giroJanela" data-param="giroJanelaDias" value="180">
+              <span class="par-num-sufixo">dias</span>
+            </div>
+            <span class="par-erro" id="erroGiroJanela">Informe um número inteiro de 30 a 365.</span>
+          </div>
+          <div class="par-campo" id="campoCompraCobertura">
+            <label>Cobertura da compra</label>
+            <div class="par-num">
+              <input type="text" id="compraCobertura" data-param="compraCoberturaDias" value="30">
+              <span class="par-num-sufixo">dias de venda</span>
+            </div>
+            <span class="par-erro" id="erroCompraCobertura">Informe um número inteiro de 1 a 365.</span>
+          </div>
+        </div>
+      </div>
+      <div class="par-exp">
+        <b>O período vale para as duas contas:</b> é a janela em que o giro é medido e a base da venda média por dia. A cobertura só entra quando a compra é sugerida por dias de cobertura, em vez de mínimo e máximo: é para quantos dias de venda a sugestão deixa estoque.
+        <span class="par-onde">Aparece em <b>Estoque → Necessidades de Compra → Filtros e cálculo</b></span>
       </div>
     </div>
   </div>
@@ -1724,6 +1785,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
+    // compra e giro: Necessidades de Compra e Giro de Estoque (10/out/2026)
+    compraCoberturaDias: 30,
+    giroJanelaDias: 180,
+    giroEncalheAte: 0,
+    giroBaixoAte: 1,
     separacaoAlertaHoras: 4,
     separacaoCriticoHoras: 12,
     conferenciaSaidaAlertaHoras: 4,
@@ -2333,13 +2399,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                   'mdfeRegraPadrao', 'mdfeRegraUF',
                   // Devolucao (07/out/2026): os dois nascem junto com a tela,
                   // no mesmo dia, pelo mesmo motivo dos seis acima.
-                  'devolucaoDeposito', 'devolucaoPrazoDias'];
+                  'devolucaoDeposito', 'devolucaoPrazoDias',
+                  // Compra e giro (10/out/2026): os quatro nascem junto com Necessidades de
+                  // Compra e Giro de Estoque, no mesmo dia. As faixas do giro tambem podem ser
+                  // salvas pela regua da tela do Giro; e o mesmo parametro.
+                  'giroEncalheAte', 'giroBaixoAte', 'giroJanelaDias', 'compraCoberturaDias'];
 
   // Campo nasce com o valor salvo, nao com o `value` do HTML: abrir a tela e ver
   // o padrao de fabrica depois de ter salvo outro numero seria mentira.
   CHAVES.forEach(k => {
     const inp = document.querySelector('[data-param="' + k + '"]');
-    if (inp) inp.value = PARAM[k];
+    if (inp) inp.value = String(PARAM[k]).replace('.', ',');
   });
 
   // ===== MDF-e POR UF =====
@@ -2423,6 +2493,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return (n < 0 || n > 365) ? null : n;
   }
 
+  // Faixa de giro tem casas decimais: meia vez e um valor real. De 0 a 99, com ate duas casas.
+  function lerDecimal(id) {
+    const bruto = document.getElementById(id).value.trim();
+    if (!/^[0-9]{1,2}([.,][0-9]{1,2})?$/.test(bruto)) return null;
+    return parseFloat(bruto.replace(',', '.'));
+  }
+  const dec = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   function marcarErro(idCampo, erro) {
     document.getElementById(idCampo).classList.toggle('has-error', !!erro);
   }
@@ -2442,6 +2520,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
 
   function atualizarPrevias() {
+    // Compra e giro: a previa escreve as tres faixas por extenso, como a tela do Giro as mostra.
+    (function previaGiro() {
+      const enc = lerDecimal('giroEncalhe'), baixo = lerDecimal('giroBaixo'), el = document.getElementById('previaGiro');
+      const ruim = enc === null || baixo === null || baixo < enc;
+      el.classList.toggle('alerta', ruim);
+      el.innerHTML = ruim ? 'Corrija as faixas acima para ver a classificação.'
+        : 'Encalhe: giro <b>até ' + dec(enc) + '</b>. Baixo giro: <b>' + (baixo > enc ? 'de ' + dec(enc + 0.01) + ' até ' + dec(baixo) : 'faixa vazia') +
+          '</b>. Giro normal: <b>maior que ' + dec(baixo) + '</b>.';
+    })();
     const a = lerCampo('confAlerta'), c = lerCampo('confCritico');
     const prev = document.getElementById('previaConf');
     if (a === null || c === null || c <= a) {
@@ -2537,6 +2624,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const rv = lerCampo('reservaExpira'), at = lerCampo('atrasoDias');
     const xa = lerCampo('expAlerta'), xc = lerCampo('expCritico'), dp = lerCampo('desvioPeso');
     const dv = lerCampo('devPrazo');
+    const ge = lerDecimal('giroEncalhe'), gb = lerDecimal('giroBaixo');
+    const gj = lerCampo('giroJanela'), cb = lerCampo('compraCobertura');
 
     marcarErro('campoConfAlerta', a === null);
     marcarErro('campoConfCritico', c === null || (a !== null && c <= a));
@@ -2560,8 +2649,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // O prazo da devolucao NAO aceita zero: ele nao e trava, e um aviso, e
     // aviso que dispara sempre e aviso que ninguem le.
     marcarErro('campoDevPrazo', dv === null || dv < 1);
+    // Compra e giro: o baixo giro nunca fica abaixo do encalhe, e o periodo precisa de pelo
+    // menos um mes para o giro dizer alguma coisa.
+    marcarErro('campoGiroEncalhe', ge === null);
+    marcarErro('campoGiroBaixo', gb === null || (ge !== null && gb < ge));
+    marcarErro('campoGiroJanela', gj === null || gj < 30);
+    marcarErro('campoCompraCobertura', cb === null || cb < 1);
 
-    const ok = dv !== null && dv >= 1 &&
+    const ok = ge !== null && gb !== null && gb >= ge && gj !== null && gj >= 30 && cb !== null && cb >= 1 &&
+               dv !== null && dv >= 1 &&
                a !== null && c !== null && c > a &&
                ea !== null && ec !== null && ec > ea &&
                z !== null && z >= 1 &&
@@ -2579,7 +2675,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                   mdfeRegraPadrao: document.getElementById('mdfePadrao').getAttribute('data-value'),
                   mdfeRegraUF: ordenarMapa(MDFE_MAPA),
                   devolucaoDeposito: document.getElementById('devDeposito').getAttribute('data-value'),
-                  devolucaoPrazoDias: lerCampo('devPrazo') } : null;
+                  devolucaoPrazoDias: lerCampo('devPrazo'),
+                  giroEncalheAte: ge, giroBaixoAte: gb, giroJanelaDias: gj, compraCoberturaDias: cb } : null;
   }
 
   // `mdfeRegraUF` e um OBJETO: `!==` entre dois objetos e sempre verdadeiro, e a
@@ -2609,7 +2706,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     const v = validar();
-    if (!v) { avisar('Há prazos inválidos. O crítico precisa ser maior que o alerta, e todos são números inteiros de dias.'); return; }
+    if (!v) { avisar('Há campos inválidos, destacados em vermelho. Nos prazos, o crítico precisa ser maior que o alerta e todos são números inteiros; nas faixas de giro, o baixo giro não pode ser menor que o encalhe.'); return; }
     const mudancas = CHAVES.filter(k => !paramIgual(k, v[k], PARAM[k])).length;
     CHAVES.forEach(k => { PARAM[k] = v[k]; });
     const gravou = gravarParametros(PARAM);
@@ -2617,7 +2714,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     avisar(mudancas === 0
       ? 'Nenhum parâmetro mudou.'
       : plural(mudancas, 'parâmetro salvo', 'parâmetros salvos') +
-        '. As telas de Conferência de Entrada, Endereçamento, Separação, Conferência de Saída, Expedição e Pedidos de Venda passam a usar os novos valores na próxima abertura — nenhum saldo foi tocado, só a régua mudou.' +
+        '. As telas de Conferência de Entrada, Endereçamento, Separação, Conferência de Saída, Expedição, Pedidos de Venda, Necessidades de Compra e Giro de Estoque passam a usar os novos valores na próxima abertura — nenhum saldo foi tocado, só a régua mudou.' +
         (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então o valor vale só nesta aba.)'));
   });
 

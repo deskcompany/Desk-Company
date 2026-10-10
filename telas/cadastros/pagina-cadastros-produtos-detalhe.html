@@ -550,6 +550,19 @@
   .toggle-leitura { display:none; }
   body.modo-leitura .toggle-leitura { display:block; margin-bottom:18px; }
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* Fornecedor padrao do produto (10/out/2026): o botao de opcao da casa, o mesmo de Vendedores */
+  .radio-option { display:flex; align-items:center; gap:10px; padding:7px 0; font-size:13.5px; color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:600; cursor:pointer; user-select:none; }
+  .radio-option input[type="radio"] {
+    appearance:none; -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0; position:relative;
+  }
+  .radio-option input[type="radio"]:checked { border-color:var(--chart-2); }
+  .radio-option input[type="radio"]:checked::after {
+    content:''; position:absolute; left:3px; top:3px; width:7px; height:7px; border-radius:50%; background:var(--chart-2);
+  }
+  .radio-option input[type="radio"]:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  .contatos-table th.col-padrao, .contatos-table td.col-padrao { width:96px; }
+  .contatos-table td.col-padrao .radio-option { padding:0; font-size:12.5px; gap:7px; }
 </style>
 </head>
 <body class="dark">
@@ -657,8 +670,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Reposição" data-href="../estoque/pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="../estoque/pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
-      <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
-      <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Necessidades de Compra" data-href="../estoque/pagina-estoque-necessidades-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
+      <div class="flyout-item" data-label="Giro de Estoque" data-href="../estoque/pagina-estoque-giro-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
       <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
@@ -1254,10 +1267,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="section-title">Fornecedores</div>
     <table class="contatos-table">
       <thead>
-        <tr><th>Fornecedor</th><th>Código no Fornecedor</th><th></th></tr>
+        <tr><th>Fornecedor</th><th>Código no Fornecedor</th><th class="col-padrao">Padrão</th><th></th></tr>
       </thead>
       <tbody id="tabelaFornecedoresProduto"></tbody>
     </table>
+    <div class="section-hint" style="margin-bottom:10px;">O fornecedor padrão é o que Estoque → Necessidades de Compra usa para montar a ordem de compra deste produto.</div>
     <div class="add-contato-link" id="btnAddFornecedor">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Adicionar fornecedor
@@ -2502,24 +2516,36 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== FORNECEDORES DO PRODUTO (Outros) =====
   // Puxa da tabela `suppliers` já existente — aqui simplificado como texto livre no preview.
+  // O fornecedor PADRAO e o que Estoque > Necessidades de Compra usa para montar a ordem de compra
+  // (10/out/2026). Enquanto houver fornecedor, um deles e o padrao: o primeiro nasce marcado, e
+  // remover o padrao passa a marca para o primeiro que sobrar.
   let fornecedoresProduto = [
-    { nome: 'Tech Solutions Imperatriz Ltda', codigo: '' }
+    { nome: 'Tech Solutions Imperatriz Ltda', codigo: '', padrao: true }
   ];
   function renderFornecedoresProduto() {
     const tbody = document.getElementById('tabelaFornecedoresProduto');
     tbody.innerHTML = '';
+    if (fornecedoresProduto.length && !fornecedoresProduto.some(f => f.padrao)) fornecedoresProduto[0].padrao = true;
     fornecedoresProduto.forEach((f, idx) => {
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td><input type="text" value="' + f.nome + '" placeholder="Pesquise pelo nome do fornecedor"></td>' +
-        '<td><input type="text" value="' + f.codigo + '" placeholder="Código no fornecedor"></td>' +
-        '<td><button class="remove-contato-btn" data-i="' + idx + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>';
+        '<td><input type="text" placeholder="Pesquise pelo nome do fornecedor" aria-label="Nome do fornecedor"></td>' +
+        '<td><input type="text" placeholder="Código no fornecedor" aria-label="Código do produto no fornecedor"></td>' +
+        '<td class="col-padrao"><label class="radio-option"><input type="radio" name="fornecedorPadrao"' + (f.padrao ? ' checked' : '') + '>Padrão</label></td>' +
+        '<td><button class="remove-contato-btn" data-i="' + idx + '" aria-label="Remover fornecedor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>';
+      // O que foi digitado volta para a lista na hora. Antes, adicionar ou remover uma linha
+      // redesenhava a tabela a partir da lista e apagava o texto das outras.
+      const campos = tr.querySelectorAll('input[type="text"]');
+      campos[0].value = f.nome; campos[1].value = f.codigo;
+      campos[0].addEventListener('input', () => { f.nome = campos[0].value; });
+      campos[1].addEventListener('input', () => { f.codigo = campos[1].value; });
+      tr.querySelector('input[type="radio"]').addEventListener('change', () => { fornecedoresProduto.forEach(x => { x.padrao = x === f; }); });
       tr.querySelector('.remove-contato-btn').addEventListener('click', () => { fornecedoresProduto.splice(idx, 1); renderFornecedoresProduto(); });
       tbody.appendChild(tr);
     });
   }
   document.getElementById('btnAddFornecedor').addEventListener('click', () => {
-    fornecedoresProduto.push({ nome: '', codigo: '' });
+    fornecedoresProduto.push({ nome: '', codigo: '', padrao: false });
     renderFornecedoresProduto();
   });
 

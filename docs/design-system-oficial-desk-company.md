@@ -571,6 +571,8 @@ crua, sem sticky, sem borda, sem espaçamento, e ninguém percebeu. Ver §14.
 | Conferência de Entrada | `pagina-estoque-conferencia-entrada.html` (menu Estoque) | **A fila do galpão** — a tela que vem ANTES da conferência operacional, e que faltava. A mesma nota que Entrada de Notas mostra pelo lado do documento (manifestação, prazos, valor) aparece aqui pelo lado do trabalho físico: **aguardando entrada → pronto para conferir → em conferência → conferida**. Coluna **Espera** conta os dias desde a chegada e muda de cor sozinha (>1 dia alerta, >3 crítico) — e só existe depois que a mercadoria chegou: nota a caminho não está atrasada, está viajando, e conferência fechada para o relógio. O botão **Receber mercadorias** abre um bottom-sheet de leitura feito para quem está com as mãos ocupadas: campo já focado, busca ao vivo por fornecedor, número ou **chave de acesso de 44 dígitos**, primeiro candidato pré-marcado e **Enter resolve** — é o fluxo do leitor de código de barras, que "digita" a chave e dá Enter. Nota já pronta avisa em vez de duplicar o recebimento; nada encontrado sugere importar o XML. Registrar chegada é a única ação em massa — conferir é um a um |
 | Nota de Entrada — detalhe | `pagina-estoque-entrada-notas-detalhe.html` (menu Estoque) | O cadastro da nota. A novidade de padrão é o **bloco de pendências no topo** (`.bloco-erros`), no formato do print de referência: aparece só depois da primeira tentativa de salvar, conta quantas são, lista todas de uma vez e **cada item leva ao campo** — inclusive abrindo o bloco expansível do endereço, porque mandar o usuário para um campo invisível é pior que não mandar. As duas camadas convivem: a marca vermelha no campo serve a quem já está olhando pro campo, o bloco serve a quem clicou em salvar e precisa ver o tamanho do problema. Depois da primeira tentativa a lista **encolhe ao vivo** conforme os campos são corrigidos, e some (limpa) quando zera. Validações que valem o nome: **dígito verificador da chave de acesso conferido de verdade** (módulo 11 — chave digitada errada é o erro mais comum de quem lança nota na mão), data impossível reprovada, **data de entrada não pode anteceder a emissão**, item sem nome e item com quantidade zerada. Escolher o fornecedor preenche CEP, endereço, número, bairro, cidade e UF de uma vez — resolve seis pendências num clique. Campos fiscais **ativos** (§11) |
 | Itens Bloqueados | `pagina-estoque-itens-bloqueados.html` (menu Estoque) | **Construída em 09/out/2026.** A fila do saldo que está no estoque e não pode ser vendido, com abas por motivo e uma aba de histórico (Resolvidos) que troca a tabela. O painel de resolver tem três abas (Resolver, Manter bloqueado e Histórico) e reparte a quantidade entre liberar e dar baixa; o de bloquear usa a busca padrão de produto e bloqueia ali mesmo. Recebe os bloqueios das outras telas por uma caixa de entrada. Ver §14.51. |
+| Necessidades de Compra | `pagina-estoque-necessidades-compra.html` (menu Estoque) | **Construída em 10/out/2026.** Lista **derivada**, como a Reposição: abre já calculada, sem botão "gerar". Quatro indicadores (a comprar, compra sugerida, em falta, segurados pelo giro), cinco abas e a tabela com a coluna **Comprar** editável. **Só o vendável conta como estoque** (disponível mais o que aguarda endereço); o que está chegando soma e os pedidos que vão sair descontam. A conta é por **mínimo e máximo** ou por **dias de cobertura**. Clicar na linha abre **a conta do produto**, que é onde se edita mínimo e máximo. A seleção em massa abre o painel **Ordem de compra**, com um bloco por fornecedor padrão. Ver §14.52 |
+| Giro de Estoque | `pagina-estoque-giro-estoque.html` (menu Estoque) | **Construída em 10/out/2026.** Giro (vendas ÷ estoque médio) e DSI por produto, no período escolhido, em **três faixas** com régua de dois pinos: encalhe, baixo giro e giro normal. Cada faixa tem um quadro com giro médio, DSI médio, quantidade e custo em estoque. A régua **simula na tela**; só "Salvar faixas" muda o parâmetro da empresa, que é o que Necessidades de Compra lê. Lê o **mesmo bloco de dados** da tela de compra, e a suíte compara o texto dos dois. Ver §14.52 |
 | Inventário de Estoque | `pagina-estoque-inventario.html` (menu Estoque) | **Construída em 16/set/2026 — última tela de estoque da F5.** Abre num **índice de três caminhos**, não numa lista: *Gerar inventário* (monta pelos filtros), *Importar por planilha* (CSV/XLS/XLSX até 2 MB, exige **depósito de destino** porque o arquivo não diz onde a contagem aconteceu) e *Importar por coletor* (TXT até 2 MB, **um código por linha — a repetição É a quantidade**, sem coluna de total; valida por GTIN/EAN, SKU ou ambos). O que separa esta tela do Acerto está escrito no topo dela: **o inventário bloqueia o saldo do depósito inteiro** da abertura ao fechamento — venda, transferência e acerto ali são recusados —, e por isso é último recurso, não ferramenta de rotina. Notas **em conferência** continuam entrando e ficam **fora da contagem**, coerente com a regra de que em conferência não é estoque físico. A lista abre em **modo leitura** (Produto · SKU · Preço · UN · Localização · Estoque atual · Estoque disponível); **Informar quantidades** revela as colunas *Qtde inventário* e *Diferença* e troca o próprio botão por **Salvar quantidades e fechar**. Filtros de geração (Busca, Categoria, Fornecedor, Tags, Exibir, Situação do produto e **Valor baseado em**, agrupado em Preço de compra / de custo / de venda) valem **só na geração**: depois de aberta, a lista é fixa — mexer no filtro com inventário em andamento trocaria o universo contado. **Ausência de leitura nunca vira zero automático** (decisão de 16/set/2026): produto com saldo no depósito que não apareceu no arquivo entra como **não contado**, e não contado **não mexe no saldo** no fechamento. Quem varreu o depósito inteiro usa **"Zerar os não contados"** em Mais ações, com confirmação que explica a consequência — a alternativa (assumir zero sozinho) apagaria saldo bom por causa de um corredor que o coletor não percorreu. No fechamento, **diferença positiva segue a mesma regra de entrada do item 19** (base de picking no depósito → nasce disponível até a capacidade, excedente e sem-base → *a endereçar*, não vende) e **não gera documento fiscal**; **diferença negativa** sai do disponível, base primeiro, e nasce com **pendência fiscal de NF-e CFOP 5.927** sem travar. **Reservado e bloqueado não são tocados** — inventário conta prateleira, não desfaz reserva de pedido nem libera avaria. Fechar exige **usuário + senha** e é **permissão de perfil** (`Fechar inventário de estoque`, agora ativa na lista de confirmações de Vendedores). **Cancelar inventário** destrava o depósito sem alterar nada. Mais ações traz ainda **Exibir/Ocultar filtros**, **Imprimir lista** (`@media print` deixa só a tabela) e **Baixar CSV** — os dois de verdade, não mocados. |
 | Configurações do Sistema ERP *(hub)* | `pagina-configuracoes.html` (menu Configurações) | **Construída em 18/set/2026 — abre o módulo de Configurações.** É um **hub**, não uma área com abas internas: índice com **busca** e **nove abas que filtram uma lista de links**; cada link abre **página própria**, com breadcrumb e voltar — o padrão que o sistema já usa. **As abas são os NOSSOS módulos** (geral · cadastros · estoque · vendas · logística · finanças · operacional · **fiscal** · integrações), não os do Olist, onde *separação* e *expedição* vivem em Vendas e aqui são Logística. *Fiscal* ganhou aba própria: certificado, ambiente, naturezas de operação, intermediadores e RTC não cabem como sub-item de Vendas. Cada aba abre com um **banner de contexto** que diz a regra que importa naquele domínio (ex.: em Estoque, que os limiares de tempo passam a morar ali; em Integrações, que o disponível enviado ao canal é o nosso, menor que o de outros ERPs). **O badge de estado é DERIVADO, nunca escrito à mão:** item com destino está construído e não leva selo; item sem destino leva **"a construir"**. A primeira versão tinha badges escritos manualmente (*configuração pendente*, *ambiente de testes*) em telas que sequer existiam — o índice prometia estado de coisa inexistente. Derivar do `href` torna impossível uma tela nascer mentindo que está pronta, e transforma o índice num **mapa de progresso** real. A **busca varre todas as abas de uma vez** (nome e texto de ajuda, ignorando acento) e mostra a **aba de origem** ao lado de cada achado. O ícone `?` aparece só nos itens que têm explicação, no `title`. **Onde cada coisa mora — a régua é a FREQUÊNCIA de uso** *(decidido em 18/set/2026, a partir de pergunta do usuário)*: a primeira versão do hub trazia atalhos para Marcas, Categorias, Departamentos, Seções, Embalagens, Depósitos, Endereços de Estoque, Metas e Vendedores — o **mesmo arquivo** do módulo, alcançado por dois caminhos, como o Olist faz. O usuário perguntou se era a mesma tela; **se quem aprovou o desenho teve a dúvida, quem opera vai ter também**, e os atalhos saíram. **O critério não é "é lista auxiliar", é com que frequência se mexe:** cadastrar marca nova acontece toda vez que chega produto de fornecedor novo — isso é **operação** e pertence ao módulo; *Tipos de contato*, *Variações*, *Atributos*, *Linhas de produtos* e *Parâmetros de estoque* se definem uma vez e quase nunca se revisitam — isso é **configuração** e pertence ao hub. A regra que o usuário aprende numa vez: **cadastro fica no módulo, parâmetro fica em Configurações**. O único ganho real que os atalhos tinham era guiar o **setup inicial** — e isso passou a ser resolvido pelo **Guia de primeiros passos** (abaixo), que é a solução do próprio Olist e não suja a navegação do dia a dia. **Duplicar tela continua proibido** em qualquer hipótese: duas telas para o mesmo cadastro divergem em semanas. |
 | Parâmetros de estoque *(Configurações → estoque)* | `pagina-configuracoes-parametros-estoque.html` | **Construída em 18/set/2026 — primeira tela filha do hub.** É a tela que tira de dentro do código os **três limiares de tempo** que as telas de Estoque usavam cravados: *Conferência de compra* (alerta/crítico de dias de espera na doca), *Endereçamento* (alerta/crítico de dias parado em `a_endereçar`) e *Estoque zero na base de picking* (dias com a base zerada). **Layout GNRE** (§6): campo à esquerda, explicação à direita, na grade `.par-linha` — porque parâmetro que ninguém entende é parâmetro que ninguém mexe. **A prova de que a tela não é decoração:** junto com ela, os **7 números cravados** em `pagina-estoque-enderecamento.html` (5) e `pagina-estoque-conferencia-entrada.html` (2) foram substituídos por um bloco `PARAM` nomeado, logo depois de `<script>`, com comentário dizendo de onde o valor vem no Lovable (`tabela parametros`, por chave). Sem esse refactor a tela salvaria um número que nenhuma outra leria. **Regra nova: número que decide cor, alerta ou bloqueio nunca nasce literal dentro de um `if`** — nasce em `PARAM`, ainda que a tela de configuração venha depois. **Prévia viva:** cada seção mede o efeito do número na fila de hoje (*"Na fila de hoje (6 saldos): 3 ficariam em alerta e 1 ficaria em situação crítica"*) e recalcula a cada tecla — o usuário vê a consequência antes de salvar, em vez de descobrir amanhã. **Validação:** crítico tem de ser maior que alerta (salvar é bloqueado com modal explicando qual par está invertido), inteiro de 0 a 365, não-numérico recusado. **Barra fixa de salvar** com contador de alterações não salvas e **Restaurar padrão** (1 · 3 · 2 · 7 · 7). O breadcrumb do meio volta para o hub. |
@@ -2197,3 +2199,100 @@ Ficou de fora, com o usuário sabendo: cadastro de motivos de bloqueio, devoluç
 (depende de NF-e), resolver vários bloqueios de uma vez, mover para endereço de Quarentena no ato
 do bloqueio, abrir o histórico de um bloqueio já resolvido, e o excedente de nota ("chegou a
 mais"), que depende da nota complementar.
+
+## 14.52 Necessidades de Compra e Giro de Estoque: a conta que só olha o vendável (10/out/2026)
+
+As duas telas nasceram juntas, de 31 prints do Olist e de quatro decisões do usuário, tomadas na
+barganha antes de qualquer código.
+
+**1. Lista viva, não relatório.** O Olist abre um formulário de filtros, espera o "gerar" e só então
+mostra a tabela. Lá a conta roda no servidor e demora; aqui ela sai na hora, e o botão seria um
+clique sem ganho. As duas telas seguem o padrão do sistema: indicadores no topo, busca e filtros na
+barra, abas com contador, tabela e painel lateral. Os filtros do dia a dia ficam na barra (loja,
+depósito, fornecedor); os de cálculo ficam no painel **Filtros e cálculo**, e o botão mostra quantos
+ajustes estão fora do padrão. O conteúdo dos prints está todo lá; o que mudou foi o lugar.
+
+**2. Só o vendável conta como estoque.** Vendável é disponível mais o que aguarda endereço.
+Reservado já tem dono e bloqueado não pode ser vendido: contar os dois escondia a necessidade de
+compra. O **projetado** é o vendável, mais o que está chegando (em conferência, a receber de ordens
+de compra e em trânsito entre depósitos), menos os pedidos que ainda vão sair. A compra é sugerida
+quando o projetado cai abaixo do mínimo, e a quantidade leva o estoque até o máximo; sem máximo,
+até o mínimo. No modo **dias de cobertura**, a sugestão cobre N dias da venda média.
+
+São dois conceitos, e cada um tem a sua aba: **abaixo do mínimo** olha o vendável de hoje, e é a
+mesma regra do aviso do Controle de Estoques (`abaixoDoMinimo`, que deixou de usar o físico);
+**a comprar** olha o projetado. Um produto pode estar abaixo do mínimo e não precisar de compra,
+porque a reposição já está a caminho. A suíte compara a aba com o aviso do Controle de Estoques, e
+usa o caso que separa as duas regras: mínimo 8 para um produto com físico 9 e dois bloqueados.
+
+**3. O painel cria a ordem.** A seleção em massa abre o painel **Ordem de compra**, com um bloco
+por fornecedor padrão. Produto sem fornecedor padrão cai num bloco próprio, e o fornecedor se
+escolhe ali. Blocos com o mesmo fornecedor viram uma ordem só. Nada nasce pela metade: um bloco
+inválido trava todos. A ordem nasce em aberto, com o custo médio como preço, e aparece em Ordens de
+Compra, que lê a chave `deskOrdensGeradas`. Excluir ou cancelar a ordem lá a tira dessa chave, e a
+necessidade volta aqui. O que foi pedido passa a contar como "chegando", então a mesma compra não é
+sugerida duas vezes.
+
+**4. O giro avisa na compra.** O "aplicar tags" do Olist não existe aqui (§12.1). No lugar, a
+classificação do giro entra na conta: produto em **encalhe** que cai abaixo do mínimo aparece na
+aba **Segurados pelo giro**, sem quantidade sugerida e com o motivo na linha. Não é trava: digitar a
+quantidade é a decisão de comprar mesmo assim. As faixas são parâmetro da empresa
+(`giroEncalheAte`, `giroBaixoAte`), e o período do giro também (`giroJanelaDias`). A régua da tela
+do Giro simula outras faixas sem mudar nada; só "Salvar faixas" grava.
+
+**Mínimo e máximo se editam no painel, não na linha.** O print do Olist edita os dois na própria
+tabela. Aqui vale "a listagem lê, o detalhe escreve": a linha mostra, e o painel da conta do produto
+edita. O novo mínimo fica em `deskMinMax`, que o Controle de Estoques lê.
+
+**Um bloco de dados, duas telas.** Produtos, ficha de compra, movimento de vendas e entradas e a
+função do giro moram num bloco que é igual, letra por letra, nas duas telas. `PRODUTOS` é espelho do
+Controle de Estoques. O movimento usa datas relativas a hoje (`[dias atrás, quantidade]`), para o
+período ter venda em qualquer dia que a tela abrir. A suíte compara o texto do bloco, o espelho de
+produtos, o de ordens de compra e o de transferências, e confere que em nenhum dia do último ano o
+saldo de um produto fica negativo.
+
+**O que nasceu junto, porque as telas dependem:** o **fornecedor padrão** no cadastro do produto
+(coluna Padrão, botão de opção da casa; enquanto houver fornecedor, um é o padrão) e a seção
+**Compra e giro de estoque** em Parâmetros de estoque, com quatro parâmetros no mesmo dia do código
+que os lê. No caminho saiu um defeito antigo do cadastro do produto: adicionar um fornecedor
+redesenhava a tabela a partir da lista e apagava o nome digitado nas outras linhas.
+
+**A tabela precisa caber no card a 1440px.** A primeira versão tinha onze colunas em linha única e
+empurrava a coluna Comprar, que é a que importa, para fora da área visível. O cabeçalho passou a
+quebrar em duas linhas, como no print, e as colunas de texto deixaram de ser `nowrap`. A suíte mede
+a largura da tabela contra a do card, nos dois temas, e a posição do campo Comprar.
+
+**Três coisas que a suíte ensinou sobre o próprio teste:**
+
+- `inner_text` devolve o texto **desenhado**: cabeçalho e etiqueta em maiúsculas pelo CSS chegam em
+  maiúsculas, e texto dentro de bloco escondido não chega. Para comparar o que está no documento,
+  `text_content`.
+- `page.evaluate` **executa** a expressão quando ela devolve uma função. Trocar `window.print` por
+  uma função espiã, numa linha solta, contava uma impressão a mais. A troca vai dentro de uma função.
+- A linha pedida pode estar na segunda página da lista. O ajudante da suíte passa para 25 por página
+  quando não a encontra, em vez de falhar com erro de elemento nulo.
+
+**O que o portão pegou antes da entrega:**
+
+- **Na impressão, o campo Comprar saía como caixa preta.** A regra de impressão tirava o fundo do
+  campo, mas a regra da tela vinha depois dela no arquivo e ganhava. No tema escuro, o número que
+  mais importa no papel ficava ilegível. A regra de impressão passou a usar `!important`, o texto
+  de toda a área impressa sai escuro, e o menu lateral deixa de ocupar a margem. A suíte mede o
+  fundo e a cor do campo com a página em modo de impressão.
+- **A auditoria leu um `id` repetido** onde havia dois trechos de código iguais montando `id` a
+  partir de uma variável com o mesmo nome. Não era defeito na tela, mas a checagem é por texto: o
+  segundo ajudante mudou o nome da variável.
+- **Chave nova de armazenamento precisa ser registrada.** A auditoria reprovou `deskMinMax` no
+  Controle de Estoques, e estava certa: a lista de depósitos compartilhados existe para que tela
+  nenhuma guarde estado por conta própria sem alguém decidir. As duas chaves novas entraram na
+  lista, com o motivo.
+
+**Provado nos dois sentidos.** Sete defeitos injetados, um por vez, e a suíte reprovou os sete: o
+aviso de mínimo de volta ao físico; o bloqueado contando como vendável; o encalhe sem segurar a
+sugestão; um dado diferente só no Giro; Ordens de Compra sem devolver a ordem cancelada; a ordem
+sem fornecedor passando na validação; e a regra de impressão sem o `!important`.
+
+Ficou de fora, com o usuário sabendo: tags; natureza de operação (fiscal, depende da NF-e); prazo de
+entrega do fornecedor, que não existe no cadastro; a página de detalhe da ordem criada, que ainda
+abre o exemplo fixo; e os pedidos que vão sair, que são dado de exemplo da própria tela. O kit entra
+na compra como produto comum, porque a composição de kit ainda não existe.

@@ -703,8 +703,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Reposição" data-href="../estoque/pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
       <div class="flyout-item" data-label="Ordens de Compra" data-href="../estoque/pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
-      <div class="flyout-item" data-label="Necessidades de Compra"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
-      <div class="flyout-item" data-label="Giro de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Necessidades de Compra" data-href="../estoque/pagina-estoque-necessidades-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
+      <div class="flyout-item" data-label="Giro de Estoque" data-href="../estoque/pagina-estoque-giro-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
       <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
@@ -1457,6 +1457,36 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
   const ITENS_PADRAO = [{ nome: 'Item de exemplo', sku: '—', qtd: 1, un: 'UN', preco: 0, recebido: 0 }];
 
+  // Ordens criadas em Estoque > Necessidades de Compra (10/out/2026): aquela tela grava em
+  // `deskOrdensGeradas` e esta le. Excluir ou cancelar uma delas aqui tira a ordem de la tambem,
+  // e a necessidade de compra do produto volta a aparecer.
+  const CHAVE_ORDENS_GERADAS = 'deskOrdensGeradas';
+  const NUMEROS_GERADOS = [];
+  (function receberOrdensGeradas() {
+    let lista = [];
+    try { lista = JSON.parse(localStorage.getItem(CHAVE_ORDENS_GERADAS) || '[]') || []; } catch (e) { lista = []; }
+    if (!Array.isArray(lista)) return;
+    lista.forEach(o => {
+      const numero = Number(o && o.numero);
+      if (!numero || !o.fornecedor || !Array.isArray(o.itens) || ORDENS.some(x => x.numero === numero)) return;
+      ORDENS.push({ id: numero, numero: numero, data: String(o.data || ''), previsto: String(o.previsto || ''), fornecedor: String(o.fornecedor),
+                    dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: 'aberto' });
+      ITENS_OC[numero] = o.itens.map(i => ({ nome: String(i.nome || ''), sku: String(i.sku || ''), qtd: Number(i.qtd) || 0,
+                                             un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: 0 }));
+      NUMEROS_GERADOS.push(numero);
+    });
+  })();
+  // shortcut: so ordem excluida ou cancelada volta para la; receber parte de uma ordem gerada ainda nao muda o que a compra enxerga. Entra com o recebimento de verdade, no banco.
+  function devolverOrdensGeradas() {
+    if (!NUMEROS_GERADOS.length) return;
+    const viva = (numero) => ORDENS.some(o => o.numero === numero && o.situacao !== 'cancelada');
+    try {
+      const lista = JSON.parse(localStorage.getItem(CHAVE_ORDENS_GERADAS) || '[]') || [];
+      const resta = lista.filter(o => !NUMEROS_GERADOS.includes(Number(o.numero)) || viva(Number(o.numero)));
+      if (resta.length !== lista.length) localStorage.setItem(CHAVE_ORDENS_GERADAS, JSON.stringify(resta));
+    } catch (e) { /* armazenamento bloqueado: a lista vale ate recarregar */ }
+  }
+
   let buscaAtual = '';
   let situacaoAtual = 'todos';
   let periodoAtual = 'todos';
@@ -1597,6 +1627,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
     atualizarCabecalhoOrdem();
     atualizarBarraSelecao();
+    devolverOrdensGeradas();
   }
 
   function atualizarCabecalhoOrdem() {
