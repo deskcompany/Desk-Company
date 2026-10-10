@@ -411,7 +411,8 @@ with sync_playwright() as p:
        'o total diz que soma os enderecos, e o campo diz quanto ha neste e quanto ha nos outros: %s' % pg.inner_text('#bloqLivre'))
     deps = pg.evaluate("Array.from(document.querySelectorAll('#bloqDep .dropdown-select-item')).map(e => e.textContent)")
     origens = pg.evaluate("Array.from(document.querySelectorAll('#bloqOrigem .dropdown-select-item')).map(e => e.textContent)")
-    ok(deps == ['Galpão Centro', 'Bancada Desk Tech'] and origens == ['A-05-1-02 · Picking — 4 UN livres', 'P-01-2-05 · Pulmão — 28 UN livres'] and pg.inner_text('#bloqLivre').startswith('Livre neste endereço: 4 UN.'),
+    ok(deps == ['Galpão Centro', 'Bancada Desk Tech'] and origens == ['A-05-1-02 · Picking — 4 UN livres', 'P-01-2-05 · Pulmão — 28 UN livres', 'Todos os endereços — 32 UN livres']
+       and pg.get_attribute('#bloqOrigem', 'data-value') == '0' and pg.inner_text('#bloqLivre').startswith('Livre neste endereço: 4 UN.'),
        'so oferece deposito e endereco com saldo livre, ja descontado o que a fila travou ali: %s' % origens)
     clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#erroBloqQtd') and 'maior que zero' in pg.inner_text('#erroBloqQtd') and visivel(pg, '#erroBloqMotivo'), 'sem quantidade e sem motivo, nao bloqueia')
@@ -420,7 +421,7 @@ with sync_playwright() as p:
     for valor in ['5', '1,5']:
         pg.fill('#bloqQtd', valor); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(180)
         barrados.append(pg.inner_text('#erroBloqQtd') if visivel(pg, '#erroBloqQtd') else '')
-    ok('Só há 4 UN livres neste endereço. O resto está em outros endereços: troque em "De qual endereço"' in barrados[0] and 'número inteiro' in barrados[1] and pg.evaluate('ITENS.length') == 7, 'nao bloqueia mais do que ha livre no endereco, nem quantidade quebrada em UN: %s' % [b[:22] for b in barrados])
+    ok(barrados[0] == 'Só há 4 UN livres neste endereço. Para bloquear mais, escolha outro endereço ou "Todos os endereços".' and 'número inteiro' in barrados[1] and pg.evaluate('ITENS.length') == 7, 'nao bloqueia mais do que ha livre no endereco, nem quantidade quebrada em UN: %s' % [b[:22] for b in barrados])
     pg.fill('#bloqQtd', '2'); escolher(pg, 'bloqMotivo', 'decisao'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#erroBloqObs') and pg.evaluate('ITENS.length') == 7, 'travar por decisao exige dizer por que')
     escolher(pg, 'bloqMotivo', 'analise')
@@ -474,6 +475,38 @@ with sync_playwright() as p:
     bloquear_abrir(pg, 'TEC-MEC')
     ok(liberado.startswith('Livre neste endereço: 4 UN.') and pg.inner_text('#bloqLivre').startswith('Livre neste endereço: 4 UN.') and pg.inner_text('#bloqLivreTotal') == '37 UN' and pg.inner_text('#bloqJaTravado') == '1 UN',
        'liberar devolve o saldo livre ao endereco; dar baixa nao devolve: %s' % pg.inner_text('#bloqLivreTotal'))
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+    # 09/out: travar o produto inteiro. "Todos os enderecos do deposito" reparte a quantidade e cria
+    # uma linha por endereco; um endereco so continua sendo o padrao (decisao do usuario).
+    antes = pg.evaluate('ITENS.length')
+    bloquear_abrir(pg, 'CAD-ERG')
+    opcoes = pg.evaluate("Array.from(document.querySelectorAll('#bloqOrigem .dropdown-select-item')).map(e => e.textContent)")
+    ok(opcoes == ['A-01-1-03 · Picking — 15 UN livres', 'P-02-3-01 · Pulmão — 6 UN livres', 'Todos os endereços — 21 UN livres']
+       and pg.inner_text('#bloqOrigem .dropdown-select-label') == opcoes[0] and pg.inner_text('#bloqLivre') == 'Livre neste endereço: 15 UN. Há mais 9 UN em outros endereços.',
+       'com dois enderecos no deposito aparece a opcao de todos, e um endereco so continua sendo o padrao: %s' % opcoes[-1])
+    pg.fill('#bloqQtd', '18'); escolher(pg, 'bloqMotivo', 'decisao'); pg.fill('#bloqObs', 'Recall do fabricante.'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
+    ok(pg.inner_text('#erroBloqQtd') == 'Só há 15 UN livres neste endereço. Para bloquear mais, escolha outro endereço ou "Todos os endereços".' and pg.evaluate('ITENS.length') == antes,
+       'passar do endereco aponta a opcao de todos')
+    escolher(pg, 'bloqOrigem', 'todos')
+    ok(pg.inner_text('#bloqLivre') == 'Livre neste depósito: 21 UN, em 2 endereços. Há mais 3 UN em outros depósitos.' and not visivel(pg, '#erroBloqQtd')
+       and pg.inner_text('#bloqPrevia') == 'Bloqueio não muda o estoque físico nem o custo: tira 18 UN do disponível, sendo 15 UN de A-01-1-03 e 3 UN de P-02-3-01. Destino: os mesmos endereços, só travados.',
+       'com todos, o limite e o do deposito e a previa mostra a divisao antes de confirmar: %s' % pg.inner_text('#bloqPrevia')[60:140])
+    pg.fill('#bloqQtd', '22'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
+    ok(pg.inner_text('#erroBloqQtd') == 'Só há 21 UN livres neste depósito. O resto está em outro depósito: bloqueie um de cada vez.' and pg.evaluate('ITENS.length') == antes
+       and 'dos 2 endereços do depósito' in pg.inner_text('#bloqPrevia'), 'nem com todos passa do que o deposito tem')
+    pg.fill('#bloqQtd', '18'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(450)
+    ok(modal(pg) == 'Bloqueio registrado: 18 UN de Cadeira Ergonômica Pro, motivo Travado por decisão, em 2 endereços: 15 UN em A-01-1-03 e 3 UN em P-02-3-01. A fila ganhou uma linha por endereço.',
+       'o aviso conta a divisao: %s' % modal(pg)[-80:])
+    confirmar(pg)
+    novos = pg.evaluate("ITENS.slice(-2).map(i => [i.sku, i.endereco, i.tipoEnd, i.qtd, i.saiuDe, i.motivo, i.obs].join('|'))")
+    ok(pg.evaluate('ITENS.length') == antes + 2 and novos == ['CAD-ERG-001|A-01-1-03|picking|15|A-01-1-03|decisao|Recall do fabricante.', 'CAD-ERG-001|P-02-3-01|pulmao|3|P-02-3-01|decisao|Recall do fabricante.'],
+       'a fila ganha uma linha por endereco, comecando pelo picking: %s' % novos)
+    bloquear_abrir(pg, 'CAD-ERG')
+    opcoes = pg.evaluate("Array.from(document.querySelectorAll('#bloqOrigem .dropdown-select-item')).map(e => e.textContent)")
+    ok(opcoes == ['P-02-3-01 · Pulmão — 3 UN livres'] and pg.inner_text('#bloqLivreTotal') == '6 UN', 'com um endereco so com saldo, a opcao de todos nao aparece: %s' % opcoes)
+    escolher(pg, 'bloqDep', 3)
+    pg.fill('#bloqQtd', '5'); escolher(pg, 'bloqMotivo', 'analise'); clic(pg, '#btnConfirmarBloqueio'); pg.wait_for_timeout(200)
+    ok(pg.inner_text('#erroBloqQtd') == 'Só há 3 UN livres neste endereço. O resto está em outro depósito: bloqueie um de cada vez.', 'e num deposito de um endereco so, o erro manda para o outro deposito')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[12] O tipo Bloqueio no lancamento do Controle de Estoques')

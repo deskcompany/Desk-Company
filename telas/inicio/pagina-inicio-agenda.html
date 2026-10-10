@@ -455,6 +455,12 @@
   .date-dia.off:hover { background:transparent; }
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
+  /* horario: a mesma caixa do calendario, estreita, com as setas de hora e de minuto */
+  .date-pop.hora-pop { width:128px; }
+  .hora-colunas { display:flex; align-items:center; justify-content:center; gap:10px; }
+  .hora-col { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .hora-num { font-size:17px; font-weight:800; color:var(--text-heading); font-variant-numeric:tabular-nums; }
+  .hora-sep { font-size:15px; font-weight:800; color:var(--text); }
 
   /* Aviso publicado por outra tela: a seta diz que o item leva para fora da agenda. */
   .agenda-item-aviso { border-left: 2px solid var(--active-text); }
@@ -748,25 +754,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="date-pop"></div>
         </div>
       </div>
-      <div class="form-field">
-        <label>Hora</label>
-        <div class="dropdown-select" id="formHora" data-value="09">
-          <button type="button" class="dropdown-select-btn form-style">
-            <span class="dropdown-select-label">09</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu" id="formHoraMenu"></div>
+      <div class="form-field" id="campoHorario">
+        <label for="formHorario">Horário</label>
+        <div class="date-field" id="hfAgenda">
+          <input type="text" id="formHorario" placeholder="hh:mm" inputmode="numeric" maxlength="5" autocomplete="off">
+          <button type="button" class="date-btn" aria-label="escolher horário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button>
+          <div class="date-pop hora-pop"></div>
         </div>
-      </div>
-      <div class="form-field">
-        <label>Min</label>
-        <div class="dropdown-select" id="formMin" data-value="00">
-          <button type="button" class="dropdown-select-btn form-style">
-            <span class="dropdown-select-label">00</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu" id="formMinMenu"></div>
-        </div>
+        <div class="field-error-msg" id="erroHorario">Informe o horário no formato hh:mm.</div>
       </div>
     </div>
 
@@ -1590,6 +1585,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('erroUsuario').classList.remove('show');
     document.getElementById('campoDescricao').classList.remove('has-error');
     document.getElementById('erroDescricao').classList.remove('show');
+    document.getElementById('campoHorario').classList.remove('has-error');
+    document.getElementById('erroHorario').classList.remove('show');
   }
 
   function abrirFormulario(chave, eventoExistente) {
@@ -1598,15 +1595,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('formData').value = String(d).padStart(2, '0') + '/' + String(m).padStart(2, '0') + '/' + y;
 
     if (eventoExistente) {
-      const [h, min] = eventoExistente.hora.split(':');
-      definirValorDropdown('formHora', h);
-      definirValorDropdown('formMin', min);
+      document.getElementById('formHorario').value = eventoExistente.hora;
       document.getElementById('formDescricao').value = eventoExistente.titulo + (eventoExistente.meta ? ' — ' + eventoExistente.meta : '');
       document.getElementById('formLink').value = eventoExistente.link || '';
       document.querySelectorAll('.user-checkbox').forEach(cb => { cb.checked = (cb.value === eventoExistente.usuario); });
     } else {
-      definirValorDropdown('formHora', '09');
-      definirValorDropdown('formMin', '00');
+      document.getElementById('formHorario').value = '09:00';
       document.getElementById('formDescricao').value = '';
       document.getElementById('formLink').value = '';
       document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
@@ -1650,6 +1644,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       campoDescricao.classList.remove('has-error');
       erroDescricao.classList.remove('show');
     }
+
+    // O horario era escolhido em duas listas e nao tinha como estar errado; digitavel, precisa de conferencia.
+    const horarioOk = /^([01]\d|2[0-3]):[0-5]\d$/.test(document.getElementById('formHorario').value.trim());
+    document.getElementById('campoHorario').classList.toggle('has-error', !horarioOk);
+    document.getElementById('erroHorario').classList.toggle('show', !horarioOk);
+    if (!horarioOk) valido = false;
 
     if (!valido) return; // bloqueia o cadastro — não fecha o painel, não grava nada
 
@@ -1847,36 +1847,52 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // dia da grade. Icone que parece clicavel e nao e vale menos que icone nenhum.
   inicializarDataField(document.getElementById('dfAgenda'), {});
 
-  function definirValorDropdown(raizId, valor) {
-    const raiz = document.getElementById(raizId);
-    raiz.setAttribute('data-value', valor);
-    raiz.querySelectorAll('.dropdown-select-item').forEach(item => {
-      const ativo = item.getAttribute('data-value') === valor;
-      item.classList.toggle('active', ativo);
-      if (ativo) raiz.querySelector('.dropdown-select-label').textContent = item.textContent;
+  // ===== FORMULÁRIO: horario =====
+  // O mesmo relogio da tela do assunto do CRM (Vendas), copiado letra a letra: o campo continua
+  // digitavel e a caixa mostra o que esta nele. Eram dois dropdowns, hora e minuto de 15 em 15.
+  function inicializarHoraField(raiz) {
+    const input = raiz.querySelector('input'), btn = raiz.querySelector('.date-btn'), pop = raiz.querySelector('.date-pop');
+    const dois = (n) => String(n).padStart(2, '0');
+    const seta = (parte, passo, pontos, nome) => '<button type="button" class="date-nav" data-parte="' + parte + '" data-passo="' + passo + '" aria-label="' + nome + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="' + pontos + '"/></svg></button>';
+    const coluna = (parte, nome) => '<div class="hora-col">' + seta(parte, 1, '18 15 12 9 6 15', 'aumentar ' + nome) +
+      '<span class="hora-num" data-num="' + parte + '"></span>' + seta(parte, -1, '6 9 12 15 18 9', 'diminuir ' + nome) + '</div>';
+    pop.innerHTML = '<div class="hora-colunas">' + coluna('h', 'hora') + '<span class="hora-sep">:</span>' + coluna('m', 'minuto') + '</div>';
+    const ler = () => {
+      const m = input.value.trim().match(/^(\d{1,2}):(\d{2})$/);
+      return m && Number(m[1]) < 24 && Number(m[2]) < 60 ? { h: Number(m[1]), m: Number(m[2]) } : null;
+    };
+    const agora = () => { const d = new Date(); return { h: d.getHours(), m: Math.floor(d.getMinutes() / 5) * 5 }; };
+    const pintar = () => { const v = ler(); ['h', 'm'].forEach(k => { pop.querySelector('[data-num="' + k + '"]').textContent = v ? dois(v[k]) : '--'; }); };
+    const escrever = (v) => { input.value = dois(v.h) + ':' + dois(v.m); pintar(); };
+    const fechar = () => pop.classList.remove('open');
+    pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', () => {
+      const v = ler() || agora(), passo = Number(b.getAttribute('data-passo'));
+      if (b.getAttribute('data-parte') === 'h') v.h = (v.h + passo + 24) % 24;
+      // minuto de 5 em 5; valor quebrado digitado a mao (13:43) encaixa no multiplo vizinho
+      else v.m = ((passo > 0 ? Math.floor(v.m / 5) * 5 + 5 : Math.ceil(v.m / 5) * 5 - 5) + 60) % 60;
+      escrever(v);
+    }));
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pop.classList.contains('open')) { fechar(); return; }
+      document.querySelectorAll('.date-pop.open').forEach(x => x.classList.remove('open'));
+      if (!ler()) escrever(agora()); else pintar();
+      // sobe por padrao e desce quando nao ha espaco acima, como o calendario
+      const caixa = btn.getBoundingClientRect();
+      pop.classList.toggle('abaixo', caixa.top < 140 && window.innerHeight - caixa.bottom > caixa.top);
+      pop.classList.add('open');
     });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', pintar);
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
   }
-
-  // ===== FORMULÁRIO: horas/minutos =====
-  const formHoraMenu = document.getElementById('formHoraMenu');
-  const formMinMenu = document.getElementById('formMinMenu');
-  for (let h = 0; h < 24; h++) {
-    const valor = String(h).padStart(2, '0');
-    const item = document.createElement('div');
-    item.className = 'dropdown-select-item' + (valor === '09' ? ' active' : '');
-    item.setAttribute('data-value', valor);
-    item.textContent = valor;
-    formHoraMenu.appendChild(item);
-  }
-  ['00', '15', '30', '45'].forEach(mn => {
-    const item = document.createElement('div');
-    item.className = 'dropdown-select-item' + (mn === '00' ? ' active' : '');
-    item.setAttribute('data-value', mn);
-    item.textContent = mn;
-    formMinMenu.appendChild(item);
+  inicializarHoraField(document.getElementById('hfAgenda'));
+  document.getElementById('formHorario').addEventListener('input', () => {
+    document.getElementById('campoHorario').classList.remove('has-error');
+    document.getElementById('erroHorario').classList.remove('show');
   });
-  inicializarDropdownSelect(document.getElementById('formHora'));
-  inicializarDropdownSelect(document.getElementById('formMin'));
 
   // ===== FORMULÁRIO: multi-select "Para o usuário" =====
   const userSelectBtn = document.getElementById('userSelectBtn');

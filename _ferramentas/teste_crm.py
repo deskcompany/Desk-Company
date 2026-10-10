@@ -17,7 +17,8 @@
 #   [11] abas vendas e financeiro;        [12] avisos na Agenda;
 #   [13] quadro por estagio;              [14] parametro de dias sem interacao;
 #   [15] cadastro de estagios do funil;   [16] ESPELHOS contra os cadastros;
-#   [17] catalogo de senhas;              [18] Esc, temas, largura e erro de JS.
+#   [17] catalogo de senhas;              [18] o relogio na Agenda;
+#   [19] Esc, temas, largura e erro de JS.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g
 import datetime
@@ -532,7 +533,30 @@ with sync_playwright() as p:
         ok("base:'crm'" in txt and "base:'estagiosFunil'" in txt, '%s conhece os modulos CRM e Estagios do funil' % arq.replace('pagina-', ''))
     p2.close()
 
-    print('\n[18] Esc, os dois temas, largura e erro de JS')
+    print('\n[18] O relogio do horario tambem esta na Agenda')
+    # 09/out: a Agenda usava dois dropdowns (hora, e minuto de 15 em 15). O usuario pediu o mesmo
+    # relogio do CRM la, para o sistema ter um jeito so de informar horario.
+    ir(pg, DET, '?id=2')
+    relogio_crm = pg.evaluate('inicializarHoraField.toString()')
+    ir(pg, AGENDA)
+    ok(pg.evaluate('inicializarHoraField.toString()') == relogio_crm and pg.locator('#formHora, #formMin').count() == 0, 'a Agenda usa o mesmo componente da tela do assunto, e os dois dropdowns sairam')
+    pg.evaluate("abrirFormulario('2026-10-15')"); pg.wait_for_timeout(450)
+    ok(pg.input_value('#formHorario') == '09:00' and pg.locator('#hfAgenda .date-pop.open').count() == 0, 'compromisso novo abre as 09:00, com a caixa fechada')
+    pg.click('#hfAgenda .date-btn'); pg.wait_for_timeout(250)
+    pg.click('#hfAgenda [data-parte="h"][data-passo="1"]'); pg.click('#hfAgenda [data-parte="m"][data-passo="-1"]')
+    ok(pg.locator('#hfAgenda .date-pop.open').count() == 1 and pg.input_value('#formHorario') == '10:55' and pg.inner_text('#hfAgenda [data-num="m"]') == '55',
+       'o relogio abre e as setas mudam o campo: %s' % pg.input_value('#formHorario'))
+    pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
+    ok(pg.locator('#hfAgenda .date-pop.open').count() == 0 and pg.locator('.event-drawer.open').count() == 1, 'Esc fecha a caixa e o painel do compromisso fica')
+    pg.fill('#formDescricao', 'Visita ao cliente'); pg.evaluate("document.querySelector('.user-checkbox').click()")
+    pg.fill('#formHorario', '25:99'); clic(pg, '#formSalvar'); pg.wait_for_timeout(250)
+    ok(visivel(pg, '#erroHorario') and pg.locator('.event-drawer.open').count() == 1, 'horario que nao existe nao salva: agora o campo e digitavel')
+    pg.fill('#formHorario', '14:30'); pg.wait_for_timeout(150)
+    limpou = not visivel(pg, '#erroHorario')
+    clic(pg, '#formSalvar'); pg.wait_for_timeout(300)
+    ok(limpou and pg.locator('.event-drawer.open').count() == 0, 'corrigir limpa o erro, e o compromisso salva')
+
+    print('\n[19] Esc, os dois temas, largura e erro de JS')
     zerar(pg)
     clic(pg, '#btnIncluirAssunto'); pg.wait_for_timeout(300)
     clic(pg, '#novoCliente .dropdown-select-btn'); pg.wait_for_timeout(200)

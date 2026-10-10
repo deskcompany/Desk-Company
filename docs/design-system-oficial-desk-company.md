@@ -2034,8 +2034,11 @@ de digitação junto com o bloqueio do navegador.
 - **Horário com relógio.** O campo continua digitável; o relógio abre uma caixa pequena
   (`.date-pop.hora-pop`, 128px) com setas de hora (1 em 1) e de minuto (5 em 5, dando a volta).
   A caixa mostra o que está no campo, sem estado próprio; aberta com o campo vazio, parte da hora
-  de agora. `inicializarHoraField` mora na tela do assunto. A Agenda ainda usa dois dropdowns
-  (Hora e Min): são dois desenhos para a mesma coisa, à espera de o usuário escolher um.
+  de agora. `inicializarHoraField` mora na tela do assunto. **Fechado pelo usuário em 09/out:** o
+  passo de 5 em 5 minutos fica, e a **Agenda passou a usar o mesmo relógio**, no lugar dos dois
+  dropdowns (hora, e minuto de 15 em 15). O componente foi copiado letra a letra, e a seção 18 de
+  `teste_crm.py` compara as duas cópias. Como o horário da Agenda virou campo digitável, salvar
+  passou a conferir o formato.
 - **Esc fecha o que está por cima.** Com calendário ou horário aberto, o Esc fecha a caixa e o
   formulário fica, com o que foi escrito. Antes levava os dois.
 - **No cartão do quadro nada fica em linha única.** "Perdido · Prazo de entrega" e "avançar →"
@@ -2091,6 +2094,16 @@ auditar, Em análise e Travado por decisão. Vira cadastro quando a operação p
 conferência, e uma terceira que o bloqueio manual trouxe, "foi encontrado em outro lugar". A causa
 "não estava no endereço" é a baixa. A aba **Resolvidos** guarda o desfecho de cada caso; ela não
 entra em "Todos", porque é histórico, não fila.
+
+**O total soma os endereços; o bloqueio sai do endereço escolhido.** O usuário viu "38 UN livre
+para bloquear" e, ao pedir 25, "só há 4 UN livres neste endereço". Os dois números estavam certos e
+a tela não dizia a diferença. O total passou a dizer "somando N endereços", o campo diz quanto há
+neste e quanto há nos outros, e o erro aponta o caminho. Para travar o produto inteiro, "De qual
+endereço" ganhou a opção **"Todos os endereços"**, que só aparece quando o depósito tem mais de um
+endereço com saldo livre: o limite passa a ser o do depósito, a prévia mostra a divisão antes de
+confirmar (picking primeiro, depois pulmão) e a fila ganha **uma linha por endereço**. Um endereço
+só continua sendo o padrão: repartir em silêncio foi descartado, porque quem bloqueia precisa saber
+de qual prateleira a peça saiu. Outro depósito é sempre outro bloqueio.
 
 **O bloqueio manual é feito na própria fila.** O painel "Bloquear item" usa a busca padrão de
 produto (a do Acerto de Estoque: descrição, SKU ou GTIN, Enter escolhe o primeiro), mostra quanto

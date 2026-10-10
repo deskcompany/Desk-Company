@@ -2335,7 +2335,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<div class="drawer-footer"><button class="btn-primary" id="btnConfirmarBloqueio">Bloquear</button>' +
         '<div class="drawer-link" id="btnFecharBloqueio">Fechar <span class="esc-hint">ESC</span></div></div>');
 
-    let p = null, dep = null, linha = null, motivo = '', sugeridos = [];
+    let p = null, dep = null, origens = [], motivo = '', sugeridos = [];   // origens: um endereco (o padrao) ou todos os do deposito
     const busca = document.getElementById('bloqBusca'), cx = document.getElementById('bloqSugestoes');
     const some = (id, sim) => { document.getElementById(id).style.display = sim ? '' : 'none'; };
     const limpar = (idErro, idWrap) => { document.getElementById(idErro).classList.remove('show'); document.getElementById(idWrap).classList.remove('has-error'); };
@@ -2358,25 +2358,55 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const noEspelho = p.saldos.find(s => s.dep === dep && s.tipoEnd === 'avaria');
       return naFila ? naFila.endereco : (noEspelho ? noEspelho.endereco : null);
     }
-    // O bloqueio sai de UM endereco: o total do produto soma todos, e o limite e o do escolhido.
-    const livreNosOutros = () => arred(livreDoProduto(p).total - linha.livre);
+    // O total do produto soma todos os enderecos; o limite do bloqueio e o do que foi escolhido.
+    const livreEscolhido = () => arred(origens.reduce((t, x) => t + x.livre, 0));
+    const livreNosOutros = () => arred(livreDoProduto(p).total - livreEscolhido());
+    const enderecoTexto = (x) => x.s.endereco || 'sem endereço';
+    const enumera = (l) => l.length < 2 ? l.join('') : l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1];
+    // Reparte a quantidade pelos enderecos escolhidos, na ordem em que o deposito vende: picking, depois pulmao.
+    function repartir(q) {
+      const peso = (x) => ({ picking: 0, pulmao: 1 })[x.s.tipoEnd] !== undefined ? ({ picking: 0, pulmao: 1 })[x.s.tipoEnd] : 2;
+      let resta = q;
+      return origens.slice().sort((a, b) => peso(a) - peso(b))
+        .map(x => { const tira = Math.min(resta, x.livre); resta = arred(resta - tira); return { x: x, qtd: arred(tira) }; })
+        .filter(r => r.qtd > 0);
+    }
+    function mensagemDeLimite() {
+      const outroDeposito = livreNosOutros() > 0 ? ' O resto está em outro depósito: bloqueie um de cada vez.' : '';
+      if (origens.length > 1) return 'Só há ' + qtdTexto(livreEscolhido(), p.un) + ' livres neste depósito.' + outroDeposito;
+      return 'Só há ' + qtdTexto(livreEscolhido(), p.un) + ' livres neste endereço.' +
+        (linhasLivres(p, dep).length > 1 ? ' Para bloquear mais, escolha outro endereço ou "Todos os endereços".' : outroDeposito);
+    }
     function pintarPrevia() {
-      const q = lerQtd(document.getElementById('bloqQtd').value);
-      document.getElementById('bloqLivre').textContent = !linha ? '' : 'Livre neste endereço: ' + qtdTexto(linha.livre, p.un) + '.' +
-        (livreNosOutros() > 0 ? ' Há mais ' + qtdTexto(livreNosOutros(), p.un) + ' em outros endereços.' : '');
-      if (!linha) { document.getElementById('bloqPrevia').textContent = ''; return; }
+      const q = lerQtd(document.getElementById('bloqQtd').value), varios = origens.length > 1;
+      if (!origens.length) { document.getElementById('bloqLivre').textContent = ''; document.getElementById('bloqPrevia').textContent = ''; return; }
+      document.getElementById('bloqLivre').textContent =
+        (varios ? 'Livre neste depósito: ' + qtdTexto(livreEscolhido(), p.un) + ', em ' + origens.length + ' endereços.'
+                : 'Livre neste endereço: ' + qtdTexto(livreEscolhido(), p.un) + '.') +
+        (livreNosOutros() > 0 ? ' Há mais ' + qtdTexto(livreNosOutros(), p.un) + (varios ? ' em outros depósitos.' : ' em outros endereços.') : '');
       const av = enderecoDeAvaria();
-      const destino = motivo !== 'avaria' ? 'o mesmo endereço, só travado'
+      const destino = motivo !== 'avaria' ? (varios ? 'os mesmos endereços, só travados' : 'o mesmo endereço, só travado')
         : (av ? av + ', endereço de Avaria' : 'fila do Endereçamento, à espera de um endereço de Avaria');
+      const cabe = q > 0 && q <= livreEscolhido();
+      const deOnde = !varios ? (origens[0].s.endereco ? ' de ' + origens[0].s.endereco : '')
+        : (cabe ? ', sendo ' + enumera(repartir(q).map(r => qtdTexto(r.qtd, p.un) + ' de ' + enderecoTexto(r.x))) : ' dos ' + origens.length + ' endereços do depósito');
       document.getElementById('bloqPrevia').textContent = 'Bloqueio não muda o estoque físico nem o custo: tira ' +
-        (q > 0 ? qtdTexto(q, p.un) : 'a quantidade informada') + ' do disponível' + (linha.s.endereco ? ' de ' + linha.s.endereco : '') + '. Destino: ' + destino + '.';
+        (q > 0 ? qtdTexto(q, p.un) : 'a quantidade informada') + ' do disponível' + deOnde + '. Destino: ' + destino + '.';
     }
     function escolherDeposito(d) {
       dep = Number(d);
       const livres = linhasLivres(p, dep);
-      linha = livres[0] || null;
-      encher('bloqOrigem', livres.map((x, n) => ({ v: n, t: rotuloLinha(x) })), 0);
-      inicializarDropdownSelect(document.getElementById('bloqOrigem'), (v) => { linha = linhasLivres(p, dep)[Number(v)]; limpar('erroBloqQtd', 'wrapBloqQtd'); pintarPrevia(); });
+      origens = livres.slice(0, 1);
+      const opcoes = livres.map((x, n) => ({ v: n, t: rotuloLinha(x) }));
+      // Travar o produto inteiro pede todos os enderecos de uma vez. Um endereco so continua sendo o padrao,
+      // e a opcao so aparece quando o deposito tem mais de um com saldo livre.
+      if (livres.length > 1) opcoes.push({ v: 'todos', t: 'Todos os endereços — ' + qtdTexto(arred(livres.reduce((t, x) => t + x.livre, 0)), p.un) + ' livres' });
+      encher('bloqOrigem', opcoes, 0);
+      inicializarDropdownSelect(document.getElementById('bloqOrigem'), (v) => {
+        const agora = linhasLivres(p, dep);
+        origens = v === 'todos' ? agora : [agora[Number(v)]];
+        limpar('erroBloqQtd', 'wrapBloqQtd'); pintarPrevia();
+      });
       pintarPrevia();
     }
     function escolherProduto(id) {
@@ -2395,12 +2425,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             (livre.enderecos > 1 ? ', somando ' + livre.enderecos + ' endereços' : '') + '</span></div>' +
           '<div class="bq-fato"><b id="bloqJaTravado">' + qtdTexto(travado, esc(p.un)) + '</b><span class="bq-rot">já bloqueado na fila</span></div></div>';
       document.getElementById('btnTrocarProduto').addEventListener('click', () => {
-        p = null; dep = null; linha = null;
+        p = null; dep = null; origens = [];
         some('wrapBloqBusca', true); some('bloqEscolhido', false); some('bloqCampos', false); some('bloqSemSaldo', false);
         busca.value = ''; busca.focus();
       });
       some('wrapBloqBusca', false); some('bloqEscolhido', true); some('bloqCampos', deps.length > 0); some('bloqSemSaldo', deps.length === 0);
-      if (!deps.length) { dep = null; linha = null; return; }
+      if (!deps.length) { dep = null; origens = []; return; }
       encher('bloqDep', deps.map(d => ({ v: d, t: DEPOSITOS[d] })), deps[0]);
       inicializarDropdownSelect(document.getElementById('bloqDep'), escolherDeposito);
       escolherDeposito(deps[0]);
@@ -2432,29 +2462,32 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     document.getElementById('btnConfirmarBloqueio').addEventListener('click', () => {
       if (!p) { erro('erroBloqProduto', 'wrapBloqBusca'); return; }
-      if (!linha) return;   // sem saldo livre: o aviso ja esta na tela
+      if (!origens.length) return;   // sem saldo livre: o aviso ja esta na tela
       const q = lerQtd(document.getElementById('bloqQtd').value), obs = document.getElementById('bloqObs').value.trim();
       let ok = true;
       if (!(q > 0)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Informe uma quantidade maior que zero.');
-      else if (q > linha.livre) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Só há ' + qtdTexto(linha.livre, p.un) + ' livres neste endereço.' +
-        (livreNosOutros() > 0 ? ' O resto está em outros endereços: troque em "De qual endereço" e bloqueie um de cada vez.' : ''));
+      else if (q > livreEscolhido()) ok = erro('erroBloqQtd', 'wrapBloqQtd', mensagemDeLimite());
       else if (!fracionavel(p.un) && !Number.isInteger(q)) ok = erro('erroBloqQtd', 'wrapBloqQtd', 'Este produto é contado em ' + p.un + ': informe um número inteiro.');
       if (!motivo) ok = erro('erroBloqMotivo', 'wrapBloqMotivo');
       else if (motivo === 'decisao' && obs === '') ok = erro('erroBloqObs', 'wrapBloqObs');
       if (!ok) return;
       const av = motivo === 'avaria' ? enderecoDeAvaria() : null;
+      const partes = repartir(q);   // uma parte por endereco de onde a quantidade sai
       const quanto = qtdTexto(q, p.un), rot = MOTIVOS_BLOQ[motivo].rotulo;
       confirmarAcao('estoqueBloqueia', 'Bloquear ' + quanto + ' de ' + p.nome + ' (motivo: ' + rot + '). A quantidade sai do disponível e o estoque físico não muda.', () => {
-        ITENS.push({ id: ESTADO.proxId++, sku: p.sku, produto: p.nome, un: p.un, dep: dep,
-          endereco: motivo === 'avaria' ? av : linha.s.endereco, tipoEnd: motivo === 'avaria' ? (av ? 'avaria' : null) : linha.s.tipoEnd,
-          base: baseDe(p, dep), qtd: q, custo: p.custo, motivo: motivo, origem: 'manual', doc: '', quando: HOJE_ISO,
-          quem: USUARIO_SESSAO.nome, obs: obs, saiuDe: linha.s.endereco });
+        // Uma linha na fila por endereco: cada uma se resolve separada, e cada uma sabe de onde saiu.
+        partes.forEach(r => ITENS.push({ id: ESTADO.proxId++, sku: p.sku, produto: p.nome, un: p.un, dep: dep,
+          endereco: motivo === 'avaria' ? av : r.x.s.endereco, tipoEnd: motivo === 'avaria' ? (av ? 'avaria' : null) : r.x.s.tipoEnd,
+          base: baseDe(p, dep), qtd: r.qtd, custo: p.custo, motivo: motivo, origem: 'manual', doc: '', quando: HOJE_ISO,
+          quem: USUARIO_SESSAO.nome, obs: obs, saiuDe: r.x.s.endereco }));
         gravar();
         fecharDrawer();
         renderTabela();
-        const onde = motivo !== 'avaria' ? (linha.s.endereco ? 'em ' + linha.s.endereco : 'sem endereço')
-          : (av ? 'em ' + av : 'ainda sem endereço de Avaria (ele entra na fila do Endereçamento)');
-        avisar('Bloqueio registrado: ' + quanto + ' de ' + p.nome + ', motivo ' + rot + ', ' + onde + '.');
+        const onde = motivo === 'avaria' ? (av ? 'em ' + av : 'ainda sem endereço de Avaria (ele entra na fila do Endereçamento)')
+          : (partes.length > 1 ? 'em ' + partes.length + ' endereços: ' + enumera(partes.map(r => qtdTexto(r.qtd, p.un) + ' em ' + enderecoTexto(r.x)))
+                               : (partes[0].x.s.endereco ? 'em ' + partes[0].x.s.endereco : 'sem endereço'));
+        avisar('Bloqueio registrado: ' + quanto + ' de ' + p.nome + ', motivo ' + rot + ', ' + onde + '.' +
+          (partes.length > 1 ? ' A fila ganhou uma linha por endereço.' : ''));
       });
     });
   }
