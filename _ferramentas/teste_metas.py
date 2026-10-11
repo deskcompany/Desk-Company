@@ -314,6 +314,36 @@ with sync_playwright() as p:
        'alvo que nao existe avisa em vez de abrir painel vazio')
     ok(not e3, 'sem erro de JS no caminho: %s' % e3[:2])
 
+    print('\n[12] Um modulo so: Metas e Performance (10/out/2026)')
+    # Pedido do usuario: as duas telas sao o mesmo assunto visto de dois jeitos. Um item de menu,
+    # um titulo, e um seletor de visao que leva de uma para a outra sem perder o mes.
+    fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in localiza.nomes()}
+    com_menu = [n for n in fontes if 'id="flyout-vendas"' in fontes[n]]
+    ruim = [n for n in com_menu if fontes[n].count('class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"') < 1
+            or 'data-label="Performance de Vendas"' in fontes[n] or 'class="flyout-item" data-label="Metas" ' in fontes[n]]
+    ok(len(com_menu) >= 80 and not ruim, 'o menu de toda tela tem um item so, "Metas e Performance": %d telas, fora do padrao %s' % (len(com_menu), ruim[:3]))
+    p4 = nav.new_page(viewport={'width': 1440, 'height': 950})
+    e4 = []
+    p4.on('pageerror', lambda e: e4.append(str(e)))
+    p4.goto(localiza.http(METAS)); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
+    ativo = "(() => { const a = document.querySelector('.flyout-item.active, .flyout-item.selected'); const n = document.querySelector('.nav-item.active'); return [n ? n.getAttribute('data-label') : '', document.querySelector('#visaoModulo button.active').getAttribute('data-visao')]; })()"
+    ok(p4.inner_text('.main h1') == 'Metas e Performance' and 'Metas e Performance' in p4.inner_text('#breadcrumb') and p4.evaluate(ativo) == ['Vendas', 'metas'],
+       'a visao Metas abre com o titulo do modulo, o caminho de Vendas e o seletor em Metas')
+    escolher(p4, 'filtroMes', 3)
+    p4.evaluate("document.querySelector('#abasNivel .aba-sit[data-nivel=\"vendedor\"]').click()"); p4.wait_for_timeout(250)
+    tema = p4.evaluate("document.body.className")
+    p4.evaluate("document.querySelector('#visaoModulo button[data-visao=\"performance\"]').click()"); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
+    ok(p4.url.split('/')[-1].startswith(PERF) and p4.inner_text('.main h1') == 'Metas e Performance' and p4.evaluate(ativo) == ['Vendas', 'performance'],
+       'o seletor leva a visao Performance, com o mesmo titulo e o menu ainda em Vendas')
+    ok(p4.evaluate("[mesSel, anoSel, nivel]")[0] == 3 and p4.evaluate("nivel") == 'vendedor' and 'Mar' in p4.inner_text('#filtroMes .dropdown-select-label')
+       and p4.evaluate("document.querySelector('#abasNivel .aba-sit.active').getAttribute('data-nivel')") == 'vendedor',
+       'e a Performance abre no mesmo mes e na mesma aba em que Metas estava: marco, vendedores')
+    ok(p4.evaluate("document.body.className") == tema, 'o seletor usa o visual do seletor de tema, mas nao troca o tema')
+    p4.evaluate("document.querySelector('#visaoModulo button[data-visao=\"metas\"]').click()"); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
+    ok(p4.url.split('/')[-1].startswith(METAS) and p4.evaluate("mesSel") == 3 and p4.evaluate("nivel") == 'vendedor', 'e a volta para Metas tambem guarda mes e aba')
+    ok(p4.locator('#menuMaisAcoes [data-acao="performance"]').count() == 0, 'o item "Abrir Performance de Vendas" saiu do menu: virou o seletor')
+    ok(not e4, 'sem erro de JS nas duas visoes: %s' % e4[:2])
+
     nav.close()
 
 print('\nFALHAS: %d' % len(falhas))

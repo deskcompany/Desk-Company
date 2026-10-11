@@ -218,6 +218,18 @@ def audita(caminho):
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))
 
+    # 11 id repetido numa lista de exemplo (10/out/2026). Na Conferencia de Entrada duas notas
+    # tinham o mesmo id, e clicar numa abria o painel da outra: quem busca por id acha a primeira.
+    for m in re.finditer(r'\n  (?:const|let) ([A-Z_]{3,}) = \[\n(.*?)\n  \];', txt, re.S):
+        ids = re.findall(r'^\s*\{ id: *(\d+),', m.group(2), re.M)
+        rep = sorted(set(i for i in ids if ids.count(i) > 1), key=int)
+        if rep: probs.append('11 id repetido em %s: %s' % (m.group(1), ', '.join(rep)))
+
+    # 12 texto que o usuario le cita o Lovable (10/out/2026). A ferramenta saiu do projeto: aviso
+    # dizendo "so funciona no Lovable" e promessa que ninguem vai cumprir. Comentario de codigo pode.
+    lov = [l for l in txt.split('\n') if 'Lovable' in l and re.search(r"avisar\(|field-hint|par-exp|>[^<]*Lovable", l) and not l.strip().startswith('//')]
+    if lov: probs.append('12 texto visivel cita o Lovable: %d linha(s)' % len(lov))
+
     # 9 botoes/links com id e sem listener
     with_id = set(re.findall(r'<(?:button|div|a)[^>]*\sid="(btn[^"]+|link[^"]+)"', limpo))
     # Link com destino real NAVEGA: nao precisa de listener nenhum. Antes o

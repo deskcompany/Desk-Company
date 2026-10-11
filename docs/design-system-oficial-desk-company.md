@@ -2296,3 +2296,76 @@ Ficou de fora, com o usuário sabendo: tags; natureza de operação (fiscal, dep
 entrega do fornecedor, que não existe no cadastro; a página de detalhe da ordem criada, que ainda
 abre o exemplo fixo; e os pedidos que vão sair, que são dado de exemplo da própria tela. O kit entra
 na compra como produto comum, porque a composição de kit ainda não existe.
+
+## 14.53 A tela dentro do sistema: a primeira leva de melhorias dos módulos prontos (10/out/2026)
+
+O usuário pediu uma varredura das telas prontas: o que o painel lateral mostra, o que poderia
+mostrar, o que dá para ligar e o que se repete. As 80 telas foram abertas uma a uma, com clique em
+cada linha, cada aba e cada item de menu. Todas passavam na auditoria, e o que apareceu não se vê
+olhando um arquivo só. A lista está em `docs/melhorias-modulos-prontos.md`; o usuário aprovou
+inteira e pediu para fazer por partes. Esta seção registra o que a primeira leva deixou de padrão.
+
+**1. O link entre telas cai numa lista filtrada.** Bloco comum `BUSCA PELO ENDERECO`, igual em 30
+listas: lê `?busca=` do endereço, solta o período padrão da tela (senão o registro antigo some),
+preenche a busca e mostra a faixa "Lista filtrada por ...", com "Mostrar tudo". Quando o exemplo
+daquela lista não tem o registro, a faixa diz isso, em vez de mostrar uma lista vazia sem
+explicação. O link vai para a lista, e não para a página do registro, porque 11 páginas de detalhe
+ainda abrem sempre o mesmo exemplo.
+
+**2. Link só onde o destino tem o registro.** Os dados de exemplo de cada tela nasceram separados.
+Antes de ligar duas telas, confere-se que o valor existe do outro lado: o número da ordem de compra
+nas notas, o nome do cliente entre Pedidos, Separação, Conferência de Saída e Clientes, o número do
+pedido entre Devolução e Rastreamento. Os painéis de Fornecedores e de Produtos ficaram de fora por
+isso: o cadastro tem outros fornecedores e outros produtos, diferentes dos do estoque.
+
+**3. Imprimir e baixar planilha são um bloco só.** `PLANILHA E IMPRESSAO DA TELA`, igual em 20
+listas. A tela declara três coisas: `PLANILHA_NOME` (o nome do arquivo), `PLANILHA_REFAZ` (a função
+que redesenha a lista) e `PLANILHA_PAGINA` (como ler e mudar a paginação dela, que tem nomes
+diferentes de tela para tela). O bloco tira a paginação, lê a tabela inteira com os filtros da tela
+e devolve a paginação. A primeira versão supunha `renderTabela` e quebrou quatro telas que usam
+`render`; daí o adaptador. Tela com coluna que não é texto define `linhasDaPlanilha()`.
+
+**4. Menu só com o que funciona.** 33 itens só mostravam um aviso ("entra junto com Relatórios") e
+12 fechavam o menu sem fazer nada. Saíram os que não têm como funcionar agora (importar planilha,
+buscar nota na Sefaz, vale-troca); os de imprimir e exportar passaram a usar o bloco comum. O
+"Imprimir" do topo saiu de cinco telas que já o tinham no menu.
+
+**5. Duas telas com os mesmos dados são um módulo com duas visões.** Metas e Performance de Vendas
+viraram **Metas e Performance**: um item no menu, o mesmo título e um seletor no topo. Continuam
+dois arquivos; o seletor navega de um para o outro levando mês, ano e nível no endereço.
+
+**6. Número em duas telas tem uma dona.** O Dashboard dizia R$ 312.480,00 em estoque, e o Controle
+de Estoques soma R$ 81.103,75; trazia a Cadeira Ergonômica com 5 unidades, e o estoque tem 24;
+punha a Luminária entre os mais vendidos, e o Giro a classifica como encalhe. Os três foram
+alinhados ao estoque, e a suíte compara. O painel de Clientes lê um espelho declarado de Pedidos de
+Venda (`PEDIDOS_DO_CADASTRO`), que a suíte também compara. A lista "O que precisa de você hoje", em
+Boas-vindas, não traz quantidade em cada fila, de propósito.
+
+**7. Quadro com `data-href` leva à tela de origem.** Bloco `QUADRO QUE LEVA A TELA DE ORIGEM`, no
+Dashboard e em Boas-vindas: o quadro inteiro é clicável e alcançável pelo teclado; botão dentro
+dele continua fazendo o que fazia.
+
+**Os defeitos que a varredura achou.** Duas notas de devolução da Conferência de Entrada tinham o
+mesmo identificador de duas notas de compra, e clicar numa abria o painel da outra: a lista foi
+acrescida sem continuar a numeração. A página do Pedido mandava `PEDIDO.id` para a Separação, e o
+campo se chama `numero`: o link saía com `undefined`. E cinco telas ainda diziam que algo "só
+funciona no Lovable".
+
+**O que virou verificação.** Na auditoria do projeto: checagem **11** (identificador repetido numa
+lista de exemplo) e **12** (texto visível que cita o Lovable). Suítes novas: `teste_planilha.py`
+(todo item de "Mais ações" navega, abre algo, baixa ou imprime; a planilha leva a lista inteira; o
+bloco é igual em todas as telas) e `teste_trilha.py` (a busca pelo endereço, os links de cada
+painel caindo no registro certo, os indicadores do Controle de Estoques batendo com a lista).
+
+**Provado nos dois sentidos.** Oito defeitos injetados, um por vez, e os oito foram pegos: o
+identificador repetido de volta; o aviso citando o Lovable; a planilha levando só a página visível;
+um item de menu sem ação em Clientes; a busca pelo endereço sem soltar o período; a ordem de compra
+de volta a texto; o Pedido mandando `id`; e o seletor de visão sem levar o mês.
+
+**O que mudou no modo de construir.** As duas skills do ERP ganharam o que a varredura ensinou: a
+seção "Tela nova nasce ligada: o mapa de vizinhança", que se responde antes de desenhar a tela, e
+"A tela dentro do sistema", que o portão de QA confere antes de entregar.
+
+Ficou para as próximas levas, com o usuário sabendo: Finanças inteira (F1 a F4), os painéis dos
+outros cadastros (C2 a C8), os indicadores de Ordens de Compra, Pedidos e Contas, a página de
+detalhe abrir o registro clicado (G3), e a segunda varredura, do miolo de Inventário, Acerto e PDV.

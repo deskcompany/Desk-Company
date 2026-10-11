@@ -349,6 +349,7 @@ with sync_playwright() as p:
     txt = pg.inner_text('#drawerCorpo')
     ok(pg.locator('#eventDrawer.open').count() == 1 and pg.inner_text('#drawerTitulo') == 'A conta da compra' and 'Suporte Monitor Duplo' in txt, 'clicar na linha abre a conta do produto')
     ok('Ordem nº 12' in txt and 'Pedido nº 43' in txt and 'Aprovado' in txt, 'a conta mostra de onde vem cada numero: a ordem que esta chegando e o pedido que vai sair')
+    ok(pg.get_attribute('#drawerCorpo a.cg-link', 'href').endswith('pagina-estoque-ordens-compra.html?busca=12'), 'e a ordem e um link para Ordens de Compra, ja na ordem 12')
     ok('abaixo do mínimo de 8 UN' in pg.inner_text('#contaResultado') and '19 UN' in pg.inner_text('#contaResultado') and 'máximo de 24 UN' in pg.inner_text('#contaResultado'),
        'e diz o resultado por extenso: %s' % pg.inner_text('#contaResultado'))
     ok(pg.input_value('#inputMin') == '8' and pg.input_value('#inputMax') == '24', 'minimo e maximo vem preenchidos, no painel e nao na linha')
@@ -399,9 +400,8 @@ with sync_playwright() as p:
     ok(abas(pg)['segurados'] == 1 and abas(pg)['comprar'] == 4, 'apagar devolve o produto aos segurados')
 
     print('\n[8] Ordem de compra')
-    clic(pg, '#btnGerarOrdem'); pg.wait_for_timeout(300)
-    ok('Marque na lista' in modal(pg) and pg.locator('#eventDrawer.open').count() == 0, 'sem nada marcado, o botao avisa em vez de abrir uma ordem vazia')
-    confirmar(pg)
+    ok(pg.locator('#btnGerarOrdem').count() == 0 and not visivel(pg, '#barraSelecao'),
+       'sem nada marcado nao ha botao de gerar ordem: ele mora na barra de selecao, que so aparece com produto marcado')
     aba(pg, 'comprar')
     clic(pg, '#checkSelecionarTodos'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#barraSelecao') and '4 produtos selecionados' in pg.inner_text('#selecaoInfo') and 'R$ 18.992,80' in pg.inner_text('#selecaoInfo'),
@@ -473,7 +473,7 @@ with sync_playwright() as p:
     ok(abas(pg)['comprar'] == 4 and pg.inner_text('#kpiValor') == 'R$ 18.992,80', 'em Necessidades de Compra, voltam os 4 a comprar')
     clic(pg, '#abasSituacao .aba-sit[data-sit="comprar"]'); pg.wait_for_timeout(150)
     pg.evaluate("document.querySelector('tr[data-sku=\"MES-SLM-002\"] .item-checkbox').click()"); pg.wait_for_timeout(150)
-    clic(pg, '#btnGerarOrdem'); pg.wait_for_timeout(300); clic(pg, '#btnConfirmarOrdem'); pg.wait_for_timeout(450)
+    clic(pg, '#btnGerarSelecionados'); pg.wait_for_timeout(300); clic(pg, '#btnConfirmarOrdem'); pg.wait_for_timeout(450)
     ok('A ordem de compra foi criada com sucesso: nº 15 para Móveis Nordeste Ltda' in modal(pg), 'uma ordem nova reaproveita o numero que ficou livre: %s' % modal(pg)[:90])
     confirmar(pg)
 

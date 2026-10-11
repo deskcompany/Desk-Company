@@ -7,9 +7,11 @@ validados aqui e só depois viram sistema de verdade.
 **Regra de ouro:** protótipo HTML → aprovação do usuário → construção. Nunca pular etapa.
 
 **O Lovable saiu do projeto em 10/out/2026**, por decisão do usuário, que vale para todos os
-projetos da Desk. Não gere prompt para o Lovable. A ferramenta de produção do ERP ainda não foi
-escolhida; pergunte antes de planejar essa etapa. As skills do ERP e os documentos em `docs/`
-ainda citam o Lovable e estão desatualizados nesse ponto.
+projetos da Desk. Não gere prompt para o Lovable: o sistema é programado aqui, e o caminho do
+código é GitHub → hospedagem. A hospedagem está **recomendada e esperando o "ok" do usuário**
+(Cloudflare Pages com Supabase; ver o topo da seção 2 de `docs/arquitetura-roadmap-desk-company.md`).
+Não crie conta nem publique nada antes desse "ok". As skills do ERP foram atualizadas nesse ponto
+em 10/out; o resto de `docs/` ainda cita o Lovable em texto antigo, e está desatualizado ali.
 
 Quando o usuário disser **"vamos barganhar"**, pare e negocie antes de implementar: apresente
 trade-offs, pergunte o que estiver ambíguo e só construa depois do aval.
@@ -17,6 +19,18 @@ trade-offs, pergunte o que estiver ambíguo e só construa depois do aval.
 O design system, os componentes, os não-negociáveis e o portão de QA vivem nas skills
 `desk-company-erp` e `desk-company-page-qa` (plugin instalado, carregam sozinhas). **Este
 arquivo não repete nada disso** — ele cobre apenas o que é específico desta máquina.
+
+**Duas seções das skills valem para toda tela nova, desde 10/out/2026.** Antes de desenhar:
+"Tela nova nasce ligada: o mapa de vizinhança" (`desk-company-erp`). Antes de entregar: "A tela
+dentro do sistema" (`desk-company-page-qa`). Vieram da varredura das 80 telas prontas, que achou
+painel que não levava à tela vizinha, menu com ação que não fazia nada e número que uma tela
+desmentia na outra (§14.53 do design system).
+
+O texto dessas skills foi editado neste computador, direto na cópia que o Claude carrega
+(`~/.claude/plugins/synced/.../desk-company-erp~g2`, com a versão anterior guardada ao lado como
+`.v0011.bak`). A fonte é `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`. Se uma
+sincronização do claude.ai trouxer de volta o texto antigo (as duas seções somem), copie da fonte
+de novo e avise o usuário para reenviar o plugin por lá.
 
 ---
 
@@ -119,8 +133,8 @@ Nunca instale Python de novo por causa disso — daria duas instalações concor
 
 | onde | tem | não tem |
 |---|---|---|
-| `_ferramentas/auditoria.py` | checagem 10 (tag literal em texto de modal) | — |
-| `assets/auditoria.py` da skill | seções 4B/5/6 (contraste WCAG medido) | checagem 10 |
+| `_ferramentas/auditoria.py` | checagens 10 (tag literal em texto de modal), 11 (identificador repetido numa lista de exemplo) e 12 (texto visível que cita o Lovable) | — |
+| `assets/auditoria.py` da skill | seções 4B/5/6 (contraste WCAG medido) | checagens 10, 11 e 12 |
 
 **A da skill não conhece a estrutura por módulo.** Ela mora fora do projeto, varre
 `pagina-*.html` numa pasta única e compara as telas entre si. Por isso o `selo.py` entrega a

@@ -19,6 +19,27 @@
 
 ## 2. Stack e plataformas (travado)
 
+> **Em revisão desde 10/out/2026.** O **Lovable saiu** de todos os projetos (decisão do usuário): o
+> sistema passa a ser programado aqui, e o caminho do código é GitHub → hospedagem. No mesmo dia o
+> usuário pediu a comparação entre Vercel e Cloudflare, para começar sem custo e migrar para um
+> plano pago quando o caixa permitir. **Recomendação, esperando o "ok" dele:**
+>
+> - **Hospedagem: Cloudflare Pages**, ligada ao repositório do GitHub. Cada envio ao GitHub
+>   publica sozinho. O plano grátis não limita acessos nem tráfego de site estático (o limite é de
+>   cerca de 500 publicações por mês), e não foi encontrada restrição a uso comercial nos termos
+>   dele. O protótipo de hoje (a pasta `telas/`) já pode ser publicado assim, sem build.
+> - **Vercel fica de fora do começo:** o plano grátis dela (Hobby) é só para uso pessoal e não
+>   comercial; um ERP de empresa exige o Pro, cerca de US$ 20 por usuário ao mês.
+> - **Banco, login e arquivos: Supabase**, como já estava. Grátis para começar (500 MB de banco;
+>   o projeto pausa depois de 7 dias sem uso e não tem backup automático). Quando entrar dado de
+>   verdade, o primeiro gasto que vale a pena é o Supabase Pro, cerca de US$ 25 ao mês, pelo backup.
+> - **O que não muda:** React + TypeScript + Vite, que gera site estático e roda em qualquer
+>   hospedagem. É o que deixa trocar de plataforma depois sem reescrever nada.
+> - **Conta própria do ERP** em cada serviço, no e-mail do sistema (regra da pasta `C:\Claude AI`).
+>
+> Valores e limites conferidos em 10/out/2026; conferir de novo no dia de contratar. As linhas
+> abaixo são o texto original, de quando o Lovable e a Vercel estavam no plano.
+
 - **Lovable** (build) + **GitHub** (versionamento, sincroniza automático) + **Supabase** (banco/auth/edge functions) + **Vercel** (hospedagem, zero-config pra projetos Lovable)
 - React + TypeScript + Vite + TanStack Router + Tailwind CSS v4 (CSS-based, sem `tailwind.config`)
 - **1 projeto Supabase único**, compartilhado pelo ERP e todas as vitrines. **Projetos separados** no Lovable/Vercel por app (ERP, Desk Shope, depois Desk Tech) — não usar monorepo, isola o "raio de explosão" de uma mudança.

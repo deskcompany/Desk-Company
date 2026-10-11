@@ -1,7 +1,72 @@
 # Melhorias nos módulos prontos
 
-*Levantamento de 10/out/2026, a pedido do usuário. **Nada aqui foi feito.** É a lista para aprovar
-item a item; cada item tem um código para a aprovação ser por código ("aprovo E1, E3 e V1").*
+*Levantamento de 10/out/2026, a pedido do usuário. No mesmo dia ele **aprovou a lista inteira** e
+pediu para fazer por partes. A tabela abaixo diz o que já entrou e o que falta; o texto de cada
+item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes).*
+
+## Situação em 10/out/2026
+
+| situação | itens |
+|---|---|
+| **Feito por inteiro** (12) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 |
+| **Feito no principal, com resto anotado** (15) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1 · L1, L2, L3, L5 · I1, I2 |
+| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V2, V3, V4, V5 · L4 · F1 a F4 · K1 · R6 · a limpeza de código das 17 telas |
+
+G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
+
+O que entrou e o que falta em cada item feito no principal:
+
+- **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve, com
+  links para os pedidos, as contas a receber e o CRM. Faltam os títulos vencidos em separado, os
+  assuntos abertos no CRM, as devoluções e as abas Vendas e Financeiro na página do cliente.
+- **E1** (Ordens de Compra): recebido e a receber no total, "atrasada há N dias", o botão "Receber
+  mercadorias" e três links pelo fornecedor (notas, doca e Necessidades de Compra). Faltam o
+  recebido item por item, a conta a pagar gerada e o fornecedor como link para o cadastro.
+- **E3** (Entrada de Notas): a ordem de compra virou link. Faltam o botão "Abrir a nota" no painel,
+  a conta a pagar da nota e o andamento da conferência.
+- **E4** (Conferência de Entrada): a ordem virou link, e nota sem ordem diz "sem ordem vinculada".
+  Faltam o caminho para a nota e as divergências já apontadas.
+- **E5** (Controle de Estoques): indicadores, quadro que filtra, cinco destinos em "Mais ações" e a
+  planilha. Faltam os filtros de loja, categoria e fornecedor.
+- **E6** (página do produto): leva à compra e ao giro. Faltam o link para o Endereçamento e para as
+  ordens de compra em aberto do produto.
+- **E9** (Endereçamento): a nota virou link. Faltam o link do produto e a sugestão de endereço pela
+  capacidade livre.
+- **E11** (Necessidades de Compra): a ordem virou link. Faltam o pedido de venda e o atalho para
+  corrigir o fornecedor padrão.
+- **V1** (Pedidos de Venda): cinco links pelo cliente (Separação, Conferência de Saída, Expedição,
+  Contas a Receber e cadastro). Falta a situação de cada etapa ao lado do link (pago, separado,
+  conferido, código de rastreio) e a devolução.
+- **L1** (Separação) e **L2** (Conferência de Saída): links para os pedidos do cliente, e da
+  Conferência para a Separação. Faltam a situação do pagamento, o prazo prometido e a falta
+  levando ao item em Itens Bloqueados.
+- **L3** (Expedição): cada pedido da carga é link para Pedidos de Venda. Faltam o rastreio e a
+  transportadora.
+- **L5** (Devolução): o pedido de origem leva ao Rastreamento, e há link para a nota de entrada.
+  Falta a conta a pagar.
+- **I1** (Dashboard): os 15 quadros levam à tela de origem; alertas de estoque, valor em estoque e
+  mais vendidos pararam de contradizer o estoque. Os outros números continuam próprios (R6).
+- **I2** (Boas-vindas): atalhos com destino, a lista "O que precisa de você hoje" e o link para a
+  Agenda. A lista não traz quantidade em cada fila, de propósito: número copiado é o que fazia o
+  Dashboard contradizer os módulos. A "Agenda de Hoje" continua texto fixo.
+
+Como cada item foi feito, quando fugiu da proposta:
+
+- **R1** foi a proposta maior, que o usuário escolheu: um módulo só, chamado **Metas e
+  Performance**, com um item no menu e um seletor no topo que troca de visão levando o mês e o
+  nível. Por baixo continuam dois arquivos.
+- **Os links caem numa lista filtrada**, e não na página do registro. As páginas de detalhe ainda
+  abrem sempre o mesmo exemplo (G3), então o link vai para a lista vizinha com a busca preenchida e
+  uma faixa dizendo de onde veio o filtro.
+- **Link só onde o exemplo da tela vizinha tem o registro.** C2 e C3 ficaram de fora por isso: os
+  fornecedores e produtos do cadastro são outros, diferentes dos do estoque e da compra. Alinhar os
+  exemplos vem antes.
+- **O Dashboard continua com números de exemplo próprios.** Os quadros levam à tela de origem, e as
+  contradições com o estoque saíram (valor em estoque, alertas, mais vendidos). Ler tudo ao vivo
+  das outras telas é R6.
+
+A segunda varredura, do miolo de Inventário, Acerto e PDV, ficou combinada para a semana seguinte,
+depois de o usuário testar esta primeira leva.
 
 ## Como o levantamento foi feito
 

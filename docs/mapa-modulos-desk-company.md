@@ -1,5 +1,5 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Itens Bloqueados e em 10/out com Necessidades de Compra e Giro de Estoque. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Itens Bloqueados e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
 **81 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
@@ -7,14 +7,13 @@
 
 ---
 
-## 🏠 Início — 3 de 3
+## 🏠 Início — 4 de 4
 | | Submódulo |
 |---|---|
-| ✅ | Dashboard KPIs |
+| ✅ | Página inicial *(a tela de boas-vindas; 10/out: os atalhos levam às telas, e a lista "O que precisa de você hoje" leva a cada fila de trabalho)* |
+| ✅ | Dashboard KPIs *(10/out: cada quadro leva à tela de origem)* |
 | ✅ | Agenda |
 | ✅ | Minha Conta |
-
-*Também construída: tela de boas-vindas (sem item de menu, abre pelo logo).*
 
 ## 📇 Cadastros — 12 de 13
 | | Submódulo |
@@ -54,13 +53,12 @@
 >
 > **Itens Bloqueados nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
 
-## 🛒 Vendas — 5 de 10
+## 🛒 Vendas — 4 de 9
 | | Submódulo |
 |---|---|
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
-| ✅ | Metas |
-| ✅ | Performance de Vendas |
+| ✅ | Metas e Performance *(10/out: um item de menu e duas visões, Metas e Performance de Vendas, com um seletor no topo que leva o mês e o nível de uma para a outra; por baixo são duas telas)* |
 | ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ❌ | Notas Fiscais |
 | ❌ | Vendas Afiliados |
@@ -78,6 +76,8 @@
 > A tabela acima passou a listar **Metas**, que tem item de menu desde 08/out e não estava nela.
 >
 > **CRM construído em 09/out**, a partir de 13 prints do Olist e quatro decisões do usuário: o **status do contato** (lead, prospect, cliente) mora em **Cadastros → Clientes** e o CRM lê e altera dali; **encerrar pergunta ganho ou perdido**, com motivo quando perde; a **próxima ação com data vira aviso na Agenda** do Início; e entram o **quadro por estágio**, WhatsApp e e-mail (abrem o aplicativo e registram o contato, o sistema não envia nada) e a **proposta** como registro do assunto. Nasceram junto, em Configurações, **Estágios do funil de vendas** (a ordem é o dado; o último encerra) e **Configurações do CRM** (dias para avisar assunto sem interação). Ficou de fora: marcadores, o módulo de Propostas comerciais com itens, o calendário "por período" e cadastro de motivos de perda (hoje é lista fechada).
+
+> **Primeira leva de melhorias em 10/out**, depois de uma varredura das 80 telas prontas, que o usuário pediu e aprovou inteira. O que mudou de padrão: **o link entre telas cai numa lista já filtrada** (`?busca=` no endereço, em 30 listas), **imprimir e baixar planilha funcionam de verdade em 20 listas**, o menu ficou só com o que funciona, e os painéis de Ordens de Compra, Clientes, Pedidos de Venda e das filas de Logística passaram a levar às telas vizinhas. A lista, com o que entrou e o que falta, está em `docs/melhorias-modulos-prontos.md`. Ver §14.53.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
@@ -102,8 +102,8 @@
 
 > Por decisão do usuário: o que havia aqui é configuração da operação, que se faz uma vez. **Transportadoras, Motivos de Devolução e Motivos de Perda** foram para Configurações e abrem pelo hub, na aba Operacional. **Formas de Pagamento** nasce em Configurações → Finanças. **Cupons** fica para quando as vitrines forem construídas. **Relatórios Operacional** deixou de existir como entrada.
 
-## 🔌 Integrações — 0 de 4 próprias
-*Lojas Desk, Depósitos e Endereços de Estoque aqui são atalhos para Cadastros, não telas próprias.*
+## 🔌 Integrações — 0 de 4
+*Os atalhos para Lojas Desk, Depósitos e Endereços de Estoque saíram deste menu em 10/out: os três continuam em Cadastros.*
 
 | | Submódulo |
 |---|---|
@@ -136,16 +136,16 @@
 
 | Módulo | Feito | Falta |
 |---|---|---|
-| Início | 3 | 0 |
+| Início | 4 | 0 |
 | Cadastros | 12 | 1 |
 | Estoque | 12 | 1 |
-| Vendas | 5 | 5 |
+| Vendas | 4 | 5 |
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
-| Configurações | 19 | 0 |
-| **Total** | **45 itens de menu com tela · 81 telas** | **14** |
+| Configurações | 1 item de menu, 19 telas | 0 |
+| **Total** | **41 itens de menu com tela · 81 telas** | **14** |
 
-*Contado no menu em 10/out/2026, já com Necessidades de Compra e Giro de Estoque: 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Itens Bloqueados, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 10/out/2026, depois da primeira leva de melhorias: **55 itens, 41 com destino e 14 sem**. Nenhuma tela saiu: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Itens Bloqueados, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
