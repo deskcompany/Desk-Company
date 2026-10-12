@@ -8,10 +8,10 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 
 | situação | itens |
 |---|---|
-| **Feito por inteiro** (14) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 · F1, F3 |
-| **Feito no principal, com resto anotado** (17) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V2, V3, V4, V5 · L4 · K1 · R6 · a limpeza de código das 17 telas |
-| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1, X2 e X3 (dados de exemplo que ainda não conversam) |
+| **Feito por inteiro** (15) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 · F1, F3 · V3 |
+| **Feito no principal, com resto anotado** (19) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
+| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
+| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
@@ -39,6 +39,11 @@ O que entrou e o que falta em cada item feito no principal:
 - **V1** (Pedidos de Venda): o painel mostra Separação, Conferência de Saída e Expedição como "ainda
   não chegou", "em andamento" ou "concluída", e leva para a ficha daquele pedido; mais os links de
   Contas a Receber e do cadastro. Faltam o código de rastreio e a devolução.
+- **V2** (a página do pedido): o quadro "Acompanhamento" mostra as seis paradas do caminho, com o
+  estado e o link. A ficha da etapa só abre no pedido certo quando o exemplo da etapa tem aquele
+  pedido; fora disso, o link cai na fila da etapa, filtrada no cliente.
+- **V5** (PDV): a venda aparece em Pedidos de Venda e no Caixa, e a conclusão leva ao pedido. Contas
+  a Receber não lê os títulos da venda a prazo, e Metas não soma a venda de balcão.
 - **L1** (Separação) e **L2** (Conferência de Saída): link para os pedidos do cliente. O link da
   Conferência para a Separação saiu em 12/out, a pedido do usuário: etapa que passou não volta.
   Faltam a situação do pagamento, o prazo prometido e a falta levando ao item em Itens Bloqueados.
@@ -90,6 +95,12 @@ Entrou na lista em 12/out:
   valor diferente do pedido que citam (PV 7, PV 10, PV 11 e PV 16).
 - **X2 · Expedição e Pedidos de Venda** (M). Os romaneios de exemplo levam pedidos que o Pedido de
   Venda ainda dá como em separação.
+- **X4 · Rastreamento e Pedidos de Venda** (M). O Rastreamento usa outra numeração (PV-4821...) e
+  outros clientes. Sem alinhar, o item L4 (do rastreio para a conta a receber e o romaneio) levaria
+  a lista vazia.
+- **X5 · O realizado de Metas e os pedidos** (M). O realizado de cada loja é número próprio da tela,
+  e não a soma dos pedidos faturados. Sem alinhar, o item V4 ("ver os pedidos do mês") mostraria
+  uma lista que não fecha com o número.
 - **X3 · O pedido andar de uma fila para a outra** (G). Concluir a separação guarda o que foi feito,
   mas o pedido não aparece sozinho na fila da Conferência de Saída: cada tela tem a sua lista.
 

@@ -228,9 +228,12 @@ with sync_playwright() as p:
         pg.keyboard.press('Escape'); pg.wait_for_timeout(160)
     ok(not trocadas and pg.evaluate("new Set(NOTAS.map(n => n.id)).size === NOTAS.length"), 'cada uma das notas da Conferencia de Entrada abre o proprio painel: %s' % trocadas[:3])
     ir(PEDD)
-    pg.evaluate("(() => { document.querySelector('#menuMaisAcoes .dropdown-select-btn').click(); Array.from(document.querySelectorAll('#menuMaisAcoes .dropdown-select-item')).filter(e => /galp/i.test(e.textContent))[0].click(); })()")
+    # 12/out: "Acompanhar no galpao" saiu do menu e virou o quadro de acompanhamento da pagina
+    # (teste_venda_melhorias.py). O defeito guardado aqui e o mesmo: o link nunca sai com "undefined".
+    pg.evaluate("(() => { PEDIDO.numero = 5; PEDIDO.situacao = 'separacao'; aplicarSituacao(); })()"); pg.wait_for_timeout(200)
+    pg.evaluate("document.querySelector('#trilhaPassos a.trilha-passo').click()")
     pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
-    ok('undefined' not in pg.url and re.search(r'separacao-detalhe\.html\?id=\d+$', pg.url) is not None, 'o Pedido manda o numero dele para a Separacao: %s' % pg.url.split('/')[-1])
+    ok('undefined' not in pg.url and re.search(r'separacao-detalhe\.html\?id=5&de=pedido$', pg.url) is not None, 'o Pedido manda o numero dele para a Separacao: %s' % pg.url.split('/')[-1])
 
     print('\n[8] O Inicio leva a algum lugar, e nao contradiz o estoque')
     DASH, BOAS = 'pagina-dashboard-kpis.html', 'pagina-inicio-boas-vindas.html'

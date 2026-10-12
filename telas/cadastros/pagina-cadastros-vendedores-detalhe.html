@@ -1716,11 +1716,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== MÓDULOS QUE PODEM SER ACESSADOS (checklist — mocado até Configurações→Usuários existir) =====
   const MODULOS_ACESSO = [
     'Clientes', 'Comissões', 'CRM', 'Pedidos de Venda', 'PDV', 'Propostas Comerciais',
-    'Relatório de Preços de Produtos', 'Performance de Vendas', 'Cotação de Fretes',
+    'Relatório de Preços de Produtos', 'Metas e Performance', 'Cotação de Fretes',
     'Permitir que o vendedor visualize pedidos de venda de outros vendedores',
     'Permitir que o vendedor edite pedidos de venda de outros vendedores'
   ];
-  const MODULOS_MARCADOS_PADRAO = ['Clientes', 'CRM', 'Pedidos de Venda', 'Performance de Vendas'];
+  const MODULOS_MARCADOS_PADRAO = ['Clientes', 'CRM', 'Pedidos de Venda', 'Metas e Performance'];
   document.getElementById('listaModulosAcesso').innerHTML = MODULOS_ACESSO.map((nome, i) => {
     const id = 'chkModulo' + i;
     return '<div class="checklist-row"><input type="checkbox" class="item-checkbox" id="' + id + '"' +

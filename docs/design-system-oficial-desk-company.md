@@ -2516,3 +2516,43 @@ o que não prova nada. Dez defeitos injetados, um por vez, e os dez foram pegos.
 Ficou de fora, com o usuário sabendo: os valores e clientes de quatro títulos de Contas a Receber
 ainda não batem com os pedidos (item X1), e o fornecedor das contas a pagar não é link, porque o
 cadastro de Fornecedores tem outros nomes.
+
+## 14.57 A venda: o caminho inteiro no pedido, os indicadores e o balcão que aparece (12/out/2026)
+
+Itens V2, V3 e V5 da lista de melhorias. V4 e L4 ficaram de fora, e o motivo está no fim.
+
+**O acompanhamento mora no documento de origem (V2).** A página do pedido ganhou o quadro
+"Acompanhamento", com seis paradas: Separação, Conferência de Saída, Expedição, Rastreamento, Contas
+a Receber e Devolução. Cada uma diz se o pedido ainda não chegou nela, se está nela ou se já passou;
+só vira link a etapa alcançada. O menu tinha "Acompanhar no galpão" e "Acompanhar na bancada", cada
+um visível numa situação só; saíram, porque a mesma ação não aparece duas vezes na tela. "Ver conta
+a receber" abria o financeiro do cliente num painel, e passou a se chamar "Financeiro do cliente".
+
+**Indicadores em Pedidos de Venda (V3).** A aprovar, a faturar, atrasados para entrega e vendido em
+30 dias, no mesmo padrão de Finanças: filtro de alternar, aceso enquanto a lista é a dele.
+
+**A venda de balcão aparece (V5).** O PDV já guardava as vendas na chave `deskPdv`. Pedidos de Venda
+passou a ler dali: a venda entra como "PDV-0001", já entregue, com os itens no painel, e na ordem do
+número vem depois dos pedidos numerados (campo `seq`). O dinheiro recebido na hora vai para o Caixa
+de Finanças pelo mesmo depósito que a baixa de contas usa (`deskCaixaExtras`), com a origem ligada
+ao pedido; a tela do PDV já dizia "aparece no Caixa", e não aparecia. A conclusão da venda ganhou o
+link para o pedido.
+
+**Estado que a lista usa na abertura nasce antes da lista.** A primeira versão dos indicadores
+declarava `filtroKpi` no bloco dos indicadores, mais abaixo no arquivo, e a lista é desenhada uma
+vez antes dele: a tela abria com erro e sem indicador nenhum. A auditoria estática deu a tela por
+boa; quem pegou foi a suíte, abrindo a tela. A declaração subiu para junto das outras variáveis de
+filtro. É o mesmo aviso do §14.5, de novo: `let` lido antes de existir.
+
+**O nome de uma tela que saiu fica em texto.** "Performance de Vendas" continuava no checklist de
+acessos do vendedor, nas Configurações do PDV e na conclusão da venda. Os três dizem "Metas e
+Performance".
+
+**Provado nos dois sentidos.** Onze defeitos injetados contra `teste_venda_melhorias.py`, um por
+vez, e os onze foram pegos.
+
+**Dois itens não entraram, pela regra de só ligar onde o destino tem o registro.** V4 pedia "ver os
+pedidos do mês" a partir do painel de Metas: o realizado de cada loja é número próprio da tela, e a
+lista de pedidos não fecharia com ele. L4 pedia, no Rastreamento, o link para a conta a receber e
+para o romaneio: o Rastreamento usa outra numeração de pedidos e outros clientes. Os dois viraram
+dependentes dos alinhamentos X4 e X5.

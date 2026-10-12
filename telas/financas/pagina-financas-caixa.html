@@ -1948,6 +1948,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // data a origem era so texto. Transferencia e lancamento a mao nao tem documento para abrir.
   function origemHtml(o) {
     if (!o) return '<span class="cf-vazio">—</span>';
+    // Venda de balcao: o PDV grava a origem como PDV-0001, e ela leva ao pedido em Pedidos de Venda.
+    if (/^PDV-\d+$/.test(o)) return '<a class="cx-origem cx-origem-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + o + '" title="Abrir o pedido de venda que gerou este lançamento">' + o + '</a>';
     const m = /^(CP|CR) (\d+)$/.exec(o);
     if (!m) return '<span class="cx-origem">' + o + '</span>';
     return m[1] === 'CP'

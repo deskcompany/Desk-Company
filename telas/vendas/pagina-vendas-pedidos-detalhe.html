@@ -821,6 +821,17 @@
     .main, .main * { color:#101010 !important; }
     .card { background:#fff !important; border:none !important; box-shadow:none !important; }
   }
+  /* O acompanhamento do pedido (12/out/2026) */
+  #trilhaPedido .section-title { margin-top:0; padding-top:0; border-top:none; }   /* e o primeiro titulo do quadro: sem a linha de cima */
+  .trilha-passos { display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:10px; }
+  .trilha-passo { display:flex; flex-direction:column; gap:3px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; text-decoration:none; }
+  .trilha-passo b { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); }
+  .trilha-passo span { font-size:11.5px; font-weight:600; color:var(--text); }
+  a.trilha-passo:hover { border-color:var(--active-text); }
+  a.trilha-passo:hover b { color:var(--active-text); }
+  .trilha-passo.futuro { border-style:dashed; }
+  .trilha-passo.futuro b { color:var(--text); }
+  @media (max-width:1100px) { .trilha-passos { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
 </style>
 </head>
 <body class="dark">
@@ -1042,9 +1053,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </button>
         <div class="dropdown-select-menu" style="right:0; left:auto; min-width:270px; white-space:nowrap;">
           <div class="dropdown-select-item" data-acao="nota">Gerar nota fiscal</div>
-          <div class="dropdown-select-item" id="linkVerContas">Ver conta a receber</div>
-          <div class="dropdown-select-item" id="linkVerSeparacao">Acompanhar no galpão</div>
-          <div class="dropdown-select-item" id="linkVerConferencia">Acompanhar na bancada</div>
+          <div class="dropdown-select-item" id="linkVerContas">Financeiro do cliente</div>
           <div class="dropdown-select-item" id="linkClonarVenda">Clonar venda</div>
           <div class="dropdown-select-item" data-acao="imprimir">Imprimir / salvar em PDF</div>
           <div class="dropdown-select-item" id="linkAlterarSituacao">Alterar situação</div>
@@ -1054,6 +1063,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- O ACOMPANHAMENTO DO PEDIDO (12/out/2026): o caminho inteiro, etapa por etapa. Mora aqui, no
+       documento de origem; as telas do galpao so levam para a frente. -->
+  <div class="card" id="trilhaPedido" style="display:none;">
+    <div class="section-title">Acompanhamento</div>
+    <div class="trilha-passos" id="trilhaPassos"></div>
   </div>
 
   <div class="card">
@@ -2613,25 +2629,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // O botao do funil e consequencia da situacao, nunca estado proprio: assim
     // nao existe o caso de badge dizendo uma coisa e botao oferecendo outra.
     atualizarBotaoPasso();
-    aplicarLinkSeparacao();
+    pintarTrilha();
   }
 
-  // ===== ACOMPANHAR NO GALPAO =====
-  // So aparece enquanto o pedido esta na mao do galpao. Menu que oferece o que
-  // nao da para fazer ensina o usuario a desconfiar do menu inteiro.
-  function aplicarLinkSeparacao() {
-    const sep = document.getElementById('linkVerSeparacao');
-    const conf = document.getElementById('linkVerConferencia');
-    if (sep) sep.style.display = PEDIDO.situacao === 'separacao' ? '' : 'none';
-    if (conf) conf.style.display = PEDIDO.situacao === 'conferenciasaida' ? '' : 'none';
+  // ===== O ACOMPANHAMENTO DO PEDIDO (12/out/2026) =====
+  // Cada etapa diz se o pedido ainda nao chegou nela, se esta nela ou se ja passou, e leva ate la.
+  // Substitui os itens "Acompanhar no galpao" e "Acompanhar na bancada" do menu, que so apareciam
+  // numa situacao cada e nao mostravam o resto do caminho. Pedido novo ou clonado ainda nao tem trilha.
+  function pintarTrilha() {
+    const card = document.getElementById('trilhaPedido');
+    if (!card) return;
+    if (MODO !== 'registro') { card.style.display = 'none'; return; }
+    // Em que fichas do galpao o exemplo tem cada pedido (mesmo espelho da lista de Pedidos de Venda).
+    const NO_GALPAO = { separacao: [5, 6, 7], conferencia: [7] };
+    const cancelado = PEDIDO.situacao === 'cancelado';
+    const passo = ORDEM_FUNIL.indexOf(PEDIDO.situacao), cli = encodeURIComponent(PEDIDO.cliente);
+    const parado = (rotulo, porque) => '<span class="trilha-passo futuro"><b>' + rotulo + '</b><span>' + porque + '</span></span>';
+    const etapa = (rotulo, desde, ate, href, espera) => cancelado ? parado(rotulo, 'pedido cancelado')
+      : (passo < desde ? parado(rotulo, espera || 'ainda não chegou')
+      : '<a class="trilha-passo" href="' + href + '"><b>' + rotulo + '</b><span>' + (passo > ate ? 'concluída' : 'em andamento') + '</span></a>');
+    document.getElementById('trilhaPassos').innerHTML =
+      etapa('Separação', 2, 2, NO_GALPAO.separacao.indexOf(PEDIDO.numero) !== -1
+        ? '../logistica/pagina-logistica-separacao-detalhe.html?id=' + PEDIDO.numero + '&de=pedido'
+        : '../logistica/pagina-logistica-separacao.html?busca=' + cli) +
+      etapa('Conferência de Saída', 3, 3, NO_GALPAO.conferencia.indexOf(PEDIDO.numero) !== -1
+        ? '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' + PEDIDO.numero + '&de=pedido'
+        : '../logistica/pagina-logistica-conferencia-saida.html?busca=' + cli) +
+      etapa('Expedição', 4, 5, '../logistica/pagina-logistica-expedicao.html?busca=' + cli) +
+      etapa('Rastreamento', 6, 6, '../logistica/pagina-logistica-rastreamento.html?busca=' + cli, 'só depois do envio') +
+      '<a class="trilha-passo" href="../financas/pagina-financas-contas-receber.html?busca=' + cli + '"><b>Contas a Receber</b><span>ver a conta deste cliente</span></a>' +
+      (cancelado || passo < 6 ? parado('Devolução', cancelado ? 'pedido cancelado' : 'só depois do envio')
+        : '<a class="trilha-passo" href="../logistica/pagina-logistica-devolucao.html?busca=' + cli + '"><b>Devolução</b><span>ver as devoluções do cliente</span></a>');
+    card.style.display = '';
   }
-  document.getElementById('linkVerSeparacao').addEventListener('click', () => {
-    window.location.href = '../logistica/pagina-logistica-separacao-detalhe.html?id=' + PEDIDO.numero;
-  });
-  document.getElementById('linkVerConferencia').addEventListener('click', () => {
-    window.location.href = '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' + PEDIDO.numero;
-  });
-  aplicarLinkSeparacao();
 
   document.getElementById('btnSalvar').addEventListener('click', () => {
     let erro = false;

@@ -999,6 +999,9 @@
     .pdv-folha { display:block; position:absolute; left:0; top:0; width:100%; max-width:420px; padding:20px; background:#fff; color:#000; }
   }
   .form-field input[readonly], .form-field input:disabled { opacity:.65; cursor:not-allowed; }
+  /* O pedido da venda concluida e link (12/out/2026) */
+  .pdv-link { color:var(--active-text); text-decoration:none; }
+  .pdv-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -3172,6 +3175,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // O limite do cliente passa a contar o que ele acabou de comprar a prazo nas formas que validam.
     if (cli) usados[cli.id] = arred((usados[cli.id] || 0) + registro.recebimentos.filter(r => formaDe(r.chave).validaLimite).reduce((s, r) => s + r.valor, 0));
     turno.vendas.push(registro);
+    // O dinheiro que entra na hora vai para o Caixa de Financas (12/out/2026): a tela ja dizia "aparece
+    // no Caixa", e nao aparecia. E o mesmo deposito que a baixa de Contas a Pagar e a Receber usa.
+    try {
+      const dia = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0') + '-' + String(agora.getDate()).padStart(2, '0');
+      const extras = JSON.parse(localStorage.getItem('deskCaixaExtras') || '[]');
+      registro.recebimentos.filter(r => r.destino === 'conta' && r.contaId).forEach(r => extras.push({
+        contaId: r.contaId, data: dia, comp: dia.slice(0, 7), hist: 'Venda de balcão ' + numeroPedido(registro) + ' — ' + r.nome,
+        pessoa: registro.clienteNome, catId: registro.categoriaId, tipo: 'entrada', valor: r.valor, origem: numeroPedido(registro) }));
+      localStorage.setItem('deskCaixaExtras', JSON.stringify(extras.slice(-300)));
+    } catch (e) { /* armazenamento bloqueado: a venda vale, so nao chega ao extrato */ }
     ultimaVenda = registro;
     numeroVenda += 1;
     venda = novaVenda();
@@ -3194,7 +3207,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function numeroPedido(v) { return 'PDV-' + String(v.numero).padStart(4, '0'); }
   function oQueGerou(v) {
     const g = [];
-    g.push('<b>Pedido de Venda ' + numeroPedido(v) + '</b>, já na situação <b>' + SIT_VENDA[v.situacao] + '</b>. Conta em Metas e em Performance de Vendas' + (v.vendedorNome ? ', na meta de ' + esc(v.vendedorNome) : ' da loja, sem vendedor') + '.');
+    // O pedido e link (12/out/2026): Vendas > Pedidos de Venda passou a ler as vendas do PDV.
+    g.push('<b>Pedido de Venda <a class="pdv-link" id="linkPedidoDaVenda" href="../vendas/pagina-vendas-pedidos.html?busca=' + numeroPedido(v) + '">' + numeroPedido(v) + '</a></b>, já na situação <b>' + SIT_VENDA[v.situacao] + '</b>. Conta em Metas e Performance' + (v.vendedorNome ? ', na meta de ' + esc(v.vendedorNome) : ' da loja, sem vendedor') + '.');
     const qtd = v.itens.reduce((s, it) => s + it.qtd, 0);
     g.push('<b>Baixa de estoque</b> em ' + esc(depositoDe(v.depositoId).nome) + ': ' + fmtNum(qtd).replace(',00', '') + (qtd === 1 ? ' unidade' : ' unidades') + ' de ' + v.itens.length + (v.itens.length === 1 ? ' produto.' : ' produtos.'));
     v.recebimentos.forEach(r => {

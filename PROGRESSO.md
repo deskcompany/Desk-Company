@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, na entrega das melhorias de Finanças.*
+*Atualizado em 12/out/2026, na entrega das melhorias da venda.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,13 +8,15 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**As melhorias de Finanças (F1 a F4 da lista) estão feitas e esperam o teste do usuário.** Ele deu
-ok em tudo que veio antes: os ajustes da primeira leva, Boas-vindas e o Dashboard, onde só pediu
-para tirar a barra de rolagem das listas, o que entrou junto. Em seguida mandou seguir a lista de
-melhorias, começando por Finanças.
+**As melhorias da venda (V2, V3 e V5 da lista) estão feitas e esperam o teste do usuário**, junto
+com as de Finanças (F1 a F4), entregues antes no mesmo dia. Ele deu ok em tudo que veio antes e
+mandou seguir a lista: primeiro Finanças, depois "pode seguir".
 
-A fila continua na ordem abaixo. A impressão em formato de relatório segue analisada e por fazer:
-ele pediu para deixar para depois.
+Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
+tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
+receber e o romaneio) esperam o alinhamento dos dados de exemplo, que virou os itens X4 e X5.
+
+A impressão em formato de relatório segue analisada e por fazer: ele pediu para deixar para depois.
 
 ## Onde estamos
 
@@ -88,22 +90,33 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
   deixa na lista exatamente aquelas contas; clicar de novo desfaz.
 - **Caixa e Bancos:** a origem do lançamento ("CP 1", "CR 3") é link para a conta que o gerou.
 
-**5. A verificação.** Duas suítes novas: `teste_retorno.py`, com um bloco para cada ponto do retorno
-do usuário, e `teste_fin_melhorias.py`, para Finanças. Vinte e nove defeitos injetados de propósito,
-um por vez; os vinte e nove são pegos. A auditoria do projeto reprova
+**5. A venda, itens V2, V3 e V5 da lista** (12/out, §14.57):
+
+- **A página do pedido** ganhou o quadro "Acompanhamento": Separação, Conferência de Saída,
+  Expedição, Rastreamento, Contas a Receber e Devolução, cada uma com o estado e o link. Os itens
+  "Acompanhar no galpão" e "na bancada" saíram do menu.
+- **Indicadores em Pedidos de Venda:** a aprovar, a faturar, atrasados para entrega e vendido em 30
+  dias. Clicar deixa na lista exatamente aqueles pedidos; clicar de novo desfaz.
+- **A venda do PDV aparece no resto do sistema:** entra em Pedidos de Venda como "PDV-0001", já
+  entregue; o dinheiro recebido na hora entra no Caixa de Finanças; e a conclusão da venda tem o
+  link para o pedido. Contas a Receber e Metas ainda não leem a venda de balcão.
+
+**6. A verificação.** Três suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py` e
+`teste_venda_melhorias.py`. Quarenta defeitos injetados de propósito, um por vez; os quarenta são
+pegos. A auditoria do projeto reprova
 qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
 
-**6. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**7. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O teste do usuário** em Finanças.
-2. **O resto da lista aprovada**, na ordem sugerida: o que falta da venda (V2 a V5 e L4); os
-   indicadores de Ordens de Compra e de Pedidos (E2 e V3); os cadastros (C2 a C8, que pedem alinhar
-   os dados de exemplo antes); K1 e R6; e por último G3, a página de detalhe abrir o registro
-   clicado.
+1. **O teste do usuário** em Finanças e na venda.
+2. **O resto da lista aprovada**, na ordem sugerida: os indicadores de Ordens de Compra (E2) e o
+   que falta do estoque (E8 e E10); os cadastros (C2 a C8, que pedem alinhar os dados de exemplo
+   antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e por último G3, a
+   página de detalhe abrir o registro clicado.
 3. **A impressão em formato de relatório** (item P1): analisada, falta fazer. O usuário pediu para
    deixar para depois. Entra no bloco comum e chega às 20 listas de uma vez.
 4. **A segunda varredura:** o miolo de Inventário, Acerto e PDV, que a primeira não abriu.

@@ -686,6 +686,14 @@
   .painel-links { display:flex; flex-direction:column; gap:8px; margin-top:6px; font-size:13px; }
   /* Etapa do galpao a que o pedido ainda nao chegou (10/out/2026) */
   .painel-etapa-futura { color:var(--text); font-size:13px; }
+  /* Indicadores de Pedidos de Venda (12/out/2026) */
+  .pv-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
+  .pv-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .pv-kpis .kpi-value { font-size:20px; }
+  .pv-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .pv-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .pv-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  @media (max-width:1100px) { .pv-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
 </style>
 </head>
 <body class="dark">
@@ -906,6 +914,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="nota-reservado">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0v10l-8 4m8-14l-8 4m0 10L4 17V7m8 10V11m0 0L4 7"/></svg>
     <span><b>O pedido reserva o estoque assim que nasce</b>, venha do site, do balcão ou do vendedor — e a conta a receber nasce junto. Cancelar devolve a reserva; a <b>baixa física só acontece no envio</b>. Pedido sem pagamento libera a reserva sozinho depois do prazo de <b id="notaPrazoReserva">3 dias</b> (Configurações → Parâmetros de estoque).</span>
+  </div>
+
+  <!-- Indicadores (12/out/2026): o que esta parado em cada ponto. Clicar filtra a lista; clicar de novo desfaz. -->
+  <div class="pv-kpis" id="indicadoresPedidos">
+    <div class="card kpi-card" data-kpi="aprovar" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
+      <div class="kpi-label">A aprovar</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="faturar" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">A faturar</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="atrasados" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Atrasados para entrega</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="periodo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
+      <div class="kpi-label">Vendido em 30 dias</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
   </div>
 
   <div class="estoque-toolbar">
@@ -1628,12 +1660,36 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
   const ITENS_PADRAO = [{ nome: 'Item de exemplo', sku: '—', qtd: 1, un: 'UN', preco: 0 }];
 
+  // ===== VENDAS DO PDV (12/out/2026) =====
+  // A venda de balcao e um Pedido de Venda (decisao de 09/out). O PDV guarda as vendas na chave
+  // `deskPdv`, e esta lista le dali: ate esta data a venda concluida no balcao nao aparecia aqui.
+  // No sistema de producao e a mesma tabela de pedidos. `seq` so serve para a venda de balcao
+  // entrar depois dos pedidos numerados na ordenacao pelo numero.
+  (function lerVendasDoPdv() {
+    let g = null;
+    try { g = JSON.parse(localStorage.getItem('deskPdv') || 'null'); } catch (e) { return; }
+    if (!g) return;
+    [].concat((g.ultimoTurno && g.ultimoTurno.vendas) || [], (g.turno && g.turno.vendas) || []).forEach(v => {
+      const quando = new Date(v.quando), dia = isNaN(quando) ? iso(HOJE) : iso(quando);
+      const id = 900000 + Number(v.numero);
+      if (PEDIDOS.some(p => p.id === id)) return;
+      PEDIDOS.push({ id: id, numero: 'PDV-' + String(v.numero).padStart(4, '0'), seq: 1000000 + Number(v.numero), pdv: true,
+        data: dia, previsto: dia, faturamento: dia, cliente: v.clienteNome || 'Consumidor final', doc: v.clienteDoc || '—',
+        loja: v.lojaId, vendedor: v.vendedorNome || '', total: v.total, situacao: SITUACOES.some(s => s.id === v.situacao) ? v.situacao : 'entregue',
+        pago: (v.recebimentos || []).every(r => r.destino === 'conta') });
+      ITENS_PEDIDO[id] = (v.itens || []).map(it => ({ nome: it.nome, sku: it.sku, qtd: it.qtd, un: it.un, preco: it.preco }));
+    });
+  })();
+
   let buscaAtual = '';
   let situacaoAtual = 'todos';
   let periodoAtual = '30';
   let baseDataAtual = 'venda';
   let filtroLojaAtual = 'todos';
   let filtroVendedorAtual = 'todos';
+  // Indicador aceso e o filtro dele (ver INDICADORES, mais abaixo). Ficam aqui porque a lista e
+  // montada, na abertura, antes daquele bloco: declarados la, o primeiro desenho dava erro.
+  let kpiAtivo = null, filtroKpi = null;
   let ordemCampo = 'numero';
   let ordemAsc = true;   // do nº 1 para o maior (pedido do usuario em 10/out/2026)
   let itensSelecionados = new Set();
@@ -1686,6 +1742,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function baseSemAba() {
     const termo = buscaAtual.trim().toLowerCase();
     return PEDIDOS.filter(p => {
+      if (filtroKpi && !filtroKpi(p)) return false;   // indicador aceso: so os pedidos dele
       if (filtroLojaAtual !== 'todos' && String(p.loja) !== filtroLojaAtual) return false;
       if (filtroVendedorAtual !== 'todos' && p.vendedor !== filtroVendedorAtual) return false;
       if (!passaPeriodo(p)) return false;
@@ -1703,6 +1760,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return lista.sort((a, b) => {
       let va = a[ordemCampo], vb = b[ordemCampo];
       if (ordemCampo === 'cliente') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+      if (ordemCampo === 'numero') { va = a.seq || a.numero; vb = b.seq || b.numero; }   // venda de balcao vem depois dos numerados
       if (va < vb) return -1 * dir;
       if (va > vb) return 1 * dir;
       return 0;
@@ -1737,6 +1795,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function trocarSituacao(sit) {
+    soltarIndicador();
     situacaoAtual = sit;
     const raiz = document.getElementById('filtroSituacao');
     raiz.setAttribute('data-value', sit);
@@ -1782,8 +1841,50 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function atualizarContadores() { montarMenuSituacao(); }
 
   // ===== TABELA =====
+  // ===== INDICADORES (12/out/2026) =====
+  // Contam todos os pedidos, sem a busca e sem o periodo da lista: e o que esta parado hoje em cada
+  // ponto. Clicar num deles limpa os outros filtros e deixa na lista exatamente os pedidos que ele
+  // somou; ele fica aceso enquanto a lista e a dele. Clicar de novo desfaz, e mexer num filtro a mao
+  // apaga o indicador.
+  const PERIODO_PADRAO = periodoAtual;
+  const KPIS = [
+    { id:'aprovar',   quais: p => p.situacao === 'aberto' },
+    { id:'faturar',   quais: p => ['aprovado', 'separacao', 'conferenciasaida'].indexOf(p.situacao) >= 0 },
+    { id:'atrasados', quais: p => reserva(p) && diasDe(p.previsto) < 0 },
+    { id:'periodo',   quais: p => p.situacao !== 'cancelado' && diasDe(p.data) <= 0 && diasDe(p.data) >= -30 }
+  ];
+  function soltarIndicador() { kpiAtivo = null; filtroKpi = null; }
+  function pintarIndicadores() {
+    KPIS.forEach(k => {
+      const lista = PEDIDOS.filter(k.quais);
+      const card = document.querySelector('.pv-kpis [data-kpi="' + k.id + '"]');
+      card.querySelector('.kpi-value').textContent = fmtMoeda(lista.reduce((s, p) => s + p.total, 0));
+      card.querySelector('.kpi-delta').textContent = lista.length === 0 ? 'nenhum pedido' : lista.length + (lista.length === 1 ? ' pedido' : ' pedidos');
+      card.classList.toggle('on', kpiAtivo === k.id);
+      card.setAttribute('aria-pressed', kpiAtivo === k.id ? 'true' : 'false');
+    });
+  }
+  function periodoNaTela(valor) {
+    periodoAtual = valor;
+    document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.toggle('active', b.getAttribute('data-periodo') === valor));
+    rotularPeriodo();
+  }
+  function escolherIndicador(id) {
+    const desfaz = kpiAtivo === id;
+    document.getElementById('btnLimparFiltros').click();     // busca, situacao, loja, vendedor e periodo voltam a "todos"
+    if (desfaz) periodoNaTela(PERIODO_PADRAO);
+    else { kpiAtivo = id; filtroKpi = KPIS.filter(x => x.id === id)[0].quais; }
+    paginaAtual = 1;
+    renderTabela();
+  }
+  document.querySelectorAll('.pv-kpis [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
+
   function renderTabela() {
     const { completa, pagina, totalPaginas, inicio } = pedidosPagina();
+    pintarIndicadores();
     const corpo = document.getElementById('corpoTabela');
     const vazio = document.getElementById('emptyState');
     atualizarContadores();
@@ -2171,6 +2272,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     op.addEventListener('click', () => {
       document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
       op.classList.add('active');
+      soltarIndicador();
       periodoAtual = op.getAttribute('data-periodo');
       rotularPeriodo();
       periodoMenu.classList.remove('open');
@@ -2192,10 +2294,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
   inicializarDropdownSelect(document.getElementById('filtroLoja'), (v) => {
-    filtroLojaAtual = v; paginaAtual = 1; renderTabela();
+    soltarIndicador(); filtroLojaAtual = v; paginaAtual = 1; renderTabela();
   });
   inicializarDropdownSelect(document.getElementById('filtroVendedor'), (v) => {
-    filtroVendedorAtual = (v === '__sem') ? '' : v; paginaAtual = 1; renderTabela();
+    soltarIndicador(); filtroVendedorAtual = (v === '__sem') ? '' : v; paginaAtual = 1; renderTabela();
   });
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
     itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela();
@@ -2207,6 +2309,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
 
   document.getElementById('campoBusca').addEventListener('input', (e) => {
+    soltarIndicador();
     buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
   });
 
