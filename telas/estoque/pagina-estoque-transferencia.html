@@ -1064,6 +1064,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
+<!-- PAINEL LATERAL: a transferencia, ao clicar na linha -->
+<div class="drawer-backdrop" id="verDrawerBackdrop"></div>
+<div class="event-drawer" id="verDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Transferência</div>
+    <div class="drawer-close" id="verDrawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div id="verCorpo"></div>
+</div>
+
 <!-- PAINEL LATERAL: confirmar recebimento -->
 <div class="drawer-backdrop" id="recDrawerBackdrop"></div>
 <div class="event-drawer" id="recDrawer">
@@ -1764,12 +1774,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const PERFIL = { podeConfirmarRecebimento: true };
 
   let TRANSFERENCIAS = [
-    { num:'TR-0101', saiu:'2026-09-12', origem:2, destino:3, situacao:'transito',
+    { num:'TR-0101', saiu:'2026-09-12', enviou:'Carlos Mendes', origem:2, destino:3, situacao:'transito',
       itens:[ { produtoId:6, nome:'Teclado Mecânico Desk', sku:'TEC-MEC-006', un:'UN', enviado:8, recebido:0 },
               { produtoId:9, nome:'Cabo HDMI 2.1 · 2m',    sku:'CAB-HDM-009', un:'UN', enviado:12, recebido:0 } ] },
-    { num:'TR-0100', saiu:'2026-09-10', origem:2, destino:5, situacao:'parcial',
+    { num:'TR-0100', saiu:'2026-09-10', enviou:'Carlos Mendes', chegou:'2026-09-11', recebeu:'Ana Souza', origem:2, destino:5, situacao:'parcial',
       itens:[ { produtoId:11, nome:'Camiseta Desk Brands · P', sku:'CAM-DKB-011', un:'UN', enviado:10, recebido:8 } ] },
-    { num:'TR-0099', saiu:'2026-09-08', origem:1, destino:2, situacao:'recebida',
+    { num:'TR-0099', saiu:'2026-09-08', enviou:'Fernanda Lima', chegou:'2026-09-09', recebeu:'Carlos Mendes', origem:1, destino:2, situacao:'recebida',
       itens:[ { produtoId:9, nome:'Cabo HDMI 2.1 · 2m', sku:'CAB-HDM-009', un:'UN', enviado:20, recebido:20 } ] }
   ];
 
@@ -1833,6 +1843,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const podeReceber = tr.situacao === 'transito' || tr.situacao === 'parcial';
       const cls = tr.situacao === 'transito' ? 'sit-transito' : (tr.situacao === 'parcial' ? 'sit-parcial' : 'sit-recebida');
       const trEl = document.createElement('tr');
+      trEl.setAttribute('data-num', tr.num);
       trEl.innerHTML =
         '<td class="col-texto"><div class="col-produto">' + tr.num + '</div></td>' +
         '<td class="col-texto">' + dataBR(tr.saiu) + '</td>' +
@@ -1851,6 +1862,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     corpo.querySelectorAll('[data-acao="receber"]').forEach(b =>
       b.addEventListener('click', () => abrirRecebimento(b.getAttribute('data-num'))));
+    corpo.querySelectorAll('tr[data-num]').forEach(l => l.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) abrirTransferencia(l.getAttribute('data-num'));
+    }));
   }
 
   // ===== CONFIRMAR RECEBIMENTO =====
@@ -1978,6 +1992,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     p_saldosLimpos();
     const pend = tr.itens.reduce((s,i)=> s + (i.enviado - i.recebido), 0);
     tr.situacao = pend > 0 ? 'parcial' : 'recebida';
+    tr.recebeu = USUARIO_SESSAO.nome; tr.chegou = hojeISO();
     fecharRecebimento(); renderTabela();
     avisarHTML('Recebimento de <b>' + tr.num + '</b> confirmado: ' + fmtQtd(totalRec,'') +
       (totalRec === 1 ? ' unidade entrou' : ' unidades entraram') + ' em <b>' + DEPOSITOS_INFO[tr.destino].nome + '</b>. ' +
@@ -1985,6 +2000,52 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         ? '<b>' + fmtQtd(pend,'') + (pend === 1 ? ' unidade continua' : ' unidades continuam') + ' em trânsito</b> e a transferência aparece na aba "Recebidas em parte" — só sai de lá quando alguém resolver por Acerto a partir do depósito de Trânsito.'
         : 'Nada ficou pendente e a transferência foi encerrada.'));
   }
+
+  // ===== A TRANSFERENCIA AO LADO (12/out/2026) =====
+  // Clicar na linha abre o que a lista nao mostra: os itens, o enviado e o recebido de cada um, quem
+  // enviou, quem recebeu e quanto tempo a carga levou. A linha ja tinha o cursor de clique e nao
+  // abria nada.
+  const verBackdrop = document.getElementById('verDrawerBackdrop'), verDrawer = document.getElementById('verDrawer');
+  const hojeISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const diasEntre = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+  const emDias = (n) => n + (n === 1 ? ' dia' : ' dias');
+  function abrirTransferencia(num) {
+    const tr = TRANSFERENCIAS.find(t => t.num === num); if (!tr) return;
+    const linha = (r, v, id) => '<div class="extrato-linha"><span class="extrato-rotulo">' + r + '</span><span class="extrato-valor" id="' + id + '">' + v + '</span></div>';
+    const cls = tr.situacao === 'transito' ? 'sit-transito' : (tr.situacao === 'parcial' ? 'sit-parcial' : 'sit-recebida');
+    const chegada = tr.situacao === 'transito' ? 'ainda não chegou'
+      : (tr.situacao === 'parcial' ? 'em parte, em ' : '') + dataBR(tr.chegou) + ' · ' + tr.recebeu;
+    const viagem = tr.situacao === 'recebida' ? emDias(diasEntre(tr.saiu, tr.chegou))
+      : 'há ' + emDias(diasEntre(tr.saiu, hojeISO())) + (tr.situacao === 'parcial' ? ', com parte ainda a caminho' : '');
+    document.getElementById('verCorpo').innerHTML =
+      '<div class="rep-resumo" style="border-bottom:none; padding-bottom:0; margin-bottom:8px;"><div class="rep-produto">' + tr.num + ' <span class="estagio-chip ' + cls + '" id="verSituacao">' + SIT_LABEL[tr.situacao] + '</span></div></div>' +
+      linha('Saiu de', DEPOSITOS_INFO[tr.origem].nome, 'verOrigem') +
+      linha('Vai para', DEPOSITOS_INFO[tr.destino].nome, 'verDestino') +
+      linha('Enviada em', dataBR(tr.saiu) + (tr.enviou ? ' · ' + tr.enviou : ''), 'verEnvio') +
+      linha('Recebida', chegada, 'verChegada') +
+      linha('Tempo em trânsito', viagem, 'verViagem') +
+      '<div class="rep-origens-titulo" style="margin-top:20px;">Itens</div><div id="verItens">' +
+      tr.itens.map(it => {
+        const pend = it.enviado - it.recebido;
+        return '<div class="rep-origem"><div class="rep-origem-info">' +
+          '<div class="rep-origem-end">' + it.nome + '</div>' +
+          '<div class="rep-origem-saldo">' + it.sku + ' · enviado <b>' + fmtQtd(it.enviado, it.un) + '</b> · recebido <b>' + fmtQtd(it.recebido, it.un) + '</b>' +
+            (pend > 0 ? ' · em trânsito <b>' + fmtQtd(pend, it.un) + ' ' + it.un + '</b>' : '') + '</div>' +
+        '</div></div>';
+      }).join('') + '</div>' +
+      '<div class="drawer-footer">' +
+        (tr.situacao !== 'recebida' && PERFIL.podeConfirmarRecebimento ? '<button type="button" class="btn-primary" id="btnReceberDoPainel">Confirmar recebimento</button>' : '') +
+        '<div class="drawer-link" id="btnFecharVer">Fechar <span class="esc-hint">ESC</span></div>' +
+      '</div>';
+    document.getElementById('btnFecharVer').addEventListener('click', fecharTransferencia);
+    const receber = document.getElementById('btnReceberDoPainel');
+    if (receber) receber.addEventListener('click', () => { fecharTransferencia(); abrirRecebimento(num); });
+    verBackdrop.classList.add('open'); verDrawer.classList.add('open');
+  }
+  function fecharTransferencia() { verBackdrop.classList.remove('open'); verDrawer.classList.remove('open'); }
+  verBackdrop.addEventListener('click', fecharTransferencia);
+  document.getElementById('verDrawerClose').addEventListener('click', fecharTransferencia);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && verDrawer.classList.contains('open')) fecharTransferencia(); });
 
   // linhas zeradas somem da lista de saldo
   function p_saldosLimpos() {

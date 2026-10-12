@@ -522,6 +522,14 @@
   body.dark .bs-cancelada { color:#9CA3AF; }
 
   /* filtro de periodo em popover */
+  /* Indicadores (12/out/2026): mesmo desenho dos de Pedidos de Venda e de Financas. */
+  .oc-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
+  .oc-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .oc-kpis .kpi-value { font-size:20px; }
+  .oc-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .oc-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .oc-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  @media (max-width:1100px) { .oc-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   .periodo-wrap { position:relative; flex-shrink:0; }
   .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
   .periodo-menu.open { display:block; }
@@ -830,6 +838,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="dropdown-select-item" data-acao="planilha">Baixar planilha</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Indicadores (12/out/2026): o que ainda esta para chegar. Clicar filtra a lista; clicar de novo desfaz. -->
+  <div class="oc-kpis" id="indicadoresOrdens">
+    <div class="card kpi-card" data-kpi="aberto" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Valor em aberto</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="semana" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
+      <div class="kpi-label">A receber em 7 dias</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="atrasadas" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Atrasadas</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="semdata" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Sem data prevista</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
     </div>
   </div>
 
@@ -1446,7 +1478,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 3,  numero: 3,  data: '2026-09-04', previsto: '2026-09-20', fornecedor: 'Nordic Home Importação',  dep: 2, total: 24890.00, situacao: 'aberto' },
     { id: 4,  numero: 4,  data: '2026-09-05', previsto: '2026-09-11', fornecedor: 'Tecidos Ceará S/A',       dep: 2, total: 3960.00,  situacao: 'andamento' },
     { id: 5,  numero: 5,  data: '2026-09-05', previsto: '',           fornecedor: 'Papelaria Central',       dep: 1, total: 412.90,   situacao: 'aberto' },
-    { id: 6,  numero: 6,  data: '2026-09-06', previsto: '2026-09-18', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, total: 9750.00,  situacao: 'aberto' },
+    { id: 6,  numero: 6,  data: '2026-09-06', previsto: '2026-09-08', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, total: 9750.00,  situacao: 'aberto' },
     { id: 7,  numero: 7,  data: '2026-09-07', previsto: '2026-09-09', fornecedor: 'TechParts Distribuidora', dep: 4, total: 1580.00,  situacao: 'atendida' },
     { id: 8,  numero: 8,  data: '2026-09-08', previsto: '2026-09-25', fornecedor: 'Embalagens do Vale',      dep: 2, total: 2240.00,  situacao: 'aberto' },
     { id: 9,  numero: 9,  data: '2026-09-08', previsto: '2026-09-14', fornecedor: 'Nordic Home Importação',  dep: 3, total: 6120.00,  situacao: 'cancelada' },
@@ -1502,6 +1534,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let situacaoAtual = 'todos';
   let periodoAtual = 'todos';
   let filtroDepositoAtual = 'todos';
+  let kpiAtivo = null, filtroKpi = null;   // indicador aceso e o filtro dele
   let ordemCampo = 'numero';
   let ordemAsc = true;   // do nº 1 para o maior (pedido do usuario em 10/out/2026)
   let itensSelecionados = new Set();
@@ -1546,6 +1579,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function baseFiltrada() {
     const termo = buscaAtual.trim().toLowerCase();
     return ORDENS.filter(o => {
+      if (filtroKpi && !filtroKpi(o)) return false;   // indicador aceso: so as ordens dele
       const passaDep = filtroDepositoAtual === 'todos' || String(o.dep) === filtroDepositoAtual;
       const passaBusca = termo === '' || o.fornecedor.toLowerCase().includes(termo) || String(o.numero) === termo;
       return passaDep && passaBusca && passaPeriodo(o);
@@ -1587,7 +1621,43 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   }
 
+  // ===== INDICADORES (12/out/2026) =====
+  // Contam todas as ordens, sem a busca e sem o periodo da lista: e o que ainda esta para chegar.
+  // "Em aberto" e a ordem que nao foi atendida nem cancelada. Clicar num indicador limpa os outros
+  // filtros e deixa na lista exatamente as ordens que ele somou; clicar de novo desfaz, e mexer num
+  // filtro a mao apaga o indicador.
+  const emAberto = (o) => o.situacao === 'aberto' || o.situacao === 'andamento';
+  const KPIS = [
+    { id:'aberto',    quais: o => emAberto(o) },
+    { id:'semana',    quais: o => emAberto(o) && !!o.previsto && diasDe(o.previsto) >= 0 && diasDe(o.previsto) <= 7 },
+    { id:'atrasadas', quais: o => emAberto(o) && !!o.previsto && diasDe(o.previsto) < 0 },
+    { id:'semdata',   quais: o => emAberto(o) && !o.previsto }
+  ];
+  function soltarIndicador() { kpiAtivo = null; filtroKpi = null; }
+  function pintarIndicadores() {
+    KPIS.forEach(k => {
+      const lista = ORDENS.filter(k.quais);
+      const card = document.querySelector('.oc-kpis [data-kpi="' + k.id + '"]');
+      card.querySelector('.kpi-value').textContent = fmtMoeda(lista.reduce((s, o) => s + o.total, 0));
+      card.querySelector('.kpi-delta').textContent = lista.length === 0 ? 'nenhuma ordem' : lista.length + (lista.length === 1 ? ' ordem' : ' ordens');
+      card.classList.toggle('on', kpiAtivo === k.id);
+      card.setAttribute('aria-pressed', kpiAtivo === k.id ? 'true' : 'false');
+    });
+  }
+  function escolherIndicador(id) {
+    const desfaz = kpiAtivo === id;
+    document.getElementById('btnLimparFiltros').click();     // busca, situacao, periodo e deposito voltam a "todos", e o indicador apaga
+    if (!desfaz) { kpiAtivo = id; filtroKpi = KPIS.filter(x => x.id === id)[0].quais; }
+    paginaAtual = 1;
+    renderTabela();
+  }
+  document.querySelectorAll('.oc-kpis [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
+
   function renderTabela() {
+    pintarIndicadores();
     const corpo = document.getElementById('corpoTabela');
     const emptyState = document.getElementById('emptyState');
     const wrap = document.querySelector('.estoque-table-wrap');
@@ -1944,6 +2014,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     op.addEventListener('click', () => {
       document.querySelectorAll('#periodoOpcoes .periodo-op').forEach(b => b.classList.remove('active'));
       op.classList.add('active');
+      soltarIndicador();
       periodoAtual = op.getAttribute('data-periodo');
       document.getElementById('rotuloPeriodo').textContent = ROTULO_PERIODO[periodoAtual];
       periodoMenu.classList.remove('open');
@@ -1953,7 +2024,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => {
-    filtroDepositoAtual = v; paginaAtual = 1; renderTabela();
+    soltarIndicador(); filtroDepositoAtual = v; paginaAtual = 1; renderTabela();
   });
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => {
     itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela();
@@ -1965,13 +2036,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
 
   document.getElementById('campoBusca').addEventListener('input', (e) => {
-    buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
+    soltarIndicador(); buscaAtual = e.target.value; paginaAtual = 1; renderTabela();
   });
 
   document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
     aba.addEventListener('click', () => {
       document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
       aba.classList.add('active');
+      soltarIndicador();
       situacaoAtual = aba.getAttribute('data-sit');
       paginaAtual = 1;
       renderTabela();
@@ -1979,6 +2051,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   document.getElementById('btnLimparFiltros').addEventListener('click', () => {
+    soltarIndicador();
     buscaAtual = ''; document.getElementById('campoBusca').value = '';
     situacaoAtual = 'todos';
     document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === 'todos'));

@@ -8,9 +8,9 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 
 | situação | itens |
 |---|---|
-| **Feito por inteiro** (15) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 · F1, F3 · V3 |
-| **Feito no principal, com resto anotado** (19) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
+| **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
+| **Feito no principal, com resto anotado** (20) | C1 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
+| **Falta** | G3 · C2 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
@@ -34,6 +34,10 @@ O que entrou e o que falta em cada item feito no principal:
   ordens de compra em aberto do produto.
 - **E9** (Endereçamento): a nota virou link. Faltam o link do produto e a sugestão de endereço pela
   capacidade livre.
+- **E10** (Itens Bloqueados): no painel do item, a origem leva à nota e à ficha do pedido na
+  Separação e na Conferência de Saída. Faltam a devolução e o acerto (o exemplo de Devolução tem
+  outros produtos, e o Acerto não tem lista), e o link no histórico dos resolvidos, que cita um
+  pedido e uma devolução que as telas de destino não têm.
 - **E11** (Necessidades de Compra): a ordem virou link. Faltam o pedido de venda e o atalho para
   corrigir o fornecedor padrão.
 - **V1** (Pedidos de Venda): o painel mostra Separação, Conferência de Saída e Expedição como "ainda

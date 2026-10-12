@@ -34,7 +34,7 @@ with sync_playwright() as p:
     ultima = pg.evaluate("(function(){var tr=document.querySelectorAll('tbody tr');return tr[tr.length-1].classList.contains('cx-saldo-row')})()")
     ok(ultima, 'e ela e a ULTIMA linha, nao a primeira')
     pg.click('#btnPaginaAnterior'); pg.wait_for_timeout(300)
-    datas = pg.eval_on_selector_all('tbody tr[data-id] td.cx-data', 'e => e.map(x => x.textContent.trim())')
+    datas = pg.eval_on_selector_all('tbody tr[data-id] td.cx-data', 'e => e.map(x => x.title || x.textContent.trim())')   # a celula mostra dd/mm; a data inteira esta na dica
     d = [datas[i] for i in range(0, len(datas), 2)]
     conv = lambda s: s.split('/')[2] + s.split('/')[1] + s.split('/')[0]
     ok(all(conv(d[i]) >= conv(d[i+1]) for i in range(len(d)-1)), 'ordem DECRESCENTE por data, como no print: %s' % d[:3])

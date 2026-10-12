@@ -562,7 +562,10 @@
   .cx-saldo-nota { display:none; flex:1; min-width:220px; font-size:11.5px; color:var(--text); }
   .cx-saldo-nota b { color:var(--text-heading); }
 
-  .cx-table { min-width:900px; }
+  /* A tabela cabe no quadro: quem cede e o texto (historico e categoria quebram de linha), e a data
+     vai sem o ano, que a competencia ao lado ja mostra. */
+  .cx-table { min-width:760px; }
+  .cx-table td:nth-child(4), .cx-table td.cx-cat { white-space:normal; }
   .cx-saldo-row { cursor:default; }
   .cx-saldo-row td { background:var(--page-bg); text-align:left; font-size:12px; color:var(--text); padding:10px 8px; }
   .cx-saldo-row td b { color:var(--text-heading); font-family:'Nunito',sans-serif; font-weight:800; font-variant-numeric:tabular-nums; }
@@ -2094,7 +2097,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const cat = catDe(m.catId);
         corpo += '<tr data-id="' + m.id + '">' +
           '<td class="col-texto col-check">' + caixaSel(m.id, selMov.indexOf(m.id) !== -1) + '</td>' +
-          '<td class="col-texto cx-data">' + fmtData(m.data) + '</td>' +
+          '<td class="col-texto cx-data" title="' + fmtData(m.data) + '">' + fmtData(m.data).slice(0, 5) + '</td>' +
           '<td class="col-texto cx-data">' + fmtComp(m.comp) +
             (m.comp !== m.data.slice(0, 7) ? '<span class="cx-alerta-comp" title="A competência e o mês da data são diferentes — quem define isso é a categoria.">·</span>' : '') + '</td>' +
           '<td class="col-texto"><div class="cx-hist">' + m.hist + '</div>' +
@@ -2117,7 +2120,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       cx.innerHTML =
         '<div class="estoque-table-wrap"><table class="estoque-table cx-table"><thead><tr>' +
           '<th class="col-texto col-check"><input type="checkbox" class="checkbox-todos" id="chkTodos"' + (todasMarcadas ? ' checked' : '') + '></th>' +
-          '<th class="col-texto" style="width:96px;">Data</th>' +
+          '<th class="col-texto" style="width:58px;">Data</th>' +
           '<th class="col-texto" style="width:104px;">Competência</th>' +
           '<th class="col-texto">Histórico</th>' +
           '<th class="col-texto" style="width:190px;">Categoria</th>' +

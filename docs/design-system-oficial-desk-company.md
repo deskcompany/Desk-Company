@@ -2556,3 +2556,43 @@ pedidos do mês" a partir do painel de Metas: o realizado de cada loja é númer
 lista de pedidos não fecharia com ele. L4 pedia, no Rastreamento, o link para a conta a receber e
 para o romaneio: o Rastreamento usa outra numeração de pedidos e outros clientes. Os dois viraram
 dependentes dos alinhamentos X4 e X5.
+
+## 14.58 O estoque: indicadores na compra, a transferência ao lado e a origem do bloqueio (12/out/2026)
+
+Itens E2, E8 e E10 da lista de melhorias, e um ajuste que o usuário pediu em Caixa e Bancos.
+
+**Tabela que não cabe: quem cede é o texto.** A tabela do Caixa tinha barra de rolagem: o histórico
+que a baixa de conta e o PDV gravam é comprido ("Liquidação de conta a receber — ..."), e as células
+não quebravam de linha. O usuário sugeriu tirar o ano da data, já que a competência ao lado o mostra.
+Entrou assim: a data vai como dia e mês, com a data inteira na dica; o histórico e a categoria
+quebram de linha; e a largura mínima da tabela caiu de 900 para 760 px. Medida com um histórico
+comprido, ela cabe em 1440, 1366 e 1280 de largura. Vale como regra para a próxima tabela apertada:
+coluna de texto quebra, e dado que a coluna vizinha repete sai.
+
+**Indicadores em Ordens de Compra (E2).** Valor em aberto, a receber em 7 dias, atrasadas e sem data
+prevista, no padrão de Finanças e de Pedidos de Venda: filtro de alternar, aceso enquanto a lista é
+a dele, e o total do rodapé fecha com o valor do indicador. "Em aberto" é a ordem que não foi
+atendida nem cancelada, e cada uma cai numa faixa só. O exemplo não tinha ordem atrasada; a nº 6
+passou a ter a entrega prevista para antes do "hoje" da tela.
+
+**A transferência ao lado (E8).** A linha da Transferência Entre Estoques já tinha o cursor de
+clique e não abria nada; os itens só apareciam dentro de "Confirmar recebimento", e transferência
+recebida não tinha como ser vista. Clicar na linha abre o painel: situação, de onde saiu e para onde
+vai, quem enviou e quando, quem recebeu, o tempo em trânsito e os itens com o enviado, o recebido e
+o que ainda está a caminho. O botão da linha continua abrindo só o recebimento. Confirmar o
+recebimento passou a guardar quem recebeu e quando, que é o que o painel mostra depois.
+
+**A origem do bloqueio como link (E10).** No painel do item bloqueado, "De onde veio" leva à nota em
+Entrada de Notas e à ficha do pedido na Separação e na Conferência de Saída. Duas notas do exemplo
+não existiam em lugar nenhum ("NF-e 12.951" e "NF-e 13.240"); viraram as notas 4468 e 9051, que a
+Entrada de Notas tem, no mesmo depósito do bloqueio. Acerto, devolução e bloqueio manual seguem em
+texto, pela regra de só ligar onde o destino tem o registro: o Acerto não tem lista, e o exemplo de
+Devolução tem outros produtos.
+
+**A busca de uma lista olha mais de um campo.** A suíte pedia "uma linha só" ao buscar a nota 1182
+em Entrada de Notas, e vieram duas: a busca também acha a nota 2301 por outro campo. O teste passou
+a procurar a linha cujo número é o pedido. Fica o aviso para o próximo link por busca: o destino
+pode trazer vizinhos junto do registro.
+
+**Provado nos dois sentidos.** Dezoito defeitos injetados, um por vez, contra
+`teste_estoque_melhorias.py` e a seção nova de `teste_fin_melhorias.py`, e os dezoito foram pegos.

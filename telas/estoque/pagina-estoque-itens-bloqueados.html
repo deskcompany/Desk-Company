@@ -663,6 +663,8 @@
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  .link-origem { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .link-origem:hover { text-decoration:underline; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
   /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
      no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
@@ -1980,13 +1982,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return {
       itens: [
         { id: 1, sku: 'KIT-HOF-005', produto: 'Kit Home Office Completo', un: 'UN', dep: 2, endereco: 'AV-01', tipoEnd: 'avaria', base: 'B-02-1-04', qtd: 1, custo: 1398.00,
-          motivo: 'avaria', origem: 'conferencia_entrada', doc: 'NF-e 12.951', quando: diasAtras(3), quem: 'Carlos Mendes', obs: 'Caixa amassada na chegada e tampo riscado.' },
+          motivo: 'avaria', origem: 'conferencia_entrada', doc: 'Nota 4468', quando: diasAtras(3), quem: 'Carlos Mendes', obs: 'Caixa amassada na chegada e tampo riscado.' },
         { id: 2, sku: 'MON-27I-015', produto: 'Monitor Desk 27" IPS', un: 'UN', dep: 2, endereco: 'AV-02', tipoEnd: 'avaria', base: 'D-04-2-01', qtd: 2, custo: 1120.00,
           motivo: 'avaria', origem: 'acerto', doc: 'AC-0041', quando: diasAtras(9), quem: 'Fernanda Lima', obs: 'Tela trincada.' },
         { id: 3, sku: 'MAT-TEC-008', produto: 'Tecido Sintético Preto', un: 'M', dep: 2, endereco: null, tipoEnd: null, base: 'A-10-1-01', qtd: 2.5, custo: 62.00,
           motivo: 'avaria', origem: 'conferencia_entrada', doc: 'Nota 1182', quando: diasAtras(1), quem: 'Carlos Mendes', obs: 'Ponta do rolo com mancha de umidade.' },
         { id: 4, sku: 'CAB-HDM-009', produto: 'Cabo HDMI 2.1 · 2m', un: 'UN', dep: 2, endereco: 'AV-01', tipoEnd: 'avaria', base: null, qtd: 3, custo: 32.40,
-          motivo: 'avaria', origem: 'conferencia_entrada', doc: 'NF-e 13.240', quando: diasAtras(5), quem: 'Carlos Mendes', obs: 'Conector amassado.' },
+          motivo: 'avaria', origem: 'conferencia_entrada', doc: 'Nota 9051', quando: diasAtras(5), quem: 'Carlos Mendes', obs: 'Conector amassado.' },
         { id: 5, sku: 'POL-ALM-040', produto: 'Almofada decorativa 40x40 · Terracota', un: 'UN', dep: 2, endereco: 'R04-P02-N2', tipoEnd: 'picking', base: 'R04-P02-N2', qtd: 1, custo: 24.90,
           motivo: 'falta', origem: 'separacao', doc: 'Pedido #23', quando: diasAtras(2), quem: 'Ana Souza', obs: 'Endereço com 3 peças; o pedido pedia 4.' },
         { id: 6, sku: 'TEC-MEC-006', produto: 'Teclado Mecânico Desk', un: 'UN', dep: 2, endereco: 'A-05-1-02', tipoEnd: 'picking', base: 'A-05-1-02', qtd: 2, custo: 231.10,
@@ -2219,6 +2221,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     drawerBackdrop.classList.remove('open');
     eventDrawer.classList.remove('open');
   }
+  // De onde veio, com o caminho ate o documento (12/out/2026). So vira link a origem que tem tela para
+  // abrir aquele documento: a nota em Entrada de Notas e a ficha do pedido na Separacao e na
+  // Conferencia de Saida. Acerto, devolucao e bloqueio manual seguem em texto.
+  const DESTINO_DA_ORIGEM = { conferencia_entrada: '../estoque/pagina-estoque-entrada-notas.html?busca=',
+                              separacao: '../logistica/pagina-logistica-separacao-detalhe.html?id=',
+                              conferencia_saida: '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' };
+  function origemComLink(i) {
+    if (!i.doc) return ORIGENS[i.origem];
+    const n = (/(\d+)\s*$/.exec(i.doc) || [])[1], destino = DESTINO_DA_ORIGEM[i.origem];
+    return ORIGENS[i.origem] + ' · ' + (destino && n
+      ? '<a class="link-origem" id="linkOrigemBloqueio" href="' + destino + n + '">' + esc(i.doc) + '</a>' : esc(i.doc));
+  }
   function linhaFato(rotulo, valor) {
     return '<div class="extrato-linha"><span class="extrato-rotulo">' + rotulo + '</span><span class="extrato-valor">' + valor + '</span></div>';
   }
@@ -2307,7 +2321,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const FECHAR = '<div class="drawer-link" data-fechar-painel>Fechar <span class="esc-hint">ESC</span></div>';
 
     const abaResolver =
-      linhaFato('De onde veio', ORIGENS[i.origem] + (i.doc ? ' · ' + esc(i.doc) : '')) +
+      linhaFato('De onde veio', origemComLink(i)) +
       linhaFato('Bloqueado em', fmtData(i.quando) + (i.quem ? ' · ' + esc(i.quem) : '')) +
       (i.obs ? '<div class="nota-reservado" style="margin:12px 0 0;">' + IC_CADEADO + '<span>' + esc(i.obs) + '</span></div>' : '') +
       '<div class="extrato-bloco-titulo">O que fazer com ' + qtdTexto(i.qtd, un) + '</div>' +

@@ -436,7 +436,7 @@ with sync_playwright() as p:
     clic(pg, '#abasSituacao [data-sit="resolvidos"]'); pg.wait_for_timeout(300)
     ok(visivel(pg, '#painelResolvidos') and not visivel(pg, '#painelBloqueados') and pg.locator('#corpoResolvidos tr').count() == 9, 'a aba troca a fila pelo historico: %d linhas' % pg.locator('#corpoResolvidos tr').count())
     primeira = pg.evaluate("document.querySelector('#corpoResolvidos tr').innerText.replace(/\\s+/g, ' ')")
-    ok(all(x in primeira for x in ['Cabo HDMI', '3 UN', 'Avaria', 'NF-e 13.240', 'LIBERADO', 'Recuperado', 'a endereçar', 'Administrador Desk']), 'cada linha diz o que era, o desfecho e quem resolveu: %s' % primeira[:90])
+    ok(all(x in primeira for x in ['Cabo HDMI', '3 UN', 'Avaria', 'Nota 9051', 'LIBERADO', 'Recuperado', 'a endereçar', 'Administrador Desk']), 'cada linha diz o que era, o desfecho e quem resolveu: %s' % primeira[:90])
     todo = pg.inner_text('#corpoResolvidos')
     ok('BAIXADO' in todo.upper() and 'Quebra ou avaria · AC-0051' in todo and 'Quebra ou avaria · AC-0052' in todo and 'Estava no endereço: erro de separação' in todo, 'a baixa mostra motivo e acerto, e a falta mostra a causa')
     ok(pg.inner_text('#resumoResolvidos') == '9 resolvidos' and pg.inner_text('#totalBaixado') == 'R$ 2.604,20', 'o rodape soma o que foi baixado como perda: %s' % pg.inner_text('#totalBaixado'))

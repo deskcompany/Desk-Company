@@ -8,7 +8,8 @@
 #           nota leva de volta a conta;
 #   [3] F3  indicadores: vencidas, vencem hoje, proximos 7 dias e total. Cada um soma o que diz somar,
 #           e clicar faz a lista mostrar exatamente aquelas contas; clicar de novo desfaz;
-#   [4] F4  no Caixa, a origem do lancamento leva a conta que o gerou.
+#   [4] F4  no Caixa, a origem do lancamento leva a conta que o gerou;
+#   [5]     a tabela do Caixa cabe no quadro com historico comprido, e a data vai sem o ano.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys
 import localiza
@@ -210,6 +211,27 @@ with sync_playwright() as p:
         ok(pg.evaluate("origemHtml('Transferência')") == '<span class="cx-origem">Transferência</span>' and 'cf-vazio' in pg.evaluate("origemHtml(null)"),
            'transferencia e lancamento a mao continuam sem link: nao ha documento para abrir')
         pg.evaluate("localStorage.removeItem('deskCaixaExtras')")
+
+    if secao(5, 'Caixa: a tabela cabe no quadro, sem barra de rolagem'):
+        # O usuario viu a barra em 12/out. O lancamento que a baixa e o PDV gravam tem historico
+        # comprido; a tabela tem de caber com ele, na largura de referencia e nas menores.
+        longo = [{'contaId': 1, 'data': '2026-10-12', 'comp': '2026-10', 'tipo': 'entrada', 'valor': 7430.5, 'catId': 0, 'origem': 'CR 6',
+                  'hist': 'Liquidação de conta a receber — Distribuidora Nordeste de Informática Ltda', 'pessoa': 'Distribuidora Nordeste de Informática Ltda'}]
+        for largura in (1440, 1366, 1280):
+            pl = nav.new_page(viewport={'width': largura, 'height': 900})
+            pl.on('pageerror', lambda e: erros.append(str(e)))
+            pl.goto(localiza.http(CAIXA))
+            pl.evaluate("(e) => localStorage.setItem('deskCaixaExtras', JSON.stringify(e))", longo)
+            pl.reload(); pl.wait_for_timeout(450)
+            m = pl.evaluate("""() => { const w = document.querySelector('.estoque-table-wrap'), l = document.querySelector('tbody tr[data-id="900000"]');
+                return { sw: w.scrollWidth, cw: w.clientWidth, tem: !!l, data: l ? l.children[1].textContent.trim() : '', inteira: l ? l.children[1].title : '' }; }""")
+            ok(m['tem'] and m['sw'] <= m['cw'], 'a %dpx, com um historico comprido, a tabela cabe: %d em %d' % (largura, m['sw'], m['cw']))
+            if largura == 1440:
+                ok(m['data'] == '12/10' and m['inteira'] == '12/10/2026', 'a data vai sem o ano, e a data inteira fica na dica: "%s" / "%s"' % (m['data'], m['inteira']))
+                comp = pl.evaluate("document.querySelector('tbody tr[data-id=\"900000\"]').children[2].textContent.trim()")
+                ok(comp.startswith('10/2026'), 'o ano continua na competencia, ao lado: %s' % comp)
+            pl.evaluate("localStorage.removeItem('deskCaixaExtras')")
+            pl.close()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
