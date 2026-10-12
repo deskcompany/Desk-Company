@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, depois do retorno do usuário sobre a primeira leva de melhorias.*
+*Atualizado em 12/out/2026, depois do segundo retorno do usuário sobre a primeira leva de melhorias.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,9 +8,10 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**O retorno do usuário sobre a primeira leva de melhorias está feito e espera o teste dele.** Ele
-testou a leva de 10/out, aprovou a maior parte e devolveu uma lista de ajustes. Todos entraram,
-menos a impressão, que ele pediu para analisar agora e consertar depois.
+**Os ajustes que o usuário pediu sobre a primeira leva de melhorias estão feitos.** Ele testou a
+leva de 10/out e devolveu uma lista; em 12/out testou os ajustes, deu ok em sete dos nove pontos e
+pediu dois acertos no Início, que também entraram (ver abaixo). Ficou de fora só a impressão, que
+ele pediu para analisar agora e consertar depois.
 
 Necessidades de Compra e Giro de Estoque, de 10/out, seguem sem ajuste apontado além dos dois que
 vieram nesta lista (marcar ao digitar e abrir em "A comprar").
@@ -68,15 +69,17 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
   Venda mostra a etapa em que o pedido está e leva para a ficha daquele pedido, que tem o botão de
   voltar para o pedido.
 - **Contas a Receber:** pedido cancelado não deve. O painel do cliente lê de lá quanto ele deve.
-- **Dashboard:** os botões 5/10/15/20 mostram mais itens, e clicar numa loja filtra o painel
+- **Dashboard:** os botões 5/10/15/20 mostram mais itens **sem esticar o quadro**: a lista rola
+  por dentro e os três quadros da linha ficam na mesma altura. Clicar numa loja filtra o painel
   inteiro; clicar de novo volta a todas.
-- **Boas-vindas:** "O que precisa de você hoje" é um quadro próprio, de lado a lado, com a
-  quantidade de cada fila; os atalhos ganharam dois botões.
+- **Boas-vindas:** o quadro **Pendências do Dia** (nasceu como "O que precisa de você hoje"; o
+  usuário pediu um nome mais formal), de lado a lado, com a quantidade de cada fila. Os atalhos
+  ganharam dois botões, e a agenda e os atalhos fecham na mesma altura.
 - **A ferramenta de construção que saiu do projeto** não é mais citada em lugar nenhum: telas,
   documentos, skills e os outros projetos da pasta.
 
-**4. A verificação.** Suíte nova, `teste_retorno.py`, com um bloco para cada ponto acima. Quinze
-defeitos injetados de propósito, um por vez; os quinze são pegos. A auditoria do projeto reprova
+**4. A verificação.** Suíte nova, `teste_retorno.py`, com um bloco para cada ponto acima. Dezoito
+defeitos injetados de propósito, um por vez; os dezoito são pegos. A auditoria do projeto reprova
 qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
 
 **5. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
@@ -85,7 +88,7 @@ qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guarda
 
 ## Próximo da fila
 
-1. **O teste do usuário** nos ajustes de 12/out.
+1. **O teste do usuário** nos dois acertos do Início (os outros sete pontos ele já deu ok).
 2. **A impressão em formato de relatório** (item P1 da lista de melhorias): analisada, falta
    fazer. Entra no bloco comum e chega às 20 listas de uma vez.
 3. **O resto da lista aprovada**, na ordem sugerida: Finanças (F1 a F4); o que falta da venda (V2 a

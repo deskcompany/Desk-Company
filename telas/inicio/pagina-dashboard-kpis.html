@@ -356,8 +356,10 @@
   .fila-do-dia a span { font-size:11.5px; font-weight:600; color:var(--text); }
   .quadro-rodape { display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--active-text); text-decoration:none; }
   /* Linha que explica por que a lista tem menos itens do que o botao pediu (10/out/2026) */
-  .lista-nota { font-size:11.5px; color:var(--text); padding-top:8px; }
-  .lista-nota:empty { display:none; }
+  .lista-nota { font-size:11.5px; color:var(--text); padding:8px 0 2px; border-top:1px solid var(--border); }
+  /* Lista que rola dentro do quadro (12/out/2026): a altura e travada pelo script, na dos 5 primeiros itens */
+  .lista-rolavel { overflow-y:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:var(--border) var(--page-bg); }
+  .lista-rolavel:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; border-radius:6px; }
   #quadroLojas .legend-row:hover .legend-name { color:var(--active-text); }
 </style>
 </head>
@@ -759,8 +761,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
         </div>
       </div>
-      <div id="listaMaisVendidos"></div>
-      <div class="lista-nota" id="notaMaisVendidos"></div>
+      <div id="listaMaisVendidos" class="lista-rolavel" tabindex="0" role="region" aria-label="Mais vendidos"></div>
     </div>
 
     <div data-href="../estoque/pagina-estoque-necessidades-compra.html" class="card" style="display:flex; flex-direction:column;">
@@ -774,8 +775,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
         </div>
       </div>
-      <div id="listaAlertas"></div>
-      <div class="lista-nota" id="notaAlertas"></div>
+      <div id="listaAlertas" class="lista-rolavel" tabindex="0" role="region" aria-label="Alertas de estoque"></div>
       <div class="stock-total" style="margin-top:auto; padding-top:12px;">Valor total em estoque: <b style="color:var(--active-text)" id="estoqueTotal">R$ 81.103,75</b></div>
     </div>
   </div>
@@ -1412,9 +1412,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const loja = currentStoreFilter;
     const daqui = itens.filter(x => loja === 'all' || x.loja === loja);
     const pedidos = QTD_LISTA[qual];
-    document.getElementById(idLista).innerHTML = daqui.slice(0, pedidos).map(html).join('');
-    document.getElementById(idNota).textContent = daqui.length === 0 ? 'Nada ' + oQue + (loja === 'all' ? '' : ' em ' + storeNames[loja]) + '.'
+    const nota = daqui.length === 0 ? 'Nada ' + oQue + (loja === 'all' ? '' : ' em ' + storeNames[loja]) + '.'
       : (daqui.length < pedidos ? 'Mostrando ' + (daqui.length === 1 ? 'o único' : 'os ' + daqui.length) + ' que há ' + oQue + (loja === 'all' ? '' : ' em ' + storeNames[loja]) + '.' : '');
+    // A nota vai dentro da lista, como ultima linha: fora dela, esticaria o quadro.
+    const lista = document.getElementById(idLista);
+    lista.innerHTML = daqui.slice(0, pedidos).map(html).join('') + (nota ? '<div class="lista-nota" id="' + idNota + '">' + nota + '</div>' : '');
+    lista.scrollTop = 0;
   }
   function pintarPainel() {
     const loja = currentStoreFilter;
@@ -1468,7 +1471,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     QTD_LISTA[grupo.getAttribute('data-lista')] = Number(b.textContent);
     pintarPainel();
   })));
-  pintarPainel();
+  // O QUADRO NAO CRESCE (usuario, 12/out/2026): pedir 10, 15 ou 20 itens esticava o quadro e deformava
+  // os vizinhos. A lista fica presa na altura com que a tela abre, a dos 5 primeiros itens de todas as
+  // lojas, e o resto rola por dentro dela. A altura e medida, e nao fixa, porque nome comprido quebra
+  // em duas linhas; por isso ela e medida de novo quando a janela muda de largura.
+  const LISTAS_ROLAVEIS = ['listaMaisVendidos', 'listaAlertas'];
+  function travarAlturaDasListas() {
+    const pedido = { vendidos: QTD_LISTA.vendidos, alertas: QTD_LISTA.alertas }, loja = currentStoreFilter;
+    LISTAS_ROLAVEIS.forEach(id => { document.getElementById(id).style.height = ''; });
+    QTD_LISTA.vendidos = 5; QTD_LISTA.alertas = 5; currentStoreFilter = 'all';
+    pintarPainel();
+    LISTAS_ROLAVEIS.forEach(id => { const l = document.getElementById(id); l.style.height = l.offsetHeight + 'px'; });
+    QTD_LISTA.vendidos = pedido.vendidos; QTD_LISTA.alertas = pedido.alertas; currentStoreFilter = loja;
+    pintarPainel();
+  }
+  travarAlturaDasListas();
+  window.addEventListener('resize', travarAlturaDasListas);
+  // A fonte chega depois do script e muda onde o nome quebra: sem medir de novo, o quinto item ficava cortado.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(travarAlturaDasListas);
+  // Clicar na barra de rolagem ou no vazio da lista nao e clicar no quadro: nao navega.
+  LISTAS_ROLAVEIS.forEach(id => { const l = document.getElementById(id); l.addEventListener('click', (e) => { if (e.target === l) e.stopPropagation(); }); });
 
   // ===== QUADRO QUE LEVA A TELA DE ORIGEM (10/out/2026) =====
   // Todo quadro com data-href abre a tela de onde o numero vem. Ate esta data nenhum quadro do

@@ -297,7 +297,13 @@
   .today-line { font-size:13.5px; color: var(--text); margin-top:2px; }
   .motivational-quote { font-size:13.5px; font-style:italic; color: var(--text); margin-top:8px; max-width:480px; }
 
-  .row-welcome { grid-template-columns: 1.6fr 1fr; align-items:start; }
+  /* Agenda e atalhos fecham na mesma altura (usuario, 12/out/2026): a linha estica os dois, o rodape da
+     agenda desce para o pe do quadro e os atalhos ocupam a altura toda. */
+  .row-welcome { grid-template-columns: 1.6fr 1fr; align-items:stretch; }
+  .row-welcome > .card { display:flex; flex-direction:column; }
+  .row-welcome .agenda-item:last-of-type { margin-bottom:12px; }
+  .row-welcome .agenda-footer { margin-top:auto; }
+  .row-welcome .shortcut-grid { flex:1; grid-auto-rows:1fr; }
 
   .agenda-item { display:flex; align-items:flex-start; gap:12px; padding:12px 4px; border-top:1px solid var(--border); }
   .agenda-item:first-of-type { border-top:none; }
@@ -697,11 +703,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <!-- O que precisa de voce hoje: quadro proprio, de lado a lado (usuario, 10/out/2026). As
+  <!-- Pendencias do Dia (nasceu como "O que precisa de voce hoje"; o usuario pediu um nome mais
+       formal em 12/out/2026): quadro proprio, de lado a lado. As
        quantidades sao espelho da aba de cada fila; teste_retorno.py compara com as telas. -->
   <div class="card" id="quadroDoDia">
     <div class="card-head">
-      <div class="card-title">O que precisa de você hoje</div>
+      <div class="card-title">Pendências do Dia</div>
     </div>
     <div class="dia-grade">
       <div class="dia-coluna">

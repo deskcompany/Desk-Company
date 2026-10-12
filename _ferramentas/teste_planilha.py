@@ -31,6 +31,9 @@ _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/
 CHROME = _ch[0] if _ch else None
 
 MARCA = '  // ===== PLANILHA E IMPRESSAO DA TELA (bloco compartilhado, 10/out/2026) ====='
+# O selo roda a suite so nas telas que mudaram (DESK_ALVOS). A contagem minima de listas so vale na
+# rodada inteira: com duas telas do Inicio mudadas, a suite exigia 15 listas e achava zero (12/out).
+PARCIAL = bool(_os.environ.get('DESK_ALVOS', '').strip())
 falhas = []
 total = [0]
 
@@ -110,7 +113,7 @@ with sync_playwright() as p:
             ruins.append('%s: nao baixou (%s)' % (tela, str(e)[:50]))
         if total_da_lista() != esperado:
             ruins.append('%s: a pagina nao voltou como estava' % tela)
-    ok(len(alvos) >= 15 and not ruins, 'as %d telas com "Baixar planilha" baixam o arquivo com cabecalho e a lista inteira: %s' % (len(alvos), ruins[:3]))
+    ok((PARCIAL or len(alvos) >= 15) and not ruins, 'as %d telas com "Baixar planilha" baixam o arquivo com cabecalho e a lista inteira: %s' % (len(alvos), ruins[:3]))
 
     print('\n[3] Imprimir')
     alvos = _filtrar([n for n in TODAS if re.search(r'id="menuMaisAcoes".{0,2500}data-acao="imprimir"', fontes[n], re.S)])
@@ -127,7 +130,7 @@ with sync_playwright() as p:
         aviso = pg.locator('.modal-card.open').count()
         if n != 1 or aviso or (esperado is not None and na_tela and no_papel < esperado) or pg.evaluate("document.querySelectorAll('.main tbody tr').length") != na_tela:
             ruins.append('%s: imprimiu %d vez(es), %d linhas no papel de %s, aviso %d' % (tela, n, no_papel, esperado, aviso))
-    ok(len(alvos) >= 10 and not ruins, 'as %d telas com "Imprimir" chamam a impressao uma vez, com a lista inteira, e devolvem a pagina: %s' % (len(alvos), ruins[:3]))
+    ok((PARCIAL or len(alvos) >= 10) and not ruins, 'as %d telas com "Imprimir" chamam a impressao uma vez, com a lista inteira, e devolvem a pagina: %s' % (len(alvos), ruins[:3]))
     abrir('pagina-estoque-enderecamento.html')
     pg.evaluate("(() => { window.print = () => { window.__n = (window.__n || 0) + 1; }; })()")
     pg.evaluate("document.getElementById('btnImprimir').click()"); pg.wait_for_timeout(250)
@@ -149,7 +152,7 @@ with sync_playwright() as p:
             fez = pg.url != url or baixou or pg.evaluate("window.__fez || ''") or pg.evaluate("Array.from(document.querySelectorAll('.open')).filter(e => !/backdrop/.test(e.className) && !e.closest('#menuMaisAcoes')).length")
             if not fez:
                 mudos.append(tela.replace('pagina-', '') + ': ' + rotulo)
-    ok(len(listas) >= 19 and not mudos, 'em %d listas, todo item do menu navega, abre algo, baixa ou imprime: %s' % (len(listas), mudos[:4]))
+    ok((PARCIAL or len(listas) >= 19) and not mudos, 'em %d listas, todo item do menu navega, abre algo, baixa ou imprime: %s' % (len(listas), mudos[:4]))
     cad = {n: pg.evaluate("1") and re.findall(r'data-acao="(\w+)"', re.search(r'id="menuMaisAcoes".*?</div>\n      </div>', fontes[n], re.S).group(0)) for n in ['pagina-cadastros-clientes.html', 'pagina-cadastros-fornecedores.html', 'pagina-cadastros-produtos.html']}
     ok(all(v == ['imprimir', 'planilha'] for v in cad.values()), 'Clientes, Fornecedores e Produtos ficaram com os dois itens que funcionam: %s' % list(cad.values())[0])
     abrir('pagina-cadastros-clientes.html')

@@ -49,8 +49,8 @@ O que entrou e o que falta em cada item feito no principal:
 - **I1** (Dashboard): 14 quadros levam à tela de origem, e "Vendas por Loja" filtra o painel inteiro
   pela loja clicada. "Mais Vendidos" lê o Giro de Estoque e "Alertas de Estoque" lê Necessidades de
   Compra, e os botões 5/10/15/20 mostram mais itens. Os valores financeiros continuam próprios (R6).
-- **I2** (Boas-vindas): dez atalhos com destino, o link para a Agenda e o quadro "O que precisa de
-  você hoje", de lado a lado, com a quantidade de cada fila lida da tela dona (a suíte compara). A
+- **I2** (Boas-vindas): dez atalhos com destino, o link para a Agenda e o quadro "Pendências do
+  Dia", de lado a lado, com a quantidade de cada fila lida da tela dona (a suíte compara). A
   "Agenda de Hoje" continua texto fixo.
 
 Como cada item foi feito, quando fugiu da proposta:

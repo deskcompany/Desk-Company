@@ -10,7 +10,7 @@
 ## 🏠 Início — 4 de 4
 | | Submódulo |
 |---|---|
-| ✅ | Página inicial *(a tela de boas-vindas; 10/out: os atalhos levam às telas, e a lista "O que precisa de você hoje" leva a cada fila de trabalho)* |
+| ✅ | Página inicial *(a tela de boas-vindas; 10/out: os atalhos levam às telas, e o quadro "Pendências do Dia" leva a cada fila de trabalho, com a quantidade de cada uma)* |
 | ✅ | Dashboard KPIs *(10/out: cada quadro leva à tela de origem)* |
 | ✅ | Agenda |
 | ✅ | Minha Conta |
@@ -79,7 +79,7 @@
 
 > **Primeira leva de melhorias em 10/out**, depois de uma varredura das 80 telas prontas, que o usuário pediu e aprovou inteira. O que mudou de padrão: **o link entre telas cai numa lista já filtrada** (`?busca=` no endereço, em 30 listas), **imprimir e baixar planilha funcionam de verdade em 20 listas**, o menu ficou só com o que funciona, e os painéis de Ordens de Compra, Clientes, Pedidos de Venda e das filas de Logística passaram a levar às telas vizinhas. A lista, com o que entrou e o que falta, está em `docs/melhorias-modulos-prontos.md`. Ver §14.53.
 
-> **Retorno do usuário em 12/out**, depois de testar a primeira leva: "incluir" abre em branco (ordem de compra e os cinco cadastros); listas numeradas abrem do nº 1; o filtro de período fecha quando outro filtro abre, nas doze telas que o têm; Necessidades de Compra abre em "A comprar" e digitar a quantidade marca o produto; concluir a separação volta para a fila e "devolver para a fila" funciona; a Conferência de Saída não leva de volta à Separação, e o Pedido de Venda mostra a etapa em que o pedido está; pedido cancelado não deve em Contas a Receber; no Dashboard, os botões 5/10/15/20 mostram mais itens e clicar na loja filtra o painel inteiro; e Boas-vindas ganhou o quadro "O que precisa de você hoje" com a quantidade de cada fila. Ver §14.54.
+> **Retorno do usuário em 12/out**, depois de testar a primeira leva: "incluir" abre em branco (ordem de compra e os cinco cadastros); listas numeradas abrem do nº 1; o filtro de período fecha quando outro filtro abre, nas doze telas que o têm; Necessidades de Compra abre em "A comprar" e digitar a quantidade marca o produto; concluir a separação volta para a fila e "devolver para a fila" funciona; a Conferência de Saída não leva de volta à Separação, e o Pedido de Venda mostra a etapa em que o pedido está; pedido cancelado não deve em Contas a Receber; no Dashboard, os botões 5/10/15/20 mostram mais itens e clicar na loja filtra o painel inteiro; e Boas-vindas ganhou o quadro "Pendências do Dia" com a quantidade de cada fila. Ver §14.54 e §14.55.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |

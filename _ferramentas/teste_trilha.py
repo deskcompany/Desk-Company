@@ -266,7 +266,7 @@ with sync_playwright() as p:
     ir(BOAS)
     filas = pg.evaluate("Array.from(document.querySelectorAll('#quadroDoDia a.dia-fila')).map(a => a.getAttribute('href'))")
     ok(len(filas) == 9 and all(_os.path.exists(localiza.onde(localiza.nome(f))) for f in filas) and pg.get_attribute('#linkAgenda', 'href').endswith('pagina-inicio-agenda.html'),
-       '"O que precisa de você hoje" lista as 9 filas de trabalho, cada uma com a tela dela, e a agenda tem o link para a Agenda')
+       '"Pendências do Dia" lista as 9 filas de trabalho, cada uma com a tela dela, e a agenda tem o link para a Agenda')
 
     print('\n[9] O cadastro do cliente mostra o que ele comprou e o que deve')
     CLI = 'pagina-cadastros-clientes.html'

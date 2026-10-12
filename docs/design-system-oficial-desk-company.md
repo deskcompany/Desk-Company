@@ -2452,3 +2452,26 @@ entra no bloco comum de impressão, e por isso chega às 20 listas de uma vez.
 **Continua sendo dado de exemplo:** os títulos de Contas a Receber não batem todos com os pedidos
 (valor e cliente de quatro deles); a Expedição tem pedidos que o Pedido de Venda ainda dá como em
 separação; e o pedido separado numa tela não aparece sozinho na fila da Conferência de Saída.
+
+## 14.55 O quadro não cresce, e os vizinhos fecham na mesma altura (12/out/2026)
+
+O usuário testou o §14.54, deu ok em sete dos nove pontos e devolveu dois, os dois no Início.
+
+**O quadro não muda de tamanho com o conteúdo.** No Dashboard, pedir 10, 15 ou 20 itens esticava
+"Mais Vendidos" e "Alertas de Estoque", e os quadros vizinhos da linha se deformavam junto. A lista
+passou a ficar presa na altura com que a tela abre, a dos 5 primeiros itens, e o resto rola por
+dentro dela (`.lista-rolavel`). A altura é **medida**, e não fixa em CSS: nome comprido quebra em
+duas linhas, e um número fixo cortaria o quinto item. Ela é medida de novo quando a fonte termina de
+carregar e quando a janela muda de largura; a primeira versão media antes de a fonte chegar e
+deixava 27px do quinto item de fora. A nota "Mostrando os 6 que há..." vai dentro da lista, como
+última linha: fora dela, voltava a esticar o quadro.
+
+**Quadros lado a lado fecham na mesma altura.** Em Boas-vindas a agenda tinha 493px e os atalhos,
+498. A linha passou a esticar os dois (`align-items:stretch`), o rodapé da agenda desce para o pé do
+quadro e os atalhos ocupam a altura toda. A suíte mede a diferença, e ela é zero.
+
+**Nome de quadro é formal.** "O que precisa de você hoje" virou **Pendências do Dia**, no tom dos
+vizinhos ("Agenda de Hoje", "Atalhos Rápidos").
+
+Provado nos dois sentidos: três defeitos injetados (a altura destravada, a linha sem esticar e o
+nome antigo), e os três foram pegos. Com os quinze do §14.54, são dezoito.

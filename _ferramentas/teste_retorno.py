@@ -13,7 +13,7 @@
 #       passou nao aparece como link nas etapas seguintes (so no Pedido de Venda);
 #   [7] Metas e Performance e uma pagina so;
 #   [8] Inicio: os botoes 5/10/15/20 mostram mais itens, clicar na loja filtra o painel inteiro,
-#       e "O que precisa de voce hoje" e um quadro proprio, com os numeros de cada fila.
+#       e "Pendencias do Dia" e um quadro proprio, com os numeros de cada fila; os quadros nao crescem.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys
 import localiza
@@ -305,14 +305,26 @@ with sync_playwright() as p:
         ok(pg.evaluate("ALERTAS_ESTOQUE.map(x => [x.nome, x.vendavel, x.minimo])") == da_compra and len(da_compra) >= 5, '"Alertas de Estoque" e o que Necessidades de Compra tem abaixo do minimo (%d)' % len(da_compra))
         ok(pg.evaluate("document.getElementById('estoqueTotal').textContent") == valor_estoque, 'o valor em estoque das tres lojas soma o do Controle de Estoques: %s' % valor_estoque)
         conta = lambda: pg.evaluate("[document.querySelectorAll('#listaMaisVendidos .rank-item').length, document.querySelectorAll('#listaAlertas .stock-item').length]")
-        ok(conta() == [5, 5], 'as duas listas abrem com 5 itens')
+        # Segundo retorno (12/out): o quadro nao cresce. A lista fica na altura dos 5 itens e rola por dentro.
+        nota = lambda i: pg.evaluate("(i) => (document.getElementById(i) || { textContent: '' }).textContent", i)
+        quadros = lambda: pg.evaluate("Array.from(document.querySelectorAll('.row-bottom > .card')).map(c => Math.round(c.getBoundingClientRect().height))")
+        rola = lambda: pg.evaluate("['listaMaisVendidos', 'listaAlertas'].map(id => { const l = document.getElementById(id); return l.scrollHeight - l.clientHeight; })")
+        pg.wait_for_timeout(300)
+        abertura = quadros()
+        ok(conta() == [5, 5] and len(set(abertura)) == 1 and all(r <= 1 for r in rola()), 'as duas listas abrem com 5 itens, sem rolagem, e os tres quadros da linha tem a mesma altura: %s' % abertura)
         pg.evaluate("document.querySelectorAll('.qty-filter[data-lista=vendidos] .pill-btn-sm')[1].click()"); pg.wait_for_timeout(200)
-        ok(conta()[0] == 10 and pg.evaluate("document.getElementById('notaMaisVendidos').textContent") == '', 'o botao 10 de "Mais Vendidos" mostra 10 produtos')
+        ok(conta()[0] == 10 and nota('notaMaisVendidos') == '', 'o botao 10 de "Mais Vendidos" mostra 10 produtos')
+        ok(quadros() == abertura and rola()[0] > 100 and pg.evaluate("getComputedStyle(document.getElementById('listaMaisVendidos')).overflowY") == 'auto',
+           'e o quadro NAO cresce: os 10 rolam dentro da lista, e os tres quadros continuam na altura da abertura: %s' % quadros())
         pg.evaluate("document.querySelectorAll('.qty-filter[data-lista=vendidos] .pill-btn-sm')[3].click()"); pg.wait_for_timeout(200)
         pg.evaluate("document.querySelectorAll('.qty-filter[data-lista=alertas] .pill-btn-sm')[1].click()"); pg.wait_for_timeout(200)
-        ok(conta() == [len(do_giro), len(da_compra)] and 'Mostrando os %d que há' % len(do_giro) in pg.evaluate("document.getElementById('notaMaisVendidos').textContent")
-           and 'Mostrando os %d que há' % len(da_compra) in pg.evaluate("document.getElementById('notaAlertas').textContent"),
+        ok(conta() == [len(do_giro), len(da_compra)] and 'Mostrando os %d que há' % len(do_giro) in nota('notaMaisVendidos')
+           and 'Mostrando os %d que há' % len(da_compra) in nota('notaAlertas'),
            'pedindo mais do que existe, a lista mostra todos e diz que sao so esses: %s' % conta())
+        ok(quadros() == abertura and rola()[1] > 20, 'com 20 e com a nota, os quadros continuam na mesma altura, e os alertas tambem rolam por dentro')
+        url = pg.url
+        pg.evaluate("(() => { const l = document.getElementById('listaMaisVendidos'); l.dispatchEvent(new MouseEvent('click', { bubbles: true })); })()"); pg.wait_for_timeout(250)
+        ok(pg.url == url, 'clicar na barra de rolagem ou no vazio da lista nao navega')
         ok(pg.evaluate("!document.getElementById('quadroLojas').hasAttribute('data-href')"), '"Vendas por Loja" nao e mais link: o clique nele escolhe a loja')
         geral = pg.evaluate("Array.from(document.querySelectorAll('.kpi-card[data-kpi] .kpi-value')).map(e => e.textContent)")
         pg.evaluate("document.querySelector('#quadroLojas .legend-row[data-store=shope]').click()"); pg.wait_for_timeout(300)
@@ -338,7 +350,8 @@ with sync_playwright() as p:
                     'conf': filas['conf']['aguardando'], 'exp': filas['exp']['montagem'] + filas['exp']['conferindo'], 'pagar': filas['pagar']['atrasada'], 'receber': filas['receber']['atrasada']}
         ir(BV)
         mostrado = pg.evaluate("Object.fromEntries(Array.from(document.querySelectorAll('#quadroDoDia .dia-fila')).map(a => [a.getAttribute('data-fila'), Number(a.querySelector('.dia-numero').textContent)]))")
-        ok(mostrado == esperado, 'cada numero de "O que precisa de voce hoje" e o da aba da fila dona: %s' % mostrado)
+        ok(mostrado == esperado, 'cada numero de "Pendencias do Dia" e o da aba da fila dona: %s' % mostrado)
+        ok(pg.evaluate("document.querySelector('#quadroDoDia .card-title').textContent") == 'Pendências do Dia', 'o quadro tem o nome formal que o usuario pediu, "Pendencias do Dia"')
         destinos = pg.evaluate("Array.from(document.querySelectorAll('#quadroDoDia .dia-fila')).map(a => a.getAttribute('href').split('/').pop())")
         ok(len(destinos) == 9 and all(d in TODAS for d in destinos), 'e cada fila leva a tela dela')
         geo = pg.evaluate("""(() => { const q = document.getElementById('quadroDoDia').getBoundingClientRect(), l = document.querySelector('.row-welcome').getBoundingClientRect();
@@ -347,7 +360,8 @@ with sync_playwright() as p:
                      alturas: Math.abs(c[0].height - c[1].height), colunas: document.querySelectorAll('#quadroDoDia .dia-coluna').length }; })()""")
         ok(geo['fora'] and geo['largura'] and geo['abaixo'] and geo['colunas'] == 3, 'o quadro e proprio: fora dos atalhos, abaixo dos dois quadros e de lado a lado, em 3 colunas')
         atalhos = pg.evaluate("Array.from(document.querySelectorAll('.shortcut-tile')).map(t => (t.getAttribute('data-href') || '').split('/').pop().split('?')[0])")
-        ok(len(atalhos) == 10 and all(a in TODAS for a in atalhos) and geo['alturas'] <= 12, 'os atalhos ganharam dois botoes e fecham na altura da agenda (diferenca de %dpx)' % geo['alturas'])
+        ok(len(atalhos) == 10 and all(a in TODAS for a in atalhos), 'os atalhos ganharam dois botoes, todos com destino')
+        ok(geo['alturas'] <= 1, 'o quadro da agenda e o dos atalhos fecham na mesma altura (diferenca de %.1fpx; eram 5)' % geo['alturas'])
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
