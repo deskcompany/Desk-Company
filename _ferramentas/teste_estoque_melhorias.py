@@ -205,6 +205,25 @@ with sync_playwright() as p:
         ok(o['href'] == '../logistica/' + CONF + '?id=24' and o['texto'] == 'Pedido #24', 'a falta que veio da Conferencia de Saida leva a ficha do pedido na bancada: %s' % o['href'])
         ir(CONF, '?id=24')
         ok(pg.evaluate("!PEDIDO_INEXISTENTE && PEDIDO.numero === 24 && PEDIDO.itens.some(i => i.sku === 'KIT-COZ-006')"), 'e a Conferencia de Saida tem o pedido 24, com aquele produto')
+
+        # O navegador de quem ja usava a tela guarda o exemplo ANTIGO (print do usuario, 12/out: o Kit
+        # Home Office levou a uma lista vazia, buscando "951"). A suite comecava sempre do zero e nao via.
+        do_zero(BLOQ)
+        pg.evaluate("""() => { const e = semente(); e.itens.find(i => i.id === 1).doc = 'NF-e 12.951'; e.itens.find(i => i.id === 4).doc = 'NF-e 13.240';
+            localStorage.setItem('deskBloqueados', JSON.stringify(e)); }""")
+        ir(BLOQ)
+        antigo1, antigo4 = origem(1), origem(4)
+        ok(antigo1['href'] == esperado[1][0] and antigo1['texto'] == 'Nota 4468' and antigo4['href'] == esperado[4][0],
+           'com o exemplo antigo guardado no navegador, a origem abre na nota certa: %s -> %s' % (antigo1['texto'], antigo1['href']))
+        ir(NOTAS, '?' + antigo1['href'].split('?')[1])
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela .oc-numero')).some(e => e.textContent === '4468')") and 'não tem esse registro' not in pg.inner_text('#faixaBuscaLink'),
+           '  e a Entrada de Notas abre com a nota 4468 na lista, sem o aviso de registro que nao existe')
+        ir(BLOQ)
+        pg.evaluate("""() => localStorage.setItem('deskBloqueiosEntrada', JSON.stringify({ 'x:1': { chave: 'x:1', sku: 'CAB-HDM-009', produto: 'Cabo HDMI 2.1 · 2m', un: 'UN', dep: 2,
+            qtd: 1, motivo: 'avaria', origem: 'conferencia_entrada', doc: 'NF-e 55.123', quem: 'Carlos Mendes', obs: '' } }))""")
+        ir(BLOQ)
+        estranho = origem(pg.evaluate("ITENS.find(i => i.doc === 'NF-e 55.123').id"))
+        ok(estranho['href'] is None and estranho['linha'] == 'Conferência de entrada · NF-e 55.123', 'documento escrito em outro formato fica em texto, em vez de virar link para um pedaco do numero: %s' % estranho['linha'])
         ir(BLOQ); pg.evaluate("(chaves) => chaves.forEach(k => localStorage.removeItem(k))", GUARDADO)
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])

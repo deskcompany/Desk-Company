@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, na entrega das melhorias do estoque.*
+*Atualizado em 12/out/2026, no conserto do link de Itens Bloqueados.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -12,6 +12,11 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 junto com as da venda (V2, V3 e V5) e as de Finanças (F1 a F4), entregues antes no mesmo dia. Ele
 mandou seguir a lista grupo a grupo; sobre Finanças, voltou com um ponto só, a barra de rolagem na
 tabela de Caixa e Bancos, que entrou nesta entrega.
+
+**O usuário já testou o estoque e voltou com três pontos.** Um era defeito, e está consertado: no
+navegador dele o Kit Home Office levou a uma lista vazia em Entrada de Notas, porque a tela de Itens
+Bloqueados guarda o exemplo no navegador e o dele ainda citava a nota antiga (§14.58, no fim). Os
+outros dois são barganha aberta, **sem nada construído**: ver "Esperando decisão do usuário".
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -118,8 +123,9 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
   texto.
 
 **7. A verificação.** Quatro suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
-`teste_venda_melhorias.py` e `teste_estoque_melhorias.py`. Cinquenta e oito defeitos injetados de
-propósito, um por vez; os cinquenta e oito são pegos. A auditoria do projeto reprova
+`teste_venda_melhorias.py` e `teste_estoque_melhorias.py`. Sessenta defeitos injetados de
+propósito, um por vez; os sessenta são pegos (os dois últimos são do conserto do link, com o
+exemplo antigo guardado no navegador). A auditoria do projeto reprova
 qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
 
 **8. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
@@ -128,7 +134,8 @@ qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guarda
 
 ## Próximo da fila
 
-1. **O teste do usuário** em Finanças, na venda e no estoque.
+1. **A resposta do usuário às duas barganhas** (o nome de Itens Bloqueados e a conferência na
+   chegada da transferência) e o resto do teste dele em Finanças, na venda e no estoque.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.
@@ -151,6 +158,15 @@ qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guarda
 ## Esperando decisão do usuário
 
 Nenhuma destas trava o teste.
+
+- **Barganha aberta em 12/out: o nome "Itens Bloqueados".** O usuário propôs "Tratamento de
+  Perdas". A recomendação dada foi aceitar o nome, mantendo "bloqueado" como nome da situação do
+  saldo nas outras telas. Falta o aval dele; nada foi renomeado.
+- **Barganha aberta em 12/out: a chegada da transferência virar conferência.** O usuário propôs que
+  confirmar a chegada abra uma conferência como a da nota de entrada. A recomendação dada foi levar a
+  transferência para a fila da Conferência de Entrada, com contagem cega, no lugar do painel que hoje
+  já vem com a quantidade preenchida. Falta ele decidir o que acontece com o que não chegou (segue
+  em trânsito ou vira falta a auditar); nada foi construído.
 
 1. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
    computador; para valer também no app da Claude, o usuário reenvia a pasta

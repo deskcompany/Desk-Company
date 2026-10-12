@@ -2009,6 +2009,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let ESTADO = null;
   try { ESTADO = JSON.parse(localStorage.getItem(CHAVE_BLOQ) || 'null'); } catch (e) { ESTADO = null; }
   if (!ESTADO || !Array.isArray(ESTADO.itens) || !Array.isArray(ESTADO.resolvidos)) ESTADO = semente();
+  // O exemplo citava duas notas que nao existiam em lugar nenhum, e trocou de nota em 12/out. Quem ja
+  // tinha aberto esta tela guardou o nome antigo no navegador: a troca vale tambem para o guardado.
+  const DOC_QUE_MUDOU = { 'NF-e 12.951': 'Nota 4468', 'NF-e 13.240': 'Nota 9051' };
+  ESTADO.itens.concat(ESTADO.resolvidos).forEach(x => { if (x && DOC_QUE_MUDOU[x.doc]) x.doc = DOC_QUE_MUDOU[x.doc]; });
   const ITENS = ESTADO.itens, RESOLVIDOS = ESTADO.resolvidos;
   function gravar() {
     try { localStorage.setItem(CHAVE_BLOQ, JSON.stringify(ESTADO)); }
@@ -2224,14 +2228,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // De onde veio, com o caminho ate o documento (12/out/2026). So vira link a origem que tem tela para
   // abrir aquele documento: a nota em Entrada de Notas e a ficha do pedido na Separacao e na
   // Conferencia de Saida. Acerto, devolucao e bloqueio manual seguem em texto.
-  const DESTINO_DA_ORIGEM = { conferencia_entrada: '../estoque/pagina-estoque-entrada-notas.html?busca=',
-                              separacao: '../logistica/pagina-logistica-separacao-detalhe.html?id=',
-                              conferencia_saida: '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' };
+  // O numero so sai do documento escrito no formato que a tela de origem grava ("Nota 4468",
+  // "Pedido #23"). A primeira versao pegava os digitos do fim de qualquer texto: de "NF-e 12.951"
+  // saia "951", e o link caia numa lista vazia (print do usuario, 12/out). Formato desconhecido fica em texto.
+  const DESTINO_DA_ORIGEM = {
+    conferencia_entrada: { doc: /^Nota (\d+)$/,     href: '../estoque/pagina-estoque-entrada-notas.html?busca=' },
+    separacao:           { doc: /^Pedido #(\d+)$/,  href: '../logistica/pagina-logistica-separacao-detalhe.html?id=' },
+    conferencia_saida:   { doc: /^Pedido #(\d+)$/,  href: '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' } };
   function origemComLink(i) {
     if (!i.doc) return ORIGENS[i.origem];
-    const n = (/(\d+)\s*$/.exec(i.doc) || [])[1], destino = DESTINO_DA_ORIGEM[i.origem];
-    return ORIGENS[i.origem] + ' · ' + (destino && n
-      ? '<a class="link-origem" id="linkOrigemBloqueio" href="' + destino + n + '">' + esc(i.doc) + '</a>' : esc(i.doc));
+    const d = DESTINO_DA_ORIGEM[i.origem], n = d && (d.doc.exec(i.doc) || [])[1];
+    return ORIGENS[i.origem] + ' · ' + (n
+      ? '<a class="link-origem" id="linkOrigemBloqueio" href="' + d.href + n + '">' + esc(i.doc) + '</a>' : esc(i.doc));
   }
   function linhaFato(rotulo, valor) {
     return '<div class="extrato-linha"><span class="extrato-rotulo">' + rotulo + '</span><span class="extrato-valor">' + valor + '</span></div>';

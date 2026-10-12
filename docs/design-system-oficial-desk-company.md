@@ -2596,3 +2596,15 @@ pode trazer vizinhos junto do registro.
 
 **Provado nos dois sentidos.** Dezoito defeitos injetados, um por vez, contra
 `teste_estoque_melhorias.py` e a seção nova de `teste_fin_melhorias.py`, e os dezoito foram pegos.
+
+**O exemplo mudou, e o navegador do usuário guardava o antigo.** No teste dele, a origem do Kit Home
+Office abriu a Entrada de Notas buscando "951", com a lista vazia. Dois defeitos somados. A tela de
+Itens Bloqueados guarda o próprio estado no navegador (`deskBloqueados`), com o exemplo dentro: quem
+já a tinha aberto continuava com "NF-e 12.951", e a troca do exemplo no arquivo não chegava a ele. E
+o link tirava o número dos dígitos do fim de qualquer texto, de onde saiu "951". Conserto: o número
+só sai do documento escrito no formato que a tela de origem grava ("Nota 4468", "Pedido #23"), e
+formato desconhecido fica em texto; e a troca das duas notas vale também para o estado guardado. A
+suíte começava sempre com o navegador limpo, por isso não viu; agora abre também com o exemplo
+antigo guardado. Regra que fica: **mudou o exemplo de tela que guarda o próprio estado, o teste abre
+com o estado de antes da mudança**. Dois defeitos injetados contra as duas checagens novas, e os
+dois pegos.
