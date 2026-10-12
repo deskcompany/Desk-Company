@@ -1132,7 +1132,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1324,7 +1324,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1588,7 +1588,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== DADOS (mock) =====
   // ATENCAO ao ler estes numeros: no prototipo cada tela e um arquivo solto e
-  // carrega o proprio mock. No Lovable isto NAO e uma tabela de separacao com
+  // carrega o proprio mock. No sistema de producao isto NAO e uma tabela de separacao com
   // pedidos proprios — e uma consulta sobre `pedidos`, filtrando os que estao
   // na etapa de separacao, com as colunas do galpao (separador, inicio, fim)
   // numa tabela irma. Os pedidos 5, 6 e 7 sao os mesmos de Pedidos de Venda.
@@ -1601,7 +1601,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SITUACAO_CLASSE = { fila: 'bs-fila', separando: 'bs-separando', separado: 'bs-separado' };
 
   const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius' };
-  const EU = 3;   // usuario logado — no Lovable vem da sessao
+  const EU = 3;   // usuario logado — no sistema de producao vem da sessao
 
   // "Origem" responde a pergunta que o usuario fez na barganha: pedido de
   // vitrine cai na fila sozinho depois do pix/cartao; pedido manual so cai
@@ -1664,6 +1664,36 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       transp: 'Correios · SEDEX', situacao: 'separado', operador: 3, liberadoHa: 72, itens: [
       { sku: 'KIT-COZ-006', nome: 'Kit utensílios de cozinha 6 peças', variacao: 'Inox', qtd: 2, end: 'R08-P01-N2' } ] }
   ];
+
+  // ===== O QUE A FICHA JA FEZ COM O PEDIDO (bloco compartilhado, 10/out/2026) =====
+  // A ficha conclui a separacao, guarda pela metade ou devolve o pedido para a fila, e volta para
+  // a fila do galpao. Fila e ficha sao arquivos soltos, entao o que mudou fica numa chave do
+  // navegador e as duas telas aplicam por cima do exemplo ao abrir. No sistema em producao e a
+  // tabela de pedidos. O bloco e identico nas duas telas.
+  const CHAVE_SEPARACAO = 'deskSeparacao';
+  function lerSeparacao() {
+    try { return JSON.parse(localStorage.getItem(CHAVE_SEPARACAO) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function gravarSeparacao(pedido, itens) {
+    const tudo = lerSeparacao();
+    tudo[pedido.id] = { situacao: pedido.situacao, operador: pedido.operador || null, itens: itens || null };
+    try { localStorage.setItem(CHAVE_SEPARACAO, JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  (function aplicarSeparacao() {
+    const tudo = lerSeparacao();
+    FILA.forEach(p => {
+      const s = tudo[p.id];
+      if (!s) return;
+      p.situacao = s.situacao;
+      p.operador = s.operador;
+      p.itens.forEach(i => {
+        const feito = (s.itens || []).filter(x => x.sku === i.sku)[0];
+        if (feito && feito.separado !== null && feito.separado !== undefined) { i.separado = feito.separado; i.motivoFalta = feito.motivo || ''; }
+        else { delete i.separado; delete i.motivoFalta; }
+      });
+      p.falta = p.itens.some(i => i.separado !== undefined && i.separado < i.qtd);
+    });
+  })();
 
   let buscaAtual = '';
   let situacaoAtual = 'todos';
@@ -1958,6 +1988,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       abrirModalConfirmacao('Reabrir a separação do pedido #' + p.numero + ' devolve ele para a fila do galpão e desfaz a conclusão registrada. A conferência de saída deste pedido, se já tiver começado, não é desfeita aqui.', 1, 'primary', () => {
         p.situacao = 'separando';
         p.espera = esperaDe(p);
+        gravarSeparacao(p, p.itens.map(i => ({ sku: i.sku, separado: i.separado === undefined ? null : i.separado, motivo: i.motivoFalta || '' })));
         fecharDrawer();
         renderTabela();
       });
@@ -2307,6 +2338,40 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       menu.classList.remove('open');
       if (acao === 'planilha') baixarPlanilhaDaTela(); else imprimirTela();
     }, true);
+  })();
+
+  // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
+  // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
+  // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir; e todo
+  // clique no popover fecha os dropdowns de fora dele.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+    else document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (!m.closest('.periodo-wrap')) m.classList.remove('open'); });
+  }, true);
+
+  // ===== A FICHA VOLTOU PARA A FILA (10/out/2026) =====
+  // Concluir ou devolver na ficha traz a pessoa de volta para ca, para pegar o proximo pedido. A
+  // faixa diz o que aconteceu com o pedido que ela acabou de deixar.
+  (function chegadaDaFicha() {
+    const q = new URLSearchParams(window.location.search);
+    const feita = q.get('feita'), devolvido = q.get('devolvido');
+    if (!feita && !devolvido) return;
+    const faixa = document.createElement('div');
+    faixa.className = 'busca-link';
+    faixa.id = 'faixaDaFicha';
+    const texto = document.createElement('span');
+    texto.textContent = feita
+      ? 'Separação do pedido #' + feita + ' concluída. Ele seguiu para a Conferência de Saída' +
+        (q.get('falta') ? ', e o que faltou está bloqueado para venda em Estoque → Itens Bloqueados, aguardando auditoria' : '') + '. Escolha o próximo da fila.'
+      : 'O pedido #' + devolvido + ' voltou para a fila e está livre para qualquer separador.';
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.textContent = 'Entendi';
+    botao.addEventListener('click', () => faixa.remove());
+    faixa.appendChild(texto); faixa.appendChild(botao);
+    const antes = Array.from(document.querySelectorAll('.main > .card, .main > .abas-situacao')).filter(e => e.offsetParent !== null)[0];
+    if (antes) antes.parentNode.insertBefore(faixa, antes); else document.querySelector('.main').appendChild(faixa);
   })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====

@@ -1170,15 +1170,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
   // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
   // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
-  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir.
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir; e todo
+  // clique no popover fecha os dropdowns de fora dele.
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+    else document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (!m.closest('.periodo-wrap')) m.classList.remove('open'); });
   }, true);
 
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1409,7 +1411,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1675,7 +1677,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== DADOS (mock) =====
   // ATENCAO ao ler: no prototipo cada tela e um arquivo solto e carrega o proprio
-  // mock. No Lovable esta tela NAO tem tabela propria de pedidos — ela le os
+  // mock. No sistema de producao esta tela NAO tem tabela propria de pedidos — ela le os
   // mesmos `pedidos` de Vendas e acrescenta tres coisas que so existem depois do
   // envio:
   //   `pedido_volumes`     um registro por caixa, com o codigo de rastreio;
@@ -1684,7 +1686,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `transportadoras` continua sendo o cadastro de Configuracoes, lido por join.
   const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
   const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius' };
-  const EU = 3;   // usuario logado — no Lovable vem da sessao
+  const EU = 3;   // usuario logado — no sistema de producao vem da sessao
 
   // Espelho do cadastro Configuracoes > Transportadoras. `prazo` em dias e o campo
   // que ja existe la (8, 3, 5, 4...) e e o unico que esta tela consome dele.
@@ -1698,7 +1700,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
 
   // O FUNIL E O DO PEDIDO DE VENDA, nao um funil desta tela (barganha de 02/out,
-  // em Pedidos). Copiar a lista para ca e deixar as duas divergirem — no Lovable
+  // em Pedidos). Copiar a lista para ca e deixar as duas divergirem — no sistema de producao
   // isto e um enum unico no banco.
   const SITUACOES = [
     { id: 'aberto',           rotulo: 'Em aberto',            fase: 'processando' },

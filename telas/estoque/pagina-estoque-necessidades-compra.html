@@ -1133,8 +1133,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="abas-situacao" id="abasSituacao">
-    <div class="aba-sit active" data-sit="todos"><span>Todos</span><span class="sit-contador" data-cont="todos">0</span></div>
-    <div class="aba-sit" data-sit="comprar" title="Produtos com quantidade a comprar"><span>A comprar</span><span class="sit-contador" data-cont="comprar">0</span></div>
+    <div class="aba-sit" data-sit="todos"><span>Todos</span><span class="sit-contador" data-cont="todos">0</span></div>
+    <div class="aba-sit active" data-sit="comprar" title="Produtos com quantidade a comprar"><span>A comprar</span><span class="sit-contador" data-cont="comprar">0</span></div>
     <div class="aba-sit" data-sit="minimo" title="Vendável abaixo do mínimo do produto, mesmo que a reposição já esteja a caminho"><span>Abaixo do mínimo</span><span class="sit-contador" data-cont="minimo">0</span></div>
     <div class="aba-sit" data-sit="falta" title="Nada para vender hoje: vendável zerado ou negativo"><span>Em falta</span><span class="sit-contador" data-cont="falta">0</span></div>
     <div class="aba-sit" data-sit="segurados" title="Precisariam de compra pela conta, mas não venderam nada no período: a sugestão fica zerada"><span>Segurados pelo giro</span><span class="sit-contador" data-cont="segurados">0</span></div>
@@ -1261,15 +1261,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
   // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
   // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
-  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir.
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir; e todo
+  // clique no popover fecha os dropdowns de fora dele.
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+    else document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (!m.closest('.periodo-wrap')) m.classList.remove('open'); });
   }, true);
 
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1449,7 +1451,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -2248,7 +2250,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let ORDENS_GERADAS = lerJson(CHAVE_ORDENS, []);
   if (!Array.isArray(ORDENS_GERADAS)) ORDENS_GERADAS = [];
 
-  let buscaAtual = '', abaAtual = 'todos';
+  // A tela abre no que falta comprar (10/out/2026): gerada a ordem, o produto sai da lista. Quem chega
+  // por link com ?busca= ve todos, para o produto procurado aparecer mesmo sem compra a fazer.
+  let buscaAtual = '', abaAtual = new URLSearchParams(window.location.search).get('busca') ? 'todos' : 'comprar';
   let filtroLoja = 'todos', filtroDep = 'todos', filtroForn = 'todos', filtroMarca = 'todos', filtroTipo = 'todos';
   function opcoesPadrao() {
     return { modo: 'minmax', coberturaDias: PARAM.compraCoberturaDias, saidas: true, situacoes: SITUACOES_PADRAO.slice(), transferencias: true, codForn: false };
@@ -2446,7 +2450,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const colB = cobertura ? (r.cobertura === null ? '<span class="estagio-zero">sem venda</span>' : Math.max(0, Math.round(r.cobertura)) + ' dias')
                              : (r.max > 0 ? fmtQtd(r.max, un) : '<span class="estagio-zero">—</span>');
       const nota = r.digitado ? '<div class="nc-nota">pela conta: ' + fmtQtd(r.sugestao, un) + (r.segurado ? ', segurada' : '') + '</div>'
-        : (r.segurado ? '<div class="nc-nota seg">segurado pelo giro</div>' : '');
+        : (r.segurado ? '<div class="nc-nota seg">segurado pelo giro</div>'
+        : (!(r.comprar > 0) && r.ocs.length ? '<div class="nc-nota">já pedido: ordem nº ' + r.ocs.map(o => o.numero).join(', nº ') + '</div>' : ''));
       const tr = document.createElement('tr');
       tr.setAttribute('data-sku', p.sku);
       tr.innerHTML =
@@ -2496,6 +2501,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     delete AJUSTES[sku];
     if (n !== retrato(p).comprar) AJUSTES[sku] = n;
+    // Digitar a quantidade ja marca o produto (10/out/2026): quem escreveu quanto comprar quer comprar.
+    if (n > 0) selecionados.add(sku); else selecionados.delete(sku);
     renderTabela();
   }
 
@@ -2945,6 +2952,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; renderTabela(); } });
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
   document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; renderTabela(); });
+  document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === abaAtual));
   document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => aba.addEventListener('click', () => {
     document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
     aba.classList.add('active');

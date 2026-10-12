@@ -58,7 +58,7 @@ fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in TODAS}
 com_bloco = [n for n in TODAS if MARCA in fontes[n]]
 
 print('\n[1] O bloco e um so')
-ok(len(com_bloco) >= 20, 'o bloco de planilha e impressao esta em %d telas' % len(com_bloco))
+ok(len(com_bloco) >= 19, 'o bloco de planilha e impressao esta em %d telas' % len(com_bloco))
 diferentes = [n for n in com_bloco if bloco(fontes[n]) != bloco(fontes[com_bloco[0]])]
 ok(not diferentes, 'e e identico em todas, fora o nome do arquivo e a funcao de cada tela: %s' % diferentes[:3])
 sem_nome = [n for n in com_bloco if not re.search(r"const PLANILHA_NOME = '[a-z-]{4,}';", fontes[n])]
@@ -149,7 +149,7 @@ with sync_playwright() as p:
             fez = pg.url != url or baixou or pg.evaluate("window.__fez || ''") or pg.evaluate("Array.from(document.querySelectorAll('.open')).filter(e => !/backdrop/.test(e.className) && !e.closest('#menuMaisAcoes')).length")
             if not fez:
                 mudos.append(tela.replace('pagina-', '') + ': ' + rotulo)
-    ok(len(listas) >= 20 and not mudos, 'em %d listas, todo item do menu navega, abre algo, baixa ou imprime: %s' % (len(listas), mudos[:4]))
+    ok(len(listas) >= 19 and not mudos, 'em %d listas, todo item do menu navega, abre algo, baixa ou imprime: %s' % (len(listas), mudos[:4]))
     cad = {n: pg.evaluate("1") and re.findall(r'data-acao="(\w+)"', re.search(r'id="menuMaisAcoes".*?</div>\n      </div>', fontes[n], re.S).group(0)) for n in ['pagina-cadastros-clientes.html', 'pagina-cadastros-fornecedores.html', 'pagina-cadastros-produtos.html']}
     ok(all(v == ['imprimir', 'planilha'] for v in cad.values()), 'Clientes, Fornecedores e Produtos ficaram com os dois itens que funcionam: %s' % list(cad.values())[0])
     abrir('pagina-cadastros-clientes.html')

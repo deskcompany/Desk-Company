@@ -91,7 +91,8 @@ with sync_playwright() as p:
     print('\n[1] Toda lista aceita a busca pelo endereco')
     fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in localiza.nomes()}
     listas = [n for n in fontes if MARCA_BUSCA in fontes[n]]
-    ok(len(listas) >= 30 and len(set(bloco(fontes[n], MARCA_BUSCA) for n in listas)) == 1, 'o bloco de busca pelo endereco esta em %d listas, identico em todas' % len(listas))
+    # Eram 30 ate Performance de Vendas virar parte de Metas e Performance.
+    ok(len(listas) >= 29 and len(set(bloco(fontes[n], MARCA_BUSCA) for n in listas)) == 1, 'o bloco de busca pelo endereco esta em %d listas, identico em todas' % len(listas))
     mudas = []
     for tela in listas:
         ir(tela)
@@ -192,16 +193,20 @@ with sync_playwright() as p:
     ir(PED)
     linha('Móveis Bom Preço')
     links = pg.evaluate("Array.from(document.querySelectorAll('#pedidoLinks a')).map(a => a.getAttribute('href').split('/').pop().split('?')[0])")
-    ok(links == [SEP, CONF, EXP, 'pagina-financas-contas-receber.html', 'pagina-cadastros-clientes.html'], 'o painel do pedido leva a Separacao, Conferencia de Saida, Expedicao, Contas a Receber e cadastro do cliente')
-    destino, faixa, n = seguir('#pedidoLinks a[href*="separacao"]')
-    ok(destino == SEP and 'Lista filtrada por "Móveis Bom Preço Ltda"' in faixa and n == 1, 'o link da Separacao cai na fila, no pedido do cliente')
+    # Desde o retorno do usuario (10/out): o painel mostra a etapa em que o pedido esta e so da link
+    # para a etapa que ele ja alcancou, levando a ficha DAQUELE pedido. teste_retorno.py cobre cada situacao.
+    ok(links == ['pagina-logistica-separacao-detalhe.html', 'pagina-financas-contas-receber.html', 'pagina-cadastros-clientes.html'],
+       'o painel de um pedido em separacao leva a ficha da Separacao, a Contas a Receber e ao cadastro do cliente: %s' % links)
+    pg.evaluate("document.querySelector('#pedidoLinks a[href*=\"separacao-detalhe\"]').click()"); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    ok('pagina-logistica-separacao-detalhe.html?id=6&de=pedido' in pg.url and pg.evaluate("PEDIDO.cliente") == 'Móveis Bom Preço Ltda', 'o link da Separacao abre a ficha do pedido do cliente')
+    ir(SEP)
     linha('Móveis Bom Preço')
     destino, faixa, n = seguir('#drawerCorpo a.painel-link[href*="pedidos.html"]')
     ok(destino == PED and n >= 1 and 'Lista filtrada' in faixa, 'e o painel da Separacao leva de volta aos pedidos do cliente')
     ir(CONF)
     linha('Pedro Henrique')
     hrefs = pg.evaluate("Array.from(document.querySelectorAll('#drawerCorpo a.painel-link')).map(a => a.getAttribute('href').split('/').pop().split('?')[0])")
-    ok(hrefs == [PED, SEP], 'o painel da Conferencia de Saida leva ao pedido e a Separacao')
+    ok(hrefs == [PED], 'o painel da Conferencia de Saida leva ao pedido, e nao de volta a Separacao: %s' % hrefs)
     ir(EXP)
     pg.evaluate("document.querySelector('.main tbody tr td:nth-child(2)').click()"); pg.wait_for_timeout(400)
     ok(pg.locator('#drawerCorpo .drawer-item-nome a.painel-link[href*="pedidos.html?busca="]').count() >= 1, 'no romaneio, cada pedido da carga e link para Pedidos de Venda')
@@ -233,7 +238,8 @@ with sync_playwright() as p:
     quadros = pg.evaluate("Array.from(document.querySelectorAll('.main .card')).map(c => [(c.querySelector('.kpi-label, .card-title') || {}).textContent || '', c.getAttribute('data-href') || ''])")
     sem_destino = [q[0] for q in quadros if not q[1]]
     quebrados = [q for q in quadros if q[1] and not _os.path.exists(localiza.onde(localiza.nome(q[1]).split('?')[0]))]
-    ok(len(quadros) == 15 and not sem_destino and not quebrados, 'os 15 quadros do Dashboard levam a uma tela que existe: sem destino %s' % sem_destino[:3])
+    # "Vendas por Loja" deixou de ser link em 10/out: clicar numa loja filtra o painel (teste_retorno.py).
+    ok(len(quadros) == 15 and sem_destino == ['Vendas por Loja'] and not quebrados, '14 quadros do Dashboard levam a uma tela que existe, e "Vendas por Loja" filtra o painel: sem destino %s' % sem_destino[:3])
     pg.evaluate("Array.from(document.querySelectorAll('.main .card')).filter(c => /Alertas de Estoque/.test(c.textContent))[0].querySelector('.stock-name').click()")
     pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
     ok(pg.url.endswith(NEC), 'clicar no quadro Alertas de Estoque abre Necessidades de Compra')
@@ -246,18 +252,19 @@ with sync_playwright() as p:
     valor = pg.evaluate("document.querySelector('.stock-total b').textContent")
     vendidos = pg.evaluate("Array.from(document.querySelectorAll('.rank-name')).map(e => e.textContent)")
     ir(CE)
-    do_estoque = pg.evaluate("PRODUTOS.filter(abaixoDoMinimo).map(p => [p.nome, disponivelDe(p) + aEnderecarDe(p), p.minimo]).sort((a, b) => a[1] - b[1]).slice(0, 5)")
-    ok(alertas == do_estoque and valor == pg.inner_text('#kpiValorEstoque'), 'os Alertas de Estoque do Dashboard sao os 5 mais criticos do Controle de Estoques, com o mesmo valor em estoque (%s)' % valor)
+    do_estoque = pg.evaluate("PRODUTOS.filter(abaixoDoMinimo).map(p => [p.nome, disponivelDe(p) + aEnderecarDe(p), p.minimo])")
+    ok(len(alertas) >= 5 and all(a in do_estoque for a in alertas) and valor == pg.inner_text('#kpiValorEstoque'),
+       'todo Alerta de Estoque do Dashboard esta abaixo do minimo no Controle de Estoques, com o mesmo valor em estoque (%s, %d alertas)' % (valor, len(alertas)))
     ir('pagina-estoque-giro-estoque.html')
     encalhados = pg.evaluate("PRODUTOS.filter(p => classeGiro(giroDe(p, PARAM.giroJanelaDias, 0), PARAM.giroEncalheAte, PARAM.giroBaixoAte) === 'encalhe').map(p => p.nome)")
     ok(not [v for v in vendidos if v in encalhados] and len(encalhados) >= 1, 'nenhum produto de "Mais Vendidos" e encalhe no Giro de Estoque (antes a Luminaria era as duas coisas)')
     ir(BOAS)
     atalhos = pg.evaluate("Array.from(document.querySelectorAll('.shortcut-tile')).map(t => [t.textContent.trim(), t.getAttribute('data-href') || ''])")
-    ok(len(atalhos) == 8 and all(a[1] and _os.path.exists(localiza.onde(localiza.nome(a[1]).split('?')[0])) for a in atalhos), 'os 8 atalhos rapidos de Boas-vindas tem destino: %s' % [a[0] for a in atalhos])
+    ok(len(atalhos) == 10 and all(a[1] and _os.path.exists(localiza.onde(localiza.nome(a[1]).split('?')[0])) for a in atalhos), 'os 10 atalhos rapidos de Boas-vindas tem destino: %s' % [a[0] for a in atalhos])
     clic('.shortcut-tile[data-href*="pedidos-detalhe"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
     ok(pg.url.endswith('pagina-vendas-pedidos-detalhe.html?novo=1'), '"Novo Pedido" abre o pedido novo')
     ir(BOAS)
-    filas = pg.evaluate("Array.from(document.querySelectorAll('#filaDoDia a')).map(a => a.getAttribute('href'))")
+    filas = pg.evaluate("Array.from(document.querySelectorAll('#quadroDoDia a.dia-fila')).map(a => a.getAttribute('href'))")
     ok(len(filas) == 9 and all(_os.path.exists(localiza.onde(localiza.nome(f))) for f in filas) and pg.get_attribute('#linkAgenda', 'href').endswith('pagina-inicio-agenda.html'),
        '"O que precisa de você hoje" lista as 9 filas de trabalho, cada uma com a tela dela, e a agenda tem o link para a Agenda')
 

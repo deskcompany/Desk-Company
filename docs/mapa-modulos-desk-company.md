@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Itens Bloqueados e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Itens Bloqueados e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, e em 12/out com o retorno do usuário sobre ela. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**81 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**80 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **Onde estão os arquivos (desde 08/out/2026):** cada tela mora em `telas/<módulo>/`, na pasta do módulo em que este mapa a lista. O dashboard de KPIs fica em `telas/inicio/`. `telas/integracoes/` existe e está vazia. Ver §14.44 do design system.
 
@@ -58,7 +58,7 @@
 |---|---|
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
-| ✅ | Metas e Performance *(10/out: um item de menu e duas visões, Metas e Performance de Vendas, com um seletor no topo que leva o mês e o nível de uma para a outra; por baixo são duas telas)* |
+| ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
 | ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ❌ | Notas Fiscais |
 | ❌ | Vendas Afiliados |
@@ -78,6 +78,8 @@
 > **CRM construído em 09/out**, a partir de 13 prints do Olist e quatro decisões do usuário: o **status do contato** (lead, prospect, cliente) mora em **Cadastros → Clientes** e o CRM lê e altera dali; **encerrar pergunta ganho ou perdido**, com motivo quando perde; a **próxima ação com data vira aviso na Agenda** do Início; e entram o **quadro por estágio**, WhatsApp e e-mail (abrem o aplicativo e registram o contato, o sistema não envia nada) e a **proposta** como registro do assunto. Nasceram junto, em Configurações, **Estágios do funil de vendas** (a ordem é o dado; o último encerra) e **Configurações do CRM** (dias para avisar assunto sem interação). Ficou de fora: marcadores, o módulo de Propostas comerciais com itens, o calendário "por período" e cadastro de motivos de perda (hoje é lista fechada).
 
 > **Primeira leva de melhorias em 10/out**, depois de uma varredura das 80 telas prontas, que o usuário pediu e aprovou inteira. O que mudou de padrão: **o link entre telas cai numa lista já filtrada** (`?busca=` no endereço, em 30 listas), **imprimir e baixar planilha funcionam de verdade em 20 listas**, o menu ficou só com o que funciona, e os painéis de Ordens de Compra, Clientes, Pedidos de Venda e das filas de Logística passaram a levar às telas vizinhas. A lista, com o que entrou e o que falta, está em `docs/melhorias-modulos-prontos.md`. Ver §14.53.
+
+> **Retorno do usuário em 12/out**, depois de testar a primeira leva: "incluir" abre em branco (ordem de compra e os cinco cadastros); listas numeradas abrem do nº 1; o filtro de período fecha quando outro filtro abre, nas doze telas que o têm; Necessidades de Compra abre em "A comprar" e digitar a quantidade marca o produto; concluir a separação volta para a fila e "devolver para a fila" funciona; a Conferência de Saída não leva de volta à Separação, e o Pedido de Venda mostra a etapa em que o pedido está; pedido cancelado não deve em Contas a Receber; no Dashboard, os botões 5/10/15/20 mostram mais itens e clicar na loja filtra o painel inteiro; e Boas-vindas ganhou o quadro "O que precisa de você hoje" com a quantidade de cada fila. Ver §14.54.
 
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
@@ -144,8 +146,8 @@
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
 | Configurações | 1 item de menu, 19 telas | 0 |
-| **Total** | **41 itens de menu com tela · 81 telas** | **14** |
+| **Total** | **41 itens de menu com tela · 80 telas** | **14** |
 
-*Contado no menu em 10/out/2026, depois da primeira leva de melhorias: **55 itens, 41 com destino e 14 sem**. Nenhuma tela saiu: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Itens Bloqueados, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 12/out/2026: **55 itens, 41 com destino e 14 sem**, em 80 telas (eram 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Itens Bloqueados, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

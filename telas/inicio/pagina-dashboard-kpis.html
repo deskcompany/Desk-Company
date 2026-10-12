@@ -355,6 +355,10 @@
   .fila-do-dia a:hover { color:var(--active-text); }
   .fila-do-dia a span { font-size:11.5px; font-weight:600; color:var(--text); }
   .quadro-rodape { display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--active-text); text-decoration:none; }
+  /* Linha que explica por que a lista tem menos itens do que o botao pediu (10/out/2026) */
+  .lista-nota { font-size:11.5px; color:var(--text); padding-top:8px; }
+  .lista-nota:empty { display:none; }
+  #quadroLojas .legend-row:hover .legend-name { color:var(--active-text); }
 </style>
 </head>
 <body class="dark">
@@ -578,56 +582,56 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <!-- LINHA 1: KPIs + DONUT -->
   <div class="grid-row row-kpis">
     <div class="kpi-stack">
-      <div class="card kpi-card" data-href="../vendas/pagina-vendas-pedidos.html" style="border-left-color:var(--chart-2)">
+      <div class="card kpi-card" data-kpi="vendasMes" data-href="../vendas/pagina-vendas-pedidos.html" style="border-left-color:var(--chart-2)">
         <div class="kpi-label">Total de Vendas do Mês</div>
         <div class="kpi-value">R$ 184.320,00</div>
         <div class="kpi-delta up">▲ 9,7% vs mês passado</div>
       </div>
-      <div class="card kpi-card" data-href="../vendas/pagina-vendas-performance-vendas.html" style="border-left-color:var(--success)">
+      <div class="card kpi-card" data-kpi="ticket" data-href="../vendas/pagina-vendas-metas.html" style="border-left-color:var(--success)">
         <div class="kpi-label">Ticket Médio de Venda</div>
         <div class="kpi-value">R$ 246,50</div>
         <div class="kpi-delta up">▲ 3,2% vs mês passado</div>
       </div>
-      <div class="card kpi-card" data-href="../vendas/pagina-vendas-pedidos.html" style="border-left-color:var(--active-text)">
+      <div class="card kpi-card" data-kpi="vendasHoje" data-href="../vendas/pagina-vendas-pedidos.html" style="border-left-color:var(--active-text)">
         <div class="kpi-label">Vendas Hoje</div>
         <div class="kpi-value">R$ 8.240,00</div>
         <div class="kpi-delta up">▲ 12,4% vs ontem</div>
       </div>
 
-      <div class="card kpi-card" data-href="../financas/pagina-financas-contas-pagar.html" style="border-left-color:var(--danger)">
+      <div class="card kpi-card" data-kpi="custo" data-href="../financas/pagina-financas-contas-pagar.html" style="border-left-color:var(--danger)">
         <div class="kpi-label">Custo Operacional</div>
         <div class="kpi-value">R$ 58.940,00</div>
         <div class="kpi-delta neutral">▲ 4,1% vs mês passado</div>
       </div>
-      <div class="card kpi-card" data-href="../estoque/pagina-estoque-acerto.html" style="border-left-color:var(--warning)">
+      <div class="card kpi-card" data-kpi="perdas" data-href="../estoque/pagina-estoque-acerto.html" style="border-left-color:var(--warning)">
         <div class="kpi-label">Perdas e Acertos</div>
         <div class="kpi-value">R$ 3.180,00</div>
         <div class="kpi-delta down">▼ 0,6% vs mês passado</div>
       </div>
-      <div class="card kpi-card" data-href="../vendas/pagina-vendas-performance-vendas.html" style="border-left-color:var(--success)">
+      <div class="card kpi-card" data-kpi="lucro" data-href="../vendas/pagina-vendas-metas.html" style="border-left-color:var(--success)">
         <div class="kpi-label">Lucro Total</div>
         <div class="kpi-value">R$ 61.910,00</div>
         <div class="kpi-delta up">▲ 8,3% vs mês passado</div>
       </div>
 
-      <div class="card kpi-card" data-href="../financas/pagina-financas-contas-pagar.html" style="border-left-color:var(--danger)">
+      <div class="card kpi-card" data-kpi="pagar" data-href="../financas/pagina-financas-contas-pagar.html" style="border-left-color:var(--danger)">
         <div class="kpi-label">Contas a Pagar</div>
         <div class="kpi-value">R$ 32.410,00</div>
         <div class="kpi-delta neutral">9 títulos em aberto</div>
       </div>
-      <div class="card kpi-card" data-href="../financas/pagina-financas-contas-receber.html" style="border-left-color:var(--active-text)">
+      <div class="card kpi-card" data-kpi="receber" data-href="../financas/pagina-financas-contas-receber.html" style="border-left-color:var(--active-text)">
         <div class="kpi-label">Contas a Receber</div>
         <div class="kpi-value">R$ 47.850,00</div>
         <div class="kpi-delta neutral">18 títulos em aberto</div>
       </div>
-      <div class="card kpi-card" data-href="../financas/pagina-financas-caixa.html" style="border-left-color:var(--success)">
+      <div class="card kpi-card" data-kpi="caixa" data-href="../financas/pagina-financas-caixa.html" style="border-left-color:var(--success)">
         <div class="kpi-label">Fluxo de Caixa</div>
         <div class="kpi-value">R$ 61.280,00</div>
         <div class="kpi-delta up">▲ entradas &gt; saídas</div>
       </div>
     </div>
 
-    <div data-href="../vendas/pagina-vendas-performance-vendas.html" class="card donut-card">
+    <div class="card donut-card" id="quadroLojas">
       <div class="card-head">
         <div class="card-title">Vendas por Loja</div>
         <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
@@ -664,7 +668,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="card-title">Metas por Loja</div>
         <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
       </div>
-      <div class="goal-bar-row">
+      <div class="goal-bar-row" data-store="shope">
         <div class="goal-bar-name">Desk Shope</div>
         <div class="goal-bar-pct">92%</div>
         <div class="goal-bar-track">
@@ -673,7 +677,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
         <div class="goal-bar-value">R$ 82.940,00</div>
       </div>
-      <div class="goal-bar-row">
+      <div class="goal-bar-row" data-store="tech">
         <div class="goal-bar-name">Desk Tech</div>
         <div class="goal-bar-pct" style="color:var(--success)">111%</div>
         <div class="goal-bar-track">
@@ -682,7 +686,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
         <div class="goal-bar-value">R$ 55.300,00</div>
       </div>
-      <div class="goal-bar-row">
+      <div class="goal-bar-row" data-store="brands">
         <div class="goal-bar-name">Desk Brands</div>
         <div class="goal-bar-pct">84%</div>
         <div class="goal-bar-track">
@@ -691,7 +695,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
         <div class="goal-bar-value">R$ 46.080,00</div>
       </div>
-      <div class="goal-bar-row goal-bar-total">
+      <div class="goal-bar-row goal-bar-total" id="metaTotal">
         <div class="goal-bar-name">Meta do Mês</div>
         <div class="goal-bar-pct">95%</div>
         <div class="goal-bar-track">
@@ -706,7 +710,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="card-head">
         <div>
           <div class="card-title">Vendas da Semana</div>
-          <div class="sales-total">R$ 35.400,00 <span class="sales-delta">▲ 11,3%</span></div>
+          <div class="sales-total"><span id="semanaTotal">R$ 35.400,00</span> <span class="sales-delta">▲ 11,3%</span></div>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
           <div class="chart-legend">
@@ -726,12 +730,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <line x1="0" y1="70" x2="400" y2="70" stroke="var(--border)" stroke-width="1"/>
           <line x1="0" y1="100" x2="400" y2="100" stroke="var(--border)" stroke-width="1"/>
           <line x1="0" y1="130" x2="400" y2="130" stroke="var(--border)" stroke-width="1"/>
-          <polyline points="0,115 60,100 120,105 180,65 240,40 300,20 360,50" fill="none" stroke="var(--active-text)" stroke-width="2.5"/>
-          <polyline points="0,125 60,115 120,110 180,95 240,85 300,75 360,80" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-dasharray="4,4"/>
-          <circle cx="300" cy="20" r="4" fill="var(--active-text)"/>
-          <text x="300" y="10" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-heading)" font-family="Nunito">R$ 7.100,00</text>
-          <circle cx="300" cy="75" r="3.5" fill="var(--text)"/>
-          <text x="300" y="66" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--text-heading)" font-family="Nunito">R$ 5.200,00</text>
+          <polyline id="semanaAtual" points="0,115 60,100 120,105 180,65 240,40 300,20 360,50" fill="none" stroke="var(--active-text)" stroke-width="2.5"/>
+          <polyline id="semanaAnterior" points="0,125 60,115 120,110 180,95 240,85 300,75 360,80" fill="none" stroke="var(--text)" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <circle id="semanaPicoAtual" cx="300" cy="20" r="4" fill="var(--active-text)"/>
+          <text id="semanaRotuloAtual" x="300" y="10" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-heading)" font-family="Nunito">R$ 7.100,00</text>
+          <circle id="semanaPicoAnterior" cx="300" cy="75" r="3.5" fill="var(--text)"/>
+          <text id="semanaRotuloAnterior" x="300" y="66" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--text-heading)" font-family="Nunito">R$ 5.200,00</text>
         </svg>
       </div>
     </div>
@@ -741,18 +745,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="grid-row row-bottom">
     <div data-href="../vendas/pagina-vendas-pedidos.html" class="card" style="display:flex; flex-direction:column;">
       <div class="card-head"><div class="card-title">Pedidos por Status</div><div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div></div>
-      <div class="status-item"><div class="status-name">Pendente</div><div class="status-track"><div class="status-fill" style="width:6%; background:#8A8DA6"></div></div><div class="status-count">38 · 6%</div></div>
-      <div class="status-item"><div class="status-name">Confirmado</div><div class="status-track"><div class="status-fill" style="width:10%; background:var(--chart-1)"></div></div><div class="status-count">64 · 10%</div></div>
-      <div class="status-item"><div class="status-name">Pago</div><div class="status-track"><div class="status-fill" style="width:19%; background:var(--chart-2)"></div></div><div class="status-count">122 · 19%</div></div>
-      <div class="status-item"><div class="status-name">Enviado</div><div class="status-track"><div class="status-fill" style="width:15%; background:var(--success)"></div></div><div class="status-count">96 · 15%</div></div>
-      <div class="status-item"><div class="status-name">Entregue</div><div class="status-track"><div class="status-fill" style="width:46%; background:var(--chart-3)"></div></div><div class="status-count">296 · 46%</div></div>
-      <div class="status-item"><div class="status-name">Cancelado</div><div class="status-track"><div class="status-fill" style="width:5%; background:var(--danger)"></div></div><div class="status-count">32 · 5%</div></div>
-      <div class="comp-sub" style="margin-top:auto; padding-top:12px;">Total do período: <b style="color:var(--text-heading)">648 pedidos</b></div>
+      <div id="listaStatus"></div>
+      <div class="comp-sub" style="margin-top:auto; padding-top:12px;">Total do período: <b style="color:var(--text-heading)" id="statusTotal">648 pedidos</b></div>
     </div>
 
     <div data-href="../estoque/pagina-estoque-giro-estoque.html" class="card">
       <div class="card-head"><div class="card-title">Mais Vendidos</div>
-        <div class="qty-filter">
+        <div class="qty-filter" data-lista="vendidos">
           <button class="pill-btn-sm active">5</button>
           <button class="pill-btn-sm">10</button>
           <button class="pill-btn-sm">15</button>
@@ -760,37 +759,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
         </div>
       </div>
-      <div class="rank-item">
-        <div class="rank-num">1</div>
-        <div class="rank-info"><div class="rank-name">Cadeira Ergonômica Pro</div><div class="rank-store">Desk Brands</div></div>
-        <div class="rank-right"><div class="rank-value">R$ 41.200,00</div><div class="rank-units">168 un.</div></div>
-      </div>
-      <div class="rank-item">
-        <div class="rank-num">2</div>
-        <div class="rank-info"><div class="rank-name">Mesa Escritório Slim</div><div class="rank-store">Desk Shope</div></div>
-        <div class="rank-right"><div class="rank-value">R$ 36.750,00</div><div class="rank-units">147 un.</div></div>
-      </div>
-      <div class="rank-item">
-        <div class="rank-num">3</div>
-        <div class="rank-info"><div class="rank-name">Notebook Desk Tech X1</div><div class="rank-store">Desk Tech</div></div>
-        <div class="rank-right"><div class="rank-value">R$ 29.900,00</div><div class="rank-units">39 un.</div></div>
-      </div>
-      <div class="rank-item">
-        <div class="rank-num">4</div>
-        <div class="rank-info"><div class="rank-name">Teclado Mecânico Desk</div><div class="rank-store">Desk Tech</div></div>
-        <div class="rank-right"><div class="rank-value">R$ 14.320,00</div><div class="rank-units">312 un.</div></div>
-      </div>
-      <div class="rank-item">
-        <div class="rank-num">5</div>
-        <div class="rank-info"><div class="rank-name">Suporte Monitor Duplo</div><div class="rank-store">Desk Tech</div></div>
-        <div class="rank-right"><div class="rank-value">R$ 11.860,00</div><div class="rank-units">211 un.</div></div>
-      </div>
+      <div id="listaMaisVendidos"></div>
+      <div class="lista-nota" id="notaMaisVendidos"></div>
     </div>
 
     <div data-href="../estoque/pagina-estoque-necessidades-compra.html" class="card" style="display:flex; flex-direction:column;">
       <div class="card-head">
         <div class="card-title">Alertas de Estoque</div>
-        <div class="qty-filter">
+        <div class="qty-filter" data-lista="alertas">
           <button class="pill-btn-sm active">5</button>
           <button class="pill-btn-sm">10</button>
           <button class="pill-btn-sm">15</button>
@@ -798,32 +774,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="more-btn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></div>
         </div>
       </div>
-      <div class="stock-item">
-        <div class="stock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stock-info"><div class="stock-name">Fone Bluetooth Desk One</div><div class="stock-min">mínimo: 10 un. · Desk Tech</div></div>
-        <div class="stock-qty">-2 un.</div>
-      </div>
-      <div class="stock-item">
-        <div class="stock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stock-info"><div class="stock-name">Camiseta Desk Brands · M</div><div class="stock-min">mínimo: 20 un. · Desk Brands</div></div>
-        <div class="stock-qty">0 un.</div>
-      </div>
-      <div class="stock-item">
-        <div class="stock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stock-info"><div class="stock-name">Suporte Monitor Duplo</div><div class="stock-min">mínimo: 8 un. · Desk Tech</div></div>
-        <div class="stock-qty">2 un.</div>
-      </div>
-      <div class="stock-item">
-        <div class="stock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stock-info"><div class="stock-name">Mesa Escritório Slim</div><div class="stock-min">mínimo: 10 un. · Desk Shope</div></div>
-        <div class="stock-qty">4 un.</div>
-      </div>
-      <div class="stock-item">
-        <div class="stock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-        <div class="stock-info"><div class="stock-name">Luminária LED Ajustável</div><div class="stock-min">mínimo: 15 un. · Desk Shope</div></div>
-        <div class="stock-qty">7 un.</div>
-      </div>
-      <div class="stock-total" style="margin-top:auto; padding-top:12px;">Valor total em estoque: <b style="color:var(--active-text)">R$ 81.103,75</b></div>
+      <div id="listaAlertas"></div>
+      <div class="lista-nota" id="notaAlertas"></div>
+      <div class="stock-total" style="margin-top:auto; padding-top:12px;">Valor total em estoque: <b style="color:var(--active-text)" id="estoqueTotal">R$ 81.103,75</b></div>
     </div>
   </div>
 </div>
@@ -853,7 +806,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1072,7 +1025,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1357,6 +1310,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelector('.subtitle').textContent = store === 'all'
       ? 'Visão geral consolidada de todas as lojas Desk'
       : 'Visualizando apenas dados de ' + storeNames[store];
+    pintarPainel();
   }
 
   document.querySelectorAll('.donut-seg').forEach(seg => {
@@ -1374,8 +1328,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   // ===== PILLS DE FILTRO (período e quantidade) =====
-  // Preview: alterna o estado ativo dentro do próprio grupo. A refiltragem real dos dados
-  // entra quando as tabelas estiverem no Supabase — hoje os números são mock fixo.
+  // Alterna o estado ativo dentro do próprio grupo. Quantos itens cada lista mostra e
+  // decidido mais abaixo, em "O PAINEL POR LOJA".
   function ativarPillsDoGrupo(seletorGrupo, seletorItem) {
     document.querySelectorAll(seletorGrupo).forEach(grupo => {
       grupo.querySelectorAll(seletorItem).forEach(btn => {
@@ -1391,6 +1345,130 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   ativarPillsDoGrupo('.periodo-filtros, .page-header', '.pill-btn');
   ativarPillsDoGrupo('.card-head', '.pill-btn-sm');
+
+  // ===== O PAINEL POR LOJA (10/out/2026) =====
+  // Clicar numa loja em "Vendas por Loja", ou escolher no filtro do topo, redesenha o painel inteiro
+  // com os numeros daquela loja; clicar de novo volta a todas. Era o plano desde o comeco: ate esta
+  // data o clique so esmaecia o grafico. Os valores financeiros continuam sendo exemplo: cada loja
+  // leva a sua fatia do total, e a soma das tres fecha com o todo.
+  const FATIA = { shope: 0.45, tech: 0.30, brands: 0.25 };
+  const LOJAS_DO_PAINEL = ['shope', 'tech', 'brands'];
+  function daLoja(total, loja) {   // em centavos, e a ultima loja leva o resto
+    if (loja === 'all') return total;
+    const c = Math.round(total * 100);
+    const partes = LOJAS_DO_PAINEL.map(l => Math.round(c * FATIA[l]));
+    partes[2] = c - partes[0] - partes[1];
+    return partes[LOJAS_DO_PAINEL.indexOf(loja)] / 100;
+  }
+  const dinheiro = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const KPI = {
+    vendasMes:  { porLoja: { all: 184320, shope: 82940, tech: 55300, brands: 46080 },
+                  delta: { shope: ['up', '▲ 8,4% vs mês passado'], tech: ['up', '▲ 5,1% vs mês passado'], brands: ['down', '▼ 2,3% vs mês passado'] } },
+    ticket:     { porLoja: { all: 246.50, shope: 231.40, tech: 318.90, brands: 204.80 } },   // media, nao se soma
+    vendasHoje: { total: 8240 }, custo: { total: 58940 }, perdas: { total: 3180 }, lucro: { total: 61910 },
+    pagar:      { total: 32410, titulos: { all: 9, shope: 4, tech: 3, brands: 2 } },
+    receber:    { total: 47850, titulos: { all: 18, shope: 8, tech: 6, brands: 4 } },
+    caixa:      { total: 61280 }
+  };
+  function valorDoKpi(chave, loja) { const k = KPI[chave]; return k.porLoja ? k.porLoja[loja] : daLoja(k.total, loja); }
+  const DELTA_GERAL = {};
+  document.querySelectorAll('.kpi-card[data-kpi]').forEach(c => { const d = c.querySelector('.kpi-delta'); DELTA_GERAL[c.getAttribute('data-kpi')] = [d.className, d.textContent]; });
+
+  // Espelho de Estoque > Giro de Estoque: unidades vendidas nos ultimos 30 dias, com o valor a custo
+  // medio. E de Estoque > Necessidades de Compra: o que esta abaixo do minimo, do mais critico para
+  // o menos. teste_retorno.py compara os dois com as telas donas.
+  const MAIS_VENDIDOS = [
+    {'nome': 'Tecido Sintético Preto', 'loja': 'shope', 'un': 13.5, 'valor': 837.0, 'unidade': 'M'},
+    {'nome': 'Teclado Mecânico Desk', 'loja': 'tech', 'un': 10, 'valor': 2311.0, 'unidade': 'UN'},
+    {'nome': 'Cadeira Ergonômica Pro', 'loja': 'shope', 'un': 8, 'valor': 5938.4, 'unidade': 'UN'},
+    {'nome': 'Chapa MDF 18mm', 'loja': 'shope', 'un': 6.5, 'valor': 1394.25, 'unidade': 'M2'},
+    {'nome': 'Camiseta Desk Brands · P', 'loja': 'brands', 'un': 6, 'valor': 250.8, 'unidade': 'UN'},
+    {'nome': 'Camiseta Desk Brands · M', 'loja': 'brands', 'un': 4, 'valor': 167.2, 'unidade': 'UN'},
+    {'nome': 'Fone Bluetooth Desk One', 'loja': 'tech', 'un': 4, 'valor': 706.4, 'unidade': 'UN'},
+    {'nome': 'Suporte Monitor Duplo', 'loja': 'tech', 'un': 3, 'valor': 415.2, 'unidade': 'UN'},
+    {'nome': 'Cabo HDMI 2.1 · 2m', 'loja': 'tech', 'un': 2, 'valor': 64.8, 'unidade': 'UN'},
+    {'nome': 'Kit Manutenção Desk Tech', 'loja': 'tech', 'un': 2, 'valor': 361.8, 'unidade': 'UN'},
+    {'nome': 'Mesa Escritório Slim', 'loja': 'shope', 'un': 2, 'valor': 1025.5, 'unidade': 'UN'},
+    {'nome': 'Monitor Desk 27" IPS', 'loja': 'tech', 'un': 1, 'valor': 1120, 'unidade': 'UN'}
+  ];
+  const ALERTAS_ESTOQUE = [
+    {'nome': 'Camiseta Desk Brands · M', 'loja': 'brands', 'vendavel': 0, 'minimo': 20, 'unidade': 'UN'},
+    {'nome': 'Tecido Sintético Preto', 'loja': 'shope', 'vendavel': 12, 'minimo': 30, 'unidade': 'M'},
+    {'nome': 'Fone Bluetooth Desk One', 'loja': 'tech', 'vendavel': -2, 'minimo': 10, 'unidade': 'UN'},
+    {'nome': 'Luminária LED Ajustável', 'loja': 'shope', 'vendavel': 7, 'minimo': 15, 'unidade': 'UN'},
+    {'nome': 'Mesa Escritório Slim', 'loja': 'shope', 'vendavel': 4, 'minimo': 10, 'unidade': 'UN'},
+    {'nome': 'Suporte Monitor Duplo', 'loja': 'tech', 'vendavel': 2, 'minimo': 8, 'unidade': 'UN'}
+  ];
+  const ESTOQUE_POR_LOJA = {'shope': 56598.45, 'brands': 1170.4, 'tech': 23334.9};
+  const PEDIDOS_STATUS = [['Pendente', 38, '#8A8DA6'], ['Confirmado', 64, 'var(--chart-1)'], ['Pago', 122, 'var(--chart-2)'], ['Enviado', 96, 'var(--success)'],
+                          ['Entregue', 296, 'var(--chart-3)'], ['Cancelado', 32, 'var(--danger)']];
+  const SEMANA = { atual: [[0, 115], [60, 100], [120, 105], [180, 65], [240, 40], [300, 20], [360, 50]],
+                   anterior: [[0, 125], [60, 115], [120, 110], [180, 95], [240, 85], [300, 75], [360, 80]], total: 35400, picoAtual: 7100, picoAnterior: 5200 };
+  const QTD_LISTA = { vendidos: 5, alertas: 5 };
+  const ICONE_ALERTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  const qtdUn = (n, un) => Number(n).toLocaleString('pt-BR') + ' ' + (un === 'UN' ? 'un.' : String(un).toLowerCase());
+
+  function pintarLista(qual, itens, idLista, idNota, html, oQue) {
+    const loja = currentStoreFilter;
+    const daqui = itens.filter(x => loja === 'all' || x.loja === loja);
+    const pedidos = QTD_LISTA[qual];
+    document.getElementById(idLista).innerHTML = daqui.slice(0, pedidos).map(html).join('');
+    document.getElementById(idNota).textContent = daqui.length === 0 ? 'Nada ' + oQue + (loja === 'all' ? '' : ' em ' + storeNames[loja]) + '.'
+      : (daqui.length < pedidos ? 'Mostrando ' + (daqui.length === 1 ? 'o único' : 'os ' + daqui.length) + ' que há ' + oQue + (loja === 'all' ? '' : ' em ' + storeNames[loja]) + '.' : '');
+  }
+  function pintarPainel() {
+    const loja = currentStoreFilter;
+    document.querySelectorAll('.kpi-card[data-kpi]').forEach(c => {
+      const chave = c.getAttribute('data-kpi'), k = KPI[chave], d = c.querySelector('.kpi-delta');
+      c.querySelector('.kpi-value').textContent = dinheiro(valorDoKpi(chave, loja));
+      const delta = k.titulos ? ['kpi-delta neutral', k.titulos[loja] + (k.titulos[loja] === 1 ? ' título em aberto' : ' títulos em aberto')]
+        : (k.delta && k.delta[loja] ? ['kpi-delta ' + k.delta[loja][0], k.delta[loja][1]] : DELTA_GERAL[chave]);
+      d.className = delta[0]; d.textContent = delta[1];
+    });
+    // Metas por Loja: a loja escolhida fica em destaque, e a linha de baixo passa a ser a meta dela.
+    const total = document.getElementById('metaTotal');
+    if (!total._geral) total._geral = total.innerHTML;
+    document.querySelectorAll('.goal-bar-row[data-store]').forEach(r => { r.style.opacity = (loja === 'all' || r.getAttribute('data-store') === loja) ? '1' : '0.35'; });
+    if (loja === 'all') total.innerHTML = total._geral;
+    else {
+      total.innerHTML = document.querySelector('.goal-bar-row[data-store="' + loja + '"]').innerHTML;
+      total.querySelector('.goal-bar-name').textContent = 'Meta da ' + storeNames[loja];
+    }
+    // Vendas da Semana: a linha encolhe na proporcao da loja; o eixo continua o mesmo.
+    const f = loja === 'all' ? 1 : FATIA[loja];
+    const y = (v) => Math.round((130 - (130 - v) * f) * 10) / 10;
+    document.getElementById('semanaAtual').setAttribute('points', SEMANA.atual.map(p => p[0] + ',' + y(p[1])).join(' '));
+    document.getElementById('semanaAnterior').setAttribute('points', SEMANA.anterior.map(p => p[0] + ',' + y(p[1])).join(' '));
+    document.getElementById('semanaPicoAtual').setAttribute('cy', y(20));
+    document.getElementById('semanaRotuloAtual').setAttribute('y', y(20) - 10);
+    document.getElementById('semanaPicoAnterior').setAttribute('cy', y(75));
+    document.getElementById('semanaRotuloAnterior').setAttribute('y', y(75) - 9);
+    document.getElementById('semanaRotuloAtual').textContent = dinheiro(daLoja(SEMANA.picoAtual, loja));
+    document.getElementById('semanaRotuloAnterior').textContent = dinheiro(daLoja(SEMANA.picoAnterior, loja));
+    document.getElementById('semanaTotal').textContent = dinheiro(daLoja(SEMANA.total, loja));
+    // Pedidos por Status
+    const contagens = PEDIDOS_STATUS.map(s => Math.round(daLoja(s[1], loja)));
+    const soma = contagens.reduce((a, b) => a + b, 0);
+    document.getElementById('listaStatus').innerHTML = PEDIDOS_STATUS.map((s, i) => {
+      const p = soma ? Math.round(contagens[i] / soma * 100) : 0;
+      return '<div class="status-item"><div class="status-name">' + s[0] + '</div><div class="status-track"><div class="status-fill" style="width:' + p + '%; background:' + s[2] + '"></div></div>' +
+        '<div class="status-count">' + contagens[i] + ' · ' + p + '%</div></div>';
+    }).join('');
+    document.getElementById('statusTotal').textContent = soma + ' pedidos';
+    // Mais Vendidos e Alertas de Estoque: os botoes 5, 10, 15 e 20 dizem quantos mostrar.
+    pintarLista('vendidos', MAIS_VENDIDOS, 'listaMaisVendidos', 'notaMaisVendidos', (x, i) =>
+      '<div class="rank-item"><div class="rank-num">' + (i + 1) + '</div><div class="rank-info"><div class="rank-name">' + x.nome + '</div><div class="rank-store">' + storeNames[x.loja] + '</div></div>' +
+      '<div class="rank-right"><div class="rank-value">' + qtdUn(x.un, x.unidade) + '</div><div class="rank-units">' + dinheiro(x.valor) + ' a custo</div></div></div>', 'com venda nos últimos 30 dias');
+    pintarLista('alertas', ALERTAS_ESTOQUE, 'listaAlertas', 'notaAlertas', (x) =>
+      '<div class="stock-item"><div class="stock-icon">' + ICONE_ALERTA + '</div><div class="stock-info"><div class="stock-name">' + x.nome + '</div>' +
+      '<div class="stock-min">mínimo: ' + qtdUn(x.minimo, x.unidade) + ' · ' + storeNames[x.loja] + '</div></div><div class="stock-qty">' + qtdUn(x.vendavel, x.unidade) + '</div></div>', 'abaixo do mínimo');
+    document.getElementById('estoqueTotal').textContent = dinheiro(loja === 'all' ? LOJAS_DO_PAINEL.reduce((s, l) => s + ESTOQUE_POR_LOJA[l], 0) : ESTOQUE_POR_LOJA[loja]);
+  }
+  document.querySelectorAll('.qty-filter[data-lista]').forEach(grupo => grupo.querySelectorAll('.pill-btn-sm').forEach(b => b.addEventListener('click', () => {
+    QTD_LISTA[grupo.getAttribute('data-lista')] = Number(b.textContent);
+    pintarPainel();
+  })));
+  pintarPainel();
 
   // ===== QUADRO QUE LEVA A TELA DE ORIGEM (10/out/2026) =====
   // Todo quadro com data-href abre a tela de onde o numero vem. Ate esta data nenhum quadro do

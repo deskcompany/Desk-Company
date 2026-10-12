@@ -88,8 +88,23 @@ def confirmar(pg):
         clic(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(400)
 
 
+def aba_todos(pg, tela):
+    # Desde 10/out a tela de compra abre em "A comprar" (teste_retorno.py guarda isso). Esta suite
+    # confere a conta de TODOS os produtos, entao parte sempre da aba "Todos".
+    if tela == NEC:
+        pg.evaluate("(() => { const a = document.querySelector('#abasSituacao .aba-sit[data-sit=todos]'); if (a && !a.classList.contains('active')) a.click(); })()")
+        pg.wait_for_timeout(150)
+
+
+def recarregar(pg):
+    pg.reload(); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+    if NEC in pg.url:
+        aba_todos(pg, NEC)
+
+
 def ir(pg, tela, query=''):
     pg.goto(localiza.http(tela) + query); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    aba_todos(pg, tela)
 
 
 def zerar(pg, tela=NEC, param=None):
@@ -97,6 +112,7 @@ def zerar(pg, tela=NEC, param=None):
     ir(pg, tela)
     pg.evaluate("([chaves, p]) => { chaves.forEach(k => localStorage.removeItem(k)); if (p) localStorage.setItem('deskParametros', JSON.stringify(p)); }", [CHAVES, param])
     pg.reload(); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    aba_todos(pg, tela)
 
 
 def abas(pg):
@@ -199,7 +215,8 @@ with sync_playwright() as p:
         for rotulo, arq in destinos.items():
             if t.count('data-label="%s"' % rotulo) != t.count('data-label="%s" data-href="../estoque/%s"' % (rotulo, arq)) or 'data-label="%s"' % rotulo not in t:
                 sem.append(_os.path.basename(c) + ' / ' + rotulo)
-    ok(len(localiza.caminhos()) >= 81 and not sem, 'toda tela leva o menu as duas telas novas: %d telas, faltando %s' % (len(localiza.caminhos()), sem[:3]))
+    # Eram 81 ate Performance de Vendas virar parte de Metas e Performance (12/out).
+    ok(len(localiza.caminhos()) >= 80 and not sem, 'toda tela leva o menu as duas telas novas: %d telas, faltando %s' % (len(localiza.caminhos()), sem[:3]))
     zerar(pg)
     ok(pg.inner_text('h1') == 'Necessidades de Compra' and 'Estoque' in pg.inner_text('#breadcrumb') and 'Necessidades de Compra' in pg.inner_text('#breadcrumb'),
        'Necessidades de Compra abre com o titulo e o caminho de Estoque')
@@ -215,7 +232,7 @@ with sync_playwright() as p:
     ok(bloco_comum(NEC) == bloco_comum(GIRO) and len(bloco_comum(NEC)) > 8000, 'o bloco de dados e de giro e identico nas duas telas (%d caracteres)' % len(bloco_comum(NEC)))
     ok('const DEPOSITOS' in bloco_comum(NEC), 'e a comparacao nao passou por bloco truncado (injetar uma diferenca num dos lados reprova a linha acima)')
     forma = "PRODUTOS.map(p => [p.id, p.sku, p.nome, p.gtin, p.tipo, p.custoMedio, p.unidade, p.saldos.map(s => [s.dep, s.endereco, s.estagio, s.qtd])])"
-    ir(pg, CE); pg.evaluate("localStorage.removeItem('deskMinMax')"); pg.reload(); pg.wait_for_timeout(400)
+    ir(pg, CE); pg.evaluate("localStorage.removeItem('deskMinMax')"); recarregar(pg)
     do_ce = pg.evaluate(forma)
     minimos_ce = pg.evaluate("Object.fromEntries(PRODUTOS.map(p => [p.sku, p.minimo]))")
     ir(pg, NEC)
@@ -283,14 +300,14 @@ with sync_playwright() as p:
     clic(pg, '.dropdown-select-item[data-value="abaixo_minimo"]'); pg.wait_for_timeout(250)
     ok(pg.locator('#corpoTabela tr').count() == 6 if pg.locator('#corpoTabela').count() else pg.locator('tbody tr').count() == 6, 'e o filtro "abaixo do minimo" de la mostra 6 linhas')
     # O caso que separa as duas regras: minimo 8 para o Monitor. Fisico 9 (com 2 bloqueados), vendavel 7.
-    pg.evaluate("localStorage.setItem('deskMinMax', JSON.stringify({ 'MON-27I-015': { minimo: 8, maximo: 14 } }))"); pg.reload(); pg.wait_for_timeout(400)
+    pg.evaluate("localStorage.setItem('deskMinMax', JSON.stringify({ 'MON-27I-015': { minimo: 8, maximo: 14 } }))"); recarregar(pg)
     ok(pg.evaluate("(() => { const m = PRODUTOS.find(p => p.sku === 'MON-27I-015'); return [m.minimo, saldoDe(m), abaixoDoMinimo(m)]; })()") == [8, 9, True],
        'com minimo 8 o Monitor entra no aviso do Controle de Estoques: fisico 9, mas so 7 vendaveis (pela regra antiga, do fisico, ele nao entraria)')
     ir(pg, NEC)
     mon = conta(pg, 'MON-27I-015')
     ok(mon['abaixoMin'] and mon['min'] == 8 and abas(pg)['minimo'] == 7, 'e entra na aba Abaixo do minimo daqui: agora sao 7')
     ok(mon['projetado'] == 11 and mon['comprar'] == 0, 'sem compra sugerida, porque os 4 em conferencia levam o projetado a 11')
-    pg.evaluate("localStorage.removeItem('deskMinMax')"); pg.reload(); pg.wait_for_timeout(400)
+    pg.evaluate("localStorage.removeItem('deskMinMax')"); recarregar(pg)
     ok(abas(pg)['minimo'] == 6 and not conta(pg, 'MON-27I-015')['abaixoMin'], 'sem o minimo alterado, voltam os 6')
 
     print('\n[5] Filtros e calculo')
@@ -365,7 +382,7 @@ with sync_playwright() as p:
        'e a alteracao vai para o registro de atividades')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
     ok(pg.locator('#eventDrawer.open').count() == 0 and abas(pg)['comprar'] == 3, 'Esc fecha o painel; a lista ja esta com 3 a comprar')
-    pg.reload(); pg.wait_for_timeout(400)
+    recarregar(pg)
     ok(conta(pg, 'SUP-MON-003')['min'] == 4, 'F5 nao desfaz')
     ir(pg, CE)
     ok(pg.evaluate("PRODUTOS.find(p => p.sku === 'SUP-MON-003').minimo") == 4, 'e o Controle de Estoques passa a mostrar o mesmo minimo')
@@ -380,7 +397,7 @@ with sync_playwright() as p:
        'produto com saldo bloqueado mostra o bloqueado fora da conta e leva a Itens Bloqueados')
     ok(re.search(r'Estoque físico[^0-9]*9 UN', pg.inner_text('#drawerCorpo').replace(chr(10), ' ')) is not None, 'e o painel mostra o estoque fisico, 9: os 7 vendaveis mais os 2 bloqueados')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
-    pg.evaluate("localStorage.removeItem('deskMinMax')"); pg.reload(); pg.wait_for_timeout(400)
+    pg.evaluate("localStorage.removeItem('deskMinMax')"); recarregar(pg)
 
     print('\n[7] A coluna Comprar')
     digitar_comprar(pg, 'SUP-MON-003', '25')
@@ -400,6 +417,8 @@ with sync_playwright() as p:
     ok(abas(pg)['segurados'] == 1 and abas(pg)['comprar'] == 4, 'apagar devolve o produto aos segurados')
 
     print('\n[8] Ordem de compra')
+    # Desde 10/out digitar a quantidade marca o produto; as secoes acima digitaram em varios.
+    pg.evaluate("(() => { selecionados.clear(); renderTabela(); })()"); pg.wait_for_timeout(150)
     ok(pg.locator('#btnGerarOrdem').count() == 0 and not visivel(pg, '#barraSelecao'),
        'sem nada marcado nao ha botao de gerar ordem: ele mora na barra de selecao, que so aparece com produto marcado')
     aba(pg, 'comprar')
@@ -453,9 +472,11 @@ with sync_playwright() as p:
     ir(pg, OC)
     ok(pg.evaluate("ORDENS.length") == 16 and pg.evaluate("ORDENS.filter(o => o.numero >= 15).map(o => [o.numero, o.fornecedor, o.situacao, o.total])") ==
        [[15, 'Móveis Nordeste Ltda', 'aberto', 8204], [16, 'TechParts Distribuidora', 'aberto', 10788.8]], 'as duas ordens aparecem em Ordens de Compra, em aberto')
-    topo = pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).slice(0, 2).map(tr => tr.innerText.replace(/\\s+/g, ' '))")
-    ok('16' in topo[0] and 'TechParts Distribuidora' in topo[0] and '10.788,80' in topo[0] and 'Móveis Nordeste Ltda' in topo[1] and '8.204,00' in topo[1],
-       'no topo da lista, com fornecedor e total: %s' % topo[0][:80])
+    # Desde 10/out a lista abre do nº 1 para o maior: as ordens novas sao as duas ultimas.
+    escolher(pg, 'itensPorPagina', 100)
+    fim = pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).slice(-2).map(tr => tr.innerText.replace(/\\s+/g, ' '))")
+    ok('16' in fim[1] and 'TechParts Distribuidora' in fim[1] and '10.788,80' in fim[1] and 'Móveis Nordeste Ltda' in fim[0] and '8.204,00' in fim[0],
+       'no fim da lista, que sobe pelo numero, com fornecedor e total: %s' % fim[1][:80])
     ok(pg.evaluate("ITENS_OC[16].map(i => [i.sku, i.qtd, i.recebido])") == [['FON-BLT-013', 32, 0], ['SUP-MON-003', 19, 0], ['CAM-DKB-012', 60, 0]], 'com os itens e as quantidades')
     pg.evaluate("document.querySelector('#corpoTabela .item-checkbox[data-id=\"15\"]').click()"); pg.wait_for_timeout(150)
     clic(pg, '#btnCancelarSelecionadas'); pg.wait_for_timeout(300); confirmar(pg)
@@ -464,6 +485,7 @@ with sync_playwright() as p:
     ok(conta(pg, 'MES-SLM-002')['comprar'] == 16 and abas(pg)['comprar'] == 1, 'e a necessidade da Mesa volta')
     ir(pg, OC)
     ok(pg.evaluate("ORDENS.some(o => o.numero === 15)") is False, 'a ordem cancelada nao volta a lista ao recarregar')
+    escolher(pg, 'itensPorPagina', 100)   # a lista sobe pelo numero: a 16 esta na segunda pagina
     pg.evaluate("document.querySelector('#corpoTabela .item-checkbox[data-id=\"16\"]').click()"); pg.wait_for_timeout(150)
     clic(pg, '#btnExcluirSelecionados'); pg.wait_for_timeout(300); confirmar(pg)
     ok(guardadas(pg) == [], 'excluir a 16 esvazia o que a compra enxerga')
@@ -620,7 +642,7 @@ with sync_playwright() as p:
     ok('3 parâmetros salvos' in modal(pg) and 'Giro de Estoque' in modal(pg) and (salvo['giroEncalheAte'], salvo['giroBaixoAte'], salvo['giroJanelaDias'], salvo['compraCoberturaDias']) == (0.2, 0.8, 90, 30),
        'salvar grava os quatro e avisa que as telas de compra e giro passam a usar')
     confirmar(pg)
-    pg.reload(); pg.wait_for_timeout(400)
+    recarregar(pg)
     ok(pg.input_value('#giroEncalhe') == '0,2' and pg.input_value('#giroBaixo') == '0,8', 'ao reabrir, os campos vem com virgula, como foram digitados')
     ir(pg, GIRO)
     ok(pg.inner_text('[data-faixa="encalhe"]') == 'até 0,20' and pg.inner_text('#rotuloPeriodo') == 'Últimos 90 dias' and pg.locator('#periodoOpcoes .periodo-op.active').inner_text() == 'Últimos 90 dias',

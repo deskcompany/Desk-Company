@@ -213,8 +213,12 @@ def audita(caminho):
     # esta na lista. A lista e que manda.
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
     OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada',
-             'deskMinMax', 'deskOrdensGeradas'}
+             'deskMinMax', 'deskOrdensGeradas',
+             'deskSeparacao'}   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
+    # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a
+    # chave escrita direto na chamada era vista, e a de constante passava sem registro.
+    chaves_ls |= set(re.findall(r"const CHAVE\w* = '(desk[A-Za-z]+)'", txt))
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))
 
@@ -225,10 +229,11 @@ def audita(caminho):
         rep = sorted(set(i for i in ids if ids.count(i) > 1), key=int)
         if rep: probs.append('11 id repetido em %s: %s' % (m.group(1), ', '.join(rep)))
 
-    # 12 texto que o usuario le cita o Lovable (10/out/2026). A ferramenta saiu do projeto: aviso
-    # dizendo "so funciona no Lovable" e promessa que ninguem vai cumprir. Comentario de codigo pode.
-    lov = [l for l in txt.split('\n') if 'Lovable' in l and re.search(r"avisar\(|field-hint|par-exp|>[^<]*Lovable", l) and not l.strip().startswith('//')]
-    if lov: probs.append('12 texto visivel cita o Lovable: %d linha(s)' % len(lov))
+    # 12 a tela cita a ferramenta de construcao que saiu de todos os projetos em 10/out/2026. O usuario
+    # pediu para apagar toda mencao: vale para o texto que ele le e para comentario de codigo. A
+    # palavra fica montada aqui, e so aqui, para a propria auditoria nao ser uma mencao.
+    proibida = len(re.findall('lov' + 'able', txt, re.I))
+    if proibida: probs.append('12 a tela cita a ferramenta que saiu do projeto: %d vez(es)' % proibida)
 
     # 9 botoes/links com id e sem listener
     with_id = set(re.findall(r'<(?:button|div|a)[^>]*\sid="(btn[^"]+|link[^"]+)"', limpo))

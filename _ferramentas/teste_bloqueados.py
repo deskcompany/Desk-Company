@@ -645,8 +645,10 @@ with sync_playwright() as p:
     clic(pg, '#btnConcluir'); pg.wait_for_timeout(400)
     ok('fica bloqueado para venda em Estoque → Itens Bloqueados' in modal(pg) and 'Nenhum saldo é baixado' in modal(pg) and caixa(pg) == {}, 'concluir com falta avisa do bloqueio, e nada e bloqueado antes de confirmar')
     confirmar(pg)
-    ok('bloqueado para venda, aguardando auditoria em Estoque → Itens Bloqueados' in modal(pg), 'o aviso final manda para Itens Bloqueados: %s' % modal(pg)[:70])
-    confirmar(pg)
+    # 12/out: concluir volta para a fila do galpao, e e a faixa de la que diz o que aconteceu.
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+    faixa = pg.evaluate("(document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
+    ok('bloqueado para venda em Estoque → Itens Bloqueados, aguardando auditoria' in faixa, 'a fila, ao receber a pessoa de volta, manda para Itens Bloqueados: %s' % faixa[:70])
     cx = caixa(pg)
     chave = 'sep:%s:MES-ESC-120' % pedido
     ok(list(cx.keys()) == [chave] and cx[chave]['qtd'] == 2 and cx[chave]['endereco'] == 'R02-P01-N1' and cx[chave]['motivo'] == 'falta' and cx[chave]['origem'] == 'separacao'

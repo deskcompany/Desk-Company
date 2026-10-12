@@ -4,19 +4,21 @@
 pediu para fazer por partes. A tabela abaixo diz o que já entrou e o que falta; o texto de cada
 item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes).*
 
-## Situação em 10/out/2026
+## Situação em 12/out/2026
 
 | situação | itens |
 |---|---|
 | **Feito por inteiro** (12) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 |
 | **Feito no principal, com resto anotado** (15) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1 · L1, L2, L3, L5 · I1, I2 |
 | **Falta** | G3 · C2 a C8 · E2, E8, E10 · V2, V3, V4, V5 · L4 · F1 a F4 · K1 · R6 · a limpeza de código das 17 telas |
+| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1, X2 e X3 (dados de exemplo que ainda não conversam) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
 O que entrou e o que falta em cada item feito no principal:
 
-- **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve, com
+- **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve (lido
+  de Contas a Receber desde 12/out, que é a dona do número), com
   links para os pedidos, as contas a receber e o CRM. Faltam os títulos vencidos em separado, os
   assuntos abertos no CRM, as devoluções e as abas Vendas e Financeiro na página do cliente.
 - **E1** (Ordens de Compra): recebido e a receber no total, "atrasada há N dias", o botão "Receber
@@ -34,27 +36,29 @@ O que entrou e o que falta em cada item feito no principal:
   capacidade livre.
 - **E11** (Necessidades de Compra): a ordem virou link. Faltam o pedido de venda e o atalho para
   corrigir o fornecedor padrão.
-- **V1** (Pedidos de Venda): cinco links pelo cliente (Separação, Conferência de Saída, Expedição,
-  Contas a Receber e cadastro). Falta a situação de cada etapa ao lado do link (pago, separado,
-  conferido, código de rastreio) e a devolução.
-- **L1** (Separação) e **L2** (Conferência de Saída): links para os pedidos do cliente, e da
-  Conferência para a Separação. Faltam a situação do pagamento, o prazo prometido e a falta
-  levando ao item em Itens Bloqueados.
+- **V1** (Pedidos de Venda): o painel mostra Separação, Conferência de Saída e Expedição como "ainda
+  não chegou", "em andamento" ou "concluída", e leva para a ficha daquele pedido; mais os links de
+  Contas a Receber e do cadastro. Faltam o código de rastreio e a devolução.
+- **L1** (Separação) e **L2** (Conferência de Saída): link para os pedidos do cliente. O link da
+  Conferência para a Separação saiu em 12/out, a pedido do usuário: etapa que passou não volta.
+  Faltam a situação do pagamento, o prazo prometido e a falta levando ao item em Itens Bloqueados.
 - **L3** (Expedição): cada pedido da carga é link para Pedidos de Venda. Faltam o rastreio e a
   transportadora.
 - **L5** (Devolução): o pedido de origem leva ao Rastreamento, e há link para a nota de entrada.
   Falta a conta a pagar.
-- **I1** (Dashboard): os 15 quadros levam à tela de origem; alertas de estoque, valor em estoque e
-  mais vendidos pararam de contradizer o estoque. Os outros números continuam próprios (R6).
-- **I2** (Boas-vindas): atalhos com destino, a lista "O que precisa de você hoje" e o link para a
-  Agenda. A lista não traz quantidade em cada fila, de propósito: número copiado é o que fazia o
-  Dashboard contradizer os módulos. A "Agenda de Hoje" continua texto fixo.
+- **I1** (Dashboard): 14 quadros levam à tela de origem, e "Vendas por Loja" filtra o painel inteiro
+  pela loja clicada. "Mais Vendidos" lê o Giro de Estoque e "Alertas de Estoque" lê Necessidades de
+  Compra, e os botões 5/10/15/20 mostram mais itens. Os valores financeiros continuam próprios (R6).
+- **I2** (Boas-vindas): dez atalhos com destino, o link para a Agenda e o quadro "O que precisa de
+  você hoje", de lado a lado, com a quantidade de cada fila lida da tela dona (a suíte compara). A
+  "Agenda de Hoje" continua texto fixo.
 
 Como cada item foi feito, quando fugiu da proposta:
 
-- **R1** foi a proposta maior, que o usuário escolheu: um módulo só, chamado **Metas e
-  Performance**, com um item no menu e um seletor no topo que troca de visão levando o mês e o
-  nível. Por baixo continuam dois arquivos.
+- **R1** virou uma página só. A primeira versão, de 10/out, era um seletor que trocava entre as
+  duas telas; o usuário recusou ("não teve muito ganho") e pediu a lista única. Em 12/out a tela de
+  Performance de Vendas deixou de existir: **Metas e Performance** junta as colunas numa lista e
+  leva o resto para o painel lateral, com o botão de definir ou editar a meta.
 - **Os links caem numa lista filtrada**, e não na página do registro. As páginas de detalhe ainda
   abrem sempre o mesmo exemplo (G3), então o link vai para a lista vizinha com a busca preenchida e
   uma faixa dizendo de onde veio o filtro.
@@ -65,8 +69,27 @@ Como cada item foi feito, quando fugiu da proposta:
   contradições com o estoque saíram (valor em estoque, alertas, mais vendidos). Ler tudo ao vivo
   das outras telas é R6.
 
-A segunda varredura, do miolo de Inventário, Acerto e PDV, ficou combinada para a semana seguinte,
-depois de o usuário testar esta primeira leva.
+O que o usuário devolveu ao testar a primeira leva, e que já entrou (detalhe no §14.54 do design
+system): o filtro de período que fecha, nas doze telas; "incluir" em branco, na ordem de compra e
+nos cinco cadastros; listas numeradas do nº 1; Necessidades de Compra abrindo em "A comprar";
+concluir a separação voltando para a fila, e "devolver para a fila" funcionando; pedido cancelado
+sem dívida em Contas a Receber.
+
+Entrou na lista em 12/out:
+
+- **P1 · Impressão em formato de relatório** (M). Hoje a folha é o desenho da tela sem o menu: leva
+  a caixa "Selecionar todos", a seta de ordenação e o espaçamento de tela, e não leva título com
+  data, filtros nem cabeçalho repetido por página. Entra no bloco comum de impressão e chega às 20
+  listas de uma vez. O usuário pediu a análise agora e o conserto depois.
+- **X1 · Contas a Receber e Pedidos de Venda** (M). Quatro títulos de exemplo ainda têm cliente ou
+  valor diferente do pedido que citam (PV 7, PV 10, PV 11 e PV 16).
+- **X2 · Expedição e Pedidos de Venda** (M). Os romaneios de exemplo levam pedidos que o Pedido de
+  Venda ainda dá como em separação.
+- **X3 · O pedido andar de uma fila para a outra** (G). Concluir a separação guarda o que foi feito,
+  mas o pedido não aparece sozinho na fila da Conferência de Saída: cada tela tem a sua lista.
+
+A segunda varredura, do miolo de Inventário, Acerto e PDV, continua combinada para depois de o
+usuário testar o que entrou em 12/out.
 
 ## Como o levantamento foi feito
 
@@ -456,9 +479,9 @@ Pequenos, e vale corrigir sem esperar o resto.
 **D3 · Clientes, Fornecedores e Produtos: "Mais ações" não faz nada** (P)
 - Os 12 itens fecham o menu e nada acontece, nem aviso. Resolve junto com G2.
 
-**D4 · Cinco telas ainda dizem "só funciona no Lovable"** (P)
+**D4 · Cinco telas ainda dizem que algo só funciona numa ferramenta que saiu do projeto** (P)
 - Conferência de Entrada, Entrada de Notas (lista e página), página da Ordem de Compra e Separação.
-  O Lovable saiu do projeto em 10/out.
+  O sistema passou a ser programado aqui em 10/out.
 
 Limpeza de código, sem efeito para quem usa: 17 telas carregam um trecho do menu de outra tela (um
 desvio para o Inventário num menu que elas não têm).

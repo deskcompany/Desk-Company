@@ -1193,7 +1193,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1428,7 +1428,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1695,7 +1695,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== DADOS (mock) =====
-  // No Lovable esta tela le UM romaneio: `romaneios`, `romaneio_pedidos` e os
+  // No sistema de producao esta tela le UM romaneio: `romaneios`, `romaneio_pedidos` e os
   // `volumes` que a Conferencia de Saida fechou e etiquetou. Nada aqui cria
   // volume — eles chegam prontos da bancada, e e isso que torna a conferencia
   // da doca honesta: ela compara o que esta no caminhao com o que a bancada

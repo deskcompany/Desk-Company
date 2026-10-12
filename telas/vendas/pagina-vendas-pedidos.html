@@ -684,6 +684,8 @@
   .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
   .painel-link:hover { text-decoration:underline; }
   .painel-links { display:flex; flex-direction:column; gap:8px; margin-top:6px; font-size:13px; }
+  /* Etapa do galpao a que o pedido ainda nao chegou (10/out/2026) */
+  .painel-etapa-futura { color:var(--text); font-size:13px; }
 </style>
 </head>
 <body class="dark">
@@ -1088,7 +1090,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1266,7 +1268,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1539,7 +1541,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //   aberto      -> RESERVA (a reserva nasce com o pedido)
   //   cancelado   -> devolve a reserva
   //   enviado     -> BAIXA FISICA (ate aqui a mercadoria ainda esta no galpao)
-  // No Lovable isto e `orders.situacao`; a transicao grava em `stock_movements`.
+  // No sistema de producao isto e `orders.situacao`; a transicao grava em `stock_movements`.
   const SITUACOES = [
     { id: 'aberto',      rotulo: 'Em aberto' },
     { id: 'aprovado',    rotulo: 'Aprovado' },
@@ -1633,7 +1635,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let filtroLojaAtual = 'todos';
   let filtroVendedorAtual = 'todos';
   let ordemCampo = 'numero';
-  let ordemAsc = false;
+  let ordemAsc = true;   // do nº 1 para o maior (pedido do usuario em 10/out/2026)
   let itensSelecionados = new Set();
   let paginaAtual = 1;
   let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
@@ -1954,6 +1956,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     eventDrawer.classList.remove('open');
   }
 
+  // Em que fichas do galpao o exemplo tem cada pedido: espelho das filas de Separacao e de Conferencia
+  // de Saida (teste_retorno.py compara). Pedido fora daqui cai na fila da etapa, filtrada no cliente.
+  const NO_GALPAO = { separacao: [5, 6, 7], conferencia: [7] };
   function abrirPreview(id) {
     const p = pedidoDe(id);
     if (!p) return;
@@ -1983,12 +1988,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         : (SIT_COM_SAIDA.indexOf(p.situacao) >= 0
             ? 'A mercadoria já saiu do estoque: a baixa aconteceu no envio.'
             : 'Pedido cancelado — a reserva voltou para disponível.')) + '</div>';
-    // De onde veio e para onde vai (10/out/2026): o painel leva a cada etapa, ja filtrada no cliente.
+    // O ACOMPANHAMENTO DO PEDIDO mora aqui (usuario, 10/out/2026): cada etapa do galpao diz se ainda
+    // nao chegou, se esta em andamento ou se foi concluida, e leva para a ficha DESTE pedido. As
+    // telas do galpao nao levam de volta a etapa anterior; quem quer olhar para tras vem aqui.
     const cli = encodeURIComponent(p.cliente);
+    const passo = ['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue'].indexOf(p.situacao);
+    const etapaDoGalpao = (rotulo, desde, ate, href) => passo < desde
+      ? '<span class="painel-etapa-futura">' + rotulo + ' · ainda não chegou</span>'
+      : '<a class="painel-link" href="' + href + '">' + rotulo + (passo > ate ? ' · concluída' : ' · em andamento') + '</a>';
     html += '<div class="extrato-bloco-titulo">Acompanhar este pedido</div><div class="painel-links" id="pedidoLinks">' +
-      '<a class="painel-link" href="../logistica/pagina-logistica-separacao.html?busca=' + cli + '">Na Separação</a>' +
-      '<a class="painel-link" href="../logistica/pagina-logistica-conferencia-saida.html?busca=' + cli + '">Na Conferência de Saída</a>' +
-      '<a class="painel-link" href="../logistica/pagina-logistica-expedicao.html?busca=' + cli + '">Na Expedição</a>' +
+      (p.situacao === 'cancelado' ? '<span class="painel-etapa-futura">Pedido cancelado: não passa pelo galpão</span>' :
+        etapaDoGalpao('Separação', 2, 2, NO_GALPAO.separacao.includes(p.numero)
+          ? '../logistica/pagina-logistica-separacao-detalhe.html?id=' + p.numero + '&de=pedido'
+          : '../logistica/pagina-logistica-separacao.html?busca=' + cli) +
+        etapaDoGalpao('Conferência de Saída', 3, 3, NO_GALPAO.conferencia.includes(p.numero)
+          ? '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' + p.numero + '&de=pedido'
+          : '../logistica/pagina-logistica-conferencia-saida.html?busca=' + cli) +
+        etapaDoGalpao('Expedição', 4, 5, '../logistica/pagina-logistica-expedicao.html?busca=' + cli)) +
       '<a class="painel-link" href="../financas/pagina-financas-contas-receber.html?busca=' + cli + '">Em Contas a Receber</a>' +
       '<a class="painel-link" href="../cadastros/pagina-cadastros-clientes.html?busca=' + cli + '">No cadastro do cliente</a></div>';
     html += '<div class="drawer-footer"><button class="btn-primary" id="btnAbrirPedido">Abrir pedido completo</button>' +
@@ -2308,6 +2324,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (acao === 'planilha') baixarPlanilhaDaTela(); else imprimirTela();
     }, true);
   })();
+
+  // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
+  // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
+  // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir; e todo
+  // clique no popover fecha os dropdowns de fora dele.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+    else document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (!m.closest('.periodo-wrap')) m.classList.remove('open'); });
+  }, true);
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

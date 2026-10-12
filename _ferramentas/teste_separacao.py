@@ -310,13 +310,17 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(300)
     t = texto_modal(pg)
     ok('em falta' in t, 'a confirmacao da conclusao avisa da falta: %s' % t[:60])
+    numero_13 = pg.evaluate("() => PEDIDO.id")
     confirmar(pg)
-    # 09/out: a falta deixou de ser "divergencia aguardando reconferencia" e passou a bloquear a unidade.
-    ok('Itens Bloqueados' in texto_modal(pg) and 'reconferência' not in texto_modal(pg), 'o aviso final manda para Itens Bloqueados')
-    confirmar(pg)
-    ok(pg.locator('#blocoEntrega .badge-situacao').inner_text().upper() == 'SEPARADO',
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+    # 10/out: concluir volta para a fila do galpao, e e a fila que diz o que aconteceu (antes a ficha
+    # ficava aberta no pedido concluido, com um aviso). 09/out: a falta bloqueia a unidade.
+    faixa = pg.evaluate("() => (document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
+    ok(FILA in pg.url and 'Itens Bloqueados' in faixa and 'reconferência' not in faixa, 'a conclusao volta para a fila, e o aviso manda para Itens Bloqueados')
+    ok(pg.evaluate("(n) => FILA.filter(p => p.id === n)[0].situacao", numero_13) == 'separado',
        'o pedido com falta ANDOU — nao travou')
-    ok(pg.locator('#btnConcluir').is_disabled(), 'concluido nao se conclui de novo')
+    pg.goto(localiza.uri(FICHA) + '?id=%d' % numero_13); pg.wait_for_timeout(500)
+    ok(pg.locator('#blocoEntrega .badge-situacao').inner_text().upper() == 'SEPARADO' and pg.locator('#btnConcluir').is_disabled(), 'concluido nao se conclui de novo')
     chaves = pg.evaluate("() => JSON.parse(localStorage.getItem('deskLog')||'[]').map(x => x.chave)")
     ok('separacaoConclui' in chaves, 'a conclusao foi para o registro de atividades')
     ok('separacaoFalta' in chaves, 'a falta foi para o registro de atividades')
@@ -333,8 +337,9 @@ with sync_playwright() as pw:
     ok('falta' not in t, 'conclusao limpa nao fala em falta: %s' % t[:70])
     ok('Conferência de Saída' in t, 'conclusao limpa diz para onde o pedido vai')
     confirmar(pg)
-    ok('divergência' not in texto_modal(pg), 'conclusao limpa nao cria divergencia')
-    confirmar(pg)
+    pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+    faixa = pg.evaluate("() => (document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
+    ok('concluída' in faixa and 'divergência' not in faixa and 'Itens Bloqueados' not in faixa, 'conclusao limpa nao cria divergencia nem bloqueio: %s' % faixa[:70])
 
     # ---------------------------------------------------------------- 15
     print('\n15. ID QUE NAO EXISTE AVISA EM VEZ DE ABRIR CALADO')

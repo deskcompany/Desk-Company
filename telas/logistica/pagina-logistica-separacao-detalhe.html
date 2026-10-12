@@ -1054,7 +1054,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1246,7 +1246,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1510,7 +1510,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== DADOS (mock) =====
   // Mesma observacao da fila: no prototipo cada arquivo carrega o proprio mock.
-  // No Lovable esta tela le UM pedido e os itens dele, mais a coluna de
+  // No sistema de producao esta tela le UM pedido e os itens dele, mais a coluna de
   // endereco que vem do cadastro Enderecos de Estoque.
   const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
   const LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
@@ -1577,12 +1577,52 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   const AGORA = new Date('2026-10-02T14:30:00');
 
+  // ===== O QUE A FICHA JA FEZ COM O PEDIDO (bloco compartilhado, 10/out/2026) =====
+  // A ficha conclui a separacao, guarda pela metade ou devolve o pedido para a fila, e volta para
+  // a fila do galpao. Fila e ficha sao arquivos soltos, entao o que mudou fica numa chave do
+  // navegador e as duas telas aplicam por cima do exemplo ao abrir. No sistema em producao e a
+  // tabela de pedidos. O bloco e identico nas duas telas.
+  const CHAVE_SEPARACAO = 'deskSeparacao';
+  function lerSeparacao() {
+    try { return JSON.parse(localStorage.getItem(CHAVE_SEPARACAO) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function gravarSeparacao(pedido, itens) {
+    const tudo = lerSeparacao();
+    tudo[pedido.id] = { situacao: pedido.situacao, operador: pedido.operador || null, itens: itens || null };
+    try { localStorage.setItem(CHAVE_SEPARACAO, JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  (function aplicarSeparacao() {
+    const tudo = lerSeparacao();
+    FILA.forEach(p => {
+      const s = tudo[p.id];
+      if (!s) return;
+      p.situacao = s.situacao;
+      p.operador = s.operador;
+      p.itens.forEach(i => {
+        const feito = (s.itens || []).filter(x => x.sku === i.sku)[0];
+        if (feito && feito.separado !== null && feito.separado !== undefined) { i.separado = feito.separado; i.motivoFalta = feito.motivo || ''; }
+        else { delete i.separado; delete i.motivoFalta; }
+      });
+      p.falta = p.itens.some(i => i.separado !== undefined && i.separado < i.qtd);
+    });
+  })();
+
   // Qual pedido abrir. Id que nao existe nao abre tela vazia nem inventa pedido:
   // avisa e volta para a fila — o mesmo tratamento das outras telas de detalhe.
   const QS = new URLSearchParams(window.location.search);
   const idPedido = Number(QS.get('id'));
   const PEDIDO = FILA.filter(p => p.id === idPedido)[0] || FILA.filter(p => p.situacao !== 'separado')[0];
   const PEDIDO_INEXISTENTE = !!(QS.get('id') && !FILA.filter(p => p.id === idPedido)[0]);
+  // Quem veio do Pedido de Venda volta para ele (10/out/2026): o acompanhamento mora la.
+  if (QS.get('de') === 'pedido') {
+    const volta = document.createElement('a');
+    volta.className = 'btn-ghost';
+    volta.id = 'btnVoltarPedido';
+    volta.style.textDecoration = 'none';
+    volta.href = '../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(PEDIDO.cliente);
+    volta.textContent = 'Voltar para o pedido de venda';
+    document.querySelector('.main .header-acoes').prepend(volta);
+  }
 
   PEDIDO.pecas = PEDIDO.itens.reduce((s, i) => s + i.qtd, 0);
   PEDIDO.liberado = new Date(AGORA.getTime() - PEDIDO.liberadoHa * 3600000);
@@ -1930,11 +1970,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         produto: i.nome + (i.variacao && i.variacao !== '—' ? ' · ' + i.variacao : ''), un: 'UN', dep: PEDIDO.dep,
         endereco: i.end || null, tipoEnd: i.end ? 'picking' : null, base: i.end || null, qtd: i.qtd - i.separado,
         motivo: 'falta', origem: 'separacao', doc: 'Pedido #' + PEDIDO.numero, quem: OPERADORES[PEDIDO.operador], obs: i.motivo }));
-      pintarCabecalho();
-      pintarItens();
-      avisar(faltas.length === 0
-        ? 'Separação concluída. O pedido #' + PEDIDO.numero + ' está com a Conferência de Saída. No protótipo nada persiste ao recarregar a página.'
-        : 'Separação concluída com falta. O pedido #' + PEDIDO.numero + ' seguiu para a Conferência de Saída, e ' + (faltas.length === 1 ? 'o item que faltou está bloqueado' : 'os itens que faltaram estão bloqueados') + ' para venda, aguardando auditoria em Estoque → Itens Bloqueados. Nenhum saldo foi baixado. No protótipo, só o bloqueio persiste ao recarregar a página.');
+      gravarSeparacao(PEDIDO, COLETA.map(i => ({ sku: i.sku, separado: i.separado, motivo: i.motivo })));
+      // Concluiu: volta para a fila do galpao, que diz o que aconteceu e deixa pegar o proximo
+      // (pedido do usuario em 10/out/2026). Ate esta data a ficha ficava aberta no pedido concluido.
+      window.location.href = '../logistica/pagina-logistica-separacao.html?feita=' + PEDIDO.numero + (faltas.length ? '&falta=' + faltas.length : '');
     });
   }
   // Itens Bloqueados (Estoque) nao le o saldo desta tela: quem bloqueia deixa o caso na caixa de
@@ -1968,6 +2007,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       1, 'primary', () => {
         PEDIDO.situacao = 'separando';
         if (!PEDIDO.operador) PEDIDO.operador = EU;
+        gravarSeparacao(PEDIDO, COLETA.map(i => ({ sku: i.sku, separado: i.separado, motivo: i.motivo })));
         window.location.href = '../logistica/pagina-logistica-separacao.html';
       });
   }
@@ -2021,13 +2061,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         e.stopPropagation();
         menu.classList.remove('open');
         if (item.getAttribute('data-acao') === 'fila') { window.location.href = '../logistica/pagina-logistica-separacao.html'; return; }
-        if (fechado()) {
-          avisar('Esta separação já foi concluída e o pedido está com a Conferência de Saída. Devolver para a fila agora é reabrir — isso se faz na fila, pelo painel do pedido, e fica registrado.');
-          return;
-        }
-        armarSenhaModal('separacaoAssume');
-        abrirModalConfirmacao('Devolver o pedido #' + PEDIDO.numero + ' para a fila libera ele para qualquer separador. O que você já marcou nesta tela se perde — quem pegar o pedido começa a lista do zero.', 1, 'primary', () => {
-          window.location.href = '../logistica/pagina-logistica-separacao.html';
+        // Devolver vale tambem para separacao ja concluida (10/out/2026): e reabrir, pede a senha de
+        // reabertura e fica no registro. Ate esta data o item so explicava que nao podia, e devolver
+        // um pedido em andamento voltava para a fila sem gravar nada.
+        const reabre = fechado();
+        armarSenhaModal(reabre ? 'separacaoReabre' : 'separacaoAssume');
+        abrirModalConfirmacao(reabre
+          ? 'Devolver o pedido #' + PEDIDO.numero + ' para a fila desfaz a conclusão desta separação: ele volta a aguardar um separador, e quem pegar começa a lista do zero. A conferência de saída deste pedido, se já tiver começado, não é desfeita aqui.'
+          : 'Devolver o pedido #' + PEDIDO.numero + ' para a fila libera ele para qualquer separador. O que você já marcou nesta tela se perde — quem pegar o pedido começa a lista do zero.', 1, 'primary', () => {
+          PEDIDO.situacao = 'fila';
+          PEDIDO.operador = null;
+          gravarSeparacao(PEDIDO, null);
+          window.location.href = '../logistica/pagina-logistica-separacao.html?devolvido=' + PEDIDO.numero;
         });
       });
     });

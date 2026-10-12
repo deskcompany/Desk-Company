@@ -1199,7 +1199,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1371,7 +1371,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1835,6 +1835,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function preencherDadosFornecedor() {
     const f = fornecedorAtual();
+    if (!f) {   // ordem nova, antes de escolher o fornecedor
+      ['fDocTipo', 'fDocNumero', 'fContribuinte', 'fCidade'].forEach(id => { document.getElementById(id).textContent = '—'; });
+      document.getElementById('listaContatos').innerHTML = '<div class="parcelas-vazio" style="padding:0;">Escolha o fornecedor para ver os contatos.</div>';
+      return;
+    }
     document.getElementById('fDocTipo').textContent = f.tipo;
     document.getElementById('fDocNumero').textContent = f.doc;
     document.getElementById('fContribuinte').textContent = f.contribuinte;
@@ -2199,7 +2204,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   // ===== CATEGORIA FINANCEIRA — cadastro real, nao mais lista provisoria =====
   // Espelho de Configuracoes > Categorias financeiras (mesmos ids e grupos), igual
-  // ao que Contas a Pagar e o Caixa ja usam. No Lovable isto vira uma consulta a
+  // ao que Contas a Pagar e o Caixa ja usam. No sistema de producao isto vira uma consulta a
   // `categorias_financeiras`; aqui o espelho e o que mantem as telas falando a mesma
   // lingua — lista provisoria em duas telas diverge em semanas.
   const CATS_FIN = [
@@ -2306,6 +2311,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       String(h.getDate()).padStart(2, '0') + '/' + String(h.getMonth() + 1).padStart(2, '0') + '/' + h.getFullYear();
     document.getElementById('inputDataPrevista').value = '';
     path = ['Estoque', 'Ordens de Compra', 'Cópia da nº ' + origem];
+    renderBreadcrumb();
+  })();
+
+  // ===== ORDEM NOVA (?novo=1) =====
+  // "Incluir ordem de compra" abre em branco (pedido do usuario em 10/out/2026). Ate esta data o
+  // botao abria a ordem nº 2 de exemplo, preenchida. Fica no fim pelo mesmo motivo do clone.
+  (function carregarNova() {
+    if (new URLSearchParams(window.location.search).get('novo') !== '1') return;
+    SITUACAO = 'aberto';
+    aplicarSituacao();
+    document.getElementById('tituloOC').textContent = 'Nova ordem de compra';
+    const num = document.getElementById('inputNumero');
+    num.value = '';
+    num.placeholder = 'Gerado ao salvar';
+    const h = new Date();
+    document.getElementById('inputDataCompra').value =
+      String(h.getDate()).padStart(2, '0') + '/' + String(h.getMonth() + 1).padStart(2, '0') + '/' + h.getFullYear();
+    ['inputDataPrevista', 'inputNumeroFornecedor', 'inputCondicaoPagamento', 'inputTransportador', 'inputObservacoes', 'inputObsInternas']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    const forn = document.getElementById('inputFornecedor');
+    forn.setAttribute('data-value', '');
+    forn.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
+    forn.querySelector('.dropdown-select-label').textContent = 'Selecione o fornecedor';
+    ITENS = [];
+    PARCELAS = [];
+    preencherDadosFornecedor();
+    renderItens();
+    renderParcelas();
+    // Receber, gerar nota e clonar sao acoes de ordem que ja existe.
+    document.getElementById('menuMaisAcoes').style.display = 'none';
+    path = ['Estoque', 'Ordens de Compra', 'Nova ordem'];
     renderBreadcrumb();
   })();
 

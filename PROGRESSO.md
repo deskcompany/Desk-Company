@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 10/out/2026, na primeira leva de melhorias dos módulos prontos.*
+*Atualizado em 12/out/2026, depois do retorno do usuário sobre a primeira leva de melhorias.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,29 +8,28 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**A primeira leva de melhorias dos módulos prontos está feita e espera o teste do usuário.** Ele
-aprovou a lista inteira de `docs/melhorias-modulos-prontos.md` em 10/out/2026 e pediu para fazer
-por partes. Entraram 12 itens por inteiro e 15 no principal, com o resto de cada um anotado; o que
-entrou e o que falta está no topo daquele documento.
+**O retorno do usuário sobre a primeira leva de melhorias está feito e espera o teste dele.** Ele
+testou a leva de 10/out, aprovou a maior parte e devolveu uma lista de ajustes. Todos entraram,
+menos a impressão, que ele pediu para analisar agora e consertar depois.
 
-Necessidades de Compra e Giro de Estoque, entregues no mesmo dia, foram testadas quase inteiras
-pelo usuário, sem ajuste apontado. Falta ele terminar o teste para aprovar.
+Necessidades de Compra e Giro de Estoque, de 10/out, seguem sem ajuste apontado além dos dois que
+vieram nesta lista (marcar ao digitar e abrir em "A comprar").
 
-O próximo passo é dele: testar esta leva, responder às decisões abaixo (enviar ao GitHub e
-hospedagem) e dizer se segue o resto da lista ou o próximo módulo.
+O próximo passo é dele: testar os ajustes e dizer se segue o resto da lista de melhorias, a segunda
+varredura ou o próximo módulo.
 
 ## Onde estamos
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **41 de 55 (75%)**, em 81 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **41 de 55 (75%)**, em 80 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 75% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
-O menu tinha 59 itens e passou a ter 55, sem perder tela nenhuma: saíram os três atalhos de
-cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só.
+Eram 81 telas: a de Performance de Vendas deixou de existir quando Metas e Performance virou uma
+página só. O menu continua com 55 itens.
 
 | módulo | com tela | falta |
 |---|---|---|
@@ -47,75 +46,76 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## O que ficou pronto nesta conversa
 
-**1. Necessidades de Compra e Giro de Estoque** (§14.52 do design system). A lista viva do que
-comprar, com a conta de cada produto e a ordem de compra criada dali; e o giro por produto em três
-faixas. Quatro decisões do usuário: lista viva; só o vendável conta como estoque; o painel cria a
-ordem; o giro segura a compra do que não vende.
+**1. Necessidades de Compra e Giro de Estoque** (10/out, §14.52 do design system).
 
-**2. A primeira leva de melhorias** (§14.53):
+**2. A primeira leva de melhorias dos módulos prontos** (10/out, §14.53): os links entre as telas,
+imprimir e baixar planilha de verdade em 20 listas, os painéis de Ordens de Compra e de Clientes, os
+indicadores do Controle de Estoques, o Início com destino e o menu de Integrações enxuto.
 
-- **Os quatro defeitos da varredura.** A Conferência de Entrada abria a nota errada; o Pedido
-  mandava o galpão para outro pedido; "Mais ações" de Clientes, Fornecedores e Produtos não fazia
-  nada; cinco telas ainda citavam o Lovable.
-- **Imprimir e baixar planilha de verdade em 20 listas**, com a lista inteira e os filtros da
-  tela. Saíram do menu os itens que só mostravam um aviso, e o "Imprimir" repetido no topo.
-- **A trilha entre as telas.** 30 listas aceitam abrir já filtradas (`?busca=` no endereço), com
-  uma faixa dizendo de onde veio o filtro. Os painéis de Ordens de Compra, Entrada de Notas,
-  Conferência de Entrada, Endereçamento, Reposição, Necessidades de Compra, Pedidos de Venda,
-  Separação, Conferência de Saída, Expedição e Devolução ganharam links para as telas vizinhas.
-- **Ordens de Compra:** o painel mostra recebido e a receber, o atraso e o botão "Receber
-  mercadorias" quando a ordem está em aberto.
-- **Controle de Estoques:** quatro indicadores no topo, o de "abaixo do mínimo" filtra a lista, e
-  "Mais ações" leva às outras telas do estoque. A página do produto leva à compra e ao giro.
-- **Clientes:** o painel mostra quantos pedidos o cliente fez, quanto comprou, o último pedido e
-  quanto ainda deve, com links para os pedidos e as contas dele.
-- **Início:** os 15 quadros do Dashboard e os 8 atalhos de Boas-vindas levam à tela de origem;
-  Boas-vindas ganhou a lista "O que precisa de você hoje"; os alertas de estoque e o valor em
-  estoque do Dashboard dizem o que o Controle de Estoques diz.
-- **Metas e Performance** é um módulo só, com um item no menu e um seletor que troca de visão
-  levando o mês e o nível.
-- **Menu de Integrações** ficou só com o que é integração.
+**3. O retorno do usuário sobre essa leva** (12/out, §14.54):
 
-**3. A verificação que segura isso.** A auditoria do projeto ganhou duas checagens (11,
-identificador repetido no dado de exemplo; 12, texto visível que cita o Lovable). Duas suítes
-novas: `teste_planilha.py` e `teste_trilha.py`. Oito defeitos foram injetados de propósito, um por
-vez, e os oito foram pegos.
+- **Metas e Performance é uma página só.** A lista junta meta, realizado, atingimento, ritmo,
+  vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação e o
+  botão de definir ou editar a meta. O seletor entre duas telas, que ele recusou, saiu.
+- **"Incluir" abre em branco:** a ordem de compra e os cinco cadastros com página própria.
+- **Ordens de Compra e Pedidos de Venda abrem do nº 1 para o maior.**
+- **O filtro de período fecha quando outro filtro abre**, nas doze telas que o têm.
+- **Necessidades de Compra** abre em "A comprar", o produto sai da lista quando a ordem é gerada, e
+  digitar a quantidade marca o produto.
+- **Separação:** concluir volta para a fila, que diz o que aconteceu; "Devolver este pedido para a
+  fila" funciona, inclusive em separação já concluída; o que a ficha fez fica guardado.
+- **Etapa que passou não volta:** a Conferência de Saída não leva mais à Separação. O Pedido de
+  Venda mostra a etapa em que o pedido está e leva para a ficha daquele pedido, que tem o botão de
+  voltar para o pedido.
+- **Contas a Receber:** pedido cancelado não deve. O painel do cliente lê de lá quanto ele deve.
+- **Dashboard:** os botões 5/10/15/20 mostram mais itens, e clicar numa loja filtra o painel
+  inteiro; clicar de novo volta a todas.
+- **Boas-vindas:** "O que precisa de você hoje" é um quadro próprio, de lado a lado, com a
+  quantidade de cada fila; os atalhos ganharam dois botões.
+- **A ferramenta de construção que saiu do projeto** não é mais citada em lugar nenhum: telas,
+  documentos, skills e os outros projetos da pasta.
 
-**4. As skills do ERP** receberam o que a varredura ensinou: a seção "A tela dentro do sistema" no
-portão de QA e "Tela nova nasce ligada: o mapa de vizinhança" na skill principal. O texto novo já
-está na cópia que o Claude carrega neste computador e em `C:\Claude AI\Skills\Skills ERP System`.
+**4. A verificação.** Suíte nova, `teste_retorno.py`, com um bloco para cada ponto acima. Quinze
+defeitos injetados de propósito, um por vez; os quinze são pegos. A auditoria do projeto reprova
+qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
+
+**5. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+"mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
+`C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O teste do usuário** nesta leva e nas duas telas novas.
-2. **O resto da lista aprovada**, na ordem sugerida: Finanças (F1 a F4); o que falta da venda (V2 a
+1. **O teste do usuário** nos ajustes de 12/out.
+2. **A impressão em formato de relatório** (item P1 da lista de melhorias): analisada, falta
+   fazer. Entra no bloco comum e chega às 20 listas de uma vez.
+3. **O resto da lista aprovada**, na ordem sugerida: Finanças (F1 a F4); o que falta da venda (V2 a
    V5 e L4); os indicadores (E2, V3 e F3); os cadastros (C2 a C8, que pedem alinhar os dados de
    exemplo antes); K1 e R6; e por último G3, a página de detalhe abrir o registro clicado.
-3. **A segunda varredura**, combinada para a semana seguinte: o miolo de Inventário, Acerto e PDV,
-   que a primeira não abriu.
-4. **Módulo novo:** Vendas Afiliados e Comissões Afiliados; depois Margem de Contribuição e Custos
+4. **A segunda varredura:** o miolo de Inventário, Acerto e PDV, que a primeira não abriu.
+5. **Módulo novo:** Vendas Afiliados e Comissões Afiliados; depois Margem de Contribuição e Custos
    do E-commerce; Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último.
    Começa pela barganha, com os prints.
+
+## Decidido, e ainda não feito de propósito
+
+- **Hospedagem: Cloudflare Pages, com o banco no Supabase** (usuário, 10/out/2026). A Vercel fica
+  como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
+  publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
+  `docs/arquitetura-roadmap-desk-company.md`.
+- **GitHub:** o último envio foi em 09/out/2026. Tudo de 10 e 12/out está em commit só neste
+  computador. O usuário pediu para **não enviar por enquanto**; ele avisa quando for para enviar.
 
 ## Esperando decisão do usuário
 
 Nenhuma destas trava o teste.
 
-1. **Enviar ao GitHub:** o último envio foi em 09/out/2026. Tudo de 10/out está em commit só neste
-   computador. O usuário disse que o caminho será "commit no GitHub, e o GitHub espelha para a
-   plataforma"; falta ele dizer "pode enviar" para o primeiro envio, e se passa a valer a cada
-   entrega.
-2. **Hospedagem:** o Lovable saiu em 10/out/2026 e o usuário pediu a comparação entre Vercel e
-   Cloudflare para começar sem custo. A recomendação é **Cloudflare Pages ligada ao GitHub, com o
-   banco no Supabase**, e está no topo da seção 2 de `docs/arquitetura-roadmap-desk-company.md`.
-   Falta o "ok" dele e a criação da conta da Cloudflare no e-mail do ERP, que só ele pode fazer.
-3. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
+1. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
    computador; para valer também no app da Claude, o usuário reenvia a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp` por lá.
-4. **Filtro de período:** o intervalo com data inicial e final existe em Itens Bloqueados e no
-   Giro de Estoque. As outras nove telas com esse filtro têm só as opções prontas; levar para elas
-   é uma oferta em aberto.
-5. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
+2. **Filtro de período:** o intervalo com data inicial e final existe em Itens Bloqueados e no
+   Giro de Estoque. As outras telas com esse filtro têm só as opções prontas; levar para elas é uma
+   oferta em aberto.
+3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
 
@@ -125,12 +125,15 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
 
 - **Cada tela tem os seus registros de exemplo.** Um link entre telas cai na lista vizinha já
   filtrada; quando o exemplo de lá não tem o registro, a faixa da lista explica isso.
+- **O pedido não anda sozinho de uma fila para a outra.** Concluir a separação guarda o que foi
+  feito, mas o pedido não aparece na fila da Conferência de Saída por causa disso.
+- **Quatro títulos de Contas a Receber** têm cliente ou valor diferente do pedido que citam, e os
+  romaneios da Expedição levam pedidos que o Pedido de Venda dá como em separação.
 - **11 páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada (item
   G3 da lista).
 - **A venda do PDV e a ordem criada em Necessidades de Compra** não aparecem em todas as telas
   vizinhas (a ordem aparece em Ordens de Compra; a página dela abre o exemplo fixo).
-- **O Dashboard** tem números próprios. As contradições com o estoque saíram; ler tudo das outras
-  telas é o item R6.
+- **Os valores financeiros do Dashboard** são próprios, e os de cada loja são uma fatia do total.
 
 Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 
@@ -150,4 +153,4 @@ Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 3. Para ver as telas: `node _ferramentas/servidor.js` na pasta `ERP System`, e depois
    `http://localhost:3000/<pasta>/<arquivo>`. O servidor cai quando a sessão fecha.
 4. Antes de dar algo por pronto: `python selo.py --rodar` na pasta `_ferramentas`.
-5. Commit local a cada entrega. Push só quando o usuário decidir.
+5. Commit local a cada entrega. Envio ao GitHub só quando o usuário disser.

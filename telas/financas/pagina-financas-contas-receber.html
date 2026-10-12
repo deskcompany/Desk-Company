@@ -1136,7 +1136,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1326,7 +1326,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1844,7 +1844,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // Espelho do cadastro de Contas financeiras — mesmos ids, mesmos nomes. No
-  // Lovable e a mesma tabela; aqui cada tela e um arquivo solto.
+  // sistema de producao e a mesma tabela; aqui cada tela e um arquivo solto.
   // `saldoAbertura` e o saldo antes do primeiro movimento deste mock: sem ele a
   // linha de saldo anterior abriria sempre em zero e nao provaria nada.
   const CONTAS_FIN = [
@@ -1975,16 +1975,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //
   // `venc` e `emis` sao em DIAS a partir de hoje: positivo = passado.
   const TITULOS = [
-    { id:1,  cliId:1, doc:'PV 2',  pedido:2,  venc:12,  emis:14, catId:1, valor:6064.77, recebido:6064.77, taxas:0,      liquido:6064.77, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 2',  ocorrencia:'Única', cancelado:false },
+    { id:1,  cliId:1, doc:'NF 1482',            venc:12,  emis:14, catId:1, valor:6064.77, recebido:6064.77, taxas:0,      liquido:6064.77, forma:'Boleto',           hist:'Venda de agosto, anterior aos pedidos desta lista', ocorrencia:'Única', cancelado:false },
     { id:2,  cliId:2, doc:'PV 14', pedido:14, venc:8,   emis:11, catId:1, valor:640.00,  recebido:640.00,  taxas:0,      liquido:640.00,  forma:'Pix',              hist:'Ref. ao pedido de venda nº 14', ocorrencia:'Única', cancelado:false },
     { id:3,  cliId:6, doc:'PV 13', pedido:13, venc:5,   emis:9,  catId:1, valor:8975.30, recebido:0,       taxas:807.78, liquido:8167.52, forma:'Cartão de crédito', hist:'Ref. ao pedido de venda nº 13', ocorrencia:'Única', antecipado:true, cancelado:false },
     { id:4,  cliId:4, doc:'PV 10', pedido:10, venc:3,   emis:8,  catId:1, valor:3260.75, recebido:0,       taxas:0,      liquido:3260.75, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 10', ocorrencia:'Única', cancelado:false },
     { id:5,  cliId:5, doc:'PV 11', pedido:11, venc:1,   emis:6,  catId:1, valor:219.90,  recebido:100.00,  taxas:0,      liquido:219.90,  forma:'Dinheiro',         hist:'Ref. ao pedido de venda nº 11', ocorrencia:'Única', cancelado:false },
-    { id:6,  cliId:1, doc:'PV 9',  pedido:9,  venc:-6,  emis:1,  catId:1, valor:4820.00, recebido:0,       taxas:0,      liquido:4820.00, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 9',  ocorrencia:'Única', cancelado:false },
-    { id:7,  cliId:3, doc:'PV 15', pedido:15, venc:-9,  emis:-2, catId:1, valor:189.90,  recebido:0,       taxas:11.39,  liquido:178.51,  forma:'Cartão de débito', hist:'Ref. ao pedido de venda nº 15', ocorrencia:'Única', cancelado:false },
+    { id:6,  cliId:1, doc:'PV 2',  pedido:2,  venc:-6,  emis:1,  catId:1, valor:7430.50, recebido:0,       taxas:0,      liquido:7430.50, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 2',  ocorrencia:'Única', cancelado:false },
+    { id:7,  cliId:3, doc:'PV 1',  pedido:1,  venc:-9,  emis:-2, catId:1, valor:1890.00, recebido:0,       taxas:113.40, liquido:1776.60, forma:'Cartão de débito', hist:'Ref. ao pedido de venda nº 1',  ocorrencia:'Única', cancelado:false },
     { id:8,  cliId:7, doc:'',      venc:-14, emis:-4, catId:2, valor:450.00,  recebido:0,       taxas:0,      liquido:450.00,  forma:'Crediário',        hist:'Venda de balcão sem pedido — lançada à mão', ocorrencia:'Única', cancelado:false },
     { id:9,  cliId:2, doc:'PV 7',  pedido:7,  venc:-22, emis:-12, catId:1, valor:1024.00, recebido:0,       taxas:0,      liquido:1024.00, forma:'Vale-troca',       hist:'Ref. ao pedido de venda nº 7',  ocorrencia:'Única', cancelado:false },
-    { id:10, cliId:6, doc:'PV 5',  pedido:5,  venc:20,  emis:30, catId:1, valor:2340.00, recebido:0,       taxas:0,      liquido:2340.00, forma:'Boleto',           hist:'Pedido cancelado pelo cliente', ocorrencia:'Única', cancelado:true }
+    { id:10, cliId:3, doc:'PV 15', pedido:15, venc:20,  emis:30, catId:1, valor:189.90,  recebido:0,       taxas:0,      liquido:189.90,  forma:'Boleto',           hist:'Pedido cancelado pelo cliente', ocorrencia:'Única', cancelado:true }
   ];
 
   // As PARCELAS de um pedido a prazo, geradas como a tela gera — tres titulos do
@@ -2449,7 +2449,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `deskAvisos` e proposital como MECANISMO GERAL, nao como campo desta tela:
   // estoque minimo, contas a receber e conferencia vao querer o mesmo. E um mapa
   // com chave por origem, entao recarregar a tela reescreve em vez de duplicar.
-  // No Lovable isto nao e tabela escrita por tela: e uma CONSULTA — "grupos cuja
+  // No sistema de producao isto nao e tabela escrita por tela: e uma CONSULTA — "grupos cuja
   // ultima conta vence nos proximos 90 dias e nao foram renovados".
   const AVISOS = 'deskAvisos';
   // 90 dias: contrato de aluguel se renegocia com meses de antecedencia, nao com

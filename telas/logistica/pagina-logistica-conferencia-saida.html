@@ -1123,7 +1123,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1319,7 +1319,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1582,7 +1582,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== DADOS (mock) =====
-  // No prototipo cada tela carrega o proprio mock. No Lovable isto e uma
+  // No prototipo cada tela carrega o proprio mock. No sistema de producao isto e uma
   // consulta sobre `pedidos` na etapa de conferencia de saida, com as colunas da
   // bancada (conferente, inicio, fim, volumes) numa tabela irma — e os itens
   // vindo com a quantidade que a SEPARACAO entregou, nao a que o pedido pediu.
@@ -1593,7 +1593,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SITUACAO_CLASSE = { aguardando: 'bs-aguardando', conferindo: 'bs-conferindo', conferido: 'bs-conferido' };
 
   const OPERADORES = { 1: 'Jonas Ribeiro', 2: 'Elaine Castro', 3: 'Marcos Vinícius', 4: 'Tatiane Moura' };
-  const EU = 4;   // conferente logado — no Lovable vem da sessao
+  const EU = 4;   // conferente logado — no sistema de producao vem da sessao
 
   const FILA = [
     { id: 23, numero: 23, loja: 1, dep: 2, cliente: 'Sérgio Matos', transp: 'Correios · PAC',
@@ -1887,9 +1887,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? '<button class="btn-secundario" id="btnVerConferencia" style="width:100%;">Abrir a conferência</button>'
       : '<button class="btn-primary" id="btnAbrirConferencia" style="width:100%;">' +
         (p.situacao === 'aguardando' ? 'Conferir este pedido' : 'Continuar a conferência') + '</button>';
-    // O painel leva ao pedido de venda e a fila de separacao, filtrados no cliente (10/out/2026).
-    const acao = botao + '<div class="painel-links" style="margin-top:12px;">' + '<a class="painel-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(p.cliente) + '">Ver os pedidos deste cliente em Pedidos de Venda</a>' +
-      '<a class="painel-link" href="../logistica/pagina-logistica-separacao.html?busca=' + encodeURIComponent(p.cliente) + '">Ver na Separação</a></div>';
+    // O painel leva ao pedido de venda, filtrado no cliente. Nao leva de volta a Separacao: a etapa que
+    // ja passou se consulta pelo Pedido de Venda, e daqui o pedido so avanca (usuario, 10/out/2026).
+    const acao = botao + '<div class="painel-links" style="margin-top:12px;">' + '<a class="painel-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(p.cliente) + '">Ver os pedidos deste cliente em Pedidos de Venda</a></div>';
 
     document.getElementById('drawerCorpo').innerHTML =
       '<div class="drawer-badges">' +
@@ -2246,6 +2246,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (acao === 'planilha') baixarPlanilhaDaTela(); else imprimirTela();
     }, true);
   })();
+
+  // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
+  // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava
+  // ao popover de periodo: ele continuava aberto por baixo do dropdown vizinho. Na fase de
+  // captura, todo clique fora do popover o fecha, antes de qualquer outro menu abrir; e todo
+  // clique no popover fecha os dropdowns de fora dele.
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.periodo-wrap')) document.querySelectorAll('.periodo-menu.open').forEach(m => m.classList.remove('open'));
+    else document.querySelectorAll('.dropdown-select-menu.open').forEach(m => { if (!m.closest('.periodo-wrap')) m.classList.remove('open'); });
+  }, true);
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

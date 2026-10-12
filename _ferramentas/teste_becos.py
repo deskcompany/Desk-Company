@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Becos sem saida, senha no lugar certo e modo de abertura dos cadastros.
 # Nasceu em 29/set/2026, da varredura que achou botoes respondendo "a navegacao
-# so funciona no Lovable" e "e a proxima tela a ser construida" com a tela ja
+# so funciona depois, em outra ferramenta" e "e a proxima tela a ser construida" com a tela ja
 # existindo ha semanas — e tres exclusoes em massa sem senha porque a trava
 # estava armada no aviso, e nao no modal que exclui. A auditoria dizia "todos os
 # botoes respondem": respondiam, com uma mentira. Este teste pega as duas coisas.
@@ -29,7 +29,7 @@ def ok(c, m):
 # ---------------------------------------------------------------------------
 print('\n[1] Nenhum texto de tela diz que tela existente "ainda nao existe"')
 PROIBIDO = re.compile(
-    r"s[óo] (passa a )?funciona(r)? de verdade no Lovable|arquivo isolado|"
+    r"s[óo] (passa a )?funciona(r)? de verdade (no|na|em) |arquivo isolado|"
     r"[ée] a pr[óo]xima (tela|a ser constru)|pr[óo]xima tela da fase|no fim da fase|entra no fim da F5|"
     r"A tela entra depois de Entrada de Notas|Entra junto com a Confer[êe]ncia", re.I)
 for f in [os.path.basename(c) for c in _filtrar(localiza.caminhos())]:
@@ -62,7 +62,7 @@ with sync_playwright() as p:
     # -----------------------------------------------------------------------
     print('\n[2] Botoes que levam a telas que existem')
     casos = [
-        ('pagina-estoque-ordens-compra.html', lambda: pg.click('#btnNovaOC'), 'pagina-estoque-ordens-compra-detalhe.html'),
+        ('pagina-estoque-ordens-compra.html', lambda: pg.click('#btnNovaOC'), 'pagina-estoque-ordens-compra-detalhe.html?novo=1'),   # 10/out: a ordem nova abre em branco
         ('pagina-estoque-ordens-compra.html', lambda: (pg.evaluate("abrirPreview(ORDENS.find(o => document.querySelector('input.item-checkbox[data-id=\"' + o.id + '\"]')).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirDetalhe')), 'pagina-estoque-ordens-compra-detalhe.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-ordens-compra.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),

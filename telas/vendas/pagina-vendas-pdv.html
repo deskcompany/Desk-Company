@@ -1654,7 +1654,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1969,7 +1969,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -2262,7 +2262,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // pre-venda, vale-presente, lista de precos, item nao cadastrado, compartilhar
   // por e-mail ou WhatsApp e NFC-e.
 
-  // ---------- ESPELHOS (no Lovable viram join; a suite compara cada um) ----------
+  // ---------- ESPELHOS (no sistema de producao viram join; a suite compara cada um) ----------
   // Pedido de Venda: lojas, depositos e catalogo com saldo por deposito.
   const LOJAS = [{ id: 1, nome: 'Desk Shope' }, { id: 2, nome: 'Desk Brands' }, { id: 3, nome: 'Desk Tech' }];
   const DEPOSITOS = [{ id: 1, nome: 'Geral' }, { id: 2, nome: 'Galpão Centro' }, { id: 3, nome: 'Loja Física Aldeota' }, { id: 4, nome: 'Bancada Desk Tech' }];
@@ -2289,7 +2289,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 3, nome: 'Rafael Andrade',              lojaId: 3,    ativo: false }
   ];
   // Cadastros > Clientes. `limite` e `usado` sao o lado financeiro do cliente
-  // (limite de credito e o que ja o consome), que no Lovable vem de contas a receber.
+  // (limite de credito e o que ja o consome), que no sistema de producao vem de contas a receber.
   const CLIENTES = [
     { id: 1, nome: 'Marina Duarte',                  documento: '123.456.789-00',     telefone: '(99) 98234-5501', limite: 2000.00,  usado: 350.00 },
     { id: 2, nome: 'Rafael Nogueira',                documento: '234.567.890-11',     telefone: '(99) 98234-5502', limite: 1500.00,  usado: 1480.00 },

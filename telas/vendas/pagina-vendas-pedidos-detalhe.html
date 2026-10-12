@@ -1458,7 +1458,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1643,7 +1643,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1952,7 +1952,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function saldoDe(sku, dep) { const p = produtoDe(sku); return p ? (p.saldo[dep] || 0) : 0; }
 
   // Um pedido de exemplo, com data relativa a hoje (mock com data cravada
-  // envelhece — §13). No Lovable isto e `SELECT` por `?id=`.
+  // envelhece — §13). No sistema de producao isto e `SELECT` por `?id=`.
   const PEDIDO = {
     numero: 2, situacao: 'aberto', cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90',
     vendedor: 'Marina Costa', loja: 3, deposito: 4, recebimento: 'boleto', envio: 'transportadora',
@@ -1995,7 +1995,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // mesmo limite, checado so onde importa. A tela existe desde 08/out/2026
   // (Configuracoes > Formas de recebimento) e e ELA quem manda. Enquanto nao ha
   // backend, as duas constantes abaixo sao ESPELHO do cadastro, e a suite
-  // teste_formas_recebimento.py compara nome e regra, forma a forma. No Lovable
+  // teste_formas_recebimento.py compara nome e regra, forma a forma. No sistema de producao
   // viram a coluna `valida_limite` e esta constante sai.
   const RECEBIMENTO_VALIDA_LIMITE = {
     pix: false, dinheiro: false, debito: false, credito: false, boleto: true, crediario: true
@@ -2007,7 +2007,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ENVIO_ROTULO = { '': 'Não definida', correios: 'Correios', transportadora: 'Transportadora', retirada: 'Retirar pessoalmente' };
   const EXPEDICAO_ROTULO = { sim: 'Sim', nao: 'Não' };
 
-  // O cliente do pedido, do lado financeiro. No Lovable: `customers.limite_credito`
+  // O cliente do pedido, do lado financeiro. No sistema de producao: `customers.limite_credito`
   // mais a soma das contas a receber em aberto dele. Aqui, mock com data relativa.
   const CLIENTE_FINANCEIRO = {
     limite: 25000.00,

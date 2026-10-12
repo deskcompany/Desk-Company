@@ -82,7 +82,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(800)
 
     print('\n[1] Metas e listagem, no padrao do sistema')
-    ok(pg.locator('.kpi-card').count() == 4, 'quatro KPIs no topo')
+    ok(pg.locator('.kpi-card').count() == 6, 'seis indicadores no topo: meta, realizado, atingimento, vendas, ticket e devolucao')
     ok(pg.locator('#corpoTabela tr').count() == pg.evaluate('LOJAS.length'),
        'uma linha por loja (%d)' % pg.locator('#corpoTabela tr').count())
     larg = pg.evaluate("document.querySelector('.estoque-table').getBoundingClientRect().width")
@@ -213,50 +213,57 @@ with sync_playwright() as p:
     clic(pg, '#defCancelar')
     pg.wait_for_timeout(300)
 
-    print('\n[9] A Performance le a MESMA base')
-    # Esta e a asserção que impede a copia de voltar: as duas telas carregam o
-    # mesmo bloco de dados, e aqui ele e comparado valor a valor.
+    print('\n[9] A venda entra na MESMA lista (10/out/2026)')
+    # O usuario recusou duas telas para o mesmo assunto, e tambem o seletor que trocava de uma para
+    # a outra: quer uma lista so. O que Performance de Vendas media (numero de vendas, ticket,
+    # devolucao, comparacao) mora agora na lista e no painel de Metas e Performance.
     pg.goto(localiza.http(METAS))
     pg.wait_for_load_state('load')
     pg.wait_for_timeout(700)
-    base_metas = pg.evaluate("JSON.stringify([LOJAS, VENDEDORES, METAS, REALIZADO])")
-    p2 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    err2 = []
-    p2.on('pageerror', lambda e: err2.append(str(e)))
-    p2.goto(localiza.http(PERF))
-    p2.wait_for_load_state('load')
-    p2.wait_for_timeout(800)
-    base_perf = p2.evaluate("JSON.stringify([LOJAS, VENDEDORES, METAS, REALIZADO])")
-    ok(base_metas == base_perf, 'lojas, vendedores, metas e realizado sao identicos nas duas telas')
-    ok(p2.evaluate("situacaoDaMeta.toString()") == pg.evaluate("situacaoDaMeta.toString()"),
-       'e a regra de situacao e a mesma funcao, letra por letra')
+    ok(PERF not in localiza.nomes(), 'a tela de Performance de Vendas deixou de existir')
+    citam = [n for n in localiza.nomes() if PERF in open(localiza.onde(n), encoding='utf-8').read()]
+    ok(not citam, 'e nenhuma tela aponta mais para ela: %s' % citam[:3])
+    ok(pg.locator('#visaoModulo').count() == 0 and pg.locator('#filtroVisao').count() == 0, 'nao ha seletor de visao: a pagina mostra uma coisa so')
+    cab = [c.replace('▲', '').strip().upper() for c in pg.evaluate("Array.from(document.querySelectorAll('.estoque-table th')).map(t => t.textContent)")]
+    ok(cab == ['LOJA', 'META', 'REALIZADO', 'ATINGIMENTO', 'RITMO ATÉ HOJE', 'VENDAS', 'DEVOLUÇÃO', 'SITUAÇÃO'], 'as colunas das duas telas numa lista: %s' % cab)
 
-    print('\n[10] Performance: tres visoes, e nenhuma escreve')
-    ok(p2.locator('.kpi-card').count() == 4, 'quatro KPIs')
-    cab = p2.inner_text('#cabecalhoPerf')
-    ok('TICKET' in cab.upper(), 'a visao de resultado mostra ticket medio')
-    escolher(p2, 'filtroVisao', 'devolucoes')
-    ok('TAXA DE DEVOLU' in p2.inner_text('#cabecalhoPerf').upper(), 'a de devolucoes troca as colunas')
-    escolher(p2, 'filtroVisao', 'comparativo')
-    ok('ANO ANTERIOR' in p2.inner_text('#cabecalhoPerf').upper(), 'e a de comparativo tambem')
-    larg2 = p2.evaluate("document.querySelector('.estoque-table').getBoundingClientRect().width")
-    wrap2 = p2.evaluate("document.querySelector('.estoque-table-wrap').getBoundingClientRect().width")
-    ok(larg2 <= wrap2 + 1, 'a tabela cabe no card nas tres (%d em %d)' % (larg2, wrap2))
-    # O modal de confirmacao (com o campo de senha) mora dentro do .main; o
-    # que nao pode existir e campo de digitacao na LISTAGEM.
-    ok(p2.locator('.card input, .estoque-toolbar input:not(#campoBusca)').count() == 0,
-       'nao ha campo de digitacao na listagem alem da busca')
-    ok(p2.evaluate("typeof salvarMeta === 'undefined'"), 'e a tela nao carrega a funcao de gravar meta')
-    ok(localiza.nome(p2.locator('#btnIrMetas').get_attribute('href')) == METAS, 'quem quer definir meta e levado para Metas')
-    escolher(p2, 'filtroVisao', 'resultado')
-    clic(p2, '#corpoTabela tr')
-    p2.wait_for_timeout(450)
-    ok(p2.locator('#eventDrawer.open').count() == 1, 'clicar na linha abre a leitura')
-    p2.keyboard.press('Escape')
-    p2.wait_for_timeout(350)
-    ok(p2.locator('#eventDrawer.open').count() == 0, 'e Esc fecha')
-    ok(not err2, 'Performance sem erro de JS: %s' % err2[:2])
-    p2.close()
+    print('\n[10] Os numeros da venda saem da mesma base da meta')
+    linhas = pg.evaluate("linhasDoNivel('loja').map(l => [l.id, l.real, l.vendas, l.ticket, l.devolvido, l.taxaDev])")
+    certo = pg.evaluate("""linhasDoNivel('loja').every(function (l) {
+      return l.real === realizadoDe('loja', l.id, mesSel, anoSel) && l.vendas === numeroDeVendas('loja', l.id, mesSel, anoSel) &&
+             l.devolvido === devolvidoDe('loja', l.id, mesSel, anoSel) && (!l.vendas || Math.abs(l.ticket - l.real / l.vendas) < 0.001);
+    })""")
+    ok(certo and len(linhas) == 3, 'vendas, ticket e devolucao de cada loja saem do realizado do mes: %s' % linhas[0])
+    soma_v = sum(l[2] for l in linhas); soma_r = sum(l[1] for l in linhas); soma_d = sum(l[4] for l in linhas)
+    ok(pg.inner_text('#kpiNumero') == str(soma_v), 'o indicador de numero de vendas e a soma da lista (%d)' % soma_v)
+    ok(pg.inner_text('#kpiTicket') == pg.evaluate("moeda(%r / %d)" % (soma_r, soma_v)), 'o ticket medio e o realizado dividido pelas vendas: %s' % pg.inner_text('#kpiTicket'))
+    ok(pg.inner_text('#kpiDevolucao') == pg.evaluate("pct(%r / %r * 100)" % (soma_d, soma_r)), 'e a devolucao e o devolvido sobre o vendido: %s' % pg.inner_text('#kpiDevolucao'))
+    linha1 = pg.evaluate("document.querySelector('#corpoTabela tr').innerText")
+    ok('ticket R$' in linha1 and '%' in linha1, 'a linha mostra as vendas com o ticket e a taxa de devolucao')
+    atras = pg.evaluate("linhasDoNivel('loja').filter(l => l.sit === 'abaixo' || l.sit === 'naobatida').map(l => l.nome)")
+    ok(len(atras) >= 1 and all(n in pg.inner_text('#avisoMetasTexto') for n in atras) and 'Atrás da meta (%d)' % len(atras) in pg.inner_text('#avisoMetasTexto'),
+       'o aviso abre dizendo quem esta atras da meta: %s' % atras)
+    larg2 = pg.evaluate("document.querySelector('.estoque-table').getBoundingClientRect().width")
+    wrap2 = pg.evaluate("document.querySelector('.estoque-table-wrap').getBoundingClientRect().width")
+    ok(larg2 <= wrap2 + 1, 'com as colunas novas a tabela continua cabendo no card (%d em %d)' % (larg2, wrap2))
+    estouram = pg.evaluate("Array.from(document.querySelectorAll('.mp-kpis .kpi-card')).filter(k => k.querySelector('.kpi-value').scrollWidth > k.clientWidth).length")
+    ok(estouram == 0, 'e nenhum dos seis indicadores estoura o proprio quadro')
+    com_meta = pg.evaluate("linhasDoNivel('loja').filter(l => l.meta !== null)[0].id")
+    sem_meta = pg.evaluate("(linhasDoNivel('loja').filter(l => l.meta === null)[0] || {}).id || 0")
+    pg.evaluate("abrirPainel('loja', %d)" % com_meta); pg.wait_for_timeout(350)
+    painel = pg.inner_text('#drawerCorpo').upper()
+    ok('COMO VENDEU' in painel and 'TICKET MÉDIO' in painel and 'COMPARADO COM' in painel and 'MÊS ANTERIOR' in painel, 'o painel da loja traz a meta, como vendeu e a comparacao')
+    ok(pg.inner_text('#btnDefinirDaqui') == 'Editar meta', 'loja com meta no mes: o botao do painel e "Editar meta"')
+    ok(pg.evaluate("Array.from(document.querySelectorAll('#drawerCorpo .meta-ano th')).map(t => t.textContent)") == ['Mês', 'Meta', 'Realizado', '%', 'Vendas'], 'e a tabela do ano ganhou a coluna de vendas')
+    pg.evaluate("fecharDrawer()"); pg.wait_for_timeout(200)
+    if sem_meta:
+        pg.evaluate("abrirPainel('loja', %d)" % sem_meta); pg.wait_for_timeout(350)
+        ok(pg.inner_text('#btnDefinirDaqui') == 'Definir meta', 'loja sem meta no mes: o botao e "Definir meta"')
+        clic(pg, '#btnDefinirDaqui'); pg.wait_for_timeout(400)
+        ok(pg.locator('#defDrawer.open').count() == 1 and pg.evaluate("valDrop('defAlvo')") == 'loja:%d' % sem_meta, 'e abre o painel de definir ja naquela loja')
+        clic(pg, '#defCancelar'); pg.wait_for_timeout(250)
+    else:
+        ok(False, 'o exemplo deveria ter uma loja sem meta no mes corrente')
 
     print('\n[11] Esc, os dois temas e o console')
     clic(pg, '#corpoTabela tr')
@@ -275,31 +282,10 @@ with sync_playwright() as p:
         ok(pg.evaluate('document.documentElement.scrollWidth') <= 1440, 'tema %s: nao estoura em 1440' % tema)
     ok(not erros, 'Metas sem erro de JS: %s' % erros[:2])
 
-    print(chr(10) + '[12] De Performance, "Definir meta" cai no painel daquela loja')
-    # 08/out: o botao levava para a listagem de Metas inteira, e a pessoa tinha
-    # de achar de novo a loja em que ja estava. O link agora carrega o alvo e o
-    # periodo, e Metas abre o painel de escrita ja preenchido.
+    print(chr(10) + '[12] Link com ?definir= abre o painel de escrita no alvo')
     p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
     e3 = []
     p3.on('pageerror', lambda e: e3.append(str(e)))
-    p3.goto(localiza.http(PERF))
-    p3.wait_for_load_state('load')
-    p3.wait_for_timeout(700)
-    nome = p3.evaluate("document.querySelector('#corpoTabela tr td').innerText.split(String.fromCharCode(10))[0].trim()")
-    p3.evaluate("document.querySelector('#corpoTabela tr').click()")
-    p3.wait_for_timeout(450)
-    href = p3.get_attribute('#btnDefinirDaqui', 'href') or ''
-    ok('definir=loja:' in href and 'mes=' in href and 'ano=' in href, 'o link leva o alvo e o periodo: %s' % href)
-    ok(p3.evaluate("getComputedStyle(document.getElementById('btnDefinirDaqui')).textDecorationLine") == 'none',
-       'e o botao nao esta sublinhado')
-    p3.evaluate("document.getElementById('btnDefinirDaqui').click()")
-    p3.wait_for_load_state('load')
-    p3.wait_for_timeout(800)
-    ok(METAS in p3.url, 'chegou em Metas')
-    ok(p3.locator('#defDrawer.open').count() == 1, 'com o painel de definir ABERTO')
-    alvo = p3.inner_text('#defAlvo .dropdown-select-label')
-    ok(nome and nome.lower() in alvo.lower(), 'no alvo que estava clicado: %s / %s' % (nome, alvo))
-
     p3.goto(localiza.http(METAS + '?definir=vendedor:5&mes=3&ano=2026'))
     p3.wait_for_load_state('load')
     p3.wait_for_timeout(800)
@@ -315,8 +301,7 @@ with sync_playwright() as p:
     ok(not e3, 'sem erro de JS no caminho: %s' % e3[:2])
 
     print('\n[12] Um modulo so: Metas e Performance (10/out/2026)')
-    # Pedido do usuario: as duas telas sao o mesmo assunto visto de dois jeitos. Um item de menu,
-    # um titulo, e um seletor de visao que leva de uma para a outra sem perder o mes.
+    # Pedido do usuario: as duas telas sao o mesmo assunto. Um item de menu, um titulo e uma pagina.
     fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in localiza.nomes()}
     com_menu = [n for n in fontes if 'id="flyout-vendas"' in fontes[n]]
     ruim = [n for n in com_menu if fontes[n].count('class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"') < 1
@@ -326,23 +311,15 @@ with sync_playwright() as p:
     e4 = []
     p4.on('pageerror', lambda e: e4.append(str(e)))
     p4.goto(localiza.http(METAS)); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
-    ativo = "(() => { const a = document.querySelector('.flyout-item.active, .flyout-item.selected'); const n = document.querySelector('.nav-item.active'); return [n ? n.getAttribute('data-label') : '', document.querySelector('#visaoModulo button.active').getAttribute('data-visao')]; })()"
-    ok(p4.inner_text('.main h1') == 'Metas e Performance' and 'Metas e Performance' in p4.inner_text('#breadcrumb') and p4.evaluate(ativo) == ['Vendas', 'metas'],
-       'a visao Metas abre com o titulo do modulo, o caminho de Vendas e o seletor em Metas')
-    escolher(p4, 'filtroMes', 3)
-    p4.evaluate("document.querySelector('#abasNivel .aba-sit[data-nivel=\"vendedor\"]').click()"); p4.wait_for_timeout(250)
-    tema = p4.evaluate("document.body.className")
-    p4.evaluate("document.querySelector('#visaoModulo button[data-visao=\"performance\"]').click()"); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
-    ok(p4.url.split('/')[-1].startswith(PERF) and p4.inner_text('.main h1') == 'Metas e Performance' and p4.evaluate(ativo) == ['Vendas', 'performance'],
-       'o seletor leva a visao Performance, com o mesmo titulo e o menu ainda em Vendas')
-    ok(p4.evaluate("[mesSel, anoSel, nivel]")[0] == 3 and p4.evaluate("nivel") == 'vendedor' and 'Mar' in p4.inner_text('#filtroMes .dropdown-select-label')
-       and p4.evaluate("document.querySelector('#abasNivel .aba-sit.active').getAttribute('data-nivel')") == 'vendedor',
-       'e a Performance abre no mesmo mes e na mesma aba em que Metas estava: marco, vendedores')
-    ok(p4.evaluate("document.body.className") == tema, 'o seletor usa o visual do seletor de tema, mas nao troca o tema')
-    p4.evaluate("document.querySelector('#visaoModulo button[data-visao=\"metas\"]').click()"); p4.wait_for_load_state('load'); p4.wait_for_timeout(600)
-    ok(p4.url.split('/')[-1].startswith(METAS) and p4.evaluate("mesSel") == 3 and p4.evaluate("nivel") == 'vendedor', 'e a volta para Metas tambem guarda mes e aba')
-    ok(p4.locator('#menuMaisAcoes [data-acao="performance"]').count() == 0, 'o item "Abrir Performance de Vendas" saiu do menu: virou o seletor')
-    ok(not e4, 'sem erro de JS nas duas visoes: %s' % e4[:2])
+    ok(p4.inner_text('.main h1') == 'Metas e Performance' and 'Metas e Performance' in p4.inner_text('#breadcrumb') and
+       p4.evaluate("(document.querySelector('.nav-item.active') || { getAttribute: () => '' }).getAttribute('data-label')") == 'Vendas',
+       'a pagina abre com o titulo do modulo e o caminho de Vendas')
+    ok(p4.locator('#menuMaisAcoes [data-acao="performance"]').count() == 0, 'e o menu nao tem mais "Abrir Performance de Vendas"')
+    # Os quadros do Dashboard que levavam a Performance levam a pagina unica.
+    p4.goto(localiza.http('pagina-dashboard-kpis.html')); p4.wait_for_load_state('load'); p4.wait_for_timeout(500)
+    destinos = p4.evaluate("Array.from(document.querySelectorAll('.main [data-href]')).map(q => q.getAttribute('data-href').split('/').pop())")
+    ok(METAS in destinos and PERF not in destinos, 'os quadros do Dashboard apontam para a pagina unica')
+    ok(not e4, 'sem erro de JS: %s' % e4[:2])
 
     nav.close()
 

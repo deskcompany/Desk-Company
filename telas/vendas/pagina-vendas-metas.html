@@ -836,8 +836,15 @@
     .card { background:#fff !important; border:none !important; box-shadow:none !important; }
   }
   /* Metas e Performance: o seletor de visao do modulo (10/out/2026) */
-  .mp-visao { max-width:320px; margin-bottom:16px; }
-  .mp-visao button { flex:1; }
+  /* Variacao contra o mes anterior e contra o mesmo mes do ano anterior (veio de Performance de Vendas) */
+  .var-sobe { color:#12692F; font-weight:800; }
+  .var-desce { color:#B91C1C; font-weight:800; }
+  body.dark .var-sobe { color:#4ADE80; }
+  body.dark .var-desce { color:#FCA5A5; }
+  /* Seis indicadores numa linha: o numero encolhe um pouco para o valor em reais caber */
+  .mp-kpis { display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:12px; margin-bottom:14px; }
+  .mp-kpis .kpi-value { font-size:19px; }
+  @media (max-width:1280px) { .mp-kpis { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
   /* Busca pelo endereco (10/out/2026): a faixa que diz de onde veio o filtro */
   .busca-link { display:flex; align-items:center; gap:14px; padding:10px 14px; margin-bottom:14px; background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--active-text); border-radius:10px; font-size:12.5px; line-height:1.45; color:var(--text-heading); }
   .busca-link span { flex:1; min-width:0; }
@@ -1040,7 +1047,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Metas e Performance</h1>
-      <div class="subtitle">Quanto cada loja e cada vendedor precisa vender no mês, quanto já vendeu, e se o ritmo fecha a conta</div>
+      <div class="subtitle">Quanto cada loja e cada vendedor precisa vender no mês, quanto e como já vendeu, e se o ritmo fecha a conta</div>
     </div>
     <div class="header-acoes">
       <button class="btn-primary" id="btnDefinirMeta">
@@ -1061,13 +1068,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <!-- Um modulo, duas visoes (10/out/2026): Metas e Performance leem o mesmo bloco de dados. -->
-  <div class="theme-seg mp-visao" id="visaoModulo" role="tablist" aria-label="Visão do módulo">
-    <button type="button" data-visao="metas" role="tab" class="active" aria-selected="true">Metas</button>
-    <button type="button" data-visao="performance" role="tab" aria-selected="false">Performance</button>
-  </div>
-
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
+  <!-- Uma pagina so (usuario, 10/out/2026): a meta e o resultado da venda lado a lado. -->
+  <div class="mp-kpis">
     <div class="card kpi-card" style="border-left-color:var(--active-text)">
       <div class="kpi-label">Meta do mês</div>
       <div class="kpi-value" id="kpiMeta">R$ 0,00</div>
@@ -1083,10 +1085,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="kpi-value" id="kpiAting">0%</div>
       <div class="kpi-delta neutral" id="kpiAtingSub">—</div>
     </div>
+    <div class="card kpi-card" style="border-left-color:var(--chart-2)">
+      <div class="kpi-label">Nº de vendas</div>
+      <div class="kpi-value" id="kpiNumero">0</div>
+      <div class="kpi-delta neutral" id="kpiNumeroSub">—</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--chart-3)">
+      <div class="kpi-label">Ticket médio</div>
+      <div class="kpi-value" id="kpiTicket">—</div>
+      <div class="kpi-delta neutral" id="kpiTicketSub">—</div>
+    </div>
     <div class="card kpi-card" style="border-left-color:var(--danger)">
-      <div class="kpi-label">Abaixo do ritmo</div>
-      <div class="kpi-value" id="kpiAbaixo">0</div>
-      <div class="kpi-delta neutral" id="kpiAbaixoSub">—</div>
+      <div class="kpi-label">Devolução</div>
+      <div class="kpi-value" id="kpiDevolucao">—</div>
+      <div class="kpi-delta neutral" id="kpiDevolucaoSub">—</div>
     </div>
   </div>
 
@@ -1144,6 +1156,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th class="ordenavel" data-ordem="real" title="Pedidos de venda a partir de Faturado. Cancelado não entra.">Realizado <span class="seta">▲</span></th>
             <th class="col-texto ordenavel" data-ordem="pct">Atingimento <span class="seta">▲</span></th>
             <th title="Quanto já deveria estar vendido até hoje, em dias corridos">Ritmo até hoje</th>
+            <th class="ordenavel" data-ordem="vendas" title="Pedidos a partir de Faturado, e o valor médio de cada um">Vendas <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="taxaDev" title="Quanto do que foi vendido no mês voltou">Devolução <span class="seta">▲</span></th>
             <th class="col-texto">Situação</th>
           </tr>
         </thead>
@@ -1300,7 +1314,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -1600,7 +1614,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
@@ -1910,7 +1924,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // REALIZADO = pedidos de venda a partir de FATURADO. Cancelado nao entra.
   // E o mesmo ponto em que a comissao do vendedor e liberada, de proposito:
   // contar no "pedido salvo" poria na meta uma venda que ainda pode cair.
-  // No Lovable isto e uma soma em `pedidos`; aqui sao numeros de exemplo.
+  // No sistema de producao isto e uma soma em `pedidos`; aqui sao numeros de exemplo.
   const REALIZADO = {};
   function vender(nivel, id, ano, valores) {
     valores.forEach(function (v, i) { REALIZADO[nivel + ':' + id + ':' + ano + ':' + (i + 1)] = v; });
@@ -2119,8 +2133,45 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
 
+  // ===== O QUE VEIO DE PERFORMANCE DE VENDAS (10/out/2026) =====
+  // Numero de vendas e devolucao saem do realizado por regra fixa, para o prototipo nao carregar
+  // tres tabelas a mais. No sistema em producao sao contagens em pedidos e devolucoes, com o mesmo
+  // corte: a partir de Faturado.
+  const TICKET_BASE = { 'loja:1': 205, 'loja:2': 158, 'loja:3': 392,
+                        'vendedor:1': 228, 'vendedor:6': 187, 'vendedor:5': 164, 'vendedor:2': 141, 'vendedor:3': 300 };
+  const TAXA_DEV = { 'loja:1': 0.026, 'loja:2': 0.041, 'loja:3': 0.014,
+                     'vendedor:1': 0.019, 'vendedor:6': 0.034, 'vendedor:5': 0.043, 'vendedor:2': 0.022, 'vendedor:3': 0 };
+  function numeroDeVendas(n, id, mes, ano) {
+    const real = realizadoDe(n, id, mes, ano);
+    const base = TICKET_BASE[n + ':' + id] || 200;
+    return real ? Math.max(1, Math.round(real / (base * (1 + ((mes % 3) - 1) * 0.04)))) : 0;
+  }
+  function devolvidoDe(n, id, mes, ano) {
+    const taxa = (TAXA_DEV[n + ':' + id] || 0) * (1 + ((mes % 4) - 1.5) * 0.12);
+    return Math.round(realizadoDe(n, id, mes, ano) * taxa);
+  }
+  function mesAnterior(mes, ano) { return mes === 1 ? { mes: 12, ano: ano - 1 } : { mes: mes - 1, ano: ano }; }
+  function pct(v) { return v.toFixed(1).replace('.', ',') + '%'; }
+  function variacao(atual, base) {
+    if (!base) return '<span class="vol-sub">sem base para comparar</span>';
+    const d = (atual - base) / base * 100;
+    return '<span class="' + (d >= 0 ? 'var-sobe' : 'var-desce') + '">' + (d >= 0 ? '+' : '−') + pct(Math.abs(d)) + '</span>';
+  }
+  // A linha da lista: a meta, mais como a venda aconteceu.
+  function linhaCompleta(n, u) {
+    const l = linhaDe(n, u, mesSel, anoSel);
+    const ant = mesAnterior(mesSel, anoSel);
+    l.vendas = numeroDeVendas(n, u.id, mesSel, anoSel);
+    l.ticket = l.vendas ? l.real / l.vendas : 0;
+    l.devolvido = devolvidoDe(n, u.id, mesSel, anoSel);
+    l.taxaDev = l.real ? l.devolvido / l.real * 100 : 0;
+    l.qtdDev = l.devolvido ? Math.max(1, Math.round(l.devolvido / (l.ticket || 1))) : 0;
+    l.realAnt = realizadoDe(n, u.id, ant.mes, ant.ano);
+    l.realAnoAnt = realizadoDe(n, u.id, mesSel, anoSel - 1);
+    return l;
+  }
   function linhasDoNivel(n) {
-    return unidadesDe(n).map(function (u) { return linhaDe(n, u, mesSel, anoSel); });
+    return unidadesDe(n).map(function (u) { return linhaCompleta(n, u); });
   }
   function filtradas() {
     const q = busca.trim().toLowerCase();
@@ -2134,6 +2185,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (ordem === 'nome') { x = a.nome.toLowerCase(); y = b.nome.toLowerCase(); }
       else if (ordem === 'meta') { x = a.meta || 0; y = b.meta || 0; }
       else if (ordem === 'real') { x = a.real; y = b.real; }
+      else if (ordem === 'vendas') { x = a.vendas; y = b.vendas; }
+      else if (ordem === 'taxaDev') { x = a.taxaDev; y = b.taxaDev; }
       else { x = a.pct === null ? -1 : a.pct; y = b.pct === null ? -1 : b.pct; }
       if (x < y) return asc ? -1 : 1;
       if (x > y) return asc ? 1 : -1;
@@ -2179,6 +2232,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + moeda(l.real) + (l.falta ? '<span class="vol-sub">faltam ' + moeda(l.falta) + '</span>' : '') + '</td>' +
         '<td class="col-texto">' + celulaAting(l) + '</td>' +
         '<td>' + celulaRitmo(l) + '</td>' +
+        '<td>' + (l.vendas ? l.vendas + '<span class="vol-sub">ticket ' + moeda(l.ticket) + '</span>' : '<span class="vol-sub">sem venda</span>') + '</td>' +
+        '<td>' + (l.real ? pct(l.taxaDev) + '<span class="vol-sub">' + moeda(l.devolvido) + '</span>' : '—') + '</td>' +
         '<td class="col-texto"><span class="badge-situacao ' + s.selo + '"><span class="sit-dot ' + s.ponto + '"></span>' + s.rotulo + '</span></td>' +
       '</tr>';
     }).join('');
@@ -2233,10 +2288,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     } else {
       texto('kpiAtingSub', meta ? 'faltaram ' + moeda(Math.max(0, meta - real)) : 'sem meta no mês');
     }
-    texto('kpiAbaixo', abaixo.length);
-    texto('kpiAbaixoSub', abaixo.length
-      ? abaixo.map(function (l) { return l.nome; }).slice(0, 2).join(', ') + (abaixo.length > 2 ? ' e mais ' + (abaixo.length - 2) : '')
-      : (tempo > 0 ? 'o mês ainda não começou' : 'ninguém atrás neste mês'));
+    // Como a venda aconteceu: soma o nivel inteiro, com ou sem meta.
+    const vendido = todas.reduce(function (s, l) { return s + l.real; }, 0);
+    const vendas = todas.reduce(function (s, l) { return s + l.vendas; }, 0);
+    const dev = todas.reduce(function (s, l) { return s + l.devolvido; }, 0);
+    const ant = todas.reduce(function (s, l) { return s + l.realAnt; }, 0);
+    texto('kpiNumero', String(vendas));
+    texto('kpiNumeroSub', 'a partir de Faturado, sem cancelados');
+    texto('kpiTicket', vendas ? moeda(vendido / vendas) : '—');
+    // Mes corrente contra mes fechado nao se compara: um tem 8 dias, o outro 30.
+    texto('kpiTicketSub', tempo === 0 ? 'mês em andamento' : (ant ? 'mês anterior vendeu ' + moeda(ant) : 'sem mês anterior para comparar'));
+    texto('kpiDevolucao', vendido ? pct(dev / vendido * 100) : '—');
+    texto('kpiDevolucaoSub', vendido ? moeda(dev) + ' devolvidos' : 'sem venda no mês');
   }
 
   // O aviso diz o que NAO FECHA entre os dois niveis. Sem ele, loja e vendedor
@@ -2254,26 +2317,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       partes.push('<b>' + loja.nome + '</b>: os vendedores somam ' + moeda(d.soma) + ', ' +
         moeda(Math.abs(d.dif)) + (d.dif < 0 ? ' abaixo' : ' acima') + ' da meta da loja');
     });
+    // Quem esta atras da meta abre o aviso: era um indicador proprio antes de a lista ganhar a venda.
+    const atras = linhasDoNivel(nivel).filter(function (l) { return l.sit === 'abaixo' || l.sit === 'naobatida'; });
+    const inicio = atras.length ? '<b id="avisoAbaixo">Atrás da meta (' + atras.length + '):</b> ' +
+      atras.map(function (l) { return l.nome; }).join(', ') + '. ' : '';
     const autonomos = VENDEDORES.filter(function (v) { return v.ativo && v.lojaId === null; }).length;
     const fim = autonomos ? ' ' + autonomos + (autonomos === 1 ? ' vendedor autônomo tem' : ' vendedores autônomos têm') +
       ' meta própria e não entra em soma de loja.' : '';
-    html('avisoMetasTexto', partes.length
+    html('avisoMetasTexto', inicio + (partes.length
       ? partes.join(' · ') + '. A diferença é o que a vitrine vende sem vendedor, ou meta que ainda falta distribuir.' + fim
-      : 'As metas dos vendedores fecham com as das lojas neste mês.' + fim);
+      : 'As metas dos vendedores fecham com as das lojas neste mês.' + fim));
   }
 
   // ===== PAINEL DE LEITURA: os doze meses de quem foi clicado =====
   function abrirPainel(n, id) {
     const u = (n === 'loja' ? LOJAS : VENDEDORES).filter(function (x) { return x.id === id; })[0];
     if (!u) return;
-    const l = linhaDe(n, u, mesSel, anoSel);
+    const l = linhaCompleta(n, u);
     const s = SIT_META[l.sit];
     texto('drawerTitulo', u.nome);
 
-    const anterior = realizadoDe(n, id, mesSel, anoSel - 1);
+    function linha(r, v) { return '<div class="rt-linha"><span class="chave-rotulo">' + r + '</span><span class="chave-valor">' + v + '</span></div>'; }
     let corpo =
       '<div class="drawer-badges"><span class="badge-situacao ' + s.selo + '"><span class="sit-dot ' + s.ponto + '"></span>' + s.rotulo + '</span></div>' +
-      '<div class="rt-sub">' + NOMES_MES[mesSel - 1] + ' de ' + anoSel + '</div>' +
+      '<div class="rt-sub">A meta de ' + NOMES_MES[mesSel - 1].toLowerCase() + ' de ' + anoSel + '</div>' +
       '<div class="rt-linha"><span class="chave-rotulo">Meta</span><span class="chave-valor">' + (l.meta === null ? 'sem meta' : moeda(l.meta)) + '</span></div>' +
       '<div class="rt-linha"><span class="chave-rotulo">Realizado</span><span class="chave-valor">' + moeda(l.real) + '</span></div>' +
       '<div class="rt-linha"><span class="chave-rotulo">Atingimento</span><span class="chave-valor">' + (l.pct === null ? '—' : l.pct.toFixed(1).replace('.', ',') + '%') + '</span></div>' +
@@ -2283,23 +2350,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<div class="rt-linha"><span class="chave-rotulo">Ritmo até hoje</span><span class="chave-valor">' + moeda(l.esperado) + '</span></div>' +
         '<div class="rt-linha"><span class="chave-rotulo">Por dia para bater</span><span class="chave-valor">' + (l.porDia === null ? '—' : moeda(l.porDia)) + '</span></div>';
     }
-    // Mesmo mes do ano anterior: e a comparacao que o Olist oferece, e a unica
-    // que desconta a sazonalidade sem precisar de modelo.
-    corpo += '<div class="rt-linha"><span class="chave-rotulo">' + MES_CURTO[mesSel - 1] + ' de ' + (anoSel - 1) + '</span><span class="chave-valor">' +
-      (anterior ? moeda(anterior) + ' realizado' : 'sem venda registrada') + '</span></div>';
+    corpo += '<div class="rt-sub">Como vendeu</div>' +
+      linha('Nº de vendas', String(l.vendas)) +
+      linha('Ticket médio', l.vendas ? moeda(l.ticket) : '—') +
+      linha('Devolvido', moeda(l.devolvido) + (l.real ? ' · ' + pct(l.taxaDev) + (l.qtdDev ? ' · ' + l.qtdDev + (l.qtdDev === 1 ? ' devolução' : ' devoluções') : '') : ''));
+    // Mes anterior e mesmo mes do ano anterior: a segunda e a unica comparacao que desconta a
+    // sazonalidade sem precisar de modelo.
+    corpo += '<div class="rt-sub">Comparado com</div>' +
+      linha('Mês anterior', l.realAnt ? moeda(l.realAnt) + ' · ' + variacao(l.real, l.realAnt) : 'sem venda registrada') +
+      linha(MES_CURTO[mesSel - 1] + ' de ' + (anoSel - 1), l.realAnoAnt ? moeda(l.realAnoAnt) + ' · ' + variacao(l.real, l.realAnoAnt) : 'sem venda registrada');
 
-    corpo += '<div class="rt-sub">O ano de ' + anoSel + '</div><table class="meta-ano"><thead><tr><th>Mês</th><th>Meta</th><th>Realizado</th><th>%</th></tr></thead><tbody>';
+    corpo += '<div class="rt-sub">O ano de ' + anoSel + '</div><table class="meta-ano"><thead><tr><th>Mês</th><th>Meta</th><th>Realizado</th><th>%</th><th>Vendas</th></tr></thead><tbody>';
     for (let m = 1; m <= 12; m++) {
       const meta = metaDe(n, id, m, anoSel);
       const real = realizadoDe(n, id, m, anoSel);
+      const nv = numeroDeVendas(n, id, m, anoSel);
       const futuro = tempoDoMes(m, anoSel) > 0;
       corpo += '<tr' + (m === mesSel ? ' class="atual"' : '') + '><td>' + MES_CURTO[m - 1] + '</td>' +
         '<td>' + (meta === null ? '—' : moeda(meta)) + '</td>' +
         '<td>' + (futuro ? '—' : moeda(real)) + '</td>' +
-        '<td>' + (meta && !futuro ? (real / meta * 100).toFixed(0) + '%' : '—') + '</td></tr>';
+        '<td>' + (meta && !futuro ? (real / meta * 100).toFixed(0) + '%' : '—') + '</td>' +
+        '<td>' + (futuro || !nv ? '—' : nv) + '</td></tr>';
     }
     corpo += '</tbody></table>';
-    corpo += '<div class="drawer-footer"><button class="btn-primary" id="btnDefinirDaqui">Definir meta</button>' +
+    // O botao diz o que vai acontecer: criar a meta que falta, ou mexer na que existe.
+    corpo += '<div class="drawer-footer"><button class="btn-primary" id="btnDefinirDaqui">' + (l.meta === null ? 'Definir meta' : 'Editar meta') + '</button>' +
       '<div class="drawer-link" id="btnFecharPainel">Fechar</div></div>';
 
     html('drawerCorpo', corpo);
@@ -2557,7 +2632,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     item.addEventListener('click', function () {
       menuMais.classList.remove('open');
       const acao = item.getAttribute('data-acao');
-      if (acao === 'performance') { window.location.href = '../vendas/pagina-vendas-performance-vendas.html'; return; }
       if (acao === 'lojas') { window.location.href = '../cadastros/pagina-cadastros-lojas-desk.html'; return; }
       if (acao === 'vendedores') { window.location.href = '../cadastros/pagina-cadastros-vendedores.html'; return; }
       if (acao === 'exportar') {
@@ -2569,7 +2643,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   render();
 
   // ===== CHEGADA POR LINK =====
-  // Performance de Vendas manda para ca com ?definir=loja:1&mes=10&ano=2026.
+  // Um link de outra tela pode chegar com ?definir=loja:1&mes=10&ano=2026.
   // A tela abre ja na aba, no periodo e com o painel de definicao naquele alvo.
   (function () {
     const q = new URLSearchParams(location.search);
@@ -2589,30 +2663,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     render();
     abrirDefinir(alvo);
-  })();
-
-  // ===== UM MODULO, DUAS VISOES (10/out/2026) =====
-  // Metas e Performance de Vendas viraram um modulo so, "Metas e Performance". Cada visao continua
-  // sendo uma tela, e as duas leem o mesmo bloco de dados (a suite teste_metas.py compara). O seletor
-  // leva de uma para a outra mantendo o mes, o ano e o nivel (lojas ou vendedores) escolhidos.
-  (function visaoDoModulo() {
-    const AQUI = 'metas';
-    document.querySelectorAll('#visaoModulo button').forEach(b => b.addEventListener('click', () => {
-      const visao = b.getAttribute('data-visao');
-      if (visao === AQUI) return;
-      window.location.href = (visao === 'metas' ? '../vendas/pagina-vendas-metas.html' : '../vendas/pagina-vendas-performance-vendas.html') +
-        '?visao=1&mes=' + mesSel + '&ano=' + anoSel + '&nivel=' + nivel;
-    }));
-    const q = new URLSearchParams(location.search);
-    if (!q.get('visao')) return;
-    const m = Number(q.get('mes')), a = Number(q.get('ano')), n = q.get('nivel');
-    if (m >= 1 && m <= 12) { mesSel = m; setDrop('filtroMes', m, NOMES_MES[m - 1]); }
-    if (a >= 2000 && a <= 2100) { anoSel = a; setDrop('filtroAno', a, String(a)); }
-    if (n === 'loja' || n === 'vendedor') {
-      nivel = n;
-      document.querySelectorAll('#abasNivel .aba-sit').forEach(x => x.classList.toggle('active', x.getAttribute('data-nivel') === nivel));
-    }
-    render();
   })();
 
   // ===== BUSCA PELO ENDERECO (bloco compartilhado, 10/out/2026) =====

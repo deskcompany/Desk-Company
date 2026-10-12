@@ -17,32 +17,16 @@
 
 **Ponto de atenção já decidido:** Desk Tech **não é** uma loja de produto — é assistência técnica (ordem de serviço: diagnóstico, técnico, peças, aprovação de orçamento). Nunca construir em cima do módulo "Pedidos" da Shope, ou vai quebrar/deformar quando chegar a vez da Tech. O hub terá dois tipos de "venda" desde o schema: **Pedido de Produto** (Shope/Brands) e **Ordem de Serviço** (Tech), compartilhando clientes/financeiro/estoque mas com fluxo e telas próprias.
 
-## 2. Stack e plataformas (travado)
+## 2. Stack e plataformas (travado em 10/out/2026)
 
-> **Em revisão desde 10/out/2026.** O **Lovable saiu** de todos os projetos (decisão do usuário): o
-> sistema passa a ser programado aqui, e o caminho do código é GitHub → hospedagem. No mesmo dia o
-> usuário pediu a comparação entre Vercel e Cloudflare, para começar sem custo e migrar para um
-> plano pago quando o caixa permitir. **Recomendação, esperando o "ok" dele:**
->
-> - **Hospedagem: Cloudflare Pages**, ligada ao repositório do GitHub. Cada envio ao GitHub
->   publica sozinho. O plano grátis não limita acessos nem tráfego de site estático (o limite é de
->   cerca de 500 publicações por mês), e não foi encontrada restrição a uso comercial nos termos
->   dele. O protótipo de hoje (a pasta `telas/`) já pode ser publicado assim, sem build.
-> - **Vercel fica de fora do começo:** o plano grátis dela (Hobby) é só para uso pessoal e não
->   comercial; um ERP de empresa exige o Pro, cerca de US$ 20 por usuário ao mês.
-> - **Banco, login e arquivos: Supabase**, como já estava. Grátis para começar (500 MB de banco;
->   o projeto pausa depois de 7 dias sem uso e não tem backup automático). Quando entrar dado de
->   verdade, o primeiro gasto que vale a pena é o Supabase Pro, cerca de US$ 25 ao mês, pelo backup.
-> - **O que não muda:** React + TypeScript + Vite, que gera site estático e roda em qualquer
->   hospedagem. É o que deixa trocar de plataforma depois sem reescrever nada.
-> - **Conta própria do ERP** em cada serviço, no e-mail do sistema (regra da pasta `C:\Claude AI`).
->
-> Valores e limites conferidos em 10/out/2026; conferir de novo no dia de contratar. As linhas
-> abaixo são o texto original, de quando o Lovable e a Vercel estavam no plano.
-
-- **Lovable** (build) + **GitHub** (versionamento, sincroniza automático) + **Supabase** (banco/auth/edge functions) + **Vercel** (hospedagem, zero-config pra projetos Lovable)
+- **O sistema é programado aqui**, no próprio projeto. O caminho do código é **GitHub** (versionamento) → **Cloudflare Pages** (hospedagem: publica sozinha a cada envio ao GitHub) → **Supabase** (banco, login, arquivos e edge functions).
+- **Por que Cloudflare para começar:** o plano grátis não limita acessos nem tráfego de site estático (o limite é de cerca de 500 publicações por mês), e não foi encontrada restrição a uso comercial nos termos dele. O plano grátis da Vercel é só para uso pessoal; um ERP de empresa exigiria o pago, cerca de US$ 20 por usuário ao mês.
+- **A Vercel fica como destino de migração**, para quando o projeto pedir mais espaço ou algo mais robusto. A troca não exige reescrever nada: o front é site estático e roda em qualquer hospedagem.
+- **O Supabase começa no plano grátis** (500 MB de banco; o projeto pausa depois de 7 dias sem uso e não tem backup automático). Quando entrar dado de verdade, o primeiro gasto que vale a pena é o plano pago, cerca de US$ 25 ao mês, pelo backup.
+- **Nada disso foi criado ainda**, por decisão do usuário: nenhuma conta, nenhuma publicação. Primeiro o protótipo ganha mais módulos; depois sobe. Quando subir, cada serviço nasce numa **conta própria do ERP**, no e-mail do sistema, e o protótipo de hoje (a pasta `telas/`) já pode ser publicado sem build.
+- Valores e limites conferidos em 10/out/2026; conferir de novo no dia de contratar.
 - React + TypeScript + Vite + TanStack Router + Tailwind CSS v4 (CSS-based, sem `tailwind.config`)
-- **1 projeto Supabase único**, compartilhado pelo ERP e todas as vitrines. **Projetos separados** no Lovable/Vercel por app (ERP, Desk Shope, depois Desk Tech) — não usar monorepo, isola o "raio de explosão" de uma mudança.
+- **1 projeto Supabase único**, compartilhado pelo ERP e todas as vitrines. **Projetos separados** na hospedagem por app (ERP, Desk Shope, depois Desk Tech) — não usar monorepo, isola o "raio de explosão" de uma mudança.
 - Integrações com transportadoras (Correios, Melhor Envio) ficam em **Supabase Edge Functions**, reaproveitável por ERP e vitrines.
 - Gateway de pagamento: **InfinityPay** (Checkout Integrado — Pix + cartão em até 12x, webhook de confirmação + fallback `payment_check`)
 - Frete: **Melhor Envio** (agrega Correios e outras transportadoras numa API só)
@@ -142,29 +126,29 @@ Cada fase só fecha quando funciona **de ponta a ponta**, não quando as telas e
 7. Cada dia termina com revisão do que aprendemos.
 8. Funciona > Perfeito (MVP first).
 9. Escopo da fase atual congelado — ideias novas viram item de F8, não interrupção.
-10. Documentar as decisões antes de virarem prompt pro Lovable.
+10. Documentar as decisões antes de virarem código.
 
 ## 6. Protocolo Anti-Retrabalho
 
 Baseado em fricções reais das duas tentativas anteriores — cada regra existe porque algo específico já deu retrabalho.
 
-1. **Visual antes de código.** Toda mudança de UI passa por preview/HTML validado aqui antes de virar prompt pro Lovable.
-2. **Schema primeiro, tela depois.** Nenhuma tela nova vai pro Lovable antes do schema das tabelas envolvidas estar decidido e documentado.
+1. **Visual antes de código.** Toda mudança de UI passa por protótipo HTML validado aqui antes de virar código.
+2. **Schema primeiro, tela depois.** Nenhuma tela nova começa a ser programada antes do schema das tabelas envolvidas estar decidido e documentado.
 3. **Ler o código existente antes de prescrever.** Nunca assumir estrutura de um componente que já existe — pedir/ler o código atual primeiro.
-4. **Uma decisão, um lugar.** Toda decisão de plataforma/gateway/schema/arquitetura fecha no estúdio (aqui), documentada, e só depois vira prompt. Nunca decidir estrutural direto na conversa com o Lovable.
-5. **Escopo da fase é congelado.** "Já que estamos aqui, vamos fazer também" vira item de backlog em F8, não interrupção no prompt atual.
+4. **Uma decisão, um lugar.** Toda decisão de plataforma/gateway/schema/arquitetura fecha aqui, documentada, e só depois vira código. Nunca decidir estrutural no meio de uma correção.
+5. **Escopo da fase é congelado.** "Já que estamos aqui, vamos fazer também" vira item de backlog em F8, não interrupção no que está sendo construído.
 6. **Portão de fase = testado de ponta a ponta.** "As telas existem" não é sinônimo de "a fase está pronta".
 7. **Quebrou, para.** Se uma mudança nova quebrar algo que já funcionava, conserta antes de seguir adiante.
-8. **Prompt enviado = prompt registrado.** Todo prompt real mandado pro Lovable é colado de volta aqui.
-9. **Correções do Lovable são bem-vindas, mas revisadas** — aceitas e registradas, nunca silenciosamente ignoradas.
-10. **Um responsável final por decisão de arquitetura** — aprovação explícita antes de virar prompt, nunca decidido "no calor" de uma correção pontual.
+8. **O que foi construído fica registrado.** Toda entrega tem commit, e o `PROGRESSO.md` diz onde o projeto parou.
+9. **Correção se propaga.** Defeito achado numa tela é procurado e corrigido em todas as telas onde existe, no mesmo dia.
+10. **Um responsável final por decisão de arquitetura** — aprovação explícita antes de virar código, nunca decidido "no calor" de uma correção pontual.
 
-### Checklist rápido antes de mandar qualquer prompt pro Lovable
+### Checklist rápido antes de começar a programar qualquer tela
 - [ ] Depende de schema ainda não decidido? → decide aqui primeiro
 - [ ] Envolve UI? → tem preview/HTML aprovado?
 - [ ] Mexe em componente que já existe? → já vi o código atual?
 - [ ] Está dentro do escopo da fase atual? → se não, vai pro backlog (F8)
-- [ ] O prompt final está registrado aqui depois de enviado?
+- [ ] A entrega anterior está em commit, com o `PROGRESSO.md` atualizado?
 
 **Regra de pesquisa — a documentação do Olist vem antes do palpite (21/set/2026, pedido do usuário):** sempre que houver dúvida sobre o que um módulo, campo ou função faz, **consultar `ajuda.olist.com` antes de decidir**, e registrar o que a fonte disse. Já mudou o desenho três vezes: confirmou que *conta financeira é o guarda-chuva e carrega o saldo*, entregou o fluxo inteiro da **conciliação de extrato** (com os campos de taxa, juros, desconto e acréscimo), e acrescentou a **chave Pix** ao cadastro de contas bancárias, que o print sozinho não mostrava. Palpite plausível é o tipo de erro que só aparece depois de a tela estar pronta.
 
@@ -256,7 +240,7 @@ E o plugin **`desk-company-erp` (hoje na versão 0.4.0)** está instalado, traze
 
 **Decisões nossas em cima desses prints (16/set/2026) — é aqui que o Inventário deixa de ser cópia:**
 
-24. **O inventário bloqueia o depósito inteiro, da abertura ao fechamento.** É a única diferença estrutural entre ele e o Acerto, e é o que justifica ele existir tendo Acerto: contagem com movimentação acontecendo no meio não é contagem, é ficção com carimbo. Venda, transferência e acerto naquele depósito são recusados enquanto houver inventário aberto. **Nota em conferência continua entrando** (o galpão não para de receber) mas fica **fora da contagem** — coerente com o item 19, onde `em_conferencia` não é estoque físico. Consequência a implementar no Lovable: toda escrita no ledger passa a checar se existe inventário aberto no depósito alvo.
+24. **O inventário bloqueia o depósito inteiro, da abertura ao fechamento.** É a única diferença estrutural entre ele e o Acerto, e é o que justifica ele existir tendo Acerto: contagem com movimentação acontecendo no meio não é contagem, é ficção com carimbo. Venda, transferência e acerto naquele depósito são recusados enquanto houver inventário aberto. **Nota em conferência continua entrando** (o galpão não para de receber) mas fica **fora da contagem** — coerente com o item 19, onde `em_conferencia` não é estoque físico. Consequência a implementar no sistema de produção: toda escrita no ledger passa a checar se existe inventário aberto no depósito alvo.
 
 25. **Ausência de leitura não é zero.** Produto com saldo no depósito que não apareceu no arquivo do coletor ou da planilha entra como **não contado**, e não contado **não mexe no saldo** no fechamento. Zerar automaticamente seria correto só se toda importação fosse varredura completa do depósito — e não é: coletor que não passou num corredor produziria baixa total de produtos bons, sem ninguém decidir nada. A varredura completa continua possível, mas **explícita**: ação **"Zerar os não contados"** em Mais ações, com confirmação que diz o que vai acontecer. Regra geral que sai daqui: **o sistema nunca infere uma baixa a partir de silêncio.**
 
@@ -323,7 +307,7 @@ E o plugin **`desk-company-erp` (hoje na versão 0.4.0)** está instalado, traze
 
 **Regra de ouro deste inventário:** toda vez que uma tela nova pedir senha para confirmar algo, **a ação entra nesta lista E no checklist do perfil no mesmo passo**. Confirmação que não aparece no perfil é permissão invisível — ninguém consegue auditar quem pode o quê.
 
-**Atualização de 18/set/2026 — a lista virou código.** O inventário agora é o catálogo `ACOES_SENHA`, no bloco compartilhado dos 40 arquivos: `chave`, `nome`, `onde`, `pronto`, `exigePadrao`. Três leitores, **nenhuma cópia**: `pagina-configuracoes-confirmacoes-senha.html` (a ação exige senha?), as quatro telas que pedem senha (`exigeSenha(chave)` decide se o campo aparece) e o checklist do perfil em Vendedores (quem pode confirmar). No Lovable: `acoes_confirmacao` para o catálogo e `parametros.confirmacoes` para o que a empresa ligou ou desligou — **configuração da empresa, `usuario_id` nulo**. Acrescentar uma ação passa a ser **uma linha em um lugar só**, e ela aparece nas três telas no mesmo instante.
+**Atualização de 18/set/2026 — a lista virou código.** O inventário agora é o catálogo `ACOES_SENHA`, no bloco compartilhado dos 40 arquivos: `chave`, `nome`, `onde`, `pronto`, `exigePadrao`. Três leitores, **nenhuma cópia**: `pagina-configuracoes-confirmacoes-senha.html` (a ação exige senha?), as quatro telas que pedem senha (`exigeSenha(chave)` decide se o campo aparece) e o checklist do perfil em Vendedores (quem pode confirmar). No sistema de produção: `acoes_confirmacao` para o catálogo e `parametros.confirmacoes` para o que a empresa ligou ou desligou — **configuração da empresa, `usuario_id` nulo**. Acrescentar uma ação passa a ser **uma linha em um lugar só**, e ela aparece nas três telas no mesmo instante.
 
 **Configurações → Parâmetros de Estoque (decidido em 15/set/2026 — ✅ construído em 18/set/2026; os números saíram das telas para o bloco `PARAM`):** os limiares de tempo hoje estão **cravados no código, espalhados por várias telas**. Quando o módulo de Configurações for desenhado, todos migram para lá. Lista viva do que já existe:
 
@@ -384,7 +368,7 @@ E o plugin **`desk-company-erp` (hoje na versão 0.4.0)** está instalado, traze
    - **O lote é atômico**: ou grava tudo ou não grava nada, com **um número de documento único**. É isso que faz a tela valer como visão consolidada — o acerto em massa vira documento auditável, não N eventos soltos. O acerto inline também recebe número; o multi-produto só agrupa várias linhas sob um.
    - **Lote misto gera pendência fiscal parcial**: só as linhas de saída por perda entram na fila de regularização.
    - **Não é inventário.** Inventário bloqueia o saldo inteiro até o fechamento; o acerto não bloqueia nada. São módulos diferentes e o Inventário continua na fila da F5.
-   - **Pendência:** como não trava saldo, duas pessoas podem acertar o mesmo produto ao mesmo tempo. No protótipo não aparece; no Lovable exige **trava otimista no ledger**.
+   - **Pendência:** como não trava saldo, duas pessoas podem acertar o mesmo produto ao mesmo tempo. No protótipo não aparece; no sistema de produção exige **trava otimista no ledger**.
 
 *Fontes da pesquisa fiscal:* netcpa "ICMS/SP — Quebra ou Perda de Estoque"; rotinafiscal "Baixa de Estoque"; SEFAZ/SP Resposta à Consulta 23372/2021.
 
@@ -415,7 +399,7 @@ E o plugin **`desk-company-erp` (hoje na versão 0.4.0)** está instalado, traze
 
 **Achado dos prints:** o campo **Estoque mínimo já existe** em `pagina-cadastros-produtos-detalhe.html` (aba Dados Gerais → seção Estoque, `#inputEstoqueMinimo`), junto com Estoque máximo, Controlar lotes, Localização, Sob encomenda e Dias para preparação. Não precisa ser criado — o card "Alertas de Estoque" do Dashboard é que ainda usa número inventado e passa a ler daí. **Ressalva com a decisão de depósito (item 15):** `Localização` (ex: "Corredor A1", "Prateleira 5") e o saldo são, na verdade, do par **(produto, depósito)** — o CSV de inventário do Olist confirma isso, e a importação por planilha diz "apenas a localização e o saldo em estoque podem ser atualizados", sempre com um depósito de destino escolhido. Hoje esses dois campos estão no produto; quando `depositos` existir, eles migram pra tabela de saldo por depósito, e o campo em Produtos-detalhe vira o valor do depósito principal.
 
-**Histórico:** Vendedores foi concluído em setembro/2026 — cadastro próprio e independente (não mais uma extensão dos registros Trade Marketing de Lojas Desk, que era o plano antigo), com exclusão suave, vínculo opcional a Loja Desk ("autônomo" quando vazio) e painel mocado de criação/alteração de senha de acesso (ver design-system §8.1, §9.1, §11 e §12). Em setembro/2026, antes de abrir qualquer módulo novo, foi feita uma varredura de consistência nos 22 arquivos que zerou as pendências técnicas dos módulos já construídos (ver §7 e o §14 do design-system). Falta só **Transportadora (Desk Flash)** pra fechar F2 por completo — o usuário já sinalizou que essa tela fica por último, porque a Desk Flash como transportadora própria ainda precisa ser desenhada/definida ("ainda temos que desenhar ela e criar o app de como ela vai ser"). As pendências de Categorias, do seletor de tema e do `max-height` dos dropdowns foram todas fechadas em setembro/2026 — ver §14 do design-system. **Não há desvio técnico conhecido em aberto nos módulos já construídos.** A pasta local também foi higienizada em setembro/2026: a subpasta `Claude outputs\` (com cópias defasadas), o instalador antigo `.skill` e um SVG de 95 MB de uma tentativa anterior do sistema foram removidos. Hoje ela tem exatamente **24 arquivos — as 21 páginas de módulo, o molde e os 2 `.md` — somando 1,9 MB**; qualquer coisa fora dessa lista é resíduo e deve ser investigado, não copiado. Só depois de F2 fechado por completo considerar gerar os prompts reais pro Lovable.
+**Histórico:** Vendedores foi concluído em setembro/2026 — cadastro próprio e independente (não mais uma extensão dos registros Trade Marketing de Lojas Desk, que era o plano antigo), com exclusão suave, vínculo opcional a Loja Desk ("autônomo" quando vazio) e painel mocado de criação/alteração de senha de acesso (ver design-system §8.1, §9.1, §11 e §12). Em setembro/2026, antes de abrir qualquer módulo novo, foi feita uma varredura de consistência nos 22 arquivos que zerou as pendências técnicas dos módulos já construídos (ver §7 e o §14 do design-system). Falta só **Transportadora (Desk Flash)** pra fechar F2 por completo — o usuário já sinalizou que essa tela fica por último, porque a Desk Flash como transportadora própria ainda precisa ser desenhada/definida ("ainda temos que desenhar ela e criar o app de como ela vai ser"). As pendências de Categorias, do seletor de tema e do `max-height` dos dropdowns foram todas fechadas em setembro/2026 — ver §14 do design-system. **Não há desvio técnico conhecido em aberto nos módulos já construídos.** A pasta local também foi higienizada em setembro/2026: a subpasta `Claude outputs\` (com cópias defasadas), o instalador antigo `.skill` e um SVG de 95 MB de uma tentativa anterior do sistema foram removidos. Hoje ela tem exatamente **24 arquivos — as 21 páginas de módulo, o molde e os 2 `.md` — somando 1,9 MB**; qualquer coisa fora dessa lista é resíduo e deve ser investigado, não copiado. Só depois de F2 fechado por completo considerar gerar os prompts reais para o sistema de produção.
 
 
 ---
@@ -1057,14 +1041,14 @@ Os agrupamentos do Olist não são os nossos (lá *separação* e *expedição* 
 ### Parâmetros de estoque — o que a construção ensinou (18/set/2026)
 
 - **Tela de parâmetro sem refactor é decoração.** O valor da tela não está no formulário, está nos **7 números cravados** que ela substituiu. Antes de desenhar qualquer tela de configuração, a primeira pergunta é *quem lê esse número hoje* — se a resposta for "um `if` dentro de outra tela", o refactor faz parte da entrega, não é trabalho de depois.
-- **Contrato com o Lovable:** cada bloco `PARAM` leva comentário dizendo que, no banco, aquilo é leitura da tabela `parametros` por chave. As chaves desta tela: `conferenciaCompraAlerta` (1), `conferenciaCompraCritico` (3), `enderecamentoAlerta` (2), `enderecamentoCritico` (7), `estoqueZeroLimite` (7).
+- **Contrato com o sistema de produção:** cada bloco `PARAM` leva comentário dizendo que, no banco, aquilo é leitura da tabela `parametros` por chave. As chaves desta tela: `conferenciaCompraAlerta` (1), `conferenciaCompraCritico` (3), `enderecamentoAlerta` (2), `enderecamentoCritico` (7), `estoqueZeroLimite` (7).
 - **Prévia viva como forma de explicar parâmetro.** Em vez de texto dizendo o que o número faz, a tela mede o efeito na fila de hoje e mostra quantos itens mudariam de cor. É o mesmo princípio do diagrama dinâmico de Embalagens: mostrar a consequência, não descrevê-la.
 - **Regra que vale para as próximas telas do hub:** parâmetro que forma par (alerta/crítico, mínimo/máximo) valida a ordem no salvar, com modal dizendo **qual** par está invertido — não um "valores inválidos" genérico.
 
 ### Interface do usuário — três decisões que valem para todo o resto (18/set/2026)
 
 - **`parametros` tem `usuario_id` anulável.** Nulo = valor da **empresa** (prazos, regras de estoque); preenchido = preferência **daquele usuário** (paginação, ao salvar, tema). É a diferença entre *Parâmetros de estoque* e *Interface do usuário*, e ela decide onde cada configuração futura vai morar. Toda tela nova do hub responde primeiro a esta pergunta: isso é da empresa ou de quem está logado?
-- **O protótipo passou a ter uma tabela `parametros` de verdade.** Como cada tela é um arquivo solto, a configuração era gravada e nenhuma outra tela lia — a tela de configuração era uma maquete. Agora o bloco compartilhado guarda o mesmo JSON no navegador (`deskParametros`), com `try/catch` caindo no padrão de fábrica se o navegador bloquear. **No Lovable isso é `SELECT` na tabela `parametros`; aqui é a única forma de validar a configuração de ponta a ponta** — e foi validando assim que se descobriu que a prévia media uma fila inventada. Vale para todas as telas do hub daqui em diante: **configuração que não se prova mexendo em outra tela não está pronta.**
+- **O protótipo passou a ter uma tabela `parametros` de verdade.** Como cada tela é um arquivo solto, a configuração era gravada e nenhuma outra tela lia — a tela de configuração era uma maquete. Agora o bloco compartilhado guarda o mesmo JSON no navegador (`deskParametros`), com `try/catch` caindo no padrão de fábrica se o navegador bloquear. **No sistema de produção isso é `SELECT` na tabela `parametros`; aqui é a única forma de validar a configuração de ponta a ponta** — e foi validando assim que se descobriu que a prévia media uma fila inventada. Vale para todas as telas do hub daqui em diante: **configuração que não se prova mexendo em outra tela não está pronta.**
 - **Vocabulário do global tem de bater com o do controle local.** O Olist oferece 20/50 no global e outro conjunto no rodapé. Nós usamos **10/25/50/100 nos dois**, senão o usuário escolhe um padrão que nenhuma listagem consegue mostrar. Regra geral: **parâmetro global e controle da tela falam a mesma lista de valores.**
 
 ### Exclusão passa a exigir senha — decisão de 18/set/2026
@@ -1079,7 +1063,7 @@ O usuário decidiu que **excluir cadastro exige senha**, configurável **por mó
 
 **A senha sozinha dá sensação de proteção que ela não entrega:** excluir com senha, nos 12 pontos sem exclusão suave, continua sendo apagar de vez — só que com identidade confirmada. Fazer a 2 e a 3 sem a 1 seria proteger a porta e deixar a parede aberta.
 
-**Como acrescentar uma ação nova ao catálogo** (a pergunta do usuário que originou tudo isto): duas linhas. Uma no catálogo (`chave`, `nome`, `onde`, `modulo`, `pronto`, `exigePadrao`) e uma na tela que executa a ação — `armarSenhaModal('chave')` antes do modal, ou `aplicarExigenciaSenha('chave')` + `exigeSenha('chave')` nos painéis de confirmação com drawer. **Não existe passo 3:** a ação aparece sozinha em Configurações e no checklist do perfil. No Lovable, `acoes_confirmacao` nasce por *migration* junto com a tela — **quem cadastra ação é quem constrói a ação**, nunca o usuário final, senão a linha existe e nenhum código a lê.
+**Como acrescentar uma ação nova ao catálogo** (a pergunta do usuário que originou tudo isto): duas linhas. Uma no catálogo (`chave`, `nome`, `onde`, `modulo`, `pronto`, `exigePadrao`) e uma na tela que executa a ação — `armarSenhaModal('chave')` antes do modal, ou `aplicarExigenciaSenha('chave')` + `exigeSenha('chave')` nos painéis de confirmação com drawer. **Não existe passo 3:** a ação aparece sozinha em Configurações e no checklist do perfil. No sistema de produção, `acoes_confirmacao` nasce por *migration* junto com a tela — **quem cadastra ação é quem constrói a ação**, nunca o usuário final, senão a linha existe e nenhum código a lê.
 
 ### Barganha fechada — confirmações e permissões viram MATRIZ (18/set/2026)
 
@@ -1093,7 +1077,7 @@ O usuário perguntou como criar travas de senha novas no futuro. A barganha foi 
 
 **Opção C descartada — e por quê.** Regras condicionais criadas pelo usuário (*"exigir senha quando o desconto passar de 10%"*) só valem se a tela souber avaliar aquele campo, ou seja, continuam dependendo de código. A diferença é que a regra *parece* criada e pode simplesmente não valer, sem avisar — trava que dá sensação de segurança e não trava nada. Limiar por valor entra **declarado em código, ponto a ponto**, quando Vendas existir e se souber qual campo compara com qual valor. Cobre também o *código de liberação de desconto* visto nos prints, que é mecanismo à parte (senha diz *quem é você*; o código libera *uma exceção pontual*).
 
-**Consequência técnica a executar.** `ACOES_SENHA` ganha eixo `(modulo, verbo)` ao lado das chaves específicas; `exigeSenha()` passa a aceitar as duas formas. No Lovable: `acoes_confirmacao(modulo, verbo|chave)` e `permissoes(perfil, modulo, verbo|chave)` — mesma chave lógica nas duas tabelas.
+**Consequência técnica a executar.** `ACOES_SENHA` ganha eixo `(modulo, verbo)` ao lado das chaves específicas; `exigeSenha()` passa a aceitar as duas formas. No sistema de produção: `acoes_confirmacao(modulo, verbo|chave)` e `permissoes(perfil, modulo, verbo|chave)` — mesma chave lógica nas duas tabelas.
 
 ~~Ponto em aberto, a confirmar na retomada:~~ → ✅ **Resolvido em 21/set (item 1): criar e editar nascem desligados.** O texto original: o **estado inicial de criar e editar**. *Excluir* nasce ligado (decidido em 18/set). Minha recomendação é que **criar e editar nasçam desligados** — exigir senha para editar um cadastro é atrito diário pesado —, com a célula existindo desde o primeiro dia para ser ligada quando quiser. O usuário aprovou "criar/editar e excluir" completos, mas isso responde *quais colunas existem*, não *como nascem*; por isso fica registrado como pergunta, não como decisão tomada.
 
@@ -1210,7 +1194,7 @@ O usuário perguntou se o projeto tem um módulo onde **o cliente abre reclamaç
 
 - **Nenhuma das 41 telas precisou mudar.** A gravação entrou nos dois pontos por onde toda ação do catálogo já passava: `confirmarAcao` (caminho sem senha) e a fase de captura do Confirmar do modal (caminho com senha). **Ação nova passa a ser auditada só por entrar no catálogo** — é o mesmo ganho da matriz, aplicado ao log.
 - **O catálogo mudou de sentido.** Deixou de ser "a lista do que pede senha" e virou **a lista do que é auditável**; a senha virou uma coluna do registro.
-- **Contrato com o Lovable escrito no código:** `log_atividades` é gravada **no servidor**. Log escrito pelo cliente é log que o próprio usuário apaga depois de agir. No protótipo grava no navegador (últimas 300) só para a tela poder ser avaliada de verdade.
+- **Contrato com o sistema de produção escrito no código:** `log_atividades` é gravada **no servidor**. Log escrito pelo cliente é log que o próprio usuário apaga depois de agir. No protótipo grava no navegador (últimas 300) só para a tela poder ser avaliada de verdade.
 - **Nada foi semeado de exemplo** — a tela abre vazia e explica o que fazer para vê-la funcionando. Registro com evento fabricado é registro que mente.
 
 **Descoberta que muda Permissões de Usuários, e vale registrar antes de construí-la:** a matriz de **permissão** tem um verbo que a matriz de **senha** não tem — **ver**. Ninguém confirma "visualizar" com senha, mas *quem pode ver* é exatamente a pergunta do Registro de atividades (supervisor/gerente/owner) e de qualquer relatório. Então as duas grades compartilham módulos e linhas, mas **a de permissão tem uma coluna a mais**. Desenhar assim desde o começo evita descobrir isso depois de a tela estar pronta.
@@ -1604,7 +1588,7 @@ Consultadas `contas-pagar-incluir` e `contas-pagar-obter` em 22/set/2026. Quatro
 
 ### A integração com o Caixa é REAL no protótipo, não um texto dizendo que seria
 
-Cada tela é um arquivo solto, então a baixa grava o movimento num depósito compartilhado no navegador (`deskCaixaExtras`) e o extrato lê esse depósito junto com o mock dele — mesma ideia do `deskParametros` e do `deskLog`. **No Lovable isso não existe: é a mesma tabela `movimentos`, escrita pela baixa.**
+Cada tela é um arquivo solto, então a baixa grava o movimento num depósito compartilhado no navegador (`deskCaixaExtras`) e o extrato lê esse depósito junto com o mock dele — mesma ideia do `deskParametros` e do `deskLog`. **No sistema de produção isso não existe: é a mesma tabela `movimentos`, escrita pela baixa.**
 
 O teste de integração faz o caminho do usuário: baixa a conta, clica no aviso *"Abrir o Caixa"* e confere que os dois lançamentos estão lá, com o valor certo, a categoria certa e a origem apontando para a conta.
 
@@ -1624,7 +1608,7 @@ Pendência aberta desde a primeira varredura. O flyout **já sabia navegar** —
 
 Isso importa para a validação: até aqui cada tela era uma ilha e conferir duas telas juntas exigia abrir dois arquivos à mão. **Agora o protótipo se navega.**
 
-**A auditoria rodou nas 53 telas antes e depois da varredura e o resultado é idêntico** — nenhum problema novo. O que ela acusa é dívida antiga, concentrada nas telas mais velhas: 23 `getElementById` sem elemento, 20 checkboxes sem a classe do design system, 15 `<select>` nativos, 6 controles sem ação. **São 18 telas limpas de 53.** Não é urgente — nenhum desses quebra a tela —, mas é o tamanho real do retrabalho que sobra quando essas telas forem para o Lovable, e é bom saber disso agora e não lá.
+**A auditoria rodou nas 53 telas antes e depois da varredura e o resultado é idêntico** — nenhum problema novo. O que ela acusa é dívida antiga, concentrada nas telas mais velhas: 23 `getElementById` sem elemento, 20 checkboxes sem a classe do design system, 15 `<select>` nativos, 6 controles sem ação. **São 18 telas limpas de 53.** Não é urgente — nenhum desses quebra a tela —, mas é o tamanho real do retrabalho que sobra quando essas telas forem para o sistema de produção, e é bom saber disso agora e não lá.
 
 *(O `pagina-molde-referencia.html` aparece com "dois `<body>`" e ids duplicados: é esperado, ele são dois documentos no mesmo arquivo — exceção já registrada.)*
 
@@ -1693,7 +1677,7 @@ Com recorrência indo até 31/12, abrir em "todos" mostra o ano inteiro e a tela
 
 Quando a última conta de um grupo recorrente vence nos próximos **90 dias** (contrato de aluguel se renegocia com meses de antecedência, não com dias), Contas a Pagar publica um aviso e a **Agenda** mostra: *"Renovar aluguel do galpão — última conta vence em 15/12/2026"*, com seta indicando que o item leva para fora da agenda. Clicar abre a conta **em edição**, com o `Repetir até` já apontando para o fim do ano seguinte e uma faixa explicando que salvar cria as contas que faltam.
 
-**Mecanismo novo, deliberadamente geral:** `deskAvisos` é um mapa no navegador com chave por origem — recarregar reescreve em vez de duplicar. Estoque mínimo, contas a receber e conferência vão usar o mesmo caminho. **No Lovable isso não é tabela escrita por tela: é uma consulta** — "grupos cuja última conta vence nos próximos 90 dias e não foram renovados". Parcelada não entra: ela acaba porque a compra acabou, não porque precisa renovar.
+**Mecanismo novo, deliberadamente geral:** `deskAvisos` é um mapa no navegador com chave por origem — recarregar reescreve em vez de duplicar. Estoque mínimo, contas a receber e conferência vão usar o mesmo caminho. **No sistema de produção isso não é tabela escrita por tela: é uma consulta** — "grupos cuja última conta vence nos próximos 90 dias e não foram renovados". Parcelada não entra: ela acaba porque a compra acabou, não porque precisa renovar.
 
 ### Contas a Receber fica para depois, por dependência
 
@@ -1723,7 +1707,7 @@ Bloco de handoff: o chat ficou longo e o trabalho continua em outra sessão.
 ## O que está aberto
 
 ### 1. Aprovação de Contas a Pagar
-A regra de ouro é protótipo → aprovação do usuário → prompt do Lovable. As telas foram entregues; **a aprovação ainda não foi dada em palavras**. Confirmar antes de gerar qualquer prompt.
+A regra de ouro é protótipo → aprovação do usuário → construção. As telas foram entregues; **a aprovação ainda não foi dada em palavras**. Confirmar antes de gerar qualquer prompt.
 
 ### 2. Contas a Receber — adiada por dependência
 A conta a pagar nasce de alguém digitando; **a conta a receber nasce de uma venda**, e Pedidos de Venda não existe. Construir agora seria uma tela cuja origem principal é mock de algo inexistente. **Decidido: pular e voltar depois de Vendas.**
@@ -1771,7 +1755,7 @@ A revisão completa da pasta, que estava combinada para uma sessão nova. **Leia
 ## O que continua aberto
 
 ### 1. Aprovação de Contas a Pagar
-Segue sendo o item que destrava a saída de Finanças. As telas foram entregues em 23/set; **a aprovação em palavras ainda não foi dada.** Confirmar antes de gerar qualquer prompt do Lovable.
+Segue sendo o item que destrava a saída de Finanças. As telas foram entregues em 23/set; **a aprovação em palavras ainda não foi dada.** Confirmar antes de construir.
 
 ### 2. Contas a Receber — adiada por dependência
 Sem mudança: a conta a receber nasce de uma venda, e Pedidos de Venda não existe. **Pular e voltar depois de Vendas.**
@@ -1831,7 +1815,7 @@ Sessão de pôr em dia. **Leia este bloco primeiro.**
 ## O que continua aberto
 
 ### 1. Aprovação de Contas a Pagar
-Ainda o item que destrava a saída de Finanças. As telas estão entregues desde 23/set; **a aprovação em palavras não foi dada.** Confirmar antes de gerar prompt do Lovable.
+Ainda o item que destrava a saída de Finanças. As telas estão entregues desde 23/set; **a aprovação em palavras não foi dada.** Confirmar antes de construir.
 
 ### 2. Contas a Receber — adiada por dependência de Vendas
 Sem mudança.
@@ -1897,7 +1881,7 @@ O menu tem **dois itens** para **um módulo**, e o segundo aponta para uma tela 
 
 Os breadcrumbs já dizem a verdade: é listagem + detalhe, como Controle de Estoques. **O menu é que mente** — clicar em *Conferência* larga o usuário na nota 9051, que ninguém escolheu. É o único lugar do sistema onde um item de menu aponta para tela de detalhe.
 
-**E a causa está escrita no código:** a fila, ao mandar conferir, mostra *"a navegação entre telas só passa a funcionar de verdade no Lovable"* — mensagem que ficou obsoleta em 22/set, quando o cross-link do menu passou a navegar de verdade. O segundo item de menu nasceu como contorno disso.
+**E a causa está escrita no código:** a fila, ao mandar conferir, mostra *"a navegação entre telas só passa a funcionar de verdade no sistema de produção"* — mensagem que ficou obsoleta em 22/set, quando o cross-link do menu passou a navegar de verdade. O segundo item de menu nasceu como contorno disso.
 
 **Proposta:** a fila navega para a contagem (`?nota=<numero>`), e o menu volta a ter um item só, apontando para a fila. ~~Aguardando aval.~~ → ✅ *aprovado e feito na mesma tarde.*
 
@@ -1920,7 +1904,7 @@ Sem mudança: Contas a Receber espera Vendas; kit, transportadora, permissões, 
 
 ## Contas a Pagar: APROVADO por inteiro
 
-O usuário aprovou o módulo completo — listagem, página da conta, baixa, recorrência, clonar e recibo. **A regra de ouro cumpriu o ciclo: protótipo → aprovação → prompt do Lovable.** É o primeiro módulo de Finanças liberado para virar prompt, e a pendência aberta desde 23/set está fechada.
+O usuário aprovou o módulo completo — listagem, página da conta, baixa, recorrência, clonar e recibo. **A regra de ouro cumpriu o ciclo: protótipo → aprovação → construção.** É o primeiro módulo de Finanças liberado para virar prompt, e a pendência aberta desde 23/set está fechada.
 
 ## Conferência: uma entrada de menu, duas telas
 
@@ -1929,7 +1913,7 @@ Pergunta do usuário: *"se faz sentido ficar as duas telas ou não"*. **Faz** �
 - item de menu duplicado removido das **53 telas** — sobra *Conferência de Compra*, apontando para a fila;
 - a fila **navega** para a contagem da nota escolhida (`?nota=`);
 - a contagem lê a nota da URL, com as **4 notas conferíveis** montadas;
-- o aviso obsoleto de 22/set (*"a navegação só funciona no Lovable"*), que foi o que gerou o segundo item, saiu;
+- o aviso obsoleto de 22/set (*"a navegação só funciona no sistema de produção"*), que foi o que gerou o segundo item, saiu;
 - **achado no caminho:** o mock da nota 9051 não fechava — itens somavam 28.451,90 contra nota de 24.890,00, numa tela que compara justamente esses dois números.
 
 **Regra nova: item de menu aponta para listagem, nunca para detalhe.**
@@ -1974,7 +1958,7 @@ Achados por varredura, não por lista — detalhe e regras nas lições **§14.6
 
 | o quê | onde | agora |
 |---|---|---|
-| **19 botões** respondendo *"é a próxima tela a ser construída"* / *"a navegação só funciona no Lovable"* para telas que existem | 10 telas do Estoque; as listagens de Ordens de Compra e de Entrada de Notas **não tinham caminho para o próprio detalhe** | navegam |
+| **19 botões** respondendo *"é a próxima tela a ser construída"* / *"a navegação só funciona no sistema de produção"* para telas que existem | 10 telas do Estoque; as listagens de Ordens de Compra e de Entrada de Notas **não tinham caminho para o próprio detalhe** | navegam |
 | **Exclusão em massa sem senha** — a senha estava armada no aviso de "nada pode ser excluído", e o modal que exclui passava direto | Ordens de Compra, Depósitos, Endereços | senha no modal que exclui |
 | Cancelar ordem de compra **já recebida** sem senha (catálogo `ocCancelaRecebida` estava `pronto:false`) | Ordens de Compra | pede senha e diz o que acontece com o estoque |
 | **Incluir** dos 5 cadastros abria um registro existente **em modo leitura** — regressão do modo leitura de 28/set | Clientes, Fornecedores, Produtos, Vendedores, Lojas | `?novo=1` e `?editar=1` abrem em edição |
@@ -2012,7 +1996,7 @@ Substitui as listas "Aberto" dos blocos anteriores.
 | Usuários do sistema, Permissões de Usuários (com o verbo *ver*), permissão real em Metas e Vendedores, Guia de primeiros passos, "lembrar a última tela" | login (Usuários do sistema) |
 | Integridade referencial e exclusão suave nos 12 pontos | Supabase |
 | Menu lançar ↔ estornar; coluna Origem no Controle de Estoques | ledger de estoque real (Supabase) |
-| Importar XML e o de-para `produto_fornecedor` | importação no servidor (Lovable) |
+| Importar XML e o de-para `produto_fornecedor` | importação no servidor (sistema de produção) |
 | Conciliação bancária e OFX | depois da F5 (os campos já existem) |
 | Relatórios — imprimir/exportar das listagens, romaneio, Giro de Estoque, Necessidades de Compra | módulo de Relatórios, sem data; os botões avisam |
 | Cadastro global de variações; estoque de segurança; valor da NF × pagamento integrado | saldo por variação / marketplace |
@@ -2216,7 +2200,7 @@ Da segunda vez virou **checagem 10 do `auditoria.py`**, e não outra correção 
 - **Prova de cobertura repetida para a suíte nova**, como o `LEIA-ME` manda: cobertura declarada e telas realmente abertas deram exatamente as mesmas duas.
 - **Varredura de cliques: 1.676 cliques em 54 telas, 0 erro de JS, 0 navegação para arquivo inexistente, 0 aviso mentindo que uma tela não existe.**
 
-**Fica aberto só o que depende do usuário:** aprovar o módulo para virar prompt do Lovable. Nenhuma decisão de produto pendente.
+**Fica aberto só o que depende do usuário:** aprovar o módulo para ser construído. Nenhuma decisão de produto pendente.
 
 ---
 

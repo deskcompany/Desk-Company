@@ -377,11 +377,16 @@
   .quadro-link { cursor:pointer; }
   .quadro-link:hover { border-color:var(--active-text); }
   .quadro-link:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
-  .fila-do-dia { display:flex; flex-direction:column; margin-top:6px; }
-  .fila-do-dia a { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 2px; border-top:1px solid var(--border); font-size:13px; font-weight:600; color:var(--text-heading); text-decoration:none; }
-  .fila-do-dia a:first-child { border-top:none; }
-  .fila-do-dia a:hover { color:var(--active-text); }
-  .fila-do-dia a span { font-size:11.5px; font-weight:600; color:var(--text); }
+  .dia-grade { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px 28px; }
+  .dia-grupo { font-size:11.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--text); padding-bottom:6px; border-bottom:1px solid var(--border); }
+  .dia-fila { display:flex; align-items:center; gap:14px; padding:11px 4px; border-bottom:1px solid var(--border); text-decoration:none; border-radius:8px; }
+  .dia-coluna .dia-fila:last-child { border-bottom:none; }
+  .dia-fila:hover { background:var(--active-bg); }
+  .dia-numero { min-width:44px; text-align:right; font-family:'Nunito',sans-serif; font-weight:900; font-size:24px; color:var(--text-heading); line-height:1; }
+  .dia-texto { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .dia-rotulo { font-size:13px; font-weight:700; color:var(--text-heading); }
+  .dia-sub { font-size:11.5px; font-weight:600; color:var(--text); }
+  @media (max-width:1100px) { .dia-grade { grid-template-columns:1fr; } }
   .quadro-rodape { display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--active-text); text-decoration:none; }
 </style>
 </head>
@@ -680,21 +685,42 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
           <span>Logística</span>
         </div>
+        <div class="shortcut-tile" data-href="../vendas/pagina-vendas-pdv.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <span>PDV</span>
+        </div>
+        <div class="shortcut-tile" data-href="../vendas/pagina-vendas-metas.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+          <span>Metas e Performance</span>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <div class="card-head" style="margin-top:22px;">
-        <div class="card-title">O que precisa de você hoje</div>
+  <!-- O que precisa de voce hoje: quadro proprio, de lado a lado (usuario, 10/out/2026). As
+       quantidades sao espelho da aba de cada fila; teste_retorno.py compara com as telas. -->
+  <div class="card" id="quadroDoDia">
+    <div class="card-head">
+      <div class="card-title">O que precisa de você hoje</div>
+    </div>
+    <div class="dia-grade">
+      <div class="dia-coluna">
+        <div class="dia-grupo">Entrada e estoque</div>
+        <a class="dia-fila" data-fila="doca" href="../estoque/pagina-estoque-conferencia-entrada.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">notas prontas para conferir</span><span class="dia-sub">5 aguardando entrada · 2 em conferência</span></span></a>
+        <a class="dia-fila" data-fila="ender" href="../estoque/pagina-estoque-enderecamento.html"><span class="dia-numero">12</span><span class="dia-texto"><span class="dia-rotulo">itens parados sem endereço</span><span class="dia-sub">5 com estoque zerado no endereço</span></span></a>
+        <a class="dia-fila" data-fila="compra" href="../estoque/pagina-estoque-necessidades-compra.html"><span class="dia-numero">4</span><span class="dia-texto"><span class="dia-rotulo">produtos para comprar</span><span class="dia-sub">R$ 18.992,80 em compra sugerida</span></span></a>
+        <a class="dia-fila" data-fila="bloq" href="../estoque/pagina-estoque-itens-bloqueados.html"><span class="dia-numero">7</span><span class="dia-texto"><span class="dia-rotulo">itens bloqueados esperando decisão</span><span class="dia-sub">R$ 4.711,70 de custo parado</span></span></a>
       </div>
-      <div class="fila-do-dia" id="filaDoDia">
-        <a href="../estoque/pagina-estoque-conferencia-entrada.html">Notas na doca para conferir <span>Conferência de Entrada</span></a>
-        <a href="../estoque/pagina-estoque-enderecamento.html">Saldo parado sem endereço <span>Endereçamento</span></a>
-        <a href="../estoque/pagina-estoque-necessidades-compra.html">Produtos para comprar <span>Necessidades de Compra</span></a>
-        <a href="../estoque/pagina-estoque-itens-bloqueados.html">Itens bloqueados esperando decisão <span>Itens Bloqueados</span></a>
-        <a href="../logistica/pagina-logistica-separacao.html">Pedidos para separar <span>Separação</span></a>
-        <a href="../logistica/pagina-logistica-conferencia-saida.html">Pedidos para conferir e embalar <span>Conferência de Saída</span></a>
-        <a href="../logistica/pagina-logistica-expedicao.html">Cargas para despachar <span>Expedição</span></a>
-        <a href="../financas/pagina-financas-contas-pagar.html">Contas a pagar <span>Finanças</span></a>
-        <a href="../financas/pagina-financas-contas-receber.html">Contas a receber <span>Finanças</span></a>
+      <div class="dia-coluna">
+        <div class="dia-grupo">Saída dos pedidos</div>
+        <a class="dia-fila" data-fila="sep" href="../logistica/pagina-logistica-separacao.html"><span class="dia-numero">6</span><span class="dia-texto"><span class="dia-rotulo">pedidos aguardando separação</span><span class="dia-sub">2 em separação · 3 já separados</span></span></a>
+        <a class="dia-fila" data-fila="conf" href="../logistica/pagina-logistica-conferencia-saida.html"><span class="dia-numero">5</span><span class="dia-texto"><span class="dia-rotulo">pedidos para conferir e embalar</span><span class="dia-sub">1 em conferência · 3 conferidos</span></span></a>
+        <a class="dia-fila" data-fila="exp" href="../logistica/pagina-logistica-expedicao.html"><span class="dia-numero">6</span><span class="dia-texto"><span class="dia-rotulo">cargas para despachar</span><span class="dia-sub">5 em montagem · 1 conferindo na doca</span></span></a>
+      </div>
+      <div class="dia-coluna">
+        <div class="dia-grupo">Financeiro</div>
+        <a class="dia-fila" data-fila="pagar" href="../financas/pagina-financas-contas-pagar.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">contas a pagar atrasadas</span><span class="dia-sub">5 em aberto, ainda no prazo</span></span></a>
+        <a class="dia-fila" data-fila="receber" href="../financas/pagina-financas-contas-receber.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">contas a receber atrasadas</span><span class="dia-sub">7 em aberto, ainda no prazo</span></span></a>
       </div>
     </div>
   </div>
@@ -725,7 +751,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DO SISTEMA =====
   // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
-  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No Lovable
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
   // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
   // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
   // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
@@ -944,7 +970,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
   // passa a ser uma COLUNA do registro, nao o motivo dele existir.
   // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
-  // entradas. No Lovable e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
   // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
   const LOG_MAX = 300;
   // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja

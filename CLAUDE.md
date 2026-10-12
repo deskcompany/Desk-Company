@@ -6,12 +6,11 @@ validados aqui e só depois viram sistema de verdade.
 
 **Regra de ouro:** protótipo HTML → aprovação do usuário → construção. Nunca pular etapa.
 
-**O Lovable saiu do projeto em 10/out/2026**, por decisão do usuário, que vale para todos os
-projetos da Desk. Não gere prompt para o Lovable: o sistema é programado aqui, e o caminho do
-código é GitHub → hospedagem. A hospedagem está **recomendada e esperando o "ok" do usuário**
-(Cloudflare Pages com Supabase; ver o topo da seção 2 de `docs/arquitetura-roadmap-desk-company.md`).
-Não crie conta nem publique nada antes desse "ok". As skills do ERP foram atualizadas nesse ponto
-em 10/out; o resto de `docs/` ainda cita o Lovable em texto antigo, e está desatualizado ali.
+**O sistema é programado aqui**, e publicado por GitHub → Cloudflare Pages, com o banco no
+Supabase (decisão do usuário em 10/out/2026; a Vercel fica como destino de migração, para quando
+o projeto pedir mais). **Nenhuma conta foi criada e nada foi publicado:** o usuário quer mais
+módulos prontos antes de subir. Não crie conta, não publique e não envie ao GitHub sem ele pedir.
+O detalhe está na seção 2 de `docs/arquitetura-roadmap-desk-company.md`.
 
 Quando o usuário disser **"vamos barganhar"**, pare e negocie antes de implementar: apresente
 trade-offs, pergunte o que estiver ambíguo e só construa depois do aval.
@@ -24,11 +23,13 @@ arquivo não repete nada disso** — ele cobre apenas o que é específico desta
 "Tela nova nasce ligada: o mapa de vizinhança" (`desk-company-erp`). Antes de entregar: "A tela
 dentro do sistema" (`desk-company-page-qa`). Vieram da varredura das 80 telas prontas, que achou
 painel que não levava à tela vizinha, menu com ação que não fazia nada e número que uma tela
-desmentia na outra (§14.53 do design system).
+desmentia na outra (§14.53 do design system). A segunda ganhou, em 12/out, o que o usuário devolveu
+ao testar a primeira leva (§14.54): conserto que vai para todas as telas, "incluir" em branco,
+concluir que volta para a fila, etapa que não volta, uma página só para um assunto só.
 
 O texto dessas skills foi editado neste computador, direto na cópia que o Claude carrega
-(`~/.claude/plugins/synced/.../desk-company-erp~g2`, com a versão anterior guardada ao lado como
-`.v0011.bak`). A fonte é `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`. Se uma
+(`~/.claude/plugins/synced/.../desk-company-erp~g2`). A fonte é
+`C:\Claude AI\Skills\Skills ERP System\desk-company-erp`. Se uma
 sincronização do claude.ai trouxer de volta o texto antigo (as duas seções somem), copie da fonte
 de novo e avise o usuário para reenviar o plugin por lá.
 
@@ -133,7 +134,7 @@ Nunca instale Python de novo por causa disso — daria duas instalações concor
 
 | onde | tem | não tem |
 |---|---|---|
-| `_ferramentas/auditoria.py` | checagens 10 (tag literal em texto de modal), 11 (identificador repetido numa lista de exemplo) e 12 (texto visível que cita o Lovable) | — |
+| `_ferramentas/auditoria.py` | checagens 10 (tag literal em texto de modal), 11 (identificador repetido numa lista de exemplo) e 12 (tela que cita a ferramenta de construção que saiu do projeto) | — |
 | `assets/auditoria.py` da skill | seções 4B/5/6 (contraste WCAG medido) | checagens 10, 11 e 12 |
 
 **A da skill não conhece a estrutura por módulo.** Ela mora fora do projeto, varre
