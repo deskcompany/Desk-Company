@@ -1,5 +1,5 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Itens Bloqueados e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, e em 12/out com o retorno do usuário sobre ela. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, e em 12/out com o retorno do usuário sobre ela. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
 **80 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
@@ -42,7 +42,7 @@
 | ✅ | Reposição |
 | ✅ | Ordens de Compra *(+ detalhe)* |
 | ✅ | Transferência Entre Estoques *(+ nova transferência)* |
-| ✅ | Itens Bloqueados *(09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
+| ✅ | Tratamento de Perdas *(chamava-se Itens Bloqueados até 12/out, quando o usuário trocou o nome; o arquivo segue `pagina-estoque-itens-bloqueados.html`. 09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
 | ✅ | Acerto de Estoque |
 | ✅ | Inventário |
 | ✅ | Necessidades de Compra *(10/out: lista viva do que comprar hoje. A conta usa só o vendável, soma o que está chegando e desconta os pedidos que vão sair; mínimo e máximo ou dias de cobertura; a ordem de compra nasce dali, uma por fornecedor)* |
@@ -51,7 +51,7 @@
 
 > **Necessidades de Compra e Giro de Estoque nasceram em 10/out**, de 31 prints do Olist e quatro decisões do usuário: **lista viva**, no padrão do sistema, sem botão "gerar"; **só o vendável conta como estoque** na compra (disponível mais o que aguarda endereço), e o aviso de mínimo do Controle de Estoques passou a usar a mesma regra; **o painel cria a ordem**, uma por fornecedor, e ela aparece em Ordens de Compra; e **o giro avisa na compra**: encalhe abaixo do mínimo entra sem quantidade sugerida. Nasceram junto o **fornecedor padrão** no cadastro do produto e a seção **Compra e giro de estoque** em Parâmetros de estoque (quatro parâmetros). Ficou de fora: tags (§12.1), natureza de operação (fiscal), prazo de entrega do fornecedor e a página de detalhe da ordem criada, que ainda abre o exemplo fixo. O kit entra na compra como produto comum, porque a composição de kit ainda não existe. Ver §14.52.
 >
-> **Itens Bloqueados nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
+> **Tratamento de Perdas nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
 
 ## 🛒 Vendas — 4 de 9
 | | Submódulo |
@@ -148,6 +148,6 @@
 | Configurações | 1 item de menu, 19 telas | 0 |
 | **Total** | **41 itens de menu com tela · 80 telas** | **14** |
 
-*Contado no menu em 12/out/2026: **55 itens, 41 com destino e 14 sem**, em 80 telas (eram 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Itens Bloqueados, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 12/out/2026: **55 itens, 41 com destino e 14 sem**, em 80 telas (eram 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

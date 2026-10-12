@@ -209,7 +209,7 @@ def audita(caminho):
     #   deskOrdensGeradas - ordens criadas em Necessidades de Compra; Ordens de Compra
     #                       le, e devolve quando a ordem e excluida ou cancelada (10/out).
     # Os dois de cima sao deposito compartilhado no mesmo sentido dos cinco: uma tela
-    # grava e outra le. O estado proprio do PDV, do CRM e de Itens Bloqueados tambem
+    # grava e outra le. O estado proprio do PDV, do CRM e de Tratamento de Perdas tambem
     # esta na lista. A lista e que manda.
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
     OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada',

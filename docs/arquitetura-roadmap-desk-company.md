@@ -2405,7 +2405,7 @@ A primeira tela da F4. Duas: a **fila** (`pagina-logistica-separacao.html`) e a 
 
 **Falta não trava e não baixa estoque:** o pedido segue para a Conferência de Saída com a quantidade encontrada, e a diferença vira divergência aguardando reconferência (§14.14).
 
-**Revisto em 09/out/2026, pelo usuário:** a falta continua não travando o pedido e não baixando estoque, mas **a unidade que faltou passa a ficar bloqueada**, fora do disponível, até alguém conferir o endereço. Bloquear não é baixar: o físico não muda e nenhuma obrigação fiscal nasce, então o motivo da recusa de 05/out continua de pé. O que muda é que o próximo pedido deixa de reservar uma peça que talvez não exista. A "reconferência", que não tinha tela, é feita em **Estoque → Itens Bloqueados** (§14.51).
+**Revisto em 09/out/2026, pelo usuário:** a falta continua não travando o pedido e não baixando estoque, mas **a unidade que faltou passa a ficar bloqueada**, fora do disponível, até alguém conferir o endereço. Bloquear não é baixar: o físico não muda e nenhuma obrigação fiscal nasce, então o motivo da recusa de 05/out continua de pé. O que muda é que o próximo pedido deixa de reservar uma peça que talvez não exista. A "reconferência", que não tinha tela, é feita em **Estoque → Tratamento de Perdas** (§14.51).
 
 ## A trava nasceu com a tela
 

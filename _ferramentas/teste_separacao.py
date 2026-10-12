@@ -7,7 +7,7 @@
 #   falta NAO e situacao: pedido com falta continua andando (design system §14.11/§14.14)
 #   item sem resposta TRAVA a conclusao — coletado ou em falta, o silencio nao conta
 #   o campo da quantidade achada nasce VAZIO (conferencia, nao confirmacao)
-#   falta NAO baixa estoque aqui: bloqueia a unidade, que espera auditoria em Itens Bloqueados (09/out)
+#   falta NAO baixa estoque aqui: bloqueia a unidade, que espera auditoria em Tratamento de Perdas (09/out)
 #   sobra nao se resolve na separacao
 #   a coleta sai na ordem do ENDERECO, e o parametro desliga isso
 #   numero que decide cor vive no PARAM, nao dentro de um `if`
@@ -186,8 +186,8 @@ with sync_playwright() as pw:
     pg.locator('.sep-item').first.locator('[data-confirma-falta]').click()
     pg.wait_for_timeout(250)
     t = texto_modal(pg)
-    # 09/out: a falta bloqueia a unidade (Estoque -> Itens Bloqueados). Continua nao sendo baixa.
-    ok('fica bloqueada para venda' in t and 'Itens Bloqueados' in t, 'a confirmacao diz que a diferenca fica bloqueada: %s' % t[:70])
+    # 09/out: a falta bloqueia a unidade (Estoque -> Tratamento de Perdas). Continua nao sendo baixa.
+    ok('fica bloqueada para venda' in t and 'Tratamento de Perdas' in t, 'a confirmacao diz que a diferenca fica bloqueada: %s' % t[:70])
     ok('Não é baixa' in t and 'estoque físico não muda' in t, 'e que nao e baixa: o estoque fisico nao muda')
     ok('Conferência de Saída' in t, 'a confirmacao diz para onde o pedido vai mesmo com falta')
     confirmar(pg)
@@ -316,7 +316,7 @@ with sync_playwright() as pw:
     # 10/out: concluir volta para a fila do galpao, e e a fila que diz o que aconteceu (antes a ficha
     # ficava aberta no pedido concluido, com um aviso). 09/out: a falta bloqueia a unidade.
     faixa = pg.evaluate("() => (document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
-    ok(FILA in pg.url and 'Itens Bloqueados' in faixa and 'reconferência' not in faixa, 'a conclusao volta para a fila, e o aviso manda para Itens Bloqueados')
+    ok(FILA in pg.url and 'Tratamento de Perdas' in faixa and 'reconferência' not in faixa, 'a conclusao volta para a fila, e o aviso manda para Tratamento de Perdas')
     ok(pg.evaluate("(n) => FILA.filter(p => p.id === n)[0].situacao", numero_13) == 'separado',
        'o pedido com falta ANDOU — nao travou')
     pg.goto(localiza.uri(FICHA) + '?id=%d' % numero_13); pg.wait_for_timeout(500)
@@ -339,7 +339,7 @@ with sync_playwright() as pw:
     confirmar(pg)
     pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
     faixa = pg.evaluate("() => (document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
-    ok('concluída' in faixa and 'divergência' not in faixa and 'Itens Bloqueados' not in faixa, 'conclusao limpa nao cria divergencia nem bloqueio: %s' % faixa[:70])
+    ok('concluída' in faixa and 'divergência' not in faixa and 'Tratamento de Perdas' not in faixa, 'conclusao limpa nao cria divergencia nem bloqueio: %s' % faixa[:70])
 
     # ---------------------------------------------------------------- 15
     print('\n15. ID QUE NAO EXISTE AVISA EM VEZ DE ABRIR CALADO')

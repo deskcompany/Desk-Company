@@ -34,7 +34,7 @@ O que entrou e o que falta em cada item feito no principal:
   ordens de compra em aberto do produto.
 - **E9** (Endereçamento): a nota virou link. Faltam o link do produto e a sugestão de endereço pela
   capacidade livre.
-- **E10** (Itens Bloqueados): no painel do item, a origem leva à nota e à ficha do pedido na
+- **E10** (Tratamento de Perdas): no painel do item, a origem leva à nota e à ficha do pedido na
   Separação e na Conferência de Saída. Faltam a devolução e o acerto (o exemplo de Devolução tem
   outros produtos, e o Acerto não tem lista), e o link no histórico dos resolvidos, que cita um
   pedido e uma devolução que as telas de destino não têm.
@@ -50,7 +50,7 @@ O que entrou e o que falta em cada item feito no principal:
   a Receber não lê os títulos da venda a prazo, e Metas não soma a venda de balcão.
 - **L1** (Separação) e **L2** (Conferência de Saída): link para os pedidos do cliente. O link da
   Conferência para a Separação saiu em 12/out, a pedido do usuário: etapa que passou não volta.
-  Faltam a situação do pagamento, o prazo prometido e a falta levando ao item em Itens Bloqueados.
+  Faltam a situação do pagamento, o prazo prometido e a falta levando ao item em Tratamento de Perdas.
 - **L3** (Expedição): cada pedido da carga é link para Pedidos de Venda. Faltam o rastreio e a
   transportadora.
 - **L5** (Devolução): o pedido de origem leva ao Rastreamento, e há link para a nota de entrada.
@@ -277,11 +277,11 @@ Tamanho de cada item: **P** mexe numa tela, **M** em duas ou três, **G** em mui
   situação.
 - Proposta: indicadores (valor em estoque, abaixo do mínimo, a endereçar, bloqueado); filtros de
   loja, categoria e fornecedor, cujos dados já existem nas telas de compra e giro; "Mais ações"
-  levando a Necessidades de Compra, Giro, Itens Bloqueados, Acerto e Transferência.
+  levando a Necessidades de Compra, Giro, Tratamento de Perdas, Acerto e Transferência.
 - Ganho: a tela central do estoque passa a ser o ponto de partida para as outras.
 
 **E6 · Controle de Estoques: a página do produto** (P)
-- Hoje: o bloqueado leva a Itens Bloqueados, mas "5 a endereçar, travado há 3 dias" não leva ao
+- Hoje: o bloqueado leva a Tratamento de Perdas, mas "5 a endereçar, travado há 3 dias" não leva ao
   Endereçamento, e não há caminho para a compra.
 - Proposta: links para o Endereçamento, para as ordens de compra em aberto do produto, para a conta
   dele em Necessidades de Compra e para o Giro.
@@ -307,7 +307,7 @@ Tamanho de cada item: **P** mexe numa tela, **M** em duas ou três, **G** em mui
   cadastro de endereços já guarda para isso.
 - Ganho: endereçar mais rápido e conferir a origem do saldo.
 
-**E10 · Itens Bloqueados: a origem como link** (P)
+**E10 · Tratamento de Perdas: a origem como link** (P)
 - Hoje: é o painel mais completo do sistema. Só a origem ("NF-e 12.951", "Pedido #23") é texto.
 - Proposta: a origem levar à nota, ao pedido ou à devolução.
 - Ganho: auditar a falta ou a avaria indo direto ao documento.
@@ -362,7 +362,7 @@ Tamanho de cada item: **P** mexe numa tela, **M** em duas ou três, **G** em mui
 **L2 · Conferência de Saída: o painel do pedido** (P)
 - Hoje: sem link para o pedido nem para a ficha de separação. Quando há "falta na separação", é só
   uma etiqueta.
-- Proposta: os dois links, e a falta levando ao item em Itens Bloqueados.
+- Proposta: os dois links, e a falta levando ao item em Tratamento de Perdas.
 - Ganho: resolver a falta sem procurar o item na outra fila.
 
 **L3 · Expedição: o painel do romaneio** (P)

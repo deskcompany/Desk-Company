@@ -715,7 +715,7 @@
   .date-dia.off:hover { background:transparent; }
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
-  /* Itens Bloqueados (09/out/2026) */
+  /* Tratamento de Perdas (09/out/2026) */
   #eventDrawer { width:560px; right:-580px; }
   #eventDrawer.open { right:0; }
   .event-drawer .extrato-valor { text-align:right; }
@@ -1010,7 +1010,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
       <div class="flyout-item" data-label="Necessidades de Compra" data-href="../estoque/pagina-estoque-necessidades-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
       <div class="flyout-item" data-label="Giro de Estoque" data-href="../estoque/pagina-estoque-giro-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
-      <div class="flyout-item" data-label="Itens Bloqueados" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Itens Bloqueados</div>
+      <div class="flyout-item" data-label="Tratamento de Perdas" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Tratamento de Perdas</div>
       <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
       <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
       <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
@@ -1428,8 +1428,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
     { chave:'estoqueBloqueia',   nome:'Bloquear saldo de produto',                    onde:'Estoque \u2192 Controle de Estoques',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    { chave:'bloqueadosLibera',  nome:'Liberar item bloqueado para venda',            onde:'Estoque \u2192 Itens Bloqueados',          grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    { chave:'bloqueadosBaixa',   nome:'Dar baixa em item bloqueado',                  onde:'Estoque \u2192 Itens Bloqueados',          grupo:'Estoque',   pronto:true,  exigePadrao:true }
+    { chave:'bloqueadosLibera',  nome:'Liberar item bloqueado para venda',            onde:'Estoque \u2192 Tratamento de Perdas',          grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    { chave:'bloqueadosBaixa',   nome:'Dar baixa em item bloqueado',                  onde:'Estoque \u2192 Tratamento de Perdas',          grupo:'Estoque',   pronto:true,  exigePadrao:true }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -2539,7 +2539,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela(); });
   document.getElementById('checkZerados').addEventListener('change', (e) => { incluirZerados = e.target.checked; paginaAtual = 1; renderTabela(); });
 
-  // Filtro de periodo: popover proprio, nao e dropdown de valor. O mesmo de Itens Bloqueados.
+  // Filtro de periodo: popover proprio, nao e dropdown de valor. O mesmo de Tratamento de Perdas.
   const periodoMenu = document.getElementById('periodoMenu');
   const campoDe = document.getElementById('periodoDe'), campoAte = document.getElementById('periodoAte');
   const PRONTOS = Array.from(new Set([30, 90, 180, 365, PARAM.giroJanelaDias])).sort((a, b) => a - b);

@@ -133,7 +133,7 @@ with sync_playwright() as pw:
     pg.click('[data-bancar="1"]')
     pg.wait_for_timeout(300)
     # 09/out: o que falta passa a ser bloqueado para venda, em vez de so esperar reconferencia.
-    ok('bloqueado para venda' in texto_modal(pg) and 'Itens Bloqueados' in texto_modal(pg),
+    ok('bloqueado para venda' in texto_modal(pg) and 'Tratamento de Perdas' in texto_modal(pg),
        'bancar avisa que o que faltar fica bloqueado: %s' % texto_modal(pg)[:70])
     confirmar(pg)
     ok(pg.locator('.cel-dif[data-i="1"]').inner_text().strip() == '-1', 'bancado, o tamanho aparece')

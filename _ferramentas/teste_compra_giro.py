@@ -393,8 +393,8 @@ with sync_playwright() as p:
     ok(pg.get_attribute('#drawerCorpo a[href*="giro-estoque"]', 'href').endswith('pagina-estoque-giro-estoque.html?busca=LUM-LED-004'), 'e leva ao Giro de Estoque ja no produto')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
     abrir_conta(pg, 'MON-27I-015')
-    ok('Itens Bloqueados' in pg.inner_text('#drawerCorpo') and pg.get_attribute('#drawerCorpo a[href*="itens-bloqueados"]', 'href').endswith('?produto=MON-27I-015'),
-       'produto com saldo bloqueado mostra o bloqueado fora da conta e leva a Itens Bloqueados')
+    ok('Tratamento de Perdas' in pg.inner_text('#drawerCorpo') and pg.get_attribute('#drawerCorpo a[href*="itens-bloqueados"]', 'href').endswith('?produto=MON-27I-015'),
+       'produto com saldo bloqueado mostra o bloqueado fora da conta e leva a Tratamento de Perdas')
     ok(re.search(r'Estoque físico[^0-9]*9 UN', pg.inner_text('#drawerCorpo').replace(chr(10), ' ')) is not None, 'e o painel mostra o estoque fisico, 9: os 7 vendaveis mais os 2 bloqueados')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
     pg.evaluate("localStorage.removeItem('deskMinMax')"); recarregar(pg)

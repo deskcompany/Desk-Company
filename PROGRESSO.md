@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, no conserto do link de Itens Bloqueados.*
+*Atualizado em 12/out/2026, na troca de nome para Tratamento de Perdas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -13,10 +13,16 @@ junto com as da venda (V2, V3 e V5) e as de Finanças (F1 a F4), entregues antes
 mandou seguir a lista grupo a grupo; sobre Finanças, voltou com um ponto só, a barra de rolagem na
 tabela de Caixa e Bancos, que entrou nesta entrega.
 
-**O usuário já testou o estoque e voltou com três pontos.** Um era defeito, e está consertado: no
-navegador dele o Kit Home Office levou a uma lista vazia em Entrada de Notas, porque a tela de Itens
-Bloqueados guarda o exemplo no navegador e o dele ainda citava a nota antiga (§14.58, no fim). Os
-outros dois são barganha aberta, **sem nada construído**: ver "Esperando decisão do usuário".
+**O usuário já testou o estoque e voltou com três pontos, e os três estão decididos.**
+
+- **O link do Kit Home Office** abria uma lista vazia em Entrada de Notas. Era defeito, está
+  consertado e ele deu ok (§14.58, no fim).
+- **"Itens Bloqueados" passou a se chamar "Tratamento de Perdas"** (§14.59). Barganhado e fechado
+  por ele em 12/out. Muda o nome da tela; "bloqueado" segue sendo a situação do saldo, e o arquivo
+  continua `pagina-estoque-itens-bloqueados.html`.
+- **A chegada da transferência vira conferência.** Aprovado por ele em 12/out, com a opção (a): ao
+  fechar com falta, a conferência pergunta se o resto ainda vem (segue em trânsito) ou se faltou
+  (vai para a fila de falta a auditar). **Ainda não construído:** é o próximo da fila.
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -118,7 +124,7 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
 - **Transferência Entre Estoques:** clicar na linha abre o painel da transferência, com os itens,
   o enviado e o recebido, quem enviou, quem recebeu e o tempo em trânsito. Dali se confirma o
   recebimento, e quem confirmou fica registrado.
-- **Itens Bloqueados:** "De onde veio" leva ao documento: a nota em Entrada de Notas e a ficha do
+- **Tratamento de Perdas** (na época, Itens Bloqueados): "De onde veio" leva ao documento: a nota em Entrada de Notas e a ficha do
   pedido na Separação e na Conferência de Saída. Acerto, devolução e bloqueio manual seguem em
   texto.
 
@@ -134,8 +140,10 @@ qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guarda
 
 ## Próximo da fila
 
-1. **A resposta do usuário às duas barganhas** (o nome de Itens Bloqueados e a conferência na
-   chegada da transferência) e o resto do teste dele em Finanças, na venda e no estoque.
+1. **A conferência na chegada da transferência**, aprovada em 12/out com a opção (a). A
+   transferência a caminho entra na fila da Conferência de Entrada, "Confirmar recebimento" vira
+   "Conferir chegada" e abre a mesma contagem cega da nota, e o painel que já vinha com a quantidade
+   preenchida sai. Depois, o resto do teste dele em Finanças, na venda e no estoque.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.
@@ -159,19 +167,10 @@ qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guarda
 
 Nenhuma destas trava o teste.
 
-- **Barganha aberta em 12/out: o nome "Itens Bloqueados".** O usuário propôs "Tratamento de
-  Perdas". A recomendação dada foi aceitar o nome, mantendo "bloqueado" como nome da situação do
-  saldo nas outras telas. Falta o aval dele; nada foi renomeado.
-- **Barganha aberta em 12/out: a chegada da transferência virar conferência.** O usuário propôs que
-  confirmar a chegada abra uma conferência como a da nota de entrada. A recomendação dada foi levar a
-  transferência para a fila da Conferência de Entrada, com contagem cega, no lugar do painel que hoje
-  já vem com a quantidade preenchida. Falta ele decidir o que acontece com o que não chegou (segue
-  em trânsito ou vira falta a auditar); nada foi construído.
-
 1. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
    computador; para valer também no app da Claude, o usuário reenvia a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp` por lá.
-2. **Filtro de período:** o intervalo com data inicial e final existe em Itens Bloqueados e no
+2. **Filtro de período:** o intervalo com data inicial e final existe em Tratamento de Perdas e no
    Giro de Estoque. As outras telas com esse filtro têm só as opções prontas; levar para elas é uma
    oferta em aberto.
 3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a

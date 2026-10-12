@@ -7,7 +7,7 @@
 #   [2] E8   clicar na linha da Transferencia Entre Estoques abre o painel da transferencia: itens,
 #            enviado e recebido, quem enviou, quem recebeu e o tempo em transito. Dali se confirma o
 #            recebimento, e quem confirmou fica no painel;
-#   [3] E10  em Itens Bloqueados, "De onde veio" leva ao documento: a nota em Entrada de Notas e a
+#   [3] E10  em Tratamento de Perdas, "De onde veio" leva ao documento: a nota em Entrada de Notas e a
 #            ficha do pedido na Separacao e na Conferencia de Saida. O destino tem o registro.
 from playwright.sync_api import sync_playwright
 import datetime, os as _os, glob as _g, sys
@@ -162,7 +162,7 @@ with sync_playwright() as p:
            'confirmado o recebimento, o painel passa a dizer quem recebeu, hoje, e quanto durou a viagem: %s / %s' % (d['chegada'], d['viagem']))
         ok('recebido 8' in d['itens'][0] and 'em trânsito' not in d['itens'][0], '  e os itens aparecem recebidos: %s' % d['itens'][0])
 
-    if secao(3, 'E10: em Itens Bloqueados, a origem leva ao documento, e o documento existe la'):
+    if secao(3, 'E10: em Tratamento de Perdas, a origem leva ao documento, e o documento existe la'):
         do_zero(BLOQ)
         ok(not erros, 'a tela abre sem erro de JavaScript: %s' % erros[:2])
 
@@ -225,6 +225,28 @@ with sync_playwright() as p:
         estranho = origem(pg.evaluate("ITENS.find(i => i.doc === 'NF-e 55.123').id"))
         ok(estranho['href'] is None and estranho['linha'] == 'Conferência de entrada · NF-e 55.123', 'documento escrito em outro formato fica em texto, em vez de virar link para um pedaco do numero: %s' % estranho['linha'])
         ir(BLOQ); pg.evaluate("(chaves) => chaves.forEach(k => localStorage.removeItem(k))", GUARDADO)
+
+    if secao(4, 'A tela se chama Tratamento de Perdas; "bloqueado" segue sendo a situacao do saldo'):
+        # Decisao do usuario em 12/out: muda o nome da TELA. O arquivo nao muda de endereco, e a
+        # situacao do saldo nas outras telas continua "bloqueado".
+        antigo = 'Itens ' + 'Bloqueados'
+        fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in localiza.nomes()}
+        ok(not [n for n in fontes if antigo in fontes[n]], 'nenhuma tela diz mais o nome antigo: %s' % [n for n in fontes if antigo in fontes[n]][:3])
+        item = 'data-label="Tratamento de Perdas" data-href="../estoque/' + BLOQ + '"'
+        com_menu = [n for n in fontes if 'id="flyout-estoque"' in fontes[n]]
+        ok(len(com_menu) >= 79 and not [n for n in com_menu if item not in fontes[n]], 'o menu de toda tela leva a Tratamento de Perdas, no mesmo endereco de antes: %d telas' % len(com_menu))
+        ir('pagina-estoque-controle-estoques.html')
+        clic('#flyout-estoque .flyout-item[data-label="Tratamento de Perdas"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+        ok(BLOQ in pg.url and pg.inner_text('h1') == 'Tratamento de Perdas' and pg.inner_text('#breadcrumb').replace('\n', ' ').strip().endswith('Tratamento de Perdas'),
+           'pelo menu se chega a tela, que traz o nome novo no titulo e no caminho')
+        ok(pg.inner_text('.subtitle').startswith('O que está bloqueado para venda e pode virar perda'), 'o subtitulo diz o que a tela guarda: %s' % pg.inner_text('.subtitle')[:60])
+        ok(pg.inner_text('#btnBloquearItem').strip() == 'Bloquear item', 'o botao de bloquear item continua com o nome dele')
+        ir('pagina-estoque-controle-estoques.html')
+        cartao = pg.evaluate("(() => { const c = document.getElementById('kpiBloqueado').closest('.kpi-card'); return [c.querySelector('.kpi-label').textContent, c.querySelector('a').textContent, c.querySelector('a').getAttribute('href')]; })()")
+        ok(cartao == ['Bloqueado', 'tratar em Tratamento de Perdas', '../estoque/' + BLOQ], 'no Controle de Estoques a situacao segue "Bloqueado", e o link diz onde se trata: %s' % cartao[:2])
+        ir('pagina-inicio-boas-vindas.html')
+        fila = pg.evaluate("(() => { const a = document.querySelector('.dia-fila[data-fila=\"bloq\"]'); return [a.querySelector('.dia-rotulo').textContent, a.getAttribute('href')]; })()")
+        ok(fila == ['itens bloqueados esperando decisão', '../estoque/' + BLOQ], 'em Pendencias do Dia a fila segue contando "itens bloqueados", e leva a tela: %s' % fila[0])
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()

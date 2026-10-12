@@ -95,9 +95,9 @@ with sync_playwright() as p:
         if achados: cortados.append('%s: %s' % (nome.replace('pagina-', '').replace('.html', ''), ', '.join(achados)))
     ok(not cortados, '  nenhum calendario cortado: %s' % cortados[:6])
     # 10/out: o popover de periodo ficava aberto por baixo do dropdown vizinho (print do usuario em
-    # Itens Bloqueados). Os dropdowns param a propagacao do clique, e o fechamento geral da tela
+    # Tratamento de Perdas). Os dropdowns param a propagacao do clique, e o fechamento geral da tela
     # nunca chegava ao popover. Das dez telas com filtro de periodo, o defeito estava em quatro:
-    # Itens Bloqueados, Devolucao, Expedicao e Rastreamento. Nas outras seis o proprio dropdown
+    # Tratamento de Perdas, Devolucao, Expedicao e Rastreamento. Nas outras seis o proprio dropdown
     # ja fechava o periodo. A primeira conta dizia dez; a prova do avesso em Entrada de Notas
     # passou sem acusar nada, e foi medindo tela por tela que o numero certo apareceu.
     print('toda tela com filtro de periodo: abrir outro menu fecha o de periodo')

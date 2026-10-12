@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Estoque -> Itens Bloqueados (09/out/2026): a fila do saldo que esta no estoque e
+# Estoque -> Tratamento de Perdas (09/out/2026): a fila do saldo que esta no estoque e
 # nao pode ser vendido. Nasceu de uma pergunta do usuario diante do "1 bloqueado"
 # na pagina do produto: onde eu resolvo isso? Nao havia onde.
 #
@@ -176,16 +176,16 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erros.append(str(e)))
 
     print('\n[1] Menu e abertura')
-    padrao = re.compile(r'data-label="Itens Bloqueados" data-href="\.\./estoque/pagina-estoque-itens-bloqueados\.html">.*?</div>\s*<div class="flyout-item" data-label="Acerto de Estoque"', re.S)
+    padrao = re.compile(r'data-label="Tratamento de Perdas" data-href="\.\./estoque/pagina-estoque-itens-bloqueados\.html">.*?</div>\s*<div class="flyout-item" data-label="Acerto de Estoque"', re.S)
     com_menu = [c for c in localiza.caminhos() if 'data-label="Acerto de Estoque"' in open(c, encoding='utf-8').read()]
     sem = [_os.path.basename(c) for c in com_menu if len(padrao.findall(open(c, encoding='utf-8').read())) != open(c, encoding='utf-8').read().count('data-label="Acerto de Estoque"')]
-    ok(len(com_menu) >= 79 and not sem, 'toda tela com menu traz Itens Bloqueados logo acima de Acerto de Estoque: %d telas, faltando %s' % (len(com_menu), sem[:3]))
+    ok(len(com_menu) >= 79 and not sem, 'toda tela com menu traz Tratamento de Perdas logo acima de Acerto de Estoque: %d telas, faltando %s' % (len(com_menu), sem[:3]))
     ir(pg, CRM)
     clic(pg, '.nav-item[data-id="estoque"]'); pg.wait_for_timeout(450)
-    clic(pg, '#flyout-estoque .flyout-item[data-label="Itens Bloqueados"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+    clic(pg, '#flyout-estoque .flyout-item[data-label="Tratamento de Perdas"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
     ok(pg.url.endswith(BLOQ), 'o item do menu abre a tela: %s' % pg.url.split('/')[-1])
     zerar(pg)
-    ok(pg.inner_text('h1') == 'Itens Bloqueados' and pg.inner_text('#breadcrumb').replace('\n', ' ').replace('  ', ' ').strip().endswith('Itens Bloqueados')
+    ok(pg.inner_text('h1') == 'Tratamento de Perdas' and pg.inner_text('#breadcrumb').replace('\n', ' ').replace('  ', ' ').strip().endswith('Tratamento de Perdas')
        and pg.evaluate("document.querySelector('.nav-item.active').getAttribute('data-id')") == 'estoque', 'titulo, caminho e modulo marcado no menu lateral')
 
     print('\n[2] Lista')
@@ -597,7 +597,7 @@ with sync_playwright() as p:
     origens = pg.evaluate("Array.from(document.querySelectorAll('#menuOrigem .dropdown-select-item')).map(e => e.textContent)")
     ok(motivos == ['Avaria', 'Falta a auditar', 'Em análise', 'Travado por decisão'] and not visivel(pg, '#wrapPreco'), 'o bloqueio troca os motivos e esconde o preco: %s' % motivos)
     ok(visivel(pg, '#wrapOrigem') and len(origens) == 2 and all('Disponível' in o for o in origens), 'com saldo em dois enderecos, pergunta de qual sai, e nunca oferece o que ja esta bloqueado: %s' % origens)
-    ok('não muda o estoque físico nem o custo' in pg.inner_text('#previaEntrada') and 'Itens Bloqueados' in pg.inner_text('#previaEntrada'), 'a previa diz o que o bloqueio faz e onde ele se resolve')
+    ok('não muda o estoque físico nem o custo' in pg.inner_text('#previaEntrada') and 'Tratamento de Perdas' in pg.inner_text('#previaEntrada'), 'a previa diz o que o bloqueio faz e onde ele se resolve')
     clic(pg, '#btnSalvarLancamento'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#erroQuantidade') and visivel(pg, '#erroMotivo') and pg.inner_text('#erroMotivo') == 'Escolha o motivo do bloqueio.', 'sem quantidade e sem motivo, nao salva')
     pg.fill('#campoQuantidade', '99'); escolher(pg, 'campoMotivo', 'analise'); clic(pg, '#btnSalvarLancamento'); pg.wait_for_timeout(350)
@@ -608,7 +608,7 @@ with sync_playwright() as p:
     ok('no mesmo endereço' in pg.inner_text('#previaEntrada'), 'o que nao e avaria fica no mesmo endereco')
     pg.fill('#campoObs', 'Teclas falhando no teste.'); clic(pg, '#btnSalvarLancamento'); pg.wait_for_timeout(450)
     dito = aviso_produto()
-    ok('Bloqueio registrado: 2 UN de Teclado Mecânico Desk, motivo Em análise, em A-05-1-02' in dito and 'Itens Bloqueados' in dito and pg.locator('#eventDrawer.open').count() == 0, 'salva sem senha por padrao e avisa onde resolver: %s' % dito[:70])
+    ok('Bloqueio registrado: 2 UN de Teclado Mecânico Desk, motivo Em análise, em A-05-1-02' in dito and 'Tratamento de Perdas' in dito and pg.locator('#eventDrawer.open').count() == 0, 'salva sem senha por padrao e avisa onde resolver: %s' % dito[:70])
     saldos = pg.evaluate("produtoAtual.saldos.filter(s => s.endereco === 'A-05-1-02').map(s => s.estagio + ':' + s.qtd).sort()")
     ok(kpis() == ['40UN', '2', '38'] and saldos == ['bloqueado:2', 'disponivel:4'], 'o fisico nao muda: a quantidade so passa de disponivel para bloqueado, no mesmo endereco: %s %s' % (kpis(), saldos))
     ok(visivel(pg, '#linkBloqueados') and not visivel(pg, '#notaBloqueado') and pg.get_attribute('#linkBloqueados', 'href').endswith('pagina-estoque-itens-bloqueados.html?produto=TEC-MEC-006'), 'e o numero bloqueado ganha o atalho para a fila, filtrada no produto')
@@ -639,16 +639,16 @@ with sync_playwright() as p:
     zerar(pg)
     ir(pg, SEP)
     fonte = pg.content()
-    ok('fica <b>bloqueada para venda</b> em Estoque → Itens Bloqueados' in fonte and 'não é mexido aqui' not in fonte and 'aguardando reconferência' not in fonte, 'a tela deixou de dizer que o saldo nao e mexido')
+    ok('fica <b>bloqueada para venda</b> em Estoque → Tratamento de Perdas' in fonte and 'não é mexido aqui' not in fonte and 'aguardando reconferência' not in fonte, 'a tela deixou de dizer que o saldo nao e mexido')
     pedido = pg.evaluate('PEDIDO.numero')
     pg.evaluate("COLETA.forEach(i => { i.separado = i.qtd; i.motivo = ''; i.declarando = false; }); COLETA[0].separado = COLETA[0].qtd - 2; COLETA[0].motivo = 'Endereço com menos peças.'; pintarItens();")
     clic(pg, '#btnConcluir'); pg.wait_for_timeout(400)
-    ok('fica bloqueado para venda em Estoque → Itens Bloqueados' in modal(pg) and 'Nenhum saldo é baixado' in modal(pg) and caixa(pg) == {}, 'concluir com falta avisa do bloqueio, e nada e bloqueado antes de confirmar')
+    ok('fica bloqueado para venda em Estoque → Tratamento de Perdas' in modal(pg) and 'Nenhum saldo é baixado' in modal(pg) and caixa(pg) == {}, 'concluir com falta avisa do bloqueio, e nada e bloqueado antes de confirmar')
     confirmar(pg)
     # 12/out: concluir volta para a fila do galpao, e e a faixa de la que diz o que aconteceu.
     pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
     faixa = pg.evaluate("(document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
-    ok('bloqueado para venda em Estoque → Itens Bloqueados, aguardando auditoria' in faixa, 'a fila, ao receber a pessoa de volta, manda para Itens Bloqueados: %s' % faixa[:70])
+    ok('bloqueado para venda em Estoque → Tratamento de Perdas, aguardando auditoria' in faixa, 'a fila, ao receber a pessoa de volta, manda para Tratamento de Perdas: %s' % faixa[:70])
     cx = caixa(pg)
     chave = 'sep:%s:MES-ESC-120' % pedido
     ok(list(cx.keys()) == [chave] and cx[chave]['qtd'] == 2 and cx[chave]['endereco'] == 'R02-P01-N1' and cx[chave]['motivo'] == 'falta' and cx[chave]['origem'] == 'separacao'
@@ -657,11 +657,11 @@ with sync_playwright() as p:
     print('\n[14] A falta da conferencia de saida tambem')
     ir(pg, CONF)
     fonte = pg.content()
-    ok('fica <b>bloqueado para venda</b>, aguardando auditoria em Estoque → Itens Bloqueados' in fonte and 'aguardando reconferência' not in fonte, 'a bancada tambem mudou o texto')
+    ok('fica <b>bloqueado para venda</b>, aguardando auditoria em Estoque → Tratamento de Perdas' in fonte and 'aguardando reconferência' not in fonte, 'a bancada tambem mudou o texto')
     pedido_c = pg.evaluate('PEDIDO.numero')
     pg.evaluate("ITENS.forEach(i => { i.conferida = i.separado; i.bancou = false; i.motivo = ''; }); ITENS[1].conferida = ITENS[1].separado - 1; ITENS[1].bancou = true; ITENS[1].motivo = 'nao_veio'; VOLUMES.forEach(v => { if (!v.emb) v.emb = 5; }); compensaEscolhida = 'restituicao';")
     clic(pg, '#btnFechar'); pg.wait_for_timeout(400)
-    ok('o que faltou fica bloqueado para venda em Estoque → Itens Bloqueados' in modal(pg), 'fechar com divergencia avisa do bloqueio: %s' % modal(pg)[-110:])
+    ok('o que faltou fica bloqueado para venda em Estoque → Tratamento de Perdas' in modal(pg), 'fechar com divergencia avisa do bloqueio: %s' % modal(pg)[-110:])
     confirmar(pg); confirmar(pg)
     cx = caixa(pg)
     chave_c = 'conf:%s:TAP-SAL-200' % pedido_c

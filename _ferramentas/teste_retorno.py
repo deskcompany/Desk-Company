@@ -224,7 +224,7 @@ with sync_playwright() as p:
         clic('#btnConcluir'); pg.wait_for_timeout(300); confirmar(); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
         faixa = pg.evaluate("(document.getElementById('faixaDaFicha') || { textContent: '' }).textContent")
         ok(SEP in pg.url and 'feita=22' in pg.url, 'concluir a separacao volta para a fila do galpao: %s' % pg.url.split('/')[-1])
-        ok('Separação do pedido #22 concluída' in faixa and 'Conferência de Saída' in faixa and 'Itens Bloqueados' not in faixa, 'e a fila diz o que aconteceu com o pedido: %s' % faixa[:90])
+        ok('Separação do pedido #22 concluída' in faixa and 'Conferência de Saída' in faixa and 'Tratamento de Perdas' not in faixa, 'e a fila diz o que aconteceu com o pedido: %s' % faixa[:90])
         ok(sit(22)[0] == 'separado', 'na fila, o pedido 22 aparece como separado')
         ir(FICHA, '?id=22')
         ok(pg.evaluate("document.getElementById('btnConcluir').disabled") and pg.evaluate("COLETA.every(i => i.separado === i.qtd)"), 'reabrindo a ficha, ela esta concluida e com o que foi coletado')
