@@ -214,6 +214,7 @@ def audita(caminho):
     # Qualquer outra chave e tela guardando estado por conta propria: erro.
     OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada',
              'deskMinMax', 'deskOrdensGeradas',
+             'deskTransferencias',   # 12/out: o que a conferencia da chegada apurou da transferencia; a lista, a fila e a contagem leem
              'deskSeparacao'}   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a

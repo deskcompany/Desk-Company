@@ -1162,7 +1162,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ACOES_ESPECIFICAS = [
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
-    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
@@ -1373,11 +1373,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const sidebarCol = document.getElementById('sidebarCol');
   const fixarSwitch = document.getElementById('fixarSwitch');
   let openId = null;
-  let path = ['Estoque', 'Conferência de Entrada', 'Nota ' + (function () {
-    // O mesmo numero que a tela vai carregar: nota que nao esta entre as
-    // conferiveis cai na 9051, e o breadcrumb nao pode dizer outra coisa.
-    const n = Number(new URLSearchParams(window.location.search).get('nota') || 9051);
-    return [9051, 2301, 4476, 1190].indexOf(n) >= 0 ? n : 9051;
+  let path = ['Estoque', 'Conferência de Entrada', (function () {
+    // O mesmo documento que a tela vai carregar. Transferencia chega com ?transf=TR-0101; nota que
+    // nao esta entre as conferiveis cai na 9051, e o breadcrumb nao pode dizer outra coisa.
+    const q = new URLSearchParams(window.location.search), tr = q.get('transf') || '';
+    if (/^TR-\d+$/.test(tr)) return 'Transferência ' + tr;
+    const n = Number(q.get('nota') || 9051);
+    return 'Nota ' + ([9051, 2301, 4476, 1190].indexOf(n) >= 0 ? n : 9051);
   })()];
   // Qual modulo teve o painel aberto por ultimo — usado so para montar o
   // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
@@ -1560,8 +1562,86 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ]
     }
   };
+  // ===== O QUE A CONFERENCIA JA FEZ COM A TRANSFERENCIA (bloco compartilhado, 12/out/2026) =====
+  // A transferencia mora em Transferencia Entre Estoques, e a chegada dela e conferida na
+  // Conferencia de Entrada, como uma nota. Sao arquivos diferentes: quem fecha a conferencia
+  // guarda aqui o que entrou, o que faltou e o que chegou avariado, item a item, e as tres telas
+  // (a lista de transferencias, a fila e a contagem) leem daqui. No sistema de producao isto nao
+  // existe: e a mesma tabela. O bloco e identico nas tres telas.
+  const CHAVE_TRANSFERENCIAS = 'deskTransferencias';
+  const hojeISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  function lerConferenciasDeTransferencia() {
+    try { const g = JSON.parse(localStorage.getItem(CHAVE_TRANSFERENCIAS) || '{}'); return (g && typeof g === 'object' && !Array.isArray(g)) ? g : {}; }
+    catch (e) { return {}; }
+  }
+  // O que ainda esta na estrada: o enviado, menos o que entrou, o que faltou e o que chegou avariado.
+  const emTransitoDe = (it) => Math.max(0, it.enviado - it.recebido - (it.faltou || 0) - (it.avaria || 0));
+  function situacaoDaTransferencia(tr) {
+    const naEstrada = tr.itens.reduce((s, it) => s + emTransitoDe(it), 0);
+    const mexida = tr.itens.some(it => it.recebido > 0 || it.faltou > 0 || it.avaria > 0);
+    return naEstrada === 0 ? 'recebida' : (mexida ? 'parcial' : 'transito');
+  }
+  // Soma ao que cada transferencia ja tinha o que as conferencias registraram. O que vem do
+  // navegador e conferido antes de entrar: numero vira numero, data so no formato de data.
+  function aplicarConferenciasDeTransferencia(lista) {
+    const guardado = lerConferenciasDeTransferencia();
+    const qtd = (v) => { const n = Number(v); return n > 0 ? n : 0; };
+    lista.forEach(tr => {
+      const g = guardado[tr.num];
+      if (!g || !g.itens || typeof g.itens !== 'object') return;
+      tr.itens.forEach(it => {
+        const r = g.itens[it.sku] || {};
+        it.recebido += qtd(r.recebido); it.faltou = qtd(r.faltou); it.avaria = qtd(r.avaria);
+      });
+      tr.chegou = /^\d{4}-\d{2}-\d{2}$/.test(g.chegou) ? g.chegou : hojeISO();
+      tr.recebeu = String(g.recebeu || '').replace(/[<>&"']/g, '');
+      const u = g.ultima || {};
+      tr.ultima = { recebido: qtd(u.recebido), faltou: qtd(u.faltou), avaria: qtd(u.avaria) };
+      tr.situacao = situacaoDaTransferencia(tr);
+    });
+  }
+  // `porSku` e o que ESTA conferencia apurou: { sku: { recebido, faltou, avaria } }. Soma com as anteriores.
+  function gravarConferenciaDeTransferencia(num, porSku, quem) {
+    const guardado = lerConferenciasDeTransferencia();
+    const reg = (guardado[num] && guardado[num].itens) ? guardado[num] : { itens: {} };
+    const ultima = { recebido: 0, faltou: 0, avaria: 0 };
+    Object.keys(porSku).forEach(sku => {
+      const antes = reg.itens[sku] || { recebido: 0, faltou: 0, avaria: 0 }, agora = porSku[sku];
+      reg.itens[sku] = { recebido: (Number(antes.recebido) || 0) + agora.recebido, faltou: (Number(antes.faltou) || 0) + agora.faltou, avaria: (Number(antes.avaria) || 0) + agora.avaria };
+      ultima.recebido += agora.recebido; ultima.faltou += agora.faltou; ultima.avaria += agora.avaria;
+    });
+    reg.chegou = hojeISO(); reg.recebeu = quem; reg.ultima = ultima;
+    guardado[num] = reg;
+    try { localStorage.setItem(CHAVE_TRANSFERENCIAS, JSON.stringify(guardado)); return true; }
+    catch (e) { return false; }   // armazenamento bloqueado: a conferencia nao chega as outras telas
+  }
+  // ===== FIM DO BLOCO DA CONFERENCIA DE TRANSFERENCIA =====
+  // Espelho de Estoque > Transferencia Entre Estoques: as transferencias com mercadoria a caminho.
+  // teste_transf_conferencia.py compara com a tela de la. O espelho e identico na fila e na contagem.
+  const TRANSF_A_CAMINHO = [
+    { num: 'TR-0101', saiu: '2026-09-12', enviou: 'Carlos Mendes', origem: 2, destino: 3,
+      itens: [ { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', un: 'UN', enviado: 8,  recebido: 0 },
+               { nome: 'Cabo HDMI 2.1 · 2m',    sku: 'CAB-HDM-009', un: 'UN', enviado: 12, recebido: 0 } ] },
+    { num: 'TR-0100', saiu: '2026-09-10', enviou: 'Carlos Mendes', origem: 2, destino: 5,
+      itens: [ { nome: 'Camiseta Desk Brands · P', sku: 'CAM-DKB-011', un: 'UN', enviado: 10, recebido: 8 } ] }
+  ];
+  aplicarConferenciasDeTransferencia(TRANSF_A_CAMINHO);
+  const DEPOSITO_NOME = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech', 5: 'Showroom Parceiro Norte' };
+
+  // Transferencia entre estoques chega pela mesma contagem (12/out/2026): ?transf=TR-0101. Os itens
+  // sao o que ainda esta a caminho, e a "quantidade da nota" e a quantidade enviada. O numero vem do
+  // endereco: so vale no formato de numero de transferencia.
+  const _numTransf = (function () { const tr = new URLSearchParams(window.location.search).get('transf') || ''; return /^TR-\d+$/.test(tr) ? tr : ''; })();
+  const EH_TRANSF = _numTransf !== '';
+  const TRANSF = EH_TRANSF ? (TRANSF_A_CAMINHO.find(x => x.num === _numTransf) || null) : null;
+  const ROTULO_QTD = EH_TRANSF ? 'Qtde enviada' : 'Qtde da nota';
+  const QTD_DO_DOC = EH_TRANSF ? 'a quantidade enviada' : 'a quantidade da nota';
   const _numNota = Number(new URLSearchParams(window.location.search).get('nota') || 9051);
-  const NOTA = NOTAS_CONF[_numNota] || NOTAS_CONF[9051];
+  const NOTA = EH_TRANSF
+    ? { numero: _numTransf, serie: null, fornecedor: TRANSF ? DEPOSITO_NOME[TRANSF.origem] : '—', oc: null, deposito: TRANSF ? DEPOSITO_NOME[TRANSF.destino] : '—',
+        recebimento: hojeISO(), valor: 0,
+        itens: TRANSF ? TRANSF.itens.filter(it => emTransitoDe(it) > 0).map(it => ({ nome: it.nome, sku: it.sku, un: it.un, qtdNota: emTransitoDe(it), preco: 0 })) : [] }
+    : (NOTAS_CONF[_numNota] || NOTAS_CONF[9051]);
 
   // conferida = null significa "ainda nao contado" — diferente de contado zero,
   // que e uma informacao de verdade (nao veio nada deste item).
@@ -1627,13 +1707,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const numerosVisiveis = (i) => !cego || (contado(i) && (divergenciaDe(i) === 0 || i.validado));
   const haValidacaoPendente = () => ITENS.some(aguardandoValidacao);
 
-  document.getElementById('docNota').textContent = NOTA.numero + ' · série ' + NOTA.serie;
-  document.getElementById('docFornecedor').textContent = NOTA.fornecedor;
-  document.getElementById('docOC').textContent = 'nº ' + NOTA.oc;
   document.getElementById('docDeposito').textContent = NOTA.deposito;
   document.getElementById('docRecebimento').textContent = fmtData(NOTA.recebimento);
-  document.getElementById('docValor').textContent = fmtMoeda(NOTA.valor);
-  document.getElementById('tituloConf').textContent = 'Conferência da nota ' + NOTA.numero;
+  if (EH_TRANSF) {
+    // Transferencia nao tem fornecedor, ordem de compra nem valor: os quadros dizem de onde ela veio.
+    const rotulo = (id, texto) => { document.getElementById(id).previousElementSibling.textContent = texto; };
+    rotulo('docNota', 'Transferência');    document.getElementById('docNota').textContent = NOTA.numero;
+    rotulo('docFornecedor', 'Saiu de');    document.getElementById('docFornecedor').textContent = NOTA.fornecedor;
+    rotulo('docOC', 'Enviada em');         document.getElementById('docOC').textContent = TRANSF ? fmtData(TRANSF.saiu) + ' · ' + TRANSF.enviou : '—';
+    rotulo('docRecebimento', 'Chegou em');
+    document.getElementById('docValor').parentElement.style.display = 'none';
+    document.getElementById('tituloConf').textContent = 'Conferência da transferência ' + NOTA.numero;
+  } else {
+    document.getElementById('docNota').textContent = NOTA.numero + ' · série ' + NOTA.serie;
+    document.getElementById('docFornecedor').textContent = NOTA.fornecedor;
+    document.getElementById('docOC').textContent = 'nº ' + NOTA.oc;
+    document.getElementById('docValor').textContent = fmtMoeda(NOTA.valor);
+    document.getElementById('tituloConf').textContent = 'Conferência da nota ' + NOTA.numero;
+  }
 
   // ===== ITENS =====
   function menuMotivo(idx) {
@@ -1733,8 +1824,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const it = ITENS[i];
         abrirModalConfirmacao(
           'Confirmar que ' + fmtQtd(it.conferida, it.un) + ' ' + it.un + ' de ' + it.nome +
-          ' é a quantidade que realmente chegou? A partir daí a divergência vira registro: a quantidade da nota aparece, ' +
-          'o motivo passa a ser obrigatório e o item entra no comunicado ao fornecedor.',
+          ' é a quantidade que realmente chegou? A partir daí a divergência vira registro: ' + QTD_DO_DOC + ' aparece' +
+          (EH_TRANSF ? ' e o motivo passa a ser obrigatório.' : ', o motivo passa a ser obrigatório e o item entra no comunicado ao fornecedor.'),
           1, 'primary', () => {
             it.validado = true;
             atualizarLinha(i);
@@ -1842,8 +1933,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('totContados').textContent = contados + ' de ' + ITENS.length;
     document.getElementById('totDivergentes').textContent = String(divergentes);
     document.getElementById('totValorNota').textContent = fmtMoeda(valorNota);
+    // Transferencia nao tem valor: o resumo mostra quantas unidades foram contadas. O enviado nao
+    // aparece aqui, para a contagem cega nao vazar pelo resumo.
+    const unidades = ITENS.reduce((s, i) => s + (contado(i) ? i.conferida : 0), 0);
     document.getElementById('totValorConferido').textContent =
-      pendentes ? 'aguardando confirmação' : fmtMoeda(valorConf);
+      pendentes ? 'aguardando confirmação' : (EH_TRANSF ? fmtQtd(unidades, ITENS[0] ? ITENS[0].un : 'UN') : fmtMoeda(valorConf));
     document.getElementById('totValorConferido').classList.toggle('valor-oculto', pendentes);
 
     const bloco = document.getElementById('blocoProcedimento');
@@ -1852,11 +1946,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (pendentes) {
       document.getElementById('textoProcedimento').innerHTML =
         'Há divergência ainda <b>não confirmada</b>. Reconte o item ou confirme que a sua contagem está certa — ' +
-        'só depois disso a quantidade da nota aparece, o motivo é pedido e o procedimento com o fornecedor começa.';
+        (EH_TRANSF ? 'só depois disso a quantidade enviada aparece e o motivo é pedido.'
+                   : 'só depois disso a quantidade da nota aparece, o motivo é pedido e o procedimento com o fornecedor começa.');
       return;
     }
-    document.getElementById('textoProcedimento').innerHTML =
-      'Com divergência, o procedimento é: a nota é <b>escriturada pelo valor efetivamente recebido</b> (' + fmtMoeda(valorConf) +
+    document.getElementById('textoProcedimento').innerHTML = EH_TRANSF
+      ? 'Com divergência, o que chegou <b>entra no depósito de destino</b> e a diferença fica registrada na transferência, à vista do depósito de origem. ' +
+        'No fechamento você diz, do que não veio, se <b>o resto ainda vem</b> ou se <b>faltou</b>.'
+      : 'Com divergência, o procedimento é: a nota é <b>escriturada pelo valor efetivamente recebido</b> (' + fmtMoeda(valorConf) +
       '), a divergência fica anotada, e o <b>comunicado ao fornecedor</b> sai no fechamento desta tela. ' +
       'O fornecedor resolve por <b>NF complementar</b> referenciando a nota, ou por <b>abatimento</b> no título. ' +
       '<b>Carta de correção não serve</b> para quantidade ou valor — o Ajuste SINIEF 01/2007 proíbe.';
@@ -1874,11 +1971,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (cego) {
       armarSenhaModal('conferenciaCegaDesliga');   // entra no registro de atividades
       abrirModalConfirmacao(
-        'Desligar a conferência cega mostra a quantidade da nota antes da contagem. A contagem deixa de ser independente — quem confere passa a ver o número que deveria encontrar. Confirma?',
+        'Desligar a conferência cega mostra ' + QTD_DO_DOC + ' antes da contagem. A contagem deixa de ser independente — quem confere passa a ver o número que deveria encontrar. Confirma?',
         1, 'danger', () => {
           cego = false;
           switchCego.classList.remove('on');
-          document.getElementById('thQtdNota').textContent = 'Qtde da nota';
+          document.getElementById('thQtdNota').textContent = ROTULO_QTD;
           ITENS.forEach((_, i) => atualizarLinha(i));
         });
     } else {
@@ -1891,7 +1988,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnConferirTudo').addEventListener('click', () => {
     if (finalizada) return;
     abrirModalConfirmacao(
-      'Marcar os ' + ITENS.length + ' itens como recebidos exatamente na quantidade da nota? Isso preenche a contagem sem ninguém ter contado — use só quando a conferência já foi feita no papel.',
+      'Marcar os ' + ITENS.length + ' itens como recebidos exatamente n' + QTD_DO_DOC + '? Isso preenche a contagem sem ninguém ter contado — use só quando a conferência já foi feita no papel.',
       ITENS.length, 'primary', () => {
         ITENS.forEach((it, i) => {
           it.conferida = it.qtdNota; it.motivo = ''; it.destino = ''; it.validado = true;
@@ -1946,7 +2043,102 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return t;
   }
 
+  // ===== FECHAMENTO DA CHEGADA DE TRANSFERENCIA (12/out/2026) =====
+  // O que chegou entra no destino. Do que nao chegou, so quem recebeu sabe se ainda vem: a tela
+  // pergunta, como ja pergunta do saldo da ordem de compra (decisao do usuario em 12/out). "Ainda
+  // vem" segue em transito; "faltou" vira falta a auditar em Tratamento de Perdas. Peca avariada
+  // que ficou conosco vai para la como avaria; o que voltou com o transportador segue em transito.
+  let restoDaTransferencia = 'vem';
+  function apuracaoDaTransferencia() {
+    const porSku = {}, faltas = [], avarias = [];
+    let entram = 0, voltam = 0, naoVeio = 0;
+    ITENS.forEach(i => {
+      const menos = Math.max(0, i.qtdNota - i.conferida);          // chegou menos que o enviado
+      const r = { recebido: i.conferida, faltou: 0, avaria: 0 };
+      entram += i.conferida;
+      if (menos > 0 && i.motivo === 'faltou_na_entrega') {
+        naoVeio += menos;
+        if (restoDaTransferencia === 'faltou') { r.faltou = menos; faltas.push(i); }
+      } else if (menos > 0 && i.motivo === 'avaria' && i.destino === 'ficou') { r.avaria = menos; avarias.push(i); }
+      else voltam += menos;                                          // avaria devolvida, recusa na doca ou item trocado
+      porSku[i.sku] = r;
+    });
+    return { porSku, faltas, avarias, entram, voltam, naoVeio };
+  }
+  // Tratamento de Perdas (Estoque) nao le o saldo desta tela: quem bloqueia deixa o caso na caixa de
+  // entrada, e a fila recolhe ao abrir. A chave evita que o mesmo caso entre duas vezes.
+  function publicarBloqueio(b) {
+    try {
+      const caixa = JSON.parse(localStorage.getItem('deskBloqueiosEntrada') || '{}') || {};
+      caixa[b.chave] = b;
+      localStorage.setItem('deskBloqueiosEntrada', JSON.stringify(caixa));
+    } catch (e) { /* armazenamento bloqueado: o bloqueio vale nesta tela, so nao chega a fila */ }
+  }
+  function finalizarTransferencia() {
+    const a = apuracaoDaTransferencia(), quem = USUARIO_SESSAO.nome;
+    gravarConferenciaDeTransferencia(NOTA.numero, a.porSku, quem);
+    const bloquear = (i, motivo, qtd, obs) => publicarBloqueio({ chave: 'transf:' + NOTA.numero + ':' + i.sku + ':' + motivo + ':' + Date.now(), sku: i.sku, produto: i.nome, un: i.un,
+      dep: TRANSF.destino, endereco: null, tipoEnd: null, base: null, qtd: qtd, motivo: motivo, origem: 'conferencia_entrada', doc: NOTA.numero, quem: quem, obs: obs });
+    a.faltas.forEach(i => bloquear(i, 'falta', a.porSku[i.sku].faltou, 'Não chegou na transferência ' + NOTA.numero + '.'));
+    a.avarias.forEach(i => bloquear(i, 'avaria', a.porSku[i.sku].avaria, 'Chegou avariado na transferência ' + NOTA.numero + '.'));
+    // Concluir devolve a pessoa para a lista, que diz o que aconteceu com a transferencia.
+    window.location.href = '../estoque/pagina-estoque-transferencia.html?conferida=' + NOTA.numero;
+  }
+  function abrirFechamentoDaTransferencia() {
+    const divs = ITENS.filter(temDivergencia), un = ITENS[0] ? ITENS[0].un : 'UN', a = apuracaoDaTransferencia();
+    const enviadas = ITENS.reduce((s, i) => s + i.qtdNota, 0);
+    const linha = (r, v, id) => '<div class="extrato-linha"><span class="extrato-rotulo">' + r + '</span><span class="extrato-valor" id="' + id + '">' + v + '</span></div>';
+    const plural = (n, um, varios) => '<b>' + fmtQtd(n, un) + '</b> ' + (n === 1 ? um : varios);
+    restoDaTransferencia = 'vem';
+
+    document.getElementById('drawerTitulo').textContent = 'Fechar conferência';
+    let html = linha('Itens contados', ITENS.filter(contado).length + ' de ' + ITENS.length, 'fechaContados') +
+      linha('Com divergência', divs.length, 'fechaDivergentes') +
+      linha('Unidades enviadas', fmtQtd(enviadas, un), 'fechaEnviadas') +
+      linha('Unidades conferidas', fmtQtd(a.entram, un), 'fechaConferidas');
+
+    html += '<div class="extrato-bloco-titulo">Para onde o estoque vai</div>';
+    html += '<div class="field-hint" style="margin-bottom:10px;">' + plural(a.entram, 'unidade sai do depósito de Trânsito e entra', 'unidades saem do depósito de Trânsito e entram') +
+      ' em <b>' + NOTA.deposito + '</b>: o que tem base de picking lá fica disponível na hora; o que não tem fica <b>a endereçar</b>.</div>';
+    const avariadas = a.avarias.reduce((s, i) => s + a.porSku[i.sku].avaria, 0);
+    if (avariadas) html += '<div class="field-hint" style="margin-bottom:10px;" id="fechaAvaria">' + plural(avariadas, 'unidade avariada fica conosco e vai', 'unidades avariadas ficam conosco e vão') +
+      ' para <b>Tratamento de Perdas</b>, com saldo bloqueado.</div>';
+    if (a.voltam) html += '<div class="field-hint" style="margin-bottom:10px;" id="fechaVolta">' + plural(a.voltam, 'unidade não entra', 'unidades não entram') +
+      ' neste depósito e ' + (a.voltam === 1 ? 'segue' : 'seguem') + ' em trânsito: avaria que voltou com o transportador, recusa na doca ou item trocado.</div>';
+
+    if (a.naoVeio) {
+      html += '<div class="extrato-bloco-titulo">O que não chegou</div>';
+      html += '<div class="field-hint" style="margin-bottom:8px;" id="fechaNaoVeio">' + plural(a.naoVeio, 'unidade não veio', 'unidades não vieram') + '. Só quem recebeu sabe se o resto ainda vem. O que faltou de vez vai para <b>Tratamento de Perdas</b>, como falta a auditar.</div>';
+      html += '<div class="dropdown-select" id="selResto" data-value="vem">' +
+        '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">O resto ainda vem (segue em trânsito)</span>' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+        '<div class="dropdown-select-menu">' +
+        '<div class="dropdown-select-item active" data-value="vem">O resto ainda vem (segue em trânsito)</div>' +
+        '<div class="dropdown-select-item" data-value="faltou">Faltou (vai para Tratamento de Perdas)</div>' +
+        '</div></div>';
+    }
+
+    html += '<div class="drawer-footer"><button class="btn-primary" id="btnConfirmarFechamentoTransf">Fechar conferência e lançar estoque</button>' +
+      '<div class="drawer-link" id="btnVoltarConferenciaTransf">Voltar</div></div>';
+    document.getElementById('drawerCorpo').innerHTML = html;
+
+    const sel = document.getElementById('selResto');
+    if (sel) inicializarDropdownSelect(sel, (v) => { restoDaTransferencia = v; });
+
+    document.getElementById('btnVoltarConferenciaTransf').addEventListener('click', fecharDrawer);
+    document.getElementById('btnConfirmarFechamentoTransf').addEventListener('click', () => {
+      const texto = 'Fechar a conferência da ' + NOTA.numero + '? ' + fmtQtd(a.entram, un) + (a.entram === 1 ? ' unidade entra' : ' unidades entram') + ' em ' + NOTA.deposito + '.' +
+        (a.naoVeio ? ' O que não veio (' + fmtQtd(a.naoVeio, un) + ') ' + (restoDaTransferencia === 'faltou' ? 'vai para Tratamento de Perdas, como falta a auditar.' : 'segue em trânsito.') : '');
+      armarSenhaModal('transfRecebe');   // a mesma permissao que o recebimento ja pedia
+      abrirModalConfirmacao(texto, 1, 'primary', () => { fecharDrawer(); finalizarTransferencia(); });
+    });
+
+    drawerBackdrop.classList.add('open');
+    eventDrawer.classList.add('open');
+  }
+
   function abrirFechamento() {
+    if (EH_TRANSF) { abrirFechamentoDaTransferencia(); return; }
     const divs = ITENS.filter(temDivergencia);
     const valorConf = ITENS.reduce((s, i) => s + (contado(i) ? i.conferida * i.preco : 0), 0);
     const valorNota = ITENS.reduce((s, i) => s + i.qtdNota * i.preco, 0);
@@ -2078,7 +2270,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParcial').addEventListener('click', () => {
     if (finalizada) return;
-    avisar('Contagem salva. A nota fica "em conferência" e o estoque não se mexe até a conferência ser finalizada — é isso que impede meia entrada virar saldo disponível.');
+    avisar('Contagem salva. ' + (EH_TRANSF ? 'A transferência continua em trânsito' : 'A nota fica "em conferência"') + ' e o estoque não se mexe até a conferência ser finalizada — é isso que impede meia entrada virar saldo disponível.');
   });
 
   document.getElementById('btnCancelar').addEventListener('click', () => {
@@ -2226,11 +2418,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (acao === 'romaneio') {
           avisar('O romaneio de conferência sai junto com Relatórios de Estoque.');
         } else if (acao === 'cancelar') {
-          abrirModalConfirmacao('Cancelar a conferência descarta a contagem feita até aqui e devolve a nota para "a conferir". Confirma?', 1, 'danger', () => {
-            avisar('Conferência cancelada. A nota volta para "a conferir" na Entrada de Notas.');
+          abrirModalConfirmacao('Cancelar a conferência descarta a contagem feita até aqui e ' + (EH_TRANSF ? 'deixa a transferência em trânsito' : 'devolve a nota para "a conferir"') + '. Confirma?', 1, 'danger', () => {
+            avisar(EH_TRANSF ? 'Conferência cancelada. A transferência continua em trânsito.' : 'Conferência cancelada. A nota volta para "a conferir" na Entrada de Notas.');
           });
         } else if (acao === 'nota') {
-          window.location.href = '../estoque/pagina-estoque-entrada-notas-detalhe.html';
+          window.location.href = EH_TRANSF ? '../estoque/pagina-estoque-transferencia.html?busca=' + NOTA.numero : '../estoque/pagina-estoque-entrada-notas-detalhe.html';
         } else if (acao === 'oc') {
           window.location.href = '../estoque/pagina-estoque-ordens-compra-detalhe.html';
         }
@@ -2239,6 +2431,32 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
   renderItens();
+
+  // ===== A TELA EM MODO TRANSFERENCIA (12/out/2026) =====
+  // A contagem e a mesma da nota. Mudam os nomes: o que se compara e a quantidade enviada, e nao ha
+  // valor nem ordem de compra.
+  if (EH_TRANSF) {
+    document.getElementById('thQtdNota').textContent = ROTULO_QTD;
+    const dica = document.getElementById('switchCego').closest('.switch-row').querySelector('.field-hint');
+    dica.textContent = dica.textContent.replace('a quantidade da nota', 'a quantidade enviada');
+    document.getElementById('btnConferirTudo').lastChild.textContent = ' Marcar tudo como recebido conforme o enviado';
+    document.getElementById('totValorNota').parentElement.style.display = 'none';
+    document.getElementById('totValorConferido').previousElementSibling.textContent = 'Unidades conferidas';
+    document.querySelector('.totais-grid').style.gridTemplateColumns = 'repeat(3, minmax(0,1fr))';
+    const itensDoMenu = document.querySelector('#menuMaisAcoes .dropdown-select-menu');
+    itensDoMenu.querySelector('[data-acao="nota"]').textContent = 'Abrir a transferência';
+    itensDoMenu.querySelector('[data-acao="oc"]').style.display = 'none';
+    atualizarResumo();
+    if (ITENS.length === 0) {
+      // Numero que nao esta na lista, ou transferencia que ja chegou inteira: nao ha o que contar.
+      finalizada = true;
+      document.getElementById('badgeSituacao').style.display = 'none';
+      document.querySelector('.barra-salvar').innerHTML = '<span class="conf-fechada" id="semNadaAConferir">' +
+        (TRANSF ? 'A transferência ' + NOTA.numero + ' não tem mercadoria a caminho: a chegada dela já foi conferida.'
+                : 'A transferência ' + NOTA.numero + ' não existe nesta lista de exemplo.') + '</span>' +
+        '<a class="btn-secundario" href="../estoque/pagina-estoque-transferencia.html">Voltar para as transferências</a>';
+    }
+  }
 
 
   // ===== PLANILHA E IMPRESSAO DA TELA (bloco compartilhado, 10/out/2026) =====

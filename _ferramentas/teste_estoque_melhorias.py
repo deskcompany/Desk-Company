@@ -5,8 +5,8 @@
 #            data prevista. Cada um soma o que diz somar, e clicar faz a lista mostrar exatamente
 #            aquelas ordens; clicar de novo desfaz, e mexer num filtro a mao apaga o indicador;
 #   [2] E8   clicar na linha da Transferencia Entre Estoques abre o painel da transferencia: itens,
-#            enviado e recebido, quem enviou, quem recebeu e o tempo em transito. Dali se confirma o
-#            recebimento, e quem confirmou fica no painel;
+#            enviado e recebido, quem enviou, quem recebeu e o tempo em transito. Dali se vai conferir
+#            a chegada (teste_transf_conferencia.py segue a conferencia inteira);
 #   [3] E10  em Tratamento de Perdas, "De onde veio" leva ao documento: a nota em Entrada de Notas e a
 #            ficha do pedido na Separacao e na Conferencia de Saida. O destino tem o registro.
 from playwright.sync_api import sync_playwright
@@ -19,7 +19,7 @@ CHROME = _ch[0] if _ch else None
 
 OC, TRANSF, BLOQ = 'pagina-estoque-ordens-compra.html', 'pagina-estoque-transferencia.html', 'pagina-estoque-itens-bloqueados.html'
 NOTAS, SEP, CONF = 'pagina-estoque-entrada-notas.html', 'pagina-logistica-separacao-detalhe.html', 'pagina-logistica-conferencia-saida-detalhe.html'
-GUARDADO = ['deskOrdensGeradas', 'deskBloqueados', 'deskBloqueiosEntrada', 'deskSeparacao', 'deskLog']
+GUARDADO = ['deskOrdensGeradas', 'deskBloqueados', 'deskBloqueiosEntrada', 'deskSeparacao', 'deskLog', 'deskTransferencias']
 SO = (sys.argv[1:] or [''])[0]
 
 falhas = []
@@ -106,7 +106,7 @@ with sync_playwright() as p:
         clic('.oc-kpis [data-kpi="aberto"]'); pg.wait_for_timeout(200)
         ok(pg.input_value('#campoBusca') == '' and na_lista() == contas['aberto']['ids'], 'e o indicador limpa a busca antes de filtrar')
 
-    if secao(2, 'E8: a linha da Transferencia abre o painel, e dali se confirma o recebimento'):
+    if secao(2, 'E8: a linha da Transferencia abre o painel, e dali se vai conferir a chegada'):
         do_zero(TRANSF)
         ok(not erros, 'a tela abre sem erro de JavaScript: %s' % erros[:2])
         hoje = datetime.date.today()
@@ -119,12 +119,12 @@ with sync_playwright() as p:
             return pg.evaluate("""() => { const t = (id) => { const e = document.getElementById(id); return e ? e.textContent.trim() : null; };
                 return { sit: t('verSituacao'), origem: t('verOrigem'), destino: t('verDestino'), envio: t('verEnvio'), chegada: t('verChegada'), viagem: t('verViagem'),
                          itens: Array.from(document.querySelectorAll('#verItens .rep-origem')).map(e => e.textContent.replace(/\\s+/g, ' ').trim()),
-                         receber: !!document.getElementById('btnReceberDoPainel') }; }""")
+                         receber: !!document.getElementById('btnConferirDoPainel') }; }""")
 
         abrir('TR-0101')
         a = painel()
         parado = (hoje - datetime.date(2026, 9, 12)).days
-        ok(aberto('#verDrawer') and not aberto('#recDrawer'), 'clicar na linha abre o painel da transferencia, e nao o de recebimento')
+        ok(aberto('#verDrawer') and pg.locator('#recDrawer').count() == 0, 'clicar na linha abre o painel da transferencia; o painel de recebimento nao existe mais')
         ok(a['sit'] == 'Em trânsito' and a['origem'] == 'Galpão Centro' and a['destino'] == 'Loja Física Aldeota', 'o painel diz a situacao, de onde saiu e para onde vai: %s' % [a['sit'], a['origem'], a['destino']])
         ok(a['envio'] == '12/09/2026 · Carlos Mendes' and a['chegada'] == 'ainda não chegou', 'quem enviou e quando, e que ainda nao chegou: %s / %s' % (a['envio'], a['chegada']))
         ok(a['viagem'] == 'há ' + dias(parado), 'o tempo em transito conta de quando saiu ate hoje: %s' % a['viagem'])
@@ -143,23 +143,25 @@ with sync_playwright() as p:
         abrir('TR-0099')
         c = painel()
         ok(c['sit'] == 'Recebida' and c['chegada'] == '09/09/2026 · Carlos Mendes' and c['viagem'] == '1 dia' and not c['receber'] and 'em trânsito' not in c['itens'][0],
-           'recebida por inteiro: quem recebeu, um dia de viagem, nada em transito e sem botao de receber: %s / %s' % (c['chegada'], c['viagem']))
+           'recebida por inteiro: quem recebeu, um dia de viagem, nada em transito e sem botao de conferir: %s / %s' % (c['chegada'], c['viagem']))
         clic('#verDrawerClose'); pg.wait_for_timeout(250)
 
-        clic('#corpoTabela tr[data-num="TR-0101"] [data-acao="receber"]'); pg.wait_for_timeout(350)
-        ok(aberto('#recDrawer') and not aberto('#verDrawer'), 'o botao da linha continua abrindo so o recebimento, sem o painel por baixo')
-        clic('#btnCancelarRec'); pg.wait_for_timeout(250)
-
+        clic('#corpoTabela tr[data-num="TR-0101"] [data-acao="conferir"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+        ok(pg.url.endswith('pagina-estoque-conferencia.html?transf=TR-0101'), 'o botao da linha nao abre o painel por baixo: leva a conferencia da chegada')
+        ir(TRANSF)
         abrir('TR-0101')
-        clic('#btnReceberDoPainel'); pg.wait_for_timeout(350)
-        ok(aberto('#recDrawer') and not aberto('#verDrawer') and 'TR-0101' in pg.inner_text('#recResumo'), 'do painel se chega ao recebimento daquela transferencia')
-        pg.fill('#inputSenha', 'senha'); clic('#btnConfirmarRec'); pg.wait_for_timeout(400)
-        if pg.evaluate("document.getElementById('avisoModal').classList.contains('open')"):
-            clic('#btnAvisoOk'); pg.wait_for_timeout(250)
+        clic('#btnConferirDoPainel'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+        ok(pg.url.endswith('pagina-estoque-conferencia.html?transf=TR-0101'), 'e do painel se chega a conferencia daquela transferencia')
+
+        # A conferencia fecha em outra tela e guarda o que apurou. O painel le de la.
+        ir(TRANSF)
+        pg.evaluate("""() => localStorage.setItem('deskTransferencias', JSON.stringify({ 'TR-0101': { chegou: hojeISO(), recebeu: 'Administrador Desk',
+            ultima: { recebido: 20, faltou: 0, avaria: 0 }, itens: { 'TEC-MEC-006': { recebido: 8, faltou: 0, avaria: 0 }, 'CAB-HDM-009': { recebido: 12, faltou: 0, avaria: 0 } } } }))""")
+        ir(TRANSF)
         abrir('TR-0101')
         d = painel()
         ok(d['sit'] == 'Recebida' and d['chegada'] == hoje.strftime('%d/%m/%Y') + ' · Administrador Desk' and d['viagem'] == dias(parado) and not d['receber'],
-           'confirmado o recebimento, o painel passa a dizer quem recebeu, hoje, e quanto durou a viagem: %s / %s' % (d['chegada'], d['viagem']))
+           'conferida a chegada, o painel passa a dizer quem recebeu, hoje, e quanto durou a viagem: %s / %s' % (d['chegada'], d['viagem']))
         ok('recebido 8' in d['itens'][0] and 'em trânsito' not in d['itens'][0], '  e os itens aparecem recebidos: %s' % d['itens'][0])
 
     if secao(3, 'E10: em Tratamento de Perdas, a origem leva ao documento, e o documento existe la'):

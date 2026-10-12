@@ -713,7 +713,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="dia-grade">
       <div class="dia-coluna">
         <div class="dia-grupo">Entrada e estoque</div>
-        <a class="dia-fila" data-fila="doca" href="../estoque/pagina-estoque-conferencia-entrada.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">notas prontas para conferir</span><span class="dia-sub">5 aguardando entrada · 2 em conferência</span></span></a>
+        <a class="dia-fila" data-fila="doca" href="../estoque/pagina-estoque-conferencia-entrada.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">notas prontas para conferir</span><span class="dia-sub">7 aguardando entrada · 2 em conferência</span></span></a>
         <a class="dia-fila" data-fila="ender" href="../estoque/pagina-estoque-enderecamento.html"><span class="dia-numero">12</span><span class="dia-texto"><span class="dia-rotulo">itens parados sem endereço</span><span class="dia-sub">5 com estoque zerado no endereço</span></span></a>
         <a class="dia-fila" data-fila="compra" href="../estoque/pagina-estoque-necessidades-compra.html"><span class="dia-numero">4</span><span class="dia-texto"><span class="dia-rotulo">produtos para comprar</span><span class="dia-sub">R$ 18.992,80 em compra sugerida</span></span></a>
         <a class="dia-fila" data-fila="bloq" href="../estoque/pagina-estoque-itens-bloqueados.html"><span class="dia-numero">7</span><span class="dia-texto"><span class="dia-rotulo">itens bloqueados esperando decisão</span><span class="dia-sub">R$ 4.711,70 de custo parado</span></span></a>
@@ -844,7 +844,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ACOES_ESPECIFICAS = [
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
-    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar

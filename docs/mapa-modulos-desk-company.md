@@ -37,11 +37,11 @@
 |---|---|
 | ✅ | Controle de Estoques *(+ detalhe)* |
 | ✅ | Entrada de Notas *(+ detalhe)* |
-| ✅ | Conferência de Entrada *(+ a tela de contagem cega)* |
+| ✅ | Conferência de Entrada *(+ a tela de contagem cega; desde 12/out confere também a chegada de transferência entre estoques)* |
 | ✅ | Endereçamento |
 | ✅ | Reposição |
 | ✅ | Ordens de Compra *(+ detalhe)* |
-| ✅ | Transferência Entre Estoques *(+ nova transferência)* |
+| ✅ | Transferência Entre Estoques *(+ nova transferência; a chegada é conferida na Conferência de Entrada)* |
 | ✅ | Tratamento de Perdas *(chamava-se Itens Bloqueados até 12/out, quando o usuário trocou o nome; o arquivo segue `pagina-estoque-itens-bloqueados.html`. 09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
 | ✅ | Acerto de Estoque |
 | ✅ | Inventário |

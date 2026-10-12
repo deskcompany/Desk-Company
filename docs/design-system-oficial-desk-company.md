@@ -2631,3 +2631,72 @@ nome que ela tinha.
 **Guardado.** A seção 4 de `teste_estoque_melhorias.py` reprova se alguma tela voltar a dizer o nome
 antigo, se o menu de alguma perder o item, ou se a situação do saldo deixar de se chamar
 "bloqueado". Cinco defeitos injetados, um por vez, e os cinco pegos.
+
+## 14.60 A chegada da transferência é uma conferência de entrada (12/out/2026)
+
+Pedido do usuário, barganhado: "querendo ou não ela é uma conferência de entrada". O painel
+"Confirmar recebimento" da Transferência Entre Estoques vinha com a quantidade enviada já preenchida;
+bastava um clique, e ninguém precisava contar.
+
+**Uma contagem só para tudo que entra.** A tela que confere a nota confere a transferência
+(`pagina-estoque-conferencia.html?transf=TR-0101`): cega, com recontar ou confirmar, e motivo em toda
+divergência. Mudam os nomes: "Qtde enviada" no lugar de "Qtde da nota", "Saiu de" e "Enviada em" no
+lugar de fornecedor e ordem de compra, e nada de valor. O resumo mostra só as unidades contadas: o
+total enviado ficaria à vista e entregaria a contagem cega.
+
+**Do que não veio, a tela pergunta.** É a mesma pergunta que o fechamento da nota já fazia sobre o
+saldo da ordem de compra, porque só quem recebeu sabe: "o resto ainda vem" deixa a diferença em
+trânsito, e a transferência fica em "Recebidas em parte" até uma segunda conferência, que traz só o
+resto; "faltou" manda a diferença para Tratamento de Perdas como falta a auditar e encerra a
+transferência. Avaria que ficou conosco vai para lá como avaria; avaria que voltou com o
+transportador, recusa na doca e item trocado seguem em trânsito.
+
+**Concluir devolve a pessoa para a lista** (regra do §14.54): fechar leva à Transferência Entre
+Estoques, que diz quanto entrou, o que faltou, o que veio avariado e o que segue na estrada. O painel
+da transferência mostra quem recebeu e quando, e a falta e a avaria por item.
+
+**A fila mostra a transferência.** Na Conferência de Entrada ela aparece como "Aguardando entrada",
+com o depósito de origem no lugar do fornecedor, e segue os mesmos passos da nota: registrar a
+chegada, iniciar a conferência. As colunas viraram "Documento" e "De onde vem", e o rodapé conta
+"entradas". O rótulo "Transferência entre estoques" é fixo (atalho anotado no código); as outras
+duas origens continuam vindo do catálogo de nomes.
+
+**Como as telas conversam.** A transferência mora numa tela e é conferida em outra. Quem fecha a
+conferência guarda o que apurou, item a item, na chave `deskTransferencias`; a lista, a fila e a
+contagem leem dali por um bloco idêntico nas três ("O QUE A CONFERENCIA JA FEZ COM A
+TRANSFERENCIA"). A fila e a contagem carregam um espelho das transferências a caminho, que a suíte
+compara com a tela de origem. O número que chega pelo endereço (`?transf=`) só vale no formato de
+número de transferência; fora disso é ignorado, e número que não existe abre uma tela que diz isso.
+
+**A senha é a de antes.** Fechar a conferência da transferência pede a confirmação que o recebimento
+já pedia (`transfRecebe`). No catálogo das 79 telas ela passou a se chamar "Fechar conferência de
+chegada de transferência", em Estoque → Conferência de Entrada.
+
+**O que saiu.** O painel de recebimento e o código dele. `PRODUTOS` e `BASES` ficaram sem uso na
+tela de Transferência, com um comentário dizendo isso, para a limpeza de código das telas.
+
+**Quatro coisas que a construção ensinou.**
+
+- *Texto de opção se mede no lugar onde abre.* O rótulo "Faltou (vai para Tratamento de Perdas, como
+  falta a auditar)" saía do painel lateral. O rótulo encurtou, a explicação foi para a frase de cima,
+  e a suíte mede se o menu cabe no painel.
+- *Ensaiar numa cópia.* As quatro edições foram escritas como roteiros, aplicadas numa cópia das
+  telas fora do projeto e testadas ali por `file://`, enquanto a verificação da entrega anterior
+  ainda rodava. Chegaram ao projeto já passando.
+- *Título em caixa alta engana o teste.* `inner_text` devolve o texto como a pessoa vê; título que o
+  CSS põe em maiúsculas chega em maiúsculas, e uma checagem de "não contém Comunicado" passava sem
+  olhar nada. Onde o estilo muda a caixa, a suíte lê o conteúdo do elemento.
+
+- *O resultado do selo se lê do selo.* A primeira rodada completa parou com a suíte do CRM passando
+  do tempo limite (sozinha ela fecha em 75 segundos: foi travamento passageiro), e o comando tinha
+  sido encadeado com um corte da saída, que devolve "sucesso" mesmo quando o selo falha. A segunda
+  rodada guardou o código de saída do próprio selo, e foi ele que mostrou a auditoria reprovando: os
+  dois painéis de fechamento (o da nota e o da transferência) montavam botões com o mesmo
+  identificador. Os da transferência ganharam nome próprio.
+
+**Provado nos dois sentidos.** Vinte e três defeitos injetados, um por vez, contra
+`teste_transf_conferencia.py` (74 asserções), e os vinte e três foram pegos.
+
+**Fica como dado de exemplo.** A conferência não mexe no saldo das outras telas: Necessidades de
+Compra segue contando a transferência como "a caminho", e o Controle de Estoques não recebe as
+unidades. Transferência criada em "Nova transferência" continua não entrando na lista.

@@ -981,6 +981,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-item" data-value="2">Galpão Centro</div>
         <div class="dropdown-select-item" data-value="3">Loja Física Aldeota</div>
         <div class="dropdown-select-item" data-value="4">Bancada Desk Tech</div>
+        <div class="dropdown-select-item" data-value="5">Showroom Parceiro Norte</div>
       </div>
     </div>
   </div>
@@ -1009,8 +1010,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <thead>
           <tr>
             <th class="col-texto" style="width:34px;"></th>
-            <th class="col-texto ordenavel" data-ordem="numero">Nota <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="fornecedor">Fornecedor <span class="seta">▲</span></th>
+            <th class="col-texto ordenavel" data-ordem="numero">Documento <span class="seta">▲</span></th>
+            <th class="col-texto ordenavel" data-ordem="fornecedor">De onde vem <span class="seta">▲</span></th>
             <th class="col-texto">Depósito</th>
             <th class="ordenavel" data-ordem="itens" title="Quantidade de itens diferentes na nota">Itens <span class="seta">▲</span></th>
             <th class="col-texto ordenavel" data-ordem="chegada">Chegou em <span class="seta">▲</span></th>
@@ -1038,7 +1039,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
 
     <div class="estoque-rodape">
-      <span id="contagemNotas">0 notas</span>
+      <span id="contagemNotas">0 entradas</span>
       <span class="estoque-total">Esperando há mais tempo: <b id="maiorEspera">—</b></span>
     </div>
 
@@ -1289,7 +1290,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ACOES_ESPECIFICAS = [
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
-    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
@@ -1638,7 +1639,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== DADOS (mock) =====
-  const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
+  const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech', 5: 'Showroom Parceiro Norte' };
 
   // Esta tela e a fila do GALPAO. Entrada de Notas e a mesma nota vista pelo lado
   // do documento (manifestacao, prazos, valor); aqui o que importa e onde ela esta
@@ -1646,7 +1647,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // De onde a peca da fila veio. Conferencia de ENTRADA recebe compra e
   // devolucao, e quem abre a caixa precisa saber qual das duas antes de
   // contar: numa devolucao o esperado e o que o cliente disse que mandou.
+  // Como a pessoa chama o documento: a transferencia nao tem nota, entra com o numero dela.
+  const ehTransf = (n) => n.origem === 'transferencia';
+  const docDe = (n) => (ehTransf(n) ? 'transferência ' : 'nota ') + n.numero;
   function origemDaFila(n) {
+    // shortcut: rotulo fixo; entra no catalogo de nomes do sistema se o usuario quiser renomear esta origem.
+    if (ehTransf(n)) return 'Transferência entre estoques';
     if (n.origem !== 'devolucao') return nome('entrada.origem.compra');
     return nome('entrada.origem.devolucao') + (n.pedido ? ' · ' + n.pedido : '');
   }
@@ -1728,6 +1734,79 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     n.chave = chaveDe(f.uf, n.emissao.slice(2, 4) + n.emissao.slice(5, 7), f.cnpj, n.serie, n.numero);
   });
 
+  // ===== O QUE A CONFERENCIA JA FEZ COM A TRANSFERENCIA (bloco compartilhado, 12/out/2026) =====
+  // A transferencia mora em Transferencia Entre Estoques, e a chegada dela e conferida na
+  // Conferencia de Entrada, como uma nota. Sao arquivos diferentes: quem fecha a conferencia
+  // guarda aqui o que entrou, o que faltou e o que chegou avariado, item a item, e as tres telas
+  // (a lista de transferencias, a fila e a contagem) leem daqui. No sistema de producao isto nao
+  // existe: e a mesma tabela. O bloco e identico nas tres telas.
+  const CHAVE_TRANSFERENCIAS = 'deskTransferencias';
+  const hojeISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  function lerConferenciasDeTransferencia() {
+    try { const g = JSON.parse(localStorage.getItem(CHAVE_TRANSFERENCIAS) || '{}'); return (g && typeof g === 'object' && !Array.isArray(g)) ? g : {}; }
+    catch (e) { return {}; }
+  }
+  // O que ainda esta na estrada: o enviado, menos o que entrou, o que faltou e o que chegou avariado.
+  const emTransitoDe = (it) => Math.max(0, it.enviado - it.recebido - (it.faltou || 0) - (it.avaria || 0));
+  function situacaoDaTransferencia(tr) {
+    const naEstrada = tr.itens.reduce((s, it) => s + emTransitoDe(it), 0);
+    const mexida = tr.itens.some(it => it.recebido > 0 || it.faltou > 0 || it.avaria > 0);
+    return naEstrada === 0 ? 'recebida' : (mexida ? 'parcial' : 'transito');
+  }
+  // Soma ao que cada transferencia ja tinha o que as conferencias registraram. O que vem do
+  // navegador e conferido antes de entrar: numero vira numero, data so no formato de data.
+  function aplicarConferenciasDeTransferencia(lista) {
+    const guardado = lerConferenciasDeTransferencia();
+    const qtd = (v) => { const n = Number(v); return n > 0 ? n : 0; };
+    lista.forEach(tr => {
+      const g = guardado[tr.num];
+      if (!g || !g.itens || typeof g.itens !== 'object') return;
+      tr.itens.forEach(it => {
+        const r = g.itens[it.sku] || {};
+        it.recebido += qtd(r.recebido); it.faltou = qtd(r.faltou); it.avaria = qtd(r.avaria);
+      });
+      tr.chegou = /^\d{4}-\d{2}-\d{2}$/.test(g.chegou) ? g.chegou : hojeISO();
+      tr.recebeu = String(g.recebeu || '').replace(/[<>&"']/g, '');
+      const u = g.ultima || {};
+      tr.ultima = { recebido: qtd(u.recebido), faltou: qtd(u.faltou), avaria: qtd(u.avaria) };
+      tr.situacao = situacaoDaTransferencia(tr);
+    });
+  }
+  // `porSku` e o que ESTA conferencia apurou: { sku: { recebido, faltou, avaria } }. Soma com as anteriores.
+  function gravarConferenciaDeTransferencia(num, porSku, quem) {
+    const guardado = lerConferenciasDeTransferencia();
+    const reg = (guardado[num] && guardado[num].itens) ? guardado[num] : { itens: {} };
+    const ultima = { recebido: 0, faltou: 0, avaria: 0 };
+    Object.keys(porSku).forEach(sku => {
+      const antes = reg.itens[sku] || { recebido: 0, faltou: 0, avaria: 0 }, agora = porSku[sku];
+      reg.itens[sku] = { recebido: (Number(antes.recebido) || 0) + agora.recebido, faltou: (Number(antes.faltou) || 0) + agora.faltou, avaria: (Number(antes.avaria) || 0) + agora.avaria };
+      ultima.recebido += agora.recebido; ultima.faltou += agora.faltou; ultima.avaria += agora.avaria;
+    });
+    reg.chegou = hojeISO(); reg.recebeu = quem; reg.ultima = ultima;
+    guardado[num] = reg;
+    try { localStorage.setItem(CHAVE_TRANSFERENCIAS, JSON.stringify(guardado)); return true; }
+    catch (e) { return false; }   // armazenamento bloqueado: a conferencia nao chega as outras telas
+  }
+  // ===== FIM DO BLOCO DA CONFERENCIA DE TRANSFERENCIA =====
+  // Espelho de Estoque > Transferencia Entre Estoques: as transferencias com mercadoria a caminho.
+  // teste_transf_conferencia.py compara com a tela de la. O espelho e identico na fila e na contagem.
+  const TRANSF_A_CAMINHO = [
+    { num: 'TR-0101', saiu: '2026-09-12', enviou: 'Carlos Mendes', origem: 2, destino: 3,
+      itens: [ { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', un: 'UN', enviado: 8,  recebido: 0 },
+               { nome: 'Cabo HDMI 2.1 · 2m',    sku: 'CAB-HDM-009', un: 'UN', enviado: 12, recebido: 0 } ] },
+    { num: 'TR-0100', saiu: '2026-09-10', enviou: 'Carlos Mendes', origem: 2, destino: 5,
+      itens: [ { nome: 'Camiseta Desk Brands · P', sku: 'CAM-DKB-011', un: 'UN', enviado: 10, recebido: 8 } ] }
+  ];
+  aplicarConferenciasDeTransferencia(TRANSF_A_CAMINHO);
+  // Na fila: com mercadoria na estrada a transferencia espera a chegada; sem nada na estrada, a
+  // conferencia dela ja fechou. Quem "forneceu" e o deposito de origem.
+  TRANSF_A_CAMINHO.forEach((tr, k) => {
+    const aCaminho = tr.itens.filter(it => emTransitoDe(it) > 0);
+    NOTAS.push({ id: 900 + k, origem: 'transferencia', numero: tr.num, serie: null, fornecedor: DEPOSITOS[tr.origem], dep: tr.destino,
+                 emissao: tr.saiu, chegada: aCaminho.length ? '' : tr.chegou, itens: (aCaminho.length ? aCaminho : tr.itens).length, volumes: 0, valor: 0,
+                 situacao: aCaminho.length ? 'aguardando' : 'conferida', oc: null, cnpj: '', chave: '' });
+  });
+
   let buscaAtual = '';
   let situacaoAtual = 'todos';
   let periodoAtual = 'todos';
@@ -1790,7 +1869,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (termo === '') return true;
     const digitos = termo.replace(/\D/g, '');
     return n.fornecedor.toLowerCase().includes(termo) ||
-      String(n.numero) === termo ||
+      String(n.numero).toLowerCase() === termo ||
       (digitos.length >= 4 && n.chave.includes(digitos));
   }
 
@@ -1841,8 +1920,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const atrasadas = NOTAS.filter(n => n.espera > PARAM.conferenciaCompraCritico).length;
     let txt = 'Mercadoria que chegou e não foi conferida <b>não vira estoque</b> — ela não existe para a venda até a conferência fechar. ';
     txt += prontas === 0
-      ? 'Nenhuma nota esperando conferência agora.'
-      : '<b>' + prontas + (prontas === 1 ? ' nota está pronta' : ' notas estão prontas') + '</b> para conferir' +
+      ? 'Nenhuma entrada esperando conferência agora.'
+      : '<b>' + prontas + (prontas === 1 ? ' entrada está pronta' : ' entradas estão prontas') + '</b> para conferir' +
         (atrasadas > 0 ? ', e ' + atrasadas + (atrasadas === 1 ? ' está parada' : ' estão paradas') + ' há mais de 3 dias.' : '.');
     document.getElementById('avisoFilaTexto').innerHTML = txt;
   }
@@ -1857,7 +1936,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     atualizarAviso();
 
     document.getElementById('contagemNotas').textContent =
-      listaCompleta.length + (listaCompleta.length === 1 ? ' nota' : ' notas');
+      listaCompleta.length + (listaCompleta.length === 1 ? ' entrada' : ' entradas');
     const pior = listaCompleta.reduce((m, n) => Math.max(m, n.espera), -1);
     document.getElementById('maiorEspera').textContent = textoEspera(pior);
 
@@ -1878,7 +1957,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const tr = document.createElement('tr');
       tr.innerHTML =
         '<td class="col-texto"><input type="checkbox" class="item-checkbox" data-id="' + n.id + '" ' + (itensSelecionados.has(n.id) ? 'checked' : '') + '></td>' +
-        '<td class="col-texto"><span class="oc-numero">' + n.numero + '</span><span class="nota-serie">série ' + n.serie + '</span></td>' +
+        '<td class="col-texto"><span class="oc-numero">' + n.numero + '</span>' + (n.serie ? '<span class="nota-serie">série ' + n.serie + '</span>' : '') + '</td>' +
         '<td class="col-texto"><span class="conf-dequem">' + n.fornecedor + '</span>' +
           '<span class="conf-origem">' + origemDaFila(n) + '</span></td>' +
         '<td class="col-texto">' + DEPOSITOS[n.dep] + '</td>' +
@@ -1954,12 +2033,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function receberNotas(notas, aoTerminar) {
     const alvo = notas.filter(n => n.situacao === 'aguardando');
     if (alvo.length === 0) {
-      avisar('Nenhuma das notas selecionadas está aguardando entrada. Registrar chegada só se aplica a nota cuja mercadoria ainda não chegou.');
+      avisar('Nenhuma das entradas selecionadas está aguardando. Registrar chegada só se aplica a mercadoria que ainda não chegou.');
       return;
     }
     const texto = alvo.length === 1
-      ? 'Registrar a chegada da mercadoria da nota ' + alvo[0].numero + '? Ela passa a "pronto para conferir" — o estoque só se mexe quando a conferência fechar.'
-      : 'Registrar a chegada da mercadoria das ' + alvo.length + ' notas selecionadas? Elas passam a "pronto para conferir" — o estoque só se mexe quando cada conferência fechar.';
+      ? 'Registrar a chegada da mercadoria da ' + docDe(alvo[0]) + '? Ela passa a "pronto para conferir" — o estoque só se mexe quando a conferência fechar.'
+      : 'Registrar a chegada da mercadoria das ' + alvo.length + ' entradas selecionadas? Elas passam a "pronto para conferir" — o estoque só se mexe quando cada conferência fechar.';
     abrirModalConfirmacao(texto, alvo.length, 'primary', () => {
       alvo.forEach(n => {
         n.situacao = 'pronto';
@@ -1987,7 +2066,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function abrirResumo(id) {
     const n = NOTAS.find(x => x.id === id);
     if (!n) return;
-    document.getElementById('drawerTitulo').textContent = 'Nota ' + n.numero + ' · série ' + n.serie;
+    document.getElementById('drawerTitulo').textContent = ehTransf(n) ? 'Transferência ' + n.numero : 'Nota ' + n.numero + ' · série ' + n.serie;
 
     let html =
       '<div class="drawer-badges"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></div>' +
@@ -1999,9 +2078,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<div class="extrato-linha"><span class="extrato-rotulo">Itens / volumes</span><span class="extrato-valor">' + resumoItensVolumes(n) + '</span></div>' +
       '<div class="extrato-linha"><span class="extrato-rotulo">Chegou em</span><span class="extrato-valor">' + fmtData(n.chegada) + '</span></div>' +
       '<div class="extrato-linha"><span class="extrato-rotulo">Valor da nota</span><span class="extrato-valor">' + fmtMoeda(n.valor) + '</span></div>';
+    if (ehTransf(n)) {
+      // Transferencia nao tem chave, fornecedor nem valor: o painel mostra os dados dela.
+      const linha = (r, v) => '<div class="extrato-linha"><span class="extrato-rotulo">' + r + '</span><span class="extrato-valor">' + v + '</span></div>';
+      html = '<div class="drawer-badges"><span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span></div>' +
+        linha('Transferência', '<a class="painel-link" href="../estoque/pagina-estoque-transferencia.html?busca=' + n.numero + '">' + n.numero + '</a>') +
+        linha('Saiu de', n.fornecedor) +
+        linha('Depósito de destino', DEPOSITOS[n.dep]) +
+        linha('Enviada em', fmtData(n.emissao)) +
+        linha('Itens', mostraItens() ? String(n.itens) : 'itens ocultos') +
+        linha('Chegou em', fmtData(n.chegada));
+    }
 
     if (n.situacao === 'aguardando') {
-      html += '<div class="field-hint" style="margin-top:16px;">A mercadoria ainda não chegou. Quando o caminhão encostar, registre a chegada — é isso que coloca a nota na fila de conferência.</div>';
+      html += '<div class="field-hint" style="margin-top:16px;">A mercadoria ainda não chegou. Quando o caminhão encostar, registre a chegada — é isso que coloca ' + (ehTransf(n) ? 'a transferência' : 'a nota') + ' na fila de conferência.</div>';
     } else if (n.situacao === 'pronto') {
       html += '<div class="field-hint" style="margin-top:16px;">Mercadoria na doca esperando contagem. Enquanto a conferência não fechar, <b>nada disso é estoque</b>.</div>';
     } else if (n.situacao === 'emconferencia') {
@@ -2031,7 +2121,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // em 22/set, quando o menu passou a navegar de verdade nas 53 telas. Foi esse
       // aviso que fez nascer um segundo item de menu apontando para a contagem, que
       // largava o usuario numa nota que ninguem escolheu.
-      window.location.href = '../estoque/pagina-estoque-conferencia.html?nota=' + n.numero;
+      window.location.href = '../estoque/pagina-estoque-conferencia.html?' + (ehTransf(n) ? 'transf=' : 'nota=') + n.numero;
     });
 
     drawerBackdrop.classList.add('open');
@@ -2091,8 +2181,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     alvo.innerHTML = candidatos.slice(0, 5).map(n =>
       '<div class="receber-item' + (n === escolhida ? ' ativo' : '') + '" data-id="' + n.id + '">' +
         '<div class="receber-item-info">' +
-          '<div class="receber-item-nome">Nota ' + n.numero + ' · série ' + n.serie + ' · ' + n.fornecedor + '</div>' +
-          '<div class="receber-item-meta">' + DEPOSITOS[n.dep] + ' · ' + resumoItensVolumes(n) + ' · ' + fmtMoeda(n.valor) + '</div>' +
+          '<div class="receber-item-nome">' + (ehTransf(n) ? 'Transferência ' + n.numero : 'Nota ' + n.numero + ' · série ' + n.serie) + ' · ' + n.fornecedor + '</div>' +
+          '<div class="receber-item-meta">' + DEPOSITOS[n.dep] + ' · ' + (ehTransf(n) ? n.itens + ' itens' : resumoItensVolumes(n) + ' · ' + fmtMoeda(n.valor)) + '</div>' +
         '</div>' +
         '<span class="badge-situacao ' + SITUACAO_CLASSE[n.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[n.situacao] + '</span>' +
       '</div>').join('');
@@ -2113,7 +2203,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const n = escolhida;
     fecharReceber();
     if (n.situacao === 'pronto') {
-      avisar('A nota ' + n.numero + ' já está pronta para conferir — a chegada dela já foi registrada. Abra a conferência por ela na lista.');
+      avisar('A ' + docDe(n) + ' já está pronta para conferir — a chegada dela já foi registrada. Abra a conferência por ela na lista.');
       return;
     }
     receberNotas([n]);

@@ -223,7 +223,8 @@ with sync_playwright() as p:
     for numero in pg.evaluate("NOTAS.map(n => String(n.numero))"):
         linha(numero)
         tit = pg.inner_text('#drawerTitulo') if pg.locator('#eventDrawer.open').count() else ''
-        if ('Nota ' + numero + ' ') not in tit + ' ':
+        # 12/out: a fila tambem recebe transferencia, que abre o painel com o numero dela.
+        if not any((p + numero + ' ') in tit + ' ' for p in ('Nota ', 'Transferência ')):
             trocadas.append('%s abriu "%s"' % (numero, tit))
         pg.keyboard.press('Escape'); pg.wait_for_timeout(160)
     ok(not trocadas and pg.evaluate("new Set(NOTAS.map(n => n.id)).size === NOTAS.length"), 'cada uma das notas da Conferencia de Entrada abre o proprio painel: %s' % trocadas[:3])

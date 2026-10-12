@@ -1294,7 +1294,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ACOES_ESPECIFICAS = [
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
-    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
@@ -2232,14 +2232,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Pedido #23"). A primeira versao pegava os digitos do fim de qualquer texto: de "NF-e 12.951"
   // saia "951", e o link caia numa lista vazia (print do usuario, 12/out). Formato desconhecido fica em texto.
   const DESTINO_DA_ORIGEM = {
-    conferencia_entrada: { doc: /^Nota (\d+)$/,     href: '../estoque/pagina-estoque-entrada-notas.html?busca=' },
-    separacao:           { doc: /^Pedido #(\d+)$/,  href: '../logistica/pagina-logistica-separacao-detalhe.html?id=' },
-    conferencia_saida:   { doc: /^Pedido #(\d+)$/,  href: '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' } };
+    conferencia_entrada: [ { doc: /^Nota (\d+)$/,    href: '../estoque/pagina-estoque-entrada-notas.html?busca=' },
+                           // a chegada de transferencia e conferida como entrada (12/out): a origem e a propria transferencia
+                           { doc: /^(TR-\d+)$/,      href: '../estoque/pagina-estoque-transferencia.html?busca=' } ],
+    separacao:           [ { doc: /^Pedido #(\d+)$/, href: '../logistica/pagina-logistica-separacao-detalhe.html?id=' } ],
+    conferencia_saida:   [ { doc: /^Pedido #(\d+)$/, href: '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=' } ] };
   function origemComLink(i) {
     if (!i.doc) return ORIGENS[i.origem];
-    const d = DESTINO_DA_ORIGEM[i.origem], n = d && (d.doc.exec(i.doc) || [])[1];
-    return ORIGENS[i.origem] + ' · ' + (n
-      ? '<a class="link-origem" id="linkOrigemBloqueio" href="' + d.href + n + '">' + esc(i.doc) + '</a>' : esc(i.doc));
+    let href = '';
+    (DESTINO_DA_ORIGEM[i.origem] || []).forEach(d => { const m = d.doc.exec(i.doc); if (m && !href) href = d.href + m[1]; });
+    return ORIGENS[i.origem] + ' · ' + (href
+      ? '<a class="link-origem" id="linkOrigemBloqueio" href="' + href + '">' + esc(i.doc) + '</a>' : esc(i.doc));
   }
   function linhaFato(rotulo, valor) {
     return '<div class="extrato-linha"><span class="extrato-rotulo">' + rotulo + '</span><span class="extrato-valor">' + valor + '</span></div>';
@@ -2839,6 +2842,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoBusca').value = sku;
   })();
   renderTabela();
+
+
+  // ===== BUSCA PELO ENDERECO (bloco compartilhado, 10/out/2026) =====
+  // Link de outra tela chega com ?busca=...: a lista abre ja filtrada naquele registro, com uma
+  // faixa dizendo de onde veio o filtro e como voltar a ver tudo. Os dados de exemplo ainda nao
+  // sao os mesmos em todas as telas: quando o registro nao existe aqui, a faixa diz isso, em vez
+  // de deixar uma lista vazia sem explicacao. O bloco e identico em todas as listas.
+  (function buscaPeloEndereco() {
+    const termo = new URLSearchParams(window.location.search).get('busca');
+    const campo = document.querySelector('.main .search-wrap input');
+    if (!termo || !campo) return;
+    // O periodo padrao de algumas listas ("ultimos 30 dias") esconderia o registro pedido.
+    const semPeriodo = document.querySelector('.main .periodo-op[data-periodo="todos"]');
+    if (semPeriodo && !semPeriodo.classList.contains('active')) semPeriodo.click();
+    const filtrar = (texto) => { campo.value = texto; campo.dispatchEvent(new Event('input', { bubbles: true })); };
+    filtrar(termo);
+    const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
+    const vazia = Array.from(document.querySelectorAll('.main .empty-state')).some(e => e.offsetParent !== null) || (!!tabela && tabela.querySelectorAll('tbody tr').length === 0);
+    const faixa = document.createElement('div');
+    faixa.className = 'busca-link';
+    faixa.id = 'faixaBuscaLink';
+    const texto = document.createElement('span');
+    texto.textContent = vazia
+      ? 'O link de outra tela pediu "' + termo + '", e esta lista de exemplo não tem esse registro. No sistema em produção as telas leem os mesmos dados.'
+      : 'Lista filtrada por "' + termo + '", a pedido de outra tela.';
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.textContent = 'Mostrar tudo';
+    botao.addEventListener('click', () => { filtrar(''); faixa.remove(); });
+    faixa.appendChild(texto); faixa.appendChild(botao);
+    const antes = Array.from(document.querySelectorAll('.main > .card, .main > .abas-situacao')).filter(e => e.offsetParent !== null)[0];
+    if (antes) antes.parentNode.insertBefore(faixa, antes); else document.querySelector('.main').appendChild(faixa);
+  })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

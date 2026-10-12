@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, na troca de nome para Tratamento de Perdas.*
+*Atualizado em 12/out/2026, na entrega da conferência na chegada da transferência.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -13,16 +13,17 @@ junto com as da venda (V2, V3 e V5) e as de Finanças (F1 a F4), entregues antes
 mandou seguir a lista grupo a grupo; sobre Finanças, voltou com um ponto só, a barra de rolagem na
 tabela de Caixa e Bancos, que entrou nesta entrega.
 
-**O usuário já testou o estoque e voltou com três pontos, e os três estão decididos.**
+**O usuário já testou o estoque e voltou com três pontos. Os três estão feitos, e os dois últimos
+esperam o teste dele.**
 
 - **O link do Kit Home Office** abria uma lista vazia em Entrada de Notas. Era defeito, está
   consertado e ele deu ok (§14.58, no fim).
 - **"Itens Bloqueados" passou a se chamar "Tratamento de Perdas"** (§14.59). Barganhado e fechado
   por ele em 12/out. Muda o nome da tela; "bloqueado" segue sendo a situação do saldo, e o arquivo
   continua `pagina-estoque-itens-bloqueados.html`.
-- **A chegada da transferência vira conferência.** Aprovado por ele em 12/out, com a opção (a): ao
-  fechar com falta, a conferência pergunta se o resto ainda vem (segue em trânsito) ou se faltou
-  (vai para a fila de falta a auditar). **Ainda não construído:** é o próximo da fila.
+- **A chegada da transferência virou conferência** (§14.60). Aprovado por ele em 12/out, com a
+  opção (a): ao fechar com falta, a conferência pergunta se o resto ainda vem (segue em trânsito) ou
+  se faltou (vai para Tratamento de Perdas, como falta a auditar).
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -122,28 +123,44 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
   prevista. Clicar deixa na lista exatamente aquelas ordens; clicar de novo desfaz. A ordem nº 6 do
   exemplo passou a estar atrasada, para o indicador ter o que mostrar.
 - **Transferência Entre Estoques:** clicar na linha abre o painel da transferência, com os itens,
-  o enviado e o recebido, quem enviou, quem recebeu e o tempo em trânsito. Dali se confirma o
-  recebimento, e quem confirmou fica registrado.
+  o enviado e o recebido, quem enviou, quem recebeu e o tempo em trânsito. (O recebimento que saía
+  dali virou conferência: item 7.)
 - **Tratamento de Perdas** (na época, Itens Bloqueados): "De onde veio" leva ao documento: a nota em Entrada de Notas e a ficha do
   pedido na Separação e na Conferência de Saída. Acerto, devolução e bloqueio manual seguem em
   texto.
 
-**7. A verificação.** Quatro suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
-`teste_venda_melhorias.py` e `teste_estoque_melhorias.py`. Sessenta defeitos injetados de
-propósito, um por vez; os sessenta são pegos (os dois últimos são do conserto do link, com o
-exemplo antigo guardado no navegador). A auditoria do projeto reprova
-qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
+**7. A chegada da transferência é uma conferência de entrada** (12/out, §14.60), pedido do usuário:
 
-**8. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+- **Na Transferência Entre Estoques** o painel "Confirmar recebimento", que já vinha com a
+  quantidade preenchida, saiu. O botão é "Conferir chegada", na linha e no painel.
+- **A contagem é a da nota de entrada**, na mesma tela: cega (a quantidade enviada fica escondida
+  até contar, e não vaza pelo resumo), com motivo em toda divergência.
+- **No fechamento, do que não veio a tela pergunta:** "o resto ainda vem" (segue em trânsito, e
+  depois se confere só o resto) ou "faltou" (vai para Tratamento de Perdas, como falta a auditar).
+  Avaria que ficou conosco também vai para lá; a que voltou com o transportador segue em trânsito.
+- **Fechar devolve a pessoa para a lista de transferências**, que diz o que aconteceu, e o painel
+  passa a mostrar quem recebeu, quando, e o que faltou ou veio avariado por item.
+- **A fila da Conferência de Entrada mostra a transferência a caminho**, junto das notas e das
+  devoluções, e leva à contagem dela. As colunas passaram a "Documento" e "De onde vem".
+- **Em Tratamento de Perdas**, a origem "TR-0101" leva à transferência, e a tela ganhou a busca
+  pelo endereço, como as outras listas.
+- **A senha** é a mesma que o recebimento já pedia. Em Configurações ela agora se chama "Fechar
+  conferência de chegada de transferência".
+
+**8. A verificação.** Cinco suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+`teste_venda_melhorias.py`, `teste_estoque_melhorias.py` e `teste_transf_conferencia.py`. Oitenta e
+oito defeitos injetados de propósito, um por vez; os oitenta e oito são pegos. A auditoria do
+projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
+constante.
+
+**9. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **A conferência na chegada da transferência**, aprovada em 12/out com a opção (a). A
-   transferência a caminho entra na fila da Conferência de Entrada, "Confirmar recebimento" vira
-   "Conferir chegada" e abre a mesma contagem cega da nota, e o painel que já vinha com a quantidade
-   preenchida sai. Depois, o resto do teste dele em Finanças, na venda e no estoque.
+1. **O teste do usuário** na conferência da chegada da transferência e no nome novo de Tratamento
+   de Perdas, e o resto do teste dele em Finanças, na venda e no estoque.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.
@@ -192,6 +209,10 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
 - **A venda do PDV e a ordem criada em Necessidades de Compra** não aparecem em todas as telas
   vizinhas (a ordem aparece em Ordens de Compra; a página dela abre o exemplo fixo).
 - **Os valores financeiros do Dashboard** são próprios, e os de cada loja são uma fatia do total.
+- **A conferência da transferência não mexe no saldo das outras telas.** A lista de transferências,
+  a fila e Tratamento de Perdas enxergam o resultado; Necessidades de Compra continua contando a
+  transferência como "a caminho", e o Controle de Estoques não recebe as unidades. "Registrar
+  chegada", na fila, vale até recarregar a página, como já era com as notas.
 
 Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 

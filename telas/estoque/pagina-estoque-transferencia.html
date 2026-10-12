@@ -796,6 +796,8 @@
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
   /* Busca pelo endereco (10/out/2026): a faixa que diz de onde veio o filtro */
+  .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .painel-link:hover { text-decoration:underline; }
   .busca-link { display:flex; align-items:center; gap:14px; padding:10px 14px; margin-bottom:14px; background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--active-text); border-radius:10px; font-size:12.5px; line-height:1.45; color:var(--text-heading); }
   .busca-link span { flex:1; min-width:0; }
   .busca-link button { flex-shrink:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text-heading); background:transparent; border:1px solid var(--border); border-radius:20px; padding:6px 13px; cursor:pointer; white-space:nowrap; }
@@ -996,7 +998,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Transferência Entre Estoques</h1>
-      <div class="subtitle">Duas etapas: a mercadoria sai da origem, viaja no depósito de Trânsito, e o destino confirma o recebimento</div>
+      <div class="subtitle">Duas etapas: a mercadoria sai da origem, viaja no depósito de Trânsito, e o destino confere a chegada</div>
     </div>
     <div class="header-acoes">
       <button class="btn-primary" id="btnNova">
@@ -1008,7 +1010,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="nota-reservado">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-    <span><b>A viagem acontece num depósito de Trânsito.</b> Enquanto a mercadoria está na estrada ela não aparece disponível no destino — se aparecesse, o separador de lá seria mandado a um endereço vazio. Na confirmação vale a regra de sempre: <b>com base de picking no destino</b> o saldo fica disponível na hora; <b>sem base</b>, fica a endereçar. <b>Recebimento parcial é permitido</b> e o que faltar continua visível em trânsito, para ser resolvido por Acerto.</span>
+    <span><b>A viagem acontece num depósito de Trânsito.</b> Enquanto a mercadoria está na estrada ela não aparece disponível no destino — se aparecesse, o separador de lá seria mandado a um endereço vazio. A chegada é <b>conferida como uma nota de entrada</b>, às cegas, na Conferência de Entrada. O que chega entra no destino pela regra de sempre: <b>com base de picking no destino</b> o saldo fica disponível na hora; <b>sem base</b>, fica a endereçar. Se chegar menos, quem confere diz se <b>o resto ainda vem</b> (segue em trânsito) ou se <b>faltou</b> (vai para Tratamento de Perdas, como falta a auditar).</span>
   </div>
 
   <div class="estoque-toolbar">
@@ -1044,7 +1046,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th>Itens</th>
             <th>Quantidade</th>
             <th class="col-texto">Situação</th>
-            <th class="col-texto">Recebimento</th>
+            <th class="col-texto">Chegada</th>
           </tr>
         </thead>
         <tbody id="corpoTabela"></tbody>
@@ -1072,46 +1074,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="drawer-close" id="verDrawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
   <div id="verCorpo"></div>
-</div>
-
-<!-- PAINEL LATERAL: confirmar recebimento -->
-<div class="drawer-backdrop" id="recDrawerBackdrop"></div>
-<div class="event-drawer" id="recDrawer">
-  <div class="drawer-header">
-    <div class="drawer-title">Confirmar recebimento</div>
-    <div class="drawer-close" id="recDrawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
-  </div>
-
-  <div class="rep-resumo" id="recResumo"></div>
-
-  <div class="rep-origens-titulo">O que chegou</div>
-  <div id="recItens"></div>
-
-  <div class="rep-previa" id="recPrevia"></div>
-
-  <div class="section-title">Confirmar que é você</div>
-  <div class="section-hint" style="margin-top:-8px;">Confirmar recebimento é permissão de perfil — o saldo entra no destino com o seu nome no histórico.</div>
-
-  <div class="senha-usuario-label">Usuário</div>
-  <div class="senha-usuario-nome">Walysson Santos <span class="perfil-tag" id="perfilTag">pode confirmar recebimento</span></div>
-
-  <div class="form-field" id="campoSenhaWrap">
-    <label>Sua senha</label>
-    <div class="input-senha">
-      <input type="password" id="inputSenha" placeholder="Informe sua senha">
-      <button type="button" class="toggle-senha-btn" data-target="inputSenha" aria-label="Mostrar senha">
-        <svg class="icone-olho-aberto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg class="icone-olho-fechado" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.8 21.8 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 5c7 0 11 7 11 7a21.8 21.8 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </button>
-    </div>
-    <div class="field-error-msg" id="erroSenha">Informe sua senha para confirmar.</div>
-    <div class="field-hint">Mocado por enquanto — passa a validar de verdade quando Configurações → Permissões de Usuários existir.</div>
-  </div>
-
-  <div class="drawer-footer">
-    <button class="btn-primary" id="btnConfirmarRec">Confirmar recebimento</button>
-    <div class="drawer-link" id="btnCancelarRec">Cancelar <span class="esc-hint">ESC</span></div>
-  </div>
 </div>
 
 <!-- MODAL: aviso (telas ainda não construídas) -->
@@ -1249,7 +1211,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const ACOES_ESPECIFICAS = [
     { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
     { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
-    { chave:'transfRecebe',      nome:'Confirmar recebimento de transfer\u00eancia',     onde:'Estoque \u2192 Transfer\u00eancia Entre Estoques', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
     { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
     // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
@@ -1657,6 +1619,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // sao baldes exclusivos, entao a soma das linhas fecha o fisico.
   // Linhas com endereco null sao as que ainda nao tem posicao: `a_enderecar`
   // (conferido, sem endereco) e `em_conferencia` (que nem estoque e).
+  // Sem uso nesta tela desde 12/out/2026: o recebimento saiu daqui e virou conferencia, e era ele
+  // que lia PRODUTOS e BASES. Ficam para a limpeza de codigo das telas.
   const PRODUTOS = [
     { id: 1, nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', gtin: '7891234000011', tipo: 'simples', custoMedio: 742.30, minimo: 12, unidade: 'UN',
       saldos: [
@@ -1784,7 +1748,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
 
   let buscaAtual = '', filtroDepAtual = 'todos', abaAtual = 'todas';
-  let transfAtual = null;
 
   const fmtNum = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
   const fmtMoeda = (n) => 'R$ ' + fmtNum(n);
@@ -1794,10 +1757,65 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (unidadeFracionavel(un) || !Number.isInteger(n)) return fmtQtdNum(n);   // casas de Configuracoes
     return n.toLocaleString('pt-BR');
   }
-  function lerQtd(txt) { const v = parseFloat((txt||'').replace(/\./g,'').replace(',','.')); return isNaN(v)?0:v; }
   const dataBR = (iso) => { const [a,m,d] = iso.split('-'); return d + '/' + m + '/' + a; };
 
   const SIT_LABEL = { transito:'Em trânsito', parcial:'Recebida em parte', recebida:'Recebida' };
+
+  // ===== O QUE A CONFERENCIA JA FEZ COM A TRANSFERENCIA (bloco compartilhado, 12/out/2026) =====
+  // A transferencia mora em Transferencia Entre Estoques, e a chegada dela e conferida na
+  // Conferencia de Entrada, como uma nota. Sao arquivos diferentes: quem fecha a conferencia
+  // guarda aqui o que entrou, o que faltou e o que chegou avariado, item a item, e as tres telas
+  // (a lista de transferencias, a fila e a contagem) leem daqui. No sistema de producao isto nao
+  // existe: e a mesma tabela. O bloco e identico nas tres telas.
+  const CHAVE_TRANSFERENCIAS = 'deskTransferencias';
+  const hojeISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  function lerConferenciasDeTransferencia() {
+    try { const g = JSON.parse(localStorage.getItem(CHAVE_TRANSFERENCIAS) || '{}'); return (g && typeof g === 'object' && !Array.isArray(g)) ? g : {}; }
+    catch (e) { return {}; }
+  }
+  // O que ainda esta na estrada: o enviado, menos o que entrou, o que faltou e o que chegou avariado.
+  const emTransitoDe = (it) => Math.max(0, it.enviado - it.recebido - (it.faltou || 0) - (it.avaria || 0));
+  function situacaoDaTransferencia(tr) {
+    const naEstrada = tr.itens.reduce((s, it) => s + emTransitoDe(it), 0);
+    const mexida = tr.itens.some(it => it.recebido > 0 || it.faltou > 0 || it.avaria > 0);
+    return naEstrada === 0 ? 'recebida' : (mexida ? 'parcial' : 'transito');
+  }
+  // Soma ao que cada transferencia ja tinha o que as conferencias registraram. O que vem do
+  // navegador e conferido antes de entrar: numero vira numero, data so no formato de data.
+  function aplicarConferenciasDeTransferencia(lista) {
+    const guardado = lerConferenciasDeTransferencia();
+    const qtd = (v) => { const n = Number(v); return n > 0 ? n : 0; };
+    lista.forEach(tr => {
+      const g = guardado[tr.num];
+      if (!g || !g.itens || typeof g.itens !== 'object') return;
+      tr.itens.forEach(it => {
+        const r = g.itens[it.sku] || {};
+        it.recebido += qtd(r.recebido); it.faltou = qtd(r.faltou); it.avaria = qtd(r.avaria);
+      });
+      tr.chegou = /^\d{4}-\d{2}-\d{2}$/.test(g.chegou) ? g.chegou : hojeISO();
+      tr.recebeu = String(g.recebeu || '').replace(/[<>&"']/g, '');
+      const u = g.ultima || {};
+      tr.ultima = { recebido: qtd(u.recebido), faltou: qtd(u.faltou), avaria: qtd(u.avaria) };
+      tr.situacao = situacaoDaTransferencia(tr);
+    });
+  }
+  // `porSku` e o que ESTA conferencia apurou: { sku: { recebido, faltou, avaria } }. Soma com as anteriores.
+  function gravarConferenciaDeTransferencia(num, porSku, quem) {
+    const guardado = lerConferenciasDeTransferencia();
+    const reg = (guardado[num] && guardado[num].itens) ? guardado[num] : { itens: {} };
+    const ultima = { recebido: 0, faltou: 0, avaria: 0 };
+    Object.keys(porSku).forEach(sku => {
+      const antes = reg.itens[sku] || { recebido: 0, faltou: 0, avaria: 0 }, agora = porSku[sku];
+      reg.itens[sku] = { recebido: (Number(antes.recebido) || 0) + agora.recebido, faltou: (Number(antes.faltou) || 0) + agora.faltou, avaria: (Number(antes.avaria) || 0) + agora.avaria };
+      ultima.recebido += agora.recebido; ultima.faltou += agora.faltou; ultima.avaria += agora.avaria;
+    });
+    reg.chegou = hojeISO(); reg.recebeu = quem; reg.ultima = ultima;
+    guardado[num] = reg;
+    try { localStorage.setItem(CHAVE_TRANSFERENCIAS, JSON.stringify(guardado)); return true; }
+    catch (e) { return false; }   // armazenamento bloqueado: a conferencia nao chega as outras telas
+  }
+  // ===== FIM DO BLOCO DA CONFERENCIA DE TRANSFERENCIA =====
+  aplicarConferenciasDeTransferencia(TRANSFERENCIAS);
 
   // ===== LISTAGEM =====
   function transfFiltradas() {
@@ -1812,6 +1830,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       return true;
     });
   }
+
+  // A chegada e conferida na mesma contagem da nota de entrada: cega, com motivo na divergencia.
+  function conferirChegada(num) { window.location.href = '../estoque/pagina-estoque-conferencia.html?transf=' + num; }
 
   function renderTabela() {
     const corpo = document.getElementById('corpoTabela');
@@ -1839,7 +1860,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const nItens = tr.itens.length;
       const qtdTotal = tr.itens.reduce((s,i)=> s + i.enviado, 0);
       const un = tr.itens[0] ? tr.itens[0].un : '';
-      const pend = tr.itens.reduce((s,i)=> s + (i.enviado - i.recebido), 0);
+      const pend = tr.itens.reduce((s,i)=> s + emTransitoDe(i), 0);
+      const faltou = tr.itens.reduce((s,i)=> s + (i.faltou || 0), 0), avaria = tr.itens.reduce((s,i)=> s + (i.avaria || 0), 0);
       const podeReceber = tr.situacao === 'transito' || tr.situacao === 'parcial';
       const cls = tr.situacao === 'transito' ? 'sit-transito' : (tr.situacao === 'parcial' ? 'sit-parcial' : 'sit-recebida');
       const trEl = document.createElement('tr');
@@ -1852,161 +1874,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + nItens + '</td>' +
         '<td>' + fmtQtd(qtdTotal, un) + '<span class="col-un">' + un + '</span></td>' +
         '<td class="col-texto"><span class="estagio-chip ' + cls + '">' + SIT_LABEL[tr.situacao] + '</span>' +
-          (tr.situacao === 'parcial' ? '<div class="mov-doc">' + fmtQtd(pend, un) + ' ainda em trânsito</div>' : '') + '</td>' +
+          (tr.situacao === 'parcial' ? '<div class="mov-doc">' + fmtQtd(pend, un) + ' ainda em trânsito</div>' : '') +
+          (faltou ? '<div class="mov-doc">' + fmtQtd(faltou, un) + ' em falta a auditar</div>' : '') +
+          (avaria ? '<div class="mov-doc">' + fmtQtd(avaria, un) + ' com avaria</div>' : '') + '</td>' +
         '<td class="col-texto">' + (podeReceber
           ? (PERFIL.podeConfirmarRecebimento
-              ? '<button type="button" class="btn-mini" data-acao="receber" data-num="' + tr.num + '">Confirmar recebimento</button>'
-              : '<button type="button" class="btn-mini" disabled title="Seu perfil não tem a permissão de confirmar recebimento de transferência">Confirmar recebimento</button>')
+              ? '<button type="button" class="btn-mini" data-acao="conferir" data-num="' + tr.num + '">Conferir chegada</button>'
+              : '<button type="button" class="btn-mini" disabled title="Seu perfil não tem a permissão de conferir a chegada de transferência">Conferir chegada</button>')
           : '<span class="estagio-zero">—</span>') + '</td>';
       corpo.appendChild(trEl);
     });
-    corpo.querySelectorAll('[data-acao="receber"]').forEach(b =>
-      b.addEventListener('click', () => abrirRecebimento(b.getAttribute('data-num'))));
+    corpo.querySelectorAll('[data-acao="conferir"]').forEach(b =>
+      b.addEventListener('click', () => conferirChegada(b.getAttribute('data-num'))));
     corpo.querySelectorAll('tr[data-num]').forEach(l => l.addEventListener('click', (e) => {
       if (!e.target.closest('button')) abrirTransferencia(l.getAttribute('data-num'));
     }));
   }
 
-  // ===== CONFIRMAR RECEBIMENTO =====
-  const recBackdrop = document.getElementById('recDrawerBackdrop');
-  const recDrawer = document.getElementById('recDrawer');
-
-  // Onde o saldo cai no destino — regra de entrada do item 19, igual a nota e ao acerto.
-  function destinoNoRecebimento(produtoId, dep, qtd) {
-    const p = PRODUTOS.find(x => x.id === produtoId);
-    const base = BASES.find(b => b.produto === produtoId && String(b.dep) === String(dep));
-    if (!base) return { naBase:0, excedente:qtd, base:null };
-    if (base.capacidade == null) return { naBase:qtd, excedente:0, base:base };
-    const lb = p.saldos.find(x => String(x.dep) === String(dep) && x.endereco === base.endereco && x.estagio === 'disponivel');
-    const livre = Math.max(0, base.capacidade - (lb ? lb.qtd : 0));
-    const naBase = Math.min(qtd, livre);
-    return { naBase, excedente: qtd - naBase, base };
-  }
-
-  function abrirRecebimento(num) {
-    transfAtual = TRANSFERENCIAS.find(t => t.num === num); if (!transfAtual) return;
-    const tr = transfAtual;
-    document.getElementById('recResumo').innerHTML =
-      '<div class="rep-produto">' + tr.num + '</div>' +
-      '<div class="rep-meta">' + DEPOSITOS_INFO[tr.origem].nome + ' → ' + DEPOSITOS_INFO[tr.destino].nome + ' · saiu em ' + dataBR(tr.saiu) + '</div>';
-
-    const cx = document.getElementById('recItens');
-    cx.innerHTML = tr.itens.map((it,k) => {
-      const pend = it.enviado - it.recebido;
-      return '<div class="rep-origem">' +
-        '<div class="rep-origem-info">' +
-          '<div class="rep-origem-end">' + it.nome + '</div>' +
-          '<div class="rep-origem-saldo">' + it.sku + ' · enviado <b>' + fmtQtd(it.enviado, it.un) + '</b>' +
-            (it.recebido ? ' · já recebido <b>' + fmtQtd(it.recebido, it.un) + '</b>' : '') +
-            ' · em trânsito <b>' + fmtQtd(pend, it.un) + ' ' + it.un + '</b></div>' +
-        '</div>' +
-        '<div class="rep-origem-campo">' +
-          '<label>Chegou</label>' +
-          '<input type="text" class="rep-input" data-campo="rec-qtd" data-k="' + k + '" data-max="' + pend + '" value="' + fmtQtd(pend, it.un) + '">' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    cx.querySelectorAll('[data-campo="rec-qtd"]').forEach(inp => inp.addEventListener('input', atualizarPreviaRec));
-
-    document.getElementById('inputSenha').value = '';
-    document.getElementById('erroSenha').classList.remove('show');
-    document.getElementById('campoSenhaWrap').classList.remove('has-error');
-    aplicarExigenciaSenha('transfRecebe');
-    atualizarPreviaRec();
-    recBackdrop.classList.add('open'); recDrawer.classList.add('open');
-  }
-  function fecharRecebimento() { recBackdrop.classList.remove('open'); recDrawer.classList.remove('open'); transfAtual = null; }
-
-  function atualizarPreviaRec() {
-    if (!transfAtual) return;
-    const tr = transfAtual, prev = document.getElementById('recPrevia');
-    let excede = false, totalRec = 0, totalPend = 0, semBase = 0, naBase = 0;
-    document.querySelectorAll('[data-campo="rec-qtd"]').forEach(inp => {
-      const k = Number(inp.getAttribute('data-k')), max = Number(inp.getAttribute('data-max'));
-      const v = lerQtd(inp.value);
-      inp.parentElement.classList.toggle('has-error', v > max);
-      if (v > max) excede = true;
-      const usar = Math.min(v, max);
-      totalRec += usar; totalPend += (max - usar);
-      const d = destinoNoRecebimento(tr.itens[k].produtoId, tr.destino, usar);
-      naBase += d.naBase; semBase += d.excedente;
-    });
-    if (excede) {
-      prev.className = 'rep-previa alerta';
-      prev.textContent = 'Alguma quantidade passa do que está em trânsito. Não dá para receber mais do que saiu.';
-    } else if (totalRec === 0) {
-      prev.className = 'rep-previa';
-      prev.textContent = 'Informe quanto chegou de cada item.';
-    } else {
-      prev.className = 'rep-previa ok';
-      // A transferencia pode misturar itens de unidades diferentes, entao o resumo
-      // fala em "unidades" em vez de fingir uma unidade unica.
-      const un = (n) => fmtQtd(n, '') + (n === 1 ? ' unidade' : ' unidades');
-      let t = '';
-      if (naBase > 0) t += un(naBase) + ' ' + (naBase === 1 ? 'cai' : 'caem') + ' na base de picking e ' + (naBase === 1 ? 'fica disponível' : 'ficam disponíveis') + ' na hora. ';
-      if (semBase > 0) t += un(semBase) + ' ' + (semBase === 1 ? 'fica' : 'ficam') + ' a endereçar (sem base neste destino) e não ' + (semBase === 1 ? 'vende' : 'vendem') + ' até ganhar posição. ';
-      if (totalPend > 0) t += (totalPend === 1 ? 'Falta ' : 'Faltam ') + un(totalPend) + ' — ' + (totalPend === 1 ? 'continua visível' : 'continuam visíveis') + ' em trânsito, para resolver por Acerto.';
-      else t += 'Nada fica pendente: a transferência é encerrada.';
-      prev.textContent = t;
-    }
-    document.getElementById('btnConfirmarRec').disabled = excede || totalRec === 0;
-  }
-
-  function confirmarRecebimento() {
-    if (!transfAtual) return;
-    if (!PERFIL.podeConfirmarRecebimento) {
-      avisarHTML('Seu perfil não tem a permissão <b>confirmar recebimento de transferência</b>. Quem define isso é o perfil de acesso, em Vendedores → Acesso e Permissões (e, quando existir, em Configurações → Permissões de Usuários).');
-      return;
-    }
-    const senha = document.getElementById('inputSenha').value;
-    if (exigeSenha('transfRecebe') && !senha) {
-      document.getElementById('erroSenha').classList.add('show');
-      document.getElementById('campoSenhaWrap').classList.add('has-error');
-      return;
-    }
-    const tr = transfAtual;
-    let totalRec = 0;
-    document.querySelectorAll('[data-campo="rec-qtd"]').forEach(inp => {
-      const k = Number(inp.getAttribute('data-k')), max = Number(inp.getAttribute('data-max'));
-      const v = Math.min(lerQtd(inp.value), max);
-      if (v <= 0) return;
-      const it = tr.itens[k];
-      const p = PRODUTOS.find(x => x.id === it.produtoId);
-      // sai do Transito
-      const lt = p.saldos.find(x => String(x.dep) === String(DEP_TRANSITO) && x.estagio === 'a_enderecar');
-      if (lt) lt.qtd -= v;
-      // entra no destino pela regra do item 19
-      const d = destinoNoRecebimento(it.produtoId, tr.destino, v);
-      if (d.naBase > 0) {
-        let lb = p.saldos.find(x => String(x.dep) === String(tr.destino) && x.endereco === d.base.endereco && x.estagio === 'disponivel');
-        if (!lb) { lb = { dep:tr.destino, endereco:d.base.endereco, tipoEnd:'picking', estagio:'disponivel', qtd:0 }; p.saldos.push(lb); }
-        lb.qtd += d.naBase;
-      }
-      if (d.excedente > 0) {
-        let la = p.saldos.find(x => String(x.dep) === String(tr.destino) && x.endereco === null && x.estagio === 'a_enderecar');
-        if (!la) { la = { dep:tr.destino, endereco:null, tipoEnd:null, estagio:'a_enderecar', qtd:0, diasTravado:0 }; p.saldos.push(la); }
-        la.qtd += d.excedente;
-      }
-      it.recebido += v; totalRec += v;
-    });
-    p_saldosLimpos();
-    const pend = tr.itens.reduce((s,i)=> s + (i.enviado - i.recebido), 0);
-    tr.situacao = pend > 0 ? 'parcial' : 'recebida';
-    tr.recebeu = USUARIO_SESSAO.nome; tr.chegou = hojeISO();
-    fecharRecebimento(); renderTabela();
-    avisarHTML('Recebimento de <b>' + tr.num + '</b> confirmado: ' + fmtQtd(totalRec,'') +
-      (totalRec === 1 ? ' unidade entrou' : ' unidades entraram') + ' em <b>' + DEPOSITOS_INFO[tr.destino].nome + '</b>. ' +
-      (pend > 0
-        ? '<b>' + fmtQtd(pend,'') + (pend === 1 ? ' unidade continua' : ' unidades continuam') + ' em trânsito</b> e a transferência aparece na aba "Recebidas em parte" — só sai de lá quando alguém resolver por Acerto a partir do depósito de Trânsito.'
-        : 'Nada ficou pendente e a transferência foi encerrada.'));
-  }
-
   // ===== A TRANSFERENCIA AO LADO (12/out/2026) =====
   // Clicar na linha abre o que a lista nao mostra: os itens, o enviado e o recebido de cada um, quem
   // enviou, quem recebeu e quanto tempo a carga levou. A linha ja tinha o cursor de clique e nao
-  // abria nada.
+  // abria nada. Daqui tambem se vai conferir a chegada.
   const verBackdrop = document.getElementById('verDrawerBackdrop'), verDrawer = document.getElementById('verDrawer');
-  const hojeISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   const diasEntre = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
   const emDias = (n) => n + (n === 1 ? ' dia' : ' dias');
   function abrirTransferencia(num) {
@@ -2026,20 +1915,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       linha('Tempo em trânsito', viagem, 'verViagem') +
       '<div class="rep-origens-titulo" style="margin-top:20px;">Itens</div><div id="verItens">' +
       tr.itens.map(it => {
-        const pend = it.enviado - it.recebido;
+        const pend = emTransitoDe(it);
         return '<div class="rep-origem"><div class="rep-origem-info">' +
           '<div class="rep-origem-end">' + it.nome + '</div>' +
           '<div class="rep-origem-saldo">' + it.sku + ' · enviado <b>' + fmtQtd(it.enviado, it.un) + '</b> · recebido <b>' + fmtQtd(it.recebido, it.un) + '</b>' +
-            (pend > 0 ? ' · em trânsito <b>' + fmtQtd(pend, it.un) + ' ' + it.un + '</b>' : '') + '</div>' +
+            (pend > 0 ? ' · em trânsito <b>' + fmtQtd(pend, it.un) + ' ' + it.un + '</b>' : '') +
+            (it.faltou ? ' · faltou <b>' + fmtQtd(it.faltou, it.un) + '</b>' : '') + (it.avaria ? ' · avaria <b>' + fmtQtd(it.avaria, it.un) + '</b>' : '') + '</div>' +
         '</div></div>';
       }).join('') + '</div>' +
+      (tr.itens.some(it => it.faltou || it.avaria) ? '<div class="field-hint" id="verPerdas" style="margin-top:10px;">O que faltou e o que chegou avariado está bloqueado em <a class="painel-link" href="../estoque/pagina-estoque-itens-bloqueados.html?busca=' + tr.num + '">Tratamento de Perdas</a>.</div>' : '') +
       '<div class="drawer-footer">' +
-        (tr.situacao !== 'recebida' && PERFIL.podeConfirmarRecebimento ? '<button type="button" class="btn-primary" id="btnReceberDoPainel">Confirmar recebimento</button>' : '') +
+        (tr.situacao !== 'recebida' && PERFIL.podeConfirmarRecebimento ? '<button type="button" class="btn-primary" id="btnConferirDoPainel">Conferir chegada</button>' : '') +
         '<div class="drawer-link" id="btnFecharVer">Fechar <span class="esc-hint">ESC</span></div>' +
       '</div>';
     document.getElementById('btnFecharVer').addEventListener('click', fecharTransferencia);
-    const receber = document.getElementById('btnReceberDoPainel');
-    if (receber) receber.addEventListener('click', () => { fecharTransferencia(); abrirRecebimento(num); });
+    const conferir = document.getElementById('btnConferirDoPainel');
+    if (conferir) conferir.addEventListener('click', () => conferirChegada(num));
     verBackdrop.classList.add('open'); verDrawer.classList.add('open');
   }
   function fecharTransferencia() { verBackdrop.classList.remove('open'); verDrawer.classList.remove('open'); }
@@ -2047,27 +1938,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('verDrawerClose').addEventListener('click', fecharTransferencia);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && verDrawer.classList.contains('open')) fecharTransferencia(); });
 
-  // linhas zeradas somem da lista de saldo
-  function p_saldosLimpos() {
-    PRODUTOS.forEach(p => { p.saldos = p.saldos.filter(l => l.qtd !== 0 || l.estagio === 'em_conferencia'); });
-  }
-
-  function avisarHTML(html) {
-    document.getElementById('avisoTexto').innerHTML = html;
-    document.getElementById('avisoBackdrop').classList.add('open');
-    document.getElementById('avisoModal').classList.add('open');
-  }
-
   // ===== FIACAO =====
   // A montagem da transferencia virou PAGINA propria (16/set/2026): a lista de
   // itens saiu do painel lateral e foi para a area principal, nos moldes do Acerto.
   document.getElementById('btnNova').addEventListener('click', () => {
     window.location.href = '../estoque/pagina-estoque-transferencia-nova.html';
   });
-  document.getElementById('btnConfirmarRec').addEventListener('click', confirmarRecebimento);
-  document.getElementById('btnCancelarRec').addEventListener('click', fecharRecebimento);
-  document.getElementById('recDrawerClose').addEventListener('click', fecharRecebimento);
-  recBackdrop.addEventListener('click', fecharRecebimento);
   document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; renderTabela(); });
   document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
     aba.addEventListener('click', () => {
@@ -2194,12 +2070,40 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     '<div class="dropdown-select-item active" data-value="todos">Todos os depósitos</div>' + opcoesDep();
 
   inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => { filtroDepAtual = v; renderTabela(); });
-  if (!PERFIL.podeConfirmarRecebimento) document.getElementById('perfilTag').style.display = 'none';
 
   path = ['Estoque', 'Transferência Entre Estoques'];
   renderBreadcrumb();
   setMainTitle('Transferência Entre Estoques');
   renderTabela();
+
+  // ===== VOLTANDO DA CONFERENCIA (12/out/2026) =====
+  // Fechar a conferencia da chegada devolve a pessoa para ca, e a lista diz o que aconteceu com
+  // a transferencia: quanto entrou, o que faltou, o que chegou avariado e o que segue na estrada.
+  (function voltandoDaConferencia() {
+    const num = new URLSearchParams(window.location.search).get('conferida');
+    const tr = num ? TRANSFERENCIAS.find(x => x.num === num) : null;
+    if (!tr || !tr.ultima) return;
+    const un = tr.itens[0] ? tr.itens[0].un : '', u = tr.ultima, resta = tr.itens.reduce((s, i) => s + emTransitoDe(i), 0);
+    const partes = ['Chegada da ' + tr.num + ' conferida: ' + fmtQtd(u.recebido, un) + (u.recebido === 1 ? ' unidade entrou' : ' unidades entraram') + ' em ' + DEPOSITOS_INFO[tr.destino].nome + '.'];
+    if (u.faltou) partes.push(fmtQtd(u.faltou, un) + (u.faltou === 1 ? ' faltou e está' : ' faltaram e estão') + ' em Tratamento de Perdas, como falta a auditar.');
+    if (u.avaria) partes.push(fmtQtd(u.avaria, un) + (u.avaria === 1 ? ' chegou avariada e está bloqueada' : ' chegaram avariadas e estão bloqueadas') + ' em Tratamento de Perdas.');
+    partes.push(resta > 0
+      ? fmtQtd(resta, un) + (resta === 1 ? ' segue' : ' seguem') + ' em trânsito: a transferência fica em "Recebidas em parte" até o resto chegar.'
+      : 'Nada ficou em trânsito, e a transferência foi encerrada.');
+    const faixa = document.createElement('div');
+    faixa.className = 'busca-link';
+    faixa.id = 'faixaDaConferencia';
+    const texto = document.createElement('span');
+    texto.textContent = partes.join(' ');
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.textContent = 'Entendi';
+    botao.addEventListener('click', () => faixa.remove());
+    faixa.appendChild(texto); faixa.appendChild(botao);
+    const antes = document.querySelector('.main > .estoque-toolbar');
+    antes.parentNode.insertBefore(faixa, antes);
+  })();
+
   // ===== BUSCA PELO ENDERECO (bloco compartilhado, 10/out/2026) =====
   // Link de outra tela chega com ?busca=...: a lista abre ja filtrada naquele registro, com uma
   // faixa dizendo de onde veio o filtro e como voltar a ver tudo. Os dados de exemplo ainda nao
