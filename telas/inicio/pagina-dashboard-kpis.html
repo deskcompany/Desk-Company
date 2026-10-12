@@ -358,7 +358,9 @@
   /* Linha que explica por que a lista tem menos itens do que o botao pediu (10/out/2026) */
   .lista-nota { font-size:11.5px; color:var(--text); padding:8px 0 2px; border-top:1px solid var(--border); }
   /* Lista que rola dentro do quadro (12/out/2026): a altura e travada pelo script, na dos 5 primeiros itens */
-  .lista-rolavel { overflow-y:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:var(--border) var(--page-bg); }
+  /* Sem barra de rolagem a vista (usuario, 12/out/2026): a lista rola com a roda do mouse, o toque e as setas. */
+  .lista-rolavel { overflow-y:auto; scrollbar-width:none; }
+  .lista-rolavel::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
   .lista-rolavel:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; border-radius:6px; }
   #quadroLojas .legend-row:hover .legend-name { color:var(--active-text); }
 </style>
@@ -1481,7 +1483,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     LISTAS_ROLAVEIS.forEach(id => { document.getElementById(id).style.height = ''; });
     QTD_LISTA.vendidos = 5; QTD_LISTA.alertas = 5; currentStoreFilter = 'all';
     pintarPainel();
-    LISTAS_ROLAVEIS.forEach(id => { const l = document.getElementById(id); l.style.height = l.offsetHeight + 'px'; });
+    LISTAS_ROLAVEIS.forEach(id => { const l = document.getElementById(id); l.style.height = Math.ceil(l.getBoundingClientRect().height) + 'px'; });
     QTD_LISTA.vendidos = pedido.vendidos; QTD_LISTA.alertas = pedido.alertas; currentStoreFilter = loja;
     pintarPainel();
   }

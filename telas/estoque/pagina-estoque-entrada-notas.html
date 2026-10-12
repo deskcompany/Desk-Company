@@ -1663,6 +1663,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     'Luminárias Brasil':       { cnpj: '33.444.555/0001-77', uf: '31' }
   };
 
+  // Notas lancadas que ja viraram conta em Financas > Contas a Pagar (espelho; teste_fin_melhorias.py
+  // compara com os titulos de la). E o que deixa o painel da nota levar a conta dela.
+  const NOTAS_COM_CONTA = [6614, 736, 4482];
   const NOTAS = [
     { id: 1,  numero: 4468, origem: 'compra', serie: 1, emissao: '2026-08-28', recebimento: '2026-09-01', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, valor: 18420.00, situacao: 'lancada',       mde: 'confirmada',   oc: 1 },
     { id: 2,  numero: 4471, origem: 'compra', serie: 1, emissao: '2026-09-02', recebimento: '2026-09-04', fornecedor: 'TechParts Distribuidora', dep: 4, valor: 7313.00,  situacao: 'divergencia',   mde: 'confirmada',   oc: 2 },
@@ -2056,6 +2059,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<div class="extrato-linha"><span class="extrato-rotulo">Recebimento</span><span class="extrato-valor">' + fmtData(n.recebimento) + '</span></div>' +
       '<div class="extrato-linha"><span class="extrato-rotulo">Depósito de destino</span><span class="extrato-valor">' + DEPOSITOS[n.dep] + '</span></div>' +
       '<div class="extrato-linha"><span class="extrato-rotulo">Ordem de compra</span><span class="extrato-valor">' + (n.oc ? '<a class="painel-link" href="../estoque/pagina-estoque-ordens-compra.html?busca=' + n.oc + '">nº ' + n.oc + '</a>' : 'sem ordem vinculada') + '</span></div>' +
+      (NOTAS_COM_CONTA.indexOf(n.numero) !== -1 ? '<div class="extrato-linha"><span class="extrato-rotulo">Conta a pagar</span><span class="extrato-valor"><a class="painel-link" id="linkContaDaNota" href="../financas/pagina-financas-contas-pagar.html?busca=NF%20' + n.numero + '">Ver a conta desta nota</a></span></div>' : '') +
       '<div class="extrato-linha"><span class="extrato-rotulo">Valor da nota</span><span class="extrato-valor">' + fmtMoeda(n.valor) + '</span></div>';
 
     html += '<div class="extrato-bloco-titulo">Itens da nota</div>';

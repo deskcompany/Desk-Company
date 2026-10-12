@@ -638,6 +638,9 @@
   .busca-link span { flex:1; min-width:0; }
   .busca-link button { flex-shrink:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text-heading); background:transparent; border:1px solid var(--border); border-radius:20px; padding:6px 13px; cursor:pointer; white-space:nowrap; }
   .busca-link button:hover { background:rgba(120,120,140,0.10); }
+  /* A origem que leva ao documento (12/out/2026) */
+  .cx-origem-link { color:var(--active-text); text-decoration:none; cursor:pointer; }
+  .cx-origem-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -1916,13 +1919,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     { id:12, contaId:2, dias:35, hist:'Repasse do marketplace',                  pessoa:'Mercado Livre',       catId:2,  tipo:'entrada', valor:8420.50, compOff:0 },
     { id:13, contaId:2, dias:33, hist:'Comissão do marketplace',                  pessoa:'Mercado Livre',       catId:13, tipo:'saida',   valor:1263.07, compOff:0 },
-    { id:14, contaId:2, dias:22, hist:'Pagamento do fornecedor — lote 1180',      pessoa:'Prime Distribuidora', catId:4,  tipo:'saida',   valor:6740.00, compOff:0 },
+    { id:14, contaId:2, dias:22, hist:'Pagamento do fornecedor — lote 1180',      pessoa:'Prime Distribuidora', catId:4,  tipo:'saida',   valor:6740.00, compOff:0, origem:'CP 1' },
     { id:15, contaId:2, dias:18, hist:'Salários da equipe',                       pessoa:'',                    catId:10, tipo:'saida',   valor:9850.00, compOff:0 },
     { id:16, contaId:2, dias:15, hist:'Repasse do marketplace',                  pessoa:'Shopee',              catId:2,  tipo:'entrada', valor:5130.80, compOff:0 },
     { id:17, contaId:2, dias:14, hist:'Tarifa de manutenção da conta',            pessoa:'Banco Inter',         catId:18, tipo:'saida',   valor:59.90,   compOff:0 },
     { id:18, contaId:2, dias:8,  hist:'DAS do Simples — competência anterior',    pessoa:'Receita Federal',     catId:15, tipo:'saida',   valor:3180.44, compOff:-1 },
     { id:19, contaId:2, dias:3,  hist:'Repasse do marketplace',                  pessoa:'Amazon',              catId:2,  tipo:'entrada', valor:6975.30, compOff:0 },
-    { id:20, contaId:2, dias:1,  hist:'Frete da compra — lote 1180',              pessoa:'Transportes Vale',    catId:5,  tipo:'saida',   valor:412.70,  compOff:0 },
+    { id:20, contaId:2, dias:1,  hist:'Frete da compra — lote 1180',              pessoa:'Transportes Vale',    catId:5,  tipo:'saida',   valor:412.70,  compOff:0, origem:'CP 2' },
 
     { id:21, contaId:3, dias:26, hist:'Recebimento de vendas Mercado Pago',      pessoa:'Mercado Pago',        catId:2,  tipo:'entrada', valor:3240.00, compOff:0 },
     { id:22, contaId:3, dias:26, hist:'Taxa da maquininha',                      pessoa:'Mercado Pago',        catId:17, tipo:'saida',   valor:129.60,  compOff:0 },
@@ -1939,6 +1942,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     m.comp = compDaData(m.data, m.compOff);
     m.origem = m.origem || null;      // null = lancamento manual
   });
+
+  // ===== A ORIGEM LEVA AO DOCUMENTO (12/out/2026) =====
+  // "CP 6" e a baixa da conta a pagar nº 6; "CR 3", o recebimento da conta a receber nº 3. Ate esta
+  // data a origem era so texto. Transferencia e lancamento a mao nao tem documento para abrir.
+  function origemHtml(o) {
+    if (!o) return '<span class="cf-vazio">—</span>';
+    const m = /^(CP|CR) (\d+)$/.exec(o);
+    if (!m) return '<span class="cx-origem">' + o + '</span>';
+    return m[1] === 'CP'
+      ? '<a class="cx-origem cx-origem-link" href="../financas/pagina-financas-contas-pagar-detalhe.html?id=' + m[2] + '" title="Abrir a conta a pagar que gerou este lançamento">' + o + '</a>'
+      : '<a class="cx-origem cx-origem-link" href="../financas/pagina-financas-contas-receber-detalhe.html?id=' + m[2] + '" title="Abrir a conta a receber que gerou este lançamento">' + o + '</a>';
+  }
 
   // ===== LANÇAMENTOS VINDOS DE OUTRAS TELAS =====
   // O extrato e um arquivo e Contas a Pagar e outro. Para a integracao ser REAL
@@ -2085,7 +2100,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<td class="col-texto cx-cat">' + (m.catId ? cat.nome : '<span class="cf-vazio">sem categoria</span>') + '</td>' +
           '<td class="cx-num">' + (m.tipo === 'entrada' ? fmtDin(m.valor) : '') + '</td>' +
           '<td class="cx-num">' + (m.tipo === 'saida' ? fmtDin(m.valor) : '') + '</td>' +
-          '<td class="col-texto">' + (m.origem ? '<span class="cx-origem">' + m.origem + '</span>' : '<span class="cf-vazio">—</span>') + '</td>' +
+          '<td class="col-texto">' + origemHtml(m.origem) + '</td>' +
         '</tr>';
       });
       // A faixa do saldo anterior fecha a tabela, nao abre: com ordem decrescente
@@ -2110,7 +2125,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '</tr></thead><tbody>' + corpo + '</tbody></table></div>';
 
       cx.querySelectorAll('tbody tr[data-id]').forEach(tr => {
-        tr.addEventListener('click', () => {
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('a')) return;   // o link da origem leva a conta, e nao ao lancamento
           window.location.href = '../financas/pagina-financas-caixa-lancamento.html?id=' + tr.getAttribute('data-id');
         });
       });

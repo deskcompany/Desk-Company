@@ -316,6 +316,10 @@ with sync_playwright() as p:
         ok(conta()[0] == 10 and nota('notaMaisVendidos') == '', 'o botao 10 de "Mais Vendidos" mostra 10 produtos')
         ok(quadros() == abertura and rola()[0] > 100 and pg.evaluate("getComputedStyle(document.getElementById('listaMaisVendidos')).overflowY") == 'auto',
            'e o quadro NAO cresce: os 10 rolam dentro da lista, e os tres quadros continuam na altura da abertura: %s' % quadros())
+        # Terceiro retorno (12/out): a barra de rolagem nao aparece. A lista continua rolando.
+        sem_barra = pg.evaluate("""(() => { const l = document.getElementById('listaMaisVendidos'); l.scrollTop = 80;
+            return { barra: l.offsetWidth - l.clientWidth, estilo: getComputedStyle(l).scrollbarWidth, rolou: l.scrollTop }; })()""")
+        ok(sem_barra['barra'] == 0 and sem_barra['estilo'] == 'none' and sem_barra['rolou'] == 80, 'a lista rola sem barra de rolagem a vista: %s' % sem_barra)
         pg.evaluate("document.querySelectorAll('.qty-filter[data-lista=vendidos] .pill-btn-sm')[3].click()"); pg.wait_for_timeout(200)
         pg.evaluate("document.querySelectorAll('.qty-filter[data-lista=alertas] .pill-btn-sm')[1].click()"); pg.wait_for_timeout(200)
         ok(conta() == [len(do_giro), len(da_compra)] and 'Mostrando os %d que há' % len(do_giro) in nota('notaMaisVendidos')

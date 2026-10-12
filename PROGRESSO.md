@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, depois do segundo retorno do usuário sobre a primeira leva de melhorias.*
+*Atualizado em 12/out/2026, na entrega das melhorias de Finanças.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,16 +8,13 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Os ajustes que o usuário pediu sobre a primeira leva de melhorias estão feitos.** Ele testou a
-leva de 10/out e devolveu uma lista; em 12/out testou os ajustes, deu ok em sete dos nove pontos e
-pediu dois acertos no Início, que também entraram (ver abaixo). Ficou de fora só a impressão, que
-ele pediu para analisar agora e consertar depois.
+**As melhorias de Finanças (F1 a F4 da lista) estão feitas e esperam o teste do usuário.** Ele deu
+ok em tudo que veio antes: os ajustes da primeira leva, Boas-vindas e o Dashboard, onde só pediu
+para tirar a barra de rolagem das listas, o que entrou junto. Em seguida mandou seguir a lista de
+melhorias, começando por Finanças.
 
-Necessidades de Compra e Giro de Estoque, de 10/out, seguem sem ajuste apontado além dos dois que
-vieram nesta lista (marcar ao digitar e abrir em "A comprar").
-
-O próximo passo é dele: testar os ajustes e dizer se segue o resto da lista de melhorias, a segunda
-varredura ou o próximo módulo.
+A fila continua na ordem abaixo. A impressão em formato de relatório segue analisada e por fazer:
+ele pediu para deixar para depois.
 
 ## Onde estamos
 
@@ -78,22 +75,37 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
 - **A ferramenta de construção que saiu do projeto** não é mais citada em lugar nenhum: telas,
   documentos, skills e os outros projetos da pasta.
 
-**4. A verificação.** Suíte nova, `teste_retorno.py`, com um bloco para cada ponto acima. Dezoito
-defeitos injetados de propósito, um por vez; os dezoito são pegos. A auditoria do projeto reprova
+**4. Finanças, itens F1 a F4 da lista** (12/out, §14.56):
+
+- **O painel da conta.** Em Contas a Pagar e em Contas a Receber, clicar na linha abre a conta ao
+  lado, sem sair da lista: situação e prazo, valor, pago e saldo, os dados, de onde veio, os
+  pagamentos já feitos, e os botões "Pagar" ou "Receber" e "Abrir a conta".
+- **A origem com link.** Conta a pagar que nasceu de nota leva à nota de entrada e à ordem de
+  compra, no painel e na página da conta. Três contas novas nasceram de notas que a Entrada de Notas
+  tem como lançadas, com o mesmo fornecedor e o mesmo valor; e a nota leva de volta à conta. Conta a
+  receber leva ao pedido e ao cadastro do cliente.
+- **Indicadores** nas duas listas: vencidas, vencem hoje, próximos 7 dias e total. Clicar num deles
+  deixa na lista exatamente aquelas contas; clicar de novo desfaz.
+- **Caixa e Bancos:** a origem do lançamento ("CP 1", "CR 3") é link para a conta que o gerou.
+
+**5. A verificação.** Duas suítes novas: `teste_retorno.py`, com um bloco para cada ponto do retorno
+do usuário, e `teste_fin_melhorias.py`, para Finanças. Vinte e nove defeitos injetados de propósito,
+um por vez; os vinte e nove são pegos. A auditoria do projeto reprova
 qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em constante.
 
-**5. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**6. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O teste do usuário** nos dois acertos do Início (os outros sete pontos ele já deu ok).
-2. **A impressão em formato de relatório** (item P1 da lista de melhorias): analisada, falta
-   fazer. Entra no bloco comum e chega às 20 listas de uma vez.
-3. **O resto da lista aprovada**, na ordem sugerida: Finanças (F1 a F4); o que falta da venda (V2 a
-   V5 e L4); os indicadores (E2, V3 e F3); os cadastros (C2 a C8, que pedem alinhar os dados de
-   exemplo antes); K1 e R6; e por último G3, a página de detalhe abrir o registro clicado.
+1. **O teste do usuário** em Finanças.
+2. **O resto da lista aprovada**, na ordem sugerida: o que falta da venda (V2 a V5 e L4); os
+   indicadores de Ordens de Compra e de Pedidos (E2 e V3); os cadastros (C2 a C8, que pedem alinhar
+   os dados de exemplo antes); K1 e R6; e por último G3, a página de detalhe abrir o registro
+   clicado.
+3. **A impressão em formato de relatório** (item P1): analisada, falta fazer. O usuário pediu para
+   deixar para depois. Entra no bloco comum e chega às 20 listas de uma vez.
 4. **A segunda varredura:** o miolo de Inventário, Acerto e PDV, que a primeira não abriu.
 5. **Módulo novo:** Vendas Afiliados e Comissões Afiliados; depois Margem de Contribuição e Custos
    do E-commerce; Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último.

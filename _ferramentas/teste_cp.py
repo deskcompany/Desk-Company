@@ -39,7 +39,8 @@ with sync_playwright() as p:
 
     print('1. carga, abas e recorrencia')
     ok(not erros, 'sem erro de JS: %s' % erros[:2])
-    ok(pg.evaluate("TITULOS.length") == 22, 'mock com 22 titulos (10 avulsos + 12 do aluguel): %d' % pg.evaluate("TITULOS.length"))
+    # 12/out: tres contas a mais, as que nasceram de nota de entrada lancada (teste_fin_melhorias.py).
+    ok(pg.evaluate("TITULOS.length") == 25, 'mock com 25 titulos (13 avulsos + 12 do aluguel): %d' % pg.evaluate("TITULOS.length"))
     rec = pg.evaluate("TITULOS.filter(function(t){return t.grupo==='REC-1'})")
     ok(len(rec) == 12, 'a recorrencia mensal gerou 12 titulos: %d' % len(rec))
     valores = set(r['valor'] for r in rec)

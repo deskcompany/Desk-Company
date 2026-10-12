@@ -8,9 +8,9 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 
 | situação | itens |
 |---|---|
-| **Feito por inteiro** (12) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 |
-| **Feito no principal, com resto anotado** (15) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1 · L1, L2, L3, L5 · I1, I2 |
-| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V2, V3, V4, V5 · L4 · F1 a F4 · K1 · R6 · a limpeza de código das 17 telas |
+| **Feito por inteiro** (14) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E7 · F1, F3 |
+| **Feito no principal, com resto anotado** (17) | C1 · E1, E3, E4, E5, E6, E9, E11 · V1 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
+| **Falta** | G3 · C2 a C8 · E2, E8, E10 · V2, V3, V4, V5 · L4 · K1 · R6 · a limpeza de código das 17 telas |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1, X2 e X3 (dados de exemplo que ainda não conversam) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
@@ -24,8 +24,8 @@ O que entrou e o que falta em cada item feito no principal:
 - **E1** (Ordens de Compra): recebido e a receber no total, "atrasada há N dias", o botão "Receber
   mercadorias" e três links pelo fornecedor (notas, doca e Necessidades de Compra). Faltam o
   recebido item por item, a conta a pagar gerada e o fornecedor como link para o cadastro.
-- **E3** (Entrada de Notas): a ordem de compra virou link. Faltam o botão "Abrir a nota" no painel,
-  a conta a pagar da nota e o andamento da conferência.
+- **E3** (Entrada de Notas): a ordem de compra virou link, e a nota que já virou conta leva à conta
+  a pagar dela (12/out). Faltam o botão "Abrir a nota" no painel e o andamento da conferência.
 - **E4** (Conferência de Entrada): a ordem virou link, e nota sem ordem diz "sem ordem vinculada".
   Faltam o caminho para a nota e as divergências já apontadas.
 - **E5** (Controle de Estoques): indicadores, quadro que filtra, cinco destinos em "Mais ações" e a
@@ -46,6 +46,11 @@ O que entrou e o que falta em cada item feito no principal:
   transportadora.
 - **L5** (Devolução): o pedido de origem leva ao Rastreamento, e há link para a nota de entrada.
   Falta a conta a pagar.
+- **F2** (a origem da conta): a conta a pagar que nasceu de nota leva à nota de entrada e à ordem de
+  compra, no painel e na página; a conta a receber leva ao pedido e ao cliente. Só três contas a
+  pagar do exemplo vêm de nota; as outras foram lançadas à mão, e o painel diz isso.
+- **F4** (Caixa e Bancos): a origem "CP n" ou "CR n" é link para a conta. Venda de balcão e repasse
+  de marketplace continuam sem documento para abrir: são lançamentos à mão no exemplo.
 - **I1** (Dashboard): 14 quadros levam à tela de origem, e "Vendas por Loja" filtra o painel inteiro
   pela loja clicada. "Mais Vendidos" lê o Giro de Estoque e "Alertas de Estoque" lê Necessidades de
   Compra, e os botões 5/10/15/20 mostram mais itens. Os valores financeiros continuam próprios (R6).

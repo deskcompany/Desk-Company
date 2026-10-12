@@ -690,6 +690,26 @@
   .busca-link span { flex:1; min-width:0; }
   .busca-link button { flex-shrink:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text-heading); background:transparent; border:1px solid var(--border); border-radius:20px; padding:6px 13px; cursor:pointer; white-space:nowrap; }
   .busca-link button:hover { background:rgba(120,120,140,0.10); }
+  /* Painel da conta e indicadores (12/out/2026) */
+  .cp-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
+  .cp-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .cp-kpis .kpi-value { font-size:20px; }
+  .cp-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .cp-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .cp-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  @media (max-width:1100px) { .cp-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  .pc-selo { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; color:var(--text-heading); border:1px solid var(--border); border-radius:20px; padding:4px 11px; }
+  .pc-valores { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-top:16px; }
+  .pc-valor { border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+  .pc-valor span { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.3px; color:var(--text); margin-bottom:3px; }
+  .pc-valor b { font-family:'Nunito',sans-serif; font-weight:800; font-size:14.5px; color:var(--text-heading); }
+  .pc-valor.falta b { color:var(--danger); }
+  .pc-titulo { font-size:11.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--text); margin:20px 0 4px; }
+  .pc-linha { display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .pc-linha span { color:var(--text); flex-shrink:0; }
+  .pc-linha b { font-weight:700; color:var(--text-heading); text-align:right; }
+  .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .painel-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -903,6 +923,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="aviso-baixa" id="avisoBaixa"></div>
 
+  <!-- Indicadores (12/out/2026): o que esta em aberto hoje. Clicar filtra a lista; clicar de novo desfaz. -->
+  <div class="cp-kpis" id="indicadoresContas">
+    <div class="card kpi-card" data-kpi="vencidas" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Vencidas</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="hoje" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Vencem hoje</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="sete" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Próximos 7 dias</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+    <div class="card kpi-card" data-kpi="total" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
+      <div class="kpi-label">Total em aberto</div>
+      <div class="kpi-value">R$ 0,00</div>
+      <div class="kpi-delta neutral">—</div>
+    </div>
+  </div>
+
 
   <div class="marcas-toolbar">
     <div class="search-wrap">
@@ -918,6 +962,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="dropdown-select-menu">
         <div class="dropdown-select-item active" data-value="todos">Sem filtro de período</div>
         <div class="dropdown-select-item" data-value="vencidas">Vencidas até hoje</div>
+        <div class="dropdown-select-item" data-value="0">Vencem hoje</div>
         <div class="dropdown-select-item" data-value="7">Vencem nos próximos 7 dias</div>
         <div class="dropdown-select-item" data-value="30">Vencem nos próximos 30 dias</div>
         <div class="dropdown-select-item" data-value="mes">Vencem neste mês</div>
@@ -1002,6 +1047,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
 <!-- PAINEL LATERAL: pagamento -->
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
+<!-- PAINEL DA CONTA (12/out/2026): a conta por dentro, sem sair da lista -->
+<div class="event-drawer" id="drawerConta">
+  <div class="drawer-header">
+    <div class="drawer-title">Conta a pagar</div>
+    <div class="drawer-close" id="fecharConta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div id="contaCorpo"></div>
+</div>
+
 <div class="event-drawer" id="drawerPagamento">
   <div class="drawer-header">
     <div class="drawer-title">Pagamento</div>
@@ -1937,7 +1991,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:4, nome:'Vivo Empresas',         fantasia:'Vivo' },
     { id:5, nome:'Transportes Vale',      fantasia:'Vale Log' },
     { id:6, nome:'Embalagens Norte Ltda', fantasia:'Norte Embalagens' },
-    { id:7, nome:'Receita Federal',       fantasia:'' }
+    { id:7, nome:'Receita Federal',       fantasia:'' },
+    // Fornecedores das notas de entrada que viraram conta (12/out/2026): os mesmos nomes do Estoque.
+    { id:8,  nome:'Luminárias Brasil',       fantasia:'' },
+    { id:9,  nome:'Papelaria Central',       fantasia:'' },
+    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' }
   ];
   // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
   // valem para pagar. Mudou la, muda aqui; teste_formas_recebimento.py compara.
@@ -1955,7 +2013,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:7,  fornId:7, doc:'DAS 09',    venc:-8,  emis:3,  catId:15, valor:3180.44, pago:0,       forma:'Boleto',        hist:'Simples Nacional — competência anterior', ocorrencia:'Mensal', compOff:-1, cancelado:false },
     { id:8,  fornId:5, doc:'CTE 4502',  venc:-11, emis:1,  catId:12, valor:486.00,  pago:0,       forma:'Pix',           hist:'Fretes de entrega da semana',  ocorrencia:'Única', cancelado:false },
     { id:9,  fornId:6, doc:'NF 2340',   venc:-19, emis:-2, catId:11, valor:640.00,  pago:0,       forma:'Transferência', hist:'Embalagem para o Natal',      ocorrencia:'Única', cancelado:false },
-    { id:10, fornId:1, doc:'NF 11821',  venc:22,  emis:40, catId:4,  valor:2140.00, pago:0,       forma:'Boleto',        hist:'Lote cancelado pelo fornecedor', ocorrencia:'Única', cancelado:true }
+    { id:10, fornId:1, doc:'NF 11821',  venc:22,  emis:40, catId:4,  valor:2140.00, pago:0,       forma:'Boleto',        hist:'Lote cancelado pelo fornecedor', ocorrencia:'Única', cancelado:true },
+    // Contas que nasceram de NOTA DE ENTRADA lancada (12/out/2026). `nota` e `oc` sao os numeros de
+    // Estoque > Entrada de Notas e Ordens de Compra, com o mesmo fornecedor e o mesmo valor de la:
+    // e o que deixa a conta levar ao documento que a gerou. teste_fin_melhorias.py compara.
+    { id:11, fornId:8,  doc:'NF 6614', nota:6614, oc:10,   venc:2,   emis:43, catId:4, valor:5380.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 6614', ocorrencia:'Única', cancelado:false },
+    { id:12, fornId:9,  doc:'NF 736',  nota:736,  oc:13,   venc:-6,  emis:51, catId:4, valor:320.00,  pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 736',  ocorrencia:'Única', cancelado:false },
+    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false }
   ];
 
   // A recorrencia mensal do aluguel, gerada como a tela gera: HORIZONTE, nao
@@ -2060,6 +2124,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function listaSemAba() {
     const b = semAcento(buscaAtual);
     return TITULOS.filter(t => {
+      if (soEmAberto && !emAberto(t)) return false;   // indicador de total: so o que ainda se deve
       if (!dentroDoPeriodo(t)) return false;
       if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
       if (b !== '' && semAcento(fornDe(t.fornId).nome + ' ' + t.doc + ' ' + t.hist + ' ' + catDe(t.catId).nome).indexOf(b) === -1) return false;
@@ -2070,6 +2135,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function listaFiltrada() {
     const b = semAcento(buscaAtual);
     return TITULOS.filter(t => {
+      if (soEmAberto && !emAberto(t)) return false;   // indicador de total: so o que ainda se deve
       if (abaAtual !== 'todas' && situacaoDe(t) !== abaAtual) return false;
       if (!dentroDoPeriodo(t)) return false;
       if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
@@ -2110,12 +2176,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
              a.nome + '<span class="sit-cont">' + String(n).padStart(2, '0') + '</span></button>';
     }).join('');
     document.querySelectorAll('.sit-tab').forEach(b => b.addEventListener('click', () => {
-      abaAtual = b.getAttribute('data-aba'); paginaAtual = 1; selTit = []; render();
+      kpiAtivo = null; soEmAberto = false; abaAtual = b.getAttribute('data-aba'); paginaAtual = 1; selTit = []; render();
     }));
   }
 
   function render() {
     renderAbas();
+    pintarIndicadores();
     const cx = document.getElementById('listaTitulos');
     const vazio = document.getElementById('emptyState');
     const completa = listaFiltrada();
@@ -2181,7 +2248,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
       cx.querySelectorAll('tbody tr[data-linha="titulo"]').forEach(tr => {
         tr.addEventListener('click', () => {
-          window.location.href = '../financas/pagina-financas-contas-pagar-detalhe.html?id=' + tr.getAttribute('data-id');
+          abrirConta(Number(tr.getAttribute('data-id')));   // 12/out: a conta abre ao lado; a pagina fica a um botao
         });
       });
       cx.querySelectorAll('.tit-chevron').forEach(ch => {
@@ -2271,6 +2338,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const backdrop = document.getElementById('drawerBackdrop');
   function fecharDrawers() {
     document.getElementById('drawerPagamento').classList.remove('open');
+    document.getElementById('drawerConta').classList.remove('open');
     backdrop.classList.remove('open');
   }
   backdrop.addEventListener('click', fecharDrawers);
@@ -2556,14 +2624,120 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   montarMenuOrigem();
   montarMenuCatPgto();
 
+  // ===== INDICADORES (12/out/2026) =====
+  // O que esta em aberto no ano inteiro, sem a busca e sem o periodo da lista: e o retrato de hoje.
+  // Clicar num deles limpa os outros filtros e ajusta o periodo e a aba, para a lista mostrar
+  // exatamente aquelas contas; clicar de novo no mesmo desfaz.
+  const PERIODO_PADRAO = periodoAtual;
+  let kpiAtivo = null, soEmAberto = false;
+  function diasAte(dataIso) { return Math.round((new Date(dataIso + 'T00:00:00') - new Date(HOJE_ISO + 'T00:00:00')) / 86400000); }
+  const emSeteDias = (() => { const d = new Date(HOJE); d.setDate(d.getDate() + 7); return iso(d); })();
+  const emAberto = (t) => situacaoDe(t) === 'aberta' || situacaoDe(t) === 'atrasada';
+  const KPIS = [
+    { id:'vencidas', periodo:'vencidas', aba:'atrasada', quais: t => situacaoDe(t) === 'atrasada' },
+    { id:'hoje',     periodo:'0',        aba:'aberta',   quais: t => situacaoDe(t) === 'aberta' && t.vencIso === HOJE_ISO },
+    { id:'sete',     periodo:'7',        aba:'aberta',   quais: t => situacaoDe(t) === 'aberta' && t.vencIso <= emSeteDias },
+    { id:'total',    periodo:'todos',    aba:'todas',    quais: emAberto }
+  ];
+  function pintarIndicadores() {
+    KPIS.forEach(k => {
+      const lista = TITULOS.filter(k.quais);
+      const card = document.querySelector('.cp-kpis [data-kpi="' + k.id + '"]');
+      card.querySelector('.kpi-value').textContent = 'R$ ' + fmtDin(lista.reduce((s, t) => s + saldoDe(t), 0));
+      let sub = lista.length === 0 ? 'nenhuma conta' : lista.length + (lista.length === 1 ? ' conta' : ' contas');
+      if (k.id === 'vencidas' && lista.length) {
+        const pior = Math.max.apply(null, lista.map(t => -diasAte(t.vencIso)));
+        sub += ' · a mais antiga há ' + pior + (pior === 1 ? ' dia' : ' dias');
+      }
+      card.querySelector('.kpi-delta').textContent = sub;
+      card.classList.toggle('on', kpiAtivo === k.id);
+      card.setAttribute('aria-pressed', kpiAtivo === k.id ? 'true' : 'false');
+    });
+  }
+  function periodoNaPill(valor) {
+    const item = document.querySelector('#filtroPeriodo .dropdown-select-item[data-value="' + valor + '"]');
+    if (item) rotuloDropdown('filtroPeriodo', item.textContent.trim(), valor);
+  }
+  function escolherIndicador(id) {
+    const k = KPIS.filter(x => x.id === id)[0], desfaz = kpiAtivo === id;
+    document.getElementById('limparFiltros').click();     // busca, categoria e base de data voltam ao padrao
+    if (desfaz) { periodoAtual = PERIODO_PADRAO; abaAtual = 'todas'; }
+    else { kpiAtivo = id; soEmAberto = id === 'total'; periodoAtual = k.periodo; abaAtual = k.aba; }
+    periodoNaPill(periodoAtual);
+    paginaAtual = 1; selTit = [];
+    render();
+  }
+  document.querySelectorAll('.cp-kpis [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
+
+  // ===== PAINEL DA CONTA (12/out/2026) =====
+  // Clicar na linha abre a conta ao lado, com o botao de pagar ali mesmo. Ate esta data o clique
+  // saia da lista e abria a pagina da conta; a pagina continua a um botao daqui.
+  function fecharConta() {
+    document.getElementById('drawerConta').classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+  function abrirConta(id) {
+    const t = titDe(id);
+    if (!t) return;
+    const sit = situacaoDe(t), pessoa = fornDe(t.fornId), saldo = saldoDe(t), d = diasAte(t.vencIso);
+    const parcial = t.pago > 0 && saldo > 0;
+    const prazo = sit === 'atrasada' ? 'atrasada há ' + (-d) + (d === -1 ? ' dia' : ' dias')
+      : (sit === 'aberta' ? (d === 0 ? 'vence hoje' : 'vence em ' + d + (d === 1 ? ' dia' : ' dias')) : '');
+    const linha = (r, v) => '<div class="pc-linha"><span>' + r + '</span><b>' + v + '</b></div>';
+    const baixas = t.pagamentos || [];
+    let h = '<span class="pc-selo" id="contaSelo"><span class="sit-bola ' + sit + '"></span>' +
+        (sit === 'atrasada' || sit === 'aberta' ? prazo : SIT_ROTULO[sit]) + (parcial ? ' · parcial' : '') + '</span>' +
+      '<div class="pc-valores">' +
+        '<div class="pc-valor"><span>Valor</span><b id="contaValor">R$ ' + fmtDin(t.valor) + '</b></div>' +
+        '<div class="pc-valor"><span>Pago</span><b id="contaPago">R$ ' + fmtDin(t.pago) + '</b></div>' +
+        '<div class="pc-valor' + (saldo > 0 && !t.cancelado ? ' falta' : '') + '"><span>Saldo</span><b id="contaSaldo">R$ ' + fmtDin(t.cancelado ? 0 : saldo) + '</b></div>' +
+      '</div>' +
+      '<div class="pc-titulo">A conta</div>' +
+      linha('Fornecedor', pessoa.nome + (pessoa.fantasia ? ' · ' + pessoa.fantasia : '')) +
+      linha('Vencimento', fmtData(t.vencIso)) +
+      linha('Emissão', fmtData(t.emisIso)) +
+      linha('Competência', fmtComp(t.comp)) +
+      linha('Nº do documento', t.doc || 'sem documento') +
+      linha('Categoria', catDe(t.catId).nome) +
+      linha('Forma de pagamento', t.forma) +
+      linha('Ocorrência', t.ocorrencia + (t.grupo ? ' · ' + TITULOS.filter(x => x.grupo === t.grupo).length + ' no grupo' : '')) +
+      linha('Histórico', t.hist || '—') +
+      '<div class="pc-titulo">De onde veio</div><div id="contaOrigem">' + (t.nota
+        ? linha('Nota de entrada', '<a class="painel-link" href="../estoque/pagina-estoque-entrada-notas.html?busca=' + t.nota + '">nº ' + t.nota + '</a>') +
+          linha('Ordem de compra', t.oc ? '<a class="painel-link" href="../estoque/pagina-estoque-ordens-compra.html?busca=' + t.oc + '">nº ' + t.oc + '</a>' : 'nota sem ordem vinculada')
+        : linha('Lançada à mão', 'sem nota de entrada')) + '</div>' +
+      '<div class="pc-titulo">Pagamentos</div><div id="contaBaixas">' +
+      (baixas.length ? baixas.map(b => linha(fmtData(b.data) + ' · ' + ((contaDe(b.contaId) || {}).nome || 'conta'), 'R$ ' + fmtDin(b.valor))).join('')
+                     : '<div class="pc-linha"><span>Nenhum pagamento ainda.</span></div>') + '</div>';
+    h += '<div class="drawer-footer">' +
+      (!t.cancelado && saldo > 0 ? '<button class="btn-primary" id="btnBaixarDaConta">Pagar</button>' : '') +
+      '<a class="btn-secundario" id="btnAbrirConta" style="text-decoration:none;" href="../financas/pagina-financas-contas-pagar-detalhe.html?id=' + t.id + '">Abrir a conta</a>' +
+      '<div class="drawer-link" id="btnFecharConta">Fechar</div></div>';
+    document.getElementById('contaCorpo').innerHTML = h;
+    document.getElementById('btnFecharConta').addEventListener('click', fecharConta);
+    const baixar = document.getElementById('btnBaixarDaConta');
+    if (baixar) baixar.addEventListener('click', () => { fecharConta(); abrirPagamento([t.id]); });
+    document.getElementById('drawerConta').classList.add('open');
+    backdrop.classList.add('open');
+  }
+  document.getElementById('fecharConta').addEventListener('click', fecharConta);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('drawerConta').classList.contains('open') &&
+        !document.getElementById('confirmModal').classList.contains('open')) fecharConta();
+  });
+
   // ===== FILTROS E PAGINAÇÃO =====
   document.getElementById('menuFiltroCategoria').innerHTML = itensCategoria(true, true);
   document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; render(); });
-  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (v) => { periodoAtual = v; paginaAtual = 1; render(); });
+  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (v) => { kpiAtivo = null; soEmAberto = false; periodoAtual = v; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('filtroBase'), (v) => { baseDataAtual = v; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('filtroCategoria'), (v) => { filtroCatAtual = v; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
   document.getElementById('limparFiltros').addEventListener('click', () => {
+    kpiAtivo = null; soEmAberto = false;
     buscaAtual = ''; filtroCatAtual = 'todos'; periodoAtual = 'todos'; baseDataAtual = 'vencimento'; paginaAtual = 1;
     document.getElementById('campoBusca').value = '';
     rotuloDropdown('filtroCategoria', 'Todas as categorias', 'todos');

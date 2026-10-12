@@ -2475,3 +2475,44 @@ vizinhos ("Agenda de Hoje", "Atalhos Rápidos").
 
 Provado nos dois sentidos: três defeitos injetados (a altura destravada, a linha sem esticar e o
 nome antigo), e os três foram pegos. Com os quinze do §14.54, são dezoito.
+
+## 14.56 Finanças: a conta ao lado, a origem com link e os indicadores que filtram (12/out/2026)
+
+Os itens F1 a F4 da lista de melhorias, aprovados em 10/out. Entrou junto o terceiro acerto do
+Dashboard: as listas roláveis ficaram sem barra de rolagem à vista (`scrollbar-width:none`), e a
+altura travada passou a arredondar para cima, porque com o zoom do navegador meio pixel de sobra já
+fazia a lista de 5 itens rolar.
+
+**O painel da conta (F1).** Em Contas a Pagar e em Contas a Receber o clique na linha saía da lista
+e abria a página da conta. Passou a abrir a conta ao lado, no padrão das outras listas: situação com
+o prazo ("atrasada há 2 dias", "vence em 6 dias"), valor, pago e saldo, os dados, de onde veio, os
+pagamentos, e os botões da situação: "Pagar" ou "Receber" só quando há saldo, "Abrir a conta"
+sempre. O botão de baixa reaproveita o painel de pagamento que a lista já tinha. A seta que expande
+a linha no lugar e a caixa de seleção continuam fazendo só o que faziam.
+
+**A origem com link (F2), e o exemplo alinhado antes.** As contas a pagar do exemplo tinham outros
+fornecedores e outros documentos, diferentes dos da Entrada de Notas: não havia nota para onde levar.
+Em vez de ligar a um registro que não existe, nasceram três contas de notas que a Entrada de Notas
+tem como lançadas (6614, 736 e 4482), com o mesmo fornecedor, o mesmo valor e a mesma ordem de
+compra. A conta leva à nota e à ordem; a nota ganhou "Ver a conta desta nota" (`NOTAS_COM_CONTA`,
+espelho que a suíte compara); nota sem ordem diz "nota sem ordem vinculada"; conta lançada à mão diz
+que não veio de nota. A conta a receber leva ao pedido e ao cadastro do cliente.
+
+**Indicador que filtra é filtro de alternar (F3).** Quatro indicadores em cada lista: vencidas,
+vencem hoje, próximos 7 dias e total. Eles somam o ano inteiro, sem a busca e sem o período da
+lista. Clicar num deles limpa os outros filtros e ajusta o período e a aba, e a lista passa a
+mostrar **exatamente** as contas que ele somou; ele fica aceso enquanto a lista é a dele. Clicar de
+novo desfaz, e mexer na aba ou no período à mão apaga o indicador. O de total precisou de um filtro
+próprio (`soEmAberto`), porque nenhuma aba junta "em aberto" e "atrasadas". O filtro de período
+ganhou a opção "Vencem hoje".
+
+**A origem do lançamento no Caixa (F4).** A baixa já gravava a origem como "CP 6" ou "CR 3". Virou
+link para a página da conta; os dois pagamentos do extrato de exemplo que são baixa de conta a pagar
+ganharam a origem. Transferência e lançamento à mão continuam sem link.
+
+**Provado nos dois sentidos.** A suíte `teste_fin_melhorias.py` passou inteira na primeira rodada,
+o que não prova nada. Dez defeitos injetados, um por vez, e os dez foram pegos.
+
+Ficou de fora, com o usuário sabendo: os valores e clientes de quatro títulos de Contas a Receber
+ainda não batem com os pedidos (item X1), e o fornecedor das contas a pagar não é link, porque o
+cadastro de Fornecedores tem outros nomes.

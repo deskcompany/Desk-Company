@@ -807,6 +807,9 @@
     .recibo-folha { display:block; position:absolute; left:0; top:0; width:100%; padding:24px; background:#fff; color:#000; }
   }
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* Origem da conta no subtitulo (12/out/2026) */
+  .link-origem { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .link-origem:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -2415,7 +2418,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:4, nome:'Vivo Empresas',         fantasia:'Vivo' },
     { id:5, nome:'Transportes Vale',      fantasia:'Vale Log' },
     { id:6, nome:'Embalagens Norte Ltda', fantasia:'Norte Embalagens' },
-    { id:7, nome:'Receita Federal',       fantasia:'' }
+    { id:7, nome:'Receita Federal',       fantasia:'' },
+    // Fornecedores das notas de entrada que viraram conta (12/out/2026): os mesmos nomes do Estoque.
+    { id:8,  nome:'Luminárias Brasil',       fantasia:'' },
+    { id:9,  nome:'Papelaria Central',       fantasia:'' },
+    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' }
   ];
   // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
   // valem para pagar. Mudou la, muda aqui; teste_formas_recebimento.py compara.
@@ -2433,7 +2440,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:7,  fornId:7, doc:'DAS 09',    venc:-8,  emis:3,  catId:15, valor:3180.44, pago:0,       forma:'Boleto',        hist:'Simples Nacional — competência anterior', ocorrencia:'Mensal', compOff:-1, cancelado:false },
     { id:8,  fornId:5, doc:'CTE 4502',  venc:-11, emis:1,  catId:12, valor:486.00,  pago:0,       forma:'Pix',           hist:'Fretes de entrega da semana',  ocorrencia:'Única', cancelado:false },
     { id:9,  fornId:6, doc:'NF 2340',   venc:-19, emis:-2, catId:11, valor:640.00,  pago:0,       forma:'Transferência', hist:'Embalagem para o Natal',      ocorrencia:'Única', cancelado:false },
-    { id:10, fornId:1, doc:'NF 11821',  venc:22,  emis:40, catId:4,  valor:2140.00, pago:0,       forma:'Boleto',        hist:'Lote cancelado pelo fornecedor', ocorrencia:'Única', cancelado:true }
+    { id:10, fornId:1, doc:'NF 11821',  venc:22,  emis:40, catId:4,  valor:2140.00, pago:0,       forma:'Boleto',        hist:'Lote cancelado pelo fornecedor', ocorrencia:'Única', cancelado:true },
+    // Contas que nasceram de NOTA DE ENTRADA lancada (12/out/2026). `nota` e `oc` sao os numeros de
+    // Estoque > Entrada de Notas e Ordens de Compra, com o mesmo fornecedor e o mesmo valor de la:
+    // e o que deixa a conta levar ao documento que a gerou. teste_fin_melhorias.py compara.
+    { id:11, fornId:8,  doc:'NF 6614', nota:6614, oc:10,   venc:2,   emis:43, catId:4, valor:5380.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 6614', ocorrencia:'Única', cancelado:false },
+    { id:12, fornId:9,  doc:'NF 736',  nota:736,  oc:13,   venc:-6,  emis:51, catId:4, valor:320.00,  pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 736',  ocorrencia:'Única', cancelado:false },
+    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false }
   ];
 
   // A recorrencia mensal do aluguel, gerada como a tela gera: HORIZONTE, nao
@@ -3648,7 +3661,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('subtituloConta').innerHTML =
       f.nome + ' · vence em ' + fmtData(conta.vencIso) + ' · competência <b>' + fmtComp(conta.comp) + '</b>' +
       (conta.grupo ? ' · uma de <b>' + irmasN + '</b> do grupo' : '') +
-      (conta.pago > 0 && saldoDe(conta) > 0 ? ' · <b>saldo R$ ' + fmtDin(saldoDe(conta)) + '</b>' : '');
+      (conta.pago > 0 && saldoDe(conta) > 0 ? ' · <b>saldo R$ ' + fmtDin(saldoDe(conta)) + '</b>' : '') +
+      // De onde a conta veio (12/out/2026): a nota de entrada e a ordem de compra, para conferir antes de pagar.
+      (conta.nota ? '<span id="origemConta"> · veio da <a class="link-origem" href="../estoque/pagina-estoque-entrada-notas.html?busca=' + conta.nota + '">nota de entrada nº ' + conta.nota + '</a>' +
+        (conta.oc ? ' e da <a class="link-origem" href="../estoque/pagina-estoque-ordens-compra.html?busca=' + conta.oc + '">ordem de compra nº ' + conta.oc + '</a>' : '') + '</span>' : '');
   } else {
     document.getElementById('inputEmissao').value = fmtData(iso(HOJE));
     document.getElementById('inputVencimento').value = fmtData(iso(HOJE));
