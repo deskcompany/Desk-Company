@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com o retorno do usuário sobre a Movimentação de Estoque.*
+*Atualizado em 13/out/2026, com a saída da aba "Lançamentos" da página do produto.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -41,8 +41,18 @@ menu de Estoque das 81 telas, logo depois de Controle de Estoques.
 
 **Ele testou no mesmo dia e voltou com dois pedidos, que estão feitos e esperam o teste dele**
 (§14.65): o produto passou a ser a busca padrão do sistema, no lugar da lista de escolha, e o período
-ficou obrigatório, abrindo no mês atual. Sobre a aba "Lançamentos" da página do produto ele pediu
-opinião; a recomendação foi tirar a aba, e a escolha continua com ele.
+ficou obrigatório, abrindo no mês atual.
+
+**Ele confirmou os dois e mandou tirar a aba "Lançamentos" da página do produto, o que está feito e
+espera o teste dele** (§14.66). O histórico do produto mora só na Movimentação de Estoque. A página
+do produto, em Controle de Estoques, ficou com os indicadores, Endereços, Reservas e "Incluir
+lançamento", e chega ao histórico pelo botão "Movimentações".
+
+**O `selo.py` não fechou nesta entrega, e a causa não é dela.** A suíte `teste_cad_melhorias.py`, da
+entrega de cadastros que está em andamento em outra conversa, trava até estourar o tempo e derruba a
+rodada. As 20 suítes que alcançam a página do produto rodaram uma a uma, com as duas auditorias, e
+passaram; o `selo.json` ficou como estava. A próxima rodada completa, com a suíte de cadastros
+consertada, sela o que falta.
 
 **A lista de melhorias chegou aos cadastros.** O usuário mandou seguir em 13/out, e o primeiro item,
 C2 (o painel do fornecedor), está feito e espera o teste dele (§14.64). Faltam C3 a C8.
@@ -211,6 +221,9 @@ de testar a conferência:
   depósito, é o do Controle de Estoques, e as vendas de um período são as que o Giro mostra.
 - **As vizinhas levam para lá:** Controle de Estoques ("Mais ações"), a página do produto (botão
   "Movimentações") e o painel do Giro. A tela leva de volta à página do produto e ao Giro.
+- **A aba "Lançamentos" saiu da página do produto** (13/out, §14.66), por decisão dele: eram duas
+  listas para a mesma pergunta. Saíram junto os filtros de período e de tipo, que só serviam à lista.
+  A página abre em Endereços, e "Incluir lançamento" passou a dizer no aviso o que gravou.
 
 **10. Cadastros: o painel do fornecedor, item C2 da lista** (13/out, §14.64):
 
@@ -223,8 +236,8 @@ de testar a conferência:
 
 **11. A verificação.** Oito suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e cinquenta e três
-defeitos injetados de propósito, um por vez; os cento e cinquenta e três são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e sessenta
+defeitos injetados de propósito, um por vez; os cento e sessenta são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -268,13 +281,6 @@ Nenhuma destas trava o teste.
 3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
-4. **A aba "Lançamentos" da página do produto** (Controle de Estoques) mostra movimentos de exemplo
-   próprios, que não são os da Movimentação de Estoque. Hoje a página ganhou o botão "Movimentações",
-   e a aba ficou como estava, porque é nela que aparece o lançamento feito ali ("Incluir
-   lançamento"). Falta ele escolher: a aba continua, ou sai e fica só o botão para o histórico.
-   Ele pediu opinião em 13/out, e a recomendação foi tirar a aba: são duas listas para a mesma
-   pergunta, com números diferentes. O custo dito a ele: o lançamento feito na página passa a
-   aparecer só no aviso de gravado, e não mais numa lista ali.
 
 ## O que continua sendo dado de exemplo
 
@@ -304,6 +310,8 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
   O painel mostra o documento inteiro; o link nasce quando os exemplos se alinharem.
 - **Reservado aparece 0 em todo produto:** o Controle de Estoques ainda não calcula a reserva a
   partir dos pedidos, e a Movimentação lê de lá.
+- **O lançamento feito na página do produto vale até recarregar a página**, como o saldo dela. O
+  aviso diz o que foi gravado; ele não aparece na Movimentação de Estoque, que lê outro exemplo.
 
 Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 
@@ -314,7 +322,8 @@ Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 - **O botão "Nota Fiscal" e os valores de ICMS:** são fiscais, e a NF-e não está habilitada. A linha
   aparece como reservada, igual aos outros campos fiscais.
 - **Mudança de situação sem mudança de saldo** (endereçar, bloquear, reservar): a lista mostra o que
-  entra e o que sai do saldo físico. Esses passos continuam na página do produto.
+  entra e o que sai do saldo físico. Endereçar se vê em Endereçamento, e bloquear em Tratamento de
+  Perdas; a página do produto mostra a situação de hoje, por endereço.
 
 ## Ficou de fora de Necessidades de Compra e Giro, de propósito
 

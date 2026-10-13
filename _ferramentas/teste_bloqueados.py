@@ -612,11 +612,9 @@ with sync_playwright() as p:
     saldos = pg.evaluate("produtoAtual.saldos.filter(s => s.endereco === 'A-05-1-02').map(s => s.estagio + ':' + s.qtd).sort()")
     ok(kpis() == ['40UN', '2', '38'] and saldos == ['bloqueado:2', 'disponivel:4'], 'o fisico nao muda: a quantidade so passa de disponivel para bloqueado, no mesmo endereco: %s %s' % (kpis(), saldos))
     ok(visivel(pg, '#linkBloqueados') and not visivel(pg, '#notaBloqueado') and pg.get_attribute('#linkBloqueados', 'href').endswith('pagina-estoque-itens-bloqueados.html?produto=TEC-MEC-006'), 'e o numero bloqueado ganha o atalho para a fila, filtrada no produto')
-    extrato = pg.evaluate("document.querySelector('#corpoLancamentos tr').innerText.replace(/\\s+/g, ' ')")
-    ok('Bloqueio' in extrato and 'BL-' in extrato and '2 UN · Em análise · A-05-1-02 · Teclas falhando no teste.' in extrato, 'o extrato do produto registra o bloqueio: %s' % extrato[:90])
-    escolher(pg, 'filtroTipoMov', 'bloqueio')
-    ok(pg.locator('#corpoLancamentos tr').count() == 1, 'e o filtro de tipo acha so ele')
-    escolher(pg, 'filtroTipoMov', 'todos')
+    # 13/out: a pagina do produto nao lista mais lancamentos; o historico e o da Movimentacao de Estoque
+    # (teste_movimentacao.py, secao 9). O bloqueio se confere pelo aviso, pelo saldo e pelo atalho, medidos acima.
+    ok(pg.locator('#corpoLancamentos, #filtroTipoMov, #filtroPeriodo').count() == 0, 'a pagina do produto nao tem mais a lista de lancamentos nem os filtros dela')
     clic(pg, '#btnIncluirLancamento'); pg.wait_for_timeout(350)
     pg.fill('#campoQuantidade', '1'); escolher(pg, 'campoMotivo', 'avaria')
     ok('endereço de Avaria' in pg.inner_text('#previaEntrada'), 'avaria avisa que muda de endereco')

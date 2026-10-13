@@ -35,7 +35,7 @@
 ## 📦 Estoque — 13 de 14
 | | Submódulo |
 |---|---|
-| ✅ | Controle de Estoques *(+ detalhe)* |
+| ✅ | Controle de Estoques *(+ detalhe; 13/out: a página do produto ficou sem a aba "Lançamentos": o histórico é o da Movimentação de Estoque)* |
 | ✅ | Movimentação de Estoque *(13/out: o histórico individual de cada produto, só para consulta. Abre com os filtros: o produto pela busca padrão do sistema e o período obrigatório, no mês atual. Depois de Buscar mostra estoque atual, reservado, disponível, custo médio e valor em estoque, e cada movimento com o saldo de antes e o de depois. Clicar no movimento abre o documento inteiro, com todos os itens, e é o que se imprime)* |
 | ✅ | Entrada de Notas *(+ detalhe)* |
 | ✅ | Conferência de Entrada *(+ a tela de contagem cega; desde 12/out confere também a chegada de transferência entre estoques)* |

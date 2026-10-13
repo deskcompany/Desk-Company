@@ -582,13 +582,8 @@
   .aba-contador { font-size:11.5px; font-weight:800; padding:1px 7px; border-radius:10px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); }
   .aba-sit.active .aba-contador { background:var(--active-bg); border-color:var(--active-bg); color:var(--active-text); }
 
-  /* Ledger */
-  .qtd-entrada { color:#166534; font-weight:800; }
-  body.dark .qtd-entrada { color:#4ADE80; }
-  .qtd-saida { color:#B91C1C; font-weight:800; }
-  body.dark .qtd-saida { color:#FCA5A5; }
+  /* Endereços do produto */
   .estagio-chip { display:inline-block; font-size:11px; font-weight:800; padding:2px 9px; border-radius:11px; background:var(--page-bg); border:1px solid var(--border); color:var(--text); white-space:nowrap; }
-  .mov-obs { color:var(--text); font-size:12.5px; }
   .mov-doc { font-size:11px; color:var(--text); margin-top:2px; }
 
   /* Formulario do drawer de lancamento */
@@ -871,76 +866,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-item" data-value="5">Showroom Parceiro Norte</div>
       </div>
     </div>
-
-    <div class="dropdown-select" id="filtroPeriodo" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="dropdown-select-label">Qualquer período</span>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Qualquer período</div>
-        <div class="dropdown-select-item" data-value="7">Últimos 7 dias</div>
-        <div class="dropdown-select-item" data-value="30">Últimos 30 dias</div>
-        <div class="dropdown-select-item" data-value="90">Últimos 90 dias</div>
-      </div>
-    </div>
-
-    <div class="dropdown-select" id="filtroTipoMov" data-value="todos">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Qualquer tipo</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu">
-        <div class="dropdown-select-item active" data-value="todos">Qualquer tipo</div>
-        <div class="dropdown-select-item" data-value="entrada_nota">Entrada por nota</div>
-        <div class="dropdown-select-item" data-value="saida_venda">Saída por venda</div>
-        <div class="dropdown-select-item" data-value="acerto">Acerto de estoque</div>
-        <div class="dropdown-select-item" data-value="bloqueio">Bloqueio</div>
-        <div class="dropdown-select-item" data-value="enderecamento">Endereçamento</div>
-        <div class="dropdown-select-item" data-value="transferencia">Transferência</div>
-      </div>
-    </div>
   </div>
 
   <div class="abas-situacao" id="abasDetalhe">
-    <div class="aba-sit active" data-aba="lancamentos">Lançamentos <span class="aba-contador" id="contLancamentos">0</span></div>
-    <div class="aba-sit" data-aba="enderecos">Endereços <span class="aba-contador" id="contEnderecos">0</span></div>
+    <div class="aba-sit active" data-aba="enderecos">Endereços <span class="aba-contador" id="contEnderecos">0</span></div>
     <div class="aba-sit" data-aba="reservas">Reservas <span class="aba-contador" id="contReservas">0</span></div>
   </div>
 
-  <div id="painelLancamentos">
-    <div class="card">
-      <div class="estoque-table-wrap">
-        <table class="estoque-table">
-          <thead>
-            <tr>
-              <th class="col-texto">Data e hora</th>
-              <th class="col-texto">Tipo</th>
-              <th class="col-texto">Observação</th>
-              <th>Entrada</th>
-              <th>Saída</th>
-              <th class="col-texto">Estágio</th>
-              <th>Valor</th>
-            </tr>
-          </thead>
-          <tbody id="corpoLancamentos"></tbody>
-        </table>
-      </div>
-
-      <div class="empty-state" id="emptyLancamentos" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <div class="empty-state-title">Nenhum lançamento no filtro</div>
-        <div class="empty-state-sub">Tente ampliar o período ou trocar o depósito.</div>
-      </div>
-
-      <div class="estoque-rodape">
-        <span id="resumoLancamentos">0 lançamentos</span>
-        <span class="estoque-total">Entradas <b id="totalEntradas">0</b> · Saídas <b id="totalSaidas">0</b></span>
-      </div>
-    </div>
-  </div>
-
-  <div id="painelEnderecos" style="display:none;">
+  <div id="painelEnderecos">
     <div class="card">
       <div class="estoque-table-wrap">
         <table class="estoque-table">
@@ -1722,26 +1655,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const TIPO_END_LABEL = { picking:'Picking', pulmao:'Pulmão', recebimento:'Recebimento', expedicao:'Expedição', avaria:'Avaria', quarentena:'Quarentena' };
   const baseDe = (produtoId, dep) => BASES.find(b => b.produto === produtoId && String(b.dep) === String(dep)) || null;
 
-  // Ledger mocado. Vira query em stock_movements quando o Supabase entrar.
-  const LANCAMENTOS = {
-    1: [
-      { data:'02/09/2026', hora:'09:14', tipo:'entrada_nota', rotulo:'Entrada por nota de compra', doc:'NF-e 12.884', dep:2, entrada:20, saida:0, estagio:'a_enderecar', valor:742.30, obs:'' },
-      { data:'02/09/2026', hora:'16:40', tipo:'enderecamento', rotulo:'Endereçamento', doc:'Corredor A1', dep:2, entrada:0, saida:0, estagio:'disponivel', valor:0, obs:'17 un endereçadas' },
-      { data:'04/09/2026', hora:'11:02', tipo:'saida_venda', rotulo:'Saída por venda', doc:'Pedido #4471', dep:2, entrada:0, saida:2, estagio:'disponivel', valor:742.30, obs:'' },
-      { data:'05/09/2026', hora:'08:30', tipo:'transferencia', rotulo:'Transferência entre depósitos', doc:'TR-0091', dep:3, entrada:3, saida:0, estagio:'a_enderecar', valor:742.30, obs:'Recebido do Galpão Centro' },
-      { data:'08/09/2026', hora:'14:55', tipo:'acerto', rotulo:'Acerto de estoque', doc:'AC-0034', dep:2, entrada:1, saida:0, estagio:'a_enderecar', valor:742.30, obs:'Sobra de contagem' }
-    ],
-    15: [
-      { data:'10/09/2026', hora:'10:20', tipo:'entrada_nota', rotulo:'Entrada por nota de compra', doc:'NF-e 13.001', dep:2, entrada:9, saida:0, estagio:'a_enderecar', valor:1120.00, obs:'' },
-      { data:'11/09/2026', hora:'09:05', tipo:'enderecamento', rotulo:'Endereçamento', doc:'Corredor D4', dep:2, entrada:0, saida:0, estagio:'disponivel', valor:0, obs:'2 un endereçadas' },
-      { data:'11/09/2026', hora:'09:30', tipo:'acerto', rotulo:'Acerto de estoque', doc:'AC-0041', dep:2, entrada:0, saida:0, estagio:'bloqueado', valor:1120.00, obs:'2 un com tela trincada — endereço de Avaria' }
-    ]
-  };
-  const LANC_PADRAO = [
-    { data:'28/08/2026', hora:'13:41', tipo:'entrada_nota', rotulo:'Entrada por nota de compra', doc:'NF-e 12.712', dep:2, entrada:12, saida:0, estagio:'a_enderecar', valor:0, obs:'' },
-    { data:'29/08/2026', hora:'08:12', tipo:'enderecamento', rotulo:'Endereçamento', doc:'—', dep:2, entrada:0, saida:0, estagio:'disponivel', valor:0, obs:'12 un endereçadas' },
-    { data:'31/08/2026', hora:'15:07', tipo:'saida_venda', rotulo:'Saída por venda', doc:'Pedido #4402', dep:2, entrada:0, saida:4, estagio:'disponivel', valor:0, obs:'' }
-  ];
+  // O historico de entradas e saidas do produto mora em Estoque > Movimentacao de Estoque (13/out/2026).
+  // Esta pagina mostra o saldo por situacao e por endereco, e e onde se lanca acerto e bloqueio.
 
   const ESTAGIO_LABEL = { a_enderecar:'A endereçar', disponivel:'Disponível', reservado:'Reservado', bloqueado:'Bloqueado', em_conferencia:'Em conferência' };
 
@@ -1776,9 +1691,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   let produtoAtual = null;
   let depositoAtual = 'todos';
-  let periodoAtual = 'todos';
-  let tipoMovAtual = 'todos';
-  let abaAtual = 'lancamentos';
+  let abaAtual = 'enderecos';
   let tipoLanc = 'entrada';
   let motivoLanc = '';
   let origemLanc = 'disponivel';
@@ -1840,60 +1753,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     elC.className = 'kpi-valor' + (conf > 0 ? '' : ' apagado');
   }
 
-  function lancamentosDoProduto() {
-    const p = produtoAtual; if (!p) return [];
-    let lista = (LANCAMENTOS[p.id] || LANC_PADRAO).slice();
-    if (depositoAtual !== 'todos') lista = lista.filter(l => String(l.dep) === depositoAtual);
-    if (tipoMovAtual !== 'todos') lista = lista.filter(l => l.tipo === tipoMovAtual);
-    if (periodoAtual !== 'todos') {
-      const limite = Number(periodoAtual);
-      const hoje = new Date(2026, 8, 15);
-      lista = lista.filter(l => {
-        const [d,m,a] = l.data.split('/').map(Number);
-        const dt = new Date(a, m-1, d);
-        return (hoje - dt) / 86400000 <= limite;
-      });
-    }
-    return lista.sort((a,b) => {
-      const pa = a.data.split('/').reverse().join('') + a.hora.replace(':','');
-      const pb = b.data.split('/').reverse().join('') + b.hora.replace(':','');
-      return pb.localeCompare(pa);
-    });
-  }
-
-  function renderLancamentos() {
-    const p = produtoAtual; if (!p) return;
-    const corpo = document.getElementById('corpoLancamentos');
-    const empty = document.getElementById('emptyLancamentos');
-    const wrap = document.querySelector('#painelLancamentos .estoque-table-wrap');
-    corpo.innerHTML = '';
-    const lista = lancamentosDoProduto();
-    document.getElementById('contLancamentos').textContent = lista.length;
-    document.getElementById('contReservas').textContent = '0';
-
-    const totE = lista.reduce((s,l)=> s + l.entrada, 0);
-    const totS = lista.reduce((s,l)=> s + l.saida, 0);
-    document.getElementById('resumoLancamentos').textContent = lista.length + (lista.length === 1 ? ' lançamento' : ' lançamentos');
-    document.getElementById('totalEntradas').textContent = fmtQtd(totE, p.unidade);
-    document.getElementById('totalSaidas').textContent = fmtQtd(totS, p.unidade);
-
-    if (lista.length === 0) { wrap.style.display = 'none'; empty.style.display = 'flex'; return; }
-    wrap.style.display = ''; empty.style.display = 'none';
-
-    lista.forEach(l => {
-      const tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="col-texto">' + l.data + '<div class="mov-doc">' + l.hora + '</div></td>' +
-        '<td class="col-texto">' + l.rotulo + '<div class="mov-doc">' + l.doc + ' · ' + (DEPOSITOS[l.dep] || '—') + '</div></td>' +
-        '<td class="col-texto mov-obs">' + (l.obs || '—') + '</td>' +
-        '<td>' + (l.entrada > 0 ? '<span class="qtd-entrada">+' + fmtQtd(l.entrada, p.unidade) + '</span>' : '<span class="estagio-zero">—</span>') + '</td>' +
-        '<td>' + (l.saida > 0 ? '<span class="qtd-saida">−' + fmtQtd(l.saida, p.unidade) + '</span>' : '<span class="estagio-zero">—</span>') + '</td>' +
-        '<td class="col-texto"><span class="estagio-chip">' + (ESTAGIO_LABEL[l.estagio] || '—') + '</span></td>' +
-        '<td>' + (l.valor > 0 ? fmtMoeda(l.valor) : '—') + '</td>';
-      corpo.appendChild(tr);
-    });
-  }
-
   function renderEnderecos() {
     const p = produtoAtual; if (!p) return;
     const corpo = document.getElementById('corpoEnderecos');
@@ -1931,7 +1790,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   }
 
-  function renderTudo() { renderKPIs(); renderLancamentos(); renderEnderecos(); }
+  function renderTudo() { renderKPIs(); renderEnderecos(); }
 
   // ===== DRAWER: incluir lancamento (acerto inline) =====
   const drawerBackdrop = document.getElementById('drawerBackdrop');
@@ -2182,24 +2041,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
 
     const m = (MOTIVOS[tipoLanc] || []).find(x => x.v === motivoLanc);
-    const lista = LANCAMENTOS[p.id] || (LANCAMENTOS[p.id] = LANC_PADRAO.slice());
-    lista.push({
-      data: document.getElementById('campoData').value,
-      hora: document.getElementById('campoHora').value.slice(0,5),
-      tipo: 'acerto', rotulo: 'Acerto de estoque',
-      doc: 'AC-' + String(1000 + Math.floor(Math.random()*9000)),
-      dep: depLanc, entrada: entrada, saida: saida,
-      estagio: estagio === 'misto' ? 'disponivel' : estagio,
-      valor: p.custoMedio,
-      obs: (m ? m.l : '') + ' · ' + ondeTexto + (document.getElementById('campoObs').value ? ' · ' + document.getElementById('campoObs').value : '')
-    });
-
     fecharLancamento();
     renderTudo();
-    if (m && m.fiscal === 'nfe') {
-      avisar('Lançamento gravado. Ele entrou na fila de baixas pendentes de regularização fiscal — ' +
-             'a NF-e de baixa (CFOP 5.927) e o estorno de crédito continuam devidos, e o contador zera essa fila quando a emissão existir.');
-    }
+    // A pagina nao lista mais os lancamentos (13/out/2026): o aviso diz o que foi gravado, em todo caso.
+    const quanto = (n) => fmtQtd(n, p.unidade) + ' ' + p.unidade;
+    avisar('Lançamento gravado: ' + (entrada > 0 ? 'entrada de ' + quanto(entrada) : 'saída de ' + quanto(saida)) + ' em ' + ondeTexto +
+      (m ? ', motivo ' + m.l : '') + '. Os indicadores desta página já mostram o saldo novo.' +
+      (m && m.fiscal === 'nfe' ? ' Ele entrou na fila de baixas pendentes de regularização fiscal — a NF-e de baixa (CFOP 5.927) e o estorno de crédito continuam devidos, e o contador zera essa fila quando a emissão existir.' : ''));
   }
 
   // Bloqueio nao e acerto: nao entra nem sai nada, a quantidade so muda de estagio (item 19).
@@ -2230,16 +2078,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       alvo.qtd -= qtd;
       destino.qtd += qtd;
       const base = baseDe(p.id, depLanc);
-      const onde = destino.endereco || 'sem endereço';
-      const lista = LANCAMENTOS[p.id] || (LANCAMENTOS[p.id] = LANC_PADRAO.slice());
-      lista.push({
-        data: document.getElementById('campoData').value,
-        hora: document.getElementById('campoHora').value.slice(0, 5),
-        tipo: 'bloqueio', rotulo: 'Bloqueio',
-        doc: 'BL-' + String(1000 + Math.floor(Math.random() * 9000)),
-        dep: depLanc, entrada: 0, saida: 0, estagio: 'bloqueado', valor: p.custoMedio,
-        obs: quanto + ' · ' + m.l + ' · ' + onde + (obs ? ' · ' + obs : '')
-      });
       publicarBloqueio({ chave: 'manual:' + p.sku + ':' + Date.now(), sku: p.sku, produto: p.nome, un: p.unidade, dep: Number(depLanc),
         endereco: destino.endereco, tipoEnd: destino.tipoEnd, base: base ? base.endereco : null, qtd: qtd, custo: p.custoMedio,
         motivo: motivoLanc, origem: 'manual', doc: '', quem: USUARIO_SESSAO.nome, obs: obs, saiuDe: alvo.endereco });
@@ -2289,7 +2127,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.querySelectorAll('#abasDetalhe .aba-sit').forEach(a => a.classList.remove('active'));
       aba.classList.add('active');
       abaAtual = aba.getAttribute('data-aba');
-      document.getElementById('painelLancamentos').style.display = abaAtual === 'lancamentos' ? '' : 'none';
       document.getElementById('painelEnderecos').style.display = abaAtual === 'enderecos' ? '' : 'none';
       document.getElementById('painelReservas').style.display = abaAtual === 'reservas' ? '' : 'none';
     });
@@ -2396,12 +2233,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== INICIALIZACAO =====
   inicializarDropdownSelect(document.getElementById('filtroDeposito'), (valor) => {
     depositoAtual = valor; renderTudo();
-  });
-  inicializarDropdownSelect(document.getElementById('filtroPeriodo'), (valor) => {
-    periodoAtual = valor; renderLancamentos();
-  });
-  inicializarDropdownSelect(document.getElementById('filtroTipoMov'), (valor) => {
-    tipoMovAtual = valor; renderLancamentos();
   });
   inicializarDropdownSelect(document.getElementById('campoTipo'), (valor) => {
     tipoLanc = valor;

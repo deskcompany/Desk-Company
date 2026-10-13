@@ -18,7 +18,10 @@
 #       estes registros no exemplo dela, e link que cai em lista vazia e pior que texto;
 #   [6] e so consulta: nada do que a tela faz grava. Planilha e impressao saem com a lista inteira;
 #   [7] as vizinhas levam para ca e a tela leva de volta, sempre no mesmo produto;
-#   [8] cabe em 1440, 1366 e 1280 de largura: quem cede e o texto, nao a tabela.
+#   [8] cabe em 1440, 1366 e 1280 de largura: quem cede e o texto, nao a tabela;
+#   [9] a pagina do produto, em Controle de Estoques, ficou sem a aba "Lancamentos" (decisao do usuario
+#       em 13/out): o historico mora so aqui. La ficam os indicadores, Enderecos, Reservas e o botao
+#       "Incluir lancamento", que passa a dizer no aviso o que gravou.
 from playwright.sync_api import sync_playwright
 import datetime, os as _os, glob as _g, re, sys
 import localiza
@@ -490,6 +493,42 @@ with sync_playwright() as p:
             clic('#corpoTabela tr'); pg.wait_for_timeout(400)
             ok(pg.evaluate("(() => { const d = document.getElementById('eventDrawer'), t = document.getElementById('docItens'); return d.scrollWidth <= d.clientWidth + 1 && t.getBoundingClientRect().right <= d.getBoundingClientRect().right; })()"),
                'tema %s: a tabela de itens cabe no painel do documento' % tema)
+
+    if secao(9, 'A página do produto ficou sem a aba Lançamentos'):
+        fonte = open(localiza.onde(CED), encoding='utf-8').read()
+        sobras = [x for x in ['LANCAMENTOS', 'LANC_PADRAO', 'painelLancamentos', 'corpoLancamentos', 'filtroPeriodo', 'filtroTipoMov'] if x in fonte]
+        ok(not sobras, 'a lista de lançamentos de exemplo, a aba e os dois filtros dela saíram do arquivo: %s' % sobras)
+        ir(CED, '?produto=1')
+        abas = pg.evaluate("Array.from(document.querySelectorAll('#abasDetalhe .aba-sit')).map(a => [a.getAttribute('data-aba'), a.classList.contains('active')])")
+        ok(abas == [['enderecos', True], ['reservas', False]] and visivel('#painelEnderecos') and pg.evaluate("document.querySelectorAll('#corpoEnderecos tr').length") == 3,
+           'a página abre em Endereços, com as 3 posições da Cadeira; as abas são Endereços e Reservas: %s' % abas)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('.estoque-toolbar .dropdown-select')).map(d => d.id)") == ['filtroDeposito'],
+           'dos filtros fica o depósito: período e tipo só serviam à lista')
+        escolher('filtroDeposito', '3'); pg.wait_for_timeout(200)
+        ok(pg.evaluate("document.querySelectorAll('#corpoEnderecos tr').length") == 1 and num(texto('#kpiFisico')) == 3, 'e o depósito continua filtrando indicadores e endereços')
+        escolher('filtroDeposito', 'todos'); pg.wait_for_timeout(200)
+        clic('#abasDetalhe .aba-sit[data-aba="reservas"]'); pg.wait_for_timeout(150)
+        ok(visivel('#painelReservas') and not visivel('#painelEnderecos'), 'trocar para Reservas mostra Reservas')
+        clic('#abasDetalhe .aba-sit[data-aba="enderecos"]'); pg.wait_for_timeout(150)
+        ok(visivel('#painelEnderecos') and not visivel('#painelReservas') and visivel('#btnVerMovimentacao') and visivel('#btnIncluirLancamento'),
+           'e voltar mostra Endereços; o histórico se abre pelo botão "Movimentações", e "Incluir lançamento" continua na página')
+        # Sem a lista, o aviso diz o que foi gravado em todo lancamento (antes so o fiscal avisava).
+        antes = num(texto('#kpiFisico'))
+        clic('#btnIncluirLancamento'); pg.wait_for_timeout(350)
+        pg.fill('#campoQuantidade', '3'); escolher('campoMotivo', 'sobra_contagem'); pg.wait_for_timeout(150)
+        clic('#btnSalvarLancamento'); pg.wait_for_timeout(400)
+        dito = texto('#avisoTexto') if pg.locator('#avisoModal.open').count() else ''
+        ok('Lançamento gravado: entrada de 3 UN' in dito and 'motivo Sobra de contagem' in dito and 'regularização fiscal' not in dito
+           and num(texto('#kpiFisico')) == antes + 3 and pg.locator('#eventDrawer.open').count() == 0,
+           'incluir um lançamento fecha o painel, soma no estoque físico e o aviso diz o que foi gravado: %s' % dito[:80])
+        clic('#btnAvisoOk'); pg.wait_for_timeout(250)
+        clic('#btnIncluirLancamento'); pg.wait_for_timeout(350)
+        escolher('campoTipo', 'saida'); pg.wait_for_timeout(200)
+        pg.fill('#campoQuantidade', '1'); escolher('campoMotivo', 'quebra'); pg.wait_for_timeout(150)
+        clic('#btnSalvarLancamento'); pg.wait_for_timeout(400)
+        dito = texto('#avisoTexto') if pg.locator('#avisoModal.open').count() else ''
+        ok('Lançamento gravado: saída de 1 UN' in dito and 'motivo Quebra ou avaria' in dito and 'regularização fiscal' in dito and num(texto('#kpiFisico')) == antes + 2,
+           'a saída que pede nota de baixa diz o que gravou e mantém o aviso fiscal: %s' % dito[:60])
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
