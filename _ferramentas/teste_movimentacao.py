@@ -5,7 +5,9 @@
 # do saldo de antes ate o saldo de hoje, com o documento inteiro de cada movimento. E so consulta.
 #
 #   [1] o item esta no menu de todas as telas, e a tela abre so com os filtros: deposito, produto, tipo
-#       de movimento, data inicial, data final e Buscar. Sem produto nao ha busca;
+#       de movimento, data inicial, data final e Buscar. O produto e a busca padrao do sistema (nome,
+#       codigo ou GTIN, com sugestoes). Sem produto ou sem periodo nao ha busca, e as datas abrem no
+#       mes atual (retorno do usuario em 13/out);
 #   [2] o historico fecha no Controle de Estoques: saldo final por deposito, custo medio e os cinco
 #       indicadores. Cada linha parte do saldo em que a anterior parou;
 #   [3] e fecha no Giro de Estoque: as vendas, as entradas e o saldo de partida do periodo sao os
@@ -18,7 +20,7 @@
 #   [7] as vizinhas levam para ca e a tela leva de volta, sempre no mesmo produto;
 #   [8] cabe em 1440, 1366 e 1280 de largura: quem cede e o texto, nao a tabela.
 from playwright.sync_api import sync_playwright
-import os as _os, glob as _g, re, sys
+import datetime, os as _os, glob as _g, re, sys
 import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
@@ -28,6 +30,10 @@ CHROME = _ch[0] if _ch else None
 MOV, CE, CED, GIRO = 'pagina-estoque-movimentacao.html', 'pagina-estoque-controle-estoques.html', 'pagina-estoque-controle-estoques-detalhe.html', 'pagina-estoque-giro-estoque.html'
 NEC = 'pagina-estoque-necessidades-compra.html'
 SO = (sys.argv[1:] or [''])[0]
+# O periodo com que a tela abre: do dia 1 do mes ate hoje.
+_HOJE = datetime.date.today()
+MES = [_HOJE.replace(day=1).strftime('%d/%m/%Y'), _HOJE.strftime('%d/%m/%Y')]
+NO_MES = "historicoDe(produtoDe('%s'), 'todos').linhas.filter(l => dataHa(l.m.dias) >= HOJE_ISO.slice(0, 8) + '01').length"
 
 falhas = []
 total = [0]
@@ -59,6 +65,11 @@ def secao_da_tela():
     t = open(localiza.onde(MOV), encoding='utf-8').read()
     a = t.index('  // ===== MOVIMENTAÇÃO DE ESTOQUE =====')
     return t[a:t.index('  // ===== ', a + 10)]
+
+
+def iso(d):
+    """'31/12/2026' vira '20261231', que se compara como texto."""
+    return d[6:] + d[3:5] + d[:2]
 
 
 def num(texto):
@@ -96,10 +107,17 @@ with sync_playwright() as p:
     def escolher(dropdown, valor):
         pg.evaluate("([d, v]) => document.querySelector('#' + d + ' .dropdown-select-item[data-value=\"' + v + '\"]').click()", [dropdown, valor])
 
+    def produto(sku):
+        """Escolhe o produto como a pessoa faz: digita o codigo e clica na sugestao."""
+        pg.fill('#buscaProduto', sku); pg.wait_for_timeout(120)
+        pg.evaluate("(s) => document.querySelector('#sugestoesProduto .sugestao-item[data-sku=\"' + s + '\"]').click()", sku)
+
     def buscar(sku=None, dep=None, tipo=None, de=None, ate=None, por_pagina=None):
-        if sku: escolher('filtroProduto', sku)
+        # de='tudo' pede o historico inteiro: a tela abre no mes atual, e o exemplo guarda 12 meses.
+        if sku: produto(sku)
         if dep: escolher('filtroDeposito', dep)
         if tipo: escolher('filtroTipoMov', tipo)
+        if de == 'tudo': de = pg.evaluate("fmtData(PRIMEIRO_DIA)")
         if de is not None: pg.fill('#dataDe', de)
         if ate is not None: pg.fill('#dataAte', ate)
         clic('#btnBuscar'); pg.wait_for_timeout(200)
@@ -137,16 +155,52 @@ with sync_playwright() as p:
            'a tela abre com os cinco filtros na ordem pedida e o Buscar: %s' % rotulos)
         ok(visivel('#painelInicio') and not visivel('#painelResultado') and pg.evaluate("document.querySelectorAll('#corpoTabela tr').length") == 0,
            'e sem lista: só o convite para escolher um produto')
-        ok(pg.evaluate("document.querySelectorAll('#filtroProduto .dropdown-select-item').length") == 15 and pg.evaluate("document.querySelectorAll('#filtroDeposito .dropdown-select-item').length") == 6
-           and pg.evaluate("document.querySelectorAll('#filtroTipoMov .dropdown-select-item').length") == 10,
-           'os filtros trazem os 15 produtos, os 5 depósitos e os 9 tipos de movimento (mais "todos")')
-        ok(pg.evaluate("document.querySelectorAll('select').length") == 0, 'nenhum campo de escolha nativo: tudo é o dropdown da casa')
+        ok(pg.evaluate("document.querySelectorAll('#filtroDeposito .dropdown-select-item').length") == 6 and pg.evaluate("document.querySelectorAll('#filtroTipoMov .dropdown-select-item').length") == 10,
+           'os filtros trazem os 5 depósitos e os 9 tipos de movimento (mais "todos")')
+        ok(pg.evaluate("document.querySelectorAll('select').length") == 0, 'nenhum campo de escolha nativo: tudo é componente da casa')
+        ok([pg.input_value('#dataDe'), pg.input_value('#dataAte')] == MES, 'as datas abrem no mês atual, do dia 1 até hoje: %s a %s' % tuple(MES))
         clic('#btnBuscar'); pg.wait_for_timeout(200)
         ok(texto('#erroBusca') == 'Escolha o produto.' and visivel('#erroBusca') and pg.evaluate("document.getElementById('campoProduto').classList.contains('has-error')")
            and not visivel('#painelResultado'), 'Buscar sem produto não busca: o campo fica marcado e a tela diz o que falta')
+
+        # O produto e a busca padrao do sistema (13/out): digitar, ver as sugestoes e escolher.
+        def sugeridos(termo):
+            pg.fill('#buscaProduto', termo); pg.wait_for_timeout(150)
+            return pg.evaluate("Array.from(document.querySelectorAll('#sugestoesProduto.open .sugestao-item')).map(e => e.getAttribute('data-sku'))")
+        ok(pg.get_attribute('#buscaProduto', 'placeholder') == 'Pesquise por nome, código (SKU) ou GTIN/EAN' and pg.locator('#campoProduto .busca-produto-wrap .sugestoes').count() == 1
+           and pg.locator('#campoProduto .dropdown-select').count() == 0, 'o produto é a busca padrão do sistema, com o texto do Controle de Estoques, e não uma lista de escolha')
+        ok(sugeridos('cadeira') == ['CAD-ERG-001'] and sugeridos('cam-dkb') == ['CAM-DKB-011', 'CAM-DKB-012'] and sugeridos('7891234000066') == ['TEC-MEC-006'],
+           'ela acha pelo nome, pelo código (SKU) e pelo GTIN')
+        ok(sugeridos('zzqq') == [] and 'Nenhum produto encontrado' in texto('#sugestoesProduto'), 'e diz quando não acha nada')
+        sugeridos('desk')
+        pg.click('#filtroDeposito .dropdown-select-btn'); pg.wait_for_timeout(200)
+        ok(pg.locator('#sugestoesProduto.open').count() == 0 and pg.locator('#filtroDeposito .dropdown-select-menu.open').count() == 1, 'abrir o filtro vizinho fecha as sugestões')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        ok(sugeridos('monitor') == ['SUP-MON-003', 'MON-27I-015'], 'as sugestões vêm na ordem do cadastro, como no Acerto de Estoque')
+        sugeridos('monitor desk'); pg.press('#buscaProduto', 'Enter'); pg.wait_for_timeout(150)
+        ok(pg.input_value('#buscaProduto') == 'Monitor Desk 27" IPS' and pg.locator('#sugestoesProduto.open').count() == 0 and not visivel('#painelResultado'),
+           'Enter escolhe a primeira sugestão, e ainda não busca')
+        pg.press('#buscaProduto', 'Enter'); pg.wait_for_timeout(250)
+        ok(visivel('#painelResultado') and texto('#painelProduto .bq-nome') == 'Monitor Desk 27" IPS', 'com o produto escolhido, Enter busca')
+        pg.type('#buscaProduto', 'x'); clic('#btnBuscar'); pg.wait_for_timeout(200)
+        ok(texto('#erroBusca') == 'Escolha o produto na lista de sugestões.' and visivel('#erroBusca'), 'mexer no texto desfaz a escolha: produto digitado e não escolhido não busca')
+        pg.fill('#buscaProduto', 'lum-led'); pg.wait_for_timeout(150); clic('#btnBuscar'); pg.wait_for_timeout(250)
+        ok(texto('#painelProduto .bq-nome') == 'Luminária LED Ajustável' and not visivel('#erroBusca'), 'texto que só casa com um produto já é a escolha')
+
         buscar('CAD-ERG-001')
-        ok(visivel('#painelResultado') and not visivel('#painelInicio') and not visivel('#erroBusca') and texto('#painelProduto .bq-nome') == 'Cadeira Ergonômica Pro',
-           'com o produto escolhido, Buscar traz o histórico e o erro some')
+        ok(visivel('#painelResultado') and not visivel('#painelInicio') and not visivel('#erroBusca') and texto('#painelProduto .bq-nome') == 'Cadeira Ergonômica Pro'
+           and ('Período %s a %s' % tuple(MES)) in texto('#painelProduto'), 'com o produto escolhido, Buscar traz os movimentos do mês atual e o erro some')
+        ls = linhas()
+        ok(all(iso(MES[0]) <= iso(l['data']) <= iso(MES[1]) for l in ls) and len(ls) == pg.evaluate(NO_MES % 'CAD-ERG-001'), 'a lista traz só os movimentos do mês (%d)' % len(ls))
+        # A trava (13/out): sem periodo nao ha busca. Antes, sem data vinha a vida inteira do produto.
+        buscar(de='', ate='')
+        ok(texto('#erroBusca') == 'Informe a data inicial e a data final.' and visivel('#erroBusca')
+           and pg.evaluate("['campoDataDe', 'campoDataAte'].every(id => document.getElementById(id).classList.contains('has-error'))"),
+           'sem as datas a busca é barrada, e os dois campos ficam marcados')
+        buscar(de=MES[0], ate='')
+        ok(texto('#erroBusca') == 'Informe a data inicial e a data final.'
+           and pg.evaluate("!document.getElementById('campoDataDe').classList.contains('has-error') && document.getElementById('campoDataAte').classList.contains('has-error')"),
+           'com uma data só, também: a que falta fica marcada')
         ir(MOV, '?busca=zzqqxx')
         ok(visivel('#painelInicio') and 'zzqqxx' in texto('#inicioTitulo'), 'produto que não existe, vindo pelo endereço, vira explicação e não tela quebrada')
 
@@ -168,7 +222,7 @@ with sync_playwright() as p:
         # O caso rico, pela tela: os cinco indicadores contra a pagina do produto.
         ir(CED, '?produto=15')
         la = {k: texto('#' + k) for k in ['kpiFisico', 'kpiAEnderecar', 'kpiBloqueado', 'kpiDisponivel', 'kpiConferencia']}
-        ir(MOV); buscar('MON-27I-015', por_pagina=100)
+        ir(MOV); buscar('MON-27I-015', de='tudo', por_pagina=100)
         ok(num(texto('#kpiAtual')) == num(la['kpiFisico']) == 9 and num(texto('#kpiDisponivel')) == num(la['kpiDisponivel']) == 2,
            'Monitor: estoque atual e disponível são os da página do produto (%s e %s)' % (texto('#kpiAtual'), texto('#kpiDisponivel')))
         ok('5 UN a endereçar' in texto('#kpiDisponivelSub') and '2 UN bloqueado' in texto('#kpiDisponivelSub') and num(la['kpiAEnderecar']) == 5 and num(la['kpiBloqueado']) == 2,
@@ -221,10 +275,9 @@ with sync_playwright() as p:
         ok(not pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')"), 'Esc fecha o resumo')
 
     if secao(4, 'Os filtros'):
-        ir(MOV); buscar('CAD-ERG-001', por_pagina=100)
+        ir(MOV); buscar('CAD-ERG-001', de='tudo', por_pagina=100)
         todas = linhas()
         ok(len(todas) == 49 and texto('#contagemItens') == '49 movimentações' and texto('#paginacaoResumo') == 'Mostrando 1-49 de 49', 'Cadeira, todos os depósitos: 49 movimentações')
-        iso = lambda d: d[6:] + d[3:5] + d[:2]
         ok(all(iso(todas[i]['data']) + todas[i]['hora'] <= iso(todas[i + 1]['data']) + todas[i + 1]['hora'] for i in range(len(todas) - 1)), 'em ordem de data e hora, terminando no dia mais recente')
         # deposito
         buscar(dep='3')
@@ -252,7 +305,7 @@ with sync_playwright() as p:
         # datas
         buscar(de='31/12/2026', ate='01/01/2026')
         ok(texto('#erroBusca') == 'A data inicial é depois da final.' and visivel('#erroBusca'), 'data inicial depois da final é barrada')
-        buscar(de='2026-01-01', ate='')
+        buscar(de='2026-01-01', ate=todas[30]['data'])
         ok(texto('#erroBusca') == 'Use o formato dd/mm/aaaa nas datas.', 'data fora do formato é barrada')
         meio = todas[20]['data']
         buscar(de=meio, ate=todas[30]['data'])
@@ -269,9 +322,9 @@ with sync_playwright() as p:
         pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
         # ordem e paginas
         clic('#btnLimpar'); pg.wait_for_timeout(200)
-        ok(visivel('#painelInicio') and not visivel('#painelResultado') and texto('#filtroProduto .dropdown-select-label') == 'Escolha o produto' and pg.input_value('#dataDe') == '',
-           'Limpar devolve a tela ao começo: filtros em branco e nenhuma lista')
-        ir(MOV); buscar('CAD-ERG-001')
+        ok(visivel('#painelInicio') and not visivel('#painelResultado') and pg.input_value('#buscaProduto') == '' and [pg.input_value('#dataDe'), pg.input_value('#dataAte')] == MES,
+           'Limpar devolve a tela ao começo: sem produto, sem lista e com o mês atual nas datas')
+        ir(MOV); buscar('CAD-ERG-001', de='tudo')
         ok(len(linhas()) == 10 and texto('#paginacaoResumo') == 'Mostrando 1-10 de 49' and texto('#paginacaoPaginas') == 'Página 1 de 5', 'a lista abre com 10 por página')
         clic('#btnPaginaProxima'); pg.wait_for_timeout(150)
         ok(linhas()[0]['doc'] == todas[10]['doc'] and texto('#paginacaoPaginas') == 'Página 2 de 5', 'a segunda página continua de onde a primeira parou')
@@ -281,7 +334,7 @@ with sync_playwright() as p:
            'clicar em "Data e hora" inverte: a primeira linha passa a ser a de hoje, com o saldo atual')
 
     if secao(5, 'O documento do movimento'):
-        ir(MOV); buscar('FON-BLT-013', por_pagina=100)
+        ir(MOV); buscar('FON-BLT-013', de='tudo', por_pagina=100)
         ls = linhas()
         alvo = pg.evaluate("(() => { const d = Object.keys(DOCS).map(k => DOCS[k]).find(d => d.tipo === 'compra' && d.itens.length === 2 && d.itens.some(i => i.sku === 'FON-BLT-013')); return d.numero; })()")
         i = [l['doc'] for l in ls].index(alvo)
@@ -355,7 +408,7 @@ with sync_playwright() as p:
         ok(not proibido, 'o código da tela não grava nada: nem armazenamento, nem parâmetro, nem registro de atividade: %s' % proibido)
         ir(MOV)
         antes = pg.evaluate("JSON.stringify(Object.keys(localStorage).sort().map(k => [k, localStorage.getItem(k)]))")
-        buscar('TEC-MEC-006')
+        buscar('TEC-MEC-006', de='tudo')
         botoes = pg.evaluate("Array.from(document.querySelectorAll('.main button, .main .drawer-link')).filter(b => b.offsetParent !== null && !b.closest('.dropdown-select') && !b.closest('.date-field') && !b.closest('.paginacao-nav') && !b.closest('.modal-card') && !b.closest('.event-drawer')).map(b => b.textContent.trim())")
         ok(botoes == ['Buscar', 'Limpar', 'Resumo por tipo', 'Imprimir lista', 'Baixar planilha'], 'os botões da tela são buscar, limpar, resumir, imprimir e baixar, cada um com um nome só: %s' % botoes)
         ok(pg.evaluate("document.querySelectorAll('#painelResultado input, #painelFiltros input[type=\"checkbox\"], #menuMaisAcoes, .selecao-bar').length") == 0, 'sem seleção, sem menu de ações e sem campo de digitar na lista')
@@ -385,8 +438,12 @@ with sync_playwright() as p:
         ir(CED, '?produto=15')
         ok(texto('#btnVerMovimentacao') == 'Movimentações', 'a página do produto ganhou o botão "Movimentações", ao lado de Compra e Giro')
         clic('#btnVerMovimentacao'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
-        ok(pg.url.split('/')[-1] == MOV + '?busca=MON-27I-015' and texto('#painelProduto .bq-nome') == 'Monitor Desk 27" IPS' and len(linhas()) == 10 and texto('#filtroProduto .dropdown-select-label').startswith('Monitor Desk'),
-           'e ele abre a tela já no histórico daquele produto, com o filtro preenchido')
+        no_mes = pg.evaluate(NO_MES % 'MON-27I-015')
+        ok(pg.url.split('/')[-1] == MOV + '?busca=MON-27I-015' and texto('#painelProduto .bq-nome') == 'Monitor Desk 27" IPS' and pg.input_value('#buscaProduto') == 'Monitor Desk 27" IPS',
+           'e ele abre a tela já naquele produto, com o filtro preenchido')
+        ok(('Período %s a %s' % tuple(MES)) in texto('#painelProduto') and [pg.input_value('#dataDe'), pg.input_value('#dataAte')] == MES and len(linhas()) == no_mes
+           and all(iso(MES[0]) <= iso(l['data']) <= iso(MES[1]) for l in linhas()),
+           'mostrando os movimentos do mês atual, do dia 1 até hoje (%d), como o usuário pediu' % no_mes)
         hrefs = pg.evaluate("Array.from(document.querySelectorAll('#painelProduto .mv-links a')).map(a => a.getAttribute('href'))")
         ok(hrefs == ['../estoque/%s?produto=15' % CED, '../estoque/%s?busca=MON-27I-015' % GIRO], 'de volta: a tela leva à página do produto e ao Giro, no mesmo produto: %s' % hrefs)
         clic('#painelProduto .mv-links a:nth-child(2)'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
@@ -401,14 +458,16 @@ with sync_playwright() as p:
         # 12/out: tabela nao ganha barra de rolagem com o dado mais comprido, em 1440 e tambem em 1366 e 1280.
         ir(MOV)
         skus = pg.evaluate('PRODUTOS.map(p => p.sku)')
+        inicio = pg.evaluate("fmtData(PRIMEIRO_DIA)")   # o historico inteiro: e com ele que a tabela tem de caber
         for largura in (1366, 1280):
             pg.set_viewport_size({'width': largura, 'height': 950})
             ruins = []
             for sku in skus:
                 ir(MOV, '?busca=' + sku)
+                pg.fill('#dataDe', inicio); clic('#btnBuscar'); pg.wait_for_timeout(120)
                 escolher('itensPorPagina', '100'); escolher('filtroDeposito', '5'); escolher('filtroTipoMov', 'compra'); pg.wait_for_timeout(120)
-                m = pg.evaluate("(() => { const w = document.querySelector('#painelMov .estoque-table-wrap'); return [w.scrollWidth - w.clientWidth, document.documentElement.scrollWidth - window.innerWidth, "
-                                "Array.from(document.querySelectorAll('#painelFiltros .dropdown-select-label')).filter(l => l.scrollWidth > l.clientWidth + 1).length]; })()")
+                m = pg.evaluate("(() => { const w = document.querySelector('#painelMov .estoque-table-wrap'), i = document.getElementById('buscaProduto'); return [w.scrollWidth - w.clientWidth, document.documentElement.scrollWidth - window.innerWidth, "
+                                "Array.from(document.querySelectorAll('#painelFiltros .dropdown-select-label')).filter(l => l.scrollWidth > l.clientWidth + 1).length + (i.scrollWidth > i.clientWidth + 1 ? 1 : 0)]; })()")
                 if m[0] > 1 or m[1] > 0 or m[2]: ruins.append((sku, m))
             ok(not ruins, 'em %d de largura, nos 15 produtos: a tabela não rola, a página não rola e nenhum filtro corta o texto: %s' % (largura, ruins[:3]))
         ok(pg.evaluate("new Set(Array.from(document.querySelectorAll('.mv-campos .form-field')).map(e => Math.round(e.getBoundingClientRect().top))).size") == 2,
@@ -418,13 +477,15 @@ with sync_playwright() as p:
             ir(MOV, '?busca=TEC-MEC-006')
             if tema == 'claro':
                 pg.evaluate("document.body.classList.remove('dark')"); pg.wait_for_timeout(150)
+            pg.fill('#dataDe', inicio); clic('#btnBuscar'); pg.wait_for_timeout(150)
             escolher('itensPorPagina', '100'); pg.wait_for_timeout(150)
             ok(pg.evaluate("(() => { const w = document.querySelector('#painelMov .estoque-table-wrap'); return w.scrollWidth <= w.clientWidth + 1 && document.documentElement.scrollWidth <= window.innerWidth; })()"),
                'tema %s, 1440 de largura: as nove colunas cabem no quadro e a página não rola para o lado' % tema)
             # As opcoes de texto mais comprido de cada filtro: e com elas que o campo tem de caber.
-            escolher('filtroDeposito', '5'); escolher('filtroTipoMov', 'compra'); escolher('filtroProduto', 'KIT-MNT-010'); pg.wait_for_timeout(150)
+            escolher('filtroDeposito', '5'); escolher('filtroTipoMov', 'compra'); produto('KIT-MNT-010'); pg.wait_for_timeout(150)
             rotulos = pg.evaluate("Array.from(document.querySelectorAll('#painelFiltros .dropdown-select-label')).map(l => [l.textContent, l.scrollWidth <= l.clientWidth + 1])")
-            ok(rotulos == [['Showroom Parceiro Norte', True], ['Kit Manutenção Desk Tech', True], ['Entrada por nota de compra', True]],
+            campo = pg.evaluate("(() => { const i = document.getElementById('buscaProduto'); return [i.value, i.scrollWidth <= i.clientWidth + 1]; })()")
+            ok(rotulos == [['Showroom Parceiro Norte', True], ['Entrada por nota de compra', True]] and campo == ['Kit Manutenção Desk Tech', True],
                'tema %s: os três filtros mostram o texto inteiro, sem reticências, mesmo na opção mais comprida' % tema)
             clic('#corpoTabela tr'); pg.wait_for_timeout(400)
             ok(pg.evaluate("(() => { const d = document.getElementById('eventDrawer'), t = document.getElementById('docItens'); return d.scrollWidth <= d.clientWidth + 1 && t.getBoundingClientRect().right <= d.getBoundingClientRect().right; })()"),

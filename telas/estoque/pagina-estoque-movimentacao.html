@@ -909,6 +909,8 @@
   .mv-campos .form-field { margin-bottom:0; min-width:0; }
   .mv-c-fixo { flex:0 0 200px; }
   .mv-c-produto { flex:1 1 230px; }
+  /* A busca padrao de produto ocupa o campo inteiro: o limite de largura dela e o da barra das listas. */
+  .mv-c-produto .search-wrap { min-width:0; max-width:none; }
   .mv-c-tipo { flex:0 0 224px; }
   .mv-datas { display:flex; gap:14px; }
   .mv-datas .form-field { flex:0 0 126px; }
@@ -1182,13 +1184,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
       </div>
       <div class="form-field mv-c-produto" id="campoProduto">
-        <label>Produto</label>
-        <div class="dropdown-select" id="filtroProduto" data-value="">
-          <button type="button" class="dropdown-select-btn form-style">
-            <span class="dropdown-select-label">Escolha o produto</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="dropdown-select-menu"></div>
+        <label for="buscaProduto">Produto</label>
+        <div class="search-wrap busca-produto-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="buscaProduto" placeholder="Pesquise por nome, código (SKU) ou GTIN/EAN" autocomplete="off">
+          <div class="sugestoes" id="sugestoesProduto"></div>
         </div>
       </div>
       <div class="form-field mv-c-tipo">
@@ -1202,7 +1202,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
       </div>
       <div class="mv-datas">
-      <div class="form-field">
+      <div class="form-field" id="campoDataDe">
         <label>Data inicial</label>
         <div class="date-field" id="dfDataDe">
           <input type="text" id="dataDe" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data inicial">
@@ -1210,7 +1210,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="date-pop"></div>
         </div>
       </div>
-      <div class="form-field">
+      <div class="form-field" id="campoDataAte">
         <label>Data final</label>
         <div class="date-field" id="dfDataAte">
           <input type="text" id="dataAte" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data final">
@@ -1223,7 +1223,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="mv-pe">
       <div>
         <div class="field-error-msg" id="erroBusca"></div>
-        <div class="field-hint">Só o produto é obrigatório. Sem as datas, a busca traz o histórico inteiro; o exemplo guarda 12 meses de movimento.</div>
+        <div class="field-hint">A busca pede o produto e o período. As datas abrem no mês atual: para ver mais, mude a data inicial. O exemplo guarda 12 meses de movimento.</div>
       </div>
       <div class="mv-acoes">
         <button type="button" class="btn-primary" id="btnBuscar">
@@ -1239,7 +1239,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <div class="empty-state-title" id="inicioTitulo">Escolha um produto e clique em Buscar</div>
-      <div class="empty-state-sub" id="inicioSub">A lista mostra cada entrada e cada saída do produto em ordem de data, até chegar no saldo de hoje.</div>
+      <div class="empty-state-sub" id="inicioSub">Digite o nome, o código (SKU) ou o GTIN do produto. A lista mostra cada entrada e cada saída do período em ordem de data.</div>
     </div>
   </div>
 
@@ -2574,7 +2574,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       vazio.style.display = 'flex';
       document.getElementById('emptySub').textContent = r.periodo.length
         ? 'O produto teve ' + plural(r.periodo.length, 'movimento', 'movimentos') + ' no período, mas nenhum deste tipo.'
-        : 'Com este depósito e este período, o produto não teve movimento.';
+        : 'Com este depósito e este período, o produto não teve movimento. Para ver os anteriores, mude a data inicial.';
       document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
       document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
       document.getElementById('btnPaginaAnterior').disabled = true;
@@ -2705,40 +2705,70 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ---------- busca ----------
-  const filtroProduto = document.getElementById('filtroProduto');
   const campoDe = document.getElementById('dataDe'), campoAte = document.getElementById('dataAte');
   function mostrarResultado(tem) {
     document.getElementById('painelInicio').style.display = tem ? 'none' : '';
     document.getElementById('painelResultado').style.display = tem ? '' : 'none';
   }
+
+  // O produto e a busca padrao do sistema, a mesma do Acerto de Estoque: digitar nome, codigo (SKU) ou
+  // GTIN abre as sugestoes, e Enter escolhe a primeira. Pedido do usuario em 13/out/2026, no lugar da
+  // lista de escolha: quem abre esta tela ja sabe o produto que procura.
+  const campoBuscaProduto = document.getElementById('buscaProduto'), caixaSugestoes = document.getElementById('sugestoesProduto');
+  let produtoEscolhido = null, sugestoes = [];
+  function renderSugestoes(termo) {
+    const t = termo.trim().toLowerCase();
+    if (!t) { caixaSugestoes.classList.remove('open'); caixaSugestoes.innerHTML = ''; sugestoes = []; return; }
+    sugestoes = PRODUTOS.filter(p => p.nome.toLowerCase().includes(t) || p.sku.toLowerCase().includes(t) || p.gtin.includes(t)).slice(0, 8);
+    caixaSugestoes.innerHTML = sugestoes.length
+      ? sugestoes.map((p, i) => '<div class="sugestao-item' + (i === 0 ? ' ativo' : '') + '" data-sku="' + esc(p.sku) + '"><div class="sugestao-nome">' + esc(p.nome) + '</div>' +
+          '<div class="sugestao-meta">' + esc(p.sku) + ' · ' + esc(p.gtin) + '</div></div>').join('')
+      : '<div class="sugestao-vazia">Nenhum produto encontrado para “' + esc(termo) + '”.</div>';
+    caixaSugestoes.classList.add('open');
+  }
+  function escolherProduto(p) {
+    produtoEscolhido = p;
+    campoBuscaProduto.value = p.nome;
+    caixaSugestoes.classList.remove('open');
+    document.getElementById('campoProduto').classList.remove('has-error');
+  }
+
+  // O periodo e obrigatorio e abre no mes atual (pedido do usuario em 13/out/2026). Sem a trava, uma
+  // busca sem data trazia a vida inteira do produto de uma vez.
+  function periodoPadrao() { campoDe.value = fmtData(HOJE_ISO.slice(0, 8) + '01'); campoAte.value = fmtData(HOJE_ISO); }
+
   function buscar() {
-    const sku = filtroProduto.getAttribute('data-value');
+    // Texto digitado que so casa com um produto ja e a escolha.
+    if (!produtoEscolhido && sugestoes.length === 1) escolherProduto(sugestoes[0]);
     const de = campoDe.value.trim(), ate = campoAte.value.trim();
-    // Data em branco e o historico inteiro: do primeiro dia que o exemplo guarda ate hoje.
-    const isoDe = de ? lerDataBr(de) : PRIMEIRO_DIA, isoAte = ate ? lerDataBr(ate) : HOJE_ISO;
+    const isoDe = lerDataBr(de), isoAte = lerDataBr(ate);
     const falhas = [];
-    if (!sku) falhas.push('Escolha o produto.');
-    if (isoDe === null || isoAte === null) falhas.push('Use o formato dd/mm/aaaa nas datas.');
+    if (!produtoEscolhido) falhas.push(campoBuscaProduto.value.trim() ? 'Escolha o produto na lista de sugestões.' : 'Escolha o produto.');
+    if (!de || !ate) falhas.push('Informe a data inicial e a data final.');
+    else if (isoDe === null || isoAte === null) falhas.push('Use o formato dd/mm/aaaa nas datas.');
     else if (isoDe > isoAte) falhas.push('A data inicial é depois da final.');
-    document.getElementById('campoProduto').classList.toggle('has-error', !sku);
+    document.getElementById('campoProduto').classList.toggle('has-error', !produtoEscolhido);
+    document.getElementById('campoDataDe').classList.toggle('has-error', isoDe === null);
+    document.getElementById('campoDataAte').classList.toggle('has-error', isoAte === null);
     const erro = document.getElementById('erroBusca');
     erro.textContent = falhas.join(' ');
     erro.classList.toggle('show', falhas.length > 0);
     if (falhas.length) return;
-    consulta = { p: produtoDe(sku), dep: document.getElementById('filtroDeposito').getAttribute('data-value'),
+    consulta = { p: produtoEscolhido, dep: document.getElementById('filtroDeposito').getAttribute('data-value'),
                  tipo: document.getElementById('filtroTipoMov').getAttribute('data-value'), de: isoDe, ate: isoAte };
     paginaAtual = 1;
     mostrarResultado(true);
     renderProduto();
     renderTabela();
   }
+  // Limpar devolve a tela ao estado em que ela abre: sem produto, e com o mes atual nas datas.
   function limpar() {
     ['filtroDeposito', 'filtroTipoMov'].forEach(id => document.querySelector('#' + id + ' .dropdown-select-item[data-value="todos"]').click());
-    filtroProduto.setAttribute('data-value', '');
-    filtroProduto.querySelector('.dropdown-select-label').textContent = 'Escolha o produto';
-    filtroProduto.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
-    campoDe.value = ''; campoAte.value = '';
-    document.getElementById('campoProduto').classList.remove('has-error');
+    produtoEscolhido = null;
+    campoBuscaProduto.value = '';
+    renderSugestoes('');
+    periodoPadrao();
+    ['campoProduto', 'campoDataDe', 'campoDataAte'].forEach(id => document.getElementById(id).classList.remove('has-error'));
     document.getElementById('erroBusca').classList.remove('show');
     consulta = null;
     ordemAsc = true;
@@ -2756,14 +2786,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   montarFiltro('filtroDeposito', 'Todos os depósitos', Object.keys(DEPOSITOS).map(k => ({ v: k, t: DEPOSITOS[k] })), () => {});
   montarFiltro('filtroTipoMov', 'Todos os tipos', Object.keys(TIPOS_MOV).map(k => ({ v: k, t: TIPOS_MOV[k].rotulo })), () => {});
-  // shortcut: o produto e uma lista de escolha porque o exemplo tem 15; com o cadastro de verdade vira campo de busca.
-  filtroProduto.querySelector('.dropdown-select-menu').innerHTML = PRODUTOS.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
-    .map(p => '<div class="dropdown-select-item" data-value="' + esc(p.sku) + '">' + esc(p.nome) + ' · ' + esc(p.sku) + '</div>').join('');
-  // No campo fica so o nome: com o SKU junto, o texto nao cabia e saia com reticencias. O SKU segue na lista e no quadro do produto.
-  inicializarDropdownSelect(filtroProduto, (sku) => {
-    filtroProduto.querySelector('.dropdown-select-label').textContent = produtoDe(sku).nome;
-    document.getElementById('campoProduto').classList.remove('has-error');
+  campoBuscaProduto.addEventListener('input', (e) => { produtoEscolhido = null; renderSugestoes(e.target.value); });
+  campoBuscaProduto.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') caixaSugestoes.classList.remove('open');
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    // Enter escolhe a primeira sugestao; com o produto ja escolhido, busca.
+    if (caixaSugestoes.classList.contains('open') && sugestoes.length) escolherProduto(sugestoes[0]); else buscar();
   });
+  caixaSugestoes.addEventListener('click', (e) => {
+    const item = e.target.closest('.sugestao-item');
+    if (item) escolherProduto(produtoDe(item.getAttribute('data-sku')));
+  });
+  // Na fase de captura: os dropdowns e o calendario param a propagacao do clique, e sem isto as
+  // sugestoes ficavam abertas por baixo do filtro vizinho.
+  document.addEventListener('click', (e) => { if (!e.target.closest('.busca-produto-wrap')) caixaSugestoes.classList.remove('open'); }, true);
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; if (consulta) renderTabela(); });
 
   inicializarDataField(document.getElementById('dfDataDe'), { min: () => PRIMEIRO_DIA, max: () => lerDataBr(campoAte.value) || HOJE_ISO,
@@ -2777,7 +2814,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
 
   // ---------- abertura ----------
-  // O Controle de Estoques e o Giro mandam para ca com o SKU: a tela abre ja no historico do produto.
+  // O Controle de Estoques e o Giro mandam para ca com o SKU: a tela abre ja nos movimentos do mes
+  // atual daquele produto.
+  periodoPadrao();
   (function consultaDaUrl() {
     const termo = (new URLSearchParams(window.location.search).get('busca') || '').trim().toLowerCase();
     if (!termo) return;
@@ -2786,10 +2825,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const p = PRODUTOS.filter(igual)[0] || PRODUTOS.filter(contem)[0];
     if (!p) {
       document.getElementById('inicioTitulo').textContent = 'Nenhum produto com "' + termo + '"';
-      document.getElementById('inicioSub').textContent = 'Escolha o produto na lista acima e clique em Buscar.';
+      document.getElementById('inicioSub').textContent = 'Pesquise o produto no campo acima e clique em Buscar.';
       return;
     }
-    filtroProduto.querySelector('.dropdown-select-item[data-value="' + p.sku + '"]').click();
+    escolherProduto(p);
     buscar();
   })();
 

@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com o painel do fornecedor (item C2 da lista de melhorias).*
+*Atualizado em 13/out/2026, com o retorno do usuário sobre a Movimentação de Estoque.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -38,6 +38,11 @@ melhorias.
 pediu em 12/out, com quatro prints de um kardex: o histórico individual de cada produto, do saldo de
 antes até o saldo de hoje, com o documento inteiro de cada movimento. É só consulta. O item entrou no
 menu de Estoque das 81 telas, logo depois de Controle de Estoques.
+
+**Ele testou no mesmo dia e voltou com dois pedidos, que estão feitos e esperam o teste dele**
+(§14.65): o produto passou a ser a busca padrão do sistema, no lugar da lista de escolha, e o período
+ficou obrigatório, abrindo no mês atual. Sobre a aba "Lançamentos" da página do produto ele pediu
+opinião; a recomendação foi tirar a aba, e a escolha continua com ele.
 
 **A lista de melhorias chegou aos cadastros.** O usuário mandou seguir em 13/out, e o primeiro item,
 C2 (o painel do fornecedor), está feito e espera o teste dele (§14.64). Faltam C3 a C8.
@@ -190,7 +195,9 @@ de testar a conferência:
 **9. Movimentação de Estoque** (13/out, §14.63), módulo novo pedido pelo usuário:
 
 - **A tela abre só com os filtros**, na ordem que ele pediu: depósito, produto, tipo de movimento,
-  data inicial, data final e Buscar. Só o produto é obrigatório; sem as datas vem o histórico inteiro.
+  data inicial, data final e Buscar. O produto é a busca padrão do sistema: digitar nome, código (SKU)
+  ou GTIN e escolher na sugestão. Produto e período são obrigatórios, e as datas abrem no mês atual.
+  Vindo do botão "Movimentações" da página do produto, a tela já mostra o mês daquele produto.
 - **Depois de Buscar:** o quadro do produto, cinco indicadores (estoque atual, reservado, disponível,
   custo médio e valor em estoque) e a lista em ordem de data, até o saldo de hoje. Cada linha traz
   data e hora, movimento, cliente ou fornecedor, saldo anterior, quantidade, saldo atual, valor
@@ -216,8 +223,8 @@ de testar a conferência:
 
 **11. A verificação.** Oito suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e quarenta e seis
-defeitos injetados de propósito, um por vez; os cento e quarenta e seis são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e cinquenta e três
+defeitos injetados de propósito, um por vez; os cento e cinquenta e três são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -265,8 +272,9 @@ Nenhuma destas trava o teste.
    próprios, que não são os da Movimentação de Estoque. Hoje a página ganhou o botão "Movimentações",
    e a aba ficou como estava, porque é nela que aparece o lançamento feito ali ("Incluir
    lançamento"). Falta ele escolher: a aba continua, ou sai e fica só o botão para o histórico.
-5. **Produto no filtro da Movimentação de Estoque:** é uma lista de escolha, porque o exemplo tem 15
-   produtos. Com o cadastro de verdade, a oferta é trocar por um campo de digitar e achar.
+   Ele pediu opinião em 13/out, e a recomendação foi tirar a aba: são duas listas para a mesma
+   pergunta, com números diferentes. O custo dito a ele: o lançamento feito na página passa a
+   aparecer só no aviso de gravado, e não mais numa lista ali.
 
 ## O que continua sendo dado de exemplo
 
