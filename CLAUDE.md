@@ -9,7 +9,9 @@ validados aqui e só depois viram sistema de verdade.
 **O sistema é programado aqui**, e publicado por GitHub → Cloudflare Pages, com o banco no
 Supabase (decisão do usuário em 10/out/2026; a Vercel fica como destino de migração, para quando
 o projeto pedir mais). **Nenhuma conta foi criada e nada foi publicado:** o usuário quer mais
-módulos prontos antes de subir. Não crie conta, não publique e não envie ao GitHub sem ele pedir.
+módulos prontos antes de subir. Não crie conta e não publique sem ele pedir. **O envio ao GitHub é
+feito a cada entrega** desde 13/out/2026, a pedido dele ("até por segurança"): enviar ao GitHub não
+publica nada, porque nenhum projeto da Cloudflare está ligado ao repositório.
 O detalhe está na seção 2 de `docs/arquitetura-roadmap-desk-company.md`.
 
 Quando o usuário disser **"vamos barganhar"**, pare e negocie antes de implementar: apresente

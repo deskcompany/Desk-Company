@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com a ordem nova do menu, "Ver cadastro completo" e a caixa de busca do PDV.*
+*Atualizado em 13/out/2026, com as setas nas buscas de produto e as decisões do fim do dia.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -47,6 +47,14 @@ ficou obrigatório, abrindo no mês atual.
 espera o teste dele** (§14.66). O histórico do produto mora só na Movimentação de Estoque. A página
 do produto, em Controle de Estoques, ficou com os indicadores, Endereços, Reservas e "Incluir
 lançamento", e chega ao histórico pelo botão "Movimentações".
+
+**No fim de 13/out ele testou o que saiu no dia, deu ok em tudo (inclusive no que a outra conversa
+entregou) e fechou o que estava aberto.** As setas do teclado valem em toda busca de produto (feito,
+§14.70). O filtro com data inicial e final fica onde já está. O kit na compra tem regra. O envio ao
+GitHub voltou a ser feito a cada entrega; só a publicação na Cloudflare continua parada. Os links do
+chat que não trazem o navegador para a frente ele vai olhar antes de mexermos. **O trabalho segue
+numa conversa só**, e ele mandou seguir a fila do item 1 ao 6, começando pela página de detalhe
+abrir o registro clicado.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -281,12 +289,16 @@ de testar a conferência:
 - **"Ver cadastro completo"** no painel de Clientes, Fornecedores, Produtos, Vendedores e Lojas
   Desk. A página abre só para leitura, e o botão "Editar cadastro", no topo, destrava.
 - **PDV:** a caixa de busca de produto é arredondada e tem a lupa, como as outras.
+- **Setas do teclado em toda busca de produto** (§14.70): ↑ e ↓ andam pela lista de sugestões, dando
+  a volta no fim, e o Enter escolhe o item marcado. Vale nas cinco telas que usam a busca padrão
+  (Acerto, Nova Transferência, Tratamento de Perdas, Movimentação e Produtos Fornecidos); antes, só o
+  PDV tinha.
 
-**13. A verificação.** Nove suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Dez suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py` e `teste_esc_painel.py`.
-Cento e noventa e um defeitos injetados de propósito, um por vez; os cento e noventa e um são
-pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py` e
+`teste_busca_setas.py`. Cento e noventa e seis defeitos injetados de propósito, um por vez; os cento
+e noventa e seis são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -296,17 +308,21 @@ constante.
 
 ## Próximo da fila
 
-1. **O teste do usuário** na Movimentação de Estoque, no painel dos resolvidos, no cadastro de
-   motivos de Tratamento de Perdas e na aba Produtos Fornecidos do cadastro do fornecedor.
-2. **O resto da lista aprovada**, na ordem sugerida: os outros cadastros (C3 a C8; o de Produtos
-   pede alinhar o exemplo com o Controle de Estoques antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
-   por último G3, a página de detalhe abrir o registro clicado.
-3. **A impressão em formato de relatório** (item P1): analisada, falta fazer. O usuário pediu para
-   deixar para depois. Entra no bloco comum e chega às 20 listas de uma vez.
-4. **A segunda varredura:** o miolo de Inventário, Acerto e PDV, que a primeira não abriu.
-5. **Módulo novo:** Vendas Afiliados e Comissões Afiliados; depois Margem de Contribuição e Custos
-   do E-commerce; Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último.
-   Começa pela barganha, com os prints.
+Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por etapas.
+
+1. **A página de detalhe abrir o registro clicado** (G3). Hoje 11 páginas abrem sempre o mesmo
+   exemplo. Começa pelos cinco cadastros: com "Ver cadastro completo", clicar em qualquer fornecedor
+   abre sempre a TechParts.
+2. **Os painéis dos outros cadastros** (C3 a C8): Produtos (que pede alinhar o exemplo com o Controle
+   de Estoques antes), Lojas Desk, Vendedores, Depósitos, Endereços de Estoque, e onde Marcas,
+   Categorias, Departamento, Seção e Embalagens são usados.
+3. **Os alinhamentos de exemplo** (X1 a X5), que destravam V4 e L4.
+4. **K1 e R6:** Parâmetros de estoque e as cópias do número de meta.
+5. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma vez.
+6. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
+   novos: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
+   Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
+   pela barganha, com os prints.
 
 ## Decidido, e ainda não feito de propósito
 
@@ -314,8 +330,16 @@ constante.
   como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
   publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
   `docs/arquitetura-roadmap-desk-company.md`.
-- **GitHub:** o último envio foi em 09/out/2026. Tudo de 10 e 12/out está em commit só neste
-  computador. O usuário pediu para **não enviar por enquanto**; ele avisa quando for para enviar.
+- **GitHub:** em 13/out/2026 o usuário liberou o envio normal, a cada entrega, "até por segurança".
+  O pedido de 10/out, de segurar o envio, era sobre publicar: o que continua parado é a Cloudflare.
+- **Kit na compra** (usuário, 13/out/2026): o kit entra em Necessidades de Compra como item
+  individual, pelo estoque mínimo do próprio kit. A necessidade de cada componente passa a juntar o
+  mínimo do produto com o que falta para fechar o mínimo do kit; se a conta fecha, ela se atualiza e
+  passa direto, sem aviso nem bloqueio. **Depende da composição do kit, que ainda não existe no
+  cadastro:** entra junto com ela. Até lá o kit segue como produto comum, que é a primeira metade
+  da regra.
+- **Filtro com data inicial e final** (usuário, 13/out/2026): fica onde já existe (Movimentação de
+  Estoque, Tratamento de Perdas e Giro de Estoque). As outras telas seguem com as opções prontas.
 
 ## Esperando decisão do usuário
 
@@ -324,16 +348,9 @@ Nenhuma destas trava o teste.
 1. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
    computador; para valer também no app da Claude, o usuário reenvia a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp` por lá.
-2. **Filtro de período:** o intervalo com data inicial e final existe em Tratamento de Perdas e no
-   Giro de Estoque. As outras telas com esse filtro têm só as opções prontas; levar para elas é uma
-   oferta em aberto.
-3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
-   composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
-   os componentes.
-4. **Setas do teclado nas buscas de produto.** O padrão de busca ficou decidido em 13/out (lista na
-   tela filtra; escolher um item abre sugestões), e a caixa do PDV ficou igual às outras. Sobrou uma
-   diferença: no PDV dá para andar pelas sugestões com as setas ↑↓; nas outras cinco telas só o Enter
-   escolhe a primeira. Levar as setas para todas é uma oferta em aberto.
+2. **Os links do chat não trazem o navegador para a frente.** Nada no projeto nem no editor
+   controla isso. O Windows tem o Chrome como padrão, e a página abria no Opera. Ele vai olhar antes
+   de mexermos; existe um ajuste do Windows para tentar, que não foi aplicado.
 
 ## O que continua sendo dado de exemplo
 
@@ -394,4 +411,5 @@ Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
 3. Para ver as telas: `node _ferramentas/servidor.js` na pasta `ERP System`, e depois
    `http://localhost:3000/<pasta>/<arquivo>`. O servidor cai quando a sessão fecha.
 4. Antes de dar algo por pronto: `python selo.py --rodar` na pasta `_ferramentas`.
-5. Commit local a cada entrega. Envio ao GitHub só quando o usuário disser.
+5. Commit e envio ao GitHub a cada entrega (liberado pelo usuário em 13/out/2026). Nada é publicado
+   na Cloudflare ainda.

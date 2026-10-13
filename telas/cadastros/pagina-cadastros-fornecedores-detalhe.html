@@ -1020,7 +1020,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <input type="text" id="pfBusca" placeholder="Pesquise um produto por descrição, código (SKU) ou GTIN para adicionar" autocomplete="off">
         <div class="sugestoes" id="pfSugestoes"></div>
       </div>
-      <div class="field-hint">Clique no produto, ou <b>Enter</b> para o primeiro da lista. Ele entra com o custo médio; ajuste o custo e o pedido mínimo deste fornecedor.</div>
+      <div class="field-hint">Clique no produto, ou ande pela lista com <b>↑</b> e <b>↓</b> e escolha com <b>Enter</b>. Ele entra com o custo médio; ajuste o custo e o pedido mínimo deste fornecedor.</div>
     </div>
     <table class="contatos-table pf-table" id="pfTabela">
       <thead>
@@ -1069,6 +1069,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 <script>
+  // ===== SETAS NA BUSCA COM SUGESTOES (correcao de COMPONENTE, nao de tela — 13/out/2026) =====
+  // As setas do teclado, que so o PDV tinha, valem em toda busca que abre sugestoes. O bloco so mexe na
+  // marcacao: a seta leva a classe `ativo` para o item de baixo ou de cima, dando a volta no fim da lista,
+  // e o Enter clica no item ativo. Cada tela continua dona de escolher o item, pelo clique que ela ja
+  // trata; por isso o Enter para a propagacao, senao a tela escolheria de novo, e sempre o primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter') return;
+    const wrap = e.target && e.target.closest ? e.target.closest('.busca-produto-wrap') : null;
+    const caixa = wrap ? wrap.querySelector('.sugestoes.open') : null;
+    const itens = caixa ? Array.from(caixa.querySelectorAll('.sugestao-item')) : [];
+    if (!itens.length) return;
+    let i = itens.findIndex(x => x.classList.contains('ativo'));
+    if (e.key === 'Enter') {
+      if (i < 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      itens[i].click();
+      return;
+    }
+    e.preventDefault();
+    i = e.key === 'ArrowDown' ? (i + 1) % itens.length : (i - 1 + itens.length) % itens.length;
+    itens.forEach((x, n) => x.classList.toggle('ativo', n === i));
+    itens[i].scrollIntoView({ block: 'nearest' });
+  }, true);
+
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
   // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o

@@ -3136,3 +3136,38 @@ tela filtra enquanto se digita; escolher um item para agir abre sugestões.
 asserção em `teste_pdv.py` (200). Sete defeitos injetados, um por vez, e os sete pegos. Quatro, os do
 menu, numa cópia das telas fora do projeto. Os três das suítes que abrem a tela pelo servidor de
 preview rodaram no arquivo de verdade, em primeiro plano, com a restauração conferida byte a byte.
+
+## 14.70 As setas do teclado em toda busca que abre sugestões (13/out/2026)
+
+Última diferença entre a busca de produto do PDV e a das outras telas (§14.68 e §14.69): no PDV dá
+para andar pela lista com as setas; nas outras cinco o Enter escolhia sempre o primeiro. O usuário
+mandou levar para o padrão.
+
+**O conserto é de componente, e só mexe na marcação.** As cinco telas escrevem a busca cada uma do
+seu jeito (variáveis, nomes e o que acontece ao escolher são diferentes). Um bloco comum, "SETAS NA
+BUSCA COM SUGESTOES", não precisa saber de nada disso: a seta leva a classe `ativo` para o item de
+baixo ou de cima, dando a volta no fim da lista, e o Enter clica no item ativo. Quem escolhe o item
+continua sendo a tela, pelo clique que ela já trata.
+
+- **O Enter para a propagação.** Senão o tratamento da tela rodaria em seguida e escolheria de novo,
+  e sempre o primeiro.
+- **Só vale com a lista aberta e dentro de `.busca-produto-wrap`.** Com a lista fechada as teclas
+  seguem o caminho de antes: na Movimentação de Estoque, o Enter com o produto escolhido busca.
+- **Sem mexer nas setas, nada muda:** o primeiro item nasce ativo, e o Enter escolhe o primeiro.
+
+**As dicas das telas** diziam "Enter escolhe o primeiro da lista"; passaram a dizer que as setas
+andam pela lista e o Enter escolhe.
+
+**Busca nova com sugestões** usa `.busca-produto-wrap`, `.sugestoes`, `.sugestao-item` e a classe
+`ativo` no primeiro item, e leva este bloco. `teste_busca_setas.py` confere que toda tela com a
+caixa de sugestões tem o bloco e percorre cada uma.
+
+**As decisões que ele fechou junto**, e que estão no `PROGRESSO.md`: o filtro com data inicial e
+final fica onde já existe; o kit entra na compra como item individual, e a necessidade do
+componente junta o mínimo dele com o que falta para o mínimo do kit (entra com a composição do kit,
+que ainda não existe); e o envio ao GitHub volta a ser feito a cada entrega.
+
+**Provado nos dois sentidos, numa cópia.** `teste_busca_setas.py` tem 27 asserções em três seções.
+Cinco defeitos injetados, um por vez, e os cinco pegos: tela sem o bloco, Enter que escolhe o
+primeiro, seta que não dá a volta, seta que deixa dois itens ativos e Enter que deixa a tela
+escolher de novo.
