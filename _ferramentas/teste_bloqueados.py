@@ -328,7 +328,7 @@ with sync_playwright() as p:
     for lib, bai in [('2', '1'), ('1,5', ''), ('dois', ''), ('0', '0')]:
         partes(pg, lib, bai); clic(pg, '#btnConfirmarResolver'); pg.wait_for_timeout(180)
         barrados.append(pg.inner_text('#erroTriagem') if visivel(pg, '#erroTriagem') else '')
-    ok('Só há 2 UN' in barrados[0] and 'números inteiros' in barrados[1] and 'em número' in barrados[2] and 'Informe quanto' in barrados[3] and qtd(pg, 2) == 2 and pg.locator('#confirmModal.open').count() == 0,
+    ok('Só há 2 UN' in barrados[0] and 'números inteiros' in barrados[1] and 'em número' in barrados[2] and 'Zero nas duas saídas' in barrados[3] and qtd(pg, 2) == 2 and pg.locator('#confirmModal.open').count() == 0,
        'soma acima do bloqueado, quantidade quebrada em UN, texto e tudo zerado nao passam: %s' % [b[:20] for b in barrados])
 
     print('\n[5] Liberar e dar baixa de uma vez, com senha')

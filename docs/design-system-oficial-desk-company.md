@@ -2700,3 +2700,42 @@ tela de Transferência, com um comentário dizendo isso, para a limpeza de códi
 **Fica como dado de exemplo.** A conferência não mexe no saldo das outras telas: Necessidades de
 Compra segue contando a transferência como "a caminho", e o Controle de Estoques não recebe as
 unidades. Transferência criada em "Nova transferência" continua não entrando na lista.
+
+## 14.61 Tratamento de Perdas: o zero é resposta, e o motivo é o da operação (12/out/2026)
+
+Pedido do usuário depois de testar a conferência da transferência, com print do painel "Resolver
+bloqueio".
+
+**Campo onde zero é resposta abre em branco.** Os campos "Volta para a venda" e "Baixa por perda"
+mostravam um "0" cinza de exemplo. Parecia valor: ele confirmou com o "0" na tela e foi barrado. O
+exemplo saiu. Vazio é "não respondi"; zero digitado é resposta. O mesmo "0" estava no campo
+"Quantidade que você achou" da ficha da Separação, onde a tela já dizia que "zero é uma resposta
+válida"; saiu de lá também. Os outros campos com "0" de exemplo são de formulário (estoque mínimo,
+quantidade a bloquear), onde zero não é uma decisão, e ficaram.
+
+**Zero em "Volta para a venda" quer dizer que nada foi recuperado.** A linha inteira vai para a baixa
+por perda, a tela diz o que entendeu ("Nada voltou para a venda: 2 UN vão para a baixa por perda.
+Informe o motivo.") e pede o motivo. A baixa posta assim acompanha o zero: se ele vira outro número,
+ela volta a ficar em branco; corrigida à mão, passa a ser da pessoa e não some mais. Zero nas duas
+saídas não resolve nada, e a mensagem manda para a aba "Manter bloqueado".
+
+**O motivo da perda é o da operação que criou o bloqueio.** A baixa oferecia sempre os sete motivos
+do Acerto de Estoque. Agora vêm primeiro os da operação, e depois os gerais:
+
+| de onde veio o bloqueio | motivos |
+|---|---|
+| transferência entre estoques | Perda em trânsito · Avaria no percurso · Furto ou roubo no trajeto |
+| conferência de entrada (nota) | Avaria do fornecedor · Avaria no recebimento · Avaria no transporte da compra |
+| separação e conferência de saída | Avaria na separação · Avaria no picking · Avaria na embalagem · Não encontrado no endereço |
+
+Bloqueio manual, de acerto ou de devolução não tem operação, e segue só com os gerais. A
+transferência chega pela conferência de entrada; quem a distingue da nota é o número ("TR-0101").
+
+**O motivo é cadastro, não texto de tela.** Os dez motivos novos moram em Configurações → Motivos de
+Perda, com o campo novo "Em que baixa o motivo aparece" (todas as baixas, ou uma operação só), que a
+lista mostra e o formulário edita. Tratamento de Perdas carrega um espelho, que a suíte compara. O
+Acerto de Estoque continua oferecendo só os de todas as baixas. A opção menor era deixar os motivos
+escritos no painel; ficou no cadastro porque é lá que o usuário troca nome e cria outros.
+
+**Provado nos dois sentidos.** Quinze defeitos injetados, um por vez, contra `teste_perdas_baixa.py`
+(40 asserções), e os quinze foram pegos.

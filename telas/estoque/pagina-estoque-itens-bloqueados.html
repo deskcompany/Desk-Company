@@ -1894,6 +1894,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { v: 'deterioracao', l: 'Deterioração ou vencimento', fiscal: 'interno' },
     { v: 'erro_lancamento', l: 'Correção de lançamento', fiscal: 'nenhum' }
   ];
+  // Motivos de perda proprios de cada operacao (decisao do usuario em 12/out/2026): a baixa diz o que
+  // aconteceu no movimento que criou o bloqueio. Espelho de Configuracoes > Motivos de Perda, onde
+  // cada motivo guarda em que baixa aparece; a suite compara. Na baixa eles vem ANTES dos gerais.
+  const MOTIVOS_DA_OPERACAO = {
+    transferencia: [ { v: 'transito_perda', l: 'Perda em trânsito', fiscal: 'nfe' },
+                     { v: 'transito_avaria', l: 'Avaria no percurso', fiscal: 'nfe' },
+                     { v: 'transito_furto', l: 'Furto ou roubo no trajeto', fiscal: 'nfe' } ],
+    entrada: [ { v: 'entrada_fornecedor', l: 'Avaria do fornecedor', fiscal: 'nfe' },
+               { v: 'entrada_recebimento', l: 'Avaria no recebimento', fiscal: 'nfe' },
+               { v: 'entrada_transporte', l: 'Avaria no transporte da compra', fiscal: 'nfe' } ],
+    saida: [ { v: 'saida_separacao', l: 'Avaria na separação', fiscal: 'nfe' },
+             { v: 'saida_picking', l: 'Avaria no picking', fiscal: 'nfe' },
+             { v: 'saida_embalagem', l: 'Avaria na embalagem', fiscal: 'nfe' },
+             { v: 'saida_sumiu', l: 'Não encontrado no endereço', fiscal: 'nfe' } ]
+  };
+  const NOME_DA_OPERACAO = { transferencia: 'transferência entre estoques', entrada: 'conferência de entrada', saida: 'separação e conferência de saída' };
+  // De que operacao veio o bloqueio. Transferencia chega pela conferencia de entrada, com o numero dela.
+  const operacaoDe = (i) => i.origem === 'conferencia_entrada' ? (/^TR-\d+$/.test(i.doc || '') ? 'transferencia' : 'entrada')
+    : ((i.origem === 'separacao' || i.origem === 'conferencia_saida') ? 'saida' : null);
+  const motivosDaBaixa = (i) => (MOTIVOS_DA_OPERACAO[operacaoDe(i)] || []).concat(MOTIVOS_BAIXA);
   // Espelho de Controle de Estoques (PRODUTOS e BASES): o saldo de cada produto por deposito,
   // endereco e estagio. E dele que sai o que ainda esta livre para bloquear e o retrato do
   // produto que o painel de resolver mostra. A suite compara com a pagina do produto.
@@ -2337,21 +2357,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (i.obs ? '<div class="nota-reservado" style="margin:12px 0 0;">' + IC_CADEADO + '<span>' + esc(i.obs) + '</span></div>' : '') +
       '<div class="extrato-bloco-titulo">O que fazer com ' + qtdTexto(i.qtd, un) + '</div>' +
       '<div class="bq-triagem">' +
-        '<div class="bq-tri-linha" id="wrapResLiberar"><div><b>Volta para a venda</b><small>Recuperado ou encontrado: fica disponível.</small></div>' +
-          '<div class="bq-tri-campo"><input type="text" id="resLiberar" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quantidade que volta para a venda">' +
+        '<div class="bq-tri-linha" id="wrapResLiberar"><div><b>Volta para a venda</b><small>Recuperado ou encontrado: fica disponível. Se nada voltou, digite 0.</small></div>' +
+          '<div class="bq-tri-campo"><input type="text" id="resLiberar" inputmode="decimal" autocomplete="off" aria-label="Quantidade que volta para a venda">' +
             '<span class="un-sufixo">' + un + '</span><button type="button" class="btn-mini" id="btnLiberarTudo">tudo</button></div></div>' +
         '<div class="bq-tri-linha" id="wrapResBaixar"><div><b>Baixa por perda</b><small>Perda de fato: sai do estoque.</small></div>' +
-          '<div class="bq-tri-campo"><input type="text" id="resBaixar" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quantidade baixada por perda">' +
+          '<div class="bq-tri-campo"><input type="text" id="resBaixar" inputmode="decimal" autocomplete="off" aria-label="Quantidade baixada por perda">' +
             '<span class="un-sufixo">' + un + '</span><button type="button" class="btn-mini" id="btnBaixarTudo">tudo</button></div></div>' +
         '<div class="bq-tri-linha"><div><b>Continua bloqueado</b><small>O que não for resolvido agora fica na fila.</small></div><b id="resResto"></b></div>' +
       '</div>' +
       '<div class="field-error-msg" id="erroTriagem"></div>' +
+      '<div class="field-hint" id="avisoZero" style="display:none;"></div>' +
       '<div class="form-field" id="wrapCausa" style="display:none; margin-top:16px;"><label>O que a auditoria achou</label>' +
         dropdownHtml('resCausa', 'Selecione a causa', Object.keys(CAUSAS_FALTA).map(k => ({ v: k, t: CAUSAS_FALTA[k] }))) +
         '<div class="field-error-msg" id="erroCausa">Escolha a causa: é ela que diz de quem foi o erro.</div></div>' +
       '<div class="form-field" id="wrapPerda" style="display:none; margin-top:16px;"><label>Motivo da perda</label>' +
-        dropdownHtml('resPerda', 'Selecione o motivo', MOTIVOS_BAIXA.map(x => ({ v: x.v, t: x.l }))) +
-        '<div class="field-error-msg" id="erroPerda">Escolha o motivo: é ele que decide a consequência fiscal.</div></div>' +
+        dropdownHtml('resPerda', 'Selecione o motivo', motivosDaBaixa(i).map(x => ({ v: x.v, t: x.l }))) +
+        '<div class="field-error-msg" id="erroPerda">Escolha o motivo: é ele que decide a consequência fiscal.</div>' +
+        (operacaoDe(i) ? '<div class="field-hint" id="dicaMotivoOperacao">Os primeiros motivos são os da operação que criou este bloqueio: ' + NOME_DA_OPERACAO[operacaoDe(i)] + '.</div>' : '') + '</div>' +
       '<div class="form-field" style="margin-top:16px;"><label for="resObs">Observações</label><textarea id="resObs" placeholder="Opcional" maxlength="300"></textarea></div>' +
       (est ? '<div class="extrato-bloco-titulo">Estoque do produto em ' + esc(DEPOSITOS[i.dep] || 'depósito') + '</div>' +
         '<table class="bq-proj" id="resProjecao"><thead><tr><th></th><th>Hoje</th><th>Depois</th></tr></thead><tbody></tbody></table>' : '') +
@@ -2403,7 +2425,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // ----- aba Resolver -----
     let causa = '', perda = '';
     const campoLib = document.getElementById('resLiberar'), campoBai = document.getElementById('resBaixar');
-    // Vazio vale zero; texto que nao e numero volta NaN e e barrado na confirmacao.
+    // Vazio e "nao respondi", e conta zero; texto que nao e numero volta NaN e e barrado na confirmacao.
     const lerParte = (campo) => campo.value.trim() === '' ? 0 : lerQtd(campo.value);
     const erro = (idErro, idWrap, texto) => {
       const el = document.getElementById(idErro);
@@ -2424,6 +2446,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // Campo que nao se aplica some: a causa so existe ao liberar uma falta, o motivo da perda so na baixa.
       document.getElementById('wrapCausa').style.display = (lib > 0 && i.motivo === 'falta') ? '' : 'none';
       document.getElementById('wrapPerda').style.display = bai > 0 ? '' : 'none';
+      avisoZero.style.display = baixaAutomatica ? '' : 'none';
+      avisoZero.textContent = 'Nada voltou para a venda: ' + qtdTexto(i.qtd, i.un) + (i.qtd === 1 ? ' vai' : ' vão') + ' para a baixa por perda. Informe o motivo.';
       document.getElementById('btnConfirmarResolver').textContent = (lib > 0 && bai > 0) ? 'Liberar e dar baixa' : (bai > 0 ? 'Dar baixa' : (lib > 0 ? 'Liberar para venda' : 'Confirmar'));
       if (est) {
         const depois = { disp: est.disp + (dest.estagio === 'disp' ? lib : 0), aEnd: est.aEnd + (dest.estagio === 'aEnd' ? lib : 0), bloq: est.bloq - lib - bai, fisico: est.fisico - bai };
@@ -2432,7 +2456,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         document.querySelector('#resProjecao tbody').innerHTML = linha('Disponível', 'disp') +
           ((est.aEnd > 0 || depois.aEnd > 0) ? linha('A endereçar', 'aEnd') : '') + linha('Bloqueado', 'bloq') + linha('Estoque físico', 'fisico');
       }
-      const mp = MOTIVOS_BAIXA.find(x => x.v === perda), frases = [];
+      const mp = motivosDaBaixa(i).find(x => x.v === perda), frases = [];
       if (lib > 0) frases.push('Destino de ' + qtdTexto(lib, i.un) + ': ' + dest.texto + '.' + (i.motivo === 'avaria' ? ' Liberar item de avaria é dizer que ele foi recuperado e pode ser vendido.' : ''));
       if (bai > 0) {
         let t = 'Gera o acerto de saída ' + acertoPrevisto() + ', com baixa de ' + qtdTexto(bai, i.un) + (i.custo ? ' (' + moeda(bai * i.custo) + ' de custo)' : '') + '.';
@@ -2443,9 +2467,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.getElementById('resPrevia').textContent = frases.join(' ') || 'Informe quanto volta para a venda e quanto é perda. O que sobrar continua bloqueado.';
     }
     const limparTriagem = () => { limpar('erroTriagem', 'wrapResLiberar'); limpar('erroTriagem', 'wrapResBaixar'); };
-    [campoLib, campoBai].forEach(c => c.addEventListener('input', () => { limparTriagem(); pintarResolver(); }));
+    // Zero DIGITADO e resposta (pedido do usuario em 12/out/2026): 0 em "Volta para a venda" quer dizer
+    // que nada foi recuperado, e a linha inteira vai para a baixa por perda, que pede o motivo. A baixa
+    // posta assim acompanha o campo: se o zero vira outro numero, ela volta a ficar em branco.
+    const respondeuZero = (campo) => campo.value.trim() !== '' && lerQtd(campo.value) === 0;
+    let baixaAutomatica = false;
+    const avisoZero = document.getElementById('avisoZero');
+    campoLib.addEventListener('input', () => {
+      if (respondeuZero(campoLib) && (campoBai.value.trim() === '' || baixaAutomatica)) { campoBai.value = fmtQtd(i.qtd, i.un); baixaAutomatica = true; }
+      else if (baixaAutomatica) { campoBai.value = ''; baixaAutomatica = false; }
+      limparTriagem(); pintarResolver();
+    });
+    campoBai.addEventListener('input', () => { baixaAutomatica = false; limparTriagem(); pintarResolver(); });
     // "tudo" joga na saida escolhida o que a outra ainda nao levou.
     const tudo = (alvo, outro) => () => {
+      if (baixaAutomatica && alvo === campoLib) outro.value = '';   // "tudo volta" desfaz a baixa que o zero tinha posto
+      baixaAutomatica = false;
       alvo.value = fmtQtd(Math.max(0, arred(i.qtd - (lerParte(outro) || 0))), i.un);
       limparTriagem(); pintarResolver();
     };
@@ -2461,13 +2498,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const inteiro = (n) => fracionavel(i.un) || Number.isInteger(n);
       if (isNaN(lib) || isNaN(bai)) ok = erro('erroTriagem', isNaN(lib) ? 'wrapResLiberar' : 'wrapResBaixar', 'Informe as quantidades em número.');
       else if (!inteiro(lib) || !inteiro(bai)) ok = erro('erroTriagem', !inteiro(lib) ? 'wrapResLiberar' : 'wrapResBaixar', 'Este produto é contado em ' + i.un + ': informe números inteiros.');
-      else if (lib + bai <= 0) ok = erro('erroTriagem', null, 'Informe quanto volta para a venda ou quanto é baixado.');
+      else if (lib + bai <= 0) ok = erro('erroTriagem', null, (respondeuZero(campoLib) || respondeuZero(campoBai))
+        ? 'Zero nas duas saídas não resolve nada. Para deixar como está, use a aba "Manter bloqueado".'
+        : 'Informe quanto volta para a venda ou quanto é baixado. Se nada voltou, digite 0 em "Volta para a venda".');
       else if (arred(lib + bai) > i.qtd) ok = erro('erroTriagem', null, 'Só há ' + qtdTexto(i.qtd, i.un) + ' bloqueadas nesta linha.');
       if (ok && lib > 0 && i.motivo === 'falta' && !causa) ok = erro('erroCausa', 'wrapCausa');
       if (ok && bai > 0 && !perda) ok = erro('erroPerda', 'wrapPerda');
       if (!ok) return;
       const obs = document.getElementById('resObs').value.trim();
-      const dest = destinoDaLiberacao(i), mp = MOTIVOS_BAIXA.find(x => x.v === perda), ac = acertoPrevisto();
+      const dest = destinoDaLiberacao(i), mp = motivosDaBaixa(i).find(x => x.v === perda), ac = acertoPrevisto();
       const passos = [], avisos = [];
       if (lib > 0) passos.push('liberar ' + qtdTexto(lib, i.un) + ' para venda (destino: ' + dest.texto + ')');
       if (bai > 0) passos.push('dar baixa em ' + qtdTexto(bai, i.un) + ' por ' + mp.l.toLowerCase() + ', no acerto de saída ' + ac);

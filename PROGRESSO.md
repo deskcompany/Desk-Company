@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, na entrega da conferência na chegada da transferência.*
+*Atualizado em 12/out/2026, no ajuste do zero e dos motivos da baixa em Tratamento de Perdas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -24,6 +24,10 @@ esperam o teste dele.**
 - **A chegada da transferência virou conferência** (§14.60). Aprovado por ele em 12/out, com a
   opção (a): ao fechar com falta, a conferência pergunta se o resto ainda vem (segue em trânsito) ou
   se faltou (vai para Tratamento de Perdas, como falta a auditar).
+
+**Ele testou a conferência e pediu um ajuste na baixa de Tratamento de Perdas, que está feito**
+(§14.61): o campo abre em branco, o zero digitado vale como resposta, e o motivo da perda é o da
+operação que criou o bloqueio.
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -147,20 +151,36 @@ indicadores do Controle de Estoques, o Início com destino e o menu de Integraç
 - **A senha** é a mesma que o recebimento já pedia. Em Configurações ela agora se chama "Fechar
   conferência de chegada de transferência".
 
-**8. A verificação.** Cinco suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
-`teste_venda_melhorias.py`, `teste_estoque_melhorias.py` e `teste_transf_conferencia.py`. Oitenta e
-oito defeitos injetados de propósito, um por vez; os oitenta e oito são pegos. A auditoria do
+**8. Tratamento de Perdas: o zero e os motivos da baixa** (12/out, §14.61), pedido do usuário depois
+de testar a conferência:
+
+- **Os campos de "O que fazer" abrem em branco.** O "0" cinza que aparecia parecia valor, e confirmar
+  era barrado.
+- **Zero digitado é resposta.** 0 em "Volta para a venda" quer dizer que nada foi recuperado: a linha
+  inteira vai para a baixa por perda, e a tela pede o motivo.
+- **O motivo da perda é o da operação que criou o bloqueio.** Transferência: perda em trânsito,
+  avaria no percurso, furto ou roubo no trajeto. Conferência de entrada: avaria do fornecedor, no
+  recebimento, no transporte da compra. Separação e conferência de saída: avaria na separação, no
+  picking, na embalagem, não encontrado no endereço. Eles vêm antes dos motivos gerais.
+- **O cadastro de Motivos de Perda** (Configurações) ganhou o campo "Em que baixa o motivo aparece".
+  Os dez motivos novos estão lá, e ele pode trocar, renomear ou criar outros.
+- **Na ficha da Separação**, o campo "Quantidade que você achou" tinha o mesmo "0" cinza; saiu.
+
+**9. A verificação.** Seis suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+`teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py` e
+`teste_perdas_baixa.py`. Cento e três defeitos injetados de propósito, um por vez; os cento e três
+são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
-**9. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**10. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O teste do usuário** na conferência da chegada da transferência e no nome novo de Tratamento
-   de Perdas, e o resto do teste dele em Finanças, na venda e no estoque.
+1. **O teste do usuário** no zero e nos motivos da baixa de Tratamento de Perdas, e o resto do teste
+   dele em Finanças, na venda e no estoque.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.

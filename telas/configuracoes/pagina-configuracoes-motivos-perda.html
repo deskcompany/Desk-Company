@@ -797,6 +797,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="field-hint">O Acerto de Estoque só oferece os motivos do movimento escolhido. Sobra de contagem não serve para baixa, e furto não serve para entrada.</div>
     </div>
 
+    <div class="form-field">
+      <label>Em que baixa o motivo aparece</label>
+      <div class="dropdown-select" id="inputOperacao" data-value="todas">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Todas as baixas</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="todas">Todas as baixas</div>
+          <div class="dropdown-select-item" data-value="transferencia">Transferência entre estoques</div>
+          <div class="dropdown-select-item" data-value="entrada">Conferência de entrada</div>
+          <div class="dropdown-select-item" data-value="saida">Separação e conferência de saída</div>
+        </div>
+      </div>
+      <div class="field-hint">Em Tratamento de Perdas, a baixa oferece primeiro os motivos da operação que criou o bloqueio, e depois os de todas as baixas. O Acerto de Estoque oferece só os de todas as baixas.</div>
+    </div>
+
     <div class="form-secao">O que a baixa obriga</div>
 
     <div class="form-field">
@@ -1447,6 +1464,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     balanco: { rotulo:nome('perda.movimento.balanco'), cor:'var(--chart-1)' }
   };
 
+  // Em que baixa o motivo aparece. "Todas" e o Acerto de Estoque e qualquer baixa de Tratamento de
+  // Perdas; as outras sao so da operacao que criou o bloqueio.
+  const OPERACOES = { todas: 'Todas as baixas', transferencia: 'Transferência entre estoques', entrada: 'Conferência de entrada', saida: 'Separação e conferência de saída' };
+
   // O que a baixa OBRIGA. Este campo nao e rotulo: e ele que decide o aviso
   // que o Acerto da na hora de gravar, e e por isso que o motivo precisava de
   // cadastro em vez de viver escrito no codigo de uma tela.
@@ -1480,7 +1501,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:10, nome:'Contagem física', grupo:'balanco', destino:'depende', exigeObs:false,
       obs:'O balanço vira entrada ou saída conforme a diferença. Se der falta, a obrigação segue o motivo da falta.', status:'ativo' },
     { id:11, nome:'Amostra para cliente', grupo:'saida', destino:'nfe', exigeObs:false,
-      obs:'Saída sem venda, mas com destinatário. Enquanto a NF-e não existe, entra na fila de regularização.', status:'inativo' }
+      obs:'Saída sem venda, mas com destinatário. Enquanto a NF-e não existe, entra na fila de regularização.', status:'inativo' },
+    // Motivos de uma operacao so (12/out/2026, pedido do usuario): a baixa em Tratamento de Perdas
+    // oferece primeiro os da operacao que criou o bloqueio. Sem `operacao`, o motivo vale em toda baixa.
+    { id:12, nome:'Perda em trânsito', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'transferencia',
+      obs:'Saiu da origem e não chegou ao destino. Vale cobrar o transportador antes de baixar.', status:'ativo' },
+    { id:13, nome:'Avaria no percurso', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'transferencia',
+      obs:'Chegou danificada pela viagem entre os depósitos. Pedir foto na chegada.', status:'ativo' },
+    { id:14, nome:'Furto ou roubo no trajeto', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'transferencia',
+      obs:'Sumiu no caminho, com sinal de furto. Com boletim de ocorrência o estorno de crédito tem defesa.', status:'ativo' },
+    { id:15, nome:'Avaria do fornecedor', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'entrada',
+      obs:'Já veio danificada de fábrica ou na embalagem do fornecedor. A foto é o que sustenta a cobrança.', status:'ativo' },
+    { id:16, nome:'Avaria no recebimento', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'entrada',
+      obs:'Danificou na descarga ou na conferência, já dentro de casa.', status:'ativo' },
+    { id:17, nome:'Avaria no transporte da compra', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'entrada',
+      obs:'Danificou no caminho do fornecedor até aqui: a cobrança é da transportadora.', status:'ativo' },
+    { id:18, nome:'Avaria na separação', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'saida',
+      obs:'Danificou ao ser coletada para o pedido.', status:'ativo' },
+    { id:19, nome:'Avaria no picking', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'saida',
+      obs:'Já estava danificada no endereço de picking quando o separador chegou.', status:'ativo' },
+    { id:20, nome:'Avaria na embalagem', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'saida',
+      obs:'Danificou na bancada, ao conferir ou embalar.', status:'ativo' },
+    { id:21, nome:'Não encontrado no endereço', grupo:'saida', destino:'nfe', exigeObs:true, operacao:'saida',
+      obs:'A auditoria procurou e não achou: a unidade que o sistema dizia ter não existe.', status:'ativo' }
   ];
 
   let buscaAtual = '';
@@ -1493,6 +1536,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function metaDe(m) {
     const partes = [DESTINOS[m.destino] || DESTINOS.nenhum];
+    if (m.operacao && m.operacao !== 'todas' && OPERACOES[m.operacao]) partes.unshift('só em ' + OPERACOES[m.operacao]);
     if (m.exigeObs) partes.push('exige descrição');
     if (m.obs) partes.push(m.obs);
     return partes;
@@ -1740,6 +1784,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('notaNenhum').style.display = destino === 'depende' ? '' : 'none';
   }
   inicializarDropdownSelect(document.getElementById('inputGrupo'), (valor) => setDropdownValor('inputGrupo', valor));
+  inicializarDropdownSelect(document.getElementById('inputOperacao'), (valor) => setDropdownValor('inputOperacao', valor));
   inicializarDropdownSelect(document.getElementById('inputDestino'), (valor) => {
     setDropdownValor('inputDestino', valor);
     aplicarDestino(valor);
@@ -1774,6 +1819,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('drawerTitulo').textContent = 'Novo motivo';
     limparFormulario();
     setDropdownValor('inputGrupo', 'saida');
+    setDropdownValor('inputOperacao', 'todas');
     setDropdownValor('inputDestino', 'nfe');
     setDropdownValor('inputSituacao', 'ativo');
     aplicarDestino('nfe');
@@ -1791,6 +1837,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputObs').value = m.obs || '';
     document.getElementById('inputExigeObs').checked = !!m.exigeObs;
     setDropdownValor('inputGrupo', m.grupo);
+    setDropdownValor('inputOperacao', OPERACOES[m.operacao] ? m.operacao : 'todas');
     setDropdownValor('inputDestino', m.destino);
     setDropdownValor('inputSituacao', m.status);
     aplicarDestino(m.destino);
@@ -1882,6 +1929,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const dados = {
       nome: nome,
       grupo: document.getElementById('inputGrupo').getAttribute('data-value'),
+      operacao: document.getElementById('inputOperacao').getAttribute('data-value'),
       destino: document.getElementById('inputDestino').getAttribute('data-value'),
       exigeObs: document.getElementById('inputExigeObs').checked,
       obs: document.getElementById('inputObs').value.trim(),
