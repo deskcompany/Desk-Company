@@ -2739,3 +2739,43 @@ escritos no painel; ficou no cadastro porque é lá que o usuário troca nome e 
 
 **Provado nos dois sentidos.** Quinze defeitos injetados, um por vez, contra `teste_perdas_baixa.py`
 (40 asserções), e os quinze foram pegos.
+
+## 14.62 Tratamento de Perdas: o resolvido abre painel, e o cadastro de motivos vale na baixa (13/out/2026)
+
+Dois pontos do usuário, com print da aba Resolvidos.
+
+**Linha de histórico também abre painel.** A linha dos Resolvidos não abria nada. Agora abre "Bloqueio
+resolvido": quantidade, valor (da perda ou que voltou), quantos dias ficou parado, depósito; de onde
+veio (com o link), quem bloqueou e quando, quem liberou ou baixou e quando; na liberação, o que a
+auditoria achou e para onde voltou; na baixa, o motivo, o acerto de saída e o que ela obriga; e a
+história do bloqueio, com as anotações. O painel só lê.
+
+**Para contar a história, o registro precisa guardá-la.** A resolução passou a levar a data do
+bloqueio, quem bloqueou, a observação e as anotações. Resolvido guardado no navegador antes desta
+data não tem isso: quando o bloqueio ainda está na fila, a data sai dele; quando já saiu, o painel
+diz "não registrado" e não inventa. A suíte abre com esse estado antigo. O exemplo citava o pedido
+19, que a Conferência de Saída não tem; virou o 25, e a troca vale também para o guardado.
+
+**O cadastro de motivos vale na baixa.** O usuário perguntou se os motivos iam para Configurações,
+"para podermos fazer esses cadastros". Já estavam lá, mas o cadastro vivia só na tela dele, até
+recarregar. Agora o que é criado, alterado, inativado ou excluído em Motivos de Perda fica guardado
+(`deskMotivosPerda`), e a baixa de Tratamento de Perdas oferece o que o cadastro diz: primeiro os da
+operação, depois os de todas as baixas. Enquanto ninguém mexe no cadastro, valem os espelhos.
+Cadastro guardado ilegível não derruba a tela. A lista do Acerto de Estoque continua fixa, e o
+formulário do cadastro diz isso.
+
+**Três avisos da construção.**
+
+- *Dois painéis na mesma tela não repetem identificador.* Aconteceu pela segunda vez em dois dias: o
+  painel novo reaproveitou `linkProduto` e o mesmo trecho de montagem do vizinho. A auditoria estrita
+  pegou. Painel novo nasce com prefixo próprio nos identificadores.
+- *Mutação que a correção desfaz não é defeito.* Voltar o exemplo para "Pedido #19" não reprovou
+  nada: a correção do guardado conserta ao abrir. O defeito de verdade era perder essa correção, e é
+  ele que a prova injeta.
+- *Duas sessões no mesmo repositório.* Outra sessão construía a tela Movimentação de Estoque e
+  alterou o menu das 80 telas no meio desta entrega. Daqui saiu só o que era desta entrega: nos dois
+  arquivos em comum, o commit levou os trechos desta entrega e deixou a linha de menu da outra
+  sessão para ela commitar. O selo completo não foi rodado, e o `selo.json` não foi commitado.
+
+**Provado nos dois sentidos.** Nove defeitos injetados, um por vez, contra as seções 4 e 5 de
+`teste_perdas_baixa.py` (54 asserções na suíte), e os nove foram pegos.

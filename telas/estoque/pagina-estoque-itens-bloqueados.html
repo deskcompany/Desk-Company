@@ -721,7 +721,7 @@
   #eventDrawer { width:560px; right:-580px; }
   #eventDrawer.open { right:0; }
   .event-drawer .extrato-valor { text-align:right; }
-  #corpoResolvidos tr { cursor:default; }
+  #corpoResolvidos tr { cursor:pointer; }
   .estoque-table td.col-texto .prod-sku { white-space:normal; }
   .form-field textarea { width:100%; min-height:72px; resize:vertical; font-family:'Nunito',sans-serif; font-size:13.5px; line-height:1.5; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
   .form-field textarea:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
@@ -1913,7 +1913,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // De que operacao veio o bloqueio. Transferencia chega pela conferencia de entrada, com o numero dela.
   const operacaoDe = (i) => i.origem === 'conferencia_entrada' ? (/^TR-\d+$/.test(i.doc || '') ? 'transferencia' : 'entrada')
     : ((i.origem === 'separacao' || i.origem === 'conferencia_saida') ? 'saida' : null);
-  const motivosDaBaixa = (i) => (MOTIVOS_DA_OPERACAO[operacaoDe(i)] || []).concat(MOTIVOS_BAIXA);
+  // O cadastro de Motivos de Perda (Configuracoes) vale aqui (13/out/2026): quando alguem cria, altera
+  // ou exclui um motivo la, o cadastro fica guardado no navegador e a baixa passa a oferecer o que ele
+  // diz, tanto os de uma operacao quanto os de todas as baixas. Enquanto ninguem mexeu no cadastro,
+  // valem os espelhos acima. O que vem do navegador e conferido antes de entrar.
+  function motivosDoCadastro() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskMotivosPerda') || 'null');
+      if (!Array.isArray(g) || !g.length) return null;
+      return g.filter(c => c && c.status === 'ativo' && c.grupo === 'saida' && typeof c.nome === 'string' && c.nome.trim() !== '')
+        .map(c => ({ v: 'cad' + String(c.id).replace(/[^\w-]/g, ''), l: c.nome.trim(),
+                     fiscal: ['nfe', 'interno', 'nenhum'].indexOf(c.destino) >= 0 ? c.destino : 'nenhum', operacao: MOTIVOS_DA_OPERACAO[c.operacao] ? c.operacao : 'todas' }));
+    } catch (e) { return null; }
+  }
+  // Primeiro os da operacao que criou o bloqueio, depois os de todas as baixas.
+  function motivosDaBaixa(i) {
+    const cad = motivosDoCadastro(), op = operacaoDe(i);
+    if (cad) return cad.filter(c => op !== null && c.operacao === op).concat(cad.filter(c => c.operacao === 'todas'));
+    return (MOTIVOS_DA_OPERACAO[op] || []).concat(MOTIVOS_BAIXA);
+  }
+  const temMotivoDaOperacao = (i) => { const cad = motivosDoCadastro(), op = operacaoDe(i);
+    return op !== null && (cad ? cad.some(c => c.operacao === op) : true); };
+  // Todos, para achar o que uma baixa antiga obriga pelo nome do motivo.
+  const todosOsMotivosDeBaixa = () => (motivosDoCadastro() || []).concat(MOTIVOS_BAIXA, MOTIVOS_DA_OPERACAO.transferencia, MOTIVOS_DA_OPERACAO.entrada, MOTIVOS_DA_OPERACAO.saida);
   // Espelho de Controle de Estoques (PRODUTOS e BASES): o saldo de cada produto por deposito,
   // endereco e estagio. E dele que sai o que ainda esta livre para bloquear e o retrato do
   // produto que o painel de resolver mostra. A suite compara com a pagina do produto.
@@ -2018,10 +2040,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           notas: [{ quando: diasAtras(7), quem: 'Administrador Desk', titulo: 'Anotação', texto: 'Marca acionada por e-mail; resposta prometida para a próxima semana.' }] }
       ],
       resolvidos: [
-        { id: 2, sku: 'MES-SLM-002', produto: 'Mesa Escritório Slim', un: 'UN', dep: 2, qtd: 1, custo: 512.75, motivo: 'falta', origem: 'conferencia_saida', doc: 'Pedido #19',
-          desfecho: 'liberado', causa: 'erro_conferencia', destino: 'A-03-2-01', quando: diasAtras(4), quem: 'Administrador Desk', obs: 'A peça estava na caixa; contagem refeita.' },
+        { id: 2, sku: 'MES-SLM-002', produto: 'Mesa Escritório Slim', un: 'UN', dep: 2, qtd: 1, custo: 512.75, motivo: 'falta', origem: 'conferencia_saida', doc: 'Pedido #25',
+          desfecho: 'liberado', causa: 'erro_conferencia', destino: 'A-03-2-01', bloqueadoEm: diasAtras(7), bloqueadoPor: 'Ana Souza', quando: diasAtras(4), quem: 'Administrador Desk', obs: 'A peça estava na caixa; contagem refeita.' },
         { id: 1, sku: 'LUM-LED-004', produto: 'Luminária LED Ajustável', un: 'UN', dep: 2, qtd: 1, custo: 86.20, motivo: 'avaria', origem: 'devolucao', doc: 'DV-0009',
-          desfecho: 'baixado', motivoPerda: 'Quebra ou avaria', acerto: 'AC-0050', quando: diasAtras(6), quem: 'Administrador Desk', obs: 'Haste quebrada, sem conserto.' }
+          desfecho: 'baixado', motivoPerda: 'Quebra ou avaria', acerto: 'AC-0050', bloqueadoEm: diasAtras(15), bloqueadoPor: 'Carlos Mendes', quando: diasAtras(6), quem: 'Administrador Desk', obs: 'Haste quebrada, sem conserto.' }
       ],
       proxId: 8, proxResolvido: 3, proxAcerto: 51, vistos: {}
     };
@@ -2031,9 +2053,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   if (!ESTADO || !Array.isArray(ESTADO.itens) || !Array.isArray(ESTADO.resolvidos)) ESTADO = semente();
   // O exemplo citava duas notas que nao existiam em lugar nenhum, e trocou de nota em 12/out. Quem ja
   // tinha aberto esta tela guardou o nome antigo no navegador: a troca vale tambem para o guardado.
-  const DOC_QUE_MUDOU = { 'NF-e 12.951': 'Nota 4468', 'NF-e 13.240': 'Nota 9051' };
+  const DOC_QUE_MUDOU = { 'NF-e 12.951': 'Nota 4468', 'NF-e 13.240': 'Nota 9051', 'Pedido #19': 'Pedido #25' };
   ESTADO.itens.concat(ESTADO.resolvidos).forEach(x => { if (x && DOC_QUE_MUDOU[x.doc]) x.doc = DOC_QUE_MUDOU[x.doc]; });
   const ITENS = ESTADO.itens, RESOLVIDOS = ESTADO.resolvidos;
+  // Resolvido guardado antes de 13/out/2026 nao trazia a data do bloqueio. Quando o bloqueio ainda esta
+  // na fila (foi resolvido em parte), a data sai dele; quando ja saiu, o painel diz que nao ha registro.
+  ESTADO.resolvidos.forEach(r => {
+    if (!r || r.bloqueadoEm) return;
+    const b = ESTADO.itens.filter(x => x && x.id === r.bloqueio)[0];
+    if (b) { r.bloqueadoEm = b.quando; r.bloqueadoPor = b.quem; }
+  });
   function gravar() {
     try { localStorage.setItem(CHAVE_BLOQ, JSON.stringify(ESTADO)); }
     catch (e) { /* armazenamento bloqueado: a acao vale ate recarregar a pagina */ }
@@ -2200,7 +2229,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const lista = baseFiltrada(RESOLVIDOS);
     corpo.innerHTML = lista.map(r => {
       const m = MOTIVOS_BLOQ[r.motivo];
-      return '<tr><td class="col-texto"><div class="prod-nome">' + esc(r.produto) + '</div><div class="prod-sku">' + esc(r.sku) + '</div></td>' +
+      return '<tr data-rid="' + r.id + '"><td class="col-texto"><div class="prod-nome">' + esc(r.produto) + '</div><div class="prod-sku">' + esc(r.sku) + '</div></td>' +
         '<td>' + fmtQtd(r.qtd, r.un) + ' <span class="un-sufixo">' + esc(r.un) + '</span></td>' +
         '<td class="col-texto"><div>' + m.rotulo + '</div><div class="prod-sku">' + ORIGENS[r.origem] + (r.doc ? ' · ' + esc(r.doc) : '') + '</div></td>' +
         '<td class="col-texto"><span class="badge-situacao ' + (r.desfecho === 'baixado' ? 'bs-divergencia' : 'bs-atendida') + '">' + (r.desfecho === 'baixado' ? 'Baixado' : 'Liberado') + '</span>' +
@@ -2209,6 +2238,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto">' + esc(r.quem) + '</td></tr>';
     }).join('');
     wrap.style.display = lista.length ? '' : 'none';
+    corpo.querySelectorAll('tr[data-rid]').forEach(tr => tr.addEventListener('click', () => abrirResolvido(Number(tr.getAttribute('data-rid')))));
     vazio.style.display = lista.length ? 'none' : 'flex';
     document.getElementById('resumoResolvidos').textContent = lista.length + (lista.length === 1 ? ' resolvido' : ' resolvidos');
     const baixado = lista.reduce((s, r) => s + (r.desfecho === 'baixado' && r.custo ? r.qtd * r.custo : 0), 0);
@@ -2373,7 +2403,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<div class="form-field" id="wrapPerda" style="display:none; margin-top:16px;"><label>Motivo da perda</label>' +
         dropdownHtml('resPerda', 'Selecione o motivo', motivosDaBaixa(i).map(x => ({ v: x.v, t: x.l }))) +
         '<div class="field-error-msg" id="erroPerda">Escolha o motivo: é ele que decide a consequência fiscal.</div>' +
-        (operacaoDe(i) ? '<div class="field-hint" id="dicaMotivoOperacao">Os primeiros motivos são os da operação que criou este bloqueio: ' + NOME_DA_OPERACAO[operacaoDe(i)] + '.</div>' : '') + '</div>' +
+        (temMotivoDaOperacao(i) ? '<div class="field-hint" id="dicaMotivoOperacao">Os primeiros motivos são os da operação que criou este bloqueio: ' + NOME_DA_OPERACAO[operacaoDe(i)] + '.</div>' : '') + '</div>' +
       '<div class="form-field" style="margin-top:16px;"><label for="resObs">Observações</label><textarea id="resObs" placeholder="Opcional" maxlength="300"></textarea></div>' +
       (est ? '<div class="extrato-bloco-titulo">Estoque do produto em ' + esc(DEPOSITOS[i.dep] || 'depósito') + '</div>' +
         '<table class="bq-proj" id="resProjecao"><thead><tr><th></th><th>Hoje</th><th>Depois</th></tr></thead><tbody></tbody></table>' : '') +
@@ -2563,7 +2593,57 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function registrar(i, q, registro) {
     i.qtd = arred(i.qtd - q);
     RESOLVIDOS.unshift(Object.assign({ id: ESTADO.proxResolvido++, sku: i.sku, produto: i.produto, un: i.un, dep: i.dep, qtd: q, custo: i.custo,
-      motivo: i.motivo, origem: i.origem, doc: i.doc, quando: HOJE_ISO, quem: USUARIO_SESSAO.nome }, registro));
+      motivo: i.motivo, origem: i.origem, doc: i.doc, quando: HOJE_ISO, quem: USUARIO_SESSAO.nome,
+      bloqueadoEm: i.quando, bloqueadoPor: i.quem, obsBloqueio: i.obs || '', notas: (i.notas || []).slice() }, registro));
+  }
+
+  // ---------- painel: bloqueio resolvido (13/out/2026) ----------
+  // A linha dos Resolvidos nao abria nada (pedido do usuario): o painel conta a historia do bloqueio
+  // que saiu da fila. De onde veio, quem bloqueou, quanto tempo ficou parado, quem resolveu, o
+  // desfecho e o valor. So le: o que foi resolvido nao se desfaz aqui.
+  function abrirResolvido(id) {
+    const r = RESOLVIDOS.find(x => x.id === id);
+    if (!r) return;
+    const m = MOTIVOS_BLOQ[r.motivo], p = produtoDe(r.sku), un = esc(r.un), baixado = r.desfecho === 'baixado';
+    const parado = r.bloqueadoEm ? Math.max(0, diasDe(r.bloqueadoEm) - diasDe(r.quando)) : null;
+    const fato = (valor, rotulo, idFato) => '<div class="bq-fato"><b id="' + idFato + '">' + valor + '</b><span class="bq-rot">' + rotulo + '</span></div>';
+    const mp = baixado ? todosOsMotivosDeBaixa().filter(x => x.l === r.motivoPerda)[0] : null;
+    const obriga = !mp ? '' : (mp.fiscal === 'nfe' ? 'NF-e própria (CFOP 5.927) e estorno do crédito: está na fila de regularização fiscal'
+      : (mp.fiscal === 'interno' ? 'Documento interno; o estorno de crédito continua devido' : 'Nenhuma obrigação fiscal'));
+    const hist = [];
+    if (r.bloqueadoEm) hist.push({ tipo: 'bloqueio', quando: r.bloqueadoEm, quem: r.bloqueadoPor, titulo: 'Bloqueio',
+      texto: ORIGENS[r.origem] + (r.doc ? ' · ' + esc(r.doc) : '') + (r.obsBloqueio ? '. ' + esc(r.obsBloqueio) : '') });
+    (r.notas || []).forEach(n => hist.push({ tipo: 'nota', quando: n.quando, quem: n.quem, titulo: esc(n.titulo), texto: esc(n.texto) }));
+    hist.push({ tipo: r.desfecho, quando: r.quando, quem: r.quem, titulo: (baixado ? 'Baixa de ' : 'Liberação de ') + qtdTexto(r.qtd, un),
+      texto: desfechoTexto(r) + (r.obs ? '. ' + esc(r.obs) : '') });
+
+    abrirDrawer('Bloqueio resolvido',
+      '<div class="bq-topo"><div><div class="bq-nome">' + esc(r.produto) + '</div>' +
+        '<div class="prod-sku">' + esc(r.sku) + (r.custo ? ' · custo médio ' + moeda(r.custo) : '') + '</div></div>' +
+        '<span class="badge-situacao ' + (baixado ? 'bs-divergencia' : 'bs-atendida') + '" id="rvDesfecho">' + (baixado ? 'Baixado' : 'Liberado') + '</span></div>' +
+      '<div class="bq-fatos">' +
+        fato(qtdTexto(r.qtd, un), baixado ? 'baixado' : 'liberado', 'rvQtd') +
+        fato(r.custo ? moeda(r.qtd * r.custo) : '—', baixado ? 'valor da perda' : 'valor que voltou', 'rvValor') +
+        fato(parado === null ? '—' : (parado === 0 ? 'no dia' : parado + (parado === 1 ? ' dia' : ' dias')), 'ficou parado', 'rvParado') +
+        fato(esc(DEPOSITOS[r.dep] || '—'), 'depósito', 'rvDeposito') +
+      '</div>' +
+      '<div id="rvFatos">' +
+        linhaFato('Estava bloqueado por', m ? m.rotulo : '—') +
+        linhaFato('De onde veio', origemComLink(r)) +
+        linhaFato('Bloqueado em', r.bloqueadoEm ? fmtData(r.bloqueadoEm) + (r.bloqueadoPor ? ' · ' + esc(r.bloqueadoPor) : '') : 'não registrado') +
+        linhaFato(baixado ? 'Baixado em' : 'Liberado em', fmtData(r.quando) + (r.quem ? ' · ' + esc(r.quem) : '')) +
+        (baixado
+          ? linhaFato('Motivo da perda', esc(r.motivoPerda || '—')) + linhaFato('Acerto de saída', esc(r.acerto || '—')) + (obriga ? linhaFato('O que a baixa obriga', obriga) : '')
+          : linhaFato(r.motivo === 'falta' ? 'O que a auditoria achou' : 'Como saiu', r.causa ? CAUSAS_FALTA[r.causa] : 'Recuperado') + linhaFato('Voltou para', esc(r.destino || '—'))) +
+      '</div>' +
+      (r.obs ? '<div class="nota-reservado" style="margin:12px 0 0;">' + IC_CADEADO + '<span>' + esc(r.obs) + '</span></div>' : '') +
+      '<div class="extrato-bloco-titulo">O que aconteceu com este bloqueio</div><div id="rvHistorico">' +
+      hist.map(h => '<div class="mov-item"><div class="mov-icone ' + CLASSE_HIST[h.tipo] + '">' + IC_HIST[h.tipo] + '</div><div class="mov-info">' +
+        '<div class="mov-tipo">' + h.titulo + '</div><div class="mov-meta">' + h.texto + '</div>' +
+        '<div class="mov-meta">' + fmtData(h.quando) + (h.quem ? ' · ' + esc(h.quem) : '') + '</div></div></div>').join('') + '</div>' +
+      (p ? '<a class="bq-link" id="linkProdutoResolvido" href="' + URL_PRODUTO + p.id + '">Abrir a página do produto em Controle de Estoques</a>' : '') +
+      '<div class="drawer-footer"><div class="drawer-link" data-fechar-painel>Fechar <span class="esc-hint">ESC</span></div></div>');
+    document.querySelectorAll('#drawerCorpo [data-fechar-painel]').forEach(b => b.addEventListener('click', fecharDrawer));
   }
 
   // ---------- painel: bloquear item ----------

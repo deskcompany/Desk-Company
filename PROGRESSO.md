@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 12/out/2026, no ajuste do zero e dos motivos da baixa em Tratamento de Perdas.*
+*Atualizado em 13/out/2026, no painel dos resolvidos de Tratamento de Perdas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -28,6 +28,18 @@ esperam o teste dele.**
 **Ele testou a conferência e pediu um ajuste na baixa de Tratamento de Perdas, que está feito**
 (§14.61): o campo abre em branco, o zero digitado vale como resposta, e o motivo da perda é o da
 operação que criou o bloqueio.
+
+**Em 13/out ele voltou com mais dois pontos de Tratamento de Perdas, e os dois estão feitos**
+(§14.62): a linha dos Resolvidos abre o painel do bloqueio que saiu da fila, e o que se cadastra em
+Configurações → Motivos de Perda passou a valer na baixa. Ele também mandou seguir a lista de
+melhorias.
+
+**Atenção: há outra sessão trabalhando neste repositório.** Em 13/out uma segunda sessão está
+construindo a tela Movimentação de Estoque (`telas/estoque/pagina-estoque-movimentacao.html`) e
+incluiu o item dela no menu das 80 telas. Esta entrega commitou só o que é dela. **O selo completo
+não foi rodado para ela**, porque as 80 telas estavam em alteração pela outra sessão: rodaram as
+suítes das telas mexidas e a auditoria estrita dos dois arquivos. A rodada completa fica para quando
+a outra tela estiver pronta.
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -165,10 +177,15 @@ de testar a conferência:
 - **O cadastro de Motivos de Perda** (Configurações) ganhou o campo "Em que baixa o motivo aparece".
   Os dez motivos novos estão lá, e ele pode trocar, renomear ou criar outros.
 - **Na ficha da Separação**, o campo "Quantidade que você achou" tinha o mesmo "0" cinza; saiu.
+- **A linha dos Resolvidos abre o painel** (13/out, §14.62): de onde veio, quem bloqueou, quanto
+  tempo ficou parado, quem liberou ou baixou, o desfecho, o valor e a história do bloqueio.
+- **O cadastro de Motivos de Perda vale na baixa** (13/out): motivo criado, renomeado, inativado ou
+  excluído em Configurações aparece assim na baixa de Tratamento de Perdas. A lista do Acerto de
+  Estoque continua fixa.
 
 **9. A verificação.** Seis suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py` e
-`teste_perdas_baixa.py`. Cento e três defeitos injetados de propósito, um por vez; os cento e três
+`teste_perdas_baixa.py`. Cento e doze defeitos injetados de propósito, um por vez; os cento e doze
 são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
@@ -179,8 +196,8 @@ constante.
 
 ## Próximo da fila
 
-1. **O teste do usuário** no zero e nos motivos da baixa de Tratamento de Perdas, e o resto do teste
-   dele em Finanças, na venda e no estoque.
+1. **O selo completo**, assim que a outra sessão terminar a tela Movimentação de Estoque, e o teste
+   do usuário no painel dos resolvidos e no cadastro de motivos.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.

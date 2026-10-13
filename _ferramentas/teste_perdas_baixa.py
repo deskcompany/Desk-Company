@@ -211,6 +211,97 @@ with sync_playwright() as p:
         no_acerto = pg.evaluate("MOTIVOS.saida.map(m => m.l)")
         ok(no_acerto == GERAIS, 'o Acerto de Estoque continua oferecendo so os motivos de todas as baixas: %d' % len(no_acerto))
 
+    if secao(4, 'O que se cadastra em Motivos de Perda vale na baixa'):
+        # Pedido do usuario em 13/out: "para podermos fazer esses cadastros". Ate entao o cadastro vivia
+        # so na tela dele, ate recarregar, e a baixa oferecia a lista de exemplo.
+        do_zero()
+        pg.evaluate("localStorage.removeItem('deskMotivosPerda')")
+        ir(CADASTRO)
+        clic('#btnNovoMotivo'); pg.wait_for_timeout(350)
+        pg.fill('#inputNomeMotivo', 'Avaria na doca')
+        clic('#inputOperacao .dropdown-select-btn'); pg.wait_for_timeout(120)
+        clic('#inputOperacao .dropdown-select-item[data-value="entrada"]'); pg.wait_for_timeout(200)
+        clic('#btnSalvarMotivo'); pg.wait_for_timeout(350); confirmar_modal()
+        pg.evaluate("abrirDrawerMotivo(MOTIVOS.find(m => m.nome === 'Perda em trânsito').id)"); pg.wait_for_timeout(350)
+        pg.fill('#inputNomeMotivo', 'Extravio na estrada')
+        clic('#btnSalvarMotivo'); pg.wait_for_timeout(350); confirmar_modal()
+        pg.evaluate("abrirDrawerMotivo(MOTIVOS.find(m => m.nome === 'Consumo próprio').id)"); pg.wait_for_timeout(350)
+        clic('#inputSituacao .dropdown-select-btn'); pg.wait_for_timeout(120)
+        clic('#inputSituacao .dropdown-select-item[data-value="inativo"]'); pg.wait_for_timeout(200)
+        clic('#btnSalvarMotivo'); pg.wait_for_timeout(350); confirmar_modal()
+        ir(CADASTRO)
+        ok(pg.evaluate("MOTIVOS.some(m => m.nome === 'Avaria na doca' && m.operacao === 'entrada') && MOTIVOS.some(m => m.nome === 'Extravio na estrada') && !MOTIVOS.some(m => m.nome === 'Perda em trânsito')"),
+           'o motivo criado e o renomeado continuam no cadastro depois de recarregar a tela')
+        ir(PERDAS)
+        pg.evaluate("(c) => localStorage.setItem('deskBloqueiosEntrada', JSON.stringify(c))", DE_FORA); ir(PERDAS)
+        abrir(1)
+        vistos = motivos_oferecidos()
+        ok(vistos[:4] == DA_OPERACAO['entrada'] + ['Avaria na doca'], 'a baixa de um bloqueio da conferencia de entrada passa a oferecer o motivo criado: %s' % vistos[:4])
+        ok('Consumo próprio' not in vistos and 'Quebra ou avaria' in vistos and 'Furto ou roubo' in vistos, 'o motivo inativado no cadastro sai da baixa; os outros gerais continuam')
+        fechar_painel()
+        abrir(id_de('TR-0101'))
+        ok(motivos_oferecidos()[:3] == ['Extravio na estrada', 'Avaria no percurso', 'Furto ou roubo no trajeto'], 'e o motivo renomeado aparece com o nome novo: %s' % motivos_oferecidos()[:3])
+        digitar('resLiberar', '0')
+        pg.evaluate("document.querySelector('#resPerda .dropdown-select-btn').click()"); pg.wait_for_timeout(150)
+        pg.evaluate("Array.from(document.querySelectorAll('#resPerda .dropdown-select-item')).filter(e => e.textContent.trim() === 'Extravio na estrada')[0].click()"); pg.wait_for_timeout(250)
+        clic('#btnConfirmarResolver'); pg.wait_for_timeout(350)
+        dito = confirmar_modal(); confirmar_modal()
+        ok(dito.endswith('dar baixa em 2 UN por extravio na estrada, no acerto de saída AC-0051.') and pg.evaluate("RESOLVIDOS.some(r => r.motivoPerda === 'Extravio na estrada')"), 'a baixa sai com o motivo do cadastro: %s' % dito[-70:])
+        pg.evaluate("localStorage.setItem('deskMotivosPerda', '{\"lixo\": true}')"); ir(PERDAS)
+        abrir(1)
+        ok(motivos_oferecidos() == DA_OPERACAO['entrada'] + GERAIS and not erros, 'cadastro guardado ilegivel nao derruba a tela: valem os motivos de exemplo')
+        fechar_painel()
+        pg.evaluate("localStorage.removeItem('deskMotivosPerda')")
+
+    if secao(5, 'A linha dos Resolvidos abre o painel do bloqueio que saiu da fila'):
+        do_zero()
+        clic('#abasSituacao .aba-sit[data-sit="resolvidos"]'); pg.wait_for_timeout(300)
+
+        def resolvido(rid):
+            clic('#corpoResolvidos tr[data-rid="%d"] td' % rid); pg.wait_for_timeout(400)
+            r = pg.evaluate("""() => { const t = (id) => { const e = document.getElementById(id); return e ? e.textContent.trim() : null; };
+                const linhas = Object.fromEntries(Array.from(document.querySelectorAll('#rvFatos .extrato-linha')).map(l => [l.querySelector('.extrato-rotulo').textContent, l.querySelector('.extrato-valor').textContent.trim()]));
+                const a = document.querySelector('#rvFatos a');
+                return { aberto: document.getElementById('eventDrawer').classList.contains('open'), titulo: document.getElementById('drawerTitulo').textContent,
+                         desfecho: t('rvDesfecho'), qtd: t('rvQtd'), valor: t('rvValor'), parado: t('rvParado'), dep: t('rvDeposito'), linhas: linhas, link: a ? a.getAttribute('href') : null,
+                         hist: Array.from(document.querySelectorAll('#rvHistorico .mov-tipo')).map(e => e.textContent) }; }""")
+            pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+            return r
+
+        ok(pg.evaluate("getComputedStyle(document.querySelector('#corpoResolvidos tr')).cursor") == 'pointer', 'a linha dos resolvidos mostra que e clicavel')
+        a = resolvido(2)
+        ok(a['aberto'] and a['titulo'] == 'Bloqueio resolvido' and [a['desfecho'], a['qtd'], a['valor'], a['parado'], a['dep']] == ['Liberado', '1 UN', 'R$ 512,75', '3 dias', 'Galpão Centro'],
+           'liberado: o painel abre com a quantidade, o valor que voltou, os dias parado e o deposito: %s' % [a['desfecho'], a['qtd'], a['valor'], a['parado']])
+        ok(a['linhas'].get('De onde veio') == 'Conferência de saída · Pedido #25' and a['linhas'].get('Bloqueado em', '').endswith('· Ana Souza') and a['linhas'].get('Liberado em', '').endswith('· Administrador Desk')
+           and a['linhas'].get('O que a auditoria achou') == 'Estava no endereço: erro de conferência' and a['linhas'].get('Voltou para') == 'A-03-2-01',
+           'e diz de onde veio, quem bloqueou, quem liberou, o que a auditoria achou e para onde voltou')
+        ok(a['link'] == '../logistica/pagina-logistica-conferencia-saida-detalhe.html?id=25' and a['hist'] == ['Bloqueio', 'Liberação de 1 UN'], 'a origem leva ao pedido, e a historia tem o bloqueio e a liberacao: %s' % a['hist'])
+        ir('pagina-logistica-conferencia-saida-detalhe.html', '?id=25')
+        ok(pg.evaluate("!PEDIDO_INEXISTENTE && PEDIDO.numero === 25"), 'e a Conferencia de Saida tem o pedido 25')
+        ir(PERDAS); clic('#abasSituacao .aba-sit[data-sit="resolvidos"]'); pg.wait_for_timeout(300)
+        b = resolvido(1)
+        ok([b['desfecho'], b['qtd'], b['valor'], b['parado']] == ['Baixado', '1 UN', 'R$ 86,20', '9 dias'] and b['linhas'].get('Motivo da perda') == 'Quebra ou avaria' and b['linhas'].get('Acerto de saída') == 'AC-0050'
+           and 'NF-e' in b['linhas'].get('O que a baixa obriga', '') and b['linhas'].get('Baixado em', '').endswith('· Administrador Desk') and b['link'] is None,
+           'baixado: o valor da perda, o motivo, o acerto, o que a baixa obriga e quem baixou: %s' % [b['valor'], b['parado'], b['linhas'].get('Motivo da perda')])
+
+        # Uma baixa feita agora guarda a historia do bloqueio, com a anotacao que ele tinha.
+        clic('#abasSituacao .aba-sit[data-sit="todos"]'); pg.wait_for_timeout(250)
+        abrir(7); clic('#btnBaixarTudo'); pg.wait_for_timeout(200); escolher('resPerda', 'perda')
+        clic('#btnConfirmarResolver'); pg.wait_for_timeout(350); confirmar_modal(); confirmar_modal()
+        clic('#abasSituacao .aba-sit[data-sit="resolvidos"]'); pg.wait_for_timeout(300)
+        novo = pg.evaluate("RESOLVIDOS.find(r => r.sku === 'CAM-DKB-011').id")
+        c = resolvido(novo)
+        ok([c['desfecho'], c['qtd'], c['valor'], c['parado']] == ['Baixado', '8 UN', 'R$ 334,40', '12 dias'] and c['hist'] == ['Bloqueio', 'Anotação', 'Baixa de 8 UN']
+           and c['linhas'].get('Bloqueado em', '').endswith('· Administrador Desk'), 'baixa feita agora: 12 dias parado, e a historia traz o bloqueio, a anotacao e a baixa: %s' % c['hist'])
+
+        # O navegador de quem ja usava a tela tem resolvidos sem a data do bloqueio.
+        pg.evaluate("""() => { const e = JSON.parse(localStorage.getItem('deskBloqueados')); e.resolvidos.forEach(r => { delete r.bloqueadoEm; delete r.bloqueadoPor; delete r.notas; delete r.obsBloqueio; });
+            e.resolvidos.filter(r => r.doc === 'Pedido #25').forEach(r => { r.doc = 'Pedido #19'; }); localStorage.setItem('deskBloqueados', JSON.stringify(e)); }""")
+        ir(PERDAS); clic('#abasSituacao .aba-sit[data-sit="resolvidos"]'); pg.wait_for_timeout(300)
+        d = resolvido(2)
+        ok(d['aberto'] and d['parado'] == '—' and d['linhas'].get('Bloqueado em') == 'não registrado' and d['hist'] == ['Liberação de 1 UN'] and d['linhas'].get('De onde veio') == 'Conferência de saída · Pedido #25' and not erros,
+           'resolvido guardado antes desta mudanca abre sem erro, diz que a data do bloqueio nao foi registrada, e o pedido do exemplo antigo e corrigido')
+
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
 

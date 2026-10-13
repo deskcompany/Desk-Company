@@ -811,7 +811,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="dropdown-select-item" data-value="saida">Separação e conferência de saída</div>
         </div>
       </div>
-      <div class="field-hint">Em Tratamento de Perdas, a baixa oferece primeiro os motivos da operação que criou o bloqueio, e depois os de todas as baixas. O Acerto de Estoque oferece só os de todas as baixas.</div>
+      <div class="field-hint">Em Tratamento de Perdas, a baixa oferece primeiro os motivos da operação que criou o bloqueio, e depois os de todas as baixas. O Acerto de Estoque oferece só os de todas as baixas, e a lista dele ainda é fixa neste protótipo.</div>
     </div>
 
     <div class="form-secao">O que a baixa obriga</div>
@@ -1527,6 +1527,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
 
   let buscaAtual = '';
+  // O cadastro vale nas outras telas (13/out/2026): o que e criado, alterado, inativado ou excluido
+  // aqui fica guardado no navegador, e a baixa de Tratamento de Perdas oferece o que este cadastro
+  // diz. Antes disso a lista vivia so nesta tela, ate recarregar. No sistema de producao e a tabela
+  // de motivos, lida pelas duas telas.
+  const CHAVE_MOTIVOS = 'deskMotivosPerda';
+  (function lerMotivosGuardados() {
+    try {
+      const g = JSON.parse(localStorage.getItem(CHAVE_MOTIVOS) || 'null');
+      if (!Array.isArray(g) || !g.length || !g.every(m => m && typeof m.nome === 'string' && GRUPOS[m.grupo] && DESTINOS[m.destino])) return;
+      MOTIVOS.length = 0;
+      g.forEach(m => MOTIVOS.push(m));
+    } catch (e) { /* guardado ilegivel: vale o exemplo */ }
+  })();
+  function guardarMotivos() {
+    try { localStorage.setItem(CHAVE_MOTIVOS, JSON.stringify(MOTIVOS)); } catch (e) { /* armazenamento bloqueado: vale ate recarregar */ }
+  }
+
   let filtroTipoAtual = 'todos';
   let filtroSituacaoAtual = 'todos';
   let motivoEmEdicaoId = null;
@@ -1731,7 +1748,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     armarSenhaModal('motivosPerdaExclui');
     abrirModalConfirmacao(texto, n, () => {
       for (let i = MOTIVOS.length - 1; i >= 0; i--) {
-        if (itensSelecionados.has(MOTIVOS[i].id)) MOTIVOS.splice(i, 1);
+        if (itensSelecionados.has(MOTIVOS[i].id)) { MOTIVOS.splice(i, 1); guardarMotivos(); }
       }
       itensSelecionados.clear();
       renderMotivos();
@@ -1746,6 +1763,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     abrirModalConfirmacao(texto, n, () => {
       MOTIVOS.forEach(t => { if (itensSelecionados.has(t.id)) t.status = 'inativo'; });
       itensSelecionados.clear();
+      guardarMotivos();
       renderMotivos();
     });
   });
@@ -1889,7 +1907,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     armarSenhaModal('motivosPerdaExclui');
     abrirModalConfirmacao('Confirma exclusão do motivo "' + t.nome + '"? Devoluções antigas apontam para ele — inativar guarda a história, excluir apaga.', 1, () => {
       const index = MOTIVOS.findIndex(x => x.id === motivoEmEdicaoId);
-      if (index !== -1) MOTIVOS.splice(index, 1);
+      if (index !== -1) { MOTIVOS.splice(index, 1); guardarMotivos(); }
       renderMotivos();
       fecharDrawer();
     });
@@ -1948,6 +1966,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           MOTIVOS.push(Object.assign({ id: Date.now() }, dados));
         }
         renderMotivos();
+        guardarMotivos();
         fecharDrawer();
       });
   });
