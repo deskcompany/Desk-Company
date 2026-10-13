@@ -199,6 +199,11 @@ with sync_playwright() as p:
        'produto de outra loja nao aparece, e a tela diz por que')
     pg.fill('#buscaProduto', 'fone'); pg.wait_for_timeout(250)
     ok(pg.locator('#sugestoes .pdv-sug').count() == 1 and 'saldo 34' in pg.inner_text('#sugestoes'), 'a busca por descricao acha, com preco e saldo')
+    # 13/out: a sugestao do PDV tem a cara da busca padrao de produto. Com nome e dados lado a lado, o texto
+    # nao cabia no campo e a caixa ganhava barra de rolagem (print do usuario).
+    forma = pg.evaluate("(() => { const c = document.getElementById('sugestoes'), i = c.querySelector('.pdv-sug'), n = i.firstElementChild.getBoundingClientRect(), s = i.querySelector('.pdv-sug-sub').getBoundingClientRect();"
+                        " return [c.scrollWidth <= c.clientWidth, s.top >= n.bottom - 1, getComputedStyle(i.firstElementChild).fontWeight]; })()")
+    ok(forma == [True, True, '700'], 'a sugestao sai com o nome em cima e os dados embaixo, sem barra de rolagem: %s' % forma)
     pg.locator('#buscaProduto').press('Enter'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#prodSelecionado') and pg.inner_text('#prodSku') == 'FON-BT-200', 'Enter escolhe a sugestao e mostra o produto')
     ok('Geral' in pg.inner_text('#prodRotuloEstoque') and '34' in pg.inner_text('#prodEstoque'), 'com o disponivel no deposito da venda')

@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com a aba Produtos Fornecidos no cadastro do fornecedor.*
+*Atualizado em 13/out/2026, com o Esc dos painéis laterais e o retorno do usuário sobre as buscas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -57,6 +57,13 @@ que ficava preso, e a prova passou a rodar numa cópia das telas, fora do projet
 C2 (o painel do fornecedor), está feito. Ele testou, deu ok no resto e pediu uma mudança: a lista
 dos produtos sair do painel lateral e virar a aba "Produtos Fornecidos" dentro do cadastro do
 fornecedor. Está feita e espera o teste dele (§14.67). Faltam C3 a C8.
+
+**Ainda em 13/out ele voltou com um defeito e dois ajustes, e os três estão feitos e esperam o teste
+dele** (§14.68). O Esc não fechava o painel lateral nos cadastros: medido nas 81 telas, eram 42
+painéis em seis módulos, e o conserto foi de componente, nas 61 telas que têm painel. O campo de
+produto da Movimentação de Estoque ganhou o "x" que tira o produto, e as sugestões de produto do PDV
+ficaram com a cara da busca padrão. Três assuntos ele quis conversar antes de mexer, e estão em
+"Esperando decisão do usuário": o padrão de busca, o botão do painel dos cadastros e a ordem do menu.
 
 **Duas conversas mexeram no projeto ao mesmo tempo em 13/out**: uma no painel dos resolvidos de
 Tratamento de Perdas, outra na Movimentação de Estoque. Cada uma fez o commit só do que era dela, e
@@ -241,14 +248,31 @@ de testar a conferência:
   fornecedores que Ordens de Compra, Entrada de Notas e Contas a Pagar usam, com o mesmo nome e o
   mesmo CNPJ, e a Papelaria Central perdeu o "Ltda" que só existia ali.
 
-**11. A verificação.** Oito suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**11. Esc fecha o painel lateral, em toda tela** (13/out, §14.68), defeito relatado pelo usuário:
+
+- **O Esc não fechava 42 painéis**, em seis módulos (12 só em Cadastros), embora todo painel mostre
+  "ESC" ao lado de fechar. Cada tela escrevia o seu tratamento da tecla, e a maioria só fechava o
+  modal de confirmação.
+- **O conserto é um bloco comum**, nas 61 telas com painel e no molde: o Esc vale como clicar no
+  "fechar" do painel aberto. Com menu, calendário, sugestão ou modal por cima, o de cima fecha
+  primeiro.
+- **Sete telas tinham tratamento próprio que fechava o painel com algo na frente** (Estágios do
+  funil, Formas de recebimento, Contas a Pagar, Contas a Receber, Transferência, Conferência de
+  Entrada e Inventário). O tratamento próprio saiu delas; ficou o bloco comum.
+- **Movimentação de Estoque:** o campo de produto tem um "x" que tira o produto e deixa o cursor
+  pronto para pesquisar outro.
+- **PDV:** as sugestões de produto saem com o nome em cima e os dados embaixo, como na busca padrão.
+  Lado a lado, o texto não cabia e a caixa ganhava barra de rolagem.
+
+**12. A verificação.** Nove suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e setenta e
-três defeitos injetados de propósito, um por vez; os cento e setenta e três são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py` e `teste_esc_painel.py`.
+Cento e oitenta e quatro defeitos injetados de propósito, um por vez; os cento e oitenta e quatro
+são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
-**12. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**13. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
@@ -288,6 +312,20 @@ Nenhuma destas trava o teste.
 3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
+4. **Padrão de busca.** Ele perguntou em 13/out se a busca do Controle de Estoques devia abrir
+   sugestões, como a da Movimentação. Opinião dada: são dois trabalhos, e continuam dois padrões.
+   Lista que já está na tela filtra enquanto se digita (Controle de Estoques, Clientes, Produtos,
+   Fornecedores); escolher um item para agir abre sugestões (Movimentação, Acerto, Transferência,
+   Tratamento de Perdas, Produtos Fornecidos e PDV). Falta ele dizer se concorda e se quer mais duas
+   coisas: as setas do teclado, que só o PDV tem, nas outras buscas; e a caixa do PDV com a lupa e
+   o formato das outras.
+5. **Botão do painel dos cadastros.** Ele propôs trocar "Editar cadastro completo" por "Ver cadastro
+   completo", com o editar dentro da página. A página já abre só para leitura e já tem o botão de
+   editar; hoje o painel pula essa etapa. Recomendado: trocar nos cinco cadastros com página própria
+   (Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk). Espera o ok dele.
+6. **Ordem do menu.** Proposta entregue em 13/out, por sequência de trabalho e não por alfabeto:
+   Estoque, Cadastros, Vendas e Finanças mudam; Início e Logística ficam. A troca alcança as 81
+   telas e as suítes que conferem posição no menu. Espera o ok dele.
 
 ## O que continua sendo dado de exemplo
 

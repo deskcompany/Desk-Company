@@ -1443,6 +1443,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 <script>
+  // ===== ESC FECHA O PAINEL LATERAL (correcao de COMPONENTE, nao de tela — 13/out/2026) =====
+  // O painel mostra "ESC" ao lado de fechar, mas em 42 paineis o Esc so fechava o modal de confirmacao:
+  // cada tela escrevia o seu tratamento de tecla, e a maioria esqueceu o painel. Aqui o Esc vale como
+  // clicar no "fechar" do painel aberto, entao cada tela continua dona do proprio fechamento. Roda na
+  // captura e vem ANTES do bloco do dropdown: com menu, calendario, sugestao ou modal por cima, nao faz
+  // nada, porque o que esta por cima fecha primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.querySelector('.dropdown-select-menu.open, .store-menu.open, .modal-card.open, .sugestoes.open, .date-pop.open, .periodo-menu.open, .auto-menu.open, .multiselect-menu.open, .mais-acoes-menu.open')) return;
+    const abertos = document.querySelectorAll('.event-drawer.open');
+    // Com dois paineis abertos, o de cima e o ultimo da pagina.
+    const fechar = abertos.length ? abertos[abertos.length - 1].querySelector('.drawer-close') : null;
+    if (!fechar) return;
+    fechar.click();
+    e.stopPropagation();
+  }, true);
+
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
   // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o
@@ -2182,10 +2199,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('efFechar').addEventListener('click', fecharEstagio);
   document.getElementById('efExcluir').addEventListener('click', excluirEstagio);
   efBackdrop.addEventListener('click', fecharEstagio);
-  // Esc fecha o painel, mas so quando nao ha modal por cima: o modal fecha primeiro.
-  document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape' && efDrawer.classList.contains('open') && !document.getElementById('confirmModal').classList.contains('open')) fecharEstagio();
-  }, true);
+  // O Esc fecha este painel pelo bloco comum "ESC FECHA O PAINEL LATERAL", que respeita o que esta por cima.
   pintarEstagios();
 
   path = ['Configurações', 'Configurações ERP', 'Estágios do funil de vendas'];

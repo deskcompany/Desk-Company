@@ -911,6 +911,12 @@
   .mv-c-produto { flex:1 1 230px; }
   /* A busca padrao de produto ocupa o campo inteiro: o limite de largura dela e o da barra das listas. */
   .mv-c-produto .search-wrap { min-width:0; max-width:none; }
+  /* O x que tira o produto do campo: uma bolinha no fim da caixa, que so aparece com texto. */
+  .mv-c-produto .search-wrap input[type="text"] { padding-right:36px; }
+  .mv-x { position:absolute; right:9px; top:50%; transform:translateY(-50%); display:flex; align-items:center; justify-content:center; width:20px; height:20px; padding:0; border:none; border-radius:50%; background:rgba(120,120,140,0.22); color:var(--text-heading); cursor:pointer; }
+  .mv-x:hover { background:rgba(120,120,140,0.38); }
+  .mv-x:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  .search-wrap .mv-x svg { position:static; transform:none; width:10px; height:10px; color:inherit; }
   .mv-c-tipo { flex:0 0 224px; }
   .mv-datas { display:flex; gap:14px; }
   .mv-datas .form-field { flex:0 0 126px; }
@@ -1188,6 +1194,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="search-wrap busca-produto-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="buscaProduto" placeholder="Pesquise por nome, código (SKU) ou GTIN/EAN" autocomplete="off">
+          <button type="button" class="mv-x" id="btnLimparProduto" aria-label="Tirar o produto e pesquisar outro" title="Tirar o produto e pesquisar outro" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           <div class="sugestoes" id="sugestoesProduto"></div>
         </div>
       </div>
@@ -1373,6 +1380,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 <script>
+  // ===== ESC FECHA O PAINEL LATERAL (correcao de COMPONENTE, nao de tela — 13/out/2026) =====
+  // O painel mostra "ESC" ao lado de fechar, mas em 42 paineis o Esc so fechava o modal de confirmacao:
+  // cada tela escrevia o seu tratamento de tecla, e a maioria esqueceu o painel. Aqui o Esc vale como
+  // clicar no "fechar" do painel aberto, entao cada tela continua dona do proprio fechamento. Roda na
+  // captura e vem ANTES do bloco do dropdown: com menu, calendario, sugestao ou modal por cima, nao faz
+  // nada, porque o que esta por cima fecha primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.querySelector('.dropdown-select-menu.open, .store-menu.open, .modal-card.open, .sugestoes.open, .date-pop.open, .periodo-menu.open, .auto-menu.open, .multiselect-menu.open, .mais-acoes-menu.open')) return;
+    const abertos = document.querySelectorAll('.event-drawer.open');
+    // Com dois paineis abertos, o de cima e o ultimo da pagina.
+    const fechar = abertos.length ? abertos[abertos.length - 1].querySelector('.drawer-close') : null;
+    if (!fechar) return;
+    fechar.click();
+    e.stopPropagation();
+  }, true);
+
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
   // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o
@@ -2726,9 +2750,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : '<div class="sugestao-vazia">Nenhum produto encontrado para “' + esc(termo) + '”.</div>';
     caixaSugestoes.classList.add('open');
   }
+  // O x do campo so aparece com texto: tira o produto e deixa o cursor pronto para o proximo (13/out/2026).
+  const btnLimparProduto = document.getElementById('btnLimparProduto');
+  function pintarLimparProduto() { btnLimparProduto.style.display = campoBuscaProduto.value ? '' : 'none'; }
+  function tirarProduto() {
+    produtoEscolhido = null;
+    campoBuscaProduto.value = '';
+    renderSugestoes('');
+    pintarLimparProduto();
+  }
   function escolherProduto(p) {
     produtoEscolhido = p;
     campoBuscaProduto.value = p.nome;
+    pintarLimparProduto();
     caixaSugestoes.classList.remove('open');
     document.getElementById('campoProduto').classList.remove('has-error');
   }
@@ -2764,9 +2798,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Limpar devolve a tela ao estado em que ela abre: sem produto, e com o mes atual nas datas.
   function limpar() {
     ['filtroDeposito', 'filtroTipoMov'].forEach(id => document.querySelector('#' + id + ' .dropdown-select-item[data-value="todos"]').click());
-    produtoEscolhido = null;
-    campoBuscaProduto.value = '';
-    renderSugestoes('');
+    tirarProduto();
     periodoPadrao();
     ['campoProduto', 'campoDataDe', 'campoDataAte'].forEach(id => document.getElementById(id).classList.remove('has-error'));
     document.getElementById('erroBusca').classList.remove('show');
@@ -2786,7 +2818,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   montarFiltro('filtroDeposito', 'Todos os depósitos', Object.keys(DEPOSITOS).map(k => ({ v: k, t: DEPOSITOS[k] })), () => {});
   montarFiltro('filtroTipoMov', 'Todos os tipos', Object.keys(TIPOS_MOV).map(k => ({ v: k, t: TIPOS_MOV[k].rotulo })), () => {});
-  campoBuscaProduto.addEventListener('input', (e) => { produtoEscolhido = null; renderSugestoes(e.target.value); });
+  campoBuscaProduto.addEventListener('input', (e) => { produtoEscolhido = null; renderSugestoes(e.target.value); pintarLimparProduto(); });
+  btnLimparProduto.addEventListener('click', () => { tirarProduto(); campoBuscaProduto.focus(); });
   campoBuscaProduto.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') caixaSugestoes.classList.remove('open');
     if (e.key !== 'Enter') return;

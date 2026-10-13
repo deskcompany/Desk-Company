@@ -162,6 +162,7 @@ with sync_playwright() as p:
            'os filtros trazem os 5 depósitos e os 9 tipos de movimento (mais "todos")')
         ok(pg.evaluate("document.querySelectorAll('select').length") == 0, 'nenhum campo de escolha nativo: tudo é componente da casa')
         ok([pg.input_value('#dataDe'), pg.input_value('#dataAte')] == MES, 'as datas abrem no mês atual, do dia 1 até hoje: %s a %s' % tuple(MES))
+        ok(not visivel('#btnLimparProduto'), 'com o campo de produto vazio, o x não aparece')
         clic('#btnBuscar'); pg.wait_for_timeout(200)
         ok(texto('#erroBusca') == 'Escolha o produto.' and visivel('#erroBusca') and pg.evaluate("document.getElementById('campoProduto').classList.contains('has-error')")
            and not visivel('#painelResultado'), 'Buscar sem produto não busca: o campo fica marcado e a tela diz o que falta')
@@ -189,6 +190,15 @@ with sync_playwright() as p:
         ok(texto('#erroBusca') == 'Escolha o produto na lista de sugestões.' and visivel('#erroBusca'), 'mexer no texto desfaz a escolha: produto digitado e não escolhido não busca')
         pg.fill('#buscaProduto', 'lum-led'); pg.wait_for_timeout(150); clic('#btnBuscar'); pg.wait_for_timeout(250)
         ok(texto('#painelProduto .bq-nome') == 'Luminária LED Ajustável' and not visivel('#erroBusca'), 'texto que só casa com um produto já é a escolha')
+        # O x do campo (13/out): tira o produto e deixa o cursor pronto para pesquisar outro.
+        ok(visivel('#btnLimparProduto') and pg.input_value('#buscaProduto') == 'Luminária LED Ajustável', 'com produto no campo, aparece o x para tirá-lo')
+        pg.click('#btnLimparProduto'); pg.wait_for_timeout(150)
+        ok(pg.input_value('#buscaProduto') == '' and pg.evaluate('produtoEscolhido') is None and not visivel('#btnLimparProduto') and pg.evaluate("document.activeElement.id") == 'buscaProduto',
+           'clicar no x esvazia o campo, desfaz a escolha, some com o x e deixa o cursor no campo')
+        ok(visivel('#painelResultado') and texto('#painelProduto .bq-nome') == 'Luminária LED Ajustável', 'e a lista que estava na tela continua até a próxima busca')
+        pg.keyboard.type('fone'); pg.wait_for_timeout(150)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#sugestoesProduto.open .sugestao-item')).map(e => e.getAttribute('data-sku'))") == ['FON-BLT-013'] and visivel('#btnLimparProduto'),
+           'dá para digitar o próximo produto direto: as sugestões abrem, e o x volta')
 
         buscar('CAD-ERG-001')
         ok(visivel('#painelResultado') and not visivel('#painelInicio') and not visivel('#erroBusca') and texto('#painelProduto .bq-nome') == 'Cadeira Ergonômica Pro'
@@ -412,8 +422,9 @@ with sync_playwright() as p:
         ir(MOV)
         antes = pg.evaluate("JSON.stringify(Object.keys(localStorage).sort().map(k => [k, localStorage.getItem(k)]))")
         buscar('TEC-MEC-006', de='tudo')
-        botoes = pg.evaluate("Array.from(document.querySelectorAll('.main button, .main .drawer-link')).filter(b => b.offsetParent !== null && !b.closest('.dropdown-select') && !b.closest('.date-field') && !b.closest('.paginacao-nav') && !b.closest('.modal-card') && !b.closest('.event-drawer')).map(b => b.textContent.trim())")
-        ok(botoes == ['Buscar', 'Limpar', 'Resumo por tipo', 'Imprimir lista', 'Baixar planilha'], 'os botões da tela são buscar, limpar, resumir, imprimir e baixar, cada um com um nome só: %s' % botoes)
+        botoes = pg.evaluate("Array.from(document.querySelectorAll('.main button, .main .drawer-link')).filter(b => b.offsetParent !== null && !b.closest('.dropdown-select') && !b.closest('.date-field') && !b.closest('.paginacao-nav') && !b.closest('.modal-card') && !b.closest('.event-drawer')).map(b => b.textContent.trim() || b.getAttribute('aria-label'))")
+        ok(botoes == ['Tirar o produto e pesquisar outro', 'Buscar', 'Limpar', 'Resumo por tipo', 'Imprimir lista', 'Baixar planilha'],
+           'os botões da tela são o x do produto, buscar, limpar, resumir, imprimir e baixar, cada um com um nome só: %s' % botoes)
         ok(pg.evaluate("document.querySelectorAll('#painelResultado input, #painelFiltros input[type=\"checkbox\"], #menuMaisAcoes, .selecao-bar').length") == 0, 'sem seleção, sem menu de ações e sem campo de digitar na lista')
         esperado = pg.evaluate("linhasDaConsulta().lista.length")
         with pg.expect_download(timeout=5000) as d:

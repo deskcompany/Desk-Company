@@ -3028,3 +3028,64 @@ de rascunho.
 
 **Fica anotado.** A página de cadastro abre sempre a TechParts, qualquer que seja o fornecedor
 clicado (item G3). O que se edita na aba vale até recarregar, como o resto do formulário.
+
+## 14.68 Esc fecha o painel lateral em toda tela, o x do produto e a busca do PDV (13/out/2026)
+
+**O relato.** O usuário apontou que o Esc não funcionava em nenhum painel lateral de Cadastros. O
+painel mostra "ESC" ao lado de fechar, então a tela prometia e não cumpria.
+
+**Em quantos lugares.** Medido nas 81 telas, abrindo cada painel e apertando a tecla: 89 painéis, e
+em 42 o Esc não fechava. Doze em Cadastros, treze em Finanças, sete em Configurações, cinco em
+Estoque, dois no Início, dois em Logística e o do molde. A causa era a mesma em todas: cada tela
+escrevia o próprio tratamento da tecla, e a maioria só fechava o modal de confirmação.
+
+**O conserto é de componente.** Um bloco comum, "ESC FECHA O PAINEL LATERAL", nas 61 telas que têm
+painel na marcação: o Esc vale como clicar no "fechar" do painel aberto. Assim cada tela continua
+dona do seu fechamento (limpar formulário, tirar o fundo escuro), e painel novo não precisa de
+tratamento próprio; basta ter o controle `.drawer-close`. Três decisões do bloco:
+
+- **Roda na captura e vem antes do bloco do dropdown.** Com menu, calendário, sugestão ou modal por
+  cima, não faz nada: o que está por cima fecha primeiro. Se viesse depois, o bloco do dropdown já
+  teria fechado o menu, e o mesmo Esc fecharia o painel junto.
+- **Depois de fechar, para a propagação.** Senão o tratamento antigo da tela rodaria em seguida, e
+  numa página de detalhe ele pode significar "voltar".
+- **Com dois painéis abertos, fecha o último da página**, que é o de cima.
+
+**Sete telas tinham um tratamento próprio que fechava o painel com algo na frente.** A suíte nova
+abriu cada painel com cada modal e com um menu por cima, 191 combinações, e achou: Estágios do
+funil, Formas de recebimento, Contas a Pagar, Contas a Receber, Transferência, Conferência de
+Entrada e Inventário. Dois motivos. Uns só conheciam o modal de confirmação e fechavam o painel com
+o aviso aberto; outros rodavam depois de o modal fechar, viam "nenhum modal" e fechavam o painel no
+mesmo Esc. O tratamento próprio saiu das sete: com o bloco comum ele era redundante, e era ele que
+errava. O que vale levar: **quando o componente passa a cuidar de uma coisa, o tratamento antigo de
+cada tela sai junto; dois donos para a mesma tecla é onde a regra quebra.**
+
+**O molde tem dois documentos.** O segundo é referência dentro de comentário e não executa. O
+A primeira aplicação do bloco caiu nele; a medição mostrou que o painel do molde continuava sem
+fechar, e o bloco foi para o script que roda. A suíte confere isso.
+
+**O x do produto, na Movimentação de Estoque.** Pedido do usuário: uma bolinha com "x" dentro do
+campo, que tira o produto e deixa o cursor pronto para o próximo. Só aparece com texto no campo. A
+lista que está na tela fica até a próxima busca, como qualquer filtro desta tela. Nas outras buscas
+de produto o campo se esvazia sozinho depois da escolha, e por isso o x é só aqui.
+
+**A sugestão de produto do PDV.** No print dele, nome e dados vinham lado a lado, não cabiam no
+campo e a caixa ganhava barra de rolagem. Passou a ter a cara da busca padrão: nome em cima, código,
+preço e saldo embaixo. O comportamento do PDV não mudou (setas, Enter no código exato).
+
+**O que ele quis conversar antes de mexer**, e está no `PROGRESSO.md`:
+
+- **Um padrão de busca só?** A opinião dada foi manter dois, porque são dois trabalhos. Filtrar a
+  lista que já está na tela não abre sugestões: a própria lista embaixo é a resposta. Escolher um
+  item para agir, numa tela sem lista, abre sugestões. O que tem de ser igual é cada padrão dentro
+  dele mesmo. O segundo existe em seis telas; cinco usam o mesmo componente e o PDV era a exceção.
+- **O botão do painel dos cadastros.** Hoje "Editar cadastro completo" abre a página já editável. A
+  proposta dele, "Ver cadastro completo" com o editar dentro, custa pouco: a página já abre em
+  leitura e já tem o botão de editar.
+- **A ordem do menu**, por sequência de trabalho.
+
+**Provado nos dois sentidos, numa cópia.** `teste_esc_painel.py` tem 12 asserções em quatro seções;
+`teste_movimentacao.py` foi a 122 e `teste_pdv.py` a 199. Onze defeitos injetados, um por vez, e os
+onze pegos. Dez rodaram numa cópia das telas fora do projeto, com `DESK_PASTA`, depois de conferir
+que as suítes passam na cópia intacta. O do PDV rodou no arquivo de verdade, porque a suíte dele
+abre a tela pelo servidor de preview: em primeiro plano, com a restauração conferida byte a byte.
