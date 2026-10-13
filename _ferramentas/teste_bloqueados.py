@@ -176,10 +176,12 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erros.append(str(e)))
 
     print('\n[1] Menu e abertura')
-    padrao = re.compile(r'data-label="Tratamento de Perdas" data-href="\.\./estoque/pagina-estoque-itens-bloqueados\.html">.*?</div>\s*<div class="flyout-item" data-label="Acerto de Estoque"', re.S)
+    # 13/out: o menu passou a seguir a sequencia de trabalho (contar, corrigir, perdas), e Tratamento de
+    # Perdas desceu para logo depois de Acerto de Estoque. A ordem inteira e guardada por teste_menu.py.
+    padrao = re.compile(r'data-label="Acerto de Estoque" data-href="\.\./estoque/pagina-estoque-acerto\.html">[^\n]*</div>\s*<div class="flyout-item" data-label="Tratamento de Perdas" data-href="\.\./estoque/pagina-estoque-itens-bloqueados\.html">')
     com_menu = [c for c in localiza.caminhos() if 'data-label="Acerto de Estoque"' in open(c, encoding='utf-8').read()]
     sem = [_os.path.basename(c) for c in com_menu if len(padrao.findall(open(c, encoding='utf-8').read())) != open(c, encoding='utf-8').read().count('data-label="Acerto de Estoque"')]
-    ok(len(com_menu) >= 79 and not sem, 'toda tela com menu traz Tratamento de Perdas logo acima de Acerto de Estoque: %d telas, faltando %s' % (len(com_menu), sem[:3]))
+    ok(len(com_menu) >= 79 and not sem, 'toda tela com menu traz Tratamento de Perdas logo depois de Acerto de Estoque, com destino: %d telas, faltando %s' % (len(com_menu), sem[:3]))
     ir(pg, CRM)
     clic(pg, '.nav-item[data-id="estoque"]'); pg.wait_for_timeout(450)
     clic(pg, '#flyout-estoque .flyout-item[data-label="Tratamento de Perdas"]'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)

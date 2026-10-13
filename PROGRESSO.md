@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com o Esc dos painéis laterais e o retorno do usuário sobre as buscas.*
+*Atualizado em 13/out/2026, com a ordem nova do menu, "Ver cadastro completo" e a caixa de busca do PDV.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -62,8 +62,13 @@ fornecedor. Está feita e espera o teste dele (§14.67). Faltam C3 a C8.
 dele** (§14.68). O Esc não fechava o painel lateral nos cadastros: medido nas 81 telas, eram 42
 painéis em seis módulos, e o conserto foi de componente, nas 61 telas que têm painel. O campo de
 produto da Movimentação de Estoque ganhou o "x" que tira o produto, e as sugestões de produto do PDV
-ficaram com a cara da busca padrão. Três assuntos ele quis conversar antes de mexer, e estão em
-"Esperando decisão do usuário": o padrão de busca, o botão do painel dos cadastros e a ordem do menu.
+ficaram com a cara da busca padrão.
+
+**Três assuntos ele quis conversar antes de mexer, respondeu no mesmo dia, e os três estão feitos e
+esperam o teste dele** (§14.69). O menu passou a seguir a sequência de trabalho, nas 81 telas, com a
+regra escrita para módulo novo. Nos cinco cadastros com página própria, o painel traz "Ver cadastro
+completo" e o "Editar cadastro" fica no topo da página. E a caixa de busca de produto do PDV ficou
+no formato das outras.
 
 **Duas conversas mexeram no projeto ao mesmo tempo em 13/out**: uma no painel dos resolvidos de
 Tratamento de Perdas, outra na Movimentação de Estoque. Cada uma fez o commit só do que era dela, e
@@ -264,15 +269,28 @@ de testar a conferência:
 - **PDV:** as sugestões de produto saem com o nome em cima e os dados embaixo, como na busca padrão.
   Lado a lado, o texto não cabia e a caixa ganhava barra de rolagem.
 
-**12. A verificação.** Nove suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**12. O menu por sequência de trabalho, "Ver cadastro completo" e a busca do PDV** (13/out, §14.69):
+
+- **O menu segue a sequência de trabalho, e não o alfabeto**, igual nas 81 telas. A regra: a tela de
+  consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e
+  Relatórios por último. Mudaram Cadastros, Estoque, Vendas, Finanças e Integrações.
+- **Módulo ou item novo entra na posição da função dele.** A regra está no §4 do design system, no
+  mapa dos módulos e nas skills, e a seção 11 de `teste_menu.py` reprova o menu fora da ordem.
+- **Um nome de menu estava diferente em duas telas:** "Gateways de Recebimento" em Contas a Receber e
+  na página da conta, contra "Gateways de Pagamento" nas outras 79. Voltou o nome comum.
+- **"Ver cadastro completo"** no painel de Clientes, Fornecedores, Produtos, Vendedores e Lojas
+  Desk. A página abre só para leitura, e o botão "Editar cadastro", no topo, destrava.
+- **PDV:** a caixa de busca de produto é arredondada e tem a lupa, como as outras.
+
+**13. A verificação.** Nove suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py` e `teste_esc_painel.py`.
-Cento e oitenta e quatro defeitos injetados de propósito, um por vez; os cento e oitenta e quatro
-são pegos. A auditoria do
+Cento e noventa e um defeitos injetados de propósito, um por vez; os cento e noventa e um são
+pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
-**13. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**14. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
@@ -312,20 +330,10 @@ Nenhuma destas trava o teste.
 3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
-4. **Padrão de busca.** Ele perguntou em 13/out se a busca do Controle de Estoques devia abrir
-   sugestões, como a da Movimentação. Opinião dada: são dois trabalhos, e continuam dois padrões.
-   Lista que já está na tela filtra enquanto se digita (Controle de Estoques, Clientes, Produtos,
-   Fornecedores); escolher um item para agir abre sugestões (Movimentação, Acerto, Transferência,
-   Tratamento de Perdas, Produtos Fornecidos e PDV). Falta ele dizer se concorda e se quer mais duas
-   coisas: as setas do teclado, que só o PDV tem, nas outras buscas; e a caixa do PDV com a lupa e
-   o formato das outras.
-5. **Botão do painel dos cadastros.** Ele propôs trocar "Editar cadastro completo" por "Ver cadastro
-   completo", com o editar dentro da página. A página já abre só para leitura e já tem o botão de
-   editar; hoje o painel pula essa etapa. Recomendado: trocar nos cinco cadastros com página própria
-   (Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk). Espera o ok dele.
-6. **Ordem do menu.** Proposta entregue em 13/out, por sequência de trabalho e não por alfabeto:
-   Estoque, Cadastros, Vendas e Finanças mudam; Início e Logística ficam. A troca alcança as 81
-   telas e as suítes que conferem posição no menu. Espera o ok dele.
+4. **Setas do teclado nas buscas de produto.** O padrão de busca ficou decidido em 13/out (lista na
+   tela filtra; escolher um item abre sugestões), e a caixa do PDV ficou igual às outras. Sobrou uma
+   diferença: no PDV dá para andar pelas sugestões com as setas ↑↓; nas outras cinco telas só o Enter
+   escolhe a primeira. Levar as setas para todas é uma oferta em aberto.
 
 ## O que continua sendo dado de exemplo
 

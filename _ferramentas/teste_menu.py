@@ -161,6 +161,36 @@ with sync_playwright() as p:
     medido = (com_tela, len(itens), round(100.0 * com_tela / len(itens)), len(localiza.caminhos()))
     ok(dito is not None and tuple(int(x) for x in dito.groups()) == medido,
        'itens de menu com tela, percentual e total de telas batem com o sistema: medido %s, escrito %s' % (medido, dito.groups() if dito else None))
+    print('11. O menu segue a sequencia de trabalho, igual em toda tela')
+    # 13/out: o usuario pediu o menu por sequencia de trabalho, e nao por alfabeto, e que modulo novo
+    # ja nasca nessa regra. A REGRA: primeiro a tela de consulta do modulo; depois as telas na ordem
+    # em que o trabalho acontece (em Estoque: comprar, receber, guardar, movimentar, corrigir); depois
+    # a analise; Relatorios por ultimo. Em Cadastros: quem, o que (do geral para o detalhe) e onde.
+    # ITEM NOVO ENTRA AQUI, NA POSICAO DA FUNCAO DELE, e nao no fim da lista: esta secao reprova
+    # enquanto a tela e esta lista nao disserem a mesma coisa.
+    ORDEM = {
+        'inicio': ['Página inicial', 'Dashboard KPIs', 'Agenda', 'Minha Conta'],
+        'cadastros': ['Clientes', 'Fornecedores', 'Vendedores', 'Produtos', 'Categorias', 'Departamento de Produtos', 'Seção de Produtos', 'Marcas de Produtos',
+                      'Embalagens', 'Lojas Desk', 'Depósitos', 'Endereços de Estoque', 'Relatórios de Cadastros'],
+        'estoque': ['Controle de Estoques', 'Movimentação de Estoque', 'Necessidades de Compra', 'Ordens de Compra', 'Entrada de Notas', 'Conferência de Entrada',
+                    'Endereçamento', 'Reposição', 'Transferência Entre Estoques', 'Inventário', 'Acerto de Estoque', 'Tratamento de Perdas', 'Giro de Estoque',
+                    'Relatórios de Estoque'],
+        'vendas': ['CRM', 'Pedidos de Venda', 'PDV', 'Notas Fiscais', 'Vendas Afiliados', 'Metas e Performance', 'Margem Contribuição', 'Custos do E-commerce',
+                   'Relatórios de Vendas'],
+        'logistica': ['Separação', 'Conferência de Saída', 'Expedição', 'Rastreamento de Pedidos', 'Devolução', 'Relatórios de Logística'],
+        'financas': ['Contas a Receber', 'Contas a Pagar', 'Caixa', 'Comissões Afiliados', 'Relatórios Finanças'],
+        'integracoes': ['Marketplaces e Hubs', 'Gateways de Pagamento', 'Emissão de Notas Fiscais', 'Relatórios de Integrações'],
+    }
+    BLOCO = re.compile(r'<div class="flyout-col" id="flyout-(%s)">\n[^\n]*<h4>[^\n]*\n[^\n]*<div class="flyout-body">\n((?:[ \t]*<div class="flyout-item"[^\n]*\n)+)' % '|'.join(ORDEM))
+    fora, sem_menu = [], []
+    for arq in sorted(_filtrar(localiza.caminhos())):
+        t = open(arq, encoding='utf-8').read()
+        if 'id="flyout-estoque"' not in t: continue
+        achados = [(m.group(1), re.findall(r'data-label="([^"]+)"', m.group(2))) for m in BLOCO.finditer(t)]
+        if set(m for m, _ in achados) != set(ORDEM): sem_menu.append(os.path.basename(arq))
+        fora += ['%s/%s' % (os.path.basename(arq).replace('pagina-', '').replace('.html', ''), m) for m, rotulos in achados if rotulos != ORDEM[m]]
+    ok(not sem_menu, 'toda tela com menu traz os sete modulos com itens: %s' % sem_menu[:3])
+    ok(not fora, 'e cada modulo esta na ordem combinada, com os mesmos nomes em toda tela: %s' % fora[:4])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

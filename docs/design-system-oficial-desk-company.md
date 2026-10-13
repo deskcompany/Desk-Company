@@ -69,32 +69,33 @@ Este documento é a referência única de design do projeto. Qualquer página no
 ### Breadcrumb
 - Fica no topo do conteúdo principal, formato "Início › Módulo › Submódulo", com segmentos anteriores clicáveis (voltam pro nível daquele clique) e o atual em negrito.
 
-## 4. Estrutura de Menu (9 módulos principais + rodapé)
+## 4. Estrutura de Menu (8 módulos + rodapé)
 
-```
-Início — Dashboard KPIs, Agenda, Minha Conta
-Cadastros — Clientes, Fornecedores, Produtos, Vendedores, Embalagens, Lojas Desk,
-            Depósitos, Marcas de Produtos, Departamento de Produtos, Seção de Produtos,
-            Categoria de Produtos, Relatórios de Cadastros
-Estoque — Controle de Estoques, Movimentação de Estoque, Entrada de Notas, Ordens de Compra,
-          Transferência Entre Estoques, Necessidades de Compra, Giro de Estoque,
-          Acerto de Estoque, Inventário, Relatórios de Estoque
-Vendas — Vendas, CRM, PDV, Notas Fiscais, Vendas Afiliados, Metas, Performance de Vendas,
-         Margem Contribuição, Custos do E-commerce, Relatórios de Vendas
-Logística — Separação, Etiquetagem, Expedição, Rastreamento de Pedidos,
-            Devolução, Relatórios de Logística
-Finanças — Caixa, Contas a Pagar, Contas a Receber, Comissões Afiliados,
-           Relatórios Finanças
-Operacional — Transportadoras, Formas de Pagamento, Cupons, Motivos de Devolução,
-              Motivos de Perda, Relatórios Operacional
-Integrações — Lojas Desk, Marketplaces e Hubs, Emissão de Notas Fiscais,
-              Gateways de Pagamento, Relatórios de Integrações
-Configurações — Cadastro de Usuários, Permissões de Usuários,
-                Cadastro de Contas Bancárias, Relatórios de Configurações
-                (+ seletor de tema Auto/Claro/Escuro fixo no rodapé do painel)
+**O menu segue a sequência de trabalho, e não o alfabeto** (decisão do usuário em 13/out/2026). A
+regra vale para todo módulo e para todo item novo:
 
-Rodapé fixo: Notificações, Central de Suporte, interruptor "Fixar menu"
-```
+1. primeiro a tela de **consulta** do módulo, a que se abre para saber como as coisas estão;
+2. depois as telas **na ordem em que o trabalho acontece**;
+3. depois a **análise**;
+4. **Relatórios** por último.
+
+**Item novo entra na posição da função dele, e não no fim da lista.** Módulo novo nasce com a sua
+sequência escrita na tabela abaixo. A ordem é guardada pela seção 11 de `teste_menu.py`: enquanto o
+menu de uma tela e a lista de lá não disserem a mesma coisa, o selo reprova.
+
+| módulo | a sequência | ordem |
+|---|---|---|
+| Início | o dia | Página inicial · Dashboard KPIs · Agenda · Minha Conta |
+| Cadastros | quem → o quê, do geral para o detalhe → onde | Clientes · Fornecedores · Vendedores · Produtos · Categorias · Departamento de Produtos · Seção de Produtos · Marcas de Produtos · Embalagens · Lojas Desk · Depósitos · Endereços de Estoque · Relatórios de Cadastros |
+| Estoque | consultar → comprar → receber → guardar e movimentar → corrigir → analisar | Controle de Estoques · Movimentação de Estoque · Necessidades de Compra · Ordens de Compra · Entrada de Notas · Conferência de Entrada · Endereçamento · Reposição · Transferência Entre Estoques · Inventário · Acerto de Estoque · Tratamento de Perdas · Giro de Estoque · Relatórios de Estoque |
+| Vendas | antes da venda → a venda → o resultado | CRM · Pedidos de Venda · PDV · Notas Fiscais · Vendas Afiliados · Metas e Performance · Margem Contribuição · Custos do E-commerce · Relatórios de Vendas |
+| Logística | o caminho do pedido no galpão, e a volta | Separação · Conferência de Saída · Expedição · Rastreamento de Pedidos · Devolução · Relatórios de Logística |
+| Finanças | o título nasce → é pago → cai no caixa | Contas a Receber · Contas a Pagar · Caixa · Comissões Afiliados · Relatórios Finanças |
+| Integrações | a venda entra → é paga → vira nota | Marketplaces e Hubs · Gateways de Pagamento · Emissão de Notas Fiscais · Relatórios de Integrações |
+| Configurações | — | um atalho para o hub, que lista as telas por aba |
+
+Rodapé fixo: Notificações, Central de Suporte, Configurações e o interruptor "Fixar menu". O módulo
+Operacional saiu do menu em 08/out/2026 (§14.46).
 
 ## 5. Regras técnicas de proteção (aprendizados desta fase)
 
@@ -3089,3 +3090,49 @@ preço e saldo embaixo. O comportamento do PDV não mudou (setas, Enter no códi
 onze pegos. Dez rodaram numa cópia das telas fora do projeto, com `DESK_PASTA`, depois de conferir
 que as suítes passam na cópia intacta. O do PDV rodou no arquivo de verdade, porque a suíte dele
 abre a tela pelo servidor de preview: em primeiro plano, com a restauração conferida byte a byte.
+
+## 14.69 O menu por sequência de trabalho, "Ver cadastro completo" e a caixa de busca do PDV (13/out/2026)
+
+Três decisões do usuário no mesmo dia, depois de ler as propostas da §14.68.
+
+**O menu segue a sequência de trabalho.** A ordem antiga era a de construção: cada tela entrava onde
+dava. Ele pediu "algo relacionado a sequências, e que faça sentido", para todos os módulos, e que
+módulo novo já nasça assim. A regra e a ordem inteira estão no §4. Mudaram Cadastros, Estoque,
+Vendas, Finanças e Integrações; Início e Logística já estavam na sequência. Três pontos:
+
+- **No Estoque, contar vem antes de corrigir:** Inventário, Acerto de Estoque e Tratamento de Perdas,
+  nessa ordem. A decisão de 09/out, que punha Tratamento de Perdas logo acima do Acerto, deu lugar à
+  sequência.
+- **Em Finanças, o Caixa foi para o terceiro lugar:** o título nasce em Contas a Receber e a Pagar e
+  é no caixa que ele cai. Foi dito a ele que o Caixa podia continuar em primeiro; ele seguiu a
+  proposta.
+- **A regra tem guarda.** A seção 11 de `teste_menu.py` confere a ordem inteira, em toda tela. Item
+  novo que entra no fim da lista sem estar na ordem combinada reprova o selo.
+
+**A troca achou um nome de menu diferente em duas telas.** Em Contas a Receber e na página da conta,
+o item de Integrações se chamava "Gateways de Recebimento"; nas outras 79, "Gateways de Pagamento".
+A tela foi clonada de Contas a Pagar e a palavra foi trocada no arquivo todo, menu incluído. Voltou
+o nome das outras. Antes disto nenhuma verificação comparava os nomes do menu entre as telas; a
+seção 11 passou a comparar.
+
+**"Ver cadastro completo".** O painel dos cadastros tinha "Editar cadastro completo", e a página
+abria já editável. Ele pediu "Ver cadastro completo", com o editar dentro da página, no topo. A
+página já tinha as duas peças: abre só para leitura, seguindo a preferência "Ao abrir um cadastro
+existente", e tem o botão de editar no cabeçalho. O painel é que pulava a etapa, mandando
+`?editar=1`. Mudou nos cinco cadastros com página própria (Clientes, Fornecedores, Produtos,
+Vendedores e Lojas Desk): o botão do painel troca de nome e deixa de mandar o parâmetro, e o botão
+da página passou de "Editar" para "Editar cadastro". O endereço com `?editar=1` continua valendo
+para quem já chega querendo editar.
+
+**A caixa de busca de produto do PDV** ganhou o formato das outras: arredondada, com a lupa e o
+mesmo texto ("Pesquise por nome, código (SKU) ou GTIN/EAN"). Com a lista de sugestões da §14.68, a
+busca de produto do PDV ficou igual à das outras cinco telas no que se vê; as setas do teclado
+continuam sendo só dele.
+
+**O padrão de busca ficou decidido:** ele concordou em manter os dois jeitos. Lista que já está na
+tela filtra enquanto se digita; escolher um item para agir abre sugestões.
+
+**Provado nos dois sentidos.** Seção 11 de `teste_menu.py`, seção 9 de `teste_retorno.py` e mais uma
+asserção em `teste_pdv.py` (200). Sete defeitos injetados, um por vez, e os sete pegos. Quatro, os do
+menu, numa cópia das telas fora do projeto. Os três das suítes que abrem a tela pelo servidor de
+preview rodaram no arquivo de verdade, em primeiro plano, com a restauração conferida byte a byte.

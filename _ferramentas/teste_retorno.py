@@ -367,6 +367,32 @@ with sync_playwright() as p:
         ok(len(atalhos) == 10 and all(a in TODAS for a in atalhos), 'os atalhos ganharam dois botoes, todos com destino')
         ok(geo['alturas'] <= 1, 'o quadro da agenda e o dos atalhos fecham na mesma altura (diferenca de %.1fpx; eram 5)' % geo['alturas'])
 
+    if secao(9, 'Cadastros: o painel leva a ver o cadastro, e o editar fica na pagina'):
+        # 13/out: o painel tinha "Editar cadastro completo" e a pagina abria ja editavel. O usuario pediu
+        # "Ver cadastro completo", com o botao de editar dentro da pagina, no topo.
+        ir('pagina-cadastros-clientes.html'); pg.evaluate("localStorage.removeItem('deskParametros')")
+        ruins = []
+        for base in ['clientes', 'fornecedores', 'produtos', 'vendedores', 'lojas-desk']:
+            det = 'pagina-cadastros-%s-detalhe.html' % base
+            ir('pagina-cadastros-%s.html' % base)
+            pg.click('.main [class$="-nome-row"]'); pg.wait_for_timeout(350)
+            botao = pg.evaluate("(() => { const a = document.querySelector('.event-drawer.open a.btn-primary'); return a ? [a.textContent.trim(), a.getAttribute('href')] : null; })()")
+            if botao != ['Ver cadastro completo', '../cadastros/' + det]:
+                ruins.append('%s: botao do painel %s' % (base, botao)); continue
+            clic('.event-drawer.open a.btn-primary'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+            estado = pg.evaluate("(() => { const b = document.getElementById('btnEditarRegistro'); return [document.body.classList.contains('modo-leitura'), !!b && b.offsetParent !== null, b ? b.textContent.trim() : '', "
+                                 "!!b && !!b.closest('.page-header')]; })()")
+            if not pg.url.split('/')[-1] == det or estado != [True, True, 'Editar cadastro', True]:
+                ruins.append('%s: pagina %s %s' % (base, pg.url.split('/')[-1], estado)); continue
+            clic('#btnEditarRegistro'); pg.wait_for_timeout(250)
+            if pg.evaluate("document.body.classList.contains('modo-leitura') || document.getElementById('btnEditarRegistro').offsetParent !== null"):
+                ruins.append('%s: Editar cadastro nao destravou a pagina' % base)
+        ok(not ruins, 'nos cinco cadastros o painel traz "Ver cadastro completo", a pagina abre so para leitura e o botao "Editar cadastro", no topo, destrava: %s' % ruins[:3])
+        velho = [n for n in TODAS if 'Editar cadastro completo' in open(localiza.onde(n), encoding='utf-8').read()]
+        ok(not velho, 'nenhuma tela ainda oferece "Editar cadastro completo": %s' % velho[:4])
+        ir('pagina-cadastros-fornecedores-detalhe.html', '?editar=1')
+        ok(not pg.evaluate("document.body.classList.contains('modo-leitura')"), 'e o endereco com ?editar=1 continua abrindo editavel, para quem ja chega querendo editar')
+
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
 

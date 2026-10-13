@@ -106,7 +106,7 @@ with sync_playwright() as p:
     ok(crumb == 'Nota 9051', 'Conferencia ?nota=731 (nao conferivel): breadcrumb diz a nota que a tela carregou (' + crumb + ')')
 
     # -----------------------------------------------------------------------
-    print('\n[4] Cadastros: Incluir e "Editar cadastro completo" abrem editaveis; consulta segue a preferencia')
+    print('\n[4] Cadastros: Incluir e ?editar=1 abrem editaveis; consulta segue a preferencia')
     CAD = [('clientes', 'btnNovoCliente'), ('fornecedores', 'btnNovoFornecedor'), ('produtos', 'btnNovoProduto'),
            ('vendedores', 'btnIncluirVendedor'), ('lojas-desk', 'btnNovaLoja')]
     leitura = lambda: pg.evaluate("document.body.classList.contains('modo-leitura')")

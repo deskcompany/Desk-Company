@@ -1,8 +1,10 @@
 # Mapa dos módulos — ERP Desk Company
-*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
+*Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque e com a ordem nova do menu, por sequência de trabalho. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
 **81 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
+> **A ordem das tabelas é a do menu** (desde 13/out/2026): primeiro a tela de consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e Relatórios por último. Módulo ou item novo entra na posição da função dele. A regra está no §4 do design system, e a seção 11 de `teste_menu.py` guarda a ordem.
+>
 > **Onde estão os arquivos (desde 08/out/2026):** cada tela mora em `telas/<módulo>/`, na pasta do módulo em que este mapa a lista. O dashboard de KPIs fica em `telas/inicio/`. `telas/integracoes/` existe e está vazia. Ver §14.44 do design system.
 
 ---
@@ -20,16 +22,16 @@
 |---|---|
 | ✅ | Clientes *(+ detalhe)* |
 | ✅ | Fornecedores *(+ detalhe)* |
-| ✅ | Produtos *(+ detalhe)* |
 | ✅ | Vendedores *(+ detalhe)* |
+| ✅ | Produtos *(+ detalhe)* |
+| ✅ | Categorias |
+| ✅ | Departamento de Produtos |
+| ✅ | Seção de Produtos |
+| ✅ | Marcas de Produtos |
 | ✅ | Embalagens |
 | ✅ | Lojas Desk *(+ detalhe)* |
 | ✅ | Depósitos |
 | ✅ | Endereços de Estoque |
-| ✅ | Marcas de Produtos |
-| ✅ | Departamento de Produtos |
-| ✅ | Seção de Produtos |
-| ✅ | Categorias |
 | ❌ | Relatórios de Cadastros |
 
 ## 📦 Estoque — 13 de 14
@@ -37,16 +39,16 @@
 |---|---|
 | ✅ | Controle de Estoques *(+ detalhe; 13/out: a página do produto ficou sem a aba "Lançamentos": o histórico é o da Movimentação de Estoque)* |
 | ✅ | Movimentação de Estoque *(13/out: o histórico individual de cada produto, só para consulta. Abre com os filtros: o produto pela busca padrão do sistema e o período obrigatório, no mês atual. Depois de Buscar mostra estoque atual, reservado, disponível, custo médio e valor em estoque, e cada movimento com o saldo de antes e o de depois. Clicar no movimento abre o documento inteiro, com todos os itens, e é o que se imprime)* |
+| ✅ | Necessidades de Compra *(10/out: lista viva do que comprar hoje. A conta usa só o vendável, soma o que está chegando e desconta os pedidos que vão sair; mínimo e máximo ou dias de cobertura; a ordem de compra nasce dali, uma por fornecedor)* |
+| ✅ | Ordens de Compra *(+ detalhe)* |
 | ✅ | Entrada de Notas *(+ detalhe)* |
 | ✅ | Conferência de Entrada *(+ a tela de contagem cega; desde 12/out confere também a chegada de transferência entre estoques)* |
 | ✅ | Endereçamento |
 | ✅ | Reposição |
-| ✅ | Ordens de Compra *(+ detalhe)* |
 | ✅ | Transferência Entre Estoques *(+ nova transferência; a chegada é conferida na Conferência de Entrada)* |
-| ✅ | Tratamento de Perdas *(chamava-se Itens Bloqueados até 12/out, quando o usuário trocou o nome; o arquivo segue `pagina-estoque-itens-bloqueados.html`. 09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
-| ✅ | Acerto de Estoque |
 | ✅ | Inventário |
-| ✅ | Necessidades de Compra *(10/out: lista viva do que comprar hoje. A conta usa só o vendável, soma o que está chegando e desconta os pedidos que vão sair; mínimo e máximo ou dias de cobertura; a ordem de compra nasce dali, uma por fornecedor)* |
+| ✅ | Acerto de Estoque |
+| ✅ | Tratamento de Perdas *(chamava-se Itens Bloqueados até 12/out, quando o usuário trocou o nome; o arquivo segue `pagina-estoque-itens-bloqueados.html`. 09/out: a fila do saldo que está no estoque e não pode ser vendido. Avaria, falta a auditar, item em análise e produto travado por decisão; cada linha sai liberada para venda ou baixada como perda)* |
 | ✅ | Giro de Estoque *(10/out: giro e DSI por produto no período, em três faixas com régua de dois pinos: encalhe, baixo giro e giro normal. A classificação é a que Necessidades de Compra usa para segurar a compra do que não vende)* |
 | ❌ | Relatórios de Estoque |
 
@@ -59,12 +61,12 @@
 ## 🛒 Vendas — 4 de 9
 | | Submódulo |
 |---|---|
+| ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
-| ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
-| ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ❌ | Notas Fiscais |
 | ❌ | Vendas Afiliados |
+| ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
 | ❌ | Margem de Contribuição |
 | ❌ | Custos do E-commerce |
 | ❌ | Relatórios de Vendas |
@@ -97,9 +99,9 @@
 ## 💰 Finanças — 3 de 5
 | | Submódulo |
 |---|---|
-| ✅ | Caixa e Bancos *(+ lançamento)* |
-| ✅ | Contas a Pagar *(+ página da conta)* |
 | ✅ | Contas a Receber *(+ página da conta)* |
+| ✅ | Contas a Pagar *(+ página da conta)* |
+| ✅ | Caixa e Bancos *(+ lançamento)* |
 | ❌ | Comissões Afiliados |
 | ❌ | Relatórios Finanças |
 
@@ -113,8 +115,8 @@
 | | Submódulo |
 |---|---|
 | ❌ | Marketplaces e Hubs |
-| ❌ | Emissão de Notas Fiscais |
 | ❌ | Gateways de Pagamento |
+| ❌ | Emissão de Notas Fiscais |
 | ❌ | Relatórios de Integrações |
 
 ## ⚙️ Configurações — 19 telas, abertas pelo hub
