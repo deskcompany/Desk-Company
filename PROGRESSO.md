@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, no painel dos resolvidos de Tratamento de Perdas.*
+*Atualizado em 13/out/2026, com a tela nova Movimentação de Estoque.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -34,12 +34,14 @@ operação que criou o bloqueio.
 Configurações → Motivos de Perda passou a valer na baixa. Ele também mandou seguir a lista de
 melhorias.
 
-**Atenção: há outra sessão trabalhando neste repositório.** Em 13/out uma segunda sessão está
-construindo a tela Movimentação de Estoque (`telas/estoque/pagina-estoque-movimentacao.html`) e
-incluiu o item dela no menu das 80 telas. Esta entrega commitou só o que é dela. **O selo completo
-não foi rodado para ela**, porque as 80 telas estavam em alteração pela outra sessão: rodaram as
-suítes das telas mexidas e a auditoria estrita dos dois arquivos. A rodada completa fica para quando
-a outra tela estiver pronta.
+**Movimentação de Estoque é tela nova, feita em 13/out e à espera do teste dele** (§14.63). Ele
+pediu em 12/out, com quatro prints de um kardex: o histórico individual de cada produto, do saldo de
+antes até o saldo de hoje, com o documento inteiro de cada movimento. É só consulta. O item entrou no
+menu de Estoque das 81 telas, logo depois de Controle de Estoques.
+
+**Duas conversas mexeram no projeto ao mesmo tempo em 13/out**: uma no painel dos resolvidos de
+Tratamento de Perdas, outra na Movimentação de Estoque. Cada uma fez o commit só do que era dela, e
+o selo completo rodou no fim, com as duas entregas no disco.
 
 Dois itens do grupo da venda não entraram, e o motivo é o mesmo: o exemplo da tela de destino não
 tem o registro. V4 (do painel de Metas para os pedidos do mês) e L4 (do Rastreamento para a conta a
@@ -51,20 +53,19 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **41 de 55 (75%)**, em 80 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **42 de 56 (75%)**, em 81 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 75% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
-Eram 81 telas: a de Performance de Vendas deixou de existir quando Metas e Performance virou uma
-página só. O menu continua com 55 itens.
+Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a tela 81 e o item 56.
 
 | módulo | com tela | falta |
 |---|---|---|
 | Início | 4 de 4 | nada |
 | Cadastros | 12 de 13 | Relatórios de Cadastros |
-| Estoque | 12 de 13 | Relatórios de Estoque |
+| Estoque | 13 de 14 | Relatórios de Estoque |
 | Vendas | 4 de 9 | Notas Fiscais, Vendas Afiliados, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 3 de 5 | Comissões Afiliados, Relatórios Finanças |
@@ -183,21 +184,39 @@ de testar a conferência:
   excluído em Configurações aparece assim na baixa de Tratamento de Perdas. A lista do Acerto de
   Estoque continua fixa.
 
-**9. A verificação.** Seis suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
-`teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py` e
-`teste_perdas_baixa.py`. Cento e doze defeitos injetados de propósito, um por vez; os cento e doze
-são pegos. A auditoria do
+**9. Movimentação de Estoque** (13/out, §14.63), módulo novo pedido pelo usuário:
+
+- **A tela abre só com os filtros**, na ordem que ele pediu: depósito, produto, tipo de movimento,
+  data inicial, data final e Buscar. Só o produto é obrigatório; sem as datas vem o histórico inteiro.
+- **Depois de Buscar:** o quadro do produto, cinco indicadores (estoque atual, reservado, disponível,
+  custo médio e valor em estoque) e a lista em ordem de data, até o saldo de hoje. Cada linha traz
+  data e hora, movimento, cliente ou fornecedor, saldo anterior, quantidade, saldo atual, valor
+  unitário, custo médio e valor em estoque.
+- **Clicar no movimento abre o documento inteiro**, no painel ao lado: de onde veio, para quem foi,
+  quem lançou, peso, valor e todos os itens que foram junto, com o produto consultado marcado.
+- **É só consulta.** O que sai da tela é papel e planilha: "Imprimir documento" manda só o documento
+  aberto para a folha; a lista tem "Imprimir lista", "Baixar planilha" e "Resumo por tipo".
+- **A tela não tem dado próprio de compra e venda.** Ela monta o histórico com o mesmo bloco de dados
+  do Giro de Estoque e de Necessidades de Compra. Por isso o saldo final de cada produto, em cada
+  depósito, é o do Controle de Estoques, e as vendas de um período são as que o Giro mostra.
+- **As vizinhas levam para lá:** Controle de Estoques ("Mais ações"), a página do produto (botão
+  "Movimentações") e o painel do Giro. A tela leva de volta à página do produto e ao Giro.
+
+**10. A verificação.** Sete suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+`teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
+`teste_perdas_baixa.py` e `teste_movimentacao.py`. Cento e quarenta defeitos injetados de propósito,
+um por vez; os cento e quarenta são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
-**10. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**11. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O selo completo**, assim que a outra sessão terminar a tela Movimentação de Estoque, e o teste
-   do usuário no painel dos resolvidos e no cadastro de motivos.
+1. **O teste do usuário** na Movimentação de Estoque, no painel dos resolvidos e no cadastro de
+   motivos de Tratamento de Perdas.
 2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
    dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.
@@ -230,6 +249,12 @@ Nenhuma destas trava o teste.
 3. **Kit na compra:** hoje o kit entra em Necessidades de Compra como um produto comum, porque a
    composição de kit ainda não existe. Quando existir, falta decidir se a compra sugere o kit ou
    os componentes.
+4. **A aba "Lançamentos" da página do produto** (Controle de Estoques) mostra movimentos de exemplo
+   próprios, que não são os da Movimentação de Estoque. Hoje a página ganhou o botão "Movimentações",
+   e a aba ficou como estava, porque é nela que aparece o lançamento feito ali ("Incluir
+   lançamento"). Falta ele escolher: a aba continua, ou sai e fica só o botão para o histórico.
+5. **Produto no filtro da Movimentação de Estoque:** é uma lista de escolha, porque o exemplo tem 15
+   produtos. Com o cadastro de verdade, a oferta é trocar por um campo de digitar e achar.
 
 ## O que continua sendo dado de exemplo
 
@@ -251,7 +276,25 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
   transferência como "a caminho", e o Controle de Estoques não recebe as unidades. "Registrar
   chegada", na fila, vale até recarregar a página, como já era com as notas.
 
+- **Na Movimentação de Estoque, compra e venda vêm do bloco de dados do Giro**, que guarda dia e
+  quantidade. Depósito, documento, cliente, preço e peso são montados pela própria tela, sempre do
+  mesmo jeito. O exemplo guarda 12 meses: o que havia antes aparece como "saldo antes".
+- **O documento do movimento não é link para a tela de origem.** A nota, o pedido e a transferência
+  do histórico não existem no exemplo de Entrada de Notas, de Pedidos de Venda nem da Transferência.
+  O painel mostra o documento inteiro; o link nasce quando os exemplos se alinharem.
+- **Reservado aparece 0 em todo produto:** o Controle de Estoques ainda não calcula a reserva a
+  partir dos pedidos, e a Movimentação lê de lá.
+
 Quando o sistema rodar de verdade, o usuário limpa tudo e configura do zero.
+
+## Ficou de fora da Movimentação de Estoque, de propósito
+
+- **Lote:** o sistema não controla lote.
+- **Multiplicador de embalagem**, que o print tinha na lista de itens: o cadastro do exemplo não tem.
+- **O botão "Nota Fiscal" e os valores de ICMS:** são fiscais, e a NF-e não está habilitada. A linha
+  aparece como reservada, igual aos outros campos fiscais.
+- **Mudança de situação sem mudança de saldo** (endereçar, bloquear, reservar): a lista mostra o que
+  entra e o que sai do saldo físico. Esses passos continuam na página do produto.
 
 ## Ficou de fora de Necessidades de Compra e Giro, de propósito
 

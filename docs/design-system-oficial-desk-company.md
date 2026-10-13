@@ -76,7 +76,7 @@ Início — Dashboard KPIs, Agenda, Minha Conta
 Cadastros — Clientes, Fornecedores, Produtos, Vendedores, Embalagens, Lojas Desk,
             Depósitos, Marcas de Produtos, Departamento de Produtos, Seção de Produtos,
             Categoria de Produtos, Relatórios de Cadastros
-Estoque — Controle de Estoques, Entrada de Notas, Ordens de Compra,
+Estoque — Controle de Estoques, Movimentação de Estoque, Entrada de Notas, Ordens de Compra,
           Transferência Entre Estoques, Necessidades de Compra, Giro de Estoque,
           Acerto de Estoque, Inventário, Relatórios de Estoque
 Vendas — Vendas, CRM, PDV, Notas Fiscais, Vendas Afiliados, Metas, Performance de Vendas,
@@ -573,6 +573,7 @@ crua, sem sticky, sem borda, sem espaçamento, e ninguém percebeu. Ver §14.
 | Tratamento de Perdas *(chamava-se Itens Bloqueados até 12/out/2026)* | `pagina-estoque-itens-bloqueados.html` (menu Estoque) | **Construída em 09/out/2026.** A fila do saldo que está no estoque e não pode ser vendido, com abas por motivo e uma aba de histórico (Resolvidos) que troca a tabela. O painel de resolver tem três abas (Resolver, Manter bloqueado e Histórico) e reparte a quantidade entre liberar e dar baixa; o de bloquear usa a busca padrão de produto e bloqueia ali mesmo. Recebe os bloqueios das outras telas por uma caixa de entrada. Ver §14.51. |
 | Necessidades de Compra | `pagina-estoque-necessidades-compra.html` (menu Estoque) | **Construída em 10/out/2026.** Lista **derivada**, como a Reposição: abre já calculada, sem botão "gerar". Quatro indicadores (a comprar, compra sugerida, em falta, segurados pelo giro), cinco abas e a tabela com a coluna **Comprar** editável. **Só o vendável conta como estoque** (disponível mais o que aguarda endereço); o que está chegando soma e os pedidos que vão sair descontam. A conta é por **mínimo e máximo** ou por **dias de cobertura**. Clicar na linha abre **a conta do produto**, que é onde se edita mínimo e máximo. A seleção em massa abre o painel **Ordem de compra**, com um bloco por fornecedor padrão. Ver §14.52 |
 | Giro de Estoque | `pagina-estoque-giro-estoque.html` (menu Estoque) | **Construída em 10/out/2026.** Giro (vendas ÷ estoque médio) e DSI por produto, no período escolhido, em **três faixas** com régua de dois pinos: encalhe, baixo giro e giro normal. Cada faixa tem um quadro com giro médio, DSI médio, quantidade e custo em estoque. A régua **simula na tela**; só "Salvar faixas" muda o parâmetro da empresa, que é o que Necessidades de Compra lê. Lê o **mesmo bloco de dados** da tela de compra, e a suíte compara o texto dos dois. Ver §14.52 |
+| Movimentação de Estoque | `pagina-estoque-movimentacao.html` (menu Estoque) | **Construída em 13/out/2026.** O histórico individual de cada produto, **só para consulta**. Abre com os filtros (depósito, produto, tipo de movimento, data inicial, data final) e só busca com o produto escolhido. Cinco indicadores, lidos do Controle de Estoques, e a lista em ordem de data com saldo anterior, quantidade, saldo atual, valor unitário, custo médio e valor em estoque. Clicar no movimento abre o **documento inteiro** num painel largo, com todos os itens; "Imprimir documento" manda só ele para o papel. **Não tem dado próprio de compra e venda:** deriva do bloco comum de compra e giro. Suíte: `teste_movimentacao.py`. Ver §14.63. |
 | Inventário de Estoque | `pagina-estoque-inventario.html` (menu Estoque) | **Construída em 16/set/2026 — última tela de estoque da F5.** Abre num **índice de três caminhos**, não numa lista: *Gerar inventário* (monta pelos filtros), *Importar por planilha* (CSV/XLS/XLSX até 2 MB, exige **depósito de destino** porque o arquivo não diz onde a contagem aconteceu) e *Importar por coletor* (TXT até 2 MB, **um código por linha — a repetição É a quantidade**, sem coluna de total; valida por GTIN/EAN, SKU ou ambos). O que separa esta tela do Acerto está escrito no topo dela: **o inventário bloqueia o saldo do depósito inteiro** da abertura ao fechamento — venda, transferência e acerto ali são recusados —, e por isso é último recurso, não ferramenta de rotina. Notas **em conferência** continuam entrando e ficam **fora da contagem**, coerente com a regra de que em conferência não é estoque físico. A lista abre em **modo leitura** (Produto · SKU · Preço · UN · Localização · Estoque atual · Estoque disponível); **Informar quantidades** revela as colunas *Qtde inventário* e *Diferença* e troca o próprio botão por **Salvar quantidades e fechar**. Filtros de geração (Busca, Categoria, Fornecedor, Tags, Exibir, Situação do produto e **Valor baseado em**, agrupado em Preço de compra / de custo / de venda) valem **só na geração**: depois de aberta, a lista é fixa — mexer no filtro com inventário em andamento trocaria o universo contado. **Ausência de leitura nunca vira zero automático** (decisão de 16/set/2026): produto com saldo no depósito que não apareceu no arquivo entra como **não contado**, e não contado **não mexe no saldo** no fechamento. Quem varreu o depósito inteiro usa **"Zerar os não contados"** em Mais ações, com confirmação que explica a consequência — a alternativa (assumir zero sozinho) apagaria saldo bom por causa de um corredor que o coletor não percorreu. No fechamento, **diferença positiva segue a mesma regra de entrada do item 19** (base de picking no depósito → nasce disponível até a capacidade, excedente e sem-base → *a endereçar*, não vende) e **não gera documento fiscal**; **diferença negativa** sai do disponível, base primeiro, e nasce com **pendência fiscal de NF-e CFOP 5.927** sem travar. **Reservado e bloqueado não são tocados** — inventário conta prateleira, não desfaz reserva de pedido nem libera avaria. Fechar exige **usuário + senha** e é **permissão de perfil** (`Fechar inventário de estoque`, agora ativa na lista de confirmações de Vendedores). **Cancelar inventário** destrava o depósito sem alterar nada. Mais ações traz ainda **Exibir/Ocultar filtros**, **Imprimir lista** (`@media print` deixa só a tabela) e **Baixar CSV** — os dois de verdade, não mocados. |
 | Configurações do Sistema ERP *(hub)* | `pagina-configuracoes.html` (menu Configurações) | **Construída em 18/set/2026 — abre o módulo de Configurações.** É um **hub**, não uma área com abas internas: índice com **busca** e **nove abas que filtram uma lista de links**; cada link abre **página própria**, com breadcrumb e voltar — o padrão que o sistema já usa. **As abas são os NOSSOS módulos** (geral · cadastros · estoque · vendas · logística · finanças · operacional · **fiscal** · integrações), não os do Olist, onde *separação* e *expedição* vivem em Vendas e aqui são Logística. *Fiscal* ganhou aba própria: certificado, ambiente, naturezas de operação, intermediadores e RTC não cabem como sub-item de Vendas. Cada aba abre com um **banner de contexto** que diz a regra que importa naquele domínio (ex.: em Estoque, que os limiares de tempo passam a morar ali; em Integrações, que o disponível enviado ao canal é o nosso, menor que o de outros ERPs). **O badge de estado é DERIVADO, nunca escrito à mão:** item com destino está construído e não leva selo; item sem destino leva **"a construir"**. A primeira versão tinha badges escritos manualmente (*configuração pendente*, *ambiente de testes*) em telas que sequer existiam — o índice prometia estado de coisa inexistente. Derivar do `href` torna impossível uma tela nascer mentindo que está pronta, e transforma o índice num **mapa de progresso** real. A **busca varre todas as abas de uma vez** (nome e texto de ajuda, ignorando acento) e mostra a **aba de origem** ao lado de cada achado. O ícone `?` aparece só nos itens que têm explicação, no `title`. **Onde cada coisa mora — a régua é a FREQUÊNCIA de uso** *(decidido em 18/set/2026, a partir de pergunta do usuário)*: a primeira versão do hub trazia atalhos para Marcas, Categorias, Departamentos, Seções, Embalagens, Depósitos, Endereços de Estoque, Metas e Vendedores — o **mesmo arquivo** do módulo, alcançado por dois caminhos, como o Olist faz. O usuário perguntou se era a mesma tela; **se quem aprovou o desenho teve a dúvida, quem opera vai ter também**, e os atalhos saíram. **O critério não é "é lista auxiliar", é com que frequência se mexe:** cadastrar marca nova acontece toda vez que chega produto de fornecedor novo — isso é **operação** e pertence ao módulo; *Tipos de contato*, *Variações*, *Atributos*, *Linhas de produtos* e *Parâmetros de estoque* se definem uma vez e quase nunca se revisitam — isso é **configuração** e pertence ao hub. A regra que o usuário aprende numa vez: **cadastro fica no módulo, parâmetro fica em Configurações**. O único ganho real que os atalhos tinham era guiar o **setup inicial** — e isso passou a ser resolvido pelo **Guia de primeiros passos** (abaixo), que é a solução do próprio Olist e não suja a navegação do dia a dia. **Duplicar tela continua proibido** em qualquer hipótese: duas telas para o mesmo cadastro divergem em semanas. |
 | Parâmetros de estoque *(Configurações → estoque)* | `pagina-configuracoes-parametros-estoque.html` | **Construída em 18/set/2026 — primeira tela filha do hub.** É a tela que tira de dentro do código os **três limiares de tempo** que as telas de Estoque usavam cravados: *Conferência de compra* (alerta/crítico de dias de espera na doca), *Endereçamento* (alerta/crítico de dias parado em `a_endereçar`) e *Estoque zero na base de picking* (dias com a base zerada). **Layout GNRE** (§6): campo à esquerda, explicação à direita, na grade `.par-linha` — porque parâmetro que ninguém entende é parâmetro que ninguém mexe. **A prova de que a tela não é decoração:** junto com ela, os **7 números cravados** em `pagina-estoque-enderecamento.html` (5) e `pagina-estoque-conferencia-entrada.html` (2) foram substituídos por um bloco `PARAM` nomeado, logo depois de `<script>`, com comentário dizendo de onde o valor vem no sistema de produção (`tabela parametros`, por chave). Sem esse refactor a tela salvaria um número que nenhuma outra leria. **Regra nova: número que decide cor, alerta ou bloqueio nunca nasce literal dentro de um `if`** — nasce em `PARAM`, ainda que a tela de configuração venha depois. **Prévia viva:** cada seção mede o efeito do número na fila de hoje (*"Na fila de hoje (6 saldos): 3 ficariam em alerta e 1 ficaria em situação crítica"*) e recalcula a cada tecla — o usuário vê a consequência antes de salvar, em vez de descobrir amanhã. **Validação:** crítico tem de ser maior que alerta (salvar é bloqueado com modal explicando qual par está invertido), inteiro de 0 a 365, não-numérico recusado. **Barra fixa de salvar** com contador de alterações não salvas e **Restaurar padrão** (1 · 3 · 2 · 7 · 7). O breadcrumb do meio volta para o hub. |
@@ -2779,3 +2780,90 @@ formulário do cadastro diz isso.
 
 **Provado nos dois sentidos.** Nove defeitos injetados, um por vez, contra as seções 4 e 5 de
 `teste_perdas_baixa.py` (54 asserções na suíte), e os nove foram pegos.
+
+## 14.63 Movimentação de Estoque: o histórico do produto, só para consulta (13/out/2026)
+
+Pedido do usuário em 12/out, com quatro prints de um kardex de outro sistema e a descrição do que
+queria: o histórico individual de cada produto, com estoque atual, reservado e disponível, e todas
+as movimentações desde a primeira entrada; uma tela inicial simples, só com os filtros; e, ao clicar
+num movimento, o pedido inteiro que o gerou. Ele reforçou no meio da construção que os prints eram
+só a noção do conteúdo: arquitetura e estilo são os nossos.
+
+**O mapa de vizinhança, respondido antes de desenhar.**
+
+| pergunta | resposta |
+|---|---|
+| de onde vem e para onde vai | de Controle de Estoques ("Mais ações"), da página do produto (botão "Movimentações") e do painel do Giro; volta para a página do produto e para o Giro, no mesmo produto |
+| que número divide | saldo por depósito e custo médio são do Controle de Estoques; vendas e entradas do período são as do Giro |
+| o exemplo conversa | sim, por construção: a tela carrega o bloco comum de compra e giro, e não tem compra nem venda próprias |
+| que cadastro e parâmetro lê | depósitos e produtos do bloco comum, e itens por página de Interface do usuário. Nenhum parâmetro novo |
+| ações do menu | nenhuma grava. Buscar, limpar, resumo por tipo, imprimir a lista, baixar planilha e imprimir o documento |
+| o que o print tem | filtros, quadro de saldos, lista de movimentos, sintético por tipo e o documento com itens. O que ficou de fora está abaixo |
+| que tela repete | a aba "Lançamentos" da página do produto. Ver "A decisão que ficou com o usuário" |
+| depois da ação principal | Buscar mostra o produto, os indicadores e a lista; o filtro só vale quando se busca de novo |
+| etapa do fluxo | nenhuma: é consulta, não fila |
+
+**A tela não tem dado próprio de compra e venda.** O `MOVIMENTO` do bloco comum (dias atrás e
+quantidade, por produto) já existia para o Giro e para Necessidades de Compra. A tela nova carrega o
+mesmo bloco, o terceiro texto idêntico, e deriva dele o histórico. O bloco ganhou uma linha, nas
+três telas: a função que liga o menu "Mais ações" passou a prever a tela que não tem o menu, que é o
+caso desta; sem a guarda, a auditoria do projeto reprovava a tela nova. O saldo de partida é o saldo de
+hoje menos tudo que o histórico moveu, a mesma conta que o Giro faz em `saldoHa`. Daí saem as três
+igualdades que a suíte confere: a última linha de cada produto, em cada depósito, é o físico do
+Controle de Estoques; o custo médio da última linha é o de lá; e vendas, entradas e saldo de partida
+de um período são os do Giro.
+
+**O que o bloco comum não guarda é montado na tela, sempre do mesmo jeito.**
+
+- **Depósito.** Compra e venda acontecem no depósito de maior saldo do produto. O saldo dos outros
+  depósitos chegou por transferência, que não muda o total; a venda de balcão sai do depósito da loja.
+- **Documento.** Mesma loja no mesmo dia é um pedido só; mesmo fornecedor no mesmo dia é uma nota só.
+  É o que faz o documento ter outros itens. No exemplo são 372 documentos, 19 com mais de um produto.
+- **Custo médio.** Média móvel: só a compra muda. As notas antigas entram 1% mais baratas a cada
+  passo, e o custo da última é calculado para a média fechar exatamente no custo médio do Controle
+  de Estoques. Nenhuma nota fica a mais de 10% dele.
+- **O que o Giro não conhece** (devolução que virou perda, acerto corrigido, inventário que achou num
+  depósito o que faltava no outro) soma zero por produto e por dia. O saldo de cada dia continua o
+  que o Giro calcula.
+
+**Filtrar esconde linha, não refaz saldo.** O saldo anterior e o atual de cada linha são os do
+histórico inteiro do produto naquele depósito. Com o filtro de tipo ou de data, a linha continua
+mostrando o saldo que tinha de verdade; o que estava antes do período aparece como "saldo antes".
+
+**O painel do documento abre mais largo** (860px contra 620px), porque leva tabela de itens. O
+resumo por tipo usa a largura normal. É o mesmo painel lateral, com uma classe a mais.
+
+**Imprimir o documento manda só o documento para o papel.** Uma marca no corpo da página, posta só
+durante a impressão, esconde tudo que não é o painel e solta o painel na folha, sem fundo e com texto
+escuro. A impressão foi vista saindo do tema escuro.
+
+**O documento não é link para a tela de origem.** A regra da casa é não criar link que cai em lista
+sem o registro, e os documentos do histórico não existem no exemplo de Entrada de Notas, de Pedidos
+de Venda nem da Transferência. A primeira versão tinha o link; saiu no portão de qualidade. O painel
+mostra o documento inteiro, que é o que o usuário pediu.
+
+**A lista abre do mais antigo para o mais novo**, como ele pediu ("até chegar na situação atual").
+Clicar em "Data e hora" inverte, e a primeira linha passa a ser a de hoje.
+
+**Cabe em 1440, 1366 e 1280.** Abaixo de 1440 quem cede é o texto: o nome do movimento quebra de
+linha, a unidade sai da coluna do saldo (já está nos indicadores) e as duas datas descem juntas para
+a linha de baixo dos filtros. No campo do produto fica só o nome, sem o SKU, que cortava o texto.
+
+**Ficou de fora, de propósito:** lote (o sistema não controla), multiplicador de embalagem (o
+cadastro do exemplo não tem), o botão de nota fiscal e os valores de ICMS (fiscais; a linha aparece
+como reservada) e as mudanças de situação sem mudança de saldo, que continuam na página do produto.
+
+**A decisão que ficou com o usuário.** A aba "Lançamentos" da página do produto, em Controle de
+Estoques, mostra movimentos de exemplo próprios, e por isso responde à mesma pergunta com outros
+dados. Ela ficou como estava, porque é nela que aparece o lançamento feito ali; a página ganhou o
+botão "Movimentações". Tirar a aba ou mantê-la é escolha dele, e está no `PROGRESSO.md`.
+
+**Duas conversas no mesmo projeto.** Enquanto esta tela era construída, outra conversa entregou o
+§14.62. O item de menu já estava nas 80 telas, duas delas em edição pela outra conversa. Cada uma
+fez o commit só do que era dela. O que vale levar: antes de uma troca em todas as telas, olhar se há
+arquivo alterado que não é seu, e no commit escolher arquivo por arquivo.
+
+**Provado nos dois sentidos.** `teste_movimentacao.py` tem 95 asserções em oito seções. Vinte e oito
+defeitos injetados, um por vez, e os vinte e oito foram pegos: venda que entra em vez de sair,
+histórico que parte de zero, filtro que não filtra, documento que mostra só um item, impressão que
+leva a lista junto, tela que grava no navegador, planilha só com a página, tela vizinha sem o link.

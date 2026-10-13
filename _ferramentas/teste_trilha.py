@@ -166,7 +166,7 @@ with sync_playwright() as p:
     ir(CE)
     clic('#linkOQueComprar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
     ok(pg.url.endswith(NEC), '"ver o que comprar" leva a Necessidades de Compra')
-    for acao, destino in [('compra', NEC), ('giro', 'pagina-estoque-giro-estoque.html'), ('bloqueados', 'pagina-estoque-itens-bloqueados.html'), ('acerto', 'pagina-estoque-acerto.html'), ('transferencia', 'pagina-estoque-transferencia.html')]:
+    for acao, destino in [('compra', NEC), ('giro', 'pagina-estoque-giro-estoque.html'), ('movimentacao', 'pagina-estoque-movimentacao.html'), ('bloqueados', 'pagina-estoque-itens-bloqueados.html'), ('acerto', 'pagina-estoque-acerto.html'), ('transferencia', 'pagina-estoque-transferencia.html')]:
         ir(CE)
         pg.evaluate("(a) => { document.querySelector('#menuMaisAcoes .dropdown-select-btn').click(); document.querySelector('#menuMaisAcoes [data-acao=\"' + a + '\"]').click(); }", acao)
         pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
