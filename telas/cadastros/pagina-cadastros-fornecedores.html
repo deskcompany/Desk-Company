@@ -421,6 +421,9 @@
   .preview-meta-label { color:var(--text); }
   .preview-meta-value { color:var(--text-heading); font-weight:700; text-align:right; }
 
+  .preview-secao { font-family:'Nunito',sans-serif; font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-heading); margin:18px 0 4px; text-align:left; align-self:stretch; width:100%; }
+  .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .painel-link:hover { text-decoration:underline; }
   .preview-footer { margin-top:22px; }
   .preview-footer .btn-primary { width:100%; }
 
@@ -1262,20 +1265,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
 
   const FORNECEDORES = [
-    { id: 1, codigo: 'FOR-0001', tipo: 'fisica', nome: 'Marina Duarte', documento: '123.456.789-00', email: 'marina.duarte@gmail.com', telefone: '(99) 98234-5501', endereco: 'Rua das Acácias', numero: '120', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-1)', fornecePara: ['Desk Shope'], fornecedorDesde: '14/03/2025' },
-    { id: 2, codigo: 'FOR-0002', tipo: 'fisica', nome: 'Rafael Nogueira', documento: '234.567.890-11', email: 'rafael.nogueira@hotmail.com', telefone: '(99) 98234-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '02/07/2025' },
+    { id: 1, codigo: 'FOR-0001', tipo: 'juridica', nome: 'Móveis Nordeste Ltda', documento: '12.345.678/0001-90', email: 'compras@moveisnordeste.com.br', telefone: '(85) 3261-4401', endereco: 'Rua das Acácias', numero: '120', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-1)', fornecePara: ['Desk Shope'], fornecedorDesde: '14/03/2025' },
+    { id: 2, codigo: 'FOR-0002', tipo: 'juridica', nome: 'TechParts Distribuidora', documento: '98.765.432/0001-10', email: 'vendas@techparts.com.br', telefone: '(11) 3524-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'São Paulo', estado: 'SP', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '02/07/2025' },
     { id: 3, codigo: 'FOR-0003', tipo: 'juridica', nome: 'Distribuidora Nordeste Ltda', documento: '41.223.556/0001-09', email: 'contato@distnordeste.com.br', telefone: '(99) 3524-1180', endereco: 'Rod. BR-010', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', estado: 'MA', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--chart-3)', fornecePara: ['Desk Tech', 'Desk Brands'], fornecedorDesde: '03/09/2026' },
-    { id: 4, codigo: 'FOR-0004', tipo: 'fisica', nome: 'Juliana Prado', documento: '345.678.901-22', email: 'juliana.prado@outlook.com', telefone: '(99) 98234-5504', endereco: 'Rua São Francisco', numero: '58', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--warning)', fornecedorDesde: '21/11/2024' },
+    { id: 4, codigo: 'FOR-0004', tipo: 'juridica', nome: 'Nordic Home Importação', documento: '45.222.111/0001-33', email: 'comercial@nordichome.com.br', telefone: '(11) 4191-7704', endereco: 'Rua São Francisco', numero: '58', bairro: 'Nova Imperatriz', cidade: 'Barueri', estado: 'SP', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--warning)', fornecedorDesde: '21/11/2024' },
     { id: 5, codigo: 'FOR-0005', tipo: 'juridica', nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br', telefone: '(99) 3524-7788', endereco: 'Av. Bernardo Sayão', numero: '410', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '09/01/2025' },
-    { id: 6, codigo: 'FOR-0006', tipo: 'fisica', nome: 'Pedro Henrique Alves', documento: '456.789.012-33', email: 'pedro.alves@gmail.com', telefone: '(99) 98234-5506', endereco: 'Rua Urbano Santos', numero: '77', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'inativo', cor: 'var(--danger)', fornecedorDesde: '30/05/2024' },
-    { id: 7, codigo: 'FOR-0007', tipo: 'fisica', nome: 'Camila Rêgo', documento: '567.890.123-44', email: 'camila.rego@gmail.com', telefone: '(99) 98234-5507', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '17/02/2025' },
+    { id: 6, codigo: 'FOR-0006', tipo: 'juridica', nome: 'Tecidos Ceará S/A', documento: '77.888.999/0001-44', email: 'pedidos@tecidosceara.com.br', telefone: '(85) 3477-2206', endereco: 'Rua Urbano Santos', numero: '77', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '30/05/2024' },
+    { id: 7, codigo: 'FOR-0007', tipo: 'juridica', nome: 'Embalagens do Vale', documento: '55.666.777/0001-66', email: 'vendas@embalagensdovale.com.br', telefone: '(88) 3512-9907', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Juazeiro do Norte', estado: 'CE', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '17/02/2025' },
     { id: 8, codigo: 'FOR-0008', tipo: 'juridica', nome: 'Móveis Bom Preço Ltda', documento: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br', telefone: '(99) 3524-9910', endereco: 'Av. Tancredo Neves', numero: '1520', bairro: 'Boa Esperança', cidade: 'Imperatriz', estado: 'MA', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '12/08/2025' },
-    { id: 9, codigo: 'FOR-0009', tipo: 'fisica', nome: 'Thiago Almeida', documento: '678.901.234-55', email: 'thiago.almeida@yahoo.com', telefone: '(99) 98234-5509', endereco: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-3)', fornecedorDesde: '05/04/2025' },
+    { id: 9, codigo: 'FOR-0009', tipo: 'juridica', nome: 'Luminárias Brasil', documento: '33.444.555/0001-77', email: 'comercial@luminariasbrasil.com.br', telefone: '(31) 3290-1109', endereco: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Belo Horizonte', estado: 'MG', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-3)', fornecedorDesde: '05/04/2025' },
     { id: 10, codigo: 'FOR-0010', tipo: 'fisica', nome: 'Larissa Monteiro', documento: '789.012.345-66', email: 'larissa.monteiro@gmail.com', telefone: '(99) 98234-5510', endereco: 'Rua Duque de Caxias', numero: '99', bairro: 'Centro', cidade: 'Estreito', estado: 'MA', categoria: 'Prestação de Serviços', status: 'inativo', cor: 'var(--warning)', fornecedorDesde: '19/10/2024' },
     { id: 11, codigo: 'FOR-0011', tipo: 'juridica', nome: 'Auto Peças Imperatriz Ltda', documento: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br', telefone: '(99) 3524-3320', endereco: 'Av. JK', numero: '670', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', categoria: 'Autopeças', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '25/06/2025' },
     { id: 12, codigo: 'FOR-0012', tipo: 'fisica', nome: 'Bruno Carvalho', documento: '890.123.456-77', email: 'bruno.carvalho@hotmail.com', telefone: '(99) 98234-5512', endereco: 'Rua Simplício Moreira', numero: '43', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '08/12/2024' },
     { id: 13, codigo: 'FOR-0013', tipo: 'fisica', nome: 'Patrícia Farias', documento: '901.234.567-88', email: 'patricia.farias@gmail.com', telefone: '(99) 98234-5513', endereco: 'Rua Pernambuco', numero: '187', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '02/02/2025' },
-    { id: 14, codigo: 'FOR-0014', tipo: 'juridica', nome: 'Papelaria Central Ltda', documento: '44.556.778/0001-90', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Papelaria e Embalagens', status: 'inativo', cor: 'var(--chart-2)', fornecedorDesde: '14/09/2024' }
+    { id: 14, codigo: 'FOR-0014', tipo: 'juridica', nome: 'Papelaria Central', documento: '11.222.333/0001-55', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '14/09/2024' }
   ];
 
   let paginaAtual = 1;
@@ -1468,6 +1471,51 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
   document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
 
+  // ===== O QUE AS OUTRAS TELAS TEM DESTE FORNECEDOR (13/out/2026) =====
+  // O painel do fornecedor mostra as ordens em aberto, o que falta receber, a ultima compra, as contas
+  // a pagar e os produtos em que ele e o fornecedor padrao. Cada lista e espelho da tela que e dona do
+  // numero, e teste_cad_melhorias.py compara. No sistema de producao sao consultas as mesmas tabelas.
+  //   ORDENS_DO_CADASTRO   = Estoque > Ordens de Compra. `aReceber`: o que falta chegar, pelo preco dos
+  //                          itens; ordem em aberto sem recebimento nenhum deve o total.
+  //   CONTAS_DO_CADASTRO   = Financas > Contas a Pagar, so as que tem saldo.
+  //   PRODUTOS_DO_CADASTRO = Estoque > Necessidades de Compra: de quem cada produto e comprado.
+  const ORDENS_DO_CADASTRO = [
+    { numero: 1, fornecedor: 'Móveis Nordeste Ltda', data: '2026-09-01', previsto: '2026-09-12', total: 18420.00, situacao: 'atendida', aReceber: 0.00 },
+    { numero: 2, fornecedor: 'TechParts Distribuidora', data: '2026-09-03', previsto: '2026-09-15', total: 7310.50, situacao: 'andamento', aReceber: 4539.80 },
+    { numero: 3, fornecedor: 'Nordic Home Importação', data: '2026-09-04', previsto: '2026-09-20', total: 24890.00, situacao: 'aberto', aReceber: 24890.00 },
+    { numero: 4, fornecedor: 'Tecidos Ceará S/A', data: '2026-09-05', previsto: '2026-09-11', total: 3960.00, situacao: 'andamento', aReceber: 2232.00 },
+    { numero: 5, fornecedor: 'Papelaria Central', data: '2026-09-05', previsto: '', total: 412.90, situacao: 'aberto', aReceber: 412.90 },
+    { numero: 6, fornecedor: 'Móveis Nordeste Ltda', data: '2026-09-06', previsto: '2026-09-08', total: 9750.00, situacao: 'aberto', aReceber: 9750.00 },
+    { numero: 7, fornecedor: 'TechParts Distribuidora', data: '2026-09-07', previsto: '2026-09-09', total: 1580.00, situacao: 'atendida', aReceber: 0.00 },
+    { numero: 8, fornecedor: 'Embalagens do Vale', data: '2026-09-08', previsto: '2026-09-25', total: 2240.00, situacao: 'aberto', aReceber: 2240.00 },
+    { numero: 9, fornecedor: 'Nordic Home Importação', data: '2026-09-08', previsto: '2026-09-14', total: 6120.00, situacao: 'cancelada', aReceber: 0.00 },
+    { numero: 10, fornecedor: 'Luminárias Brasil', data: '2026-09-09', previsto: '2026-09-16', total: 5380.00, situacao: 'aberto', aReceber: 5380.00 },
+    { numero: 11, fornecedor: 'Tecidos Ceará S/A', data: '2026-09-09', previsto: '2026-09-30', total: 11200.00, situacao: 'aberto', aReceber: 11200.00 },
+    { numero: 12, fornecedor: 'TechParts Distribuidora', data: '2026-09-10', previsto: '2026-09-13', total: 890.00, situacao: 'andamento', aReceber: 534.00 },
+    { numero: 13, fornecedor: 'Papelaria Central', data: '2026-08-28', previsto: '2026-09-05', total: 320.00, situacao: 'atendida', aReceber: 0.00 },
+    { numero: 14, fornecedor: 'Embalagens do Vale', data: '2026-08-20', previsto: '2026-08-30', total: 1780.00, situacao: 'cancelada', aReceber: 0.00 }
+  ];
+  const CONTAS_DO_CADASTRO = [
+    { id: 11, fornecedor: 'Luminárias Brasil', vencimento: '2026-10-11', saldo: 5380.00 },
+    { id: 12, fornecedor: 'Papelaria Central', vencimento: '2026-10-19', saldo: 320.00 },
+    { id: 13, fornecedor: 'TechParts Distribuidora', vencimento: '2026-10-28', saldo: 2460.00 }
+  ];
+  const PRODUTOS_DO_CADASTRO = [
+    { sku: 'CAD-ERG-001', nome: 'Cadeira Ergonômica Pro', fornecedor: 'Móveis Nordeste Ltda' },
+    { sku: 'MES-SLM-002', nome: 'Mesa Escritório Slim', fornecedor: 'Móveis Nordeste Ltda' },
+    { sku: 'SUP-MON-003', nome: 'Suporte Monitor Duplo', fornecedor: 'TechParts Distribuidora' },
+    { sku: 'LUM-LED-004', nome: 'Luminária LED Ajustável', fornecedor: 'Luminárias Brasil' },
+    { sku: 'KIT-HOF-005', nome: 'Kit Home Office Completo', fornecedor: 'Móveis Nordeste Ltda' },
+    { sku: 'TEC-MEC-006', nome: 'Teclado Mecânico Desk', fornecedor: 'TechParts Distribuidora' },
+    { sku: 'MAT-MDF-007', nome: 'Chapa MDF 18mm', fornecedor: 'Nordic Home Importação' },
+    { sku: 'MAT-TEC-008', nome: 'Tecido Sintético Preto', fornecedor: 'Tecidos Ceará S/A' },
+    { sku: 'CAB-HDM-009', nome: 'Cabo HDMI 2.1 · 2m', fornecedor: 'TechParts Distribuidora' },
+    { sku: 'KIT-MNT-010', nome: 'Kit Manutenção Desk Tech', fornecedor: 'TechParts Distribuidora' },
+    { sku: 'FON-BLT-013', nome: 'Fone Bluetooth Desk One', fornecedor: 'TechParts Distribuidora' },
+    { sku: 'MAT-PAR-014', nome: 'Parafuso M6 · 100un', fornecedor: 'Nordic Home Importação' },
+    { sku: 'MON-27I-015', nome: 'Monitor Desk 27" IPS', fornecedor: 'TechParts Distribuidora' }
+  ];
+
   function abrirPreviewFornecedor(id) {
     const c = FORNECEDORES.find(x => x.id === id);
     if (!c) return;
@@ -1481,6 +1529,34 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         badgesLojas += '<span class="origem-badge" style="background:var(--brand-blue);">Fornece p/ ' + loja + '</span>';
       });
     }
+
+    // Compras, contas e produtos deste fornecedor, lidos dos espelhos.
+    const dinheiro = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const dataBR = (iso) => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—';
+    const busca = encodeURIComponent(c.nome);
+    const ordens = ORDENS_DO_CADASTRO.filter(o => o.fornecedor === c.nome && o.situacao !== 'cancelada');
+    const abertas = ordens.filter(o => o.situacao === 'aberto' || o.situacao === 'andamento');
+    const ultima = ordens.slice().sort((a, b) => (a.data < b.data ? 1 : (a.data > b.data ? -1 : b.numero - a.numero)))[0];
+    const contas = CONTAS_DO_CADASTRO.filter(x => x.fornecedor === c.nome);
+    const produtos = PRODUTOS_DO_CADASTRO.filter(x => x.fornecedor === c.nome);
+    const linhaPf = (rotulo, valor, idPf) => '<div class="preview-meta-row"><span class="preview-meta-label">' + rotulo + '</span><span class="preview-meta-value" id="' + idPf + '">' + valor + '</span></div>';
+    const oQueTemDele =
+      '<div class="preview-secao">Compras</div>' +
+      '<div class="preview-meta-list">' +
+        linhaPf('Ordens em aberto', abertas.length ? '<a class="painel-link" href="../estoque/pagina-estoque-ordens-compra.html?busca=' + busca + '">' + abertas.length + (abertas.length === 1 ? ' ordem' : ' ordens') + '</a>' : 'nenhuma', 'pfOrdens') +
+        linhaPf('Falta receber', abertas.length ? dinheiro(abertas.reduce((s, o) => s + o.aReceber, 0)) : '—', 'pfAReceber') +
+        linhaPf('Última compra', ultima ? dataBR(ultima.data) + ' · ' + dinheiro(ultima.total) + ' · ordem nº ' + ultima.numero : 'nunca comprou', 'pfUltima') +
+      '</div>' +
+      '<div class="preview-secao">Financeiro</div>' +
+      '<div class="preview-meta-list">' +
+        linhaPf('Contas a pagar em aberto', contas.length ? '<a class="painel-link" href="../financas/pagina-financas-contas-pagar.html?busca=' + busca + '">' + contas.length + (contas.length === 1 ? ' conta' : ' contas') + '</a>' : 'nenhuma', 'pfContas') +
+        linhaPf('Quanto se deve', contas.length ? dinheiro(contas.reduce((s, x) => s + x.saldo, 0)) : '—', 'pfDeve') +
+      '</div>' +
+      '<div class="preview-secao">Fornecedor padrão de</div>' +
+      '<div class="preview-meta-list" id="pfProdutos">' +
+        (produtos.length ? produtos.map(x => '<div class="preview-meta-row"><a class="painel-link" href="../estoque/pagina-estoque-necessidades-compra.html?busca=' + x.sku + '">' + x.nome + '</a><span class="preview-meta-label">' + x.sku + '</span></div>').join('')
+                         : '<div class="preview-meta-row"><span class="preview-meta-label">nenhum produto</span></div>') +
+      '</div>';
 
     document.getElementById('drawerBody').innerHTML =
       '<div class="preview-summary">' +
@@ -1498,6 +1574,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="preview-meta-row"><span class="preview-meta-label">Cidade/UF</span><span class="preview-meta-value">' + c.cidade + '/' + c.estado + '</span></div>' +
           '<div class="preview-meta-row"><span class="preview-meta-label">Fornecedor desde</span><span class="preview-meta-value">' + c.fornecedorDesde + '</span></div>' +
         '</div>' +
+        oQueTemDele +
         '<div class="preview-footer">' +
           '<a class="btn-primary" href="../cadastros/pagina-cadastros-fornecedores-detalhe.html?editar=1" style="text-decoration:none;">Editar cadastro completo</a>' +
         '</div>' +

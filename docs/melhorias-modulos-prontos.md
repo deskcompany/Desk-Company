@@ -9,8 +9,8 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 | situação | itens |
 |---|---|
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
-| **Feito no principal, com resto anotado** (20) | C1 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | G3 · C2 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
+| **Feito no principal, com resto anotado** (21) | C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
+| **Falta** | G3 · C3 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
@@ -34,6 +34,10 @@ O que entrou e o que falta em cada item feito no principal:
   ordens de compra em aberto do produto.
 - **E9** (Endereçamento): a nota virou link. Faltam o link do produto e a sugestão de endereço pela
   capacidade livre.
+- **C2** (Fornecedores): o painel mostra ordens em aberto, o que falta receber, a última compra, as
+  contas a pagar e os produtos em que ele é o fornecedor padrão, com links. Faltam: a página de
+  detalhe do fornecedor continua abrindo o exemplo fixo (item G3), e os outros oito registros do
+  cadastro ainda têm nome de pessoa, sem compra nenhuma.
 - **E10** (Tratamento de Perdas): no painel do item, a origem leva à nota e à ficha do pedido na
   Separação e na Conferência de Saída. Faltam a devolução e o acerto (o exemplo de Devolução tem
   outros produtos, e o Acerto não tem lista), e o link no histórico dos resolvidos, que cita um

@@ -2867,3 +2867,31 @@ arquivo alterado que não é seu, e no commit escolher arquivo por arquivo.
 defeitos injetados, um por vez, e os vinte e oito foram pegos: venda que entra em vez de sair,
 histórico que parte de zero, filtro que não filtra, documento que mostra só um item, impressão que
 leva a lista junto, tela que grava no navegador, planilha só com a página, tela vizinha sem o link.
+
+## 14.64 Cadastros: o painel do fornecedor mostra o que as outras telas têm dele (13/out/2026)
+
+Item C2 da lista de melhorias. O painel do fornecedor só tinha os dados de cadastro.
+
+**Primeiro o exemplo, depois o painel.** O cadastro de Fornecedores trazia nomes de cliente (Marina
+Duarte, Rafael Nogueira...) e nenhum dos sete fornecedores que Ordens de Compra, Entrada de Notas,
+Necessidades de Compra e Contas a Pagar usam. Sem alinhar, o painel mostraria "nenhuma ordem" para
+todo mundo. Seis registros viraram esses fornecedores, com o nome, o CNPJ e a UF que a Conferência de
+Entrada já usava, e a Papelaria Central perdeu o "Ltda" que só existia ali. Dois deles estavam
+inativos no exemplo, com ordem de compra em aberto; ficaram ativos.
+
+**O painel.** Três blocos depois dos dados de cadastro: Compras (ordens em aberto, com link; quanto
+falta receber; a última compra, com data, valor e número), Financeiro (contas a pagar em aberto, com
+link, e quanto se deve) e "Fornecedor padrão de" (os produtos, cada um com link para Necessidades de
+Compra). Fornecedor de quem nunca se comprou diz "nunca comprou" e "nenhuma", sem link para lista
+vazia.
+
+**Cada número tem uma dona.** O cadastro carrega três espelhos: as ordens (de Ordens de Compra), as
+contas com saldo (de Contas a Pagar) e o fornecedor padrão de cada produto (de Necessidades de
+Compra). "Falta receber" é o que ainda não chegou pelo preço dos itens; ordem em aberto sem
+recebimento deve o total. A suíte lê cada tela de origem e compara.
+
+**Provado nos dois sentidos.** Seis defeitos injetados, um por vez, contra `teste_cad_melhorias.py`
+(16 asserções), e os seis foram pegos.
+
+**Fica anotado.** Oito registros do cadastro seguem com nome de pessoa e sem compra nenhuma; a página
+de detalhe do fornecedor abre o exemplo fixo (item G3).

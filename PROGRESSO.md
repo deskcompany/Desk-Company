@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com a tela nova Movimentação de Estoque.*
+*Atualizado em 13/out/2026, com o painel do fornecedor (item C2 da lista de melhorias).*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -38,6 +38,9 @@ melhorias.
 pediu em 12/out, com quatro prints de um kardex: o histórico individual de cada produto, do saldo de
 antes até o saldo de hoje, com o documento inteiro de cada movimento. É só consulta. O item entrou no
 menu de Estoque das 81 telas, logo depois de Controle de Estoques.
+
+**A lista de melhorias chegou aos cadastros.** O usuário mandou seguir em 13/out, e o primeiro item,
+C2 (o painel do fornecedor), está feito e espera o teste dele (§14.64). Faltam C3 a C8.
 
 **Duas conversas mexeram no projeto ao mesmo tempo em 13/out**: uma no painel dos resolvidos de
 Tratamento de Perdas, outra na Movimentação de Estoque. Cada uma fez o commit só do que era dela, e
@@ -202,23 +205,32 @@ de testar a conferência:
 - **As vizinhas levam para lá:** Controle de Estoques ("Mais ações"), a página do produto (botão
   "Movimentações") e o painel do Giro. A tela leva de volta à página do produto e ao Giro.
 
-**10. A verificação.** Sete suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**10. Cadastros: o painel do fornecedor, item C2 da lista** (13/out, §14.64):
+
+- **O painel mostra o que as outras telas têm do fornecedor:** ordens de compra em aberto e quanto
+  falta receber, a última compra, as contas a pagar em aberto e quanto se deve, e os produtos em que
+  ele é o fornecedor padrão. Ordens, contas e produtos têm link.
+- **O exemplo do cadastro foi alinhado.** Ele trazia nomes de cliente; seis registros viraram os
+  fornecedores que Ordens de Compra, Entrada de Notas e Contas a Pagar usam, com o mesmo nome e o
+  mesmo CNPJ, e a Papelaria Central perdeu o "Ltda" que só existia ali.
+
+**11. A verificação.** Oito suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py` e `teste_movimentacao.py`. Cento e quarenta defeitos injetados de propósito,
-um por vez; os cento e quarenta são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e quarenta e seis
+defeitos injetados de propósito, um por vez; os cento e quarenta e seis são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
-**11. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
+**12. As skills do ERP** ganharam o que o retorno ensinou, na seção "A tela dentro do sistema" e no
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
 ## Próximo da fila
 
-1. **O teste do usuário** na Movimentação de Estoque, no painel dos resolvidos e no cadastro de
-   motivos de Tratamento de Perdas.
-2. **O resto da lista aprovada**, na ordem sugerida: os cadastros (C2 a C8, que pedem alinhar os
-   dados de exemplo antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
+1. **O teste do usuário** na Movimentação de Estoque, no painel dos resolvidos, no cadastro de
+   motivos de Tratamento de Perdas e no painel do fornecedor.
+2. **O resto da lista aprovada**, na ordem sugerida: os outros cadastros (C3 a C8; o de Produtos
+   pede alinhar o exemplo com o Controle de Estoques antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.
 3. **A impressão em formato de relatório** (item P1): analisada, falta fazer. O usuário pediu para
    deixar para depois. Entra no bloco comum e chega às 20 listas de uma vez.
