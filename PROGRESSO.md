@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com a saída da aba "Lançamentos" da página do produto.*
+*Atualizado em 13/out/2026, com a aba Produtos Fornecidos no cadastro do fornecedor.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -48,14 +48,15 @@ espera o teste dele** (§14.66). O histórico do produto mora só na Movimentaç
 do produto, em Controle de Estoques, ficou com os indicadores, Endereços, Reservas e "Incluir
 lançamento", e chega ao histórico pelo botão "Movimentações".
 
-**O `selo.py` não fechou nesta entrega, e a causa não é dela.** A suíte `teste_cad_melhorias.py`, da
-entrega de cadastros que está em andamento em outra conversa, trava até estourar o tempo e derruba a
-rodada. As 20 suítes que alcançam a página do produto rodaram uma a uma, com as duas auditorias, e
-passaram; o `selo.json` ficou como estava. A próxima rodada completa, com a suíte de cadastros
-consertada, sela o que falta.
+**O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
+defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
+(a lixeira da aba nova não removia o produto). O arquivo foi restaurado, o teste ganhou teto no laço
+que ficava preso, e a prova passou a rodar numa cópia das telas, fora do projeto (§14.67).
 
 **A lista de melhorias chegou aos cadastros.** O usuário mandou seguir em 13/out, e o primeiro item,
-C2 (o painel do fornecedor), está feito e espera o teste dele (§14.64). Faltam C3 a C8.
+C2 (o painel do fornecedor), está feito. Ele testou, deu ok no resto e pediu uma mudança: a lista
+dos produtos sair do painel lateral e virar a aba "Produtos Fornecidos" dentro do cadastro do
+fornecedor. Está feita e espera o teste dele (§14.67). Faltam C3 a C8.
 
 **Duas conversas mexeram no projeto ao mesmo tempo em 13/out**: uma no painel dos resolvidos de
 Tratamento de Perdas, outra na Movimentação de Estoque. Cada uma fez o commit só do que era dela, e
@@ -228,16 +229,22 @@ de testar a conferência:
 **10. Cadastros: o painel do fornecedor, item C2 da lista** (13/out, §14.64):
 
 - **O painel mostra o que as outras telas têm do fornecedor:** ordens de compra em aberto e quanto
-  falta receber, a última compra, as contas a pagar em aberto e quanto se deve, e os produtos em que
-  ele é o fornecedor padrão. Ordens, contas e produtos têm link.
+  falta receber, a última compra, as contas a pagar em aberto e quanto se deve, e de quantos produtos
+  ele é o fornecedor padrão. Ordens e contas têm link.
+- **A lista dos produtos mora no cadastro, na aba "Produtos Fornecidos"** (pedido dele, §14.67),
+  antes de Observações. Cada linha tem o custo neste fornecedor e o pedido mínimo, que se editam, e
+  o custo médio, o giro mensal, o preço de venda e o lucro por unidade caso a compra seja feita ali.
+  Adiciona-se pela busca padrão de produto; a lixeira tira da lista.
+- **O cadastro de exemplo passou a ser a TechParts**, que tem produtos; era um fornecedor de quem
+  nunca se comprou.
 - **O exemplo do cadastro foi alinhado.** Ele trazia nomes de cliente; seis registros viraram os
   fornecedores que Ordens de Compra, Entrada de Notas e Contas a Pagar usam, com o mesmo nome e o
   mesmo CNPJ, e a Papelaria Central perdeu o "Ltda" que só existia ali.
 
 **11. A verificação.** Oito suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e sessenta
-defeitos injetados de propósito, um por vez; os cento e sessenta são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py` e `teste_cad_melhorias.py`. Cento e setenta e
+três defeitos injetados de propósito, um por vez; os cento e setenta e três são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -248,7 +255,7 @@ constante.
 ## Próximo da fila
 
 1. **O teste do usuário** na Movimentação de Estoque, no painel dos resolvidos, no cadastro de
-   motivos de Tratamento de Perdas e no painel do fornecedor.
+   motivos de Tratamento de Perdas e na aba Produtos Fornecidos do cadastro do fornecedor.
 2. **O resto da lista aprovada**, na ordem sugerida: os outros cadastros (C3 a C8; o de Produtos
    pede alinhar o exemplo com o Controle de Estoques antes); K1 e R6; os alinhamentos de exemplo (X1 a X5), que destravam V4 e L4; e
    por último G3, a página de detalhe abrir o registro clicado.

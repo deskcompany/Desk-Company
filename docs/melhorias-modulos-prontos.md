@@ -35,7 +35,10 @@ O que entrou e o que falta em cada item feito no principal:
 - **E9** (Endereçamento): a nota virou link. Faltam o link do produto e a sugestão de endereço pela
   capacidade livre.
 - **C2** (Fornecedores): o painel mostra ordens em aberto, o que falta receber, a última compra, as
-  contas a pagar e os produtos em que ele é o fornecedor padrão, com links. Faltam: a página de
+  contas a pagar e de quantos produtos ele é o fornecedor padrão. A lista dos produtos mora no
+  cadastro, na aba Produtos Fornecidos (custo e pedido mínimo do fornecedor, custo médio, giro, preço
+  de venda e lucro por unidade). O preço de venda de exemplo mora nessa aba até o item C3 alinhar o
+  cadastro de Produtos. Faltam: a página de
   detalhe do fornecedor continua abrindo o exemplo fixo (item G3), e os outros oito registros do
   cadastro ainda têm nome de pessoa, sem compra nenhuma.
 - **E10** (Tratamento de Perdas): no painel do item, a origem leva à nota e à ficha do pedido na

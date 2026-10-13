@@ -2985,3 +2985,46 @@ uma entrega de cadastros em andamento em outra conversa, trava até estourar os 
 uma, restritas a ela como o selo faz, mais a auditoria do projeto e a oficial: tudo verde. O
 `selo.json` ficou como estava. O que vale levar: **uma suíte que trava derruba o selo inteiro, e a
 rodada perde também o que já tinha passado.**
+
+## 14.67 Fornecedores: a lista dos produtos mora no cadastro, na aba Produtos Fornecidos (13/out/2026)
+
+Retorno do usuário sobre o painel do fornecedor (§14.64): o resto ok, e a lista "Fornecedor padrão
+de" ficaria melhor dentro do cadastro, numa aba antes de Observações, "coisa simples".
+
+**Painel resume, cadastro detalha.** O painel lateral ficou com a contagem ("fornecedor padrão de 6
+produtos") e a frase dizendo onde a lista está. A lista foi para a aba "Produtos Fornecidos" da
+página do cadastro.
+
+**A linha separa o que é do fornecedor do que é do produto.** Do fornecedor, e por isso editáveis: o
+custo ali e o pedido mínimo. Do produto, só leitura: custo médio, giro mensal e preço de venda. E o
+lucro por unidade "caso compre naquele fornecedor": preço de venda menos o custo ali, com a
+porcentagem do preço; custo acima do preço aparece como prejuízo. O produto em que ele é o fornecedor
+padrão leva a marca. Matéria-prima não é vendida: sem preço e sem lucro.
+
+**Adicionar é pela busca padrão de produto**, a mesma do Acerto e do bloqueio: nome, SKU ou GTIN,
+clique ou Enter no primeiro. O produto desce para a lista com o custo médio como custo e pedido
+mínimo 1, e o foco vai para o custo. A busca não oferece o que já está na lista. A lixeira tira, na
+hora, como a tabela de contatos da mesma página; quem grava é "Salvar alterações".
+
+**Vazio não é zero.** Custo ou pedido mínimo em branco não vira zero: o lucro fica sem número, o campo
+é marcado, e salvar não passa. Só a célula do lucro é reescrita ao digitar, para o campo não perder o
+foco. Em leitura a lista aparece inteira, sem busca e sem lixeira. Fornecedor novo abre sem produto.
+
+**O exemplo.** A página de cadastro mostrava a Distribuidora Nordeste, de quem nunca se comprou; a
+aba ficaria vazia. O exemplo fixo passou a ser a TechParts, com os mesmos dados que ela tem na lista.
+O catálogo da aba é espelho de Necessidades de Compra, e a suíte compara. O preço de venda ainda não
+tem dona no protótipo (o cadastro de Produtos traz outro exemplo, item C3) e mora na aba por ora.
+
+**O defeito injetado que ficou no arquivo.** A prova por defeitos alterava o arquivo de verdade. Um
+dos casos (a lixeira que não remove) prendia a suíte num laço sem fim; a conversa caiu com ele em
+andamento, a restauração não rodou, e a tela ficou com a lixeira quebrada. A outra conversa notou
+porque a suíte passou a travar o selo inteiro. Três consertos: a linha voltou; o laço do teste ganhou
+teto, para defeito virar reprovação e não espera; e **a prova passou a rodar numa cópia das telas,
+fora do projeto**, por `file://`, com limite de tempo por caso. O roteiro recusa rodar fora da pasta
+de rascunho.
+
+**Provado nos dois sentidos.** Treze defeitos injetados, um por vez, contra `teste_cad_melhorias.py`
+(36 asserções), e os treze foram pegos.
+
+**Fica anotado.** A página de cadastro abre sempre a TechParts, qualquer que seja o fornecedor
+clicado (item G3). O que se edita na aba vale até recarregar, como o resto do formulário.

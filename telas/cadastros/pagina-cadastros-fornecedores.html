@@ -1473,7 +1473,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== O QUE AS OUTRAS TELAS TEM DESTE FORNECEDOR (13/out/2026) =====
   // O painel do fornecedor mostra as ordens em aberto, o que falta receber, a ultima compra, as contas
-  // a pagar e os produtos em que ele e o fornecedor padrao. Cada lista e espelho da tela que e dona do
+  // a pagar e de quantos produtos ele e o fornecedor padrao (a lista mora no cadastro, na aba Produtos Fornecidos). Cada lista e espelho da tela que e dona do
   // numero, e teste_cad_melhorias.py compara. No sistema de producao sao consultas as mesmas tabelas.
   //   ORDENS_DO_CADASTRO   = Estoque > Ordens de Compra. `aReceber`: o que falta chegar, pelo preco dos
   //                          itens; ordem em aberto sem recebimento nenhum deve o total.
@@ -1552,10 +1552,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         linhaPf('Contas a pagar em aberto', contas.length ? '<a class="painel-link" href="../financas/pagina-financas-contas-pagar.html?busca=' + busca + '">' + contas.length + (contas.length === 1 ? ' conta' : ' contas') + '</a>' : 'nenhuma', 'pfContas') +
         linhaPf('Quanto se deve', contas.length ? dinheiro(contas.reduce((s, x) => s + x.saldo, 0)) : '—', 'pfDeve') +
       '</div>' +
-      '<div class="preview-secao">Fornecedor padrão de</div>' +
-      '<div class="preview-meta-list" id="pfProdutos">' +
-        (produtos.length ? produtos.map(x => '<div class="preview-meta-row"><a class="painel-link" href="../estoque/pagina-estoque-necessidades-compra.html?busca=' + x.sku + '">' + x.nome + '</a><span class="preview-meta-label">' + x.sku + '</span></div>').join('')
-                         : '<div class="preview-meta-row"><span class="preview-meta-label">nenhum produto</span></div>') +
+      '<div class="preview-secao">Produtos</div>' +
+      '<div class="preview-meta-list">' +
+        linhaPf('Fornecedor padrão de', produtos.length ? produtos.length + (produtos.length === 1 ? ' produto' : ' produtos') : 'nenhum produto', 'pfProdutos') +
+        '<div class="preview-meta-row"><span class="preview-meta-label">A lista fica no cadastro completo, na aba Produtos Fornecidos.</span></div>' +
       '</div>';
 
     document.getElementById('drawerBody').innerHTML =

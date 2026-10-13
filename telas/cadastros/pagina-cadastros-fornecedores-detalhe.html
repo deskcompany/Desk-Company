@@ -365,6 +365,38 @@
     border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
   }
 
+  /* Produtos Fornecidos (13/out/2026): a busca e a padrao de produto; a tabela segue a de contatos. */
+  .pf-busca-bloco { margin-bottom:18px; max-width:520px; }
+  #tab-produtos .field-hint { font-size:12px; color:var(--text); margin-top:6px; }
+  .busca-produto-wrap { position:relative; }
+  .busca-produto-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
+  .busca-produto-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
+  .busca-produto-wrap input:focus { border-color:var(--active-text); }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  .pf-table th.pf-dir, .pf-table td.pf-dir { text-align:right; white-space:nowrap; }
+  .pf-table td { font-size:13px; color:var(--text-heading); vertical-align:middle; }
+  .pf-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .pf-sku, .pf-un, .pf-pct { font-size:11.5px; color:var(--text); font-weight:500; }
+  .pf-padrao { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--active-text); border:1px solid currentColor; border-radius:20px; padding:1px 7px; margin-left:4px; white-space:nowrap; }
+  /* pelo id: a regra dos campos da tabela de contatos vem depois e tem o mesmo peso */
+  #pfTabela td input.pf-num { width:96px; text-align:right; }
+  #pfTabela td input.pf-min { width:64px; }
+  #pfTabela td input.pf-erro { border-color:var(--danger); }
+  #pfTabela td { white-space:nowrap; }
+  #pfTabela td:first-child { white-space:normal; min-width:230px; }
+  .pf-lucro b { font-weight:800; }
+  .pf-lucro.negativo b { color:var(--danger); }
+  .pf-vazio { font-size:13px; color:var(--text); padding:18px 0; }
+  .pf-remover svg { width:15px; height:15px; }
+  /* em leitura a lista e so para ver: sem busca, sem lixeira, e o campo vira texto */
+  body.modo-leitura #tab-produtos .pf-busca-bloco, body.modo-leitura #tab-produtos .pf-remover { display:none; }
+  body.modo-leitura #pfTabela td input.pf-num { border-color:transparent; background:transparent; pointer-events:none; padding-right:0; }
   .contatos-table { width:100%; border-collapse:collapse; margin-bottom:12px; }
   .contatos-table th { text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 8px 0; }
   .contatos-table td { padding:6px 8px 6px 0; border-top:1px solid var(--border); }
@@ -685,8 +717,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="page-header">
     <div>
-      <h1 id="tituloFornecedor">Distribuidora Nordeste Ltda</h1>
-      <div class="subtitle">FOR-0003 · <span id="origemTexto">Distribuição/Atacado</span></div>
+      <h1 id="tituloFornecedor">TechParts Distribuidora</h1>
+      <div class="subtitle">FOR-0002 · <span id="origemTexto">Eletrônicos e Componentes</span></div>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
   <span class="status-badge" id="statusBadge" style="background:var(--success); color:#fff;">Ativo</span>
@@ -707,6 +739,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="tab-item active" data-tab="gerais">Dados Gerais</div>
     <div class="tab-item" data-tab="complementares">Dados Complementares</div>
     <div class="tab-item" data-tab="anexos">Anexos</div>
+    <div class="tab-item" data-tab="produtos">Produtos Fornecidos</div>
     <div class="tab-item" data-tab="observacoes">Observações</div>
   </div>
 
@@ -720,23 +753,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row">
       <div class="form-field" id="campoNome" style="flex:1.8;">
         <label id="labelNome">Razão social</label>
-        <input type="text" id="inputNome" value="Distribuidora Nordeste Ltda">
+        <input type="text" id="inputNome" value="TechParts Distribuidora">
         <div class="field-error-msg" id="erroNome">Este campo é obrigatório.</div>
       </div>
       <div class="form-field" id="campoNomeFantasia">
         <label>Nome fantasia</label>
-        <input type="text" id="inputNomeFantasia" value="Distribuidora Nordeste">
+        <input type="text" id="inputNomeFantasia" value="TechParts">
       </div>
       <div class="form-field" style="flex:0.6;">
         <label>Código</label>
-        <input type="text" id="inputCodigo" value="FOR-0003" readonly>
+        <input type="text" id="inputCodigo" value="FOR-0002" readonly>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-field" id="campoDocumento" style="flex:1.2;">
         <label id="labelDocumento">CNPJ</label>
-        <input type="text" id="inputDocumento" value="41.223.556/0001-09">
+        <input type="text" id="inputDocumento" value="98.765.432/0001-10">
         <div class="field-error-msg" id="erroDocumento">Este campo é obrigatório.</div>
       </div>
       <div class="form-field" style="flex:0.8;">
@@ -754,14 +787,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field" id="campoLoja">
         <label>Categoria de fornecimento</label>
-        <div class="dropdown-select" id="inputLoja" data-value="distribuicao">
+        <div class="dropdown-select" id="inputLoja" data-value="eletronicos">
           <button type="button" class="dropdown-select-btn form-style">
-            <span class="dropdown-select-label">Distribuição/Atacado</span>
+            <span class="dropdown-select-label">Eletrônicos e Componentes</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="dropdown-select-menu">
-            <div class="dropdown-select-item active" data-value="distribuicao">Distribuição/Atacado</div>
-            <div class="dropdown-select-item" data-value="eletronicos">Eletrônicos e Componentes</div>
+            <div class="dropdown-select-item" data-value="distribuicao">Distribuição/Atacado</div>
+            <div class="dropdown-select-item active" data-value="eletronicos">Eletrônicos e Componentes</div>
             <div class="dropdown-select-item" data-value="mobiliario">Mobiliário</div>
             <div class="dropdown-select-item" data-value="papelaria">Papelaria e Embalagens</div>
             <div class="dropdown-select-item" data-value="autopecas">Autopeças</div>
@@ -777,31 +810,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row">
       <div class="form-field">
         <label>CEP</label>
-        <input type="text" id="inputCep" value="65915-000">
+        <input type="text" id="inputCep" value="01310-100">
       </div>
       <div class="form-field" style="flex:1.6;">
         <label>Cidade</label>
-        <input type="text" id="inputCidade" value="Imperatriz">
+        <input type="text" id="inputCidade" value="São Paulo">
       </div>
       <div class="form-field">
         <label>Estado</label>
-        <input type="text" id="inputEstado" value="MA">
+        <input type="text" id="inputEstado" value="SP">
       </div>
     </div>
     <div class="form-row">
       <div class="form-field" style="flex:2;">
         <label>Endereço</label>
-        <input type="text" id="inputEndereco" value="Rod. BR-010">
+        <input type="text" id="inputEndereco" value="Av. Getúlio Vargas">
       </div>
       <div class="form-field">
         <label>Número</label>
-        <input type="text" id="inputNumero" value="s/n">
+        <input type="text" id="inputNumero" value="845">
       </div>
     </div>
     <div class="form-row">
       <div class="form-field">
         <label>Bairro</label>
-        <input type="text" id="inputBairro" value="Distrito Industrial">
+        <input type="text" id="inputBairro" value="Juçara">
       </div>
       <div class="form-field">
         <label>Complemento</label>
@@ -855,7 +888,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row">
       <div class="form-field">
         <label>Telefone</label>
-        <input type="text" id="inputTelefone" value="(99) 3524-1180">
+        <input type="text" id="inputTelefone" value="(11) 3524-5502">
       </div>
       <div class="form-field">
         <label>Telefone adicional</label>
@@ -873,7 +906,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field">
         <label>E-mail</label>
-        <input type="text" id="inputEmail" value="contato@distnordeste.com.br">
+        <input type="text" id="inputEmail" value="vendas@techparts.com.br">
       </div>
       <div class="form-field">
         <label>E-mail para NF-e</label>
@@ -980,6 +1013,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <!-- ABA: OBSERVAÇÕES -->
+  <div class="tab-panel" id="tab-produtos">
+    <div class="pf-busca-bloco">
+      <div class="busca-produto-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="pfBusca" placeholder="Pesquise um produto por descrição, código (SKU) ou GTIN para adicionar" autocomplete="off">
+        <div class="sugestoes" id="pfSugestoes"></div>
+      </div>
+      <div class="field-hint">Clique no produto, ou <b>Enter</b> para o primeiro da lista. Ele entra com o custo médio; ajuste o custo e o pedido mínimo deste fornecedor.</div>
+    </div>
+    <table class="contatos-table pf-table" id="pfTabela">
+      <thead>
+        <tr><th>Produto</th><th>Custo neste fornecedor</th><th>Pedido mínimo</th><th class="pf-dir">Custo médio</th><th class="pf-dir">Giro mensal</th><th class="pf-dir">Preço de venda</th><th class="pf-dir">Lucro por unidade</th><th></th></tr>
+      </thead>
+      <tbody id="pfCorpo"></tbody>
+    </table>
+    <div class="pf-vazio" id="pfVazio" style="display:none;">Nenhum produto ligado a este fornecedor. Pesquise acima para adicionar.</div>
+    <div class="field-hint" id="pfResumo"></div>
+    <div class="field-error-msg" id="pfErro">Confira o custo e o pedido mínimo: informe números, sem deixar em branco.</div>
+  </div>
+
   <div class="tab-panel" id="tab-observacoes">
     <div class="form-field">
       <label>Observações</label>
@@ -1595,8 +1648,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [
-    { nome: 'Carlos Ferreira', setor: 'Comercial', email: 'carlos@distnordeste.com.br', telefone: '(99) 3524-1180', ramal: '101' },
-    { nome: 'Beatriz Lima', setor: 'Financeiro', email: 'beatriz@distnordeste.com.br', telefone: '(99) 3524-1180', ramal: '105' }
+    { nome: 'Carlos Ferreira', setor: 'Comercial', email: 'carlos@techparts.com.br', telefone: '(11) 3524-5502', ramal: '101' },
+    { nome: 'Beatriz Lima', setor: 'Financeiro', email: 'beatriz@techparts.com.br', telefone: '(11) 3524-5502', ramal: '105' }
   ];
 
   function renderContatos() {
@@ -1633,6 +1686,135 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     CONTATOS.push({ nome: '', setor: '', email: '', telefone: '', ramal: '' });
     renderContatos();
   });
+
+  // ===== PRODUTOS FORNECIDOS (13/out/2026) =====
+  // Pedido do usuario: a lista dos produtos do fornecedor mora no cadastro dele, numa aba. Cada linha
+  // guarda o que e DESTE fornecedor (o custo aqui e o pedido minimo, que se editam) e mostra o que e
+  // do produto (custo medio, giro mensal, preco de venda), com o lucro por unidade caso a compra seja
+  // feita aqui. Adicionar e pela busca padrao de produto; a lixeira tira da lista.
+  //
+  // CATALOGO e espelho de Estoque > Necessidades de Compra (sku, nome, unidade, GTIN, custo medio, giro
+  // mensal e fornecedor padrao); teste_cad_melhorias.py compara. O preco de venda ainda nao tem dona
+  // no prototipo: o cadastro de Produtos traz outro exemplo (item C3 da lista de melhorias). Por ora
+  // mora aqui. Materia-prima nao e vendida, e nao tem preco.
+  const CATALOGO = [
+    { sku: 'CAD-ERG-001', nome: 'Cadeira Ergonômica Pro', un: 'UN', gtin: '7891234000011', custoMedio: 742.30, giroMensal: 7.7, padrao: 'Móveis Nordeste Ltda', venda: 1299.00 },
+    { sku: 'MES-SLM-002', nome: 'Mesa Escritório Slim', un: 'UN', gtin: '7891234000028', custoMedio: 512.75, giroMensal: 2.3, padrao: 'Móveis Nordeste Ltda', venda: 899.00 },
+    { sku: 'SUP-MON-003', nome: 'Suporte Monitor Duplo', un: 'UN', gtin: '7891234000035', custoMedio: 138.40, giroMensal: 3.5, padrao: 'TechParts Distribuidora', venda: 249.90 },
+    { sku: 'LUM-LED-004', nome: 'Luminária LED Ajustável', un: 'UN', gtin: '7891234000042', custoMedio: 86.20, giroMensal: 0.0, padrao: 'Luminárias Brasil', venda: 159.90 },
+    { sku: 'KIT-HOF-005', nome: 'Kit Home Office Completo', un: 'UN', gtin: '7891234000059', custoMedio: 1398.00, giroMensal: 0.5, padrao: 'Móveis Nordeste Ltda', venda: 2290.00 },
+    { sku: 'TEC-MEC-006', nome: 'Teclado Mecânico Desk', un: 'UN', gtin: '7891234000066', custoMedio: 231.10, giroMensal: 10.3, padrao: 'TechParts Distribuidora', venda: 399.90 },
+    { sku: 'MAT-MDF-007', nome: 'Chapa MDF 18mm', un: 'M2', gtin: '7891234000073', custoMedio: 214.50, giroMensal: 6.1, padrao: 'Nordic Home Importação', venda: null },
+    { sku: 'MAT-TEC-008', nome: 'Tecido Sintético Preto', un: 'M', gtin: '7891234000080', custoMedio: 62.00, giroMensal: 9.0, padrao: 'Tecidos Ceará S/A', venda: null },
+    { sku: 'CAB-HDM-009', nome: 'Cabo HDMI 2.1 · 2m', un: 'UN', gtin: '7891234000097', custoMedio: 32.40, giroMensal: 1.5, padrao: 'TechParts Distribuidora', venda: 59.90 },
+    { sku: 'KIT-MNT-010', nome: 'Kit Manutenção Desk Tech', un: 'UN', gtin: '7891234000103', custoMedio: 180.90, giroMensal: 1.8, padrao: 'TechParts Distribuidora', venda: 289.90 },
+    { sku: 'CAM-DKB-011', nome: 'Camiseta Desk Brands · P', un: 'UN', gtin: '7891234000110', custoMedio: 41.80, giroMensal: 6.3, padrao: '', venda: 79.90 },
+    { sku: 'CAM-DKB-012', nome: 'Camiseta Desk Brands · M', un: 'UN', gtin: '7891234000127', custoMedio: 41.80, giroMensal: 7.3, padrao: '', venda: 79.90 },
+    { sku: 'FON-BLT-013', nome: 'Fone Bluetooth Desk One', un: 'UN', gtin: '7891234000134', custoMedio: 176.60, giroMensal: 4.5, padrao: 'TechParts Distribuidora', venda: 299.90 },
+    { sku: 'MAT-PAR-014', nome: 'Parafuso M6 · 100un', un: 'CX', gtin: '7891234000141', custoMedio: 18.90, giroMensal: 0.0, padrao: 'Nordic Home Importação', venda: null },
+    { sku: 'MON-27I-015', nome: 'Monitor Desk 27" IPS', un: 'UN', gtin: '7891234000158', custoMedio: 1120.00, giroMensal: 1.3, padrao: 'TechParts Distribuidora', venda: 1699.00 }
+  ];
+  // O que este fornecedor entrega. `custo` e `minimo` sao dele; o resto vem do catalogo.
+  let FORNECIDOS = [
+    { sku: 'SUP-MON-003', custo: 89.00, minimo: 5 },
+    { sku: 'TEC-MEC-006', custo: 231.10, minimo: 10 },
+    { sku: 'CAB-HDM-009', custo: 9.50, minimo: 20 },
+    { sku: 'KIT-MNT-010', custo: 180.90, minimo: 2 },
+    { sku: 'FON-BLT-013', custo: 176.60, minimo: 5 },
+    { sku: 'MON-27I-015', custo: 1120.00, minimo: 2 },
+    { sku: 'LUM-LED-004', custo: 92.00, minimo: 10 }
+  ];
+  const FORNECEDOR_DA_PAGINA = document.getElementById('inputNome').value;
+  const produtoPf = (sku) => CATALOGO.filter(x => x.sku === sku)[0];
+  const dinheiroPf = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const numeroPf = (n, casas) => isNaN(n) ? '' : n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: 2 });
+  // Aceita "89", "89,5" e "1.234,56". Vazio, texto ou negativo nao e numero: volta NaN.
+  function lerNumeroPf(txt) {
+    const s = String(txt).trim();
+    if (!/^\d{1,3}(\.\d{3})*(,\d+)?$|^\d+(,\d+)?$/.test(s)) return NaN;
+    return parseFloat(s.replace(/\./g, '').replace(',', '.'));
+  }
+  const IC_LIXEIRA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>';
+
+  // O lucro por unidade se a compra for feita aqui: preco de venda menos o custo neste fornecedor.
+  function pintarLucroPf(i) {
+    const f = FORNECIDOS[i], p = produtoPf(f.sku), cel = document.querySelector('#pfCorpo [data-lucro="' + i + '"]');
+    if (!cel) return;
+    if (p.venda === null || isNaN(f.custo)) { cel.className = 'pf-dir pf-lucro'; cel.innerHTML = '—'; return; }
+    const lucro = p.venda - f.custo;
+    cel.className = 'pf-dir pf-lucro' + (lucro < 0 ? ' negativo' : '');
+    cel.innerHTML = '<b>' + (lucro < 0 ? '− ' : '') + dinheiroPf(Math.abs(lucro)) + '</b><div class="pf-pct">' + (lucro < 0 ? 'prejuízo' : Math.round(lucro / p.venda * 100) + '% do preço') + '</div>';
+  }
+  function pintarResumoPf() {
+    const padrao = FORNECIDOS.filter(f => produtoPf(f.sku).padrao === FORNECEDOR_DA_PAGINA).length;
+    document.getElementById('pfResumo').textContent = FORNECIDOS.length === 0 ? '' :
+      FORNECIDOS.length + (FORNECIDOS.length === 1 ? ' produto' : ' produtos') + ' · fornecedor padrão de ' + padrao + '.';
+    document.getElementById('pfTabela').style.display = FORNECIDOS.length ? '' : 'none';
+    document.getElementById('pfVazio').style.display = FORNECIDOS.length ? 'none' : '';
+  }
+  function renderFornecidos() {
+    const corpo = document.getElementById('pfCorpo');
+    corpo.innerHTML = FORNECIDOS.map((f, i) => {
+      const p = produtoPf(f.sku);
+      return '<tr data-sku="' + p.sku + '">' +
+        '<td><div class="pf-nome">' + p.nome + (p.padrao === FORNECEDOR_DA_PAGINA ? ' <span class="pf-padrao">fornecedor padrão</span>' : '') + '</div><div class="pf-sku">' + p.sku + ' · ' + p.un + '</div></td>' +
+        '<td><input type="text" class="pf-num" data-campo="custo" data-i="' + i + '" inputmode="decimal" autocomplete="off" value="' + numeroPf(f.custo, 2) + '" aria-label="Custo de ' + p.nome + ' neste fornecedor"></td>' +
+        '<td><input type="text" class="pf-num pf-min" data-campo="minimo" data-i="' + i + '" inputmode="decimal" autocomplete="off" value="' + numeroPf(f.minimo, 0) + '" aria-label="Pedido mínimo de ' + p.nome + '"> <span class="pf-un">' + p.un + '</span></td>' +
+        '<td class="pf-dir">' + dinheiroPf(p.custoMedio) + '</td>' +
+        '<td class="pf-dir">' + numeroPf(p.giroMensal, 0) + ' <span class="pf-un">' + p.un + '/mês</span></td>' +
+        '<td class="pf-dir">' + (p.venda === null ? '<span class="pf-un">não é vendido</span>' : dinheiroPf(p.venda)) + '</td>' +
+        '<td class="pf-dir pf-lucro" data-lucro="' + i + '"></td>' +
+        '<td><button type="button" class="remove-contato-btn pf-remover" data-remover="' + i + '" aria-label="Tirar ' + p.nome + ' deste fornecedor" title="Tirar deste fornecedor">' + IC_LIXEIRA + '</button></td>' +
+      '</tr>';
+    }).join('');
+    FORNECIDOS.forEach((f, i) => pintarLucroPf(i));
+    // So a celula do lucro e reescrita ao digitar: reescrever a tabela tiraria o foco do campo.
+    corpo.querySelectorAll('input.pf-num').forEach(inp => inp.addEventListener('input', () => {
+      const i = Number(inp.getAttribute('data-i')), valor = lerNumeroPf(inp.value);
+      FORNECIDOS[i][inp.getAttribute('data-campo')] = valor;
+      inp.classList.toggle('pf-erro', isNaN(valor));
+      document.getElementById('pfErro').classList.remove('show');
+      pintarLucroPf(i);
+    }));
+    corpo.querySelectorAll('[data-remover]').forEach(b => b.addEventListener('click', () => {
+      FORNECIDOS.splice(Number(b.getAttribute('data-remover')), 1);
+      renderFornecidos();
+    }));
+    pintarResumoPf();
+  }
+
+  // A busca padrao de produto: so oferece o que ainda nao esta na lista.
+  (function ligarBuscaPf() {
+    const busca = document.getElementById('pfBusca'), cx = document.getElementById('pfSugestoes');
+    let sugeridos = [];
+    function adicionar(sku) {
+      const p = produtoPf(sku);
+      if (!p || FORNECIDOS.some(f => f.sku === sku)) return;
+      FORNECIDOS.push({ sku: sku, custo: p.custoMedio, minimo: 1 });
+      busca.value = ''; cx.classList.remove('open'); cx.innerHTML = ''; sugeridos = [];
+      renderFornecidos();
+      const campo = document.querySelector('#pfCorpo tr[data-sku="' + sku + '"] input[data-campo="custo"]');
+      if (campo) { campo.focus(); campo.select(); }
+    }
+    function sugerir(termo) {
+      const tm = termo.trim().toLowerCase();
+      if (!tm) { cx.classList.remove('open'); cx.innerHTML = ''; sugeridos = []; return; }
+      const acha = CATALOGO.filter(x => x.nome.toLowerCase().includes(tm) || x.sku.toLowerCase().includes(tm) || x.gtin.includes(tm));
+      sugeridos = acha.filter(x => !FORNECIDOS.some(f => f.sku === x.sku)).slice(0, 8);
+      cx.innerHTML = sugeridos.length
+        ? sugeridos.map((x, n) => '<div class="sugestao-item' + (n === 0 ? ' ativo' : '') + '" data-sku="' + x.sku + '"><div class="sugestao-nome">' + x.nome + '</div>' +
+            '<div class="sugestao-meta">' + x.sku + ' · ' + x.gtin + ' · custo médio ' + dinheiroPf(x.custoMedio) + '</div></div>').join('')
+        : '<div class="sugestao-vazia">' + (acha.length ? 'Já está na lista deste fornecedor.' : 'Nenhum produto encontrado.') + '</div>';
+      cx.classList.add('open');
+      cx.querySelectorAll('.sugestao-item').forEach(el => el.addEventListener('click', () => adicionar(el.getAttribute('data-sku'))));
+    }
+    busca.addEventListener('input', (e) => sugerir(e.target.value));
+    busca.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); if (sugeridos.length) adicionar(sugeridos[0].sku); }
+      if (e.key === 'Escape' && cx.classList.contains('open')) { e.stopPropagation(); cx.classList.remove('open'); }
+    });
+    document.addEventListener('click', (e) => { if (!e.target.closest('.busca-produto-wrap')) cx.classList.remove('open'); });
+  })();
 
   // ===== ANEXOS =====
   let ANEXOS = [
@@ -1700,11 +1882,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.querySelector('.tab-item[data-tab="gerais"]').click();
       return;
     }
+    if (FORNECIDOS.some(f => isNaN(f.custo) || isNaN(f.minimo))) {
+      document.querySelector('.tab-item[data-tab="produtos"]').click();
+      document.querySelectorAll('#pfCorpo input.pf-num').forEach(inp => inp.classList.toggle('pf-erro', isNaN(lerNumeroPf(inp.value))));
+      document.getElementById('pfErro').classList.add('show');
+      return;
+    }
     aoSalvarCadastro('../cadastros/pagina-cadastros-fornecedores.html', document.getElementById('btnSalvarFornecedor'));
   });
 
   renderContatos();
   renderAnexos();
+  renderFornecidos();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
@@ -1847,6 +2036,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (c.type === 'checkbox' || c.type === 'radio' || c.type === 'file' || c.readOnly) return;
         c.value = '';
       });
+      FORNECIDOS = []; renderFornecidos();
       const h1 = document.querySelector('.main h1');
       if (h1) h1.textContent = 'Novo fornecedor';
       const sub = document.querySelector('.main .page-header .subtitle');
