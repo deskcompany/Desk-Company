@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com a segunda varredura feita e os achados esperando decisão.*
+*Atualizado em 14/out/2026, com os achados da segunda varredura consertados.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -77,10 +77,11 @@ sem caixa de seleção, seta de ordenação, abas nem indicadores; nos 4 documen
 de Entrada, Ordem de Compra e Pedido de Venda), com a data e quem emitiu, mantendo o título da
 página. Espera o teste dele nas outras listas.
 
-**A segunda varredura está feita, e os achados esperam o usuário.** Inventário, Acerto, PDV com
-caixa aberto e a contagem da Conferência de Entrada foram percorridos do começo ao fim. Os quatro
-fluxos se defendem bem; saíram nove pontos pequenos, seis defeitos e três decisões (seção "Segunda
-varredura" de `docs/melhorias-modulos-prontos.md`). Depois deles, a barganha dos módulos novos.
+**A segunda varredura está feita e os achados, consertados; esperam o teste do usuário** (§14.77).
+Inventário, Acerto, PDV com caixa aberto e a contagem da Conferência de Entrada foram percorridos do
+começo ao fim. Saíram seis defeitos e três decisões; ele mandou seguir as sugestões: entrada de
+acerto em qualquer depósito, aviso do desconto da venda no campo, e uma confirmação por divergência
+na conferência, como já era. O próximo passo, combinado com ele, é a barganha dos módulos novos.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -347,16 +348,21 @@ de testar a conferência:
   MDF-e e a devolução. "Bloquear novo pedido de cliente em atraso" está em Configurações do
   cadastro de clientes. Os 22 parâmetros continuam tendo tela, cada um numa só, e salvar numa tela
   não mexe no que é da outra.
+- **Os achados da segunda varredura** (§14.77). Inventário: fechar sem senha diz por quê; cancelar com
+  contagem pergunta; os códigos recusados do arquivo aparecem, com o motivo. Acerto: cada depósito
+  uma vez; entrada em qualquer depósito; saída maior que o endereço para na linha. PDV: o desconto
+  da venda acima do máximo avisa no campo. As duas telas que mostravam outro usuário mostram o mesmo
+  das outras 80.
 - **Impressão em formato de relatório nas 19 telas** (§14.75 e §14.76). O cabeçalho do relatório só
   existe no papel. "Imprimir", no menu, e o Ctrl+P dão a mesma folha, com a lista inteira. O
   código está no bloco comum de planilha e impressão, igual nas 19.
 
-**13. A verificação.** Catorze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Quinze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
-`teste_impressao.py`. Duzentos e setenta e cinco defeitos injetados de propósito, um por vez; os
-duzentos e setenta e cinco são pegos. A auditoria do
+`teste_impressao.py` e `teste_varredura2.py`. Duzentos e oitenta e oito defeitos injetados de
+propósito, um por vez; os duzentos e oitenta e oito são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -368,9 +374,7 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **Os achados da segunda varredura** (S1 a S9): consertar os seis defeitos e o que o usuário
-   decidir dos outros três.
-2. **Depois, a barganha dos módulos novos**, combinada com o usuário em 14/out: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
+1. **A barganha dos módulos novos**, combinada com o usuário em 14/out: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
@@ -404,9 +408,8 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Duas pendências, que são dele:
 
-1. **Os três pontos de decisão da segunda varredura:** S7 (entrada de acerto em depósito onde o
-   produto não tem saldo), S8 (o aviso do desconto da venda) e S9 (uma confirmação por
-   divergência na conferência).
+1. **Os prints do primeiro módulo novo**, para a barganha começar (Vendas Afiliados e Comissões
+   Afiliados, pela ordem da fila).
 2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia

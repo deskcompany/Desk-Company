@@ -1054,7 +1054,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="section-hint" style="margin-top:-8px;">O acerto move saldo e fica no histórico com o seu nome. Informe sua senha para autorizar o lote inteiro.</div>
 
   <div class="senha-usuario-label">Usuário</div>
-  <div class="senha-usuario-nome">Walysson Santos</div>
+  <div class="senha-usuario-nome">Administrador Desk</div>
 
   <div class="form-field" id="campoSenhaWrap">
     <label>Sua senha</label>
@@ -1958,24 +1958,35 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('wrapQuantidade').classList.remove('has-error');
     document.getElementById('erroMotivo').classList.remove('show');
 
-    const menuDep = document.getElementById('menuDeposito'), raizDep = document.getElementById('campoDeposito');
-    menuDep.innerHTML = p.saldos.map((s,i) =>
-      '<div class="dropdown-select-item' + (i===0?' active':'') + '" data-value="' + s.dep + '">' + DEPOSITOS[s.dep] + '</div>')
-      .filter((v,i,a) => a.indexOf(v) === i).join('');
-    depLanc = p.saldos.length ? p.saldos[0].dep : 1;
-    raizDep.setAttribute('data-value', String(depLanc));
-    raizDep.querySelector('.dropdown-select-label').textContent = DEPOSITOS[depLanc] || '—';
-    inicializarDropdownSelect(raizDep, (valor) => { depLanc = Number(valor); atualizarOrigem(); atualizarPrevia(); });
+    depLanc = p.saldos.length ? Number(p.saldos[0].dep) : 1;
+    montarDepositos();
+    inicializarDropdownSelect(document.getElementById('campoDeposito'), (valor) => { depLanc = Number(valor); atualizarOrigem(); atualizarPrevia(); });
 
     preencherMotivos(); atualizarOrigem(); atualizarPrevia();
     drawerBackdrop.classList.add('open'); eventDrawer.classList.add('open');
   }
   function fecharLinha() { drawerBackdrop.classList.remove('open'); eventDrawer.classList.remove('open'); }
 
+  // Os depositos da linha (segunda varredura, 14/out/2026). Saida e balanco so onde o produto tem saldo;
+  // entrada em qualquer deposito, porque uma sobra pode aparecer onde o produto nao tinha nada
+  // (decisao do usuario). Cada deposito uma vez so: a lista vem dos saldos, que sao um por endereco.
+  function montarDepositos() {
+    const p = produtoLinha; if (!p) return;
+    const comSaldo = p.saldos.map(s => Number(s.dep)).filter((d, i, a) => a.indexOf(d) === i);
+    const deps = tipoLanc === 'entrada' ? Object.keys(DEPOSITOS).map(Number) : comSaldo;
+    if (deps.indexOf(Number(depLanc)) < 0) depLanc = deps.length ? deps[0] : null;
+    document.getElementById('menuDeposito').innerHTML = deps.map(d =>
+      '<div class="dropdown-select-item' + (d === Number(depLanc) ? ' active' : '') + '" data-value="' + d + '">' + DEPOSITOS[d] + '</div>').join('');
+    const raizDep = document.getElementById('campoDeposito');
+    raizDep.setAttribute('data-value', depLanc == null ? '' : String(depLanc));
+    raizDep.querySelector('.dropdown-select-label').textContent = DEPOSITOS[depLanc] || '—';
+  }
+
   function gravarLinha() {
     const p = produtoLinha;
     const qtd = lerQtd(document.getElementById('campoQuantidade').value);
     let ok = true;
+    document.getElementById('erroQuantidade').textContent = 'Informe uma quantidade maior que zero.';
     if (!qtd || qtd <= 0) {
       document.getElementById('erroQuantidade').classList.add('show');
       document.getElementById('wrapQuantidade').classList.add('has-error'); ok = false;
@@ -1989,6 +2000,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     const m = (MOTIVOS[tipoLanc]||[]).find(x => x.v === motivoLanc);
     const alvo = (tipoLanc === 'saida' && origemLanc != null) ? p.saldos[origemLanc] : null;
+    // A saida que passa do que o endereco tem para na linha, e nao so ao gravar o lote (segunda
+    // varredura, 14/out/2026). Conta o que outras linhas deste lote ja tiram do mesmo endereco.
+    if (alvo) {
+      const jaNoLote = LINHAS.filter(l => l.tipo === 'saida' && l.produtoId === p.id && l.origemIdx === origemLanc).reduce((s, l) => s + l.qtd, 0);
+      if (qtd + jaNoLote > alvo.qtd) {
+        document.getElementById('erroQuantidade').textContent = 'O endereço ' + (alvo.endereco || 'sem endereço') + ' tem ' + fmtQtd(alvo.qtd, p.unidade) + ' ' + p.unidade +
+          (jaNoLote ? ', e ' + fmtQtd(jaNoLote, p.unidade) + ' já saem dele por outra linha deste lote.' : '.');
+        document.getElementById('erroQuantidade').classList.add('show');
+        document.getElementById('wrapQuantidade').classList.add('has-error');
+        return;
+      }
+    }
     LINHAS.push({
       produtoId: p.id, nome: p.nome, sku: p.sku, unidade: p.unidade, custoMedio: p.custoMedio,
       dep: depLanc, tipo: tipoLanc, motivo: motivoLanc, motivoLabel: m ? m.l : '', fiscal: m ? m.fiscal : 'nenhum',
@@ -2286,7 +2309,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('campoTipo'), (valor) => {
     tipoLanc = valor;
     document.getElementById('rotuloQuantidade').textContent = valor === 'balanco' ? 'Quantidade contada' : 'Quantidade';
-    preencherMotivos(); atualizarOrigem(); atualizarPrevia();
+    montarDepositos(); preencherMotivos(); atualizarOrigem(); atualizarPrevia();
   });
   inicializarDropdownSelect(document.getElementById('campoDeposito'), (valor) => {
     depLanc = Number(valor); atualizarOrigem(); atualizarPrevia();

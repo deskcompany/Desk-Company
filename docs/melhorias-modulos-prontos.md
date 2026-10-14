@@ -568,6 +568,9 @@ sangria não passa do que a gaveta tem e exige motivo, e nenhum fluxo deu erro d
 
 **O que achou.** Nove pontos, todos pequenos (P). Seis são defeito, e três pedem decisão do usuário.
 
+**Feito em 14/out/2026** (§14.77 do design system): os seis defeitos, e as três decisões pelas
+sugestões. S7 e S8 entraram; S9 ficou como estava, por decisão do usuário.
+
 - **S1 · Inventário: fechar sem senha não diz por quê** (defeito). O campo fica com a borda
   vermelha, mas a mensagem "Informe sua senha para fechar o inventário" não aparece. No Acerto,
   a mesma situação mostra a mensagem.

@@ -1369,6 +1369,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
               <label>Desconto na venda</label>
               <input type="text" id="finDesconto" placeholder="Ex: 3,00 ou 10%">
               <div class="field-error-msg" id="erroFinDesconto"></div>
+              <div class="pdv-nota" id="notaFinDesconto" style="display:none;"></div>
             </div>
           </div>
           <div class="field-hint" id="hintFinDeposito"></div>
@@ -3053,6 +3054,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const campoDesc = document.getElementById('finDesconto');
     if (document.activeElement !== campoDesc) campoDesc.value = venda.descontoTxt || '';
     if (d === null) marcarErro('campoFinDesconto', 'erroFinDesconto', 'Use um valor (3,00) ou uma porcentagem (10%).'); else limparErro('campoFinDesconto', 'erroFinDesconto');
+    // Acima do maximo, o aviso aparece no campo, como no item (segunda varredura, 14/out/2026). A senha
+    // do gerente continua sendo pedida ao finalizar.
+    const pctVenda = d === null ? 0 : descontoGeralPct();
+    const acimaVenda = pctVenda > PARAM.pdvDescontoMaximoPct + 0.0001;
+    mostrar('notaFinDesconto', acimaVenda);
+    if (acimaVenda) html('notaFinDesconto', 'Desconto de <b>' + fmtNum(pctVenda) + '%</b>, acima do máximo de <b>' + fmtNum(PARAM.pdvDescontoMaximoPct) + '%</b>. Ao finalizar, o sistema pede a liberação do gerente.');
     texto('hintFinDeposito', 'A baixa de estoque sai de ' + depositoDe(venda.depositoId).nome + '. A venda entra em Pedidos de Venda como ' + SIT_VENDA[PARAM.pdvSituacaoVenda].toLowerCase() + '.');
 
     // menu de formas: so as habilitadas que valem para receber, e que ainda nao estao na venda
@@ -3558,6 +3565,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnContinuar').addEventListener('click', continuar);
   document.getElementById('btnCancelarVenda').addEventListener('click', cancelarVenda);
   document.getElementById('finDesconto').addEventListener('change', (e) => { venda.descontoTxt = e.target.value.trim(); pintarFinalizar(); gravar(); });
+  // O aviso do maximo acompanha a digitacao, como no item; gravar continua sendo no change.
+  document.getElementById('finDesconto').addEventListener('input', (e) => { venda.descontoTxt = e.target.value.trim(); pintarFinalizar(); });
   document.getElementById('btnVoltarItens').addEventListener('click', () => irPara('venda'));
   document.getElementById('btnFinalizar').addEventListener('click', finalizar);
   document.getElementById('btnOutraVenda').addEventListener('click', outraVenda);

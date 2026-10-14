@@ -3465,3 +3465,51 @@ com a mídia de papel emulada e confere o cabeçalho, a quantidade, a falta de c
 alinhamento das colunas e a volta à página depois do Ctrl+P; e, em 13 listas, escolhe um filtro e
 confere que ele aparece no cabeçalho. Oito defeitos injetados em telas diferentes, um por vez, e os
 oito pegos.
+
+## 14.77 A segunda varredura e os seus consertos (14/out/2026)
+
+A primeira varredura dos módulos prontos deixou de fora o miolo dos fluxos longos. A segunda abriu
+Inventário, Acerto, PDV com caixa aberto e a contagem da Conferência de Entrada no navegador e fez
+cada fluxo do começo ao fim, só observando. Os quatro se defendem bem: nada fecha sem contagem,
+divergência pede confirmação e motivo, o caixa fecha às cegas, desconto acima do máximo pede a senha
+do gerente, e nenhum deu erro de JavaScript. Saíram nove pontos pequenos; a lista está em
+`docs/melhorias-modulos-prontos.md`, seção "Segunda varredura".
+
+**Os seis defeitos, consertados:**
+
+- **Inventário, fechar sem senha:** o campo ficava com a borda vermelha e a mensagem não aparecia.
+  Aparece, e some quando a senha é digitada.
+- **Inventário, cancelar:** com quantidade já informada, um clique jogava fora a contagem inteira.
+  Agora pergunta, dizendo quantas quantidades vão embora; sem nada contado, cancela direto.
+- **Inventário, códigos recusados do arquivo:** a tela prometia a lista com o motivo e mostrava só a
+  quantidade. O aviso depois da importação e o painel de fechamento listam os códigos, com o motivo
+  (os cinco primeiros). No painel, que escreve HTML, o código, que veio do arquivo, é escapado.
+- **Inventário e Acerto, o usuário:** as duas mostravam "Walysson Santos"; as outras 80 e o
+  relatório impresso, "Administrador Desk". Passaram a usar o mesmo; o do Inventário vem de
+  `USUARIO_SESSAO`.
+- **Acerto, depósito repetido:** a lista vem dos saldos, um por endereço, e a limpeza dos repetidos
+  comparava o HTML do item, que no primeiro tinha uma classe a mais. A limpeza passou a ser pelo
+  número do depósito.
+- **Acerto, saída maior que o endereço:** entrava na lista e só era recusada ao gravar o lote. Agora
+  para na própria linha, com o que o endereço tem, contando o que outras linhas do lote já tiram
+  dele. A validação do lote continua lá.
+
+**As três decisões do usuário:**
+
+- **Entrada de acerto em qualquer depósito.** Uma sobra pode aparecer onde o produto não tinha nada.
+  A lista de depósitos passou a depender do tipo: entrada mostra todos, saída e balanço só onde há
+  saldo. Trocar o tipo refaz a lista, e o depósito escolhido volta para um que sirva.
+- **O desconto da venda acima do máximo avisa no campo**, enquanto se digita, como no item. A senha
+  do gerente continua sendo pedida ao finalizar.
+- **Uma confirmação por divergência na conferência** ficou como está: é o que faz quem confere olhar
+  de novo cada item.
+
+**Regras que ficam:**
+
+- Ação que descarta o que a pessoa digitou (cancelar um inventário, limpar uma contagem) pergunta
+  antes, dizendo o que vai embora. Sem nada digitado, não pergunta.
+- Erro que dá para ver na linha é dito na linha, e não só no fim do lote.
+- Campo com erro mostra a mensagem, e não só a cor.
+
+**Provado nos dois sentidos, numa cópia.** `teste_varredura2.py` tem 22 asserções em três seções.
+Treze defeitos injetados, um por vez, e os treze pegos.

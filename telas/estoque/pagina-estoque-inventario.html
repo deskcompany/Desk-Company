@@ -1500,7 +1500,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="section-hint" style="margin-top:-8px;">Fechar inventário reescreve o saldo do depósito inteiro e destrava a movimentação. É permissão de perfil.</div>
 
   <div class="senha-usuario-label">Usuário</div>
-  <div class="senha-usuario-nome">Walysson Santos <span class="perfil-tag">pode fechar inventário</span></div>
+  <div class="senha-usuario-nome">Administrador Desk <span class="perfil-tag">pode fechar inventário</span></div>
 
   <div class="form-field" id="campoSenhaWrap">
     <label>Sua senha</label>
@@ -2282,7 +2282,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== ESTADO DO INVENTÁRIO =====
   // Um inventario por vez. `travado` e o que separa esta tela do Acerto: enquanto
   // estiver aberto, o deposito inteiro esta fora de circulacao.
-  const PERFIL = { nome:'Walysson Santos', podeFecharInventario: true };
+  const PERFIL = { nome: USUARIO_SESSAO.nome, podeFecharInventario: true };   // o mesmo usuario das outras telas (14/out/2026)
   const ESTAGIOS_FISICOS = ['a_enderecar', 'disponivel', 'reservado', 'bloqueado'];
   const LIMITE_ARQUIVO = 2 * 1024 * 1024;
 
@@ -2641,14 +2641,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       setTimeout(() => avisar(
         ausentes + ' produto(s) com saldo neste depósito não apareceram no arquivo e ficaram como NÃO CONTADOS — não como zero. ' +
         'O saldo deles não muda no fechamento. Se a contagem foi varredura completa do depósito, use "Zerar os não contados" em Mais ações.' +
-        (INV.recusados.length ? ' Além disso, ' + INV.recusados.length + ' código(s) do arquivo não casaram com o cadastro.' : '')
+        (INV.recusados.length ? ' Além disso, ' + listaRecusados() : '')
       ), 280);
     } else if (INV.recusados.length) {
       setTimeout(() => avisar(
-        INV.recusados.length + ' código(s) do arquivo não casaram com o cadastro e ficaram de fora: ' +
-        INV.recusados.slice(0, 5).map(r => r.codigo).join(', ') +
-        (INV.recusados.length > 5 ? '…' : '') +
-        '. Eles não somem — entram no relatório de fechamento como recusados.'
+        listaRecusados() + ' Eles não somem: aparecem de novo no fechamento.'
       ), 280);
     }
   }
@@ -2801,7 +2798,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       partes.push('<b>Falta: −' + num(r.falta) + ' un.</b> (' + money(r.valorFalta) + '). Sai do disponível, base de picking primeiro. Baixa por extravio exige <b>NF-e própria, CFOP 5.927</b>, sem destaque de ICMS e com estorno do crédito — o lançamento nasce com <b>pendência fiscal</b>, não trava.');
     }
     if (INV.recusados.length) {
-      partes.push('<b>' + INV.recusados.length + ' código(s) recusados</b> na importação continuam recusados: nenhum saldo foi mexido por causa deles.');
+      partes.push(listaRecusados(true) + ' Nenhum saldo foi mexido por causa deles.');
     }
     if (!r.divergentes && !r.naoContadas) {
       partes.push('<b>Nenhuma divergência.</b> O fechamento só destrava o depósito e registra a contagem no histórico.');
@@ -2810,6 +2807,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     document.getElementById('inputSenha').value = '';
     document.getElementById('campoSenhaWrap').classList.remove('has-error');
+    document.getElementById('erroSenha').classList.remove('show');
     aplicarExigenciaSenha('inventarioFecha');
     fecharBackdrop.classList.add('open');
     fecharDrawer.classList.add('open');
@@ -2874,7 +2872,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function confirmarFechamento() {
     const senha = document.getElementById('inputSenha').value.trim();
-    if (exigeSenha('inventarioFecha') && !senha) { document.getElementById('campoSenhaWrap').classList.add('has-error'); return; }
+    if (exigeSenha('inventarioFecha') && !senha) {
+      document.getElementById('campoSenhaWrap').classList.add('has-error');
+      document.getElementById('erroSenha').classList.add('show');   // sem isto, so a borda ficava vermelha
+      return;
+    }
     if (!PERFIL.podeFecharInventario) {
       fecharDrawerFechamento();
       setTimeout(() => avisar('Seu perfil não tem a permissão "Fechar inventário de estoque". Peça para um perfil que tenha.'), 280);
@@ -2892,6 +2894,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (r.falta ? ', −' + num(r.falta) + ' un. de falta' : '') +
       '. O depósito está destravado e já aceita venda, transferência e acerto.'
     ), 280);
+  }
+
+  // Os codigos do arquivo que nao casaram com o cadastro, com o motivo (os cinco primeiros). A tela
+  // prometia esta lista e mostrava so a quantidade (segunda varredura, 14/out/2026).
+  // O aviso escreve texto; o painel de fechamento escreve HTML, e ali o codigo, que veio do arquivo, e escapado.
+  function listaRecusados(emHtml) {
+    const n = INV.recusados.length, e = (s) => (emHtml ? escapar(s) : String(s));
+    return n + (n === 1 ? ' código do arquivo não casou' : ' códigos do arquivo não casaram') + ' com o cadastro e ficaram de fora: ' +
+      INV.recusados.slice(0, 5).map(r => e(r.codigo) + ' (' + e(r.motivo) + ')').join(', ') + (n > 5 ? '…' : '') + '.';
   }
 
   function voltarParaIndice() {
@@ -2959,6 +2970,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnConfirmarFechar').addEventListener('click', confirmarFechamento);
   document.getElementById('inputSenha').addEventListener('input', () => {
     document.getElementById('campoSenhaWrap').classList.remove('has-error');
+    document.getElementById('erroSenha').classList.remove('show');
   });
 
   btnAcaoInv.addEventListener('click', () => {
@@ -3016,8 +3028,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           );
         } else if (acao === 'cancelar') {
           const dep = DEPOSITOS[INV.dep];
-          voltarParaIndice();
-          setTimeout(() => avisar('Inventário de ' + dep + ' cancelado. Nenhum saldo foi alterado e o depósito voltou a aceitar movimentação.'), 280);
+          const cancelar = () => {
+            voltarParaIndice();
+            setTimeout(() => avisar('Inventário de ' + dep + ' cancelado. Nenhum saldo foi alterado e o depósito voltou a aceitar movimentação.'), 280);
+          };
+          // Com quantidade ja informada, cancelar joga fora a contagem: pergunta antes (segunda varredura, 14/out/2026).
+          const contadas = INV.linhas.filter(l => l.contado !== null).length;
+          if (!contadas) cancelar();
+          else perguntar('Cancelar o inventário de ' + dep + ' descarta ' + contadas + (contadas === 1 ? ' quantidade já informada' : ' quantidades já informadas') +
+                         ' e destrava o depósito. Nenhum saldo muda. Cancelar mesmo?', () => setTimeout(cancelar, 280));
         }
       });
     });
