@@ -949,6 +949,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <div class="dropdown-select-item" data-value="3">Nordic Home Importação</div>
             <div class="dropdown-select-item" data-value="4">Tecidos Ceará S/A</div>
             <div class="dropdown-select-item" data-value="5">Embalagens do Vale</div>
+            <div class="dropdown-select-item" data-value="6">Papelaria Central</div>
+            <div class="dropdown-select-item" data-value="7">Luminárias Brasil</div>
           </div>
         </div>
         <div class="field-error-msg" id="erroFornecedor">Selecione o fornecedor.</div>
@@ -1662,7 +1664,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     3: { nome: 'Nordic Home Importação', tipo: 'Jurídica', doc: '11.222.333/0001-44', contribuinte: 'Não contribuinte', cidade: 'Itajaí/SC',
          contatos: [{ nome: 'Karin Lund', cargo: 'Exportação', fone: '(47) 3344-5566' }] },
     4: { nome: 'Tecidos Ceará S/A', tipo: 'Jurídica', doc: '55.666.777/0001-88', contribuinte: 'Contribuinte ICMS', cidade: 'Maracanaú/CE', contatos: [] },
-    5: { nome: 'Embalagens do Vale', tipo: 'Jurídica', doc: '44.555.666/0001-22', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE', contatos: [] }
+    5: { nome: 'Embalagens do Vale', tipo: 'Jurídica', doc: '44.555.666/0001-22', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE', contatos: [] },
+    // Os dois que a lista de ordens tem e aqui faltavam; documento e cidade sao os de Cadastros > Fornecedores.
+    6: { nome: 'Papelaria Central', tipo: 'Jurídica', doc: '11.222.333/0001-55', contribuinte: 'Contribuinte ICMS', cidade: 'Imperatriz/MA', contatos: [] },
+    7: { nome: 'Luminárias Brasil', tipo: 'Jurídica', doc: '33.444.555/0001-77', contribuinte: 'Contribuinte ICMS', cidade: 'Belo Horizonte/MG', contatos: [] }
   };
 
   // Catalogo consultado pela busca avancada — mostra saldo e localizacao, igual ao print
@@ -2205,7 +2210,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         e.stopPropagation();
         menu.classList.remove('open');
         const acao = item.getAttribute('data-acao');
-        if (DESTINOS[acao]) { window.location.href = DESTINOS[acao]; return; }
+        // O clone leva o numero da ordem aberta: sem ele copiaria sempre a do exemplo.
+        if (DESTINOS[acao]) { window.location.href = DESTINOS[acao] + (acao === 'clonar' && ORDEM ? '&id=' + ORDEM.id : ''); return; }
         avisar(AVISOS[acao]);
       });
     });
@@ -2302,7 +2308,91 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const badge = document.getElementById('badgeSituacao');
     badge.className = 'badge-situacao ' + SITUACAO_CLASSE[SITUACAO];
     badge.innerHTML = '<span class="sit-dot"></span>' + SITUACAO_LABEL[SITUACAO];
+    // Receber so se oferece em ordem que ainda espera mercadoria, como no painel da lista.
+    const espera = SITUACAO === 'aberto' || SITUACAO === 'andamento';
+    document.querySelectorAll('#menuMaisAcoes [data-acao="receber"], #menuMaisAcoes [data-acao="parcial"]').forEach(i => { i.style.display = espera ? '' : 'none'; });
   }
+
+  // ===== A ORDEM QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data qualquer ordem clicada abria a nº 2. Agora o endereco traz ?id=, e a pagina mostra
+  // aquela ordem: fornecedor, deposito, datas, situacao, frete, desconto e itens.
+  // ORDENS_DA_LISTA e ITENS_DA_LISTA sao ESPELHO de Estoque > Ordens de Compra (ORDENS e ITENS_OC).
+  // Mudou la, muda aqui; teste_doc_detalhe.py compara.
+  const ORDENS_DA_LISTA = [
+    { id: 1,  numero: 1,  data: '2026-09-01', previsto: '2026-09-12', fornecedor: 'Móveis Nordeste Ltda',   dep: 2, total: 18420.00, situacao: 'atendida', frete: 34.00 },
+    { id: 2,  numero: 2,  data: '2026-09-03', previsto: '2026-09-15', fornecedor: 'TechParts Distribuidora', dep: 4, total: 7310.50,  situacao: 'andamento', desconto: 2.50 },
+    { id: 3,  numero: 3,  data: '2026-09-04', previsto: '2026-09-20', fornecedor: 'Nordic Home Importação',  dep: 2, total: 24890.00, situacao: 'aberto' },
+    { id: 4,  numero: 4,  data: '2026-09-05', previsto: '2026-09-11', fornecedor: 'Tecidos Ceará S/A',       dep: 2, total: 3960.00,  situacao: 'andamento', frete: 240.00 },
+    { id: 5,  numero: 5,  data: '2026-09-05', previsto: '',           fornecedor: 'Papelaria Central',       dep: 1, total: 412.90,   situacao: 'aberto' },
+    { id: 6,  numero: 6,  data: '2026-09-06', previsto: '2026-09-08', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, total: 9750.00,  situacao: 'aberto' },
+    { id: 7,  numero: 7,  data: '2026-09-07', previsto: '2026-09-09', fornecedor: 'TechParts Distribuidora', dep: 4, total: 1580.00,  situacao: 'atendida' },
+    { id: 8,  numero: 8,  data: '2026-09-08', previsto: '2026-09-25', fornecedor: 'Embalagens do Vale',      dep: 2, total: 2240.00,  situacao: 'aberto' },
+    { id: 9,  numero: 9,  data: '2026-09-08', previsto: '2026-09-14', fornecedor: 'Nordic Home Importação',  dep: 3, total: 6120.00,  situacao: 'cancelada' },
+    { id: 10, numero: 10, data: '2026-09-09', previsto: '2026-09-16', fornecedor: 'Luminárias Brasil',       dep: 2, total: 5380.00,  situacao: 'aberto' },
+    { id: 11, numero: 11, data: '2026-09-09', previsto: '2026-09-30', fornecedor: 'Tecidos Ceará S/A',       dep: 2, total: 11200.00, situacao: 'aberto' },
+    { id: 12, numero: 12, data: '2026-09-10', previsto: '2026-09-13', fornecedor: 'TechParts Distribuidora', dep: 4, total: 890.00,   situacao: 'andamento' },
+    { id: 13, numero: 13, data: '2026-08-28', previsto: '2026-09-05', fornecedor: 'Papelaria Central',       dep: 1, total: 320.00,   situacao: 'atendida' },
+    { id: 14, numero: 14, data: '2026-08-20', previsto: '2026-08-30', fornecedor: 'Embalagens do Vale',      dep: 2, total: 1780.00,  situacao: 'cancelada' }
+  ];
+  const ITENS_DA_LISTA = {
+    1: [{ nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', qtd: 20, un: 'UN', preco: 742.30, recebido: 20 },
+        { nome: 'Mesa Escritório Slim', sku: 'MES-SLM-002', qtd: 6, un: 'UN', preco: 590.00, recebido: 6 }],
+    2: [{ nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', qtd: 30, un: 'UN', preco: 231.10, recebido: 12 },
+        { nome: 'Cabo HDMI 2.1 · 2m', sku: 'CAB-HDM-009', qtd: 40, un: 'UN', preco: 9.50, recebido: 0 }],
+    4: [{ nome: 'Tecido Sintético Preto', sku: 'MAT-TEC-008', qtd: 60, un: 'M', preco: 62.00, recebido: 24 }],
+    12: [{ nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', qtd: 10, un: 'UN', preco: 89.00, recebido: 4 }]
+  };
+  // A ordem criada em Necessidades de Compra mora no navegador, na chave que a lista tambem le.
+  const CHAVE_ORDENS_GERADAS = 'deskOrdensGeradas';
+  (function receberOrdensGeradas() {
+    let lista = [];
+    try { lista = JSON.parse(localStorage.getItem(CHAVE_ORDENS_GERADAS) || '[]') || []; } catch (e) { lista = []; }
+    if (!Array.isArray(lista)) return;
+    lista.forEach(o => {
+      const numero = Number(o && o.numero);
+      if (!numero || !o.fornecedor || !Array.isArray(o.itens) || ORDENS_DA_LISTA.some(x => x.numero === numero)) return;
+      ORDENS_DA_LISTA.push({ id: numero, numero: numero, data: String(o.data || ''), previsto: String(o.previsto || ''), fornecedor: String(o.fornecedor),
+                             dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: 'aberto' });
+      ITENS_DA_LISTA[numero] = o.itens.map(i => ({ nome: String(i.nome || ''), sku: String(i.sku || ''), qtd: Number(i.qtd) || 0,
+                                                   un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: 0 }));
+    });
+  })();
+  const ID_DO_EXEMPLO = 2;
+  // Id que a lista nao tem abre o exemplo, como o endereco sem id.
+  const ORDEM = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return ORDENS_DA_LISTA.filter(o => o.id === Number(q.get('id')))[0] || ORDENS_DA_LISTA.filter(o => o.id === ID_DO_EXEMPLO)[0];
+  })();
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  (function carregarOrdem() {
+    const o = ORDEM;
+    if (!o) return;   // ordem nova: quem esvazia a pagina e o carregarNova, la embaixo
+    const brDeIso = (iso) => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '';
+    document.getElementById('tituloOC').textContent = 'Ordem de Compra nº ' + o.numero;
+    document.getElementById('inputNumero').value = o.numero;
+    document.getElementById('inputDataCompra').value = brDeIso(o.data);
+    document.getElementById('inputDataPrevista').value = brDeIso(o.previsto);
+    document.getElementById('inputFrete').value = fmtNum(o.frete || 0);
+    document.getElementById('inputDesconto').value = fmtNum(o.desconto || 0);
+    porNoDropdown('inputFornecedor', o.fornecedor);
+    porNoDropdown('inputDeposito', o.dep);
+    SITUACAO = o.situacao;
+    // Ordem sem itens no exemplo leva o mesmo item de exemplo que o painel da lista mostra, pelo total dela.
+    ITENS = (ITENS_DA_LISTA[o.id] || [{ nome: 'Item de exemplo', sku: '', qtd: 1, un: 'UN', preco: o.total }]).map(i => (
+      { nome: i.nome, sku: i.sku, gtin: (CATALOGO.filter(c => c.sku === i.sku)[0] || { gtin: '' }).gtin, qtd: i.qtd, un: i.un, preco: i.preco, ipi: 0 }));
+  })();
 
   aplicarSituacao();
   preencherDadosFornecedor();

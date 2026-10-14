@@ -63,12 +63,12 @@ with sync_playwright() as p:
     print('\n[2] Botoes que levam a telas que existem')
     casos = [
         ('pagina-estoque-ordens-compra.html', lambda: pg.click('#btnNovaOC'), 'pagina-estoque-ordens-compra-detalhe.html?novo=1'),   # 10/out: a ordem nova abre em branco
-        ('pagina-estoque-ordens-compra.html', lambda: (pg.evaluate("abrirPreview(ORDENS.find(o => document.querySelector('input.item-checkbox[data-id=\"' + o.id + '\"]')).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirDetalhe')), 'pagina-estoque-ordens-compra-detalhe.html'),
+        ('pagina-estoque-ordens-compra.html', lambda: (pg.evaluate("abrirPreview(ORDENS.find(o => document.querySelector('input.item-checkbox[data-id=\"' + o.id + '\"]')).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirDetalhe')), 'pagina-estoque-ordens-compra-detalhe.html?id=1'),   # 13/out: leva o numero da ordem clicada
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-ordens-compra.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('receber'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('parcial'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
-        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('clonar'), 'pagina-estoque-ordens-compra-detalhe.html?clonar=1'),
+        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('clonar'), 'pagina-estoque-ordens-compra-detalhe.html?clonar=1&id=2'),   # copia a ordem aberta
         ('pagina-estoque-entrada-notas.html', lambda: pg.click('#btnNovaNota'), 'pagina-estoque-entrada-notas-detalhe.html'),
         ('pagina-estoque-entrada-notas.html', lambda: (pg.evaluate("abrirPreview(NOTAS.find(n => Number(n.numero) === 2301).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirConferencia')), 'pagina-estoque-conferencia.html?nota=2301'),
         ('pagina-estoque-entrada-notas.html', lambda: (pg.evaluate("abrirPreview(NOTAS.find(n => Number(n.numero) === 731).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirConferencia')), 'pagina-estoque-conferencia-entrada.html'),
@@ -76,7 +76,7 @@ with sync_playwright() as p:
         ('pagina-estoque-entrada-notas-detalhe.html', lambda: menu('conferencia'), 'pagina-estoque-conferencia-entrada.html'),
         ('pagina-estoque-conferencia.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-conferencia-entrada.html'),
         ('pagina-estoque-conferencia.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),
-        ('pagina-estoque-conferencia.html', lambda: menu('oc'), 'pagina-estoque-ordens-compra-detalhe.html'),
+        ('pagina-estoque-conferencia.html', lambda: menu('oc'), 'pagina-estoque-ordens-compra-detalhe.html?id=3'),   # a ordem da nota em conferencia
         ('pagina-estoque-conferencia-entrada.html', lambda: menu('notas'), 'pagina-estoque-entrada-notas.html'),
         ('pagina-estoque-controle-estoques.html', lambda: pg.click('#btnGerenciarProdutos'), 'pagina-cadastros-produtos.html'),
         ('pagina-estoque-controle-estoques-detalhe.html', lambda: pg.click('#btnAbrirCadastro'), 'pagina-cadastros-produtos-detalhe.html'),

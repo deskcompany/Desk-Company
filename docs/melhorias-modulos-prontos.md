@@ -11,16 +11,18 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
 | **Feito no principal, com resto anotado** (22) | G3 · C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
 | **Falta** | C3 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
-| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 (13/out) |
+| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 e X7 (13/out) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
 O que entrou e o que falta em cada item feito no principal:
 
-- **G3** (a página de detalhe abrir o registro clicado): feito nos cinco cadastros em 13/out. O link
-  do painel leva `?id=`, e a página mostra o que a lista sabe daquele registro; só o registro do
-  exemplo tem o cadastro inteiro. Faltam as outras seis páginas: Pedidos de Venda, Ordens de Compra,
-  Entrada de Notas, lançamento do Caixa, Conferência de Saída e Romaneio.
+- **G3** (a página de detalhe abrir o registro clicado): feito nos cinco cadastros e em Ordens de
+  Compra em 13/out. O link do painel leva `?id=`, e a página mostra o que a lista sabe daquele
+  registro; nos cadastros, só o registro do exemplo tem o cadastro inteiro. O lançamento do Caixa e
+  a Conferência de Saída já abriam o registro certo. Faltam três: Pedidos de Venda (a lista manda o
+  id e a página ignora), o Romaneio (o botão não manda o id) e a Nota de Entrada (não existe "abrir
+  a nota").
 - **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve (lido
   de Contas a Receber desde 12/out, que é a dona do número), com
   links para os pedidos, as contas a receber e o CRM. Faltam os títulos vencidos em separado, os
@@ -120,6 +122,9 @@ Entrou na lista em 12/out:
   fornecedores de exemplo, e só três estão no cadastro (TechParts, Luminárias Brasil e Papelaria
   Central), com outra numeração. Em Contas a Receber falta o "Consumidor Final". O link "visualizar
   dados" vai pelo nome; nome que o cadastro não tem abre o cadastro de exemplo.
+- **X7 · Os itens das ordens de compra** (M). Dez das 14 ordens de exemplo só têm o total: o painel
+  e a página mostram um "Item de exemplo" pelo valor da ordem. Escrever os itens mexe no "já pedido"
+  de Necessidades de Compra e do Giro, que são conferidos contra as ordens em aberto.
 - **X3 · O pedido andar de uma fila para a outra** (G). Concluir a separação guarda o que foi feito,
   mas o pedido não aparece sozinho na fila da Conferência de Saída: cada tela tem a sua lista.
 

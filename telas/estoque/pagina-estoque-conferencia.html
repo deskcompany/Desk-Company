@@ -2442,7 +2442,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         } else if (acao === 'nota') {
           window.location.href = EH_TRANSF ? '../estoque/pagina-estoque-transferencia.html?busca=' + NOTA.numero : '../estoque/pagina-estoque-entrada-notas-detalhe.html';
         } else if (acao === 'oc') {
-          window.location.href = '../estoque/pagina-estoque-ordens-compra-detalhe.html';
+          window.location.href = '../estoque/pagina-estoque-ordens-compra-detalhe.html?id=' + NOTA.oc;
         }
       });
     });

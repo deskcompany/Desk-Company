@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com o cadastro completo abrindo o registro clicado nos cinco cadastros.*
+*Atualizado em 13/out/2026, com os cinco cadastros e Ordens de Compra abrindo o registro clicado.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -56,11 +56,16 @@ chat que não trazem o navegador para a frente ele vai olhar antes de mexermos. 
 numa conversa só**, e ele mandou seguir a fila do item 1 ao 6, começando pela página de detalhe
 abrir o registro clicado.
 
-**O primeiro item da fila está feito nos cinco cadastros, e espera o teste dele** (§14.71). Em
-Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk, "Ver cadastro completo" abre o registro
-clicado; antes, qualquer fornecedor abria a TechParts. Faltam as outras seis páginas de detalhe do
-mesmo item: Pedidos de Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência
-de Saída e Romaneio.
+**O primeiro item da fila está feito nos cinco cadastros e em Ordens de Compra, e espera o teste
+dele** (§14.71 e §14.72). Em Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk, "Ver cadastro
+completo" abre o registro clicado; antes, qualquer fornecedor abria a TechParts. Em Ordens de
+Compra, "Abrir ordem completa" abre a ordem clicada; antes, sempre a nº 2.
+
+**Das outras páginas que a lista de melhorias dava como presas no exemplo, duas já não estavam:**
+o lançamento do Caixa e a Conferência de Saída abrem o registro clicado (medido no navegador em
+13/out). Faltam três: Pedidos de Venda (a lista manda o id e a página ignora), o Romaneio (a página
+sabe abrir pelo id, mas "Abrir o romaneio" não manda) e a Nota de Entrada (a lista só leva à nota
+nova; não existe "abrir a nota").
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -311,12 +316,16 @@ de testar a conferência:
   outro registro.
 - **Contas a Pagar e Contas a Receber** levam ao cadastro do fornecedor e do cliente pelo nome: a
   numeração delas não é a do cadastro.
+- **A página da ordem de compra abre a ordem clicada** (§14.72): fornecedor, depósito, datas,
+  situação, itens e total. O total da página fecha com o da lista nas 14 ordens. Clonar copia a
+  ordem aberta, a Conferência leva à ordem da nota, e a ordem criada em Necessidades de Compra abre
+  com os itens dela. Ordem atendida ou cancelada deixou de oferecer "Receber mercadorias".
 
-**13. A verificação.** Onze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Doze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
-`teste_busca_setas.py` e `teste_cad_detalhe.py`. Duzentos e dez defeitos injetados de propósito, um
-por vez; os duzentos e dez são pegos. A auditoria do
+`teste_busca_setas.py`, `teste_cad_detalhe.py` e `teste_doc_detalhe.py`. Duzentos e vinte e três
+defeitos injetados de propósito, um por vez; os duzentos e vinte e três são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -328,9 +337,8 @@ constante.
 
 Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por etapas.
 
-1. **O resto do G3:** as seis páginas de detalhe que ainda abrem sempre o mesmo exemplo (Pedidos de
-   Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência de Saída e Romaneio).
-   Os cinco cadastros estão feitos (§14.71).
+1. **O resto do G3:** Pedidos de Venda, o Romaneio e a Nota de Entrada, que ainda abrem sempre o
+   mesmo exemplo. Os cinco cadastros (§14.71) e Ordens de Compra (§14.72) estão feitos.
 2. **Os painéis dos outros cadastros** (C3 a C8): Produtos (que pede alinhar o exemplo com o Controle
    de Estoques antes), Lojas Desk, Vendedores, Depósitos, Endereços de Estoque, e onde Marcas,
    Categorias, Departamento, Seção e Embalagens são usados.
@@ -380,9 +388,15 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
   feito, mas o pedido não aparece na fila da Conferência de Saída por causa disso.
 - **Quatro títulos de Contas a Receber** têm cliente ou valor diferente do pedido que citam, e os
   romaneios da Expedição levam pedidos que o Pedido de Venda dá como em separação.
-- **6 páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada (o que
-  falta do item G3). Os cinco cadastros já abrem o registro clicado, mas só o registro do exemplo
-  tem o cadastro inteiro: dos outros a página mostra o que a lista sabe.
+- **Três páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada:
+  Pedidos de Venda, o Romaneio e a Nota de Entrada (o que falta do item G3). Os cinco cadastros já
+  abrem o registro clicado, mas só o registro do exemplo tem o cadastro inteiro: dos outros a
+  página mostra o que a lista sabe.
+- **Dez das 14 ordens de compra não têm itens no exemplo.** O painel da lista e a página da ordem
+  mostram um "Item de exemplo" pelo total da ordem. Escrever os itens de verdade mexe no "já pedido"
+  de Necessidades de Compra e do Giro, e entra com os alinhamentos: é o item X7.
+- **Conferência de Saída:** três dos nove pedidos da fila (os já conferidos) não estão na página do
+  pedido, que avisa quando o pedido não existe nela.
 - **Fornecedor ou cliente de Finanças que o cadastro não tem** (sete dos dez fornecedores de Contas
   a Pagar, e o "Consumidor Final" de Contas a Receber): "visualizar dados" abre o cadastro de
   exemplo. É o item X6.

@@ -1490,11 +1490,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SITUACAO_LABEL = { aberto: 'Em aberto', andamento: 'Em andamento', atendida: 'Atendida', cancelada: 'Cancelada' };
   const SITUACAO_CLASSE = { aberto: 'bs-aberto', andamento: 'bs-andamento', atendida: 'bs-atendida', cancelada: 'bs-cancelada' };
 
+  // `frete` e `desconto` sao o que separa a soma dos itens do total da ordem. A pagina da ordem
+  // soma os itens: sem os dois, ela fecharia em outro valor (13/out/2026).
   const ORDENS = [
-    { id: 1,  numero: 1,  data: '2026-09-01', previsto: '2026-09-12', fornecedor: 'Móveis Nordeste Ltda',   dep: 2, total: 18420.00, situacao: 'atendida' },
-    { id: 2,  numero: 2,  data: '2026-09-03', previsto: '2026-09-15', fornecedor: 'TechParts Distribuidora', dep: 4, total: 7310.50,  situacao: 'andamento' },
+    { id: 1,  numero: 1,  data: '2026-09-01', previsto: '2026-09-12', fornecedor: 'Móveis Nordeste Ltda',   dep: 2, total: 18420.00, situacao: 'atendida', frete: 34.00 },
+    { id: 2,  numero: 2,  data: '2026-09-03', previsto: '2026-09-15', fornecedor: 'TechParts Distribuidora', dep: 4, total: 7310.50,  situacao: 'andamento', desconto: 2.50 },
     { id: 3,  numero: 3,  data: '2026-09-04', previsto: '2026-09-20', fornecedor: 'Nordic Home Importação',  dep: 2, total: 24890.00, situacao: 'aberto' },
-    { id: 4,  numero: 4,  data: '2026-09-05', previsto: '2026-09-11', fornecedor: 'Tecidos Ceará S/A',       dep: 2, total: 3960.00,  situacao: 'andamento' },
+    { id: 4,  numero: 4,  data: '2026-09-05', previsto: '2026-09-11', fornecedor: 'Tecidos Ceará S/A',       dep: 2, total: 3960.00,  situacao: 'andamento', frete: 240.00 },
     { id: 5,  numero: 5,  data: '2026-09-05', previsto: '',           fornecedor: 'Papelaria Central',       dep: 1, total: 412.90,   situacao: 'aberto' },
     { id: 6,  numero: 6,  data: '2026-09-06', previsto: '2026-09-08', fornecedor: 'Móveis Nordeste Ltda',    dep: 2, total: 9750.00,  situacao: 'aberto' },
     { id: 7,  numero: 7,  data: '2026-09-07', previsto: '2026-09-09', fornecedor: 'TechParts Distribuidora', dep: 4, total: 1580.00,  situacao: 'atendida' },
@@ -1834,7 +1836,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const o = ORDENS.find(x => x.id === id);
     if (!o) return;
     const temItens = !!ITENS_OC[o.id];
-    const itens = ITENS_OC[o.id] || ITENS_PADRAO;
+    // Ordem sem itens no exemplo: o item de exemplo leva o total dela, para a conta fechar aqui e na pagina da ordem.
+    const itens = ITENS_OC[o.id] || [Object.assign({}, ITENS_PADRAO[0], { preco: o.total })];
     const esperando = o.situacao === 'aberto' || o.situacao === 'andamento';
     // Atraso: so de ordem que ainda espera mercadoria e tem data prevista vencida.
     const atraso = (esperando && o.previsto) ? Math.round((HOJE - new Date(o.previsto + 'T12:00:00')) / 86400000) : 0;
@@ -1888,7 +1891,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     document.getElementById('btnAbrirDetalhe').addEventListener('click', () => {
       fecharDrawer();
-      window.location.href = '../estoque/pagina-estoque-ordens-compra-detalhe.html';
+      window.location.href = '../estoque/pagina-estoque-ordens-compra-detalhe.html?id=' + o.id;
     });
     drawerBackdrop.classList.add('open');
     eventDrawer.classList.add('open');

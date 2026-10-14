@@ -3229,3 +3229,47 @@ Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência de
 **Provado nos dois sentidos, numa cópia.** `teste_cad_detalhe.py` tem 68 asserções em nove seções,
 e abre os 49 registros dos cinco cadastros um por um. Quatorze defeitos injetados, um por vez, e os
 quatorze pegos.
+
+## 14.72 A página da ordem de compra abre a ordem clicada (item G3, segunda parte — 13/out/2026)
+
+Continuação do §14.71. Em Ordens de Compra, "Abrir ordem completa" abria sempre a nº 2: o botão do
+painel não mandava o número, e a página desenhava um exemplo fixo.
+
+**Antes de mexer, medir.** A lista de melhorias dava seis páginas como presas no exemplo. Uma sonda
+no navegador, abrindo cada uma com quatro ids, mostrou que duas já abriam o registro certo
+(lançamento do Caixa e Conferência de Saída) e que o Romaneio já lê o id, só não o recebe. Presas
+de verdade: Pedidos de Venda, Ordens de Compra e a Nota de Entrada, que nem tem como abrir uma nota.
+
+**Como ficou.** O botão do painel leva `?id=`. A página tem `ORDENS_DA_LISTA` e `ITENS_DA_LISTA`,
+espelhos de `ORDENS` e `ITENS_OC` da lista, e o bloco "A ORDEM QUE VEIO DA LISTA" põe na tela o
+título, o fornecedor, o depósito, as datas, a situação, o frete, o desconto e os itens, antes de
+qualquer coisa ser desenhada.
+
+**O total da página fecha com o da lista.** A página soma os itens; a lista guardava só o total, e
+em três das quatro ordens com itens os dois não batiam (a própria nº 2 fechava em R$ 7.332,00 na
+página e R$ 7.310,50 na lista). A lista ganhou `frete` e `desconto` nas ordens em que eles separam
+a soma dos itens do total, e a página os lê. A suíte confere o total das 14.
+
+**Ordem sem itens no exemplo.** Dez das 14 só têm o total. O painel da lista já mostrava um "Item
+de exemplo", com preço zero; agora ele leva o total da ordem, no painel e na página, e a conta
+fecha. Escrever os itens de verdade mexe no "já pedido" de Necessidades de Compra e do Giro, que
+são conferidos contra as ordens em aberto: ficou como item X7, junto dos alinhamentos.
+
+**O que veio junto:**
+
+- Dois fornecedores da lista não existiam na página da ordem (Papelaria Central e Luminárias
+  Brasil). Entraram, com o documento e a cidade de Cadastros > Fornecedores.
+- Ordem atendida ou cancelada oferecia "Receber mercadorias" e "Receber parcialmente". Deixou de
+  oferecer, como o painel da lista já fazia.
+- "Clonar compra" copiava sempre a nº 2. Leva o número da ordem aberta.
+- Da Conferência de Compra, "ver a ordem" abria a nº 2 qualquer que fosse a nota. Leva o número da
+  ordem da nota.
+- A ordem criada em Necessidades de Compra aparecia na lista e a página dela abria a nº 2. A página
+  lê a mesma chave do navegador que a lista lê, e abre a ordem criada, com os itens.
+
+**Regra que fica:** quando a página soma e a lista guarda o total, os dois têm de fechar em todos
+os registros, e a suíte confere um por um. O que os separa (frete, desconto) é dado declarado na
+lista, e não conta feita na página para dar certo.
+
+**Provado nos dois sentidos, numa cópia.** `teste_doc_detalhe.py` tem 19 asserções em seis seções
+e abre as 14 ordens uma por uma. Treze defeitos injetados, um por vez, e os treze pegos.
