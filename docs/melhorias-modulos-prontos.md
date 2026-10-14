@@ -10,7 +10,7 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 |---|---|
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
 | **Feito no principal, com resto anotado** (22) | G3 · C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | P1 · a limpeza de código das 17 telas. Fora da fila por decisão do usuário (13/out): C3 a C8 · V4 e L4 · X1 a X7 · R6 |
+| **Falta** | A limpeza de código das 17 telas. Fora da fila por decisão do usuário (13/out): C3 a C8 · V4 e L4 · X1 a X7 · R6 |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 e X7 (13/out) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
@@ -109,7 +109,7 @@ sem dívida em Contas a Receber.
 
 Entrou na lista em 12/out:
 
-- **P1 · Impressão em formato de relatório** (M) — **piloto feito em 14/out/2026 em Ordens de Compra** (§14.75); falta, depois do aval do usuário, levar ao bloco comum das 20 listas. Antes: a folha era o desenho da tela sem o menu: leva
+- **P1 · Impressão em formato de relatório** (M) — **feito em 14/out/2026**: piloto em Ordens de Compra (§14.75), aprovado pelo usuário e levado às 19 telas do bloco comum (§14.76). Antes: a folha era o desenho da tela sem o menu: leva
   a caixa "Selecionar todos", a seta de ordenação e o espaçamento de tela, e não leva título com
   data, filtros nem cabeçalho repetido por página. Entra no bloco comum de impressão e chega às 20
   listas de uma vez. O usuário pediu a análise agora e o conserto depois.

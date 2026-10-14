@@ -3431,3 +3431,37 @@ o vencimento a partir de hoje. Em 13/out os dois batiam; em 14/out ficaram um di
 `teste_cad_melhorias.py` reprovou. O painel nem mostra essa data: ela saiu do espelho e da
 comparação. É a regra do §13 de novo, agora num espelho: dado de exemplo com data fixa envelhece.
 Espelho de tela que conta datas a partir de hoje guarda a distância em dias, ou não guarda a data.
+
+## 14.76 O relatório da impressão nas 19 telas (item P1 — 14/out/2026)
+
+O usuário testou o piloto de Ordens de Compra (§14.75), aprovou a folha como estava e mandou
+seguir. O relatório saiu do bloco próprio daquela tela e entrou no bloco comum de planilha e
+impressão, que 19 telas compartilham: 15 listas e 4 documentos.
+
+**Lista e documento não imprimem igual.** Na lista, o cabeçalho do relatório leva o título, os
+filtros e a quantidade, e o título da tela sai do papel para não aparecer duas vezes. No documento
+(Conferência, Nota de Entrada, Ordem de Compra e Pedido de Venda) não existe filtro nem quantidade:
+o cabeçalho leva só a empresa, a data e quem emitiu, e o título da página fica, com a situação ao
+lado. Quem decide é a própria tela: documento é a que não tem lista para redesenhar
+(`PLANILHA_REFAZ` nulo).
+
+**O que mudou do piloto para o comum:**
+
+- **"Sem filtro" deixou de ser "o primeiro item".** O piloto pulava o primeiro item de cada filtro,
+  porque em Ordens de Compra o primeiro é sempre o "todos". Nas filas não é: a tela abre no que
+  falta fazer, e esse primeiro item é um filtro de verdade. Agora pula o que diz "todos", "todas",
+  "sem filtro" ou "qualquer", e o "ordenar por", que é ordem e não filtro.
+- **Os botões de filtro da barra** (Pessoa Física, Pessoa Jurídica, nos cadastros) entram nos
+  filtros, como as abas e os dropdowns.
+- **A quantidade vem do que a tela exporta para a planilha** (a mesma função), e não das linhas de
+  uma tabela: os cadastros não têm tabela.
+- **A coluna da caixa de seleção** some com o título junto só quando as células dela têm a caixa.
+  O piloto sumia com o primeiro título vazio de qualquer tabela, o que desalinharia as colunas numa
+  tabela cujo primeiro título vazio fosse de outra coisa.
+- **O CSS do relatório é um bloco igual nas 19**, como o código, e a suíte compara.
+
+**Provado nas 19, uma por uma.** `teste_impressao.py` passou a 21 asserções: abre cada tela, imprime
+com a mídia de papel emulada e confere o cabeçalho, a quantidade, a falta de caixa de seleção, o
+alinhamento das colunas e a volta à página depois do Ctrl+P; e, em 13 listas, escolhe um filtro e
+confere que ele aparece no cabeçalho. Oito defeitos injetados em telas diferentes, um por vez, e os
+oito pegos.
