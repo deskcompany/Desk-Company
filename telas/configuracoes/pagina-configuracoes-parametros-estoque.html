@@ -1327,7 +1327,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Parâmetros de estoque</h1>
-      <div class="subtitle">Os prazos que fazem uma fila virar alerta. Até aqui eles viviam cravados no código de três telas.</div>
+      <div class="subtitle">Os prazos que fazem uma fila do estoque virar alerta, a reserva do pedido e a régua da compra. Os da separação, da expedição e da devolução estão em Parâmetros de logística.</div>
     </div>
   </div>
 
@@ -1491,59 +1491,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <!-- LOGÍSTICA: SEPARAÇÃO E CONFERÊNCIA DE SAÍDA -->
+  <!-- RESERVA DE ESTOQUE -->
   <div class="par-secao">
-    <div class="par-secao-titulo">Filas do galpão</div>
-    <div class="par-secao-sub">Quanto tempo um pedido pago pode esperar em cada bancada antes de alguém precisar olhar para ele. Conta em <b>horas</b>, não em dias: a janela de expedição do dia se perde em horas.</div>
-
-    <div class="par-linha">
-      <div>
-        <div class="par-campos">
-          <div class="par-campo" id="campoSepAlerta">
-            <label>Separação · alertar após</label>
-            <div class="par-num">
-              <input type="text" id="sepAlerta" data-param="separacaoAlertaHoras" value="4">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroSepAlerta">Informe um número inteiro de 0 a 365.</span>
-          </div>
-          <div class="par-campo" id="campoSepCritico">
-            <label>Separação · crítico após</label>
-            <div class="par-num">
-              <input type="text" id="sepCritico" data-param="separacaoCriticoHoras" value="12">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroSepCritico">O crítico tem que ser maior que o alerta.</span>
-          </div>
-          <div class="par-campo" id="campoConfSaiAlerta">
-            <label>Conferência de saída · alertar após</label>
-            <div class="par-num">
-              <input type="text" id="confSaiAlerta" data-param="conferenciaSaidaAlertaHoras" value="4">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroConfSaiAlerta">Informe um número inteiro de 0 a 365.</span>
-          </div>
-          <div class="par-campo" id="campoConfSaiCritico">
-            <label>Conferência de saída · crítico após</label>
-            <div class="par-num">
-              <input type="text" id="confSaiCritico" data-param="conferenciaSaidaCriticoHoras" value="12">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroConfSaiCritico">O crítico tem que ser maior que o alerta.</span>
-          </div>
-        </div>
-      </div>
-      <div class="par-exp">
-        <b>Só muda a cor da coluna "Espera", nunca trava a fila.</b> Pedido pago e parado na separação é dinheiro que entrou e mercadoria que não saiu; parado na bancada é pior, porque o estoque já saiu da prateleira e o cliente ainda não tem nota.
-        <span class="par-onde">Aparece em <b>Logística → Separação</b> e <b>Logística → Conferência de Saída</b></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- RESERVA E BLOQUEIO -->
-  <div class="par-secao">
-    <div class="par-secao-titulo">Reserva de estoque e bloqueio por atraso</div>
-    <div class="par-secao-sub">Dois números que decidem sozinhos: por quanto tempo um pedido segura o estoque, e com quantos dias de atraso o cliente deixa de comprar a prazo.</div>
+    <div class="par-secao-titulo">Reserva de estoque</div>
+    <div class="par-secao-sub">Por quanto tempo um pedido sem pagamento segura o estoque.</div>
 
     <div class="par-linha">
       <div>
@@ -1556,157 +1507,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             </div>
             <span class="par-erro" id="erroReserva">Informe um número inteiro de 1 a 365.</span>
           </div>
-          <div class="par-campo" id="campoAtraso">
-            <label>Bloquear novo pedido com atraso de</label>
-            <div class="par-num">
-              <input type="text" id="atrasoDias" data-param="bloquearPedidoAtrasoDias" value="1">
-              <span class="par-num-sufixo">dias</span>
-            </div>
-            <span class="par-erro" id="erroAtraso">Informe um número inteiro de 0 a 365.</span>
-          </div>
         </div>
-        <div class="par-previa" id="previaAtraso"></div>
+        <div class="par-previa" id="previaReserva"></div>
       </div>
       <div class="par-exp">
-        <b>Zero desliga o bloqueio.</b> Número que decide bloqueio não nasce dentro de um <code>if</code> — por isso ele mora aqui, e por isso existe um valor que o desliga sem precisar mexer em código.
+        <b>O pedido reserva o saldo assim que nasce.</b> Sem pagamento, ele libera a reserva sozinho depois deste prazo, e o saldo volta a ficar disponível para outro pedido. O bloqueio de cliente em atraso, que morava nesta seção, foi para <b>Configurações do cadastro de clientes</b>.
         <span class="par-onde">Aparece em <b>Vendas → Pedidos de Venda</b></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- EXPEDIÇÃO -->
-  <div class="par-secao">
-    <div class="par-secao-titulo">Expedição e romaneio</div>
-    <div class="par-secao-sub">O relógio da doca e o quanto a balança pode discordar da soma dos volumes. Nenhum dos três trava nada: o único número bloqueante do romaneio é o peso bruto existir.</div>
-
-    <div class="par-linha">
-      <div>
-        <div class="par-campos">
-          <div class="par-campo" id="campoExpAlerta">
-            <label>Expedição · alertar após</label>
-            <div class="par-num">
-              <input type="text" id="expAlerta" data-param="expedicaoAlertaHoras" value="8">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroExpAlerta">Informe um número inteiro de 0 a 365.</span>
-          </div>
-          <div class="par-campo" id="campoExpCritico">
-            <label>Expedição · crítico após</label>
-            <div class="par-num">
-              <input type="text" id="expCritico" data-param="expedicaoCriticoHoras" value="24">
-              <span class="par-num-sufixo">horas</span>
-            </div>
-            <span class="par-erro" id="erroExpCritico">O crítico tem que ser maior que o alerta.</span>
-          </div>
-          <div class="par-campo" id="campoDesvioPeso">
-            <label>Avisar quando a balança fugir</label>
-            <div class="par-num">
-              <input type="text" id="desvioPeso" data-param="expedicaoDesvioPesoPct" value="15">
-              <span class="par-num-sufixo">%</span>
-            </div>
-            <span class="par-erro" id="erroDesvioPeso">Informe um número inteiro de 0 a 100.</span>
-          </div>
-        </div>
-        <div class="par-previa" id="previaDesvio"></div>
-      </div>
-      <div class="par-exp">
-        <b>Pallet, filme e caixa-mãe pesam.</b> A soma dos volumes é referência, não verdade — por isso a diferença tem uma folga configurável, e a comparação é feita contra <b>o que foi bipado</b>, não contra o romaneio inteiro.
-        <span class="par-onde">Aparece em <b>Logística → Expedição</b> e no romaneio</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- MDF-e POR UF -->
-  <div class="par-secao">
-    <div class="par-secao-titulo">MDF-e na carga própria</div>
-    <div class="par-secao-sub">A obrigação muda de estado para estado, então ela é parâmetro e não regra fixa no código. Entrega dentro do mesmo município com veículo próprio nunca exige. Com Correios ou transportadora o documento é do prestador, e esta tela não se aplica.</div>
-
-    <div class="par-linha">
-      <div>
-        <div class="par-campo" style="max-width:340px;">
-          <label>Regra padrão, para UF fora da lista</label>
-          <div class="dropdown-select" id="mdfePadrao" data-value="interestadual">
-            <button type="button" class="dropdown-select-btn form-style">
-              <span class="dropdown-select-label">Interestadual</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="dropdown-select-menu">
-              <div class="dropdown-select-item" data-value="interestadualMulti">Interestadual, com mais de uma NF-e</div>
-              <div class="dropdown-select-item active" data-value="interestadual">Interestadual</div>
-              <div class="dropdown-select-item" data-value="intermunicipal">Intermunicipal, mesmo com uma nota só</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mdfe-lista" id="mdfeLista"></div>
-
-        <div class="mdfe-add">
-          <div class="dropdown-select" id="mdfeUf" data-value="">
-            <button type="button" class="dropdown-select-btn form-style" style="min-width:92px;">
-              <span class="dropdown-select-label">UF</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="dropdown-select-menu" id="menuMdfeUf"></div>
-          </div>
-          <div class="dropdown-select" id="mdfeRegra" data-value="intermunicipal">
-            <button type="button" class="dropdown-select-btn form-style" style="min-width:250px;">
-              <span class="dropdown-select-label">Intermunicipal, mesmo com uma nota só</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="dropdown-select-menu">
-              <div class="dropdown-select-item" data-value="interestadualMulti">Interestadual, com mais de uma NF-e</div>
-              <div class="dropdown-select-item" data-value="interestadual">Interestadual</div>
-              <div class="dropdown-select-item active" data-value="intermunicipal">Intermunicipal, mesmo com uma nota só</div>
-            </div>
-          </div>
-          <button class="btn-secundario" id="btnAddMdfe">Adicionar exceção</button>
-        </div>
-      </div>
-      <div class="par-exp">
-        <b>A Expedição avisa; quem emite é o módulo fiscal.</b> Esta lista decide o texto do aviso, não um bloqueio — nenhum romaneio deixa de sair por causa dela. Confira os valores com a contabilidade: a regra de SP vem da Portaria CAT 102/2013, e RS e MG são mais exigentes que ela.
-        <span class="par-onde">Aparece em <b>Logística → Expedição</b> e em <b>Configurações → Transportadoras</b></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- DEVOLUCOES DE VENDA -->
-  <div class="par-secao">
-    <div class="par-secao-titulo">Devoluções de venda</div>
-    <div class="par-secao-sub">Onde a mercadoria que volta entra de novo no saldo, e por quantos dias depois da entrega a devolução ainda é rotina.</div>
-
-    <div class="par-linha">
-      <div>
-        <div class="par-campo" style="max-width:360px;">
-          <label>Depósito para lançar o estoque devolvido</label>
-          <div class="dropdown-select" id="devDeposito" data-value="vendaMesmo">
-            <button type="button" class="dropdown-select-btn form-style">
-              <span class="dropdown-select-label">O mesmo da venda</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="dropdown-select-menu">
-              <div class="dropdown-select-item active" data-value="vendaMesmo">O mesmo da venda</div>
-              <div class="dropdown-select-item" data-value="padrao">O depósito padrão da loja</div>
-              <div class="dropdown-select-item" data-value="geral">Sempre o Geral</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="par-campos" style="margin-top:14px;">
-          <div class="par-campo" id="campoDevPrazo">
-            <label>Devolução é rotina até</label>
-            <div class="par-num">
-              <input type="text" id="devPrazo" data-param="devolucaoPrazoDias" value="7">
-              <span class="par-num-sufixo">dias após a entrega</span>
-            </div>
-            <span class="par-erro" id="erroDevPrazo">Informe um número inteiro de 1 a 365.</span>
-          </div>
-        </div>
-        <div class="par-previa" id="previaDevolucao"></div>
-      </div>
-      <div class="par-exp">
-        <b>Escolher o depósito não escolhe o endereço dentro dele.</b> Devolução é entrada, e entrada segue a regra que já vale em cinco telas: com base de picking vai para <b>disponível</b>, sem base vai para <b>a endereçar</b>. Item que volta avariado ignora as duas e cai em <b>Avaria</b>, bloqueado.<br><br>
-        O prazo também não trava nada: passado dele a devolução continua possível e a tela apenas <b>avisa</b> que está fora do prazo. Os 7 dias de fábrica são o arrependimento do CDC (art. 49) nas compras de vitrine — a loja pode dar mais, nunca menos.
-        <span class="par-onde">Aparece em <b>Logística → Devolução</b></span>
       </div>
     </div>
   </div>
@@ -2382,21 +2188,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // contaria tambem as preferencias de usuario, que sao de outra tela.
   const CHAVES = ['conferenciaCompraAlerta', 'conferenciaCompraCritico',
                   'enderecamentoAlerta', 'enderecamentoCritico', 'estoqueZeroLimite',
-                  // Logistica (05/out/2026): ate aqui estes cinco decidiam cor e
-                  // bloqueio sem existir em tela nenhuma — a nota da listagem de
-                  // Pedidos ja mandava o usuario para "Parametros de estoque" e
-                  // ele nao estava la. Parametro orfao e promessa falsa.
-                  'separacaoAlertaHoras', 'separacaoCriticoHoras',
-                  'conferenciaSaidaAlertaHoras', 'conferenciaSaidaCriticoHoras',
-                  'reservaExpiraDias', 'bloquearPedidoAtrasoDias',
-                  // Expedicao (06/out/2026): os seis nasceram junto com a tela e
-                  // entram aqui no MESMO dia. Parametro orfao e promessa falsa —
-                  // ja pagamos esse preco com `reservaExpiraDias`.
-                  'expedicaoAlertaHoras', 'expedicaoCriticoHoras', 'expedicaoDesvioPesoPct',
-                  'mdfeRegraPadrao', 'mdfeRegraUF',
-                  // Devolucao (07/out/2026): os dois nascem junto com a tela,
-                  // no mesmo dia, pelo mesmo motivo dos seis acima.
-                  'devolucaoDeposito', 'devolucaoPrazoDias',
+                  // A reserva ficou aqui quando a tela se dividiu (13/out/2026): e estoque que o
+                  // pedido segura. O bloqueio por atraso, que vinha junto, foi para
+                  // Configuracoes do cadastro de clientes; os prazos do galpao, da doca, do
+                  // MDF-e e da devolucao, para Parametros de logistica.
+                  'reservaExpiraDias',
                   // Compra e giro (10/out/2026): os quatro nascem junto com Necessidades de
                   // Compra e Giro de Estoque, no mesmo dia. As faixas do giro tambem podem ser
                   // salvas pela regua da tela do Giro; e o mesmo parametro.
@@ -2407,68 +2203,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   CHAVES.forEach(k => {
     const inp = document.querySelector('[data-param="' + k + '"]');
     if (inp) inp.value = String(PARAM[k]).replace('.', ',');
-  });
-
-  // ===== MDF-e POR UF =====
-  // Dois parametros, nao um: o MAPA de excecoes e o PADRAO de quem nao esta
-  // nele. Sem o padrao, UF nova herdaria o silencio — e silencio, aqui, seria a
-  // tela dizendo que nao precisa de documento sem ninguem ter decidido isso.
-  const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR',
-               'PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
-  const MDFE_ROTULO = {
-    interestadualMulti: 'Interestadual, com mais de uma NF-e',
-    interestadual: 'Interestadual',
-    intermunicipal: 'Intermunicipal, mesmo com uma nota só'
-  };
-  let MDFE_MAPA = Object.assign({}, PARAM.mdfeRegraUF || {});
-  let mdfeUfEscolhida = '';
-  let mdfeRegraEscolhida = 'intermunicipal';
-
-  function ordenarMapa(m) {
-    const fora = {};
-    Object.keys(m || {}).sort().forEach(k => { fora[k] = m[k]; });
-    return fora;
-  }
-
-  function pintarMdfe() {
-    const alvo = document.getElementById('mdfeLista');
-    const ufs = Object.keys(MDFE_MAPA).sort();
-    alvo.innerHTML = ufs.length ? ufs.map(uf =>
-      '<div class="mdfe-linha"><span class="mdfe-uf">' + uf + '</span>' +
-      '<span class="mdfe-regra">' + (MDFE_ROTULO[MDFE_MAPA[uf]] || MDFE_MAPA[uf]) + '</span>' +
-      '<button type="button" class="mdfe-tirar" data-mdfe-tirar="' + uf + '">tirar</button></div>').join('')
-      : '<div class="mdfe-vazio">Sem exceção: todo estado segue a regra padrão acima.</div>';
-    alvo.querySelectorAll('[data-mdfe-tirar]').forEach(b => {
-      b.addEventListener('click', () => {
-        delete MDFE_MAPA[b.getAttribute('data-mdfe-tirar')];
-        montarMenuUfLivres();
-        pintarMdfe();
-        aoDigitar();
-      });
-    });
-  }
-
-  // O menu so oferece UF que ainda NAO tem excecao: oferecer uma que ja esta na
-  // lista seria convidar o usuario a criar duas verdades sobre o mesmo estado.
-  function montarMenuUfLivres() {
-    const livres = UFS.filter(uf => !MDFE_MAPA[uf]);
-    document.getElementById('menuMdfeUf').innerHTML = livres.map(uf =>
-      '<div class="dropdown-select-item" data-value="' + uf + '">' + uf + '</div>').join('');
-    const raiz = document.getElementById('mdfeUf');
-    if (livres.indexOf(mdfeUfEscolhida) < 0) {
-      mdfeUfEscolhida = '';
-      raiz.setAttribute('data-value', '');
-      raiz.querySelector('.dropdown-select-label').textContent = 'UF';
-    }
-    inicializarDropdownSelect(raiz, (v) => { mdfeUfEscolhida = v; });
-  }
-
-  document.getElementById('btnAddMdfe').addEventListener('click', () => {
-    if (!mdfeUfEscolhida) { avisar('Escolha a UF da exceção.'); return; }
-    MDFE_MAPA[mdfeUfEscolhida] = mdfeRegraEscolhida;
-    montarMenuUfLivres();
-    pintarMdfe();
-    aoDigitar();
   });
 
   // As filas de hoje, para a previa medir o efeito do numero. Nao sao numeros
@@ -2507,15 +2241,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A previa e o que torna o numero concreto: em vez de "2 dias", o usuario le
   // "hoje, 4 dos 6 saldos entrariam em alerta". E a diferenca entre configurar
   // no escuro e configurar vendo o efeito.
-  // Carga de exemplo da doca de hoje, para a previa medir o efeito do numero em
-  // vez de explicar o conceito. Soma dos volumes x o que a balanca marcou.
-  const CARGAS_DOCA = [
-    { rom: 'ROM-0187', volumes: 4.7,  balanca: 5.1 },
-    { rom: 'ROM-0188', volumes: 3.4,  balanca: 3.8 },
-    { rom: 'ROM-0189', volumes: 148.0, balanca: 152.4 },
-    { rom: 'ROM-0192', volumes: 218.0, balanca: 240.0 }
-  ];
-
   function atualizarPrevias() {
     // Compra e giro: a previa escreve as tres faixas por extenso, como a tela do Giro as mostra.
     (function previaGiro() {
@@ -2540,21 +2265,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         plural(critico, 'ficaria', 'ficariam') + '</b> em situação crítica.';
     }
 
-    const dp = lerCampo('desvioPeso');
-    const prevD = document.getElementById('previaDesvio');
-    if (dp === null || dp > 100) {
-      prevD.classList.add('alerta');
-      prevD.innerHTML = 'Informe uma porcentagem de 0 a 100 para ver o efeito.';
-    } else {
-      prevD.classList.remove('alerta');
-      const fora = CARGAS_DOCA.filter(c => Math.abs(c.balanca - c.volumes) / c.volumes * 100 > dp);
-      prevD.innerHTML = fora.length
-        ? 'Nas últimas <b>' + CARGAS_DOCA.length + ' cargas</b>, <b>' +
-          plural(fora.length, 'receberia', 'receberiam') + '</b> o aviso de peso (' +
-          fora.map(c => c.rom).join(', ') + ').'
-        : 'Nas últimas <b>' + CARGAS_DOCA.length + ' cargas</b>, nenhuma receberia o aviso de peso.';
-    }
-
     const ea = lerCampo('endAlerta'), ec = lerCampo('endCritico');
     const prevE = document.getElementById('previaEnd');
     if (ea === null || ec === null || ec <= ea) {
@@ -2570,34 +2280,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         (critico ? ' Saldo crítico está há mais de ' + ec + ' dias <b>sem poder ser vendido</b>.' : '');
     }
 
-    const at = lerCampo('atrasoDias');
-    const prevA = document.getElementById('previaAtraso');
-    if (at === null) {
-      prevA.classList.add('alerta');
-      prevA.innerHTML = 'Corrija o prazo acima para ver o efeito.';
-    } else {
-      prevA.classList.remove('alerta');
-      prevA.innerHTML = at === 0
-        ? '<b>Bloqueio desligado.</b> Cliente com conta vencida continua comprando a prazo normalmente.'
-        : 'Cliente com conta vencida há mais de <b>' + plural(at, 'dia', 'dias') + '</b> não consegue fechar novo pedido — o aviso aparece já na abertura, não só ao salvar.';
-    }
-
-    const dvPrazo = lerCampo('devPrazo');
-    const prevDev = document.getElementById('previaDevolucao');
-    const ONDE = { vendaMesmo: 'no mesmo dep\u00f3sito de onde a venda saiu',
-                   padrao: 'no dep\u00f3sito padr\u00e3o da loja',
-                   geral: 'sempre no dep\u00f3sito Geral' };
-    const escolhido = document.getElementById('devDeposito').getAttribute('data-value');
-    if (dvPrazo === null || dvPrazo < 1) {
-      prevDev.classList.add('alerta');
-      prevDev.innerHTML = 'Corrija o prazo acima para ver o efeito.';
-    } else {
-      prevDev.classList.remove('alerta');
-      prevDev.innerHTML = 'O item revend\u00e1vel volta <b>' + (ONDE[escolhido] || ONDE.vendaMesmo) +
-        '</b>. Devolu\u00e7\u00e3o aberta mais de <b>' + plural(dvPrazo, 'dia', 'dias') +
-        '</b> depois da entrega aparece marcada como fora do prazo \u2014 e continua podendo ser feita.';
-    }
-
     const z = lerCampo('zeroLimite');
     const prevZ = document.getElementById('previaZero');
     if (z === null || z < 1) {
@@ -2610,17 +2292,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         ? 'Com este prazo, <b>nenhuma base</b> apareceria na aba Estoque Zero hoje.'
         : '<b>' + plural(n, 'base apareceria', 'bases apareceriam') + '</b> na aba Estoque Zero hoje, de ' + ZERADO_BASES.length + ' zeradas.';
     }
+
+    const rv = lerCampo('reservaExpira');
+    const prevR = document.getElementById('previaReserva');
+    prevR.classList.toggle('alerta', rv === null || rv < 1);
+    prevR.innerHTML = (rv === null || rv < 1) ? 'Corrija o prazo acima para ver o efeito.'
+      : 'Pedido sem pagamento há mais de <b>' + plural(rv, 'dia', 'dias') + '</b> libera a reserva sozinho.';
   }
 
   function validar() {
     const a = lerCampo('confAlerta'), c = lerCampo('confCritico');
     const ea = lerCampo('endAlerta'), ec = lerCampo('endCritico');
     const z = lerCampo('zeroLimite');
-    const sa = lerCampo('sepAlerta'), sc = lerCampo('sepCritico');
-    const ca = lerCampo('confSaiAlerta'), cc = lerCampo('confSaiCritico');
-    const rv = lerCampo('reservaExpira'), at = lerCampo('atrasoDias');
-    const xa = lerCampo('expAlerta'), xc = lerCampo('expCritico'), dp = lerCampo('desvioPeso');
-    const dv = lerCampo('devPrazo');
+    const rv = lerCampo('reservaExpira');
     const ge = lerDecimal('giroEncalhe'), gb = lerDecimal('giroBaixo');
     const gj = lerCampo('giroJanela'), cb = lerCampo('compraCobertura');
 
@@ -2629,23 +2313,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     marcarErro('campoEndAlerta', ea === null);
     marcarErro('campoEndCritico', ec === null || (ea !== null && ec <= ea));
     marcarErro('campoZero', z === null || z < 1);
-    marcarErro('campoSepAlerta', sa === null);
-    marcarErro('campoSepCritico', sc === null || (sa !== null && sc <= sa));
-    marcarErro('campoConfSaiAlerta', ca === null);
-    marcarErro('campoConfSaiCritico', cc === null || (ca !== null && cc <= ca));
     marcarErro('campoReserva', rv === null || rv < 1);
-    // Atraso aceita ZERO: zero e o valor que DESLIGA a trava. Exigir 1 aqui
-    // obrigaria a mexer em codigo para desligar — que e o problema que o
-    // parametro existe para resolver.
-    marcarErro('campoAtraso', at === null);
-    marcarErro('campoExpAlerta', xa === null);
-    marcarErro('campoExpCritico', xc === null || (xa !== null && xc <= xa));
-    // O desvio aceita ZERO: zero quer dizer "qualquer diferenca ja merece
-    // aviso". Nao e trava, entao nao ha motivo para exigir um minimo.
-    marcarErro('campoDesvioPeso', dp === null || dp > 100);
-    // O prazo da devolucao NAO aceita zero: ele nao e trava, e um aviso, e
-    // aviso que dispara sempre e aviso que ninguem le.
-    marcarErro('campoDevPrazo', dv === null || dv < 1);
     // Compra e giro: o baixo giro nunca fica abaixo do encalhe, e o periodo precisa de pelo
     // menos um mes para o giro dizer alguma coisa.
     marcarErro('campoGiroEncalhe', ge === null);
@@ -2654,34 +2322,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     marcarErro('campoCompraCobertura', cb === null || cb < 1);
 
     const ok = ge !== null && gb !== null && gb >= ge && gj !== null && gj >= 30 && cb !== null && cb >= 1 &&
-               dv !== null && dv >= 1 &&
                a !== null && c !== null && c > a &&
                ea !== null && ec !== null && ec > ea &&
                z !== null && z >= 1 &&
-               sa !== null && sc !== null && sc > sa &&
-               ca !== null && cc !== null && cc > ca &&
-               rv !== null && rv >= 1 && at !== null &&
-               xa !== null && xc !== null && xc > xa &&
-               dp !== null && dp <= 100;
+               rv !== null && rv >= 1;
     return ok ? { conferenciaCompraAlerta:a, conferenciaCompraCritico:c,
                   enderecamentoAlerta:ea, enderecamentoCritico:ec, estoqueZeroLimite:z,
-                  separacaoAlertaHoras:sa, separacaoCriticoHoras:sc,
-                  conferenciaSaidaAlertaHoras:ca, conferenciaSaidaCriticoHoras:cc,
-                  reservaExpiraDias:rv, bloquearPedidoAtrasoDias:at,
-                  expedicaoAlertaHoras:xa, expedicaoCriticoHoras:xc, expedicaoDesvioPesoPct:dp,
-                  mdfeRegraPadrao: document.getElementById('mdfePadrao').getAttribute('data-value'),
-                  mdfeRegraUF: ordenarMapa(MDFE_MAPA),
-                  devolucaoDeposito: document.getElementById('devDeposito').getAttribute('data-value'),
-                  devolucaoPrazoDias: lerCampo('devPrazo'),
+                  reservaExpiraDias:rv,
                   giroEncalheAte: ge, giroBaixoAte: gb, giroJanelaDias: gj, compraCoberturaDias: cb } : null;
-  }
-
-  // `mdfeRegraUF` e um OBJETO: `!==` entre dois objetos e sempre verdadeiro, e a
-  // tela diria "1 parametro alterado" toda vez que alguem digitasse qualquer
-  // coisa. Compara o conteudo, com as chaves em ordem.
-  function paramIgual(k, a, b) {
-    if (k === 'mdfeRegraUF') return JSON.stringify(ordenarMapa(a)) === JSON.stringify(ordenarMapa(b));
-    return a === b;
   }
 
   function mudou() {
@@ -2690,7 +2338,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // mentira mais cara que esta nota pode contar: a que aparece justamente
     // quando ha algo errado na tela.
     if (!v) { elNota.textContent = 'Há campo inválido — corrija para salvar.'; return; }
-    const dif = CHAVES.filter(k => !paramIgual(k, v[k], PARAM[k])).length;
+    const dif = CHAVES.filter(k => v[k] !== PARAM[k]).length;
     elNota.textContent = dif ? plural(dif, 'parâmetro alterado', 'parâmetros alterados') + ', ainda não salvo.' : 'Nenhuma alteração pendente.';
   }
 
@@ -2704,14 +2352,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     const v = validar();
     if (!v) { avisar('Há campos inválidos, destacados em vermelho. Nos prazos, o crítico precisa ser maior que o alerta e todos são números inteiros; nas faixas de giro, o baixo giro não pode ser menor que o encalhe.'); return; }
-    const mudancas = CHAVES.filter(k => !paramIgual(k, v[k], PARAM[k])).length;
+    const mudancas = CHAVES.filter(k => v[k] !== PARAM[k]).length;
     CHAVES.forEach(k => { PARAM[k] = v[k]; });
     const gravou = gravarParametros(PARAM);
     mudou();
     avisar(mudancas === 0
       ? 'Nenhum parâmetro mudou.'
       : plural(mudancas, 'parâmetro salvo', 'parâmetros salvos') +
-        '. As telas de Conferência de Entrada, Endereçamento, Separação, Conferência de Saída, Expedição, Pedidos de Venda, Necessidades de Compra e Giro de Estoque passam a usar os novos valores na próxima abertura — nenhum saldo foi tocado, só a régua mudou.' +
+        '. As telas de Conferência de Entrada, Endereçamento, Pedidos de Venda, Necessidades de Compra e Giro de Estoque passam a usar os novos valores na próxima abertura — nenhum saldo foi tocado, só a régua mudou.' +
         (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então o valor vale só nesta aba.)'));
   });
 
@@ -2720,49 +2368,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const inp = document.querySelector('[data-param="' + k + '"]');
       if (inp) inp.value = PARAM_PADRAO[k];
     });
-    // Os dois do MDF-e nao sao input: restaurar precisa mexer neles na mao,
-    // senao "Restaurar padrao" deixaria metade da tela no valor antigo.
-    MDFE_MAPA = Object.assign({}, PARAM_PADRAO.mdfeRegraUF || {});
-    setDropdownPadraoMdfe(PARAM_PADRAO.mdfeRegraPadrao);
-    setDropdownDevDeposito(PARAM_PADRAO.devolucaoDeposito);
-    montarMenuUfLivres();
-    pintarMdfe();
     validar(); aoDigitar();
     avisar('Valores de fábrica restaurados na tela. Clique em "Salvar parâmetros" para valer.');
   });
-
-  function setDropdownPadraoMdfe(valor) {
-    const raiz = document.getElementById('mdfePadrao');
-    raiz.setAttribute('data-value', valor);
-    const rot = raiz.querySelector('.dropdown-select-label');
-    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
-      const ativo = it.getAttribute('data-value') === valor;
-      it.classList.toggle('active', ativo);
-      if (ativo && rot) rot.textContent = it.textContent;
-    });
-  }
-  function setDropdownDevDeposito(valor) {
-    const raiz = document.getElementById('devDeposito');
-    raiz.setAttribute('data-value', valor);
-    const rot = raiz.querySelector('.dropdown-select-label');
-    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
-      const ativo = it.getAttribute('data-value') === valor;
-      it.classList.toggle('active', ativo);
-      if (ativo && rot) rot.textContent = it.textContent;
-    });
-  }
-  inicializarDropdownSelect(document.getElementById('devDeposito'), (v) => {
-    setDropdownDevDeposito(v); aoDigitar(); atualizarPrevias();
-  });
-
-  inicializarDropdownSelect(document.getElementById('mdfePadrao'), (v) => {
-    setDropdownPadraoMdfe(v); aoDigitar();
-  });
-  inicializarDropdownSelect(document.getElementById('mdfeRegra'), (v) => { mdfeRegraEscolhida = v; });
-  setDropdownPadraoMdfe(PARAM.mdfeRegraPadrao);
-  setDropdownDevDeposito(PARAM.devolucaoDeposito || 'vendaMesmo');
-  montarMenuUfLivres();
-  pintarMdfe();
 
   atualizarPrevias();
 

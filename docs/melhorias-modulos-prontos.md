@@ -10,14 +10,14 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 |---|---|
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
 | **Feito no principal, com resto anotado** (22) | G3 · C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | C3 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
+| **Falta** | P1 · a limpeza de código das 17 telas. Fora da fila por decisão do usuário (13/out): C3 a C8 · V4 e L4 · X1 a X7 · R6 |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 e X7 (13/out) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
 **Decisão do usuário em 13/out/2026: os exemplos das telas prontas ficam como estão.** Saem da fila,
 e voltam quando houver banco de dados: os alinhamentos X1 a X7, os painéis C3 a C8, os links V4 e
-L4, e o que sobrou do G3 (o romaneio e "abrir a nota"). Continuam na fila: K1, R6 e P1. A regra da
+L4, o que sobrou do G3 (o romaneio e "abrir a nota") e, tirado em seguida, o R6. K1 foi feito no mesmo dia; continua na fila o P1. A regra da
 tela nova está no §14.73 do design system.
 
 O que entrou e o que falta em cada item feito no principal:
@@ -451,7 +451,7 @@ Tamanho de cada item: **P** mexe numa tela, **M** em duas ou três, **G** em mui
 
 ### Configurações
 
-**K1 · Parâmetros de estoque virou gaveta** (M)
+**K1 · Parâmetros de estoque virou gaveta** (M) — **feito em 13/out/2026** (§14.74 do design system): duas telas, e o bloqueio por atraso em Configurações do cadastro de clientes
 - Hoje: 9 seções, e 5 não são de estoque: filas do galpão, reserva e bloqueio por atraso, expedição
   e romaneio, MDF-e e devoluções de venda.
 - Proposta: separar em Parâmetros de estoque e Parâmetros de logística, e levar o bloqueio por
@@ -492,7 +492,7 @@ Tamanho de cada item: **P** mexe numa tela, **M** em duas ou três, **G** em mui
 - Proposta: ficar só o da barra, que aparece quando há seleção.
 - Ganho: o botão aparece quando pode ser usado.
 
-**R6 · Cópias do número de meta** (M)
+**R6 · Cópias do número de meta** (M) — **fora da fila** por decisão do usuário em 13/out/2026: é alinhamento de exemplo
 - Hoje: a aba "Histórico de Metas" da página da loja e o Dashboard têm números próprios. Pendência
   registrada em 08/out.
 - Proposta: as duas lerem de Metas.

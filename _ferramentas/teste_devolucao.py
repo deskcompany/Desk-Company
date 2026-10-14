@@ -417,7 +417,7 @@ with sync_playwright() as pw:
 
     print('\n[17] Os dois parametros nasceram em Configuracoes')
     p3 = nav.new_page(viewport={'width': 1440, 'height': 950})
-    p3.goto(localiza.uri('pagina-configuracoes-parametros-estoque.html')); p3.wait_for_timeout(700)
+    p3.goto(localiza.uri('pagina-configuracoes-parametros-logistica.html')); p3.wait_for_timeout(700)   # 13/out/2026: sairam de Parametros de estoque
     ok(p3.locator('#devDeposito').count() == 1, 'o deposito da devolucao tem campo na tela')
     ok(p3.locator('[data-param="devolucaoPrazoDias"]').count() == 1, 'o prazo tambem')
     nas = p3.evaluate("CHAVES.indexOf('devolucaoDeposito') >= 0 && CHAVES.indexOf('devolucaoPrazoDias') >= 0")

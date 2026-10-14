@@ -1961,7 +1961,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       banner:'Como os cadastros se comportam: numeração, padrões de preenchimento e as listas auxiliares que alimentam Produtos e Contatos.',
       grupos:[
         { nome:null, itens:[
-          { nome:'Configurações do cadastro de clientes', href:'../configuracoes/pagina-configuracoes-cadastro-clientes.html', ajuda:'Código manual ou sequencial, tipo de pessoa padrão, CPF/CNPJ duplicado, limite de crédito.' },
+          { nome:'Configurações do cadastro de clientes', href:'../configuracoes/pagina-configuracoes-cadastro-clientes.html', ajuda:'CPF/CNPJ duplicado, observações do cliente e o bloqueio de cliente em atraso. Código, tipo de pessoa padrão e limite de crédito ainda não estão na tela.' },
           { nome:'Configurações do cadastro de produtos', href:'../configuracoes/pagina-configuracoes-cadastro-produtos.html', ajuda:'Casas decimais de quantidade e preço, unidade padrão, NCM e origem padrão, custo de kits.' },
           { nome:'Variações dos produtos' },
           { nome:'Atributos dos produtos' },
@@ -1975,7 +1975,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       banner:'<b>Os limiares de tempo do estoque moram aqui.</b> Conferência de Entrada, Endereçamento e Estoque Zero leem de Parâmetros de Estoque — nenhum desses números está mais cravado dentro das telas.',
       grupos:[
         { nome:null, itens:[
-          { nome:'Parâmetros de estoque', href:'../configuracoes/pagina-configuracoes-parametros-estoque.html', ajuda:'Conferência de compra >1 e >3 dias · Endereçamento parado >2 e >7 · Estoque zero >7 dias.' },
+          { nome:'Parâmetros de estoque', href:'../configuracoes/pagina-configuracoes-parametros-estoque.html', ajuda:'Conferência de compra >1 e >3 dias · Endereçamento parado >2 e >7 · Estoque zero >7 dias · reserva do pedido · régua da compra e do giro.' },
           { nome:'Configurações de estoque', ajuda:'Espera Vendas. Estoque negativo e lançamento para saídas só fazem sentido quando existir venda; hoje nenhuma tela leria esses parâmetros. O que já existe de estoque mora em Parâmetros de estoque.' },
           { nome:'Configurações da conferência', href:'../configuracoes/pagina-configuracoes-conferencia.html', ajuda:'Quanto quem confere sabe antes de contar: conferência cega (padrão de abertura) e o que a fila da doca mostra. Cobre a conferência e a conferência de compra — três parâmetros não pedem duas telas.' },
           { nome:'Configurações de ordens de compra' },
@@ -2000,6 +2000,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       banner:'<b>Forma de envio, gateway logístico e transportadora são três coisas diferentes.</b> A forma de envio é o serviço vendido ao cliente; o gateway cota e emite etiqueta; a transportadora carrega.',
       grupos:[
         { nome:null, itens:[
+          { nome:'Parâmetros de logística', href:'../configuracoes/pagina-configuracoes-parametros-logistica.html', ajuda:'Filas do galpão (separação e conferência de saída) · Expedição e romaneio · MDF-e por estado · Devoluções de venda.' },
           { nome:'Formas de envio' },
           { nome:'Gateways logísticos' },
           { nome:'Configurações da expedição' },

@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
 *Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque e com a ordem nova do menu, por sequência de trabalho. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**81 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**82 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **A ordem das tabelas é a do menu** (desde 13/out/2026): primeiro a tela de consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e Relatórios por último. Módulo ou item novo entra na posição da função dele. A regra está no §4 do design system, e a seção 11 de `teste_menu.py` guarda a ordem.
 >
@@ -119,11 +119,11 @@
 | ❌ | Emissão de Notas Fiscais |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 19 telas, abertas pelo hub
+## ⚙️ Configurações — 20 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
-| ✅ | Parâmetros de estoque · Interface do usuário · Confirmações por senha · Registro de atividades |
+| ✅ | Parâmetros de estoque · Parâmetros de logística *(nasceu em 13/out, da divisão da tela de estoque)* · Interface do usuário · Confirmações por senha · Registro de atividades |
 | ✅ | Configurações da conferência · do cadastro de produtos · do cadastro de clientes |
 | ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
 | ✅ | Nomes do sistema |
@@ -150,9 +150,9 @@
 | **Logística** | **5** | **1** |
 | Finanças | 3 | 2 |
 | Integrações | 0 | 4 |
-| Configurações | 1 item de menu, 19 telas | 0 |
-| **Total** | **42 itens de menu com tela · 81 telas** | **14** |
+| Configurações | 1 item de menu, 20 telas | 0 |
+| **Total** | **42 itens de menu com tela · 82 telas** | **14** |
 
-*Contado no menu em 13/out/2026: **56 itens, 42 com destino e 14 sem**, em 81 telas: a Movimentação de Estoque entrou. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 13/out/2026: **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

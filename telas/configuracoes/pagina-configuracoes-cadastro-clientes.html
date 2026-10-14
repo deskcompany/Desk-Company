@@ -1356,7 +1356,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Configurações do cadastro de clientes</h1>
-      <div class="subtitle">O que o cadastro exige e o que ele mostra.</div>
+      <div class="subtitle">O que o cadastro exige, o que ele mostra e quando o cliente em atraso deixa de comprar.</div>
     </div>
   </div>
 
@@ -1400,6 +1400,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="par-exp">
         Desligado, a <b>aba inteira some</b> — não fica vazia. Aba morta é pior que aba ausente: ela ocupa espaço, é clicada uma vez por curiosidade e nunca mais.
         <span class="par-onde">Onde pega: <b>Cadastros → Clientes → detalhe</b>, aba Observações.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Cliente em atraso</div>
+    <div class="par-secao-sub">Com quantos dias de conta vencida o cliente deixa de fechar pedido novo.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoAtraso">
+            <label>Bloquear novo pedido com atraso de</label>
+            <div class="par-num">
+              <input type="text" id="atrasoDias" value="1">
+              <span class="par-num-sufixo">dias</span>
+            </div>
+            <span class="par-erro" id="erroAtraso">Informe um número inteiro de 0 a 365.</span>
+          </div>
+        </div>
+        <div class="par-previa" id="previaAtraso"></div>
+      </div>
+      <div class="par-exp">
+        <b>Zero desliga o bloqueio.</b> Número que decide bloqueio não nasce dentro de um <code>if</code> — por isso ele mora aqui, e por isso existe um valor que o desliga sem precisar mexer em código. Até 13/out/2026 este número ficava em Parâmetros de estoque.
+        <span class="par-onde">Onde pega: <b>Vendas → Pedidos de Venda</b>, ao abrir e ao salvar o pedido.</span>
       </div>
     </div>
   </div>
@@ -1495,6 +1520,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
+    // Tolerancia do bloqueio por conta em atraso. Zero desliga a trava; 1 bloqueia no dia seguinte
+    // ao vencimento. E o mesmo padrao que o Pedido de Venda le.
+    bloquearPedidoAtrasoDias: 1,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2058,11 +2086,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
   // ===== CADASTRO DE CLIENTES =====
-  // Dois parametros da EMPRESA, lidos por `../cadastros/pagina-cadastros-clientes-detalhe.html`.
-  const CHAVES_CLI = ['permitirDocDuplicado', 'mostrarObservacoesCliente'];
+  // Tres parametros da EMPRESA. Dois sao lidos por `../cadastros/pagina-cadastros-clientes-detalhe.html`;
+  // o bloqueio por atraso, por `../vendas/pagina-vendas-pedidos-detalhe.html` (veio de Parametros
+  // de estoque em 13/out/2026: e regra sobre o cliente, e nao sobre o estoque).
+  const CHAVES_CLI = ['permitirDocDuplicado', 'mostrarObservacoesCliente', 'bloquearPedidoAtrasoDias'];
   const elNota = document.getElementById('notaBarra');
   let edicao = {};
   CHAVES_CLI.forEach(k => { edicao[k] = PARAM[k]; });
+  // O bloqueio e numero, nao interruptor: `edicao` guarda o inteiro, ou null enquanto o campo esta invalido.
+  const elAtraso = document.getElementById('atrasoDias');
+  elAtraso.addEventListener('input', () => {
+    const bruto = elAtraso.value.trim();
+    const n = /^[0-9]+$/.test(bruto) ? parseInt(bruto, 10) : null;
+    edicao.bloquearPedidoAtrasoDias = (n === null || n > 365) ? null : n;
+    atualizarPrevias(); contar();
+  });
 
   const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
 
@@ -2070,6 +2108,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('[data-param]').forEach(sw => {
       sw.classList.toggle('on', !!edicao[sw.getAttribute('data-param')]);
     });
+    if (edicao.bloquearPedidoAtrasoDias !== null) elAtraso.value = edicao.bloquearPedidoAtrasoDias;
   }
 
   function atualizarPrevias() {
@@ -2084,9 +2123,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     o.innerHTML = edicao.mostrarObservacoesCliente
       ? 'O cadastro de cliente abre com a aba <b>Observações</b>.'
       : 'A aba <b>Observações</b> some do cadastro. O texto j\u00e1 escrito não \u00e9 apagado \u2014 volta quando religar.';
+
+    const at = edicao.bloquearPedidoAtrasoDias, pa = document.getElementById('previaAtraso');
+    document.getElementById('campoAtraso').classList.toggle('has-error', at === null);
+    pa.classList.toggle('alerta', at === null);
+    pa.innerHTML = at === null ? 'Corrija o prazo acima para ver o efeito.'
+      : (at === 0 ? '<b>Bloqueio desligado.</b> Cliente com conta vencida continua comprando a prazo normalmente.'
+                  : 'Cliente com conta vencida há mais de <b>' + plural(at, 'dia', 'dias') + '</b> não consegue fechar novo pedido — o aviso aparece já na abertura, não só ao salvar.');
   }
 
   function contar() {
+    if (edicao.bloquearPedidoAtrasoDias === null) { elNota.textContent = 'Há campo inválido — corrija para salvar.'; return; }
     const dif = CHAVES_CLI.filter(k => edicao[k] !== PARAM[k]).length;
     elNota.textContent = dif ? plural(dif, 'configuração alterada', 'configurações alteradas') + ', ainda não salva' + (dif > 1 ? 's' : '') + '.' : 'Nenhuma alteração pendente.';
   }
@@ -2100,6 +2147,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
+    if (edicao.bloquearPedidoAtrasoDias === null) { avisar('O prazo do bloqueio por atraso precisa ser um número inteiro de 0 a 365. Zero desliga o bloqueio.'); return; }
     const mudadas = CHAVES_CLI.filter(k => edicao[k] !== PARAM[k]);
     if (mudadas.length === 0) { avisar('Nenhuma configuração mudou.'); return; }
     CHAVES_CLI.forEach(k => { PARAM[k] = edicao[k]; });
@@ -2108,6 +2156,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     avisar(plural(mudadas.length, 'configuração salva', 'configurações salvas') + '. ' +
       (PARAM.permitirDocDuplicado ? 'CPF/CNPJ repetido passa a ser aceito' : 'CPF/CNPJ repetido continua bloqueado') + ', e a aba de observações ' +
       (PARAM.mostrarObservacoesCliente ? 'continua visível.' : 'deixa de aparecer.') +
+      ' O bloqueio por atraso ' + (PARAM.bloquearPedidoAtrasoDias ? 'vale a partir de ' + plural(PARAM.bloquearPedidoAtrasoDias, 'dia', 'dias') + '.' : 'fica desligado.') +
       (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então isto vale só nesta aba.)'));
   });
 

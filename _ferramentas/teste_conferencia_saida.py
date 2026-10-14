@@ -24,7 +24,7 @@ CHROME = _ch[0] if _ch else None
 URL = _pathlib.Path(PASTA).as_uri() + '/'   # forma do navegador: barras e %20
 FILA = 'pagina-logistica-conferencia-saida.html'
 BANCADA = 'pagina-logistica-conferencia-saida-detalhe.html'
-PARAMS = 'pagina-configuracoes-parametros-estoque.html'
+PARAMS = 'pagina-configuracoes-parametros-logistica.html'   # 13/out/2026: as filas do galpao sairam de Parametros de estoque
 CONFIG = 'pagina-configuracoes-conferencia.html'
 
 falhas = []
@@ -306,13 +306,19 @@ with sync_playwright() as pw:
     # uma tela onde eles nao estavam. Parametro orfao e promessa falsa.
     pgp = nova(pw, PARAMS, erros)
     campos = pgp.evaluate("() => Array.from(document.querySelectorAll('[data-param]')).map(i => i.getAttribute('data-param') + '=' + i.value)")
+    # 13/out/2026: a tela unica se dividiu. As filas ficam em Parametros de logistica, a reserva em
+    # Parametros de estoque e o bloqueio por atraso em Configuracoes do cadastro de clientes.
+    pge = nova(pw, 'pagina-configuracoes-parametros-estoque.html', erros)
+    campos += pge.evaluate("() => Array.from(document.querySelectorAll('[data-param]')).map(i => i.getAttribute('data-param') + '=' + i.value)")
+    pgcli = nova(pw, 'pagina-configuracoes-cadastro-clientes.html', erros)
+    campos.append('bloquearPedidoAtrasoDias=' + pgcli.input_value('#atrasoDias'))
     for chave in ['separacaoAlertaHoras', 'separacaoCriticoHoras', 'conferenciaSaidaAlertaHoras',
                   'conferenciaSaidaCriticoHoras', 'reservaExpiraDias', 'bloquearPedidoAtrasoDias']:
         achou = [c for c in campos if c.startswith(chave + '=')]
-        ok(bool(achou) and not achou[0].endswith('=undefined'),
-           '%s tem campo e abre com o valor salvo: %s' % (chave, achou or 'ausente'))
-    pgp.fill('#atrasoDias', '0'); pgp.wait_for_timeout(300)
-    ok('desligado' in pgp.locator('#previaAtraso').inner_text().lower(),
+        ok(len(achou) == 1 and not achou[0].endswith('=undefined') and not achou[0].endswith('='),
+           '%s tem campo, numa tela so, e abre com o valor salvo: %s' % (chave, achou or 'ausente'))
+    pgcli.fill('#atrasoDias', '0'); pgcli.wait_for_timeout(300)
+    ok('desligado' in pgcli.locator('#previaAtraso').inner_text().lower(),
        'zero desliga a trava, e a tela diz isso em palavras')
     pgc = nova(pw, CONFIG, erros)
     switches = pgc.evaluate("() => Array.from(document.querySelectorAll('[data-param]')).map(s => s.getAttribute('data-param') + '=' + s.classList.contains('on'))")

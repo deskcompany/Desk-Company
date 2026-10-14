@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com a decisão de deixar os exemplos como estão e Pedidos de Venda abrindo o pedido clicado.*
+*Atualizado em 13/out/2026, com Parâmetros de estoque dividido em estoque e logística.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -64,6 +64,12 @@ telas prontas ficam como estão, a tela nova já nasce no padrão, e corrige-se 
 (§14.73). O que precisava era Pedidos de Venda: a lista mandava o número e a página ignorava. Está
 feito e espera o teste dele, junto com o botão "Abrir o romaneio", que não mandava o id.
 
+**O primeiro item da fila nova está feito e espera o teste dele** (§14.74). Parâmetros de estoque
+tinha nove seções, e cinco não eram de estoque. Agora são duas telas: Parâmetros de estoque e
+Parâmetros de logística. O bloqueio de cliente em atraso foi para Configurações do cadastro de
+clientes, por decisão dele. Na mesma resposta ele tirou da fila as cópias do número da meta (R6),
+pelo mesmo motivo dos outros alinhamentos de exemplo.
+
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
 (a lixeira da aba nova não removia o produto). O arquivo foi restaurado, o teste ganhou teto no laço
@@ -100,7 +106,7 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **42 de 56 (75%)**, em 81 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **42 de 56 (75%)**, em 82 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 75% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
@@ -323,12 +329,19 @@ de testar a conferência:
   de saldo. O clone parte do pedido aberto, e "Dados do cliente" abre o cadastro daquele cliente.
 - **"Abrir o romaneio"** leva o id. A página do romaneio conhece 3 dos 9; para os outros ela abre o
   romaneio padrão e avisa.
+- **Parâmetros de estoque se dividiu em dois** (§14.74). Em Parâmetros de estoque ficaram a
+  conferência de compra, o endereçamento, a base de picking, a compra e o giro, e a reserva do
+  pedido. Em Parâmetros de logística, tela nova, as filas do galpão, a expedição e o romaneio, o
+  MDF-e e a devolução. "Bloquear novo pedido de cliente em atraso" está em Configurações do
+  cadastro de clientes. Os 22 parâmetros continuam tendo tela, cada um numa só, e salvar numa tela
+  não mexe no que é da outra.
 
-**13. A verificação.** Doze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Treze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
-`teste_busca_setas.py`, `teste_cad_detalhe.py` e `teste_doc_detalhe.py`. Duzentos e trinta e oito
-defeitos injetados de propósito, um por vez; os duzentos e trinta e oito são pegos. A auditoria do
+`teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py` e `teste_parametros.py`. Duzentos
+e cinquenta e cinco defeitos injetados de propósito, um por vez; os duzentos e cinquenta e cinco são
+pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -340,18 +353,18 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **K1 e R6:** separar Parâmetros de estoque em estoque e logística; e a página da loja e o
-   Dashboard lerem a meta de Metas, em vez de terem número próprio.
-2. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma vez.
-3. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
+1. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma
+   vez. Combinado com o usuário: fazer numa lista só primeiro, para ele ver a folha, e só então
+   levar às outras 19.
+2. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
    novos: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
 exemplo (X1 a X7); os painéis dos outros cadastros (C3 a C8); os links V4 e L4, que dependiam dos
-alinhamentos; e o que sobrou do G3 (a página do romaneio conhecer os 9 romaneios, e "abrir a nota"
-na Entrada de Notas, que é o item E3).
+alinhamentos; o que sobrou do G3 (a página do romaneio conhecer os 9 romaneios, e "abrir a nota"
+na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), que ele tirou em seguida.
 
 ## Decidido, e ainda não feito de propósito
 

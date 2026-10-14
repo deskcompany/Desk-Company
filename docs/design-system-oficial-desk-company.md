@@ -3341,3 +3341,54 @@ saíram, e quem mudou foram os itens do pedido nº 2.
 **Provado nos dois sentidos, numa cópia.** `teste_doc_detalhe.py` ganhou cinco seções e passou a
 39 asserções; abre os 16 pedidos um por um. Quinze defeitos injetados, um por vez, e os quinze
 pegos.
+
+## 14.74 Parâmetros de estoque deixou de ser gaveta (item K1 — 13/out/2026)
+
+A tela tinha nove seções, e cinco não eram de estoque: filas do galpão, reserva e bloqueio por
+atraso, expedição e romaneio, MDF-e e devoluções de venda. Cada tela nova de Logística foi pondo o
+seu parâmetro ali, porque era a única tela de parâmetros que existia. Quem procurava o prazo da
+devolução não pensava em estoque.
+
+**Decisão do usuário.** Duas telas, estoque e logística. E o parâmetro que não é de nenhuma das
+duas, "Bloquear novo pedido de cliente em atraso", vai para Configurações do cadastro de clientes,
+que já existia: é regra sobre o cliente, e não pede tela nova.
+
+| tela | o que ficou |
+|---|---|
+| Parâmetros de estoque | Conferência de compra · Endereçamento · Estoque zero na base de picking · Compra e giro · Reserva de estoque |
+| Parâmetros de logística (nova) | Filas do galpão · Expedição e romaneio · MDF-e na carga própria · Devoluções de venda |
+| Configurações do cadastro de clientes | ganhou a seção "Cliente em atraso" |
+
+**Como foi feito.** A tela nova é a antiga sem as seções de estoque, e a antiga perdeu as de
+logística. O código da tela tratava as nove seções num bloco só (uma validação, uma função de
+prévias, uma lista de chaves); cada tela ficou com a sua parte, sem código morto da outra. A chave
+do parâmetro não mudou: quem lê `PARAM.devolucaoPrazoDias` continua lendo o mesmo valor.
+
+**Salvar numa tela não mexe no que é da outra.** Cada tela grava o objeto de parâmetros inteiro,
+que ela monta juntando o padrão dela com o que já estava salvo. O que é da outra tela vem do que
+estava salvo e volta igual. A suíte grava um prazo de logística, salva o estoque e confere que o
+prazo continua lá.
+
+**O que apareceu no caminho:**
+
+- O padrão de fábrica de cada tela é só o das chaves que ela conhece. O cadastro de clientes não
+  tinha o do bloqueio por atraso: sem ele, o campo abriria vazio num navegador que nunca salvou
+  nada. Ganhou o mesmo padrão que o Pedido de Venda lê (1 dia), e a suíte compara os dois.
+- A seção "Reserva de estoque e bloqueio por atraso" tinha uma prévia só, a do bloqueio. A reserva,
+  que ficou sozinha, ganhou a dela: "pedido sem pagamento há mais de N dias libera a reserva".
+- Duas suítes antigas abriam a tela única para procurar parâmetros que saíram dela. Passaram a
+  procurar onde cada um foi morar, e uma delas agora exige que o parâmetro esteja numa tela só.
+- A Devolução mandava para Parâmetros de estoque em "Abrir parâmetros da devolução". Manda para
+  logística.
+
+**Regra que fica:** parâmetro novo entra na tela do módulo que o lê, e não na tela de parâmetros
+que já existe. Se o módulo ainda não tem tela de parâmetros, ela nasce com o primeiro parâmetro.
+Cada parâmetro tem uma tela só; `teste_parametros.py` confere os 22 que a tela única guardava.
+
+**Na mesma resposta o usuário tirou da fila as cópias do número da meta (R6):** fazer a página da
+loja e o Dashboard lerem de Metas é arrumar exemplo entre telas prontas (§14.73).
+
+**Provado nos dois sentidos, numa cópia.** `teste_parametros.py` tem 37 asserções em cinco seções.
+Dezessete defeitos injetados, um por vez. Dezesseis foram pegos de primeira. O que escapou tirava da
+prévia da reserva o efeito ("libera a reserva sozinho") e deixava o prazo, e a asserção só olhava o
+prazo: passou a exigir os dois, e o defeito foi pego na segunda rodada.
