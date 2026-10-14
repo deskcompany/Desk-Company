@@ -338,11 +338,19 @@ constante.
 Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por etapas.
 
 1. **O resto do G3:** Pedidos de Venda, o Romaneio e a Nota de Entrada, que ainda abrem sempre o
-   mesmo exemplo. Os cinco cadastros (§14.71) e Ordens de Compra (§14.72) estão feitos.
+   mesmo exemplo. Os cinco cadastros (§14.71) e Ordens de Compra (§14.72) estão feitos. **Os três
+   que faltam não se resolvem só mandando o número, e por isso esperam o item 3:**
+   - *Pedidos de Venda:* o total da lista não fecha com os itens (o pedido nº 1 tem R$ 890,00 em
+     itens e R$ 1.890,00 de total; no nº 2 a lista e a página mostram itens diferentes), e esse
+     total está copiado em seis telas (Clientes, Caixa, Contas a Receber e CRM). 12 dos 16 pedidos
+     não têm itens no exemplo.
+   - *Romaneio:* a página conhece 3 dos 9 romaneios da lista (os despachados e os sugeridos do dia
+     não estão nela), e a lista só sabe quantos volumes cada pedido tem, não a embalagem de cada um.
+   - *Nota de Entrada:* a lista só leva à nota nova. Falta "abrir a nota", que é o item E3.
 2. **Os painéis dos outros cadastros** (C3 a C8): Produtos (que pede alinhar o exemplo com o Controle
    de Estoques antes), Lojas Desk, Vendedores, Depósitos, Endereços de Estoque, e onde Marcas,
    Categorias, Departamento, Seção e Embalagens são usados.
-3. **Os alinhamentos de exemplo** (X1 a X5), que destravam V4 e L4.
+3. **Os alinhamentos de exemplo** (X1 a X7), que destravam V4, L4 e o resto do G3.
 4. **K1 e R6:** Parâmetros de estoque e as cópias do número de meta.
 5. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma vez.
 6. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
@@ -377,6 +385,11 @@ Nenhuma destas trava o teste.
 2. **Os links do chat não trazem o navegador para a frente.** Nada no projeto nem no editor
    controla isso. O Windows tem o Chrome como padrão, e a página abria no Opera. Ele vai olhar antes
    de mexermos; existe um ajuste do Windows para tentar, que não foi aplicado.
+3. **A ordem da fila.** Proposta feita a ele em 13/out, sem resposta ainda: passar os alinhamentos
+   (item 3) para a frente. O resto do G3 depende deles, e também parte dos painéis do item 2: o de
+   Produtos (C3) pede o exemplo alinhado com o Controle de Estoques, e o do Vendedor (C5) poria
+   "pedidos do mês" ao lado de um "realizado" que hoje não é a soma dos pedidos (X5). Não dependem:
+   Lojas Desk (C4), Depósitos (C6), Endereços (C7) e "onde é usado" (C8).
 
 ## O que continua sendo dado de exemplo
 
