@@ -1705,8 +1705,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   // ===== LOJA DESK VINCULADA (nosso campo — em branco = autônomo) =====
-  inicializarDropdownSelect(document.getElementById('dropdownLojaVinculada'), (valor, texto) => {
-    document.getElementById('subtituloVendedor').textContent = valor ? 'Vinculado à ' + texto : 'Vendedor autônomo — sem vínculo com Loja Desk';
+  // O componente avisa so o valor; o rotulo se le do proprio dropdown. Lido de um segundo argumento
+  // que nunca veio, o subtitulo virava "Vinculado à undefined" na primeira troca de loja.
+  inicializarDropdownSelect(document.getElementById('dropdownLojaVinculada'), (valor) => {
+    document.getElementById('subtituloVendedor').textContent = valor ? 'Vinculado à ' + document.querySelector('#dropdownLojaVinculada .dropdown-select-label').textContent
+                                                                     : 'Vendedor autônomo — sem vínculo com Loja Desk';
   });
 
   // ===== PESSOA FÍSICA/JURÍDICA + DOCUMENTO =====
@@ -2030,6 +2033,66 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   aplicarTipoPessoaVendedor('fisica');
   aplicarTipoComissao('fixa');
   atualizarLabelPerfisContato();
+
+  // ===== O CADASTRO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data "Ver cadastro completo" abria sempre a Marina Costa, fosse qual fosse a linha clicada.
+  // Agora o endereco traz ?id=, e a pagina mostra aquele registro.
+  // A lista guarda o cadastro inteiro do vendedor: nada fica em branco por falta de dado.
+  // REGISTROS e ESPELHO de Cadastros > Vendedores (VENDEDORES). Mudou la, muda aqui; teste_cad_detalhe.py compara.
+  const REGISTROS = [
+    { id: 1, nome: 'Marina Costa', fantasia: '', codigo: '', tipoPessoa: 'fisica', documento: '123.456.789-00', contribuinte: 'nao_informado', inscricaoEstadual: '', cep: '', cidade: 'São Paulo', uf: 'SP', endereco: '', numero: '', bairro: '', complemento: '', situacao: 'ativo_acesso', excluido: false, deposito: 'padrao', emailComunicacoes: 'marina.costa@example.com', lojaVinculadaId: 1, usuarioSistema: 'marina.costa', acessoRestritoHorario: false, acessoRestritoIp: false, perfisContato: [], modulosAcesso: ['clientes', 'crm', 'pedidos_venda', 'performance_vendas'], regraComissao: 'parcial_parcelas', tipoComissao: 'fixa', aliquotaComissao: 5, desconsiderarComissaoPorLinha: false, observacoes: '' },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', fantasia: 'Vila Mariana Store', codigo: 'VM01', tipoPessoa: 'juridica', documento: '12.345.678/0001-90', contribuinte: 'contribuinte_icms', inscricaoEstadual: '112.233.445.667', cep: '', cidade: 'São Paulo', uf: 'SP', endereco: '', numero: '', bairro: '', complemento: '', situacao: 'ativo', excluido: false, deposito: 'padrao', emailComunicacoes: '', lojaVinculadaId: null, usuarioSistema: 'vilamariana.pdv', acessoRestritoHorario: true, acessoRestritoIp: false, perfisContato: ['cliente'], modulosAcesso: ['pdv', 'clientes'], regraComissao: 'integral_faturamento', tipoComissao: 'fixa', aliquotaComissao: 8, desconsiderarComissaoPorLinha: false, observacoes: 'Ponto de revenda sem vínculo — comissão liquidada direto com o parceiro, sem entrar no faturamento de nenhuma Loja Desk.' },
+    { id: 3, nome: 'Rafael Andrade', fantasia: '', codigo: '', tipoPessoa: 'fisica', documento: '', contribuinte: 'nao_informado', inscricaoEstadual: '', cep: '', cidade: '', uf: '', endereco: '', numero: '', bairro: '', complemento: '', situacao: 'inativo', excluido: false, deposito: 'padrao', emailComunicacoes: '', lojaVinculadaId: 3, usuarioSistema: 'rafael.andrade', acessoRestritoHorario: false, acessoRestritoIp: false, perfisContato: [], modulosAcesso: [], regraComissao: 'parcial_parcelas', tipoComissao: 'fixa', aliquotaComissao: 0, desconsiderarComissaoPorLinha: false, observacoes: '' },
+    { id: 4, nome: 'Cadastro Teste', fantasia: '', codigo: '', tipoPessoa: 'fisica', documento: '', contribuinte: 'nao_informado', inscricaoEstadual: '', cep: '', cidade: '', uf: '', endereco: '', numero: '', bairro: '', complemento: '', situacao: 'inativo', excluido: true, deposito: 'padrao', emailComunicacoes: '', lojaVinculadaId: null, usuarioSistema: 'teste.cadastro', acessoRestritoHorario: false, acessoRestritoIp: false, perfisContato: [], modulosAcesso: [], regraComissao: 'parcial_parcelas', tipoComissao: 'fixa', aliquotaComissao: 0, desconsiderarComissaoPorLinha: false, observacoes: '' }
+  ];
+  const ID_DO_EXEMPLO = 1;
+  // Id que a lista nao tem abre o exemplo, como o endereco sem id.
+  const REGISTRO = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return REGISTROS.filter(r => r.id === Number(q.get('id')))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
+  })();
+  // Como a lista chama cada modulo, e o nome dele na caixa de marcar daqui.
+  const ROTULO_MODULO = { clientes: 'Clientes', crm: 'CRM', pedidos_venda: 'Pedidos de Venda', performance_vendas: 'Metas e Performance', pdv: 'PDV' };
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  (function abrirRegistro() {
+    const r = REGISTRO;
+    if (!r) return;   // cadastro novo: quem esvazia a pagina e o bloco do ?novo=1
+    document.getElementById('tituloVendedor').textContent = r.nome;
+    aplicarTipoPessoaVendedor(r.tipoPessoa);
+    const campos = { inputNomeVendedor: r.nome, inputFantasiaVendedor: r.fantasia, inputCodigoVendedor: r.codigo, inputDocumentoVendedor: r.documento,
+                     inputInscricaoEstadual: r.inscricaoEstadual, inputCepVendedor: r.cep, inputCidadeVendedor: r.cidade, inputEnderecoVendedor: r.endereco,
+                     inputBairroVendedor: r.bairro, inputNumeroVendedor: r.numero, inputComplementoVendedor: r.complemento, inputEmailComunicacoes: r.emailComunicacoes,
+                     inputUsuarioSistema: r.usuarioSistema, inputAliquotaComissao: r.aliquotaComissao, inputObservacoesVendedor: r.observacoes };
+    Object.keys(campos).forEach(id => { document.getElementById(id).value = campos[id]; });
+    porNoDropdown('dropdownContribuinte', r.contribuinte);
+    porNoDropdown('dropdownUf', r.uf);
+    porNoDropdown('dropdownDeposito', r.deposito);
+    porNoDropdown('dropdownRegraComissao', r.regraComissao);
+    porNoDropdown('dropdownLojaVinculada', r.lojaVinculadaId || '');
+    porNoDropdown('dropdownSituacao', r.situacao);
+    if (r.excluido) document.getElementById('statusBadge').textContent = 'Excluído';
+    document.getElementById('chkAcessoHorario').checked = r.acessoRestritoHorario;
+    document.getElementById('chkAcessoIp').checked = r.acessoRestritoIp;
+    document.getElementById('chkDesconsiderarComissaoLinha').checked = r.desconsiderarComissaoPorLinha;
+    document.querySelectorAll('.perfil-checkbox').forEach(cb => { cb.checked = r.perfisContato.includes(cb.value); });
+    const modulos = r.modulosAcesso.map(k => ROTULO_MODULO[k]);
+    document.querySelectorAll('#listaModulosAcesso .checklist-row').forEach(l => { l.querySelector('input').checked = modulos.includes(l.querySelector('label').textContent); });
+    document.querySelectorAll('input[name="tipoComissao"]').forEach(x => { x.checked = x.value === r.tipoComissao; });
+    aplicarTipoComissao(r.tipoComissao);
+    atualizarLabelPerfisContato();
+  })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

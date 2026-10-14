@@ -9,14 +9,18 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 | situação | itens |
 |---|---|
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
-| **Feito no principal, com resto anotado** (21) | C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | G3 · C3 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
-| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) |
+| **Feito no principal, com resto anotado** (22) | G3 · C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
+| **Falta** | C3 a C8 · V4 e L4 (esperam X4 e X5) · K1 · R6 · a limpeza de código das 17 telas |
+| **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 (13/out) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
 O que entrou e o que falta em cada item feito no principal:
 
+- **G3** (a página de detalhe abrir o registro clicado): feito nos cinco cadastros em 13/out. O link
+  do painel leva `?id=`, e a página mostra o que a lista sabe daquele registro; só o registro do
+  exemplo tem o cadastro inteiro. Faltam as outras seis páginas: Pedidos de Venda, Ordens de Compra,
+  Entrada de Notas, lançamento do Caixa, Conferência de Saída e Romaneio.
 - **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve (lido
   de Contas a Receber desde 12/out, que é a dona do número), com
   links para os pedidos, as contas a receber e o CRM. Faltam os títulos vencidos em separado, os
@@ -38,9 +42,9 @@ O que entrou e o que falta em cada item feito no principal:
   contas a pagar e de quantos produtos ele é o fornecedor padrão. A lista dos produtos mora no
   cadastro, na aba Produtos Fornecidos (custo e pedido mínimo do fornecedor, custo médio, giro, preço
   de venda e lucro por unidade). O preço de venda de exemplo mora nessa aba até o item C3 alinhar o
-  cadastro de Produtos. Faltam: a página de
-  detalhe do fornecedor continua abrindo o exemplo fixo (item G3), e os outros oito registros do
-  cadastro ainda têm nome de pessoa, sem compra nenhuma.
+  cadastro de Produtos. A página do fornecedor
+  abre o registro clicado desde 13/out (G3). Falta: os outros oito registros do cadastro ainda têm
+  nome de pessoa, sem compra nenhuma.
 - **E10** (Tratamento de Perdas): no painel do item, a origem leva à nota e à ficha do pedido na
   Separação e na Conferência de Saída. Faltam a devolução e o acerto (o exemplo de Devolução tem
   outros produtos, e o Acerto não tem lista), e o link no histórico dos resolvidos, que cita um
@@ -112,6 +116,10 @@ Entrou na lista em 12/out:
 - **X5 · O realizado de Metas e os pedidos** (M). O realizado de cada loja é número próprio da tela,
   e não a soma dos pedidos faturados. Sem alinhar, o item V4 ("ver os pedidos do mês") mostraria
   uma lista que não fecha com o número.
+- **X6 · Fornecedores e clientes de Finanças e os do cadastro** (M). Contas a Pagar tem dez
+  fornecedores de exemplo, e só três estão no cadastro (TechParts, Luminárias Brasil e Papelaria
+  Central), com outra numeração. Em Contas a Receber falta o "Consumidor Final". O link "visualizar
+  dados" vai pelo nome; nome que o cadastro não tem abre o cadastro de exemplo.
 - **X3 · O pedido andar de uma fila para a outra** (G). Concluir a separação guarda o que foi feito,
   mas o pedido não aparece sozinho na fila da Conferência de Saída: cada tela tem a sua lista.
 

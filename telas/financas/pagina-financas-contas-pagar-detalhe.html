@@ -2667,7 +2667,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   // O link nao inventa uma tela: leva ao cadastro do fornecedor que ja existe.
   document.getElementById('linkVerFornecedor').addEventListener('click', () => {
-    window.location.href = '../cadastros/pagina-cadastros-fornecedores-detalhe.html?id=' + fornEscolhido;
+    // Pelo nome: os numeros dos fornecedores daqui nao sao os do cadastro.
+    window.location.href = '../cadastros/pagina-cadastros-fornecedores-detalhe.html?nome=' + encodeURIComponent(fornDe(fornEscolhido).nome);
   });
 
   // ===== MENUS =====

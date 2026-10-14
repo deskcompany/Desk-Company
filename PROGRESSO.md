@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com as setas nas buscas de produto e as decisões do fim do dia.*
+*Atualizado em 13/out/2026, com o cadastro completo abrindo o registro clicado nos cinco cadastros.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -55,6 +55,12 @@ GitHub voltou a ser feito a cada entrega; só a publicação na Cloudflare conti
 chat que não trazem o navegador para a frente ele vai olhar antes de mexermos. **O trabalho segue
 numa conversa só**, e ele mandou seguir a fila do item 1 ao 6, começando pela página de detalhe
 abrir o registro clicado.
+
+**O primeiro item da fila está feito nos cinco cadastros, e espera o teste dele** (§14.71). Em
+Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk, "Ver cadastro completo" abre o registro
+clicado; antes, qualquer fornecedor abria a TechParts. Faltam as outras seis páginas de detalhe do
+mesmo item: Pedidos de Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência
+de Saída e Romaneio.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -293,12 +299,24 @@ de testar a conferência:
   a volta no fim, e o Enter escolhe o item marcado. Vale nas cinco telas que usam a busca padrão
   (Acerto, Nova Transferência, Tratamento de Perdas, Movimentação e Produtos Fornecidos); antes, só o
   PDV tinha.
+- **O cadastro completo abre o registro clicado** (§14.71, item G3), nos cinco cadastros. A página
+  mostra o que a lista sabe daquele registro (título, situação, documento, endereço, contato). Só o
+  registro do exemplo tem o cadastro inteiro desenhado; nos outros, o que a lista não sabe fica em
+  branco, em vez de herdar o dado do exemplo. No fornecedor, a aba Produtos Fornecidos traz os
+  produtos de que ele é o fornecedor padrão.
+- **Quatro defeitos de antes, achados no caminho:** trocar a loja ou a categoria no cadastro
+  estragava o subtítulo ("Cadastro Manual — undefined", "Vinculado à undefined"); o cadastro novo
+  herdava código, contatos, anexos e custo do exemplo; o documento duplicado do cliente acusaria o
+  próprio cliente aberto; e o fornecedor do exemplo mostrava "Fornece para" e "Fornecedor desde" de
+  outro registro.
+- **Contas a Pagar e Contas a Receber** levam ao cadastro do fornecedor e do cliente pelo nome: a
+  numeração delas não é a do cadastro.
 
-**13. A verificação.** Dez suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Onze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
-`teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py` e
-`teste_busca_setas.py`. Cento e noventa e seis defeitos injetados de propósito, um por vez; os cento
-e noventa e seis são pegos. A auditoria do
+`teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
+`teste_busca_setas.py` e `teste_cad_detalhe.py`. Duzentos e dez defeitos injetados de propósito, um
+por vez; os duzentos e dez são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -310,9 +328,9 @@ constante.
 
 Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por etapas.
 
-1. **A página de detalhe abrir o registro clicado** (G3). Hoje 11 páginas abrem sempre o mesmo
-   exemplo. Começa pelos cinco cadastros: com "Ver cadastro completo", clicar em qualquer fornecedor
-   abre sempre a TechParts.
+1. **O resto do G3:** as seis páginas de detalhe que ainda abrem sempre o mesmo exemplo (Pedidos de
+   Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência de Saída e Romaneio).
+   Os cinco cadastros estão feitos (§14.71).
 2. **Os painéis dos outros cadastros** (C3 a C8): Produtos (que pede alinhar o exemplo com o Controle
    de Estoques antes), Lojas Desk, Vendedores, Depósitos, Endereços de Estoque, e onde Marcas,
    Categorias, Departamento, Seção e Embalagens são usados.
@@ -362,8 +380,14 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
   feito, mas o pedido não aparece na fila da Conferência de Saída por causa disso.
 - **Quatro títulos de Contas a Receber** têm cliente ou valor diferente do pedido que citam, e os
   romaneios da Expedição levam pedidos que o Pedido de Venda dá como em separação.
-- **11 páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada (item
-  G3 da lista).
+- **6 páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada (o que
+  falta do item G3). Os cinco cadastros já abrem o registro clicado, mas só o registro do exemplo
+  tem o cadastro inteiro: dos outros a página mostra o que a lista sabe.
+- **Fornecedor ou cliente de Finanças que o cadastro não tem** (sete dos dez fornecedores de Contas
+  a Pagar, e o "Consumidor Final" de Contas a Receber): "visualizar dados" abre o cadastro de
+  exemplo. É o item X6.
+- **A categoria do produto não aparece no cadastro completo:** a página só aceita categoria depois
+  da Loja Desk, e a lista não diz a loja. Entra com o C3.
 - **A venda do PDV e a ordem criada em Necessidades de Compra** não aparecem em todas as telas
   vizinhas (a ordem aparece em Ordens de Compra; a página dela abre o exemplo fixo).
 - **Os valores financeiros do Dashboard** são próprios, e os de cada loja são uma fatia do total.

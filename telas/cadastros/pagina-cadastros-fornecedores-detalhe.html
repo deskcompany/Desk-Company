@@ -718,7 +718,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1 id="tituloFornecedor">TechParts Distribuidora</h1>
-      <div class="subtitle">FOR-0002 · <span id="origemTexto">Eletrônicos e Componentes</span></div>
+      <div class="subtitle"><span id="codigoTexto">FOR-0002</span> · <span id="origemTexto">Eletrônicos e Componentes</span></div>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
   <span class="status-badge" id="statusBadge" style="background:var(--success); color:#fff;">Ativo</span>
@@ -729,11 +729,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="lojas-atividade">
-    <span class="lojas-atividade-label">Fornece para:</span>
-    <span class="origem-badge" style="background:var(--brand-blue);">Desk Tech</span>
-    <span class="origem-badge" style="background:var(--brand-blue);">Desk Brands</span>
-  </div>
+  <div class="lojas-atividade" id="faixaLojas"></div>
 
   <div class="tabs-row">
     <div class="tab-item active" data-tab="gerais">Dados Gerais</div>
@@ -948,7 +944,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field">
         <label>Fornecedor desde</label>
-        <input type="text" id="inputDataCriacao" value="03/09/2026" readonly>
+        <input type="text" id="inputDataCriacao" value="02/07/2025" readonly>
       </div>
     </div>
 
@@ -1641,8 +1637,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     else { badge.textContent = 'Inativo'; badge.style.background = 'var(--text)'; }
   });
   // Categoria de fornecimento: substitui "loja de cadastro" de Clientes — fornecedor não se cadastra em vitrine.
-  inicializarDropdownSelect(document.getElementById('inputLoja'), (valor, texto) => {
-    document.getElementById('origemTexto').textContent = texto;
+  // O componente avisa so o valor; o rotulo se le do proprio dropdown. Lido de um segundo argumento
+  // que nunca veio, o subtitulo ficava em branco na primeira troca de categoria.
+  inicializarDropdownSelect(document.getElementById('inputLoja'), () => {
+    document.getElementById('origemTexto').textContent = document.querySelector('#inputLoja .dropdown-select-label').textContent;
   });
   inicializarDropdownSelect(document.getElementById('inputRegimeTributario'));
   inicializarDropdownSelect(document.getElementById('inputStatusCrm'));
@@ -1670,6 +1668,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('checkEnderecoCobranca').addEventListener('change', (e) => {
     document.getElementById('blocoEnderecoCobranca').style.display = e.target.checked ? 'block' : 'none';
   });
+
+  // ===== O CADASTRO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data "Ver cadastro completo" abria sempre a TechParts, fosse qual fosse a linha clicada.
+  // Agora o endereco traz ?id= (ou ?nome=, para quem chega de outra tela), e a pagina mostra aquele registro.
+  // A pagina so tem um cadastro desenhado por inteiro, o do exemplo (ID_DO_EXEMPLO). Dos outros ela
+  // mostra o que a lista sabe, e deixa em branco o que so o cadastro completo guardaria
+  // (nome fantasia, CEP, complemento, pessoas de contato, anexos, observacoes).
+  // REGISTROS e ESPELHO de Cadastros > Fornecedores (FORNECEDORES). Mudou la, muda aqui; teste_cad_detalhe.py compara.
+  const REGISTROS = [
+    { id: 1, codigo: 'FOR-0001', tipo: 'juridica', nome: 'Móveis Nordeste Ltda', documento: '12.345.678/0001-90', email: 'compras@moveisnordeste.com.br', telefone: '(85) 3261-4401', endereco: 'Rua das Acácias', numero: '120', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-1)', fornecePara: ['Desk Shope'], fornecedorDesde: '14/03/2025' },
+    { id: 2, codigo: 'FOR-0002', tipo: 'juridica', nome: 'TechParts Distribuidora', documento: '98.765.432/0001-10', email: 'vendas@techparts.com.br', telefone: '(11) 3524-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'São Paulo', estado: 'SP', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '02/07/2025' },
+    { id: 3, codigo: 'FOR-0003', tipo: 'juridica', nome: 'Distribuidora Nordeste Ltda', documento: '41.223.556/0001-09', email: 'contato@distnordeste.com.br', telefone: '(99) 3524-1180', endereco: 'Rod. BR-010', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', estado: 'MA', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--chart-3)', fornecePara: ['Desk Tech', 'Desk Brands'], fornecedorDesde: '03/09/2026' },
+    { id: 4, codigo: 'FOR-0004', tipo: 'juridica', nome: 'Nordic Home Importação', documento: '45.222.111/0001-33', email: 'comercial@nordichome.com.br', telefone: '(11) 4191-7704', endereco: 'Rua São Francisco', numero: '58', bairro: 'Nova Imperatriz', cidade: 'Barueri', estado: 'SP', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--warning)', fornecedorDesde: '21/11/2024' },
+    { id: 5, codigo: 'FOR-0005', tipo: 'juridica', nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br', telefone: '(99) 3524-7788', endereco: 'Av. Bernardo Sayão', numero: '410', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '09/01/2025' },
+    { id: 6, codigo: 'FOR-0006', tipo: 'juridica', nome: 'Tecidos Ceará S/A', documento: '77.888.999/0001-44', email: 'pedidos@tecidosceara.com.br', telefone: '(85) 3477-2206', endereco: 'Rua Urbano Santos', numero: '77', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '30/05/2024' },
+    { id: 7, codigo: 'FOR-0007', tipo: 'juridica', nome: 'Embalagens do Vale', documento: '55.666.777/0001-66', email: 'vendas@embalagensdovale.com.br', telefone: '(88) 3512-9907', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Juazeiro do Norte', estado: 'CE', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '17/02/2025' },
+    { id: 8, codigo: 'FOR-0008', tipo: 'juridica', nome: 'Móveis Bom Preço Ltda', documento: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br', telefone: '(99) 3524-9910', endereco: 'Av. Tancredo Neves', numero: '1520', bairro: 'Boa Esperança', cidade: 'Imperatriz', estado: 'MA', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '12/08/2025' },
+    { id: 9, codigo: 'FOR-0009', tipo: 'juridica', nome: 'Luminárias Brasil', documento: '33.444.555/0001-77', email: 'comercial@luminariasbrasil.com.br', telefone: '(31) 3290-1109', endereco: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Belo Horizonte', estado: 'MG', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-3)', fornecedorDesde: '05/04/2025' },
+    { id: 10, codigo: 'FOR-0010', tipo: 'fisica', nome: 'Larissa Monteiro', documento: '789.012.345-66', email: 'larissa.monteiro@gmail.com', telefone: '(99) 98234-5510', endereco: 'Rua Duque de Caxias', numero: '99', bairro: 'Centro', cidade: 'Estreito', estado: 'MA', categoria: 'Prestação de Serviços', status: 'inativo', cor: 'var(--warning)', fornecedorDesde: '19/10/2024' },
+    { id: 11, codigo: 'FOR-0011', tipo: 'juridica', nome: 'Auto Peças Imperatriz Ltda', documento: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br', telefone: '(99) 3524-3320', endereco: 'Av. JK', numero: '670', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', categoria: 'Autopeças', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '25/06/2025' },
+    { id: 12, codigo: 'FOR-0012', tipo: 'fisica', nome: 'Bruno Carvalho', documento: '890.123.456-77', email: 'bruno.carvalho@hotmail.com', telefone: '(99) 98234-5512', endereco: 'Rua Simplício Moreira', numero: '43', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '08/12/2024' },
+    { id: 13, codigo: 'FOR-0013', tipo: 'fisica', nome: 'Patrícia Farias', documento: '901.234.567-88', email: 'patricia.farias@gmail.com', telefone: '(99) 98234-5513', endereco: 'Rua Pernambuco', numero: '187', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '02/02/2025' },
+    { id: 14, codigo: 'FOR-0014', tipo: 'juridica', nome: 'Papelaria Central', documento: '11.222.333/0001-55', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '14/09/2024' }
+  ];
+  const ID_DO_EXEMPLO = 2;
+  // shortcut: nome que o cadastro nao tem abre o exemplo, como antes; acaba quando Financas e o cadastro tiverem os mesmos nomes (X6).
+  const REGISTRO = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return REGISTROS.filter(r => r.id === Number(q.get('id')) || r.nome === q.get('nome'))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
+  })();
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [
@@ -1749,7 +1778,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { sku: 'MON-27I-015', custo: 1120.00, minimo: 2 },
     { sku: 'LUM-LED-004', custo: 92.00, minimo: 10 }
   ];
-  const FORNECEDOR_DA_PAGINA = document.getElementById('inputNome').value;
+  const FORNECEDOR_DA_PAGINA = REGISTRO ? REGISTRO.nome : null;
   const produtoPf = (sku) => CATALOGO.filter(x => x.sku === sku)[0];
   const dinheiroPf = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const numeroPf = (n, casas) => isNaN(n) ? '' : n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: 2 });
@@ -1915,6 +1944,42 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     aoSalvarCadastro('../cadastros/pagina-cadastros-fornecedores.html', document.getElementById('btnSalvarFornecedor'));
   });
+
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  // Poe o registro aberto na pagina, antes de qualquer coisa ser desenhada.
+  (function abrirRegistro() {
+    const r = REGISTRO, faixa = document.getElementById('faixaLojas');
+    if (!r || r.id !== ID_DO_EXEMPLO) {
+      document.querySelectorAll('.main input, .main textarea').forEach(c => { if (c.type !== 'checkbox' && c.type !== 'radio' && c.type !== 'file') c.value = ''; });
+      CONTATOS = []; ANEXOS = [];
+      // O painel da lista diz de quantos produtos ele e o fornecedor padrao e manda ver a lista aqui:
+      // sao os do catalogo. Custo e pedido minimo deste fornecedor a lista nao sabe; entram o custo
+      // medio e 1, e a pessoa corrige.
+      FORNECIDOS = r ? CATALOGO.filter(p => p.padrao === r.nome).map(p => ({ sku: p.sku, custo: p.custoMedio, minimo: 1 })) : [];
+    }
+    faixa.style.display = r && r.fornecePara ? '' : 'none';
+    if (!r) return;
+    if (r.fornecePara) faixa.innerHTML = '<span class="lojas-atividade-label">Fornece para:</span>' + r.fornecePara.map(l => '<span class="origem-badge" style="background:var(--brand-blue);">' + l + '</span>').join('');
+    document.getElementById('tituloFornecedor').textContent = r.nome;
+    document.getElementById('codigoTexto').textContent = r.codigo;
+    aplicarTipoPessoa(r.tipo);
+    const campos = { inputNome: r.nome, inputCodigo: r.codigo, inputDocumento: r.documento, inputCidade: r.cidade, inputEstado: r.estado, inputEndereco: r.endereco,
+                     inputNumero: r.numero, inputBairro: r.bairro, inputTelefone: r.telefone, inputEmail: r.email, inputDataCriacao: r.fornecedorDesde };
+    Object.keys(campos).forEach(id => { document.getElementById(id).value = campos[id]; });
+    porNoDropdown('inputSituacao', r.status);
+    porNoDropdown('inputLoja', r.categoria);
+  })();
 
   renderContatos();
   renderAnexos();

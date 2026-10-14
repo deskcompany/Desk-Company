@@ -1578,6 +1578,54 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderContatos();
   renderHistoricoMetas();
 
+  // ===== O CADASTRO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data "Ver cadastro completo" abria sempre a Desk Shope, fosse qual fosse a linha clicada.
+  // Agora o endereco traz ?id=, e a pagina mostra aquele registro.
+  // Deposito padrao e historico de metas a lista nao sabe: so a loja do exemplo (ID_DO_EXEMPLO) os tem.
+  // REGISTROS e ESPELHO de Cadastros > Lojas Desk (LOJAS). Mudou la, muda aqui; teste_cad_detalhe.py compara.
+  const REGISTROS = [
+    { id: 1, nome: 'Desk Shope', tipo: 'produto', status: 'ativo', tipoPessoa: 'juridica', documento: '', contatos: [], cep: '', cidade: '', estado: '', endereco: '', numero: '', bairro: '', observacoes: 'Loja online principal — catálogo geral, vitrine em construção (F3).' },
+    { id: 2, nome: 'Desk Brands', tipo: 'produto', status: 'ativo', tipoPessoa: 'juridica', documento: '', contatos: [], cep: '', cidade: '', estado: '', endereco: '', numero: '', bairro: '', observacoes: 'Marca própria — vestuário e itens de marca Desk.' },
+    { id: 3, nome: 'Desk Tech', tipo: 'servico', status: 'ativo', tipoPessoa: 'juridica', documento: '', contatos: [], cep: '', cidade: '', estado: '', endereco: '', numero: '', bairro: '', observacoes: 'Assistência técnica — ordens de serviço, não usa o fluxo de Pedidos.' }
+  ];
+  const ID_DO_EXEMPLO = 1;
+  // Id que a lista nao tem abre o exemplo, como o endereco sem id.
+  const REGISTRO = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return REGISTROS.filter(r => r.id === Number(q.get('id')))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
+  })();
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  (function abrirRegistro() {
+    const r = REGISTRO;
+    if (!r || r.id !== ID_DO_EXEMPLO) {
+      porNoDropdown('inputDepositoPadrao', '');
+      HISTORICO_METAS.length = 0;
+      renderHistoricoMetas();
+    }
+    if (!r) return;
+    document.getElementById('tituloLoja').textContent = r.nome;
+    aplicarTipoLoja(r.tipo);
+    aplicarTipoPessoaLoja(r.tipoPessoa);
+    const campos = { inputNomeLoja: r.nome, inputDocumentoLoja: r.documento, inputCepLoja: r.cep, inputCidadeLoja: r.cidade, inputEstadoLoja: r.estado,
+                     inputEnderecoLoja: r.endereco, inputNumeroLoja: r.numero, inputBairroLoja: r.bairro, inputObservacoesLoja: r.observacoes };
+    Object.keys(campos).forEach(id => { document.getElementById(id).value = campos[id]; });
+    porNoDropdown('inputStatusLoja', r.status);
+    CONTATOS = r.contatos.length ? r.contatos.slice() : [{ rotulo: '', numero: '' }];
+    renderContatos();
+  })();
+
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
   // chips). A cor de fundo desses elementos vem de mapa em JS, por style inline,

@@ -765,7 +765,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1 id="tituloProduto">Fone de Ouvido Bluetooth X200</h1>
-      <div class="subtitle">PROD-0001 · SKU <span id="skuTexto">ELE-1001</span></div>
+      <div class="subtitle"><span id="codigoTexto">PROD-0001</span> · SKU <span id="skuTexto">ELE-1001</span></div>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
       <span class="status-badge" id="statusBadge" style="background:var(--success); color:#fff;">Ativo</span>
@@ -2628,6 +2628,69 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderCustos();
   renderFornecedoresProduto();
+
+  // ===== O CADASTRO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data "Ver cadastro completo" abria sempre o Fone de Ouvido Bluetooth X200, fosse qual fosse a linha clicada.
+  // Agora o endereco traz ?id=, e a pagina mostra aquele registro.
+  // A pagina so tem um cadastro desenhado por inteiro, o do exemplo (ID_DO_EXEMPLO). Dos outros ela
+  // mostra o que a lista sabe, e deixa em branco o que so o cadastro completo guardaria
+  // (unidade, pesos, embalagem, custos, fornecedores, imagens).
+  // REGISTROS e ESPELHO de Cadastros > Produtos (PRODUTOS). Mudou la, muda aqui; teste_cad_detalhe.py compara.
+  const REGISTROS = [
+    { id: 1, codigo: 'PROD-0001', tipo: 'simples', nome: 'Fone de Ouvido Bluetooth X200', sku: 'ELE-1001', categoria: 'Eletrônicos', preco: 129.90, estoque: 42, status: 'ativo' },
+    { id: 2, codigo: 'PROD-0002', tipo: 'variacoes', nome: 'Camiseta Básica Algodão', sku: 'VES-2001', categoria: 'Vestuário e Acessórios', preco: 39.90, estoque: 120, status: 'ativo' },
+    { id: 3, codigo: 'PROD-0003', tipo: 'simples', nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', preco: 18.50, estoque: 8, status: 'ativo' },
+    { id: 4, codigo: 'PROD-0004', tipo: 'kit', nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', preco: 349.90, estoque: 5, status: 'ativo' },
+    { id: 5, codigo: 'PROD-0005', tipo: 'materia_prima', nome: 'Filamento PLA 1kg', sku: 'ELE-1002', categoria: 'Eletrônicos', preco: 89.90, estoque: 30, status: 'ativo' },
+    { id: 6, codigo: 'PROD-0006', tipo: 'variacoes', nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', preco: 199.90, estoque: 60, status: 'ativo' },
+    { id: 7, codigo: 'PROD-0007', tipo: 'simples', nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', categoria: 'Eletrônicos', preco: 59.90, estoque: 0, status: 'ativo' },
+    { id: 8, codigo: 'PROD-0008', tipo: 'simples', nome: 'Luminária de Mesa LED', sku: 'MOB-4002', categoria: 'Mobiliário e Decoração', preco: 79.90, estoque: 15, status: 'ativo' },
+    { id: 9, codigo: 'PROD-0009', tipo: 'kit', nome: 'Kit Papelaria Volta às Aulas', sku: 'PAP-3002', categoria: 'Papelaria', preco: 64.90, estoque: 22, status: 'ativo' },
+    { id: 10, codigo: 'PROD-0010', tipo: 'variacoes', nome: 'Jaqueta Corta-Vento', sku: 'VES-2003', categoria: 'Vestuário e Acessórios', preco: 159.90, estoque: 18, status: 'inativo' },
+    { id: 11, codigo: 'PROD-0011', tipo: 'simples', nome: 'Carregador USB-C 20W', sku: 'ELE-1004', categoria: 'Eletrônicos', preco: 45.00, estoque: 3, status: 'ativo' },
+    { id: 12, codigo: 'PROD-0012', tipo: 'simples', nome: 'Organizador de Mesa Bambu', sku: 'MOB-4003', categoria: 'Mobiliário e Decoração', preco: 54.90, estoque: 27, status: 'ativo' },
+    { id: 13, codigo: 'PROD-0013', tipo: 'materia_prima', nome: 'Tecido Algodão (metro)', sku: 'VES-2004', categoria: 'Vestuário e Acessórios', preco: 24.90, estoque: 200, status: 'ativo' },
+    { id: 14, codigo: 'PROD-0014', tipo: 'simples', nome: 'Caneta Esferográfica Caixa c/50', sku: 'PAP-3003', categoria: 'Papelaria', preco: 32.00, estoque: 0, status: 'inativo' }
+  ];
+  const ID_DO_EXEMPLO = 1;
+  // Id que a lista nao tem abre o exemplo, como o endereco sem id.
+  const REGISTRO = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return REGISTROS.filter(r => r.id === Number(q.get('id')))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
+  })();
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  (function abrirRegistro() {
+    const r = REGISTRO;
+    if (!r || r.id !== ID_DO_EXEMPLO) {
+      document.querySelectorAll('.main input, .main textarea').forEach(c => { if (c.type !== 'checkbox' && c.type !== 'radio' && c.type !== 'file') c.value = ''; });
+      custosProduto = []; fornecedoresProduto = [];
+      renderCustos(); renderFornecedoresProduto();
+    }
+    if (!r) return;
+    document.getElementById('tituloProduto').textContent = r.nome;
+    document.getElementById('codigoTexto').textContent = r.codigo;
+    document.getElementById('skuTexto').textContent = r.sku;
+    const badge = document.getElementById('statusBadge');
+    badge.textContent = r.status === 'ativo' ? 'Ativo' : 'Inativo';
+    badge.style.background = r.status === 'ativo' ? 'var(--success)' : 'var(--text)';
+    const campos = { inputNomeProduto: r.nome, inputSku: r.sku, inputEstoqueInicial: r.estoque,
+                     inputPrecoVenda: r.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) };
+    Object.keys(campos).forEach(id => { document.getElementById(id).value = campos[id]; });
+    // A lista tem um tipo "kit" so; aqui ele se divide em dois, e o simples e o que nao pede mais nada.
+    porNoDropdown('inputTipoProduto', r.tipo === 'kit' ? 'kit_simples' : r.tipo);
+  })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

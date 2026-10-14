@@ -3171,3 +3171,61 @@ que ainda não existe); e o envio ao GitHub volta a ser feito a cada entrega.
 Cinco defeitos injetados, um por vez, e os cinco pegos: tela sem o bloco, Enter que escolhe o
 primeiro, seta que não dá a volta, seta que deixa dois itens ativos e Enter que deixa a tela
 escolher de novo.
+
+## 14.71 O cadastro completo abre o registro clicado (item G3, nos cinco cadastros — 13/out/2026)
+
+Primeiro item da fila que o usuário mandou seguir. Com "Ver cadastro completo" (§14.69), clicar em
+qualquer fornecedor abria a TechParts: a página de detalhe desenhava um exemplo fixo. Valia para
+Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk.
+
+**Como ficou.** O link do painel leva `?id=`. A página de detalhe tem `REGISTROS`, espelho do array
+da lista, e um bloco "O CADASTRO QUE VEIO DA LISTA" que põe o registro na tela antes de qualquer
+coisa ser desenhada: título, subtítulo, situação, tipo de pessoa e os campos que a lista conhece.
+Sem `?id=`, ou com um que não existe, abre o exemplo de antes.
+
+**Só o exemplo tem cadastro completo.** A página desenha um registro por inteiro (nome fantasia,
+CEP, pessoas de contato, anexos). Dos outros ela mostra o que a lista sabe e deixa o resto em
+branco: herdar o contato da TechParts no cadastro da Móveis Nordeste seria dado falso. Vendedores
+e Lojas Desk não têm essa diferença nos campos, porque a lista deles já guarda o cadastro inteiro;
+na loja, ficam em branco o depósito padrão e o histórico de metas.
+
+**O que a página deriva.** No fornecedor, a aba Produtos Fornecidos traz os produtos de que ele é
+o fornecedor padrão no catálogo, que é o número que o painel da lista mostra. Custo e pedido mínimo
+dele a lista não sabe: entram o custo médio e 1, editáveis. No cliente, quem veio de uma loja tem
+"Cadastro pela loja — Desk Tech" no subtítulo e a loja no campo; no cadastro manual a lista não
+diz a loja, e fica a do formulário.
+
+**Quatro defeitos que apareceram no caminho, todos de antes:**
+
+- Trocar a loja ou a categoria no cadastro estragava o subtítulo: "Cadastro Manual — undefined" no
+  cliente, "Vinculado à undefined" no vendedor, em branco no fornecedor. A tela lia um segundo
+  argumento que o dropdown nunca mandou. Agora lê o rótulo do próprio dropdown.
+- O cadastro novo herdava do exemplo o código, a data, dois contatos em branco, dois anexos e a
+  faixa das lojas (cliente e fornecedor); a linha de custo e o fornecedor (produto); o histórico de
+  metas (loja). Abre vazio.
+- O documento duplicado do cliente comparava com seis nomes fixos e poupava sempre o CNPJ da
+  Distribuidora Nordeste: aberto outro cliente, salvar acusaria o documento dele mesmo. Passou a
+  usar o espelho e a poupar o registro aberto.
+- No cadastro do fornecedor, a faixa "Fornece para" e a data "Fornecedor desde" eram as do cliente
+  de quem a página foi copiada, e não as da TechParts na lista. Passaram a vir do registro.
+
+**De outra tela, o link vai pelo nome.** Contas a Pagar e Contas a Receber já mandavam `?id=`, mas
+com a numeração delas, que não é a do cadastro (a TechParts é 10 lá e 2 aqui): com a página
+passando a obedecer o id, abririam o registro errado. Mandam `?nome=`. Nome que o cadastro não tem
+abre o exemplo, como antes; isso é dado de exemplo por alinhar, e virou o item X6.
+
+**Regras que ficam:**
+
+- Página de detalhe nova lê o registro do endereço. O espelho da lista é declarado e tem suíte que
+  compara.
+- O que a lista não sabe fica em branco. Não se completa um registro com o dado do exemplo.
+- Link entre telas com numeração diferente vai pelo nome, e isso fica dito num comentário.
+- Dropdown sem valor fica em branco, com a altura dos outros.
+
+**Ficou de fora:** a categoria do produto, que a página só aceita depois de escolhida a Loja Desk,
+e a lista não diz a loja (entra com o C3); e as outras seis páginas de detalhe do G3 (Pedidos de
+Venda, Ordens de Compra, Entrada de Notas, lançamento do Caixa, Conferência de Saída e Romaneio).
+
+**Provado nos dois sentidos, numa cópia.** `teste_cad_detalhe.py` tem 68 asserções em nove seções,
+e abre os 49 registros dos cinco cadastros um por um. Quatorze defeitos injetados, um por vez, e os
+quatorze pegos.

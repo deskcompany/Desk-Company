@@ -2739,7 +2739,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   // O link nao inventa uma tela: leva ao cadastro do cliente que ja existe.
   document.getElementById('linkVerCliente').addEventListener('click', () => {
-    window.location.href = '../cadastros/pagina-cadastros-clientes-detalhe.html?id=' + fornEscolhido;
+    // Pelo nome: os numeros dos clientes daqui nao sao os do cadastro.
+    window.location.href = '../cadastros/pagina-cadastros-clientes-detalhe.html?nome=' + encodeURIComponent(cliDe(fornEscolhido).nome);
   });
 
   // ===== MENUS =====

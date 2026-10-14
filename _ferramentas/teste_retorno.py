@@ -377,12 +377,13 @@ with sync_playwright() as p:
             ir('pagina-cadastros-%s.html' % base)
             pg.click('.main [class$="-nome-row"]'); pg.wait_for_timeout(350)
             botao = pg.evaluate("(() => { const a = document.querySelector('.event-drawer.open a.btn-primary'); return a ? [a.textContent.trim(), a.getAttribute('href')] : null; })()")
-            if botao != ['Ver cadastro completo', '../cadastros/' + det]:
+            # O link leva o ?id= do registro clicado (teste_cad_detalhe.py confere qual); aqui importa o rotulo e a pagina.
+            if not botao or botao[0] != 'Ver cadastro completo' or botao[1].split('?')[0] != '../cadastros/' + det:
                 ruins.append('%s: botao do painel %s' % (base, botao)); continue
             clic('.event-drawer.open a.btn-primary'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
             estado = pg.evaluate("(() => { const b = document.getElementById('btnEditarRegistro'); return [document.body.classList.contains('modo-leitura'), !!b && b.offsetParent !== null, b ? b.textContent.trim() : '', "
                                  "!!b && !!b.closest('.page-header')]; })()")
-            if not pg.url.split('/')[-1] == det or estado != [True, True, 'Editar cadastro', True]:
+            if not pg.url.split('/')[-1].split('?')[0] == det or estado != [True, True, 'Editar cadastro', True]:
                 ruins.append('%s: pagina %s %s' % (base, pg.url.split('/')[-1], estado)); continue
             clic('#btnEditarRegistro'); pg.wait_for_timeout(250)
             if pg.evaluate("document.body.classList.contains('modo-leitura') || document.getElementById('btnEditarRegistro').offsetParent !== null"):

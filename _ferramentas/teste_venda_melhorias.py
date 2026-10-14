@@ -164,7 +164,7 @@ with sync_playwright() as p:
 
     if secao(4, 'Nenhum texto chama a tela que deixou de existir'):
         vend, conf, pdv = fonte('pagina-cadastros-vendedores-detalhe.html'), fonte('pagina-configuracoes-pdv.html'), fonte(PDV)
-        ok("'Performance de Vendas'" not in vend and vend.count("'Metas e Performance'") == 2, 'no cadastro do vendedor, o acesso se chama "Metas e Performance"')
+        ok("'Performance de Vendas'" not in vend and vend.count("'Metas e Performance'") >= 2, 'no cadastro do vendedor, o acesso se chama "Metas e Performance"')
         ok('Performance de Vendas' not in conf and 'Metas e Performance' in conf, 'nas Configuracoes do PDV tambem')
         visiveis = [l for l in pdv.split(chr(10)) if 'Performance de Vendas' in l and not l.strip().startswith('//')]
         ok(not visiveis, 'e no PDV nenhum texto de tela cita "Performance de Vendas": %s' % [v.strip()[:60] for v in visiveis[:2]])

@@ -722,7 +722,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1 id="tituloCliente">Distribuidora Nordeste Ltda</h1>
-      <div class="subtitle">CLI-0003 · <span id="origemTexto">Cadastro Manual — Desk Shope</span></div>
+      <div class="subtitle"><span id="codigoTexto">CLI-0003</span> · <span id="origemTexto">Cadastro Manual — Desk Shope</span></div>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
   <span class="status-badge" id="statusBadge" style="background:var(--success); color:#fff;">Ativo</span>
@@ -733,11 +733,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div class="lojas-atividade">
-    <span class="lojas-atividade-label">Também tem atividade em:</span>
-    <span class="origem-badge" style="background:var(--chart-3);">Desk Tech</span>
-    <span class="origem-badge" style="background:var(--chart-2);">Desk Brands</span>
-  </div>
+  <div class="lojas-atividade" id="faixaLojas"></div>
 
   <div class="tabs-row">
     <div class="tab-item active" data-tab="gerais">Dados Gerais</div>
@@ -1754,8 +1750,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     else { badge.textContent = 'Inativo'; badge.style.background = 'var(--text)'; }
   });
   // Loja de cadastro: puxada (futuramente) do cadastro de Lojas Desk — aqui ainda é mock fixo.
-  inicializarDropdownSelect(document.getElementById('inputLoja'), (valor, texto) => {
-    document.getElementById('origemTexto').textContent = 'Cadastro Manual — ' + texto;
+  // O componente avisa so o valor; o rotulo se le do proprio dropdown. Lido de um segundo argumento
+  // que nunca veio, o subtitulo virava "Cadastro Manual — undefined" na primeira troca de loja.
+  inicializarDropdownSelect(document.getElementById('inputLoja'), () => {
+    document.getElementById('origemTexto').textContent = (REGISTRO && REGISTRO.origem !== 'Manual' ? 'Cadastro pela loja — ' : 'Cadastro Manual — ') +
+      document.querySelector('#inputLoja .dropdown-select-label').textContent;
   });
   inicializarDropdownSelect(document.getElementById('inputRegimeTributario'));
   inicializarDropdownSelect(document.getElementById('inputStatusCrm'));
@@ -1784,6 +1783,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('checkEnderecoCobranca').addEventListener('change', (e) => {
     document.getElementById('blocoEnderecoCobranca').style.display = e.target.checked ? 'block' : 'none';
   });
+
+  // ===== O CADASTRO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data "Ver cadastro completo" abria sempre a Distribuidora Nordeste, fosse qual fosse a linha clicada.
+  // Agora o endereco traz ?id= (ou ?nome=, para quem chega de outra tela), e a pagina mostra aquele registro.
+  // A pagina so tem um cadastro desenhado por inteiro, o do exemplo (ID_DO_EXEMPLO). Dos outros ela
+  // mostra o que a lista sabe, e deixa em branco o que so o cadastro completo guardaria
+  // (nome fantasia, CEP, complemento, pessoas de contato, anexos, observacoes).
+  // REGISTROS e ESPELHO de Cadastros > Clientes (CLIENTES). Mudou la, muda aqui; teste_cad_detalhe.py compara.
+  const REGISTROS = [
+    { id: 1, codigo: 'CLI-0001', tipo: 'fisica', nome: 'Marina Duarte', documento: '123.456.789-00', email: 'marina.duarte@gmail.com', telefone: '(99) 98234-5501', endereco: 'Rua das Acácias', numero: '120', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Tech', contato: 'cliente', status: 'ativo', cor: 'var(--chart-1)', lojasAtividade: ['Desk Shope'], clienteDesde: '14/03/2025' },
+    { id: 2, codigo: 'CLI-0002', tipo: 'fisica', nome: 'Rafael Nogueira', documento: '234.567.890-11', email: 'rafael.nogueira@hotmail.com', telefone: '(99) 98234-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Shope', contato: 'cliente', status: 'ativo', cor: 'var(--chart-2)', clienteDesde: '02/07/2025' },
+    { id: 3, codigo: 'CLI-0003', tipo: 'juridica', nome: 'Distribuidora Nordeste Ltda', documento: '41.223.556/0001-09', email: 'contato@distnordeste.com.br', telefone: '(99) 3524-1180', endereco: 'Rod. BR-010', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', estado: 'MA', origem: 'Manual', contato: 'cliente', status: 'ativo', cor: 'var(--chart-3)', lojasAtividade: ['Desk Tech', 'Desk Brands'], clienteDesde: '03/09/2026' },
+    { id: 4, codigo: 'CLI-0004', tipo: 'fisica', nome: 'Juliana Prado', documento: '345.678.901-22', email: 'juliana.prado@outlook.com', telefone: '(99) 98234-5504', endereco: 'Rua São Francisco', numero: '58', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Brands', contato: 'prospect', status: 'ativo', cor: 'var(--warning)', clienteDesde: '21/11/2024' },
+    { id: 5, codigo: 'CLI-0005', tipo: 'juridica', nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br', telefone: '(99) 3524-7788', endereco: 'Av. Bernardo Sayão', numero: '410', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Tech', contato: 'cliente', status: 'ativo', cor: 'var(--success)', clienteDesde: '09/01/2025' },
+    { id: 6, codigo: 'CLI-0006', tipo: 'fisica', nome: 'Pedro Henrique Alves', documento: '456.789.012-33', email: 'pedro.alves@gmail.com', telefone: '(99) 98234-5506', endereco: 'Rua Urbano Santos', numero: '77', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Manual', contato: 'cliente', status: 'inativo', cor: 'var(--danger)', clienteDesde: '30/05/2024' },
+    { id: 7, codigo: 'CLI-0007', tipo: 'fisica', nome: 'Camila Rêgo', documento: '567.890.123-44', email: 'camila.rego@gmail.com', telefone: '(99) 98234-5507', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', origem: 'Desk Shope', contato: 'lead', status: 'ativo', cor: 'var(--chart-1)', clienteDesde: '17/02/2025' },
+    { id: 8, codigo: 'CLI-0008', tipo: 'juridica', nome: 'Móveis Bom Preço Ltda', documento: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br', telefone: '(99) 3524-9910', endereco: 'Av. Tancredo Neves', numero: '1520', bairro: 'Boa Esperança', cidade: 'Imperatriz', estado: 'MA', origem: 'Manual', contato: 'prospect', status: 'ativo', cor: 'var(--chart-2)', clienteDesde: '12/08/2025' },
+    { id: 9, codigo: 'CLI-0009', tipo: 'fisica', nome: 'Thiago Almeida', documento: '678.901.234-55', email: 'thiago.almeida@yahoo.com', telefone: '(99) 98234-5509', endereco: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Brands', contato: 'lead', status: 'ativo', cor: 'var(--chart-3)', clienteDesde: '05/04/2025' },
+    { id: 10, codigo: 'CLI-0010', tipo: 'fisica', nome: 'Larissa Monteiro', documento: '789.012.345-66', email: 'larissa.monteiro@gmail.com', telefone: '(99) 98234-5510', endereco: 'Rua Duque de Caxias', numero: '99', bairro: 'Centro', cidade: 'Estreito', estado: 'MA', origem: 'Desk Tech', contato: 'lead', status: 'inativo', cor: 'var(--warning)', clienteDesde: '19/10/2024' },
+    { id: 11, codigo: 'CLI-0011', tipo: 'juridica', nome: 'Auto Peças Imperatriz Ltda', documento: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br', telefone: '(99) 3524-3320', endereco: 'Av. JK', numero: '670', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', origem: 'Manual', contato: 'cliente', status: 'ativo', cor: 'var(--success)', clienteDesde: '25/06/2025' },
+    { id: 12, codigo: 'CLI-0012', tipo: 'fisica', nome: 'Bruno Carvalho', documento: '890.123.456-77', email: 'bruno.carvalho@hotmail.com', telefone: '(99) 98234-5512', endereco: 'Rua Simplício Moreira', numero: '43', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Desk Shope', contato: 'prospect', status: 'ativo', cor: 'var(--danger)', clienteDesde: '08/12/2024' },
+    { id: 13, codigo: 'CLI-0013', tipo: 'fisica', nome: 'Patrícia Farias', documento: '901.234.567-88', email: 'patricia.farias@gmail.com', telefone: '(99) 98234-5513', endereco: 'Rua Pernambuco', numero: '187', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', origem: 'Desk Brands', contato: 'cliente', status: 'ativo', cor: 'var(--chart-1)', clienteDesde: '02/02/2025' },
+    { id: 14, codigo: 'CLI-0014', tipo: 'juridica', nome: 'Papelaria Central Ltda', documento: '44.556.778/0001-90', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', origem: 'Manual', contato: 'cliente', status: 'inativo', cor: 'var(--chart-2)', clienteDesde: '14/09/2024' }
+  ];
+  const ID_DO_EXEMPLO = 3;
+  // shortcut: nome que o cadastro nao tem abre o exemplo, como antes; acaba quando Financas e o cadastro tiverem os mesmos nomes (X6).
+  const REGISTRO = (() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('novo') === '1') return null;
+    return REGISTROS.filter(r => r.id === Number(q.get('id')) || r.nome === q.get('nome'))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
+  })();
+  // As mesmas cores da lista (ORIGEM_COR).
+  const COR_DA_LOJA = { 'Desk Shope': 'var(--chart-1)', 'Desk Brands': 'var(--chart-2)', 'Desk Tech': 'var(--chart-3)', 'Desk Flash': 'var(--warning)' };
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [
@@ -1884,23 +1916,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   // ===== DOCUMENTO DUPLICADO =====
-  // Mesma lista da listagem de Clientes (mock). No sistema de producao e um SELECT por
-  // documento. O cadastro aberto e o da Distribuidora Nordeste — por isso ele
-  // sai da comparacao, senao o cadastro acusaria a si mesmo.
-  const DOCUMENTOS_CLIENTES = [
-    { nome:'Marina Duarte',                 documento:'123.456.789-00' },
-    { nome:'Rafael Nogueira',               documento:'234.567.890-11' },
-    { nome:'Distribuidora Nordeste Ltda',   documento:'41.223.556/0001-09' },
-    { nome:'Juliana Prado',                 documento:'345.678.901-22' },
-    { nome:'Tech Solutions Imperatriz Ltda',documento:'52.998.104/0001-77' },
-    { nome:'Pedro Henrique Alves',          documento:'456.789.012-33' }
-  ];
-  const DOC_DESTE_CADASTRO = '41.223.556/0001-09';
+  // A lista e a do cadastro (REGISTROS). No sistema de producao e um SELECT por documento. O
+  // cadastro aberto sai da comparacao, senao acusaria a si mesmo.
   const soDigitos = (d) => String(d || '').replace(/\D/g, '');
   function donoDoDocumento(doc) {
     const d = soDigitos(doc);
-    if (!d || d === soDigitos(DOC_DESTE_CADASTRO)) return null;
-    const achou = DOCUMENTOS_CLIENTES.filter(c => soDigitos(c.documento) === d)[0];
+    if (!d || (REGISTRO && d === soDigitos(REGISTRO.documento))) return null;
+    const achou = REGISTROS.filter(c => soDigitos(c.documento) === d)[0];
     return achou ? achou.nome : null;
   }
 
@@ -1935,6 +1957,40 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     aoSalvarCadastro('../cadastros/pagina-cadastros-clientes.html', document.getElementById('btnSalvarCliente'));
   });
+
+  // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.
+  // Aceita o valor ou o rotulo do item. O que o dropdown nao tem fica em branco: melhor do que
+  // deixar na tela a opcao do exemplo. Em branco e um espaco que nao quebra: sem texto nenhum o
+  // botao perde altura.
+  function porNoDropdown(id, valor) {
+    const d = document.getElementById(id), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const item = itens.filter(i => i.getAttribute('data-value') === String(valor) || i.textContent.trim() === valor)[0];
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : '');
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
+    if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
+  }
+  // Poe o registro aberto na pagina, antes de qualquer coisa ser desenhada.
+  (function abrirRegistro() {
+    const r = REGISTRO, faixa = document.getElementById('faixaLojas');
+    if (!r || r.id !== ID_DO_EXEMPLO) {
+      document.querySelectorAll('.main input, .main textarea').forEach(c => { if (c.type !== 'checkbox' && c.type !== 'radio' && c.type !== 'file') c.value = ''; });
+      CONTATOS = []; ANEXOS = [];
+    }
+    faixa.style.display = r && r.lojasAtividade ? '' : 'none';
+    if (!r) return;
+    if (r.lojasAtividade) faixa.innerHTML = '<span class="lojas-atividade-label">Também tem atividade em:</span>' + r.lojasAtividade.map(l => '<span class="origem-badge" style="background:' + COR_DA_LOJA[l] + ';">' + l + '</span>').join('');
+    document.getElementById('tituloCliente').textContent = r.nome;
+    document.getElementById('codigoTexto').textContent = r.codigo;
+    aplicarTipoPessoa(r.tipo);
+    const campos = { inputNome: r.nome, inputCodigo: r.codigo, inputDocumento: r.documento, inputCidade: r.cidade, inputEstado: r.estado, inputEndereco: r.endereco,
+                     inputNumero: r.numero, inputBairro: r.bairro, inputTelefone: r.telefone, inputEmail: r.email, inputDataCriacao: r.clienteDesde };
+    Object.keys(campos).forEach(id => { document.getElementById(id).value = campos[id]; });
+    porNoDropdown('inputSituacao', r.status);
+    porNoDropdown('inputContato', r.contato);
+    // Quem se cadastrou por uma loja tem a loja no registro. No cadastro manual a lista nao diz a loja.
+    if (r.origem !== 'Manual') porNoDropdown('inputLoja', r.origem);
+  })();
 
   renderContatos();
   renderAnexos();
