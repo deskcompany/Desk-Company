@@ -1495,6 +1495,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //   ORDENS_DO_CADASTRO   = Estoque > Ordens de Compra. `aReceber`: o que falta chegar, pelo preco dos
   //                          itens; ordem em aberto sem recebimento nenhum deve o total.
   //   CONTAS_DO_CADASTRO   = Financas > Contas a Pagar, so as que tem saldo.
+  //                          Sem o vencimento: Contas a Pagar conta a data a partir de hoje, e a data
+  //                          cravada aqui envelhecia um dia por dia (14/out/2026). O painel nao a mostra.
   //   PRODUTOS_DO_CADASTRO = Estoque > Necessidades de Compra: de quem cada produto e comprado.
   const ORDENS_DO_CADASTRO = [
     { numero: 1, fornecedor: 'Móveis Nordeste Ltda', data: '2026-09-01', previsto: '2026-09-12', total: 18420.00, situacao: 'atendida', aReceber: 0.00 },
@@ -1513,9 +1515,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { numero: 14, fornecedor: 'Embalagens do Vale', data: '2026-08-20', previsto: '2026-08-30', total: 1780.00, situacao: 'cancelada', aReceber: 0.00 }
   ];
   const CONTAS_DO_CADASTRO = [
-    { id: 11, fornecedor: 'Luminárias Brasil', vencimento: '2026-10-11', saldo: 5380.00 },
-    { id: 12, fornecedor: 'Papelaria Central', vencimento: '2026-10-19', saldo: 320.00 },
-    { id: 13, fornecedor: 'TechParts Distribuidora', vencimento: '2026-10-28', saldo: 2460.00 }
+    { id: 11, fornecedor: 'Luminárias Brasil', saldo: 5380.00 },
+    { id: 12, fornecedor: 'Papelaria Central', saldo: 320.00 },
+    { id: 13, fornecedor: 'TechParts Distribuidora', saldo: 2460.00 }
   ];
   const PRODUTOS_DO_CADASTRO = [
     { sku: 'CAD-ERG-001', nome: 'Cadeira Ergonômica Pro', fornecedor: 'Móveis Nordeste Ltda' },

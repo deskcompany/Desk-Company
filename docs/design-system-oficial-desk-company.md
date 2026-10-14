@@ -3392,3 +3392,42 @@ loja e o Dashboard lerem de Metas é arrumar exemplo entre telas prontas (§14.7
 Dezessete defeitos injetados, um por vez. Dezesseis foram pegos de primeira. O que escapou tirava da
 prévia da reserva o efeito ("libera a reserva sozinho") e deixava o prazo, e a asserção só olhava o
 prazo: passou a exigir os dois, e o defeito foi pego na segunda rodada.
+
+## 14.75 A impressão vira relatório: o piloto em Ordens de Compra (item P1 — 14/out/2026)
+
+Até aqui, imprimir uma lista dava o desenho da tela sem o menu: a folha levava a caixa "Selecionar
+todos", a seta de ordenação, as abas e os indicadores, e não dizia o que era, quando foi emitida nem
+que filtro estava valendo. Combinado com o usuário: o formato nasce numa lista, ele vê a folha, e só
+então vai para as outras 19.
+
+**A folha.**
+
+- **Cabeçalho do relatório**, que só existe no papel: "Desk Company · ERP System", o título da
+  lista, "Emitido em 14/10/2026 às 10:06, por Administrador Desk", os filtros e a quantidade de
+  registros. Sem filtro, diz "nenhum, a lista inteira".
+- **Os filtros são lidos da própria tela:** a aba, os dropdowns e a busca da barra, o período e o
+  indicador clicado. O primeiro item de cada filtro é o "todos", e não aparece. Ler da tela, e não de
+  uma lista feita à mão, é o que deixa o mesmo código servir nas 20 listas.
+- **Não vai para o papel:** menu, barra de filtros, abas, indicadores, "Selecionar todos", a coluna
+  das caixas de seleção, as setas de ordenação e a bolinha da situação. A situação vai como texto.
+- **A tabela** começa alinhada com o cabeçalho, com linhas finas e letra menor, e o cabeçalho dela
+  se repete em cada folha.
+
+**O Ctrl+P dá a mesma folha que o menu.** "Imprimir", no menu, já mandava a lista inteira para o
+papel; o Ctrl+P imprimia só a página aberta (10 das 14 ordens), e a contagem do cabeçalho diria 10.
+Agora a lista se abre inteira antes da impressão e volta à página depois, pelas duas vias.
+
+**Por que é um bloco da tela, e não o bloco comum.** O bloco de planilha e impressão é idêntico nas
+20 listas, e `teste_planilha.py` exige isso. O piloto entrou como um complemento só de Ordens de
+Compra, logo abaixo do bloco comum, e escuta a impressão do navegador (`beforeprint`). Aprovado, ele
+passa para dentro do bloco comum e chega às outras 19 de uma vez.
+
+**Provado nos dois sentidos, numa cópia.** `teste_impressao.py` tem 16 asserções em quatro seções e
+mede a folha com a mídia de impressão emulada. Doze defeitos injetados, um por vez, e os doze pegos.
+
+**Achado na virada do dia, consertado junto.** O espelho das contas a pagar no cadastro de
+fornecedores (item C2, de 13/out) guardava o vencimento com data cravada, e Contas a Pagar calcula
+o vencimento a partir de hoje. Em 13/out os dois batiam; em 14/out ficaram um dia longe, e
+`teste_cad_melhorias.py` reprovou. O painel nem mostra essa data: ela saiu do espelho e da
+comparação. É a regra do §13 de novo, agora num espelho: dado de exemplo com data fixa envelhece.
+Espelho de tela que conta datas a partir de hoje guarda a distância em dias, ou não guarda a data.

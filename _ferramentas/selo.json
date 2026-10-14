@@ -10,7 +10,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -54,7 +54,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -86,10 +86,10 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "script_sha": "c6abca3e158dd7a6",
-   "selado_em": "2026-10-13"
+   "selado_em": "2026-10-14"
   },
   "oficial": {
-   "conjunto": "1e9423dafd135f31",
+   "conjunto": "1c6525e9c9a3065d",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-14"
   }
@@ -118,7 +118,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -162,7 +162,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -194,7 +194,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "bd07cd88a1f2f16c"
   },
   "teste_bloqueados.py": {
@@ -209,7 +209,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -253,7 +253,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -285,7 +285,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "13067434f4ef7f16"
   },
   "teste_busca_setas.py": {
@@ -300,7 +300,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -344,7 +344,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -376,7 +376,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "294c4aa5dc05bfeb"
   },
   "teste_cad_detalhe.py": {
@@ -392,17 +392,17 @@
   },
   "teste_cad_melhorias.py": {
    "asseracoes": 36,
-   "asseracoes_de": "rodada completa 13/10",
+   "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-financas-contas-pagar.html": "826ab576e7102efb"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
-   "teste_sha": "4852aec756d5c743"
+   "selado_em": "2026-10-14",
+   "teste_sha": "cfd50df89298be08"
   },
   "teste_caixa.py": {
    "asseracoes": 54,
@@ -426,7 +426,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -470,7 +470,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -502,7 +502,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "878f582b1d56cb80"
   },
   "teste_conferencia_saida.py": {
@@ -535,7 +535,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -579,7 +579,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -611,7 +611,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "662928c3b894323b"
   },
   "teste_cp.py": {
@@ -669,7 +669,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -713,7 +713,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -745,7 +745,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "0e143cc1c61efa4b"
   },
   "teste_devolucao.py": {
@@ -766,19 +766,19 @@
   },
   "teste_doc_detalhe.py": {
    "asseracoes": 39,
-   "asseracoes_de": "rodada completa 13/10",
+   "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-cadastros-clientes-detalhe.html": "ae40d1fe7795c34c",
     "pagina-estoque-conferencia.html": "b86fa5a6728fee05",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-logistica-expedicao-detalhe.html": "9f9e757ab4c968f5",
     "pagina-logistica-expedicao.html": "5006d762c60b1f9f",
     "pagina-vendas-pedidos-detalhe.html": "b0439ecb4bd11758",
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "443e8d6fd0edf6ec"
   },
   "teste_dropdown_todas.py": {
@@ -793,7 +793,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -837,7 +837,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -869,7 +869,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "b23e651ef2b5a85c"
   },
   "teste_esc_dropdown.py": {
@@ -884,7 +884,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -928,7 +928,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -960,7 +960,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "d7a0233ea7b2f8a8"
   },
   "teste_esc_painel.py": {
@@ -975,7 +975,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1019,7 +1019,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1051,7 +1051,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "9b0c8190f66b6860"
   },
   "teste_estoque_melhorias.py": {
@@ -1066,7 +1066,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1110,7 +1110,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1142,7 +1142,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "6dae54201902f4f7"
   },
   "teste_expedicao.py": {
@@ -1157,7 +1157,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1201,7 +1201,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1233,16 +1233,16 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "8e0347e186b9d584"
   },
   "teste_fin_melhorias.py": {
    "asseracoes": 62,
-   "asseracoes_de": "rodada completa 13/10",
+   "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-cadastros-clientes.html": "9bd341bb44397c0a",
     "pagina-estoque-entrada-notas.html": "eeef0934501548a7",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-financas-caixa.html": "034895f806822a53",
     "pagina-financas-contas-pagar-detalhe.html": "9d56670db8080ffa",
     "pagina-financas-contas-pagar.html": "826ab576e7102efb",
@@ -1251,7 +1251,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "75d9c6f0520411ba"
   },
   "teste_formas_recebimento.py": {
@@ -1273,6 +1273,16 @@
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-13",
    "teste_sha": "639c3c063100b299"
+  },
+  "teste_impressao.py": {
+   "asseracoes": 16,
+   "asseracoes_de": "rodada completa 14/10",
+   "cobertura": {
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655"
+   },
+   "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
+   "selado_em": "2026-10-14",
+   "teste_sha": "89980a3ef9b386ea"
   },
   "teste_integra.py": {
    "asseracoes": 14,
@@ -1298,10 +1308,10 @@
   },
   "teste_mais_acoes.py": {
    "asseracoes": 159,
-   "asseracoes_de": "rodada completa 13/10",
+   "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-cadastros-clientes.html": "9bd341bb44397c0a",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-produtos-detalhe.html": "5b7e934633766f0a",
     "pagina-cadastros-produtos.html": "2c87ed2073d97dc0",
     "pagina-cadastros-vendedores-detalhe.html": "e8a86ebd6f7dd600",
@@ -1314,7 +1324,7 @@
     "pagina-estoque-inventario.html": "8b0a1c1d8bb7ab62",
     "pagina-estoque-itens-bloqueados.html": "d4578fc7c5af221f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-financas-caixa-lancamento.html": "ecb2998f8736ebf7",
     "pagina-financas-caixa.html": "034895f806822a53",
     "pagina-financas-contas-pagar-detalhe.html": "9d56670db8080ffa",
@@ -1322,7 +1332,7 @@
     "pagina-vendas-pdv.html": "3657ed8627e18b7c"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "cf02e76eb2523558"
   },
   "teste_menu.py": {
@@ -1337,7 +1347,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1381,7 +1391,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1413,7 +1423,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "1266bf9bc1782f30"
   },
   "teste_metas.py": {
@@ -1428,7 +1438,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1472,7 +1482,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1504,7 +1514,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "000f6048767d9e94"
   },
   "teste_motivos_devolucao.py": {
@@ -1545,7 +1555,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1589,7 +1599,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1621,7 +1631,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "f5593f8681b6a4da"
   },
   "teste_nomes_sistema.py": {
@@ -1649,7 +1659,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1693,7 +1703,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1725,7 +1735,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "4f95e2e1273d9f3c"
   },
   "teste_pdv.py": {
@@ -1740,7 +1750,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1784,7 +1794,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1816,7 +1826,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "337001edf2fbf426"
   },
   "teste_pedidos.py": {
@@ -1856,7 +1866,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -1900,7 +1910,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -1932,7 +1942,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "2690f31d2bb9157c"
   },
   "teste_pos.py": {
@@ -1969,7 +1979,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -2013,7 +2023,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -2045,7 +2055,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "ab245ec81b300514"
   },
   "teste_recibo_clone.py": {
@@ -2070,7 +2080,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -2114,7 +2124,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -2146,7 +2156,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "52d067b997ea1820"
   },
   "teste_rodape.py": {
@@ -2161,7 +2171,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -2205,7 +2215,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -2237,7 +2247,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "fc155edb94f01c57"
   },
   "teste_separacao.py": {
@@ -2280,7 +2290,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -2324,7 +2334,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -2356,7 +2366,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "c76107eb9506028d"
   },
   "teste_trilha.py": {
@@ -2371,7 +2381,7 @@
     "pagina-cadastros-embalagens.html": "2afe70190c44429a",
     "pagina-cadastros-enderecos-estoque.html": "3cab89effcb65154",
     "pagina-cadastros-fornecedores-detalhe.html": "581359ae8f694231",
-    "pagina-cadastros-fornecedores.html": "4adff2a8dfdebb16",
+    "pagina-cadastros-fornecedores.html": "a706f3332d3ecca0",
     "pagina-cadastros-lojas-desk-detalhe.html": "208b637b61ca2ad1",
     "pagina-cadastros-lojas-desk.html": "bbfb5477cdaa53e2",
     "pagina-cadastros-marcas.html": "4f670a7a162971a5",
@@ -2415,7 +2425,7 @@
     "pagina-estoque-movimentacao.html": "9717e80db8ac221c",
     "pagina-estoque-necessidades-compra.html": "58d730f604ccb08f",
     "pagina-estoque-ordens-compra-detalhe.html": "5af18f36f4ba8175",
-    "pagina-estoque-ordens-compra.html": "a83d3ba49e0d7f82",
+    "pagina-estoque-ordens-compra.html": "007aefcfcfac5655",
     "pagina-estoque-reposicao.html": "e40a30f36126b3a6",
     "pagina-estoque-transferencia-nova.html": "b007a796f94ec8c6",
     "pagina-estoque-transferencia.html": "92f444b4e5fd5676",
@@ -2447,7 +2457,7 @@
     "pagina-vendas-pedidos.html": "dd73e62e3209df52"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-10-13",
+   "selado_em": "2026-10-14",
    "teste_sha": "77b9fdd77f3a291b"
   },
   "teste_venda_melhorias.py": {

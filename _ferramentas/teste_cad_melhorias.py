@@ -55,7 +55,7 @@ with sync_playwright() as p:
             const falta = itens ? itens.reduce((s, i) => s + Math.max(0, i.qtd - i.recebido) * i.preco, 0) : o.total;
             return [o.numero, o.fornecedor, o.data, o.previsto, o.total, o.situacao, aberta ? Math.round(falta * 100) / 100 : 0]; }).sort((a, b) => a[0] - b[0])""")
         ir(CP)
-        da_cp = pg.evaluate("TITULOS.filter(t => saldoDe(t) > 0 && ['paga', 'cancelada'].indexOf(situacaoDe(t)) < 0).map(t => [t.id, fornDe(t.fornId).nome, t.vencIso, Math.round(saldoDe(t) * 100) / 100])")
+        da_cp = pg.evaluate("TITULOS.filter(t => saldoDe(t) > 0 && ['paga', 'cancelada'].indexOf(situacaoDe(t)) < 0).map(t => [t.id, fornDe(t.fornId).nome, Math.round(saldoDe(t) * 100) / 100])")
         ir(NEC)
         da_nec = pg.evaluate("PRODUTOS.map(p => [p.sku, p.nome, FORNECEDORES[retrato(p).f.fornecedor] || '']).filter(x => x[2]).sort()")
 
@@ -67,7 +67,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("new Set(FORNECEDORES.map(f => f.nome)).size === FORNECEDORES.length && new Set(FORNECEDORES.map(f => f.documento)).size === FORNECEDORES.length"), 'e nenhum nome ou documento se repete no cadastro')
         ok(pg.evaluate("ORDENS_DO_CADASTRO.map(o => [o.numero, o.fornecedor, o.data, o.previsto, o.total, o.situacao, o.aReceber]).sort((a, b) => a[0] - b[0])") == da_oc,
            'o espelho das ordens bate com Ordens de Compra, inclusive no que falta receber: %d ordens' % len(da_oc))
-        ok(sorted(pg.evaluate("CONTAS_DO_CADASTRO.map(x => [x.id, x.fornecedor, x.vencimento, x.saldo])")) == sorted(x for x in da_cp if x[1] in nomes) and len([x for x in da_cp if x[1] in nomes]) == 3,
+        ok(sorted(pg.evaluate("CONTAS_DO_CADASTRO.map(x => [x.id, x.fornecedor, x.saldo])")) == sorted(x for x in da_cp if x[1] in nomes) and len([x for x in da_cp if x[1] in nomes]) == 3,
            'o espelho das contas bate com as contas em aberto de Contas a Pagar, dos fornecedores do cadastro')
         ok(pg.evaluate("PRODUTOS_DO_CADASTRO.map(x => [x.sku, x.nome, x.fornecedor]).sort()") == da_nec and len(da_nec) >= 10, 'o espelho dos produtos bate com o fornecedor padrao de Necessidades de Compra: %d produtos' % len(da_nec))
 

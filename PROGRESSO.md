@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com Parâmetros de estoque dividido em estoque e logística.*
+*Atualizado em 14/out/2026, com o piloto da impressão em formato de relatório, em Ordens de Compra.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -69,6 +69,11 @@ tinha nove seções, e cinco não eram de estoque. Agora são duas telas: Parâm
 Parâmetros de logística. O bloqueio de cliente em atraso foi para Configurações do cadastro de
 clientes, por decisão dele. Na mesma resposta ele tirou da fila as cópias do número da meta (R6),
 pelo mesmo motivo dos outros alinhamentos de exemplo.
+
+**A impressão em formato de relatório tem um piloto, e ele espera o aval do usuário** (§14.75). Em
+Ordens de Compra, a folha passou a sair com título, data, quem emitiu, os filtros que estavam valendo
+e a quantidade, sem caixa de seleção, seta de ordenação, abas nem indicadores. Combinado com ele:
+uma lista primeiro, para ele ver a folha, e só depois as outras 19.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -335,13 +340,16 @@ de testar a conferência:
   MDF-e e a devolução. "Bloquear novo pedido de cliente em atraso" está em Configurações do
   cadastro de clientes. Os 22 parâmetros continuam tendo tela, cada um numa só, e salvar numa tela
   não mexe no que é da outra.
+- **Impressão em formato de relatório, piloto em Ordens de Compra** (§14.75). O cabeçalho do
+  relatório só existe no papel. "Imprimir", no menu, e o Ctrl+P dão a mesma folha, com a lista
+  inteira.
 
-**13. A verificação.** Treze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Catorze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
-`teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py` e `teste_parametros.py`. Duzentos
-e cinquenta e cinco defeitos injetados de propósito, um por vez; os duzentos e cinquenta e cinco são
-pegos. A auditoria do
+`teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
+`teste_impressao.py`. Duzentos e sessenta e sete defeitos injetados de propósito, um por vez; os
+duzentos e sessenta e sete são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -353,9 +361,10 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma
-   vez. Combinado com o usuário: fazer numa lista só primeiro, para ele ver a folha, e só então
-   levar às outras 19.
+1. **Levar o relatório às outras 19 listas** (P1), depois que o usuário aprovar a folha do piloto,
+   em Ordens de Compra. O piloto mora num bloco próprio daquela tela; aprovado, ele entra no bloco
+   comum de planilha e impressão, que as 20 listas compartilham, e `teste_impressao.py` passa a
+   varrer todas.
 2. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
    novos: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
@@ -389,9 +398,11 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Nada trava o trabalho. Uma pendência, que é dele:
+Nada trava o trabalho. Duas pendências, que são dele:
 
-1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **Aprovar a folha do relatório.** Em Ordens de Compra, "Mais ações → Imprimir" mostra a prévia
+   do navegador. Aprovada, ela vai para as outras 19 listas; o que ele quiser mudar muda nas 20.
+2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste

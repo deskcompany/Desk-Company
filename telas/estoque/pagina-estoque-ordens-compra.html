@@ -612,7 +612,28 @@
     .main { margin-left:0 !important; padding:0 !important; }
     .main, .main * { color:#101010 !important; }
     .card { background:#fff !important; border:none !important; box-shadow:none !important; }
+    /* Relatorio (P1, piloto de 14/out/2026): a folha leva titulo, data e filtros, e nao leva o que so
+       serve na tela (caixa de selecao, seta de ordenacao, indicadores, abas). */
+    .page-header, .oc-kpis, .selecionar-todos-row, .busca-link { display:none !important; }
+    .relatorio-cabecalho { display:block !important; }
+    .estoque-table-wrap { overflow:visible !important; }
+    .card { padding:0 !important; }
+    .main table { border-collapse:collapse !important; width:100% !important; min-width:0 !important; }
+    .main thead { display:table-header-group; }
+    .main tr { break-inside:avoid; }
+    .main th, .main td { padding:4px 6px !important; font-size:10.5px !important; background:#fff !important;
+                         border:none !important; border-bottom:1px solid #cfcfcf !important; }
+    .main th { font-weight:800 !important; border-bottom:1.5px solid #101010 !important; }
+    .main th .seta, .main .sit-dot { display:none !important; }
+    .main th:has(> .checkbox-todos), .main th:first-child:empty, .main td:has(> .item-checkbox) { display:none !important; }
+    .main .badge-situacao { background:none !important; border:none !important; padding:0 !important; font-weight:700 !important; }
   }
+  @page { margin:12mm; }
+  /* O cabecalho do relatorio so existe no papel. */
+  .relatorio-cabecalho { display:none; border-bottom:1.5px solid #101010; padding-bottom:8px; margin-bottom:10px; }
+  .relatorio-cabecalho .rel-empresa { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .relatorio-cabecalho .rel-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; margin:2px 0 4px; }
+  .relatorio-cabecalho .rel-linha { font-size:10.5px; line-height:1.5; }
   /* Busca pelo endereco (10/out/2026): a faixa que diz de onde veio o filtro */
   .busca-link { display:flex; align-items:center; gap:14px; padding:10px 14px; margin-bottom:14px; background:var(--card-bg); border:1px solid var(--border); border-left:3px solid var(--active-text); border-radius:10px; font-size:12.5px; line-height:1.45; color:var(--text-heading); }
   .busca-link span { flex:1; min-width:0; }
@@ -2184,6 +2205,70 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (acao === 'planilha') baixarPlanilhaDaTela(); else imprimirTela();
     }, true);
   })();
+
+  // ===== IMPRESSAO EM FORMATO DE RELATORIO (P1, piloto de 14/out/2026) =====
+  // Ate aqui a folha era o desenho da tela sem o menu: sem titulo, sem data, sem dizer que filtro
+  // estava valendo. Na hora de imprimir, a tela poe no topo um cabecalho de relatorio, que so aparece
+  // no papel. Vale pelo menu ("Imprimir") e pelo Ctrl+P. O que esta filtrado e lido da propria tela
+  // (aba, dropdowns e busca da barra, periodo, indicador clicado), para servir igual nas outras listas
+  // quando o piloto for aprovado e entrar no bloco comum acima.
+  function filtrosDaTela() {
+    const txt = (e) => (e ? e.textContent : '').replace(/[0-9]+$/, '').replace(/\s+/g, ' ').trim();
+    const primeiro = (e) => e && e === e.parentElement.firstElementChild;
+    const f = [];
+    const aba = document.querySelector('.main [class*="abas"] .active');
+    if (aba && !primeiro(aba)) {
+      const copia = aba.cloneNode(true);
+      copia.querySelectorAll('[class*="contador"]').forEach(x => x.remove());
+      f.push('Situação: ' + txt(copia));
+    }
+    document.querySelectorAll('.main [class$="-toolbar"] .dropdown-select').forEach(d => {
+      const ativo = d.querySelector('.dropdown-select-item.active');
+      if (ativo && !primeiro(ativo)) f.push(txt(ativo));   // o primeiro item e o "todos"
+    });
+    const periodo = document.querySelector('.main .periodo-op.active');
+    if (periodo && !primeiro(periodo)) f.push('Período: ' + txt(periodo));
+    document.querySelectorAll('.main [class$="-toolbar"] input[type="text"]').forEach(i => {
+      if (i.value.trim()) f.push('Busca: "' + i.value.trim() + '"');
+    });
+    document.querySelectorAll('.main .kpi-card[aria-pressed="true"] .kpi-label').forEach(k => f.push('Indicador: ' + txt(k)));
+    return f;
+  }
+  function montarCabecalhoDoRelatorio() {
+    let cab = document.getElementById('relatorioCabecalho');
+    if (!cab) {
+      cab = document.createElement('div');
+      cab.id = 'relatorioCabecalho';
+      cab.className = 'relatorio-cabecalho';
+      document.querySelector('.main').insertBefore(cab, document.querySelector('.main').firstChild);
+    }
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0');
+    const linhas = Array.from(document.querySelectorAll('.main table tbody tr')).filter(tr => !tr.querySelector('[colspan]')).length;
+    const filtros = filtrosDaTela();
+    const quem = typeof USUARIO_SESSAO !== 'undefined' ? ', por ' + USUARIO_SESSAO.nome : '';
+    cab.innerHTML =
+      '<div class="rel-empresa">Desk Company · ERP System</div>' +
+      '<div class="rel-titulo">' + document.querySelector('.main h1').textContent.trim() + '</div>' +
+      '<div class="rel-linha">Emitido em ' + z(agora.getDate()) + '/' + z(agora.getMonth() + 1) + '/' + agora.getFullYear() +
+        ' às ' + z(agora.getHours()) + ':' + z(agora.getMinutes()) + quem + '</div>' +
+      '<div class="rel-linha">Filtros: ' + (filtros.length ? filtros.join(' · ') : 'nenhum, a lista inteira') + '</div>' +
+      '<div class="rel-linha">' + (linhas === 1 ? '1 registro' : linhas + ' registros') + '</div>';
+  }
+  // O Ctrl+P nao passa pelo menu: sem isto, ele imprimiria so a pagina aberta da lista, e as duas
+  // vias dariam folhas diferentes. Pelo menu a lista ja chega inteira, e nada muda.
+  let paginaAntesDaImpressao = null;
+  window.addEventListener('beforeprint', () => {
+    if (PLANILHA_REFAZ && PLANILHA_PAGINA && PLANILHA_PAGINA.ler()[0] < 100000) {
+      paginaAntesDaImpressao = PLANILHA_PAGINA.ler();
+      PLANILHA_PAGINA.por(100000, 1); PLANILHA_REFAZ();
+    }
+    montarCabecalhoDoRelatorio();
+  });
+  window.addEventListener('afterprint', () => {
+    if (!paginaAntesDaImpressao) return;
+    PLANILHA_PAGINA.por(paginaAntesDaImpressao[0], paginaAntesDaImpressao[1]); PLANILHA_REFAZ();
+    paginaAntesDaImpressao = null;
+  });
 
   // ===== O POPOVER DE PERIODO FECHA QUANDO OUTRO MENU ABRE (10/out/2026) =====
   // Os dropdowns param a propagacao do clique, entao o fechamento geral da tela nunca chegava

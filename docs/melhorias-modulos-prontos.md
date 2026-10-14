@@ -109,7 +109,7 @@ sem dívida em Contas a Receber.
 
 Entrou na lista em 12/out:
 
-- **P1 · Impressão em formato de relatório** (M). Hoje a folha é o desenho da tela sem o menu: leva
+- **P1 · Impressão em formato de relatório** (M) — **piloto feito em 14/out/2026 em Ordens de Compra** (§14.75); falta, depois do aval do usuário, levar ao bloco comum das 20 listas. Antes: a folha era o desenho da tela sem o menu: leva
   a caixa "Selecionar todos", a seta de ordenação e o espaçamento de tela, e não leva título com
   data, filtros nem cabeçalho repetido por página. Entra no bloco comum de impressão e chega às 20
   listas de uma vez. O usuário pediu a análise agora e o conserto depois.
