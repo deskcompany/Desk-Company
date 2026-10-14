@@ -133,8 +133,8 @@ Entrou na lista em 12/out:
 - **X3 · O pedido andar de uma fila para a outra** (G). Concluir a separação guarda o que foi feito,
   mas o pedido não aparece sozinho na fila da Conferência de Saída: cada tela tem a sua lista.
 
-A segunda varredura, do miolo de Inventário, Acerto e PDV, continua combinada para depois de o
-usuário testar o que entrou em 12/out.
+A segunda varredura, do miolo de Inventário, Acerto, PDV e da contagem da conferência, foi feita
+em 14/out/2026: está na seção "Segunda varredura", no fim deste documento.
 
 ## Como o levantamento foi feito
 
@@ -544,3 +544,52 @@ desvio para o Inventário num menu que elas não têm).
 7. **Indicadores**: E2, E5, V3 e F3.
 8. **O que sobra**: E6 a E9, V4, V5, K1, R1, R3, R4 e R5.
 9. **G3** por último, por ser o mais trabalhoso.
+
+## Segunda varredura: o miolo dos fluxos longos (14/out/2026)
+
+A primeira varredura deixou de fora o miolo dos fluxos longos. Esta abriu as quatro telas no
+navegador e fez cada fluxo do começo ao fim, como o usuário faria, só observando:
+
+- **Inventário:** gerar a lista, abrir (o depósito trava), informar quantidades, ver só
+  divergências e só pendentes, zerar os não contados, cancelar, importar por planilha e por
+  coletor, e fechar com e sem senha.
+- **Acerto de Estoque:** montar linhas de entrada, saída e balanço, gravar linha incompleta,
+  saída maior que o saldo, o mesmo produto duas vezes, finalizar sem e com senha.
+- **PDV com caixa aberto:** abrir o caixa (troco inválido e válido), vender pelo nome e pelo
+  código, código que não existe, desconto acima do máximo no item e na venda, cliente, dois
+  recebimentos com troco, cancelar venda, sangria acima do que a gaveta tem, detalhes e
+  fechamento do caixa.
+- **Contagem da Conferência de Entrada:** contagem cega, finalizar sem contar, divergência sem
+  confirmar, recontar e confirmar, motivo, e "marcar tudo como recebido".
+
+**O que está bom.** Os quatro fluxos se defendem bem: nada fecha sem contagem, divergência pede
+confirmação e motivo, o caixa fecha às cegas, desconto acima de 10% pede a senha do gerente, a
+sangria não passa do que a gaveta tem e exige motivo, e nenhum fluxo deu erro de JavaScript.
+
+**O que achou.** Nove pontos, todos pequenos (P). Seis são defeito, e três pedem decisão do usuário.
+
+- **S1 · Inventário: fechar sem senha não diz por quê** (defeito). O campo fica com a borda
+  vermelha, mas a mensagem "Informe sua senha para fechar o inventário" não aparece. No Acerto,
+  a mesma situação mostra a mensagem.
+- **S2 · Inventário: "Cancelar inventário" descarta a contagem sem perguntar** (defeito). Com
+  quantidades já digitadas, um clique no menu joga fora a contagem inteira e destrava o depósito.
+- **S3 · Inventário: os códigos recusados do arquivo não aparecem** (defeito). A tela promete
+  "a lista de recusados, com o motivo" e diz que eles entram no relatório de fechamento; na
+  prática aparece só a quantidade, e o fechamento não os leva.
+- **S4 · Inventário e Acerto: outro usuário na sessão** (defeito). As duas telas mostram
+  "Walysson Santos" como quem fecha e grava; as outras 81 usam "Administrador Desk", que é
+  também o nome que sai no cabeçalho do relatório impresso.
+- **S5 · Acerto: o depósito aparece duas vezes na linha** (defeito). A lista de depósitos vem dos
+  saldos do produto, um por endereço; a limpeza dos repetidos compara o texto do item, e o
+  primeiro tem uma marca a mais, então não é limpo.
+- **S6 · Acerto: saída maior que o saldo só é recusada no fim** (defeito). Uma saída de 99.999
+  unidades, num endereço com 6, entra na lista; a recusa só vem ao gravar o lote inteiro, embora
+  o painel da linha já mostre o disponível do endereço.
+- **S7 · Acerto: entrada só em depósito onde o produto já tem saldo** (decisão). A lista de
+  depósitos da linha vem dos saldos, então uma sobra achada num depósito onde o produto não
+  tinha nada não tem como entrar.
+- **S8 · PDV: o desconto da venda acima do máximo não avisa no campo** (decisão). No item, o
+  aviso aparece enquanto se digita; na venda, só ao finalizar, quando a senha do gerente é
+  pedida. O resultado é o mesmo; muda quando a pessoa fica sabendo.
+- **S9 · Conferência: uma confirmação por divergência** (decisão). Cada "Confirmar contagem"
+  abre a sua confirmação. Numa nota com muitos itens divergentes, são muitas janelas seguidas.

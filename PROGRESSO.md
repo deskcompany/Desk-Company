@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com a impressão em formato de relatório nas 19 telas que imprimem.*
+*Atualizado em 14/out/2026, com a segunda varredura feita e os achados esperando decisão.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -76,6 +76,11 @@ listas, a folha sai com título, data, quem emitiu, os filtros que estavam valen
 sem caixa de seleção, seta de ordenação, abas nem indicadores; nos 4 documentos (Conferência, Nota
 de Entrada, Ordem de Compra e Pedido de Venda), com a data e quem emitiu, mantendo o título da
 página. Espera o teste dele nas outras listas.
+
+**A segunda varredura está feita, e os achados esperam o usuário.** Inventário, Acerto, PDV com
+caixa aberto e a contagem da Conferência de Entrada foram percorridos do começo ao fim. Os quatro
+fluxos se defendem bem; saíram nove pontos pequenos, seis defeitos e três decisões (seção "Segunda
+varredura" de `docs/melhorias-modulos-prontos.md`). Depois deles, a barganha dos módulos novos.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -363,8 +368,9 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **Por etapas, a partir de agora:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
-   novos: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
+1. **Os achados da segunda varredura** (S1 a S9): consertar os seis defeitos e o que o usuário
+   decidir dos outros três.
+2. **Depois, a barganha dos módulos novos**, combinada com o usuário em 14/out: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
@@ -396,9 +402,12 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Nada trava o trabalho. Uma pendência, que é dele:
+Duas pendências, que são dele:
 
-1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **Os três pontos de decisão da segunda varredura:** S7 (entrada de acerto em depósito onde o
+   produto não tem saldo), S8 (o aviso do desconto da venda) e S9 (uma confirmação por
+   divergência na conferência).
+2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
