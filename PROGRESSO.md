@@ -1,12 +1,33 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com os achados da segunda varredura consertados.*
+*Atualizado em 14/out/2026, com a barganha de Vendas Afiliados e Comissões Afiliados em andamento.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**A barganha de Vendas Afiliados e Comissões Afiliados está em andamento; nada foi construído.**
+Chegaram 12 prints de Comissões do Olist (lista por vendedor, impressão, período por mês, conta do
+vendedor com pendentes, editar e excluir comissão, outro lançamento de crédito ou débito, realizar
+pagamento). Já decidido pelo usuário em 14/out:
+
+- **Venda por link é Pedido de Venda**, com o mesmo funil. O pedido chega da vitrine dizendo que foi
+  indicação e de quem; gerar o link e "minhas indicações" são da vitrine, fora do ERP. O item
+  "Vendas Afiliados" do menu abre Pedidos de Venda filtrado; a tela nova é só Comissões Afiliados,
+  em Finanças, que lê os pedidos e cobre cliente afiliado e vendedor.
+- **Afiliado é cliente aprovado** no cadastro (programa com aprovação). **Percentual padrão** em
+  Configurações; o vendedor segue a regra do cadastro dele.
+- **A comissão do link libera com o pedido entregue e 7 dias sem devolução**; devolução cancela.
+- **O link vale 30 dias** (pedido do usuário; a recomendação era 7). O último link clicado vale, e
+  compra pelo próprio link não gera comissão.
+- **Pagar a comissão gera conta a pagar.** Crédito na loja fica para depois: é o vale-troca que
+  Devolução, Formas de Recebimento e PDV já deixam reservado, e entra quando esse submódulo existir.
+- **Lucro = venda − custo médio dos produtos − comissão.** Frete fora (quem foi indicado paga) e
+  imposto fora (ainda não há nota fiscal).
+
+Os pontos ainda abertos estão em "Esperando decisão do usuário".
 
 **As melhorias do estoque (E2, E8 e E10 da lista) estão feitas e esperam o teste do usuário**,
 junto com as da venda (V2, V3 e V5) e as de Finanças (F1 a F4), entregues antes no mesmo dia. Ele
@@ -77,7 +98,7 @@ sem caixa de seleção, seta de ordenação, abas nem indicadores; nos 4 documen
 de Entrada, Ordem de Compra e Pedido de Venda), com a data e quem emitiu, mantendo o título da
 página. Espera o teste dele nas outras listas.
 
-**A segunda varredura está feita e os achados, consertados; esperam o teste do usuário** (§14.77).
+**A segunda varredura está feita e os achados, consertados; testados e aprovados pelo usuário em 14/out** (§14.77).
 Inventário, Acerto, PDV com caixa aberto e a contagem da Conferência de Entrada foram percorridos do
 começo ao fim. Saíram seis defeitos e três decisões; ele mandou seguir as sugestões: entrada de
 acerto em qualquer depósito, aviso do desconto da venda no campo, e uma confirmação por divergência
@@ -408,8 +429,11 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Duas pendências, que são dele:
 
-1. **Os prints do primeiro módulo novo**, para a barganha começar (Vendas Afiliados e Comissões
-   Afiliados, pela ordem da fila).
+1. **Os pontos abertos da barganha de Comissões Afiliados** (14/out): quando o saldo desce ao
+   pagar e quem é o favorecido em Contas a Pagar; um beneficiário por pedido e indicação só pelo
+   link; vendedor também gerar link; a lista com todas as colunas do Olist mais as dele; editar,
+   excluir e lançar à mão com motivo e senha; o que é "Comis. vencidas"; onde se aprova o afiliado;
+   e a ordem das entregas.
 2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
