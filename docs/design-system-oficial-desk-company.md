@@ -3273,3 +3273,71 @@ lista, e não conta feita na página para dar certo.
 
 **Provado nos dois sentidos, numa cópia.** `teste_doc_detalhe.py` tem 19 asserções em seis seções
 e abre as 14 ordens uma por uma. Treze defeitos injetados, um por vez, e os treze pegos.
+
+## 14.73 Os exemplos ficam como estão; a tela nova nasce no padrão (decisão do usuário, 13/out/2026)
+
+Depois dos §14.71 e §14.72 ficou claro que quase tudo o que restava da lista de melhorias esbarrava
+na mesma coisa: cada tela pronta tem o seu dado de exemplo, e eles não batem entre si. O pedido nº 1
+somava R$ 890,00 em itens e mostrava R$ 1.890,00 de total; a página do romaneio conhecia 3 dos 9
+romaneios da lista; o realizado de Metas não é a soma dos pedidos. Alinhar tudo eram sete entregas.
+
+**A decisão.** Posta a escolha ao usuário, ele respondeu: "telas mais simples, sem muita
+complexidade para teste, pode deixar os exemplos como estão, mas deixe registrado também que as
+próximas telas devem seguir um padrão melhor, corrija as que realmente precisa agora". Exemplo
+desalinhado some quando houver banco de dados; arrumar exemplo que vai ser jogado fora atrasa os
+módulos novos.
+
+**Regra para a tela pronta.** Não se abre entrega para alinhar exemplo entre telas. Achou número
+que não bate, vai para "O que continua sendo dado de exemplo", no `PROGRESSO.md`. Conserto que mexe
+em exemplo só entra quando a tela fica errada sem ele, e pelo mínimo que fecha a conta.
+
+**Regra para a tela nova.** O exemplo nasce certo, porque nascer certo custa pouco e consertar
+depois custa uma entrega:
+
+1. A página de detalhe lê o `?id=` e abre o registro clicado.
+2. Todo registro da lista tem os seus itens, e itens mais frete menos desconto fecham no total.
+3. Registro que já existe em outra tela (cliente, fornecedor, produto, pedido, ordem) é copiado de
+   lá com o mesmo nome e o mesmo número, num espelho declarado que a suíte compara.
+4. Número que a tela divide com outra tem uma dona; a outra lê dela.
+5. O que a tela não sabe fica em branco. Não se completa um registro com o dado do exemplo.
+
+**O que precisava de conserto agora: Pedidos de Venda.** A lista já mandava `?id=`, e a página
+ignorava: qualquer pedido abria o nº 2. É a tela mais testada e a que alimenta seis outras.
+
+- A página tem `PEDIDOS_DA_LISTA` e `ITENS_DA_LISTA`, espelhos da lista, e o `carregar()` troca o
+  exemplo pelo pedido pedido: cliente, documento, loja, vendedor, depósito padrão da loja, datas,
+  situação, frete, desconto e itens. A venda de balcão, que mora no navegador, abre do mesmo jeito.
+- **O total fecha nos 16.** A lista ganhou `frete` onde ele separa os itens do total. No pedido
+  nº 1 a diferença era de R$ 1.000,00, e frete não explica isso: ele ganhou um item (duas cadeiras)
+  e R$ 10,00 de frete. O pedido nº 2 levava dois produtos que o catálogo da página não tem; passou a
+  levar os três produtos do exemplo desenhado, em quantidades que fecham. Nenhum total mudou, porque
+  eles estão copiados em seis telas; os itens só existem na lista.
+- **Pedido sem itens no exemplo** (12 dos 16) mostra um "Item de exemplo" pelo valor dele, no
+  painel e na página.
+- **O saldo não é conferido onde não faz sentido.** A página confere cada item contra o disponível
+  e trava o salvamento. O item de exemplo e a venda de balcão, que já saiu do estoque, levam a marca
+  `foraDoSaldo` e ficam fora da conferência. Item de pedido de verdade continua conferido.
+- **Do cliente, só o do exemplo tem contas em aberto e últimas vendas.** Aberto o pedido de outro
+  cliente, os dois quadros ficam vazios, em vez de mostrar a conta vencida do cliente errado. E
+  cliente que tem pedido não cai no "cadastro rápido".
+- O clone copia o pedido que está aberto: o link leva o `?id=` junto. Antes copiava sempre o
+  exemplo. "Dados do cliente" leva o nome, e abre o cadastro daquele cliente.
+- Sem `?id=`, a página segue abrindo o exemplo desenhado nela. É o que as suítes antigas usam, e é
+  diferente do pedido nº 2 da lista: ficou anotado como dado de exemplo.
+
+**O botão do romaneio.** A página do romaneio já lia o id e o botão "Abrir o romaneio" não mandava.
+Manda. A página conhece 3 dos 9; para os outros, ela abre o romaneio padrão e avisa. Dar a ela os
+nove é alinhamento de exemplo, e ficou fora.
+
+**Achado e não mexido:** em modo de leitura, o campo "Número do pedido" mostra o rótulo e nenhum
+valor. É de antes, e o número está no título.
+
+**Duas suítes antigas pegaram o que a nova não via,** e por isso a suíte nova nunca é a única a
+rodar antes do selo. `teste_pedidos.py` acusou que clonar o exemplo aberto sem id passara a copiar
+a versão da lista: o clone ganhou o `?id=`. `teste_pdv.py` acusou que o catálogo do PDV, que é
+cópia do catálogo do pedido, deixara de bater, porque eu tinha posto dois produtos no do pedido:
+saíram, e quem mudou foram os itens do pedido nº 2.
+
+**Provado nos dois sentidos, numa cópia.** `teste_doc_detalhe.py` ganhou cinco seções e passou a
+39 asserções; abre os 16 pedidos um por um. Quinze defeitos injetados, um por vez, e os quinze
+pegos.

@@ -2131,7 +2131,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     ITENS.forEach((it, idx) => {
       const disp = saldoDe(it.sku, dep);
-      const falta = it.qtd > disp;
+      // `foraDoSaldo`: item de exemplo de pedido sem itens e venda de balcao, que ja saiu do estoque.
+      const falta = !it.foraDoSaldo && it.qtd > disp;
       const tr = document.createElement('tr');
       if (falta) tr.className = 'linha-sem-saldo';
       tr.innerHTML =
@@ -2139,7 +2140,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição, código ou SKU"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="sku" data-i="' + idx + '" value="' + it.sku + '" placeholder="SKU">' +
           '<div class="item-saldo' + (falta ? ' falta' : '') + '" data-saldo="' + idx + '">' +
-          (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un)) + '</div></td>' +
+          (it.foraDoSaldo ? '' : (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un))) + '</div></td>' +
         '<td><input type="text" data-campo="qtd" data-i="' + idx + '" value="' + fmtQtd(it.qtd, it.un) + '"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="un" data-i="' + idx + '" value="' + it.un + '" style="max-width:64px;"></td>' +
         '<td><input type="text" data-campo="precoLista" data-i="' + idx + '" value="' + fmtNum(precoUnit(it)) + '"></td>' +
@@ -2155,7 +2156,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (campo === 'qtd') ITENS[i].qtd = paraNumero(inp.value);
         else if (campo === 'precoLista') { ITENS[i].precoLista = paraNumero(inp.value); ITENS[i].desconto = 0; }
         else if (campo === 'un') ITENS[i].un = inp.value.trim().toUpperCase();
-        else if (campo === 'sku') { ITENS[i].sku = inp.value.trim().toUpperCase(); aplicarProduto(i); }
+        else if (campo === 'sku') { ITENS[i].sku = inp.value.trim().toUpperCase(); ITENS[i].foraDoSaldo = false; aplicarProduto(i); }
         else ITENS[i][campo] = inp.value;
         // So a linha e reescrita: refazer a tabela inteira tiraria o foco do
         // campo a cada tecla.
@@ -2186,17 +2187,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!tr) return;
     const it = ITENS[i];
     const disp = saldoDe(it.sku, depositoAtual());
-    const falta = it.qtd > disp;
+    const falta = !it.foraDoSaldo && it.qtd > disp;
     tr.classList.toggle('linha-sem-saldo', falta);
     const elSaldo = tr.querySelector('[data-saldo]');
     elSaldo.classList.toggle('falta', falta);
-    elSaldo.textContent = falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un);
+    elSaldo.textContent = it.foraDoSaldo ? '' : (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un));
     tr.querySelector('td:nth-child(7) b').textContent = fmtMoeda(totalItem(it));
   }
 
   function semSaldo() {
     const dep = depositoAtual();
-    return ITENS.filter(it => it.qtd > saldoDe(it.sku, dep));
+    return ITENS.filter(it => !it.foraDoSaldo && it.qtd > saldoDe(it.sku, dep));
   }
 
   function recalcularTotais() {
@@ -2386,7 +2387,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('inputCliente').addEventListener('input', avaliarCliente);
   avisarAtrasoDoCliente();
   document.getElementById('linkDadosCliente').addEventListener('click', () => {
-    window.location.href = '../cadastros/pagina-cadastros-clientes-detalhe.html';
+    // Pelo nome: o pedido nao guarda o numero que o cliente tem no cadastro.
+    window.location.href = '../cadastros/pagina-cadastros-clientes-detalhe.html?nome=' + encodeURIComponent(document.getElementById('inputCliente').value.trim());
   });
 
   // ===== MENU "MAIS AÇÕES" =====
@@ -2610,7 +2612,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       'Clonar este pedido? Abre um pedido novo já preenchido com o mesmo cliente, a mesma loja, o mesmo vendedor e os mesmos itens, preços e descontos. A data passa a ser a de hoje, o número é gerado ao salvar e a situação nasce Em aberto. Nada é gravado até você salvar.',
       1, 'primary', () => {
         registrarLog('pedidosClona', 'Clonado a partir do pedido nº ' + PEDIDO.numero, false);
-        window.location.href = '../vendas/pagina-vendas-pedidos-detalhe.html?clonar=' + PEDIDO.numero;
+        const idAberto = new URLSearchParams(window.location.search).get('id');   // o clone copia o pedido que esta aberto
+        window.location.href = '../vendas/pagina-vendas-pedidos-detalhe.html?clonar=' + PEDIDO.numero + (idAberto ? '&id=' + idAberto : '');
       });
   });
 
@@ -2863,6 +2866,59 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ===== CARREGAMENTO =====
+  // ===== O PEDIDO QUE VEIO DA LISTA (G3 — 13/out/2026) =====
+  // Ate esta data a lista mandava ?id= e esta pagina ignorava: qualquer pedido clicado abria o nº 2.
+  // PEDIDOS_DA_LISTA e ITENS_DA_LISTA sao ESPELHO de Vendas > Pedidos de Venda (PEDIDOS e
+  // ITENS_PEDIDO). Mudou la, muda aqui; teste_doc_detalhe.py compara.
+  // Sem ?id=, a pagina continua abrindo o exemplo desenhado aqui (PEDIDO e ITENS, la em cima).
+  const PEDIDOS_DA_LISTA = [
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90 },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true },
+    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true },
+    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true },
+    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55 },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true },
+    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true },
+    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true },
+    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false },
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true }
+  ];
+  const ITENS_DA_LISTA = {
+    1:  [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'FON-BT-200', qtd: 2, un: 'UN', preco: 249.90 },
+         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', qtd: 4, un: 'UN', preco: 97.55 },
+         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 2, un: 'UN', preco: 495.00 }],
+    2:  [{ nome: 'Notebook Desk Pro 14', sku: 'NTB-PRO-14', qtd: 1, un: 'UN', preco: 5890.00 },
+         { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 6, un: 'UN', preco: 231.10 },
+         { nome: 'Cabo HDMI 2.1 2m', sku: 'CAB-HDM-009', qtd: 16, un: 'UN', preco: 9.50 }],
+    6:  [{ nome: 'Mesa de escritório 1,40m', sku: 'MES-140-CZ', qtd: 6, un: 'UN', preco: 1420.00 },
+         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 8, un: 'UN', preco: 495.00 }],
+    10: [{ nome: 'Kit Manutenção Desk Tech', sku: 'KIT-MAN-01', qtd: 5, un: 'UN', preco: 289.90 },
+         { nome: 'Cabo HDMI 2.1 2m', sku: 'CAB-HDM-009', qtd: 20, un: 'UN', preco: 9.50 },
+         { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 7, un: 'UN', preco: 231.10 }]
+  };
+  const VENDEDORES_DA_LISTA = ['Marina Costa', 'Rafael Andrade', ''];
+  PEDIDOS_DA_LISTA.forEach(p => { p.vendedor = VENDEDORES_DA_LISTA[p.vend]; p.dataVenda = brDe(dMais(-p.dv)); p.previsto = brDe(dMais(p.dp)); });
+  // A venda de balcao mora no navegador, na chave que a lista tambem le.
+  (function lerVendasDoPdv() {
+    let g = null;
+    try { g = JSON.parse(localStorage.getItem('deskPdv') || 'null'); } catch (e) { return; }
+    if (!g) return;
+    [].concat((g.ultimoTurno && g.ultimoTurno.vendas) || [], (g.turno && g.turno.vendas) || []).forEach(v => {
+      const id = 900000 + Number(v.numero), quando = new Date(v.quando), dia = brDe(isNaN(quando) ? HOJE : quando);
+      if (PEDIDOS_DA_LISTA.some(p => p.id === id)) return;
+      PEDIDOS_DA_LISTA.push({ id: id, numero: 'PDV-' + String(v.numero).padStart(4, '0'), pdv: true, dataVenda: dia, previsto: dia,
+        cliente: v.clienteNome || 'Consumidor final', doc: v.clienteDoc || '—', loja: v.lojaId, vendedor: v.vendedorNome || '', total: v.total,
+        situacao: SIT_ROTULO[v.situacao] ? v.situacao : 'entregue' });
+      ITENS_DA_LISTA[id] = (v.itens || []).map(it => ({ nome: it.nome, sku: it.sku, qtd: it.qtd, un: it.un, preco: it.preco }));
+    });
+  })();
+
   // 'registro' = pedido que existe · 'novo' = em branco · 'clonar' = copia de
   // outro. Quem nao e 'registro' ainda nao tem numero, e por isso nao anda no
   // funil: primeiro salva, depois caminha.
@@ -2875,6 +2931,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Nunca a data, nunca o numero, nunca a situacao: esses sao do pedido velho.
     const clonadoDe = q.get('clonar');
     MODO = novo ? 'novo' : (clonadoDe ? 'clonar' : 'registro');
+
+    // O pedido da lista entra no lugar do exemplo: cabecalho, frete, desconto e itens. O clone leva
+    // o ?id= do pedido aberto e parte dele; aberto sem id, parte do exemplo desenhado aqui.
+    const p = novo ? null : PEDIDOS_DA_LISTA.filter(x => x.id === Number(q.get('id')))[0];
+    if (p) {
+      // Contas em aberto e ultimas vendas desenhadas nesta pagina sao do cliente do exemplo.
+      if (p.cliente !== PEDIDO.cliente) { CLIENTE_FINANCEIRO.aberto = []; ULTIMAS_VENDAS.length = 0; }
+      if (CLIENTES_CONHECIDOS.indexOf(p.cliente) < 0) CLIENTES_CONHECIDOS.push(p.cliente);   // quem tem pedido tem cadastro
+      PEDIDO.numero = p.numero; PEDIDO.situacao = p.situacao; PEDIDO.cliente = p.cliente; PEDIDO.doc = p.doc;
+      PEDIDO.vendedor = p.vendedor; PEDIDO.loja = p.loja; PEDIDO.deposito = DEPOSITO_PADRAO_DA_LOJA[p.loja];
+      PEDIDO.dataVenda = p.dataVenda; PEDIDO.previsto = p.previsto;
+      PEDIDO.desconto = p.desconto ? fmtNum(p.desconto) : '0';
+      // Recebimento, envio e expedicao a lista nao guarda: entram os de um pedido novo.
+      PEDIDO.recebimento = 'pix'; PEDIDO.envio = ''; PEDIDO.expedicao = 'sim';
+      document.getElementById('inputFrete').value = fmtNum(p.frete || 0);
+      // Pedido sem itens no exemplo leva o mesmo item de exemplo que o painel da lista mostra, pelo total dele.
+      ITENS = (ITENS_DA_LISTA[p.id] || [{ nome: 'Item de exemplo', sku: '', qtd: 1, un: 'UN', preco: p.total, foraDoSaldo: true }]).map(i => (
+        { nome: i.nome, sku: i.sku, qtd: i.qtd, un: i.un, precoLista: i.preco, desconto: 0, obs: '', foraDoSaldo: !!(i.foraDoSaldo || p.pdv) }));
+    }
 
     if (novo) {
       PEDIDO.numero = 0; PEDIDO.situacao = 'aberto'; PEDIDO.cliente = ''; PEDIDO.doc = '';

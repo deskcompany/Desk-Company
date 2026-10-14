@@ -1637,9 +1637,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const VENDEDORES = ['Marina Costa', 'Rafael Andrade', ''];
 
   // `dv` = dias atras da venda · `dp` = dias a partir de hoje da previsao de entrega
+  // `frete` e `desconto` sao o que separa a soma dos itens do total do pedido. A pagina do pedido
+  // soma os itens: sem os dois, ela fecharia em outro valor (13/out/2026).
   const PEDIDOS = [
-    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false },
-    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false },
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90 },
     { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true },
     { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true },
     { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true },
@@ -1647,7 +1649,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true },
     { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true },
     { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true },
-    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55 },
     { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true },
     { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true },
     { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true },
@@ -1666,10 +1668,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   const ITENS_PEDIDO = {
     1:  [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'FON-BT-200', qtd: 2, un: 'UN', preco: 249.90 },
-         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', qtd: 4, un: 'UN', preco: 97.55 }],
+         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', qtd: 4, un: 'UN', preco: 97.55 },
+         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 2, un: 'UN', preco: 495.00 }],
     2:  [{ nome: 'Notebook Desk Pro 14', sku: 'NTB-PRO-14', qtd: 1, un: 'UN', preco: 5890.00 },
-         { nome: 'Mouse sem fio Slim', sku: 'MOU-SLM-02', qtd: 3, un: 'UN', preco: 89.90 },
-         { nome: 'Suporte articulado para monitor', sku: 'SUP-ART-01', qtd: 2, un: 'UN', preco: 640.00 }],
+         { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 6, un: 'UN', preco: 231.10 },
+         { nome: 'Cabo HDMI 2.1 2m', sku: 'CAB-HDM-009', qtd: 16, un: 'UN', preco: 9.50 }],
     6:  [{ nome: 'Mesa de escritório 1,40m', sku: 'MES-140-CZ', qtd: 6, un: 'UN', preco: 1420.00 },
          { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 8, un: 'UN', preco: 495.00 }],
     10: [{ nome: 'Kit Manutenção Desk Tech', sku: 'KIT-MAN-01', qtd: 5, un: 'UN', preco: 289.90 },
@@ -1725,7 +1728,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const p = String(s).split('-');
     return Math.round((new Date(+p[0], +p[1] - 1, +p[2]) - HOJE) / 86400000);
   }
-  function itensDe(id) { return ITENS_PEDIDO[id] || ITENS_PADRAO; }
+  // Pedido sem itens no exemplo: o item de exemplo leva o total dele, para a conta fechar aqui e na pagina do pedido.
+  function itensDe(id) {
+    const p = PEDIDOS.filter(x => x.id === id)[0];
+    return ITENS_PEDIDO[id] || [Object.assign({}, ITENS_PADRAO[0], { preco: p ? p.total : 0 })];
+  }
   function reserva(p) { return SIT_RESERVA.indexOf(p.situacao) >= 0; }
 
   // O prazo da reserva vem do mesmo lugar que os outros limiares de estoque:

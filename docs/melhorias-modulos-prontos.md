@@ -15,14 +15,19 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
 
+**Decisão do usuário em 13/out/2026: os exemplos das telas prontas ficam como estão.** Saem da fila,
+e voltam quando houver banco de dados: os alinhamentos X1 a X7, os painéis C3 a C8, os links V4 e
+L4, e o que sobrou do G3 (o romaneio e "abrir a nota"). Continuam na fila: K1, R6 e P1. A regra da
+tela nova está no §14.73 do design system.
+
 O que entrou e o que falta em cada item feito no principal:
 
-- **G3** (a página de detalhe abrir o registro clicado): feito nos cinco cadastros e em Ordens de
-  Compra em 13/out. O link do painel leva `?id=`, e a página mostra o que a lista sabe daquele
-  registro; nos cadastros, só o registro do exemplo tem o cadastro inteiro. O lançamento do Caixa e
-  a Conferência de Saída já abriam o registro certo. Faltam três: Pedidos de Venda (a lista manda o
-  id e a página ignora), o Romaneio (o botão não manda o id) e a Nota de Entrada (não existe "abrir
-  a nota").
+- **G3** (a página de detalhe abrir o registro clicado): feito nos cinco cadastros, em Ordens de
+  Compra e em Pedidos de Venda em 13/out. O link do painel leva `?id=`, e a página mostra o que a
+  lista sabe daquele registro; nos cadastros, só o registro do exemplo tem o cadastro inteiro. O
+  lançamento do Caixa e a Conferência de Saída já abriam o registro certo. O botão do romaneio
+  passou a mandar o id, mas a página conhece 3 dos 9. Ficam como estão, por decisão do usuário: os
+  outros seis romaneios e a Nota de Entrada, que não tem "abrir a nota".
 - **C1** (Clientes): o painel mostra pedidos, total comprado, último pedido e quanto ainda deve (lido
   de Contas a Receber desde 12/out, que é a dona do número), com
   links para os pedidos, as contas a receber e o CRM. Faltam os títulos vencidos em separado, os

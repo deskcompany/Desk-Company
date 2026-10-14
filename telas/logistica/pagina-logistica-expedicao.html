@@ -2234,7 +2234,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '</div>').join('') : '<div class="montar-vazio">Nenhum pedido neste romaneio.</div>') + '</div>';
 
     html += '<div class="drawer-footer">' +
-      '<a class="btn-primary" id="btnAbrirRomaneio" href="../logistica/pagina-logistica-expedicao-detalhe.html">Abrir o romaneio</a>' +
+      '<a class="btn-primary" id="btnAbrirRomaneio" href="../logistica/pagina-logistica-expedicao-detalhe.html?id=' + r.id + '">Abrir o romaneio</a>' +
       (r.situacao === 'montagem' ? '<div class="drawer-link" id="btnCancelarRomaneio">Cancelar romaneio</div>' : '') +
       '</div>';
 

@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 13/out/2026, com os cinco cadastros e Ordens de Compra abrindo o registro clicado.*
+*Atualizado em 13/out/2026, com a decisão de deixar os exemplos como estão e Pedidos de Venda abrindo o pedido clicado.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -56,16 +56,13 @@ chat que não trazem o navegador para a frente ele vai olhar antes de mexermos. 
 numa conversa só**, e ele mandou seguir a fila do item 1 ao 6, começando pela página de detalhe
 abrir o registro clicado.
 
-**O primeiro item da fila está feito nos cinco cadastros e em Ordens de Compra, e espera o teste
-dele** (§14.71 e §14.72). Em Clientes, Fornecedores, Produtos, Vendedores e Lojas Desk, "Ver cadastro
-completo" abre o registro clicado; antes, qualquer fornecedor abria a TechParts. Em Ordens de
-Compra, "Abrir ordem completa" abre a ordem clicada; antes, sempre a nº 2.
-
-**Das outras páginas que a lista de melhorias dava como presas no exemplo, duas já não estavam:**
-o lançamento do Caixa e a Conferência de Saída abrem o registro clicado (medido no navegador em
-13/out). Faltam três: Pedidos de Venda (a lista manda o id e a página ignora), o Romaneio (a página
-sabe abrir pelo id, mas "Abrir o romaneio" não manda) e a Nota de Entrada (a lista só leva à nota
-nova; não existe "abrir a nota").
+**"Abrir o registro clicado" está feito onde valia a pena, e o resto da lista de melhorias saiu da
+fila.** O usuário testou em 13/out e deu ok nas setas da busca, no "Ver cadastro completo" dos cinco
+cadastros (§14.71) e na página da ordem de compra (§14.72). Na mesma conversa viu que quase tudo o
+que restava esbarrava em dado de exemplo que não bate entre as telas, e decidiu: **os exemplos das
+telas prontas ficam como estão, a tela nova já nasce no padrão, e corrige-se só o que precisa**
+(§14.73). O que precisava era Pedidos de Venda: a lista mandava o número e a página ignorava. Está
+feito e espera o teste dele, junto com o botão "Abrir o romaneio", que não mandava o id.
 
 **O `selo.py` voltou a fechar.** A suíte `teste_cad_melhorias.py` travava a rodada porque a prova por
 defeitos injetados foi interrompida quando a conversa caiu, e o defeito ficou no arquivo de verdade
@@ -320,12 +317,18 @@ de testar a conferência:
   situação, itens e total. O total da página fecha com o da lista nas 14 ordens. Clonar copia a
   ordem aberta, a Conferência leva à ordem da nota, e a ordem criada em Necessidades de Compra abre
   com os itens dela. Ordem atendida ou cancelada deixou de oferecer "Receber mercadorias".
+- **A página do pedido de venda abre o pedido clicado** (§14.73): cliente, loja, vendedor, datas,
+  situação, itens e total, nos 16 pedidos e na venda de balcão. O total da página fecha com o da
+  lista. Pedido sem itens no exemplo mostra um "Item de exemplo" pelo valor dele, e não acusa falta
+  de saldo. O clone parte do pedido aberto, e "Dados do cliente" abre o cadastro daquele cliente.
+- **"Abrir o romaneio"** leva o id. A página do romaneio conhece 3 dos 9; para os outros ela abre o
+  romaneio padrão e avisa.
 
 **13. A verificação.** Doze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
-`teste_busca_setas.py`, `teste_cad_detalhe.py` e `teste_doc_detalhe.py`. Duzentos e vinte e três
-defeitos injetados de propósito, um por vez; os duzentos e vinte e três são pegos. A auditoria do
+`teste_busca_setas.py`, `teste_cad_detalhe.py` e `teste_doc_detalhe.py`. Duzentos e trinta e oito
+defeitos injetados de propósito, um por vez; os duzentos e trinta e oito são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -335,28 +338,20 @@ constante.
 
 ## Próximo da fila
 
-Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por etapas.
+Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **O resto do G3:** Pedidos de Venda, o Romaneio e a Nota de Entrada, que ainda abrem sempre o
-   mesmo exemplo. Os cinco cadastros (§14.71) e Ordens de Compra (§14.72) estão feitos. **Os três
-   que faltam não se resolvem só mandando o número, e por isso esperam o item 3:**
-   - *Pedidos de Venda:* o total da lista não fecha com os itens (o pedido nº 1 tem R$ 890,00 em
-     itens e R$ 1.890,00 de total; no nº 2 a lista e a página mostram itens diferentes), e esse
-     total está copiado em seis telas (Clientes, Caixa, Contas a Receber e CRM). 12 dos 16 pedidos
-     não têm itens no exemplo.
-   - *Romaneio:* a página conhece 3 dos 9 romaneios da lista (os despachados e os sugeridos do dia
-     não estão nela), e a lista só sabe quantos volumes cada pedido tem, não a embalagem de cada um.
-   - *Nota de Entrada:* a lista só leva à nota nova. Falta "abrir a nota", que é o item E3.
-2. **Os painéis dos outros cadastros** (C3 a C8): Produtos (que pede alinhar o exemplo com o Controle
-   de Estoques antes), Lojas Desk, Vendedores, Depósitos, Endereços de Estoque, e onde Marcas,
-   Categorias, Departamento, Seção e Embalagens são usados.
-3. **Os alinhamentos de exemplo** (X1 a X7), que destravam V4, L4 e o resto do G3.
-4. **K1 e R6:** Parâmetros de estoque e as cópias do número de meta.
-5. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma vez.
-6. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
+1. **K1 e R6:** separar Parâmetros de estoque em estoque e logística; e a página da loja e o
+   Dashboard lerem a meta de Metas, em vez de terem número próprio.
+2. **A impressão em formato de relatório** (P1). Entra no bloco comum e chega às 20 listas de uma vez.
+3. **Por etapas, depois:** a segunda varredura (o miolo de Inventário, Acerto e PDV) e os módulos
    novos: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
-   pela barganha, com os prints.
+   pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
+
+**Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
+exemplo (X1 a X7); os painéis dos outros cadastros (C3 a C8); os links V4 e L4, que dependiam dos
+alinhamentos; e o que sobrou do G3 (a página do romaneio conhecer os 9 romaneios, e "abrir a nota"
+na Entrada de Notas, que é o item E3).
 
 ## Decidido, e ainda não feito de propósito
 
@@ -374,22 +369,24 @@ Ordem dada pelo usuário em 13/out: os seis primeiros em seguida, o resto por et
   da regra.
 - **Filtro com data inicial e final** (usuário, 13/out/2026): fica onde já existe (Movimentação de
   Estoque, Tratamento de Perdas e Giro de Estoque). As outras telas seguem com as opções prontas.
+- **Exemplos como estão** (usuário, 13/out/2026): "telas mais simples, sem muita complexidade para
+  teste, pode deixar os exemplos como estão, mas deixe registrado também que as próximas telas devem
+  seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
+  exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
 ## Esperando decisão do usuário
 
-Nenhuma destas trava o teste.
+Nada trava o trabalho. Uma pendência, que é dele:
 
-1. **Skill na origem:** o plugin das skills foi enviado pelo claude.ai. O texto novo vale neste
-   computador; para valer também no app da Claude, o usuário reenvia a pasta
-   `C:\Claude AI\Skills\Skills ERP System\desk-company-erp` por lá.
-2. **Os links do chat não trazem o navegador para a frente.** Nada no projeto nem no editor
-   controla isso. O Windows tem o Chrome como padrão, e a página abria no Opera. Ele vai olhar antes
-   de mexermos; existe um ajuste do Windows para tentar, que não foi aplicado.
-3. **A ordem da fila.** Proposta feita a ele em 13/out, sem resposta ainda: passar os alinhamentos
-   (item 3) para a frente. O resto do G3 depende deles, e também parte dos painéis do item 2: o de
-   Produtos (C3) pede o exemplo alinhado com o Controle de Estoques, e o do Vendedor (C5) poria
-   "pedidos do mês" ao lado de um "realizado" que hoje não é a soma dos pedidos (X5). Não dependem:
-   Lojas Desk (C4), Depósitos (C6), Endereços (C7) e "onde é usado" (C8).
+1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+   (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
+   atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
+   da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
+   computador; para atualizar, reenvia por lá a pasta
+   `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`.
+
+O defeito dos links do chat que não traziam o navegador para a frente era da sessão do editor e
+sumiu sozinho (confirmado por ele em 13/out).
 
 ## O que continua sendo dado de exemplo
 
@@ -401,10 +398,16 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
   feito, mas o pedido não aparece na fila da Conferência de Saída por causa disso.
 - **Quatro títulos de Contas a Receber** têm cliente ou valor diferente do pedido que citam, e os
   romaneios da Expedição levam pedidos que o Pedido de Venda dá como em separação.
-- **Três páginas de detalhe abrem sempre o mesmo exemplo**, qualquer que seja a linha clicada:
-  Pedidos de Venda, o Romaneio e a Nota de Entrada (o que falta do item G3). Os cinco cadastros já
-  abrem o registro clicado, mas só o registro do exemplo tem o cadastro inteiro: dos outros a
-  página mostra o que a lista sabe.
+- **Nos cinco cadastros, só o registro do exemplo tem o cadastro inteiro:** dos outros a página
+  mostra o que a lista sabe.
+- **Doze dos 16 pedidos de venda não têm itens no exemplo.** O painel e a página mostram um "Item de
+  exemplo" pelo valor do pedido. Do cliente, só o do exemplo tem contas em aberto e últimas vendas.
+- **O pedido nº 2 existe em duas versões:** aberto pela lista, traz os itens e o total da lista; a
+  página sem id abre o exemplo desenhado nela, com os mesmos produtos em outras quantidades e outro
+  total.
+- **O romaneio:** a página conhece 3 dos 9 da lista. Para os outros ela abre o romaneio padrão e
+  avisa que o pedido não está naquela fila.
+- **A Nota de Entrada não tem "abrir a nota":** a lista só leva à nota nova.
 - **Dez das 14 ordens de compra não têm itens no exemplo.** O painel da lista e a página da ordem
   mostram um "Item de exemplo" pelo total da ordem. Escrever os itens de verdade mexe no "já pedido"
   de Necessidades de Compra e do Giro, e entra com os alinhamentos: é o item X7.

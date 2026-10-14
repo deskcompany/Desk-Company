@@ -9,9 +9,14 @@
 #   [3] pelo clique: lista, painel e "Abrir ordem completa" chegam na ordem clicada;
 #   [4] o que a ordem oferece segue a situacao dela; clonar copia a ordem aberta;
 #   [5] a ordem criada em Necessidades de Compra abre com os itens dela;
-#   [6] ordem nova, endereco sem id e id que nao existe.
+#   [6] ordem nova, endereco sem id e id que nao existe;
+#   [7] Pedidos de Venda: o espelho da pagina e igual a lista, e os itens fecham no total;
+#   [8] cada pedido abre a si mesmo, sem acusar falta de saldo nem pedir cadastro do cliente;
+#   [9] pelo clique: lista, painel e "Abrir pedido completo"; o cliente leva ao cadastro pelo nome;
+#  [10] o clone parte do pedido aberto; a venda de balcao abre; sem id, o exemplo desenhado;
+#  [11] Expedicao: "Abrir o romaneio" leva o id do romaneio.
 from playwright.sync_api import sync_playwright
-import os as _os, glob as _g, sys, json
+import os as _os, glob as _g, sys
 import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
@@ -19,6 +24,8 @@ _ch = _g.glob('/opt/pw-browsers/chromium*/chrome-linux/chrome') + _g.glob('/opt/
 CHROME = _ch[0] if _ch else None
 SO = (sys.argv[1:] or [''])[0]
 OC, OC_D = 'pagina-estoque-ordens-compra.html', 'pagina-estoque-ordens-compra-detalhe.html'
+PV, PV_D = 'pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html'
+EXP, EXP_D = 'pagina-logistica-expedicao.html', 'pagina-logistica-expedicao-detalhe.html'
 
 falhas = []
 total = [0]
@@ -164,6 +171,127 @@ with sync_playwright() as p:
         ir(OC_D, '?id=11&editar=1'); pg.wait_for_timeout(250)
         tem = pg.evaluate("typeof camposAlterados === 'function'")
         ok((not tem) or pg.evaluate('camposAlterados()') == 0, 'abrir a ordem nº 11 não deixa alteração pendente no rodapé')
+
+    # O que a pagina do pedido mostra.
+    RETRATO_PV = """() => {
+      const rot = (id) => document.querySelector('#' + id + ' .dropdown-select-label').textContent.trim();
+      const v = (id) => document.getElementById(id).value;
+      const some = (id) => { const e = document.getElementById(id); return !e || e.style.display === 'none' || e.offsetParent === null; };
+      return {
+        h1: document.getElementById('tituloPedido').textContent.trim(), numero: v('inputNumero'), cliente: v('inputCliente'), doc: v('inputDoc'),
+        loja: rot('inputLoja'), vendedor: rot('inputVendedor'), data: v('inputDataVenda'), previsto: v('inputPrevisto'),
+        situacao: document.getElementById('badgeSituacao').textContent.trim(),
+        itens: ITENS.map(i => [i.nome, i.sku, i.qtd, i.un, i.precoLista]), linhas: document.getElementById('corpoItens').children.length,
+        total: paraNumero(document.getElementById('totGeral').textContent.replace('R$', '')),
+        semSaldo: document.getElementById('erroSaldo').classList.contains('show') || document.querySelectorAll('#corpoItens tr.linha-sem-saldo').length > 0,
+        pedeCadastro: document.getElementById('blocoCliente').classList.contains('aberto'), atraso: !some('avisoAtraso'),
+        contasAbertas: CLIENTE_FINANCEIRO.aberto.length, ultimas: ULTIMAS_VENDAS.length
+      };
+    }"""
+    PICA = "(l) => l.filter(p => !p.pdv).map(p => [p.id, p.numero, p.dv, p.dp, p.cliente, p.doc, p.loja, p.vend, p.total, p.situacao, p.pago, p.frete || 0, p.desconto || 0])"
+    ir(PV); pg.evaluate("['deskPdv', 'deskCaixaExtras'].forEach(k => localStorage.removeItem(k))")
+    ir(PV)
+    PEDIDOS, ITENS_PV = pg.evaluate('PEDIDOS'), pg.evaluate('ITENS_PEDIDO')
+    LOJAS, ROTULO_SIT = pg.evaluate('LOJAS'), pg.evaluate("Object.fromEntries(SITUACOES.map(s => [s.id, s.rotulo]))")
+    EXEMPLO_PV = 'Tech Solutions Imperatriz Ltda'
+
+    if secao(7, 'Pedidos de Venda: o espelho da página é igual à lista'):
+        da_lista = pg.evaluate(PICA.replace('(l) =>', '((l) =>') + ')(PEDIDOS)')
+        vend = pg.evaluate('VENDEDORES')
+        ir(PV_D)
+        ok(pg.evaluate(PICA.replace('(l) =>', '((l) =>') + ')(PEDIDOS_DA_LISTA)') == da_lista and len(da_lista) == 16, 'PEDIDOS_DA_LISTA repete os 16 pedidos da lista, campo a campo')
+        ok(pg.evaluate('ITENS_DA_LISTA') == ITENS_PV and len(ITENS_PV) == 4 and pg.evaluate('VENDEDORES_DA_LISTA') == vend,
+           'ITENS_DA_LISTA repete os itens dos 4 pedidos que a lista tem com itens, e os vendedores são os mesmos')
+        fora = []
+        for p in PEDIDOS:
+            itens = ITENS_PV.get(str(p['id']))
+            if itens and abs(sum(i['qtd'] * i['preco'] for i in itens) + p.get('frete', 0) - p.get('desconto', 0) - p['total']) > 0.005:
+                fora.append(p['numero'])
+        ok(not fora, 'na lista, itens mais frete menos desconto fecham no total de cada pedido que tem itens: %s' % fora)
+        skus = sorted(set(i['sku'] for itens in ITENS_PV.values() for i in itens))
+        ok(not [s for s in skus if not pg.evaluate("(s) => !!produtoDe(s)", s)], 'todo produto dos pedidos da lista existe no catálogo da página: %s' % [s for s in skus if not pg.evaluate("(s) => !!produtoDe(s)", s)])
+
+    if secao(8, 'Cada pedido abre a si mesmo'):
+        ruins, vistos = [], {}
+        for p in PEDIDOS:
+            ir(PV_D, '?id=%d' % p['id'])
+            r = vistos[p['id']] = pg.evaluate(RETRATO_PV)
+            itens = ITENS_PV.get(str(p['id']))
+            quer = dict(h1='Pedido de Venda nº %d' % p['numero'], numero=str(p['numero']), cliente=p['cliente'], doc=p['doc'], loja=LOJAS[str(p['loja'])],
+                        vendedor=p['vendedor'] or 'Sem vendedor', data=br(p['data']), previsto=br(p['previsto']), situacao=ROTULO_SIT[p['situacao']],
+                        itens=[[i['nome'], i['sku'], i['qtd'], i['un'], i['preco']] for i in itens] if itens else [['Item de exemplo', '', 1, 'UN', p['total']]],
+                        semSaldo=False, pedeCadastro=False)
+            for k, v in quer.items():
+                if r[k] != v:
+                    ruins.append('nº %d, %s: %r, e a lista diz %r' % (p['numero'], k, r[k], v))
+            if abs(r['total'] - p['total']) > 0.005 or r['linhas'] != len(r['itens']):
+                ruins.append('nº %d: total %s (lista %s), %d linhas' % (p['numero'], r['total'], p['total'], r['linhas']))
+            if p['cliente'] != EXEMPLO_PV and (r['atraso'] or r['contasAbertas'] or r['ultimas']):
+                ruins.append('nº %d: mostra conta em atraso ou venda anterior do cliente do exemplo' % p['numero'])
+        ok(not ruins, 'os 16 pedidos abrem com o que a lista diz deles (cliente, loja, vendedor, datas, situação, itens e total): %s' % ruins[:3])
+        ok(len(set(v['h1'] for v in vistos.values())) == 16, 'são 16 títulos diferentes, e não o pedido nº 2 dezesseis vezes')
+        ok(len(set(p['situacao'] for p in PEDIDOS)) >= 8 and sum(1 for p in PEDIDOS if str(p['id']) not in ITENS_PV) == 12,
+           'a conferência passou por pedido com itens e sem itens, em %d situações diferentes' % len(set(p['situacao'] for p in PEDIDOS)))
+        ir(PV)
+        sem = [p for p in PEDIDOS if str(p['id']) not in ITENS_PV][:2]
+        painel = pg.evaluate("(ids) => ids.map(id => itensDe(id).map(i => [i.nome, i.preco]))", [p['id'] for p in sem])
+        ok(painel == [[['Item de exemplo', p['total']]] for p in sem], 'no painel da lista, o item de exemplo do pedido sem itens leva o total dele: %s' % painel)
+
+    if secao(9, 'Pelo clique: lista, painel e o botão de abrir'):
+        for alvo in (PEDIDOS[15], PEDIDOS[4]):
+            ir(PV)
+            pg.evaluate("(id) => abrirPreview(id)", alvo['id']); pg.wait_for_timeout(250)
+            pg.evaluate("document.getElementById('btnAbrirPedido').click()"); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+            r = pg.evaluate(RETRATO_PV)
+            ok(pg.url.split('/')[-1] == PV_D + '?id=%d' % alvo['id'] and r['h1'] == 'Pedido de Venda nº %d' % alvo['numero'] and r['cliente'] == alvo['cliente'],
+               'cliquei no pedido nº %d (%s) e a página abriu "%s", de %s' % (alvo['numero'], alvo['cliente'], r['h1'], r['cliente']))
+        ir(PV_D, '?id=3')
+        pg.evaluate("document.getElementById('linkDadosCliente').click()"); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+        ok('pagina-cadastros-clientes-detalhe.html?nome=' in pg.url and pg.evaluate("document.querySelector('.main h1').textContent.trim()") == PEDIDOS[2]['cliente'],
+           'do pedido nº 3, "dados do cliente" abre o cadastro de %s' % PEDIDOS[2]['cliente'])
+
+    if secao(10, 'Clone, venda de balcão e o exemplo desenhado'):
+        ir(PV_D, '?id=6')
+        pg.evaluate("document.getElementById('linkClonarVenda').click()"); pg.wait_for_timeout(300)
+        pg.evaluate("document.getElementById('btnConfirmModalConfirmar').click()"); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
+        q = pg.url.split('?')[-1]
+        ok('clonar=6' in q and 'id=6' in q, 'com o pedido nº 6 aberto, "Clonar venda" leva o número e o id dele: %s' % q)
+        r = pg.evaluate(RETRATO_PV)
+        ok(r['h1'] == 'Novo pedido de venda — clonado do nº 6' and r['numero'] == '' and r['cliente'] == PEDIDOS[5]['cliente']
+           and [i[1] for i in r['itens']] == [i['sku'] for i in ITENS_PV['6']] and r['situacao'] == ROTULO_SIT['aberto'],
+           'o clone do nº 6 abre um pedido novo com o cliente e os itens do nº 6: %s, %s' % (r['cliente'], [i[1] for i in r['itens']]))
+        venda = {'numero': 1, 'quando': '2026-10-13T10:30:00', 'clienteNome': 'Consumidor final', 'clienteDoc': '', 'lojaId': 1, 'vendedorNome': 'Marina Costa',
+                 'total': 129.80, 'situacao': 'entregue', 'recebimentos': [{'destino': 'conta'}],
+                 'itens': [{'nome': 'Produto do balcão', 'sku': 'BALCAO-01', 'qtd': 2, 'un': 'UN', 'preco': 64.90}]}
+        ir(PV); pg.evaluate("(v) => localStorage.setItem('deskPdv', JSON.stringify({ turno: { vendas: [v] } }))", venda)
+        ir(PV)
+        ok(pg.evaluate("PEDIDOS.some(p => p.id === 900001 && p.numero === 'PDV-0001')"), 'a venda de balcão PDV-0001, gravada como o PDV grava, entra na lista')
+        ir(PV_D, '?id=900001')
+        r = pg.evaluate(RETRATO_PV)
+        ok(r['h1'] == 'Pedido de Venda nº PDV-0001' and r['cliente'] == 'Consumidor final' and r['itens'] == [['Produto do balcão', 'BALCAO-01', 2, 'UN', 64.9]]
+           and abs(r['total'] - 129.80) < 0.005 and r['situacao'] == ROTULO_SIT['entregue'] and r['data'] == '13/10/2026' and not r['semSaldo'],
+           'e a página dela abre a PDV-0001, com o item e o total, sem acusar falta de saldo: %s' % r['itens'])
+        pg.evaluate("localStorage.removeItem('deskPdv')")
+        ir(PV_D); sem_id = pg.evaluate(RETRATO_PV)
+        ir(PV_D, '?id=99999'); fora = pg.evaluate(RETRATO_PV)
+        ok(sem_id == fora and sem_id['h1'] == 'Pedido de Venda nº 2' and [i[1] for i in sem_id['itens']] == ['NTB-PRO-14', 'TEC-MEC-006', 'CAB-HDM-009'] and sem_id['contasAbertas'] == 3,
+           'sem id, ou com um que não existe, abre o exemplo desenhado na página, com as contas do cliente dele')
+        ir(PV_D, '?novo=1'); r = pg.evaluate(RETRATO_PV)
+        ok(r['h1'] == 'Novo pedido de venda' and r['cliente'] == '' and r['numero'] == '', 'pedido novo continua abrindo em branco')
+        ir(PV_D, '?id=2&editar=1')
+        pg.evaluate("(() => { const i = document.querySelector('#corpoItens input[data-campo=\"qtd\"]'); i.value = '9999'; i.dispatchEvent(new Event('input', { bubbles: true })); })()")
+        pg.wait_for_timeout(200)
+        ok(pg.evaluate(RETRATO_PV)['semSaldo'], 'num pedido da lista, pedir mais do que existe continua acusando falta de saldo')
+
+    if secao(11, 'Expedição: "Abrir o romaneio" leva o id'):
+        ir(EXP)
+        roms = pg.evaluate("ROMANEIOS.map(r => r.id)")
+        hrefs = pg.evaluate("(ids) => ids.map(id => { abrirResumo(id); const a = document.getElementById('btnAbrirRomaneio'); return a ? a.getAttribute('href') : null; })", roms)
+        ok(len(roms) >= 5 and hrefs == ['../logistica/%s?id=%s' % (EXP_D, r) for r in roms], 'o botão do painel leva o id de cada um dos %d romaneios: %s' % (len(roms), hrefs[:2]))
+        tem = pg.evaluate("ROMANEIOS.map(r => r.id)")
+        ir(EXP_D, '?id=ROM-0190')
+        ok('ROM-0190' in tem and pg.evaluate("document.querySelector('.main h1').textContent.replace(/\\s+/g, ' ').trim()").startswith('Romaneio ROM-0190'),
+           'e o ROM-0190 abre a página do ROM-0190, e não a do romaneio padrão')
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()
