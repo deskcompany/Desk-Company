@@ -2043,7 +2043,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         e.stopPropagation();
         menu.classList.remove('open');
         const acao = item.getAttribute('data-acao');
-        if (acao === 'inventario') { window.location.href = '../estoque/pagina-estoque-inventario.html'; return; }
         avisar('Impressão de relatório entra junto com o módulo de Relatórios.');
       });
     });

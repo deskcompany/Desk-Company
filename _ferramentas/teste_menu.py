@@ -192,6 +192,12 @@ with sync_playwright() as p:
         fora += ['%s/%s' % (os.path.basename(arq).replace('pagina-', '').replace('.html', ''), m) for m, rotulos in achados if rotulos != ORDEM[m]]
     ok(not sem_menu, 'toda tela com menu traz os sete modulos com itens: %s' % sem_menu[:3])
     ok(not fora, 'e cada modulo esta na ordem combinada, com os mesmos nomes em toda tela: %s' % fora[:4])
+    print('12. Nenhuma tela trata o atalho do Inventario sem ter o item no menu')
+    # 15/out: 18 telas carregavam o desvio para o Inventario num "Mais acoes" que nao tinha o item, copiado de outra
+    # tela. Codigo morto, sem efeito para quem usa, e que volta a cada tela copiada se ninguem cobrar.
+    mortos = [os.path.basename(a) for a in _filtrar(localiza.caminhos())
+              if "acao === 'inventario'" in open(a, encoding='utf-8').read() and 'data-acao="inventario"' not in open(a, encoding='utf-8').read()]
+    ok(not mortos, 'nenhuma tela trata a acao "inventario" sem o item no menu: %s' % mortos[:4])
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

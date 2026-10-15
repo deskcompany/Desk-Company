@@ -10,7 +10,7 @@ item, mais abaixo, continua sendo o do levantamento ("Hoje" é como estava antes
 |---|---|
 | **Feito por inteiro** (17) | D1, D2, D3, D4 · G2 · R1, R2, R3, R4, R5, R7 · E2, E7, E8 · F1, F3 · V3 |
 | **Feito no principal, com resto anotado** (22) | G3 · C1, C2 · E1, E3, E4, E5, E6, E9, E10, E11 · V1, V2, V5 · L1, L2, L3, L5 · I1, I2 · F2, F4 |
-| **Falta** | A limpeza de código das 17 telas. Fora da fila por decisão do usuário (13/out): C3 a C8 · V4 e L4 · X1 a X7 · R6 |
+| **Falta** | Nada fora da fila. A limpeza de código foi feita em 15/out (18 telas). Fora da fila por decisão do usuário (13/out): C3 a C8 · V4 e L4 · X1 a X7 · R6 |
 | **Entrou na lista em 12/out** | P1 (impressão em formato de relatório) · X1 a X5 (dados de exemplo que ainda não conversam) · X6 e X7 (13/out) |
 
 G1 (a trilha) e G4 (os indicadores) são a soma dos itens de cada tela, e andam com eles.
@@ -529,7 +529,8 @@ Pequenos, e vale corrigir sem esperar o resto.
   O sistema passou a ser programado aqui em 10/out.
 
 Limpeza de código, sem efeito para quem usa: 17 telas carregam um trecho do menu de outra tela (um
-desvio para o Inventário num menu que elas não têm).
+desvio para o Inventário num menu que elas não têm). **Feito em 15/out/2026:** eram 18; o trecho saiu, e a
+seção 12 de `teste_menu.py` reprova se ele voltar numa tela sem o item.
 
 ---
 
