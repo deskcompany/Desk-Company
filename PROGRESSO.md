@@ -459,9 +459,20 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
+1. **Comissões, entrega 2c** (barganha aprovada pelo usuário em 15/out, "concordo com o recomendado"):
+   - **o histórico é de Comissões**: a conta do afiliado ganha o bloco Histórico, de todos os meses
+     (inscrição, pedidos por indicação, pagamentos solicitados, pagos e cancelados, lançamentos); o
+     cadastro do cliente ganha só uma seção "Afiliado" (situação, loja, saldo, total recebido e o link
+     para a conta), e o do vendedor, o link na aba Comissionamento;
+   - **o cliente afiliado pede o saque** (valor mínimo em Configurações → Programa de afiliados); o
+     pedido chega em Comissões como "pagamento solicitado", e aprovar faz nascer a conta a pagar,
+     recusar pede motivo. O vendedor continua pago pela empresa;
+   - **"pago" volta da baixa em Contas a Pagar** para Comissões, pelo mesmo caminho do cancelar;
+   - **na vitrine**, "Minhas indicações" mostra o mesmo acompanhamento, lendo do mesmo banco (fica
+     para quando a vitrine for construída).
+2. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
    vale-troca reservado nas telas prontas e o pagamento de comissão como crédito.
-2. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
+3. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
