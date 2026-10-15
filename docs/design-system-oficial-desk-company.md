@@ -3553,3 +3553,44 @@ da vitrine, fora do ERP.
 
 **Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` tem quatro seções (lista, menu,
 página do pedido e espelhos). Vinte e um defeitos injetados, um por vez, e os vinte e um pegos.
+
+## 14.79 Comissões Afiliados: a lista, a conta do afiliado e as inscrições (14/out/2026)
+
+Barganhada com o usuário em 14/out, com 12 prints de Comissões do Olist e os textos dos (i) das
+colunas. Ele decidiu: a lista enxuta, com as colunas necessárias (opção B), e a conta inteira ao abrir
+o afiliado; a aprovação do afiliado no ERP; o percentual por loja; e o vendedor sem link.
+
+**Duas telas novas, em Finanças**, montadas a partir de Metas e Performance:
+
+- **A lista** (`pagina-financas-comissoes.html`): uma linha por quem recebe comissão, vendedor do
+  cadastro (os não excluídos) ou cliente aprovado como afiliado de uma loja. Colunas: pedidos do mês,
+  vendido (sem frete), percentual, comissão do mês, lucro, a liberar e saldo a pagar. Indicadores do
+  mês, filtro de mês, ano e tipo, painel lateral com a conta do mês e o caminho para a conta inteira.
+- **As inscrições**: o cliente pede pela vitrine de uma loja, aceitando as regras dela; o pedido chega
+  no quadro "Inscrições aguardando", com CPF e chave PIX. Aprovar pergunta antes, dizendo a loja e o
+  percentual; recusar pede o motivo, que volta para o cliente. "Incluir afiliado" é para convite: um
+  cliente que já está no cadastro, numa loja em que ainda não é afiliado.
+- **A conta do afiliado** (`pagina-financas-comissoes-detalhe.html?id=v1` ou `a1`): o resumo nas linhas
+  do Olist, com os textos dos (i) (saldo anterior e saldo sempre; as outras, só com valor), os pedidos
+  do mês (cada um abre o pedido), as comissões pendentes (vermelho venceu sem o cliente pagar, amarelo
+  a liberar) e os outros créditos e débitos. Editar ou excluir comissão e lançar à mão pedem motivo,
+  passam por Confirmações com senha e ficam no registro de atividades. Cliente afiliado pode ser
+  suspenso e reativado.
+
+**As regras:** o cliente afiliado libera com o pedido entregue e 7 dias sem devolução; o vendedor
+segue a regra do cadastro. O lucro é a venda sem frete, menos o custo dos produtos (congelado no
+pedido, campo `custo`) e a comissão. Cada comissão é arredondada em centavos antes de somar: sem
+isso, o saldo da Marina saía R$ 352,99 num mês cujas linhas somam R$ 353,00.
+
+**Ligadas:** os pedidos são espelho de Pedidos de Venda; os vendedores, do cadastro de vendedores; os
+clientes, do cadastro de clientes; o percentual de cada loja e a validade do link, de Configurações →
+Cadastro de clientes (seção Programa de afiliados). O bloco de dados e regras é idêntico nas duas
+telas. O item do menu ganhou destino em todas as telas, e as três ações novas (aprovar afiliado,
+ajustar comissão, lançar na conta) entraram no catálogo das 15 telas que o carregam.
+
+**Fica para a entrega 2b:** "realizar pagamento", com a conta nascendo em Contas a Pagar e o
+pagamento no resumo. **Fica para o vale-compra:** pagar a comissão como crédito na loja.
+
+**Provado nos dois sentidos, numa cópia.** `teste_comissoes.py` refaz a conta em Python a partir dos
+pedidos e compara cada linha; tem cinco seções. Vinte e três defeitos injetados, um por vez, e os
+vinte e três pegos.

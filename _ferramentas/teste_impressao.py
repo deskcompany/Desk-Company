@@ -139,8 +139,8 @@ with sync_playwright() as p:
       const linha = Array.from(tb.querySelectorAll('tbody tr')).filter(tr => !tr.querySelector('[colspan]'))[0];
       return [Array.from(tb.querySelectorAll('thead tr:last-child th')).filter(vis).length, Array.from(linha.children).filter(vis).length]; }).filter(p => p[0] && p[0] !== p[1])"""
 
-    if secao(5, 'As 19 telas com o bloco comum'):
-        ok(len(COM_BLOCO) == 19, 'são %d telas com o bloco comum de planilha e impressão' % len(COM_BLOCO))
+    if secao(5, 'As 21 telas com o bloco comum'):
+        ok(len(COM_BLOCO) == 21, 'são %d telas com o bloco comum de planilha e impressão' % len(COM_BLOCO))
         css = set(FONTES[n][FONTES[n].index(MARCA_CSS):FONTES[n].index('</style>')] if MARCA_CSS in FONTES[n] else '' for n in COM_BLOCO)
         ok(len(css) == 1 and '' not in css, 'o CSS do relatório está em todas, igual')
         ruins, listas, docs = [], 0, 0
@@ -178,7 +178,8 @@ with sync_playwright() as p:
             if lista and paginada and pg.evaluate(CONTA) != antes:
                 ruins.append('%s: depois da impressão a lista não voltou à página (%d, era %d)' % (curto, pg.evaluate(CONTA), antes))
         ok(not ruins, 'nas %d listas e nos %d documentos: cabeçalho no papel, quantidade, sem caixa de seleção, colunas alinhadas e a página de volta: %s' % (listas, docs, ruins[:4]))
-        ok(listas == 15 and docs == 4, 'as listas são 15 e os documentos, 4 (%d e %d)' % (listas, docs))
+        # 14/out: Comissoes Afiliados (lista) e a conta do afiliado (documento) entraram com o bloco.
+        ok(listas == 16 and docs == 5, 'as listas são 16 e os documentos, 5 (%d e %d)' % (listas, docs))
 
     if secao(6, 'Em cada lista, o filtro escolhido aparece'):
         ruins, conferidas = [], 0

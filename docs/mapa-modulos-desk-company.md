@@ -1,7 +1,7 @@
 # Mapa dos módulos — ERP Desk Company
 *Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque e com a ordem nova do menu, por sequência de trabalho. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
-**82 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**84 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **A ordem das tabelas é a do menu** (desde 13/out/2026): primeiro a tela de consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e Relatórios por último. Módulo ou item novo entra na posição da função dele. A regra está no §4 do design system, e a seção 11 de `teste_menu.py` guarda a ordem.
 >
@@ -96,13 +96,13 @@
 | ✅ | Devolução *(+ detalhe; documento próprio que aponta para o pedido, estado por item, estoque lançado à mão e código da reversa próprio)* |
 | ❌ | Relatórios de Logística |
 
-## 💰 Finanças — 3 de 5
+## 💰 Finanças — 4 de 5
 | | Submódulo |
 |---|---|
 | ✅ | Contas a Receber *(+ página da conta)* |
 | ✅ | Contas a Pagar *(+ página da conta)* |
 | ✅ | Caixa e Bancos *(+ lançamento)* |
-| ❌ | Comissões Afiliados |
+| ✅ | Comissões Afiliados *(+ conta do afiliado; 14/out: uma linha por vendedor ou cliente afiliado, com vendido, comissão do mês, lucro, a liberar e saldo; inscrições da vitrine aprovadas aqui; percentual por loja em Configurações; a conta nas linhas do Olist. O pagamento por Contas a Pagar é a entrega 2b)* |
 | ❌ | Relatórios Finanças |
 
 ## 🔧 Operacional — módulo apagado em 08/out/2026
@@ -146,13 +146,13 @@
 | Início | 4 | 0 |
 | Cadastros | 12 | 1 |
 | Estoque | 13 | 1 |
-| Vendas | 4 | 5 |
+| Vendas | 5 | 4 |
 | **Logística** | **5** | **1** |
-| Finanças | 3 | 2 |
+| Finanças | 4 | 1 |
 | Integrações | 0 | 4 |
 | Configurações | 1 item de menu, 20 telas | 0 |
-| **Total** | **42 itens de menu com tela · 82 telas** | **14** |
+| **Total** | **44 itens de menu com tela · 84 telas** | **12** |
 
-*Contado no menu em 13/out/2026: **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 14/out/2026: **56 itens, 44 com destino e 12 sem**, em 84 telas: Vendas Afiliados passou a abrir Pedidos de Venda filtrado, e Comissões Afiliados nasceu, com a conta do afiliado. Em 13/out/2026 eram **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

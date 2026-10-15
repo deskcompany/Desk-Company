@@ -54,9 +54,10 @@ with sync_playwright() as p:
     # trocar de alvo quando o alvo ganha destino, senao vira teste de nada.
     abrirMenu('financas')
     antes = pg.url
-    pg.click('#flyout-financas .flyout-item[data-label="Comissões Afiliados"]'); pg.wait_for_timeout(500)
+    # 14/out: Comissoes Afiliados ganhou tela; o alvo passou a ser Relatorios Financas.
+    pg.click('#flyout-financas .flyout-item[data-label="Relatórios Finanças"]'); pg.wait_for_timeout(500)
     ok(pg.url == antes, 'nao navegou (a tela ainda nao existe)')
-    ok('Comissões Afiliados' in pg.text_content('#breadcrumb'), 'mas moveu o breadcrumb, como antes')
+    ok('Relatórios Finanças' in pg.text_content('#breadcrumb'), 'mas moveu o breadcrumb, como antes')
     ok(not erros, 'sem erro de JS: %s' % erros[:3])
 
     print('5. todo destino do menu aponta para arquivo que existe')

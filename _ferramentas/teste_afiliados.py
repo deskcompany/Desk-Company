@@ -3,7 +3,8 @@
 #
 # A venda por link de indicacao e um Pedido de Venda, com o mesmo funil: nao ganhou lista propria. O
 # pedido chega da vitrine dizendo quem indicou (`ind`), e isso nao se digita. Uma pessoa recebe por
-# pedido, e o link vale sobre o vendedor. O item "Vendas Afiliados" do menu abre Pedidos de Venda
+# pedido, e o link vale sobre o vendedor. O link e sempre de cliente afiliado: o vendedor vende pelo ERP
+# e nao gera link (usuario, 14/out/2026). O item "Vendas Afiliados" do menu abre Pedidos de Venda
 # filtrado nas vendas afiliadas (link ou vendedor). A aba Comissoes do pedido passou a seguir a regra de
 # quem recebe: o cadastro do vendedor, ou o programa de afiliados (o percentual vem no pedido).
 #
@@ -75,7 +76,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("Array.from(document.querySelectorAll('#filtroOrigem .dropdown-select-item')).map(i => i.getAttribute('data-value'))") == ['todos', 'afiliadas', 'link', 'sem'],
            'o filtro de origem tem: todas, afiliadas (link ou vendedor), só link e sem afiliado')
         limpa_lista()
-        ok(COM_IND == [3, 4, 8, 12], 'o exemplo tem quatro vendas por link: %s' % COM_IND)
+        ok(COM_IND == [4, 8, 12], 'o exemplo tem três vendas por link: %s' % COM_IND)
         ok(origem('link') == COM_IND, 'só link de indicação mostra os quatro')
         ok(origem('afiliadas') == AFILIADAS and len(AFILIADAS) > len(COM_IND), 'afiliadas mostra link ou vendedor: %d pedidos' % len(AFILIADAS))
         ok(origem('sem') == SEM and sorted(SEM + AFILIADAS) == sorted(x['numero'] for x in PEDIDOS), 'sem afiliado mostra o resto, e as duas somam a lista inteira')
@@ -84,9 +85,9 @@ with sync_playwright() as p:
         ok('indicação de Bruno Carvalho' in (linha(4) or '') and 'indicação de Larissa Monteiro' in (linha(8) or ''), 'a linha diz de quem foi a indicação')
         ok('indicação de' not in (linha(5) or 'indicação de'), 'e o pedido sem link não tem a marca')
         pg.evaluate("abrirPreview(4)"); pg.wait_for_timeout(300)
-        ok('Bruno Carvalho · cliente afiliado, 4% de comissão' in pg.inner_text('#drawerCorpo'), 'o painel do pedido mostra a indicação, com o percentual')
+        ok('Bruno Carvalho · cliente afiliado, 5% de comissão' in pg.inner_text('#drawerCorpo'), 'o painel do pedido mostra a indicação, com o percentual da loja')
         pg.evaluate("abrirPreview(3)"); pg.wait_for_timeout(300)
-        ok('Marina Costa · link do vendedor' in pg.inner_text('#drawerCorpo'), 'e o link do vendedor')
+        ok('Indicação' not in pg.inner_text('#drawerCorpo'), 'e o pedido da vendedora, que não gera link, não tem indicação')
         pg.evaluate("fecharDrawer()"); pg.wait_for_timeout(150)
         origem('link'); limpa_lista()
         ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'todos' and pg.inner_text('#filtroOrigem .dropdown-select-label') == 'Todas as origens'
@@ -126,11 +127,11 @@ with sync_playwright() as p:
 
     if secao(3, 'Página do pedido: a indicação e quem recebe a comissão'):
         ir(DET, '?id=4')
-        ok(pg.input_value('#inputIndicacao') == 'Bruno Carvalho · cliente afiliado, 4% de comissão', 'o pedido por link diz quem indicou: %s' % pg.input_value('#inputIndicacao'))
+        ok(pg.input_value('#inputIndicacao') == 'Bruno Carvalho · cliente afiliado, 5% de comissão', 'o pedido por link diz quem indicou: %s' % pg.input_value('#inputIndicacao'))
         ok(pg.evaluate("document.getElementById('inputIndicacao').readOnly"), 'e o campo não se digita')
         resumo, dica = aba_comissao()
-        ok('Bruno Carvalho' in resumo and 'Cliente afiliado, pelo link' in resumo and '4,00%' in resumo, 'a comissão é de quem indicou, no percentual do pedido')
-        ok('R$ 24,48' in resumo, 'e é 4%% da base (612,00): %s' % resumo.replace('\n', ' '))
+        ok('Bruno Carvalho' in resumo and 'Cliente afiliado, pelo link' in resumo and '5,00%' in resumo, 'a comissão é de quem indicou, no percentual do pedido')
+        ok('R$ 30,60' in resumo, 'e é 5%% da base (612,00): %s' % resumo.replace('\n', ' '))
         ok('7 dias sem devolução' in dica, 'a regra dita é a do programa: entregue e 7 dias sem devolução')
         ok('não libera aqui' in pg.evaluate("efeitoNaComissao(false)"), 'faturar diz que a comissão do afiliado não libera ali')
         pg.evaluate("document.getElementById('btnEditarRegistro').click()"); pg.wait_for_timeout(200)
@@ -138,15 +139,12 @@ with sync_playwright() as p:
         ok('Bruno Carvalho' in pg.inner_text('#resumoComissao'), 'marcar um vendedor no pedido por link não tira a comissão de quem indicou')
 
         ir(DET, '?id=12')
-        ok('R$ 40,96' in aba_comissao()[0], 'outro pedido do mesmo afiliado: 4% de 1.024,00')
+        ok('R$ 51,20' in aba_comissao()[0], 'outro pedido do mesmo afiliado: 5% de 1.024,00')
 
         ir(DET, '?id=3')
-        ok(pg.input_value('#inputIndicacao') == 'Marina Costa · link do vendedor', 'o link do vendedor aparece como tal')
-        ok('Vendedor, pelo link' in aba_comissao()[0], 'e a comissão é dela, como vendedora, pelo link')
-        pg.evaluate("document.getElementById('btnEditarRegistro').click()"); pg.wait_for_timeout(200)
-        pg.evaluate(ESCOLHE, ['inputVendedor', 'Rafael Andrade']); pg.wait_for_timeout(200)
-        ok('Marina Costa' in pg.inner_text('#resumoComissao') and '5,00%' in pg.inner_text('#resumoComissao'),
-           'trocar o vendedor do pedido não tira a comissão de quem mandou o link')
+        resumo = aba_comissao()[0]
+        ok(pg.input_value('#inputIndicacao') == 'Sem indicação' and 'Vendedor' in resumo and 'pelo link' not in resumo and 'R$ 17,50' in resumo,
+           'o pedido da vendedora não tem link: a comissão é dela, como vendedora, e 5% de 349,90 dá R$ 17,50')
 
         ir(DET, '?id=1')
         ok(pg.input_value('#inputIndicacao') == 'Sem indicação', 'pedido de vendedor sem link: sem indicação')

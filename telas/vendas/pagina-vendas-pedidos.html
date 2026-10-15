@@ -873,7 +873,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Contas a Receber" data-href="../financas/pagina-financas-contas-receber.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><polyline points="8 12 12 16 16 12"/></svg>Contas a Receber</div>
       <div class="flyout-item" data-label="Contas a Pagar" data-href="../financas/pagina-financas-contas-pagar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="8"/><polyline points="8 12 12 8 16 12"/></svg>Contas a Pagar</div>
       <div class="flyout-item" data-label="Caixa" data-href="../financas/pagina-financas-caixa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>Caixa</div>
-      <div class="flyout-item" data-label="Comissões Afiliados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
+      <div class="flyout-item" data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
       <div class="flyout-item" data-label="Relatórios Finanças"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Finanças</div>
     </div>
   </div>
@@ -1681,26 +1681,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `dv` = dias atras da venda · `dp` = dias a partir de hoje da previsao de entrega
   // `frete` e `desconto` sao o que separa a soma dos itens do total do pedido. A pagina do pedido
   // soma os itens: sem os dois, ela fecharia em outro valor (13/out/2026).
-  // `ind` = a venda veio pelo link de quem indicou (14/out/2026). Chega da vitrine com o pedido e nao se
-  // digita. Cliente afiliado traz o percentual do programa no dia da venda; vendedor segue o cadastro dele.
-  // Quem compra pelo proprio link nao gera comissao, por isso quem indica nunca e o cliente do pedido.
+  // `ind` = a venda veio pelo link de um cliente afiliado (14/out/2026). Chega da vitrine com o pedido e nao
+  // se digita. O vendedor nao gera link: ele vende pelo ERP, no pedido ou no PDV. O percentual e o da loja
+  // no Programa de afiliados (Configuracoes > Cadastro de clientes), no dia da venda. Quem compra pelo
+  // proprio link nao gera comissao, por isso quem indica nunca e o cliente do pedido.
+  // `custo` = custo dos produtos, congelado no faturamento. Financas > Comissoes Afiliados calcula o lucro
+  // com ele; a base da comissao e o total menos o frete.
   const PEDIDOS = [
-    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00 },
-    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90 },
-    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, ind: { nome: 'Marina Costa', tipo: 'vendedor' } },
-    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 4 } },
-    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true },
-    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true },
-    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true },
-    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 } },
-    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true },
-    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55 },
-    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true },
-    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 4 } },
-    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true },
-    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true },
-    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false },
-    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true }
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00 },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90 },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20 },
+    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10 },
+    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00 },
+    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00 },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00 },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00 },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00 },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00 },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00 },
+    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00 },
+    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00 },
+    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00 },
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00 }
   ];
   PEDIDOS.forEach(p => {
     p.data = iso(dAtras(p.dv));
@@ -1808,14 +1811,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return true;
   }
 
-  // Afiliadas = as que geram comissao: pelo link de quem indicou (cliente afiliado ou vendedor) ou por vendedor.
+  // Afiliadas = as que geram comissao: pelo link de um cliente afiliado, ou por vendedor.
   function passaOrigem(p) {
     if (filtroOrigemAtual === 'afiliadas') return !!(p.ind || p.vendedor);
     if (filtroOrigemAtual === 'link') return !!p.ind;
     if (filtroOrigemAtual === 'sem') return !p.ind && !p.vendedor;
     return true;
   }
-  const rotuloIndicacao = (ind) => ind.nome + (ind.tipo === 'cliente' ? ' · cliente afiliado, ' + ind.pct + '% de comissão' : ' · link do vendedor');
+  const rotuloIndicacao = (ind) => ind.nome + ' · cliente afiliado, ' + ind.pct + '% de comissão';
 
   // Base sem a aba: e ela que alimenta os CONTADORES. Contador que le a base
   // inteira discorda da lista filtrada — foi o bug de Contas a Pagar em 28/set.
