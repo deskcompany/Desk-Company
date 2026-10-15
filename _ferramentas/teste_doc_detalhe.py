@@ -188,7 +188,7 @@ with sync_playwright() as p:
         contasAbertas: CLIENTE_FINANCEIRO.aberto.length, ultimas: ULTIMAS_VENDAS.length
       };
     }"""
-    PICA = "(l) => l.filter(p => !p.pdv).map(p => [p.id, p.numero, p.dv, p.dp, p.cliente, p.doc, p.loja, p.vend, p.total, p.situacao, p.pago, p.frete || 0, p.desconto || 0])"
+    PICA = "(l) => l.filter(p => !p.pdv).map(p => [p.id, p.numero, p.dv, p.dp, p.cliente, p.doc, p.loja, p.vend, p.total, p.situacao, p.pago, p.frete || 0, p.desconto || 0, p.ind || null])"
     ir(PV); pg.evaluate("['deskPdv', 'deskCaixaExtras'].forEach(k => localStorage.removeItem(k))")
     ir(PV)
     PEDIDOS, ITENS_PV = pg.evaluate('PEDIDOS'), pg.evaluate('ITENS_PEDIDO')

@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com a barganha de Vendas Afiliados e Comissões Afiliados em andamento.*
+*Atualizado em 14/out/2026, com a entrega 1 de Vendas Afiliados feita e esperando o teste do usuário.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,10 +8,16 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**A barganha de Vendas Afiliados e Comissões Afiliados está em andamento; nada foi construído.**
-Chegaram 12 prints de Comissões do Olist (lista por vendedor, impressão, período por mês, conta do
-vendedor com pendentes, editar e excluir comissão, outro lançamento de crédito ou débito, realizar
-pagamento). Já decidido pelo usuário em 14/out:
+**Vendas Afiliados, entrega 1: feita e esperando o teste do usuário** (§14.78). A venda por link é
+Pedido de Venda. A lista ganhou o filtro de origem e a marca "indicação de" na linha e no painel; o
+item "Vendas Afiliados" do menu, nas 82 telas, abre a lista filtrada nas vendas afiliadas (link ou
+vendedor); a página do pedido mostra quem indicou, num campo que não se digita. A aba Comissões passou
+a seguir a regra de quem recebe: aplicava 5% e "integral no faturamento" a qualquer vendedor, e o
+botão Faturar prometia liberar a comissão a todos. A entrega 2 é Comissões Afiliados.
+
+Decidido pelo usuário em 14/out, com 12 prints de Comissões do Olist (lista por vendedor, impressão,
+período por mês, conta do vendedor com pendentes, editar e excluir comissão, outro lançamento de
+crédito ou débito, realizar pagamento) e os textos dos (i) das colunas:
 
 - **Venda por link é Pedido de Venda**, com o mesmo funil. O pedido chega da vitrine dizendo que foi
   indicação e de quem; gerar o link e "minhas indicações" são da vitrine, fora do ERP. O item
@@ -27,7 +33,19 @@ pagamento). Já decidido pelo usuário em 14/out:
 - **Lucro = venda − custo médio dos produtos − comissão.** Frete fora (quem foi indicado paga) e
   imposto fora (ainda não há nota fiscal).
 
-Os pontos ainda abertos estão em "Esperando decisão do usuário".
+- **Pagar gera a conta a pagar e o saldo de comissão desce na hora**; se a conta for cancelada, o
+  valor volta. Contas a Pagar passa a aceitar vendedor e cliente afiliado como favorecido.
+- **Uma pessoa recebe por pedido**, a indicação só chega pelo link (ninguém a digita), e o vendedor
+  também gera link na vitrine, com a regra do cadastro dele.
+- **A lista de Comissões Afiliados é enxuta** (opção B), com as colunas que forem necessárias. A conta
+  inteira do afiliado, nas 9 linhas do Olist, fica ao abri-lo e no relatório impresso; os textos dos
+  (i) viram a explicação de cada linha ("Comis. vencidas" = comissões vencidas ainda não pagas).
+- **Editar, excluir e lançar comissão à mão** pede motivo, fica no histórico e entra em Confirmações
+  com senha.
+- **Vale-compra (crédito na loja) depois**, como submódulo próprio: liga o vale-troca que Devolução,
+  Formas de Recebimento e PDV deixam reservado, e o pagamento de comissão como crédito.
+
+Falta uma decisão, em "Esperando decisão do usuário": onde se aprova o afiliado.
 
 **As melhorias do estoque (E2, E8 e E10 da lista) estão feitas e esperam o teste do usuário**,
 junto com as da venda (V2, V3 e V5) e as de Finanças (F1 a F4), entregues antes no mesmo dia. Ele
@@ -140,10 +158,10 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **42 de 56 (75%)**, em 82 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **43 de 56 (77%)**, em 82 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
-Os 75% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
+Os 77% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
 Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a tela 81 e o item 56.
@@ -153,7 +171,7 @@ Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a t
 | Início | 4 de 4 | nada |
 | Cadastros | 12 de 13 | Relatórios de Cadastros |
 | Estoque | 13 de 14 | Relatórios de Estoque |
-| Vendas | 4 de 9 | Notas Fiscais, Vendas Afiliados, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
+| Vendas | 5 de 9 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 3 de 5 | Comissões Afiliados, Relatórios Finanças |
 | Integrações | 0 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Gateways de Pagamento, Relatórios de Integrações |
@@ -369,6 +387,9 @@ de testar a conferência:
   MDF-e e a devolução. "Bloquear novo pedido de cliente em atraso" está em Configurações do
   cadastro de clientes. Os 22 parâmetros continuam tendo tela, cada um numa só, e salvar numa tela
   não mexe no que é da outra.
+- **Vendas Afiliados, entrega 1** (§14.78). A venda por link é Pedido de Venda, com filtro de origem
+  e a marca de quem indicou; o item do menu abre a lista filtrada; a aba Comissões e o botão Faturar
+  seguem a regra de quem recebe (cadastro do vendedor ou programa de afiliados).
 - **Os achados da segunda varredura** (§14.77). Inventário: fechar sem senha diz por quê; cancelar com
   contagem pergunta; os códigos recusados do arquivo aparecem, com o motivo. Acerto: cada depósito
   uma vez; entrada em qualquer depósito; saída maior que o endereço para na linha. PDV: o desconto
@@ -378,12 +399,12 @@ de testar a conferência:
   existe no papel. "Imprimir", no menu, e o Ctrl+P dão a mesma folha, com a lista inteira. O
   código está no bloco comum de planilha e impressão, igual nas 19.
 
-**13. A verificação.** Quinze suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
+**13. A verificação.** Dezesseis suítes novas: `teste_retorno.py`, `teste_fin_melhorias.py`,
 `teste_venda_melhorias.py`, `teste_estoque_melhorias.py`, `teste_transf_conferencia.py`,
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
-`teste_impressao.py` e `teste_varredura2.py`. Duzentos e oitenta e oito defeitos injetados de
-propósito, um por vez; os duzentos e oitenta e oito são pegos. A auditoria do
+`teste_impressao.py`, `teste_varredura2.py` e `teste_afiliados.py`. Trezentos e nove defeitos
+injetados de propósito, um por vez; os trezentos e nove são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -395,7 +416,12 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **A barganha dos módulos novos**, combinada com o usuário em 14/out: Vendas Afiliados e Comissões Afiliados; Margem de Contribuição e Custos do E-commerce;
+1. **Comissões Afiliados, a entrega 2**: a lista e a conta do afiliado, o pagamento por conta a pagar e
+   Contas a Pagar aceitando vendedor e cliente afiliado como favorecido. Depois do teste da entrega 1
+   e da decisão de onde se aprova o afiliado.
+2. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
+   vale-troca reservado nas telas prontas e o pagamento de comissão como crédito.
+3. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
@@ -429,11 +455,12 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Duas pendências, que são dele:
 
-1. **Os pontos abertos da barganha de Comissões Afiliados** (14/out): quando o saldo desce ao
-   pagar e quem é o favorecido em Contas a Pagar; um beneficiário por pedido e indicação só pelo
-   link; vendedor também gerar link; a lista com todas as colunas do Olist mais as dele; editar,
-   excluir e lançar à mão com motivo e senha; o que é "Comis. vencidas"; onde se aprova o afiliado;
-   e a ordem das entregas.
+1. **Onde se aprova o afiliado** (Comissões Afiliados, entrega 2). Ele perguntou se podia ser no
+   painel adm da vitrine. A recomendação é não: pela arquitetura a vitrine é só catálogo, carrinho e
+   checkout, sem operação nem acesso ao financeiro, e o painel teria de nascer em cada vitrine, com
+   login e permissões próprios. O mínimo no ERP: um quadro "Inscrições aguardando" na própria
+   Comissões Afiliados, "suspender" na conta do afiliado, e o percentual e os 30 dias numa seção de
+   Configurações, sem mexer no Cadastro de Clientes.
 2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia

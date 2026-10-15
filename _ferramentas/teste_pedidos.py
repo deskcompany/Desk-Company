@@ -265,7 +265,8 @@ with sync_playwright() as p:
     pg.click('.tab-item[data-tab="comissoes"]'); pg.wait_for_timeout(250)
     resumo = pg.inner_text('#resumoComissao')
     ok('Marina Costa' in resumo, 'mostra o vendedor do pedido')
-    ok('faturamento' in pg.inner_text('#hintComissao'), 'diz que a liberação é no faturamento')
+    # Ate 14/out/2026 a aba dizia "no faturamento" para todos; a Marina, no cadastro, libera por parcela paga.
+    ok('parcelas pagas' in pg.inner_text('#hintComissao'), 'diz a regra do cadastro dela: liberação pelas parcelas pagas')
     pg.click('.tab-item[data-tab="impostos"]'); pg.wait_for_timeout(200)
     desab = pg.eval_on_selector_all('#tab-impostos input', 'e => e.every(x => x.disabled)')
     ok(desab, 'os campos fiscais nascem visíveis e DESABILITADOS (§11)')
@@ -307,7 +308,7 @@ with sync_playwright() as p:
         if andou[-1] == 'Confirmar envio':
             ok('BAIXA FÍSICA' in texto_passo, 'o passo do envio avisa que é a baixa física: "%s"' % texto_passo[:70])
         if andou[-1] == 'Faturar':
-            ok('COMISSÃO' in texto_passo.upper(), 'faturar avisa que libera a comissão')
+            ok('COMISSÃO' in texto_passo.upper(), 'faturar diz o que acontece com a comissão')
         pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(220)
         fecha_modal()
     ok(andou == esperado, 'o funil inteiro, na ordem: %s' % ' → '.join(andou))

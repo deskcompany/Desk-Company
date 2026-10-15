@@ -3513,3 +3513,40 @@ do gerente, e nenhum deu erro de JavaScript. Saíram nove pontos pequenos; a lis
 
 **Provado nos dois sentidos, numa cópia.** `teste_varredura2.py` tem 22 asserções em três seções.
 Treze defeitos injetados, um por vez, e os treze pegos.
+
+## 14.78 Vendas Afiliados é Pedido de Venda, e a comissão segue a regra de quem recebe (14/out/2026)
+
+O escopo inicial era uma tela "Vendas Afiliados" com lista própria. Na barganha de 14/out o usuário
+contou o que ela é: as vendas feitas pelos links que o cliente logado gera na página do produto da
+vitrine, como na Shopee, e as dos vendedores, com o mesmo funil do pedido (aprovar pagamento,
+separação, expedição). Uma segunda lista de pedidos repetiria o funil, a reserva de estoque e a conta a
+receber, e cada conserto teria de ser feito duas vezes. **Por isso não há tela nova:** a venda por
+link é Pedido de Venda, e o item "Vendas Afiliados" do menu abre a lista de pedidos filtrada.
+
+**O que mudou:**
+
+- **O pedido diz quem indicou** (`ind`). A indicação chega da vitrine com o pedido e não se digita:
+  na página do pedido é um campo só de leitura. Cliente afiliado traz o percentual do programa no dia
+  da venda; vendedor segue o cadastro dele. Uma pessoa recebe por pedido, e o link vale sobre o
+  vendedor marcado. Quem compra pelo próprio link não gera comissão, e o clone de um pedido por link
+  nasce sem indicação, porque é pedido digitado.
+- **A lista ganhou o filtro de origem** (todas, afiliadas por link ou vendedor, só link, sem afiliado)
+  e a marca "indicação de" na linha e no painel. O menu leva `?origem=afiliadas`, nas 82 telas.
+- **A aba Comissões segue a regra de quem recebe.** Ela aplicava 5% e "integral no faturamento" a
+  qualquer vendedor, e o cadastro tem quatro regras de liberação. A regra de cada vendedor é espelho
+  do cadastro (`COMISSAO_DO_VENDEDOR`); vendedor com 0% diz que o pedido não gera comissão; o cliente
+  afiliado libera com o pedido entregue e 7 dias sem devolução.
+- **Faturar diz o efeito certo na comissão.** O texto prometia "libera a comissão do vendedor" a todos;
+  a Marina, no cadastro, libera por parcela paga. Agora o texto e o aviso depois do passo dependem de
+  quem recebe e da regra dele.
+
+**Regra que fica:** texto que anuncia um efeito que depende de uma regra de cadastro lê a regra, e não
+promete o caso comum.
+
+**O que fica para a entrega 2:** Comissões Afiliados, em Finanças (lista enxuta, conta do afiliado com
+as 9 linhas do Olist, pagamento por conta a pagar, lançamento à mão com motivo e senha), e Contas a
+Pagar aceitando vendedor e cliente afiliado como favorecido. O gerar link e o "minhas indicações" são
+da vitrine, fora do ERP.
+
+**Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` tem quatro seções (lista, menu,
+página do pedido e espelhos). Vinte e um defeitos injetados, um por vez, e os vinte e um pegos.

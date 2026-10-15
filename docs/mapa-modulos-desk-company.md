@@ -58,14 +58,14 @@
 >
 > **Tratamento de Perdas nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
 
-## 🛒 Vendas — 4 de 9
+## 🛒 Vendas — 5 de 9
 | | Submódulo |
 |---|---|
 | ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
 | ✅ | Pedidos de Venda *(+ página do pedido)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
 | ❌ | Notas Fiscais |
-| ❌ | Vendas Afiliados |
+| ✅ | Vendas Afiliados *(14/out: não é tela à parte. O item do menu abre Pedidos de Venda filtrado nas vendas afiliadas, por link de indicação ou por vendedor; o pedido diz quem indicou, e a aba Comissões segue a regra de quem recebe)* |
 | ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
 | ❌ | Margem de Contribuição |
 | ❌ | Custos do E-commerce |

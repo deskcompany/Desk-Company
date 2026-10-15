@@ -982,7 +982,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Pedidos de Venda" data-href="../vendas/pagina-vendas-pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Pedidos de Venda</div>
       <div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
       <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
-      <div class="flyout-item" data-label="Vendas Afiliados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Vendas Afiliados</div>
+      <div class="flyout-item" data-label="Vendas Afiliados" data-href="../vendas/pagina-vendas-pedidos.html?origem=afiliadas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Vendas Afiliados</div>
       <div class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas e Performance</div>
       <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
       <div class="flyout-item" data-label="Custos do E-commerce"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
@@ -1233,6 +1233,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="field-hint">Gerado pelo sistema.</div>
       </div>
     </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Indicação</label>
+        <input type="text" id="inputIndicacao" value="Sem indicação" readonly>
+        <div class="field-hint">Chega da vitrine com o pedido, pelo link de quem indicou, e não se digita. A comissão é de uma pessoa só: o link vale sobre o vendedor marcado.</div>
+      </div>
+    </div>
 
     <div class="tabs-row">
       <div class="tab-item active" data-tab="itens">Itens</div>
@@ -1292,7 +1299,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
 
     <div class="tab-panel" id="tab-comissoes">
-      <div class="field-hint" style="margin-bottom:14px;">A regra vem do cadastro do vendedor (Cadastros → Vendedores → Comissionamento). Aqui ela só é aplicada — mudar a regra é lá, num lugar só.</div>
+      <div class="field-hint" style="margin-bottom:14px;">A regra do vendedor vem do cadastro dele (Cadastros → Vendedores → Comissionamento); a do cliente afiliado vem com o pedido, no percentual do programa no dia da venda. Aqui ela só é aplicada — mudar a regra é lá, num lugar só.</div>
       <div class="ped-resumo-comissao" id="resumoComissao"></div>
       <div class="field-hint" style="margin-top:16px;" id="hintComissao"></div>
     </div>
@@ -2037,7 +2044,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     separacao: { para: 'conferenciasaida', rotulo: 'Enviar para conferência de saída',
       texto: 'Os itens já foram separados? O pedido vai para a Conferência de Saída, onde a caixa é contada item a item e a embalagem é escolhida antes de a nota sair. Ainda sem baixa física.' },
     conferenciasaida: { para: 'faturado', rotulo: 'Faturar',
-      texto: 'Faturar este pedido? É o passo que LIBERA A COMISSÃO do vendedor, e é onde a nota passa a acompanhar a mercadoria. Enquanto a emissão de NF-e não existir, faturar é marcar à mão — a nota em si sai depois, com o módulo fiscal.' },
+      texto: 'Faturar este pedido? É onde a nota passa a acompanhar a mercadoria. Enquanto a emissão de NF-e não existir, faturar é marcar à mão — a nota em si sai depois, com o módulo fiscal.' },
     faturado: { para: 'prontoenvio', rotulo: 'Marcar pronto para envio',
       texto: 'Marcar como pronto para envio? O pedido está embalado e esperando a coleta. A mercadoria ainda está no galpão.' },
     prontoenvio: { para: 'enviado', rotulo: 'Confirmar envio',
@@ -2266,27 +2273,61 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   // ===== COMISSÃO (a regra mora em Vendedores; aqui ela só é aplicada) =====
+  // COMISSAO_DO_VENDEDOR e ESPELHO de Cadastros → Vendedores (aliquotaComissao e regraComissao), e
+  // teste_afiliados.py compara. Ate 14/out/2026 esta aba aplicava 5% e "integral no faturamento" a
+  // qualquer vendedor. O cliente afiliado traz o percentual no pedido: o do programa no dia da venda.
+  const COMISSAO_DO_VENDEDOR = {
+    'Marina Costa':   { aliquota: 5, regra: 'parcial_parcelas' },
+    'Rafael Andrade': { aliquota: 0, regra: 'parcial_parcelas' }
+  };
+  const REGRA_COMISSAO = {
+    parcial_parcelas: 'Liberação <b>parcial, pelas parcelas pagas</b>: cada parcela que o cliente paga libera a parte dela.',
+    integral_faturamento: 'Liberação <b>integral no faturamento</b>: a comissão inteira sai quando o pedido chega em <i>Faturado</i>.',
+    integral_primeira_parcela: 'Liberação <b>integral com a primeira parcela paga</b>.',
+    cinquenta_faturamento: 'Liberação de <b>metade no faturamento</b>; o restante sai com as parcelas pagas.'
+  };
+  const rotuloIndicacao = (ind) => ind.nome + (ind.tipo === 'cliente' ? ' · cliente afiliado, ' + ind.pct + '% de comissão' : ' · link do vendedor');
+  // Uma pessoa recebe por pedido (barganha de 14/out/2026): o link vale sobre o vendedor marcado.
+  function quemRecebeComissao() {
+    const ind = PEDIDO.ind;
+    if (ind && ind.tipo === 'cliente') return { nome: ind.nome, papel: 'Cliente afiliado', aliquota: ind.pct, regra: null };
+    const vend = ind ? ind.nome : document.getElementById('inputVendedor').getAttribute('data-value');
+    if (!vend) return null;
+    const r = COMISSAO_DO_VENDEDOR[vend] || { aliquota: 0, regra: 'parcial_parcelas' };
+    return { nome: vend, papel: 'Vendedor', aliquota: r.aliquota, regra: r.regra };
+  }
+  // O que faturar faz com a comissao depende de quem a recebe e da regra dele. Ate 14/out/2026 o
+  // texto dizia "libera a comissao do vendedor" para todos, e a Marina, no cadastro, libera por parcela paga.
+  function efeitoNaComissao(feito) {
+    const q = quemRecebeComissao();
+    if (!q || !q.aliquota) return '';
+    if (!q.regra) return ' A comissão de ' + q.nome + ' (cliente afiliado) ' + (feito ? 'continua a liberar' : 'não libera aqui') + ': sai com o pedido entregue e 7 dias sem devolução.';
+    if (q.regra === 'integral_faturamento') return feito ? ' A comissão de ' + q.nome + ' está liberada.' : ' É o passo que LIBERA A COMISSÃO de ' + q.nome + '.';
+    if (q.regra === 'cinquenta_faturamento') return feito ? ' Metade da comissão de ' + q.nome + ' está liberada; o resto sai com as parcelas pagas.'
+                                                          : ' Libera METADE DA COMISSÃO de ' + q.nome + '; o resto sai com as parcelas pagas.';
+    return ' A comissão de ' + q.nome + ' não depende do faturamento: sai ' + (q.regra === 'integral_primeira_parcela' ? 'inteira com a primeira parcela paga.' : 'com cada parcela paga.');
+  }
   function renderComissao(totalProdutos, descontoPedido) {
-    const vend = document.getElementById('inputVendedor').getAttribute('data-value');
     const box = document.getElementById('resumoComissao');
     const hint = document.getElementById('hintComissao');
-    if (!vend) {
-      box.innerHTML = '<div><span>Vendedor</span><b>sem vendedor</b></div>';
-      hint.textContent = 'Pedido sem vendedor não gera comissão. O vendedor é opcional: venda de vitrine costuma não ter.';
+    const q = quemRecebeComissao();
+    if (!q) {
+      box.innerHTML = '<div><span>Recebe a comissão</span><b>ninguém</b></div>';
+      hint.textContent = 'Pedido sem vendedor e sem indicação não gera comissão. O vendedor é opcional: venda de vitrine sem link costuma não ter.';
       return;
     }
-    // Aliquota fixa de 5% (cadastro do vendedor). A variante "conforme
-    // descontos" precisa do desconto POR ITEM — e e por isso que ele existe.
     const base = totalProdutos - descontoPedido;
-    const aliquota = 5;
-    const valor = base * aliquota / 100;
+    const valor = base * q.aliquota / 100;
     const comDescontoNoItem = ITENS.filter(i => i.desconto > 0).length;
     box.innerHTML =
-      '<div><span>Vendedor</span><b>' + vend + '</b></div>' +
-      '<div><span>Alíquota</span><b>' + fmtNum(aliquota) + '%</b></div>' +
+      '<div><span>Recebe a comissão</span><b>' + q.nome + '</b></div>' +
+      '<div><span>Quem é</span><b>' + q.papel + (PEDIDO.ind ? ', pelo link' : '') + '</b></div>' +
+      '<div><span>Alíquota</span><b>' + fmtNum(q.aliquota) + '%</b></div>' +
       '<div><span>Base de cálculo</span><b>' + fmtMoeda(base) + '</b></div>' +
       '<div><span>Comissão</span><b>' + fmtMoeda(valor) + '</b></div>';
-    hint.innerHTML = 'Liberação <b>integral no faturamento</b> — a comissão só sai quando o pedido chega em <i>Faturado</i>. ' +
+    if (!q.aliquota) { hint.textContent = q.nome + ' está com alíquota 0% no cadastro de vendedores: este pedido não gera comissão.'; return; }
+    if (!q.regra) { hint.innerHTML = 'Liberação <b>com o pedido entregue e 7 dias sem devolução</b>; devolução antes disso cancela a comissão. Vem do programa de afiliados, e não do cadastro de vendedores.'; return; }
+    hint.innerHTML = REGRA_COMISSAO[q.regra] + ' ' +
       (comDescontoNoItem > 0
         ? comDescontoNoItem + ' item(ns) com desconto próprio: na regra <i>alíquota conforme descontos</i> isso reduziria a comissão item a item.'
         : 'Nenhum item com desconto próprio neste pedido.');
@@ -2584,13 +2625,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const passo = PROXIMO_PASSO[PEDIDO.situacao];
     if (!passo) return;
     const de = SIT_ROTULO[PEDIDO.situacao];
-    abrirModalConfirmacao(passo.texto, 1, 'primary', () => {
+    abrirModalConfirmacao(passo.texto + (passo.para === 'faturado' ? efeitoNaComissao(false) : ''), 1, 'primary', () => {
       PEDIDO.situacao = passo.para;
       aplicarSituacao();
       registrarLog('pedidosPasso', 'Pedido nº ' + PEDIDO.numero + ': ' + de + ' → ' + SIT_ROTULO[passo.para], false);
       avisar('Pedido em ' + SIT_ROTULO[passo.para] + '.' +
         (passo.para === 'enviado' ? ' O estoque reservado saiu do saldo do depósito — a partir daqui o caminho é devolução, não exclusão.' : '') +
-        (passo.para === 'faturado' ? ' A comissão do vendedor está liberada.' : '') +
+        (passo.para === 'faturado' ? efeitoNaComissao(true) : '') +
         ' No protótipo nada persiste ao recarregar a página.');
     });
   });
@@ -2899,16 +2940,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const PEDIDOS_DA_LISTA = [
     { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00 },
     { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90 },
-    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true },
-    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, ind: { nome: 'Marina Costa', tipo: 'vendedor' } },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 4 } },
     { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true },
     { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true },
     { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true },
-    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 } },
     { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true },
     { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55 },
     { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true },
-    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 4 } },
     { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true },
     { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true },
     { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false },
@@ -2966,6 +3007,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (CLIENTES_CONHECIDOS.indexOf(p.cliente) < 0) CLIENTES_CONHECIDOS.push(p.cliente);   // quem tem pedido tem cadastro
       PEDIDO.numero = p.numero; PEDIDO.situacao = p.situacao; PEDIDO.cliente = p.cliente; PEDIDO.doc = p.doc;
       PEDIDO.vendedor = p.vendedor; PEDIDO.loja = p.loja; PEDIDO.deposito = DEPOSITO_PADRAO_DA_LOJA[p.loja];
+      PEDIDO.ind = p.ind || null;
       PEDIDO.dataVenda = p.dataVenda; PEDIDO.previsto = p.previsto;
       PEDIDO.desconto = p.desconto ? fmtNum(p.desconto) : '0';
       // Recebimento, envio e expedicao a lista nao guarda: entram os de um pedido novo.
@@ -2979,11 +3021,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (novo) {
       PEDIDO.numero = 0; PEDIDO.situacao = 'aberto'; PEDIDO.cliente = ''; PEDIDO.doc = '';
       PEDIDO.dataVenda = brDe(HOJE); PEDIDO.previsto = '';
-      PEDIDO.desconto = '0'; PEDIDO.vendedor = '';
+      PEDIDO.desconto = '0'; PEDIDO.vendedor = ''; PEDIDO.ind = null;
       ITENS = [{ nome: '', sku: '', qtd: 1, un: 'UN', precoLista: 0, desconto: 0, obs: '' }];
     }
     if (clonadoDe) {
       PEDIDO.numero = 0; PEDIDO.situacao = 'aberto';
+      PEDIDO.ind = null;   // a indicacao foi do link da venda velha; o clone e pedido digitado
       PEDIDO.dataVenda = brDe(HOJE); PEDIDO.previsto = '';
       // ITENS vem por copia, nao por referencia: mexer no clone nao pode mexer
       // no pedido de origem enquanto os dois existem na mesma sessao.
@@ -3002,6 +3045,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputPrevisto').value = PEDIDO.previsto;
     document.getElementById('inputDesconto').value = PEDIDO.desconto;
     rotular('inputVendedor', PEDIDO.vendedor || '', PEDIDO.vendedor || 'Sem vendedor');
+    document.getElementById('inputIndicacao').value = PEDIDO.ind ? rotuloIndicacao(PEDIDO.ind) : 'Sem indicação';
     rotular('inputLoja', String(PEDIDO.loja), LOJAS[PEDIDO.loja]);
     // Campo que o pedido carrega tem de NASCER com o valor dele. Antes estes
     // tres ficavam no default do HTML: o mock dizia boleto e a tela mostrava Pix
