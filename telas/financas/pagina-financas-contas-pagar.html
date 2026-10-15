@@ -2078,14 +2078,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Realizar pagamento", em Financas > Comissoes Afiliados, grava em deskComissoesPagas; a conta nasce aqui,
   // a pagar, com o vendedor ou o cliente afiliado como favorecido e a categoria de comissoes. Conta 9000 + n,
   // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar. O valor e de Comissoes:
-  // a pagina da conta o trava (`comissao`). Pagamento cancelado vira conta cancelada; excluido nao gera conta.
+  // a pagina da conta o trava (`comissao`). Pagamento cancelado vira conta cancelada; excluido nao gera conta. A baixa
+  // feita aqui volta para Comissoes (`baixas`), que mostra o pagamento como pago (15/out/2026).
   (function contasDeComissao() {
     let g = null;
     try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
     ((g && g.pagamentos) || []).filter(p => !p.excluido).forEach(p => {
       const id = 9000 + p.n;
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
-      if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor, pago: 0,
+      if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor,
+        pago: (p.baixas || []).reduce((s, x) => s + x.valor, 0), pagamentos: (p.baixas || []).map(x => Object.assign({}, x)),
         forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave });
     });
   })();
@@ -2591,6 +2593,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           const v = varios ? saldoDe(t) : valorPago;
           t.pago = Math.min(t.valor, t.pago + v);
           t.pagamentos.push({ data: dataIso, valor: v, contaId: conta, juros: varios ? 0 : juros, desconto: varios ? 0 : desc });
+          marcarPagamentoDeComissao(t, { baixas: t.pagamentos.map(x => Object.assign({}, x)) });   // conta de comissao: o pago volta para Comissoes
           movs.push({
             contaId: conta, data: dataIso, comp: t.comp, hist: hist,
             pessoa: fornDe(t.fornId).nome, catId: Number(varios ? t.catId : (catEscolhida || t.catId)),
@@ -2641,7 +2644,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (voltando ? 'Elas voltam para em aberto e para o total a pagar.' : 'Elas saem do a pagar e ficam no histórico.') +
       (fora > 0 ? ' ' + fora + ' com pagamento fica' + (fora === 1 ? '' : 'm') + ' de fora — estorne antes.' : ''),
       () => {
-        podem.forEach(id => { titDe(id).cancelado = !voltando; marcarPagamentoDeComissao(titDe(id), { cancelado: !voltando }); });
+        podem.forEach(id => { titDe(id).cancelado = !voltando; marcarPagamentoDeComissao(titDe(id), { cancelado: !voltando, canceladoEm: iso(HOJE) }); });
         selTit = [];
         render();
       });
@@ -2657,7 +2660,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (fora > 0 ? ' ' + fora + ' já ' + (fora === 1 ? 'tem pagamento e fica' : 'têm pagamento e ficam') + ' como ' + (fora === 1 ? 'está' : 'estão') + ' — apagar conta paga deixaria o lançamento do Caixa órfão.' : ''),
       podem.length, () => {
         podem.forEach(id => {
-          marcarPagamentoDeComissao(titDe(id), { cancelado: true, excluido: true });
+          marcarPagamentoDeComissao(titDe(id), { cancelado: true, excluido: true, canceladoEm: iso(HOJE) });
           const i = TITULOS.findIndex(t => t.id === id);
           if (i !== -1) TITULOS.splice(i, 1);
         });

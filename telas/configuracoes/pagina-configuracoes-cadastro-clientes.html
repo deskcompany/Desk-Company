@@ -1454,8 +1454,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <label>O link vale por</label>
             <div class="par-num"><input type="text" id="afLinkDias" value="30"><span class="par-num-sufixo">dias</span></div>
           </div>
+          <div class="par-campo" id="campoSaque">
+            <label>Saque a partir de</label>
+            <div class="par-num"><input type="text" id="afSaqueMin" value="50"><span class="par-num-sufixo">reais</span></div>
+          </div>
         </div>
-        <span class="par-erro" id="erroAfiliados">O percentual vai de 0 a 50%, com até duas casas, e o link vale de 1 a 365 dias.</span>
+        <span class="par-erro" id="erroAfiliados">O percentual vai de 0 a 50%, com até duas casas; o link vale de 1 a 365 dias; o saque mínimo vai de 0 a 100.000 reais.</span>
         <div class="par-previa" id="previaAfiliados"></div>
       </div>
       <div class="par-exp">
@@ -1564,6 +1568,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja2: 5,
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
+    afiliadoSaqueMinimo: 50,   // o cliente afiliado pede o saque na vitrine a partir deste valor (15/out/2026)
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2136,7 +2141,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // o bloqueio por atraso, por `../vendas/pagina-vendas-pedidos-detalhe.html` (veio de Parametros
   // de estoque em 13/out/2026: e regra sobre o cliente, e nao sobre o estoque).
   const CHAVES_CLI = ['permitirDocDuplicado', 'mostrarObservacoesCliente', 'bloquearPedidoAtrasoDias',
-                      'afiliadoPctLoja1', 'afiliadoPctLoja2', 'afiliadoPctLoja3', 'afiliadoLinkDias'];
+                      'afiliadoPctLoja1', 'afiliadoPctLoja2', 'afiliadoPctLoja3', 'afiliadoLinkDias', 'afiliadoSaqueMinimo'];
   const elNota = document.getElementById('notaBarra');
   let edicao = {};
   CHAVES_CLI.forEach(k => { edicao[k] = PARAM[k]; });
@@ -2157,7 +2162,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'afPct1', chave: 'afiliadoPctLoja1', campo: 'campoPct1', max: 50, min: 0, casas: true },
     { id: 'afPct2', chave: 'afiliadoPctLoja2', campo: 'campoPct2', max: 50, min: 0, casas: true },
     { id: 'afPct3', chave: 'afiliadoPctLoja3', campo: 'campoPct3', max: 50, min: 0, casas: true },
-    { id: 'afLinkDias', chave: 'afiliadoLinkDias', campo: 'campoLink', max: 365, min: 1, casas: false }
+    { id: 'afLinkDias', chave: 'afiliadoLinkDias', campo: 'campoLink', max: 365, min: 1, casas: false },
+    { id: 'afSaqueMin', chave: 'afiliadoSaqueMinimo', campo: 'campoSaque', max: 100000, min: 0, casas: true }
   ];
   const fmtPct = (n) => String(n).replace('.', ',');
   CAMPOS_AFILIADO.forEach(c => {
@@ -2203,7 +2209,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     pv.classList.toggle('alerta', ruins.length > 0);
     pv.innerHTML = ruins.length ? 'Corrija o campo em vermelho para ver o efeito.'
       : 'Venda pelo link de um afiliado rende a ele <b>' + fmtPct(edicao.afiliadoPctLoja1) + '%</b> na Desk Shope, <b>' + fmtPct(edicao.afiliadoPctLoja2) +
-        '%</b> na Desk Brands e <b>' + fmtPct(edicao.afiliadoPctLoja3) + '%</b> na Desk Tech. O link vale <b>' + plural(edicao.afiliadoLinkDias, 'dia', 'dias') + '</b> a partir do clique.';
+        '%</b> na Desk Brands e <b>' + fmtPct(edicao.afiliadoPctLoja3) + '%</b> na Desk Tech. O link vale <b>' + plural(edicao.afiliadoLinkDias, 'dia', 'dias') + '</b> a partir do clique, e o cliente pede o saque a partir de <b>R$ ' + fmtPct(edicao.afiliadoSaqueMinimo) + '</b>.';
   }
 
   function contar() {
@@ -2222,7 +2228,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     if (edicao.bloquearPedidoAtrasoDias === null) { avisar('O prazo do bloqueio por atraso precisa ser um número inteiro de 0 a 365. Zero desliga o bloqueio.'); return; }
-    if (CAMPOS_AFILIADO.some(c => edicao[c.chave] === null)) { avisar('No programa de afiliados, o percentual vai de 0 a 50%, com até duas casas, e o link vale de 1 a 365 dias. Corrija o campo em vermelho para salvar.'); return; }
+    if (CAMPOS_AFILIADO.some(c => edicao[c.chave] === null)) { avisar('No programa de afiliados, o percentual vai de 0 a 50%, com até duas casas, o link vale de 1 a 365 dias e o saque mínimo vai de 0 a 100.000 reais. Corrija o campo em vermelho para salvar.'); return; }
     const mudadas = CHAVES_CLI.filter(k => edicao[k] !== PARAM[k]);
     if (mudadas.length === 0) { avisar('Nenhuma configuração mudou.'); return; }
     CHAVES_CLI.forEach(k => { PARAM[k] = edicao[k]; });
@@ -2233,7 +2239,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (PARAM.mostrarObservacoesCliente ? 'continua visível.' : 'deixa de aparecer.') +
       ' O bloqueio por atraso ' + (PARAM.bloquearPedidoAtrasoDias ? 'vale a partir de ' + plural(PARAM.bloquearPedidoAtrasoDias, 'dia', 'dias') + '.' : 'fica desligado.') +
       ' Afiliados: ' + fmtPct(PARAM.afiliadoPctLoja1) + '% na Desk Shope, ' + fmtPct(PARAM.afiliadoPctLoja2) + '% na Desk Brands, ' + fmtPct(PARAM.afiliadoPctLoja3) +
-      '% na Desk Tech, e o link vale ' + plural(PARAM.afiliadoLinkDias, 'dia', 'dias') + '.' +
+      '% na Desk Tech, o link vale ' + plural(PARAM.afiliadoLinkDias, 'dia', 'dias') + ' e o saque é a partir de R$ ' + fmtPct(PARAM.afiliadoSaqueMinimo) + '.' +
       (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então isto vale só nesta aba.)'));
   });
 

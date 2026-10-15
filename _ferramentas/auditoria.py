@@ -219,7 +219,8 @@ def audita(caminho):
              'deskSeparacao',   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
              # 14/out: Comissoes Afiliados. Aprovar, recusar, incluir e suspender afiliado; ajustar comissao; lancar
              # credito ou debito; e o pagamento, que Contas a Pagar le para fazer nascer a conta.
-             'deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas'}
+             'deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas',
+             'deskSaques'}   # 15/out: a decisao sobre o saque que o cliente afiliado pede na vitrine (aprovado ou recusado)
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a
     # chave escrita direto na chamada era vista, e a de constante passava sem registro.

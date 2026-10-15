@@ -333,6 +333,7 @@
   .add-contato-link { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; margin-bottom:20px; }
   .add-contato-link:hover { text-decoration:underline; }
   .add-contato-link svg { width:14px; height:14px; }
+  .afi-nota { font-size:12px; color:var(--text); margin:0 0 14px; line-height:1.5; }
 
   .historico-table { width:100%; border-collapse:collapse; }
   .historico-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px 20px; border-bottom:1px solid var(--border); }
@@ -985,6 +986,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="tab-panel" id="tab-comissionamento">
 
   <div class="section-title">Regras de comissionamento</div>
+  <div class="afi-nota">A conta das comissões deste vendedor, mês a mês, com os pedidos e os pagamentos, está em <a class="add-contato-link" id="linkContaComissoes" href="../financas/pagina-financas-comissoes-detalhe.html">Finanças → Comissões Afiliados</a>.</div>
   <div class="form-field" style="max-width:460px;">
     <label>Regras para liberação de comissões</label>
     <div class="dropdown-select" id="dropdownRegraComissao" data-value="parcial_parcelas">
@@ -2058,6 +2060,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (q.get('novo') === '1') return null;
     return REGISTROS.filter(r => r.id === Number(q.get('id')))[0] || REGISTROS.filter(r => r.id === ID_DO_EXEMPLO)[0];
   })();
+  // A conta de comissoes deste vendedor (15/out/2026): o id dele e o mesmo em Comissoes Afiliados (v + id).
+  if (REGISTRO) document.getElementById('linkContaComissoes').href = '../financas/pagina-financas-comissoes-detalhe.html?id=v' + REGISTRO.id;
   // Como a lista chama cada modulo, e o nome dele na caixa de marcar daqui.
   const ROTULO_MODULO = { clientes: 'Clientes', crm: 'CRM', pedidos_venda: 'Pedidos de Venda', performance_vendas: 'Metas e Performance', pdv: 'PDV' };
   // Poe um valor num dropdown sem abrir o menu, e avisa a tela como se a pessoa tivesse escolhido.

@@ -1162,6 +1162,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <!-- Saques pedidos pelo cliente afiliado na vitrine (barganha de 15/out/2026). O vendedor e pago pela empresa. -->
+  <div class="card com-inscricoes" id="cardSaques">
+    <div class="com-titulo">Pagamentos solicitados <span id="contSaques"></span></div>
+    <div class="com-sub">Saques pedidos pelos clientes afiliados na vitrine, a partir de <span id="minimoSaque">R$ 50,00</span>, o mínimo do programa. Aprovar faz nascer a conta em Contas a Pagar, para pagar por Pix na chave do afiliado, e o saldo de comissão desce na hora.</div>
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto">Afiliado</th>
+            <th class="col-texto">Loja</th>
+            <th>Pedido</th>
+            <th>Saldo hoje</th>
+            <th class="col-texto">Chave PIX</th>
+            <th class="col-texto">Pediu em</th>
+            <th class="col-texto"></th>
+          </tr>
+        </thead>
+        <tbody id="corpoSaques"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="estoque-toolbar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1239,7 +1261,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div id="drawerCorpo"></div>
 </div>
 
-<!-- PAINEL LATERAL: recusar inscricao, com o motivo que volta para o cliente -->
+<!-- PAINEL LATERAL: recusar inscricao ou saque, com o motivo que volta para o cliente -->
 <div class="drawer-backdrop" id="recBackdrop"></div>
 <div class="event-drawer" id="recDrawer">
   <div class="drawer-header">
@@ -1252,7 +1274,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="field-error-msg" id="erroMotivoRec">Diga o motivo: é o que o cliente vai ler.</div>
   </div>
   <div class="drawer-footer">
-    <button class="btn-primary" id="btnRecusar">Recusar inscrição</button>
+    <button class="btn-primary" id="btnRecusar">Recusar</button>
     <div class="drawer-link" id="recCancelar">Cancelar</div>
   </div>
 </div>
@@ -1393,6 +1415,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja2: 5,
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
+    afiliadoSaqueMinimo: 50,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1994,10 +2017,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Quem pediu para ser afiliado, pela vitrine de uma loja, aceitando as regras dela. `pix` e o e-mail do
   // cadastro; `dias` = ha quantos dias pediu. Aprovar, recusar, incluir e suspender gravam em deskAfiliados.
   const AFILIADOS_C = [
-    { id: 1, cliente: 'Bruno Carvalho',       clienteId: 12, doc: '890.123.456-77', pix: 'bruno.carvalho@hotmail.com', loja: 2, dias: 40, situacao: 'ativo' },
-    { id: 2, cliente: 'Larissa Monteiro',     clienteId: 10, doc: '789.012.345-66', pix: 'larissa.monteiro@gmail.com', loja: 1, dias: 33, situacao: 'ativo' },
+    { id: 1, cliente: 'Bruno Carvalho',       clienteId: 12, doc: '890.123.456-77', pix: 'bruno.carvalho@hotmail.com', loja: 2, dias: 40, situacao: 'ativo', aprovadoHa: 38 },
+    { id: 2, cliente: 'Larissa Monteiro',     clienteId: 10, doc: '789.012.345-66', pix: 'larissa.monteiro@gmail.com', loja: 1, dias: 33, situacao: 'ativo', aprovadoHa: 31 },
     { id: 3, cliente: 'Camila Rêgo',          clienteId: 7,  doc: '567.890.123-44', pix: 'camila.rego@gmail.com',      loja: 2, dias: 2,  situacao: 'aguardando' },
     { id: 4, cliente: 'Pedro Henrique Alves', clienteId: 6,  doc: '456.789.012-33', pix: 'pedro.alves@gmail.com',      loja: 3, dias: 1,  situacao: 'aguardando' }
+  ];
+  // Pedido de saque feito pelo cliente afiliado na vitrine (barganha de 15/out/2026): a partir do minimo do programa.
+  // Aprovar faz nascer o pagamento (e a conta a pagar); recusar pede o motivo. As decisoes gravam em deskSaques.
+  const SAQUES_C = [
+    { id: 1, chave: 'a1', valor: 51.20, dias: 1 }
   ];
   // Lancamento a mao na conta de comissao (credito ou debito), referente a um mes. `dias` = ha quantos dias.
   const LANCAMENTOS_C = [
@@ -2016,10 +2044,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const g = lerLocal('deskAfiliados', {});
     return AFILIADOS_C.concat(g.novos || []).map(a => Object.assign({}, a, (g.mudancas || {})[a.id] || {}));
   }
-  function mudarAfiliado(id, mudanca) {
+  // `evento` vai para o historico do afiliado (aprovado, recusado, suspenso, reativado), com o dia e o motivo.
+  function mudarAfiliado(id, mudanca, evento) {
     const g = lerLocal('deskAfiliados', {});
     g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca);
+    if (evento) { g.eventos = g.eventos || []; g.eventos.push({ id: id, evento: evento, quando: HOJE_ISO, motivo: mudanca.motivo || '' }); }
     return gravarLocal('deskAfiliados', g);
+  }
+  function saques() {
+    const g = lerLocal('deskSaques', {});
+    return SAQUES_C.map(s => Object.assign({ situacao: 'solicitado' }, s, (g.mudancas || {})[s.id] || {}));
+  }
+  function mudarSaque(id, mudanca) {
+    const g = lerLocal('deskSaques', {});
+    g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca, { quando: HOJE_ISO });
+    return gravarLocal('deskSaques', g);
+  }
+  // Afiliado desde: o dia da aprovacao (o pedido de inscricao e outro dia, e fica no historico).
+  function desdeDe(a) {
+    if (a.aprovadoHa !== undefined) return isoDe(diaMais(-a.aprovadoHa));
+    const e = (lerLocal('deskAfiliados', {}).eventos || []).filter(x => x.id === a.id && x.evento === 'aprovado').slice(-1)[0];
+    return e ? e.quando : isoDe(diaMais(-(a.dias || 0)));
   }
   // Quem recebe comissao: o vendedor do cadastro, ou o cliente aprovado como afiliado de uma loja. A chave
   // (v1, a1) e o ?id= da conta do afiliado.
@@ -2027,7 +2072,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return VENDEDORES_C.map(v => ({ chave: 'v' + v.id, id: v.id, nome: v.nome, tipo: 'vendedor', aliquota: v.aliquota, regra: v.regra, situacao: v.situacao }))
       .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(a => ({
         chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
-        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, clienteId: a.clienteId })));
+        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId })));
   }
   function beneficiarioDe(chave) { return beneficiarios().filter(b => b.chave === chave)[0] || null; }
   // Uma pessoa recebe por pedido: o link do cliente afiliado vale sobre o vendedor marcado.
@@ -2132,6 +2177,46 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function subDoBeneficiario(b) {
     if (b.tipo === 'vendedor') return 'Vendedor · ' + pctC(b.aliquota) + ' · ' + REGRA_C[b.regra] + (b.situacao === 'inativo' ? ' · inativo' : '');
     return 'Cliente afiliado da ' + LOJAS_C[b.loja] + ' · ' + pctC(b.aliquota) + ' nas vendas novas' + (b.situacao === 'suspenso' ? ' · suspenso' : '');
+  }
+  // A situacao do pagamento: a baixa em Contas a Pagar volta para ca em `baixas` (15/out/2026).
+  function situacaoDoPagamento(p) {
+    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0);
+    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago };
+    if (p.cancelado) return { rotulo: 'cancelado', pago: pago };
+    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago };
+    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')', pago: pago };
+    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
+  }
+  // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
+  // mostra o mesmo ao cliente, em "Minhas indicacoes".
+  function historicoDe(b) {
+    const ev = [];
+    const add = (data, texto, valor) => { if (data) ev.push({ data: data, texto: texto, valor: valor === undefined ? null : Math.abs(valor), ordem: ev.length }); };
+    if (b.tipo === 'cliente') {
+      const a = afiliados().filter(x => x.id === b.id)[0] || {};
+      add(isoDe(diaMais(-(a.dias || 0))), a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
+      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'Aprovado no programa de afiliados');
+      const NOME_EVENTO = { aprovado: 'Aprovado no programa de afiliados', recusado: 'Inscrição recusada', suspenso: 'Suspenso do programa', reativado: 'Reativado no programa' };
+      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
+    }
+    pedidosDe(b).forEach(p => add(vendaDe(p), (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente + (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p)));
+    comissoesDe(b).forEach(i => { if (i.libera) add(i.libera, 'Comissão liberada: pedido nº ' + i.pedido.numero + i.parte, i.valor); });
+    const ajustes = lerLocal('deskComissoesAjustes', {});
+    Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
+      const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
+      add(aj.quando, (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''), aj.excluida ? undefined : aj.valor);
+    });
+    lancamentosDe(b).forEach(l => add(l.data, (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor));
+    saques().filter(s => s.chave === b.chave).forEach(s => {
+      add(isoDe(diaMais(-s.dias)), 'Pediu o saque pela vitrine', s.valor);
+      if (s.situacao === 'recusado') add(s.quando, 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''));
+    });
+    (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
+      add(p.data, 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor);
+      (p.baixas || []).forEach(x => add(x.data, 'COM-' + p.n + ' pago em Contas a Pagar', x.valor));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') + ': o valor voltou ao saldo', p.valor);
+    });
+    return ev.sort((x, y) => x.data === y.data ? y.ordem - x.ordem : (x.data < y.data ? 1 : -1));
   }
 
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
@@ -2298,6 +2383,45 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('kpiComissao', moedaC(soma('mes'))); texto('kpiLucro', moedaC(soma('lucro')));
     texto('kpiPendente', moedaC(soma('pendente'))); texto('kpiSaldo', moedaC(soma('saldo')));
     renderInscricoes();
+    renderSaques();
+  }
+
+  // ===== PAGAMENTOS SOLICITADOS (saque pedido na vitrine, 15/out/2026) =====
+  const saldoHoje = (b) => contaDoMes(b, HOJE_C.getMonth() + 1, HOJE_C.getFullYear()).saldo;
+  function renderSaques() {
+    const fila = saques().filter(s => s.situacao === 'solicitado' && beneficiarioDe(s.chave));
+    document.getElementById('cardSaques').style.display = fila.length ? '' : 'none';
+    texto('contSaques', '(' + fila.length + ')');
+    texto('minimoSaque', moedaC(PARAM.afiliadoSaqueMinimo));
+    html('corpoSaques', fila.map(s => {
+      const b = beneficiarioDe(s.chave);
+      return '<tr data-id="' + s.id + '"><td class="col-texto"><span class="vol-nome">' + esc(b.nome) + '</span><span class="vol-sub">' + esc(b.doc || '') + '</span></td>' +
+        '<td class="col-texto">' + LOJAS_C[b.loja] + '</td><td>' + moedaC(s.valor) + '</td><td>' + moedaC(saldoHoje(b)) + '</td>' +
+        '<td class="col-texto">' + esc(b.pix || '') + '</td><td class="col-texto">' + brDe(isoDe(diaMais(-s.dias))) + '</td>' +
+        '<td class="col-texto"><div class="com-acoes"><button class="btn-primary" data-aprovar-saque="' + s.id + '">Aprovar</button><button class="btn-ghost" data-recusar-saque="' + s.id + '">Recusar</button></div></td></tr>';
+    }).join(''));
+    document.querySelectorAll('[data-aprovar-saque]').forEach(bt => bt.addEventListener('click', () => aprovarSaque(Number(bt.getAttribute('data-aprovar-saque')))));
+    document.querySelectorAll('[data-recusar-saque]').forEach(bt => bt.addEventListener('click', () => abrirRecusa(Number(bt.getAttribute('data-recusar-saque')), 'saque')));
+  }
+  function aprovarSaque(id) {
+    const s = saques().filter(x => x.id === id)[0], b = beneficiarioDe(s.chave), saldo = saldoHoje(b);
+    if (s.valor > saldo + 0.001) {
+      avisar('O saldo de comissão de ' + b.nome + ' hoje é ' + moedaC(saldo) + ', menor que o saque pedido (' + moedaC(s.valor) + '). Recuse com o motivo, para o cliente pedir de novo.');
+      return;
+    }
+    const g = lerLocal('deskComissoesPagas', {}), n = (g.pagamentos || []).length + 1;
+    pedirConfirmacao('comissaoPaga', 'Aprovar o saque de ' + moedaC(s.valor) + ' de ' + b.nome + '? Nasce a conta COM-' + n + ' em Contas a Pagar, por Pix na chave ' + b.pix +
+      ', e o saldo de comissão desce agora.', () => {
+      const h = lerLocal('deskComissoesPagas', {});
+      h.pagamentos = h.pagamentos || [];
+      const k = h.pagamentos.length + 1;
+      h.pagamentos.push({ n: k, chave: b.chave, nome: b.nome, tipo: b.tipo, valor: s.valor, data: HOJE_ISO, venc: HOJE_ISO, forma: 'Pix', pix: b.pix || '',
+                          ref: NOMES_MES_C[HOJE_C.getMonth()].toLowerCase() + ' de ' + HOJE_C.getFullYear(), saque: s.id });
+      gravarLocal('deskComissoesPagas', h);
+      mudarSaque(s.id, { situacao: 'aprovado', n: k });
+      render();
+      avisar('Saque aprovado: a conta COM-' + k + ' está em Contas a Pagar, para hoje. O saldo de comissão de ' + b.nome + ' já desceu.');
+    });
   }
 
   function renderInscricoes() {
@@ -2320,15 +2444,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const a = afiliados().filter(x => x.id === id)[0];
     pedirConfirmacao('afiliadoAprova', 'Aprovar ' + a.cliente + ' como afiliado da ' + LOJAS_C[a.loja] + '? O botão de gerar link aparece para o cliente na vitrine, com ' +
       pctC(pctDaLoja(a.loja)) + ' de comissão nas vendas por link.', () => {
-      mudarAfiliado(id, { situacao: 'ativo', dias: 0 });
+      mudarAfiliado(id, { situacao: 'ativo' }, 'aprovado');
       render();
       avisar(a.cliente + ' é afiliado da ' + LOJAS_C[a.loja] + ' e já aparece na lista. No protótipo, a aprovação fica guardada neste navegador.');
     });
   }
+  // O mesmo painel recusa inscricao e saque: os dois mandam o motivo para o cliente, na vitrine.
   let recusando = null;
-  function abrirRecusa(id) {
-    recusando = afiliados().filter(x => x.id === id)[0];
-    texto('recTitulo', 'Recusar a inscrição de ' + recusando.cliente);
+  function abrirRecusa(id, tipo) {
+    if (tipo === 'saque') {
+      const s = saques().filter(x => x.id === id)[0];
+      recusando = { tipo: 'saque', s: s, b: beneficiarioDe(s.chave) };
+      texto('recTitulo', 'Recusar o saque de ' + recusando.b.nome);
+    } else {
+      recusando = { tipo: 'inscricao', a: afiliados().filter(x => x.id === id)[0] };
+      texto('recTitulo', 'Recusar a inscrição de ' + recusando.a.cliente);
+    }
     document.getElementById('recMotivo').value = '';
     document.getElementById('campoMotivoRec').classList.remove('has-error');
     document.getElementById('erroMotivoRec').classList.remove('show');
@@ -2340,10 +2471,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoMotivoRec').classList.toggle('has-error', !motivo);
     document.getElementById('erroMotivoRec').classList.toggle('show', !motivo);
     if (!motivo) return;
-    const a = recusando;
+    const r = recusando;
     fecharRecusa();
+    if (r.tipo === 'saque') {
+      pedirConfirmacao('comissaoPaga', 'Recusar o saque de ' + moedaC(r.s.valor) + ' de ' + r.b.nome + '? O saldo continua o mesmo, e o motivo vai para o cliente: "' + motivo + '".', () => {
+        mudarSaque(r.s.id, { situacao: 'recusado', motivo: motivo });
+        render();
+        avisar('Saque de ' + r.b.nome + ' recusado. Ele sai da fila; o cliente vê o motivo na vitrine e pode pedir de novo.');
+      });
+      return;
+    }
+    const a = r.a;
     pedirConfirmacao('afiliadoAprova', 'Recusar a inscrição de ' + a.cliente + ' na ' + LOJAS_C[a.loja] + '? O motivo vai para o cliente: "' + motivo + '".', () => {
-      mudarAfiliado(a.id, { situacao: 'recusado', motivo: motivo });
+      mudarAfiliado(a.id, { situacao: 'recusado', motivo: motivo }, 'recusado');
       render();
       avisar('Inscrição de ' + a.cliente + ' recusada. Ela sai da fila; o cliente vê o motivo na vitrine.');
     });
@@ -2362,7 +2502,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '<div class="rt-sub">A conta da comissão</div>';
     LINHAS_CONTA.forEach(c => { if (c.sempre || r[c.k]) corpo += linha(c.rotulo, moedaC(r[c.k])); });
     corpo += linha('A liberar', moedaC(r.pendente));
-    if (b.tipo === 'cliente') corpo += '<div class="rt-sub">Para pagar</div>' + linha('Chave PIX', esc(b.pix)) + linha('Afiliado desde', brDe(isoDe(diaMais(-b.dias))));
+    if (b.tipo === 'cliente') corpo += '<div class="rt-sub">Para pagar</div>' + linha('Chave PIX', esc(b.pix)) + linha('Afiliado desde', brDe(b.desde));
     corpo += '<div class="drawer-footer"><button class="btn-primary" id="btnAbrirConta">Abrir a conta</button>' +
       '<div class="drawer-link" id="btnAbrirCadastro">' + (b.tipo === 'vendedor' ? 'Abrir o cadastro do vendedor' : 'Abrir o cadastro do cliente') + '</div></div>';
     html('drawerCorpo', corpo);

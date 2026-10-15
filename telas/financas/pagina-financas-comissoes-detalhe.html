@@ -1116,6 +1116,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <span id="avisoSemIdTexto"></span>
   </div>
 
+  <!-- Saque pedido na vitrine e ainda sem decisao: a aprovacao e na lista de Comissoes Afiliados (15/out/2026). -->
+  <div class="nota-reservado" id="avisoSaque" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+    <span id="avisoSaqueTexto"></span>
+  </div>
+
   <div class="estoque-toolbar">
     <div class="dropdown-select" id="filtroMes" data-value="10">
       <button type="button" class="dropdown-select-btn pill">
@@ -1218,6 +1224,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th>Valor</th>
             <th class="col-texto">Forma</th>
             <th class="col-texto">Vencimento</th>
+            <th class="col-texto">Situação</th>
             <th class="col-texto">Conta a pagar</th>
           </tr>
         </thead>
@@ -1225,6 +1232,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </table>
     </div>
     <div class="field-hint" id="semPagtos" style="display:none;">Nenhum pagamento neste mês.</div>
+  </div>
+
+  <!-- O historico de todos os meses (barganha de 15/out/2026). A vitrine mostra o mesmo ao cliente afiliado. -->
+  <div class="card com-bloco">
+    <div class="com-titulo">Histórico</div>
+    <div class="com-sub">Tudo o que aconteceu com esta pessoa no programa, de todos os meses, do mais novo para o mais velho: inscrição, vendas, comissões, saques, pagamentos e lançamentos.</div>
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto">Data</th>
+            <th class="col-texto">O que aconteceu</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="corpoHistorico"></tbody>
+      </table>
+    </div>
   </div>
 
 <!-- PAINEL LATERAL: realizar pagamento. Nasce a conta em Contas a Pagar; o saldo desce no dia. -->
@@ -1443,6 +1468,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja2: 5,
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
+    afiliadoSaqueMinimo: 50,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2044,10 +2070,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Quem pediu para ser afiliado, pela vitrine de uma loja, aceitando as regras dela. `pix` e o e-mail do
   // cadastro; `dias` = ha quantos dias pediu. Aprovar, recusar, incluir e suspender gravam em deskAfiliados.
   const AFILIADOS_C = [
-    { id: 1, cliente: 'Bruno Carvalho',       clienteId: 12, doc: '890.123.456-77', pix: 'bruno.carvalho@hotmail.com', loja: 2, dias: 40, situacao: 'ativo' },
-    { id: 2, cliente: 'Larissa Monteiro',     clienteId: 10, doc: '789.012.345-66', pix: 'larissa.monteiro@gmail.com', loja: 1, dias: 33, situacao: 'ativo' },
+    { id: 1, cliente: 'Bruno Carvalho',       clienteId: 12, doc: '890.123.456-77', pix: 'bruno.carvalho@hotmail.com', loja: 2, dias: 40, situacao: 'ativo', aprovadoHa: 38 },
+    { id: 2, cliente: 'Larissa Monteiro',     clienteId: 10, doc: '789.012.345-66', pix: 'larissa.monteiro@gmail.com', loja: 1, dias: 33, situacao: 'ativo', aprovadoHa: 31 },
     { id: 3, cliente: 'Camila Rêgo',          clienteId: 7,  doc: '567.890.123-44', pix: 'camila.rego@gmail.com',      loja: 2, dias: 2,  situacao: 'aguardando' },
     { id: 4, cliente: 'Pedro Henrique Alves', clienteId: 6,  doc: '456.789.012-33', pix: 'pedro.alves@gmail.com',      loja: 3, dias: 1,  situacao: 'aguardando' }
+  ];
+  // Pedido de saque feito pelo cliente afiliado na vitrine (barganha de 15/out/2026): a partir do minimo do programa.
+  // Aprovar faz nascer o pagamento (e a conta a pagar); recusar pede o motivo. As decisoes gravam em deskSaques.
+  const SAQUES_C = [
+    { id: 1, chave: 'a1', valor: 51.20, dias: 1 }
   ];
   // Lancamento a mao na conta de comissao (credito ou debito), referente a um mes. `dias` = ha quantos dias.
   const LANCAMENTOS_C = [
@@ -2066,10 +2097,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const g = lerLocal('deskAfiliados', {});
     return AFILIADOS_C.concat(g.novos || []).map(a => Object.assign({}, a, (g.mudancas || {})[a.id] || {}));
   }
-  function mudarAfiliado(id, mudanca) {
+  // `evento` vai para o historico do afiliado (aprovado, recusado, suspenso, reativado), com o dia e o motivo.
+  function mudarAfiliado(id, mudanca, evento) {
     const g = lerLocal('deskAfiliados', {});
     g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca);
+    if (evento) { g.eventos = g.eventos || []; g.eventos.push({ id: id, evento: evento, quando: HOJE_ISO, motivo: mudanca.motivo || '' }); }
     return gravarLocal('deskAfiliados', g);
+  }
+  function saques() {
+    const g = lerLocal('deskSaques', {});
+    return SAQUES_C.map(s => Object.assign({ situacao: 'solicitado' }, s, (g.mudancas || {})[s.id] || {}));
+  }
+  function mudarSaque(id, mudanca) {
+    const g = lerLocal('deskSaques', {});
+    g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca, { quando: HOJE_ISO });
+    return gravarLocal('deskSaques', g);
+  }
+  // Afiliado desde: o dia da aprovacao (o pedido de inscricao e outro dia, e fica no historico).
+  function desdeDe(a) {
+    if (a.aprovadoHa !== undefined) return isoDe(diaMais(-a.aprovadoHa));
+    const e = (lerLocal('deskAfiliados', {}).eventos || []).filter(x => x.id === a.id && x.evento === 'aprovado').slice(-1)[0];
+    return e ? e.quando : isoDe(diaMais(-(a.dias || 0)));
   }
   // Quem recebe comissao: o vendedor do cadastro, ou o cliente aprovado como afiliado de uma loja. A chave
   // (v1, a1) e o ?id= da conta do afiliado.
@@ -2077,7 +2125,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return VENDEDORES_C.map(v => ({ chave: 'v' + v.id, id: v.id, nome: v.nome, tipo: 'vendedor', aliquota: v.aliquota, regra: v.regra, situacao: v.situacao }))
       .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(a => ({
         chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
-        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, clienteId: a.clienteId })));
+        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId })));
   }
   function beneficiarioDe(chave) { return beneficiarios().filter(b => b.chave === chave)[0] || null; }
   // Uma pessoa recebe por pedido: o link do cliente afiliado vale sobre o vendedor marcado.
@@ -2182,6 +2230,46 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function subDoBeneficiario(b) {
     if (b.tipo === 'vendedor') return 'Vendedor · ' + pctC(b.aliquota) + ' · ' + REGRA_C[b.regra] + (b.situacao === 'inativo' ? ' · inativo' : '');
     return 'Cliente afiliado da ' + LOJAS_C[b.loja] + ' · ' + pctC(b.aliquota) + ' nas vendas novas' + (b.situacao === 'suspenso' ? ' · suspenso' : '');
+  }
+  // A situacao do pagamento: a baixa em Contas a Pagar volta para ca em `baixas` (15/out/2026).
+  function situacaoDoPagamento(p) {
+    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0);
+    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago };
+    if (p.cancelado) return { rotulo: 'cancelado', pago: pago };
+    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago };
+    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')', pago: pago };
+    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
+  }
+  // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
+  // mostra o mesmo ao cliente, em "Minhas indicacoes".
+  function historicoDe(b) {
+    const ev = [];
+    const add = (data, texto, valor) => { if (data) ev.push({ data: data, texto: texto, valor: valor === undefined ? null : Math.abs(valor), ordem: ev.length }); };
+    if (b.tipo === 'cliente') {
+      const a = afiliados().filter(x => x.id === b.id)[0] || {};
+      add(isoDe(diaMais(-(a.dias || 0))), a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
+      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'Aprovado no programa de afiliados');
+      const NOME_EVENTO = { aprovado: 'Aprovado no programa de afiliados', recusado: 'Inscrição recusada', suspenso: 'Suspenso do programa', reativado: 'Reativado no programa' };
+      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
+    }
+    pedidosDe(b).forEach(p => add(vendaDe(p), (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente + (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p)));
+    comissoesDe(b).forEach(i => { if (i.libera) add(i.libera, 'Comissão liberada: pedido nº ' + i.pedido.numero + i.parte, i.valor); });
+    const ajustes = lerLocal('deskComissoesAjustes', {});
+    Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
+      const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
+      add(aj.quando, (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''), aj.excluida ? undefined : aj.valor);
+    });
+    lancamentosDe(b).forEach(l => add(l.data, (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor));
+    saques().filter(s => s.chave === b.chave).forEach(s => {
+      add(isoDe(diaMais(-s.dias)), 'Pediu o saque pela vitrine', s.valor);
+      if (s.situacao === 'recusado') add(s.quando, 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''));
+    });
+    (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
+      add(p.data, 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor);
+      (p.baixas || []).forEach(x => add(x.data, 'COM-' + p.n + ' pago em Contas a Pagar', x.valor));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') + ': o valor voltou ao saldo', p.valor);
+    });
+    return ev.sort((x, y) => x.data === y.data ? y.ordem - x.ordem : (x.data < y.data ? 1 : -1));
   }
 
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
@@ -2370,11 +2458,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('semLanc').style.display = r.lancamentos.length ? 'none' : '';
 
     html('corpoPagtos', r.pagamentosLista.map(x => '<tr><td class="col-texto">' + brDe(x.data) + '</td><td>' + moedaC(x.valor) + '</td><td class="col-texto">' + esc(x.forma) + '</td>' +
-      '<td class="col-texto">' + brDe(x.venc) + '</td><td class="col-texto"><a class="com-link" href="../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + x.n) + '">COM-' + x.n + '</a>' +
-      ' · <span class="com-link" data-cancelar-pg="' + x.n + '">cancelar</span></td></tr>').join(''));
+      '<td class="col-texto">' + brDe(x.venc) + '</td><td class="col-texto">' + situacaoDoPagamento(x).rotulo + '</td>' +
+      '<td class="col-texto"><a class="com-link" href="../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + x.n) + '">COM-' + x.n + '</a>' +
+      (situacaoDoPagamento(x).pago ? '' : ' · <span class="com-link" data-cancelar-pg="' + x.n + '">cancelar</span>') + '</td></tr>').join(''));
     document.querySelectorAll('[data-cancelar-pg]').forEach(el => el.addEventListener('click', () => cancelarPagamento(Number(el.getAttribute('data-cancelar-pg')))));
     document.getElementById('wrapPagtos').style.display = r.pagamentosLista.length ? '' : 'none';
     document.getElementById('semPagtos').style.display = r.pagamentosLista.length ? 'none' : '';
+
+    // Historico de todos os meses, e o saque que espera decisao (15/out/2026).
+    html('corpoHistorico', historicoDe(B).map(e => '<tr><td class="col-texto">' + brDe(e.data) + '</td><td class="col-texto">' + esc(e.texto) + '</td><td>' +
+      (e.valor === null ? '—' : moedaC(e.valor)) + '</td></tr>').join(''));
+    const pedido = saques().filter(s => s.chave === B.chave && s.situacao === 'solicitado')[0];
+    document.getElementById('avisoSaque').style.display = pedido ? '' : 'none';
+    if (pedido) texto('avisoSaqueTexto', B.nome + ' pediu o saque de ' + moedaC(pedido.valor) + ' pela vitrine em ' + brDe(isoDe(diaMais(-pedido.dias))) +
+      '. A aprovação é na lista de Comissões Afiliados, no quadro "Pagamentos solicitados".');
   }
 
   // ===== REALIZAR PAGAMENTO =====
@@ -2417,8 +2514,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function cancelarPagamento(n) {
     const g = lerLocal('deskComissoesPagas', {}), p = (g.pagamentos || []).filter(x => x.n === n)[0];
     if (!p) return;
+    if (situacaoDoPagamento(p).pago) { avisar('O pagamento COM-' + n + ' já tem baixa em Contas a Pagar. Estorne a baixa lá antes de cancelar.'); return; }
     pedirConfirmacao('comissaoPaga', 'Cancelar o pagamento COM-' + n + ', de ' + moedaC(p.valor) + ', a ' + B.nome + '? A conta fica cancelada em Contas a Pagar e o valor volta ao saldo de comissão.', () => {
-      p.cancelado = true;
+      p.cancelado = true; p.canceladoEm = HOJE_ISO;
       gravarLocal('deskComissoesPagas', g);
       render();
       avisar('Pagamento COM-' + n + ' cancelado: a conta ficou cancelada em Contas a Pagar e ' + moedaC(p.valor) + ' voltou ao saldo.');
@@ -2440,7 +2538,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function fecharAjuste() { document.getElementById('ajBackdrop').classList.remove('open'); document.getElementById('ajDrawer').classList.remove('open'); }
   function gravarAjuste(mudanca) {
     const g = lerLocal('deskComissoesAjustes', {});
-    g[B.chave + ':' + ajustando.id] = Object.assign({}, g[B.chave + ':' + ajustando.id] || {}, mudanca);
+    g[B.chave + ':' + ajustando.id] = Object.assign({}, g[B.chave + ':' + ajustando.id] || {}, mudanca, { quando: HOJE_ISO });   // o dia vai para o historico
     gravarLocal('deskComissoesAjustes', g);
   }
   document.getElementById('btnAjSalvar').addEventListener('click', () => {
@@ -2533,7 +2631,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const volta = B.situacao === 'suspenso';
       pedirConfirmacao('afiliadoAprova', volta ? 'Reativar ' + B.nome + ' no programa de afiliados? O botão de gerar link volta para ele na vitrine.'
         : 'Suspender ' + B.nome + ' do programa de afiliados? O botão de gerar link some na vitrine; as comissões já geradas continuam na conta.', () => {
-        mudarAfiliado(B.id, { situacao: volta ? 'ativo' : 'suspenso' });
+        mudarAfiliado(B.id, { situacao: volta ? 'ativo' : 'suspenso' }, volta ? 'reativado' : 'suspenso');
         render();
         avisar(B.nome + (volta ? ' voltou ao programa.' : ' está suspenso. As comissões já geradas continuam na conta.'));
       });

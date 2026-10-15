@@ -378,6 +378,7 @@
   .add-contato-link { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
   .add-contato-link:hover { text-decoration:underline; }
   .add-contato-link svg { width:14px; height:14px; }
+  .afi-nota { font-size:12px; color:var(--text); margin:0 0 14px; line-height:1.5; }
 
   .dropzone { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:2px dashed var(--border); border-radius:14px; padding:34px 20px; cursor:pointer; text-align:center; margin-bottom:18px; }
   .dropzone:hover { background: rgba(120,120,140,0.06); }
@@ -739,6 +740,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="tab-item" data-tab="complementares">Dados Complementares</div>
     <div class="tab-item" data-tab="anexos">Anexos</div>
     <div class="tab-item" data-tab="observacoes" id="abaObservacoes">Observações</div>
+    <div class="tab-item" data-tab="afiliado">Afiliado</div>
   </div>
 
   <!-- ABA: DADOS GERAIS -->
@@ -1043,6 +1045,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <!-- Programa de afiliados (barganha de 15/out/2026): so o resumo, lido de Financas > Comissoes Afiliados, que e a dona. -->
+  <div class="tab-panel" id="tab-afiliado">
+    <div class="section-title">Programa de afiliados</div>
+    <div class="afi-nota">O cliente pede pela vitrine de cada loja, aceitando as regras dela. A aprovação e a conta das comissões ficam em Finanças → Comissões Afiliados; aqui é o resumo, lido de lá.</div>
+    <div id="corpoAfiliado"></div>
+  </div>
+
   <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarCliente">Salvar alterações</button>
     <div class="drawer-link" id="btnVoltarRodape">Voltar pra listagem</div>
@@ -1107,6 +1116,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ocultarVolumesFila: false,
     casasQuantidade: 2,
     casasPreco: 2,
+    // Programa de afiliados (Configuracoes > Cadastro de clientes): a aba Afiliado le pelo bloco de Comissoes
+    afiliadoPctLoja1: 4,
+    afiliadoPctLoja2: 5,
+    afiliadoPctLoja3: 3,
+    afiliadoLinkDias: 30,
+    afiliadoSaqueMinimo: 50,
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1818,6 +1833,300 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
   // As mesmas cores da lista (ORIGEM_COR).
   const COR_DA_LOJA = { 'Desk Shope': 'var(--chart-1)', 'Desk Brands': 'var(--chart-2)', 'Desk Tech': 'var(--chart-3)', 'Desk Flash': 'var(--warning)' };
+
+  // ===== COMISSOES: DADOS E REGRAS (bloco comum das duas telas, 14/out/2026) =====
+  // Identico na lista de Comissoes Afiliados e na conta do afiliado; teste_comissoes.py compara. Esta
+  // tela nao guarda venda propria: os pedidos sao ESPELHO de Vendas > Pedidos de Venda (PEDIDOS), a regra
+  // de cada vendedor e espelho de Cadastros > Vendedores, o afiliado e cliente de Cadastros > Clientes, e o
+  // percentual de cada loja vem de Configuracoes > Cadastro de clientes (Programa de afiliados).
+  const HOJE_C = new Date(); HOJE_C.setHours(0, 0, 0, 0);
+  function diaMais(n) { const d = new Date(HOJE_C); d.setDate(d.getDate() + n); return d; }
+  function isoDe(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function brDe(iso) { const p = String(iso).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function somaDias(iso, n) { const p = iso.split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return isoDe(d); }
+  const HOJE_ISO = isoDe(HOJE_C);
+  const NOMES_MES_C = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const LOJAS_C = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const SIT_PEDIDO_C = { aberto: 'Em aberto', aprovado: 'Aprovado', separacao: 'Em separação', conferenciasaida: 'Conferência de saída', faturado: 'Faturado',
+                         prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue', cancelado: 'Cancelado' };
+  // ESPELHO de Vendas > Pedidos de Venda: `ind` = link de cliente afiliado; `custo` = custo dos produtos,
+  // congelado no faturamento. Base da comissao = total menos o frete.
+  const PEDIDOS = [
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00 },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90 },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20 },
+    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10 },
+    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00 },
+    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00 },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00 },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00 },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00 },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00 },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00 },
+    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00 },
+    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00 },
+    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00 },
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00 }
+  ];
+  const VENDEDORES_DA_LISTA_C = ['Marina Costa', 'Rafael Andrade', ''];
+  // ESPELHO de Cadastros > Vendedores: os que nao foram excluidos, com a regra de comissao de cada um.
+  const VENDEDORES_C = [
+    { id: 1, nome: 'Marina Costa',                situacao: 'ativo_acesso', aliquota: 5, regra: 'parcial_parcelas' },
+    { id: 2, nome: 'Ponto Parceiro Vila Mariana', situacao: 'ativo',        aliquota: 8, regra: 'integral_faturamento' },
+    { id: 3, nome: 'Rafael Andrade',              situacao: 'inativo',      aliquota: 0, regra: 'parcial_parcelas' }
+  ];
+  const REGRA_C = {
+    parcial_parcelas: 'liberação parcial, pelas parcelas pagas',
+    integral_faturamento: 'liberação integral no faturamento',
+    integral_primeira_parcela: 'liberação integral com a primeira parcela paga',
+    cinquenta_faturamento: 'metade no faturamento, o resto pelas parcelas pagas'
+  };
+  // ESPELHO de Cadastros > Clientes (nome, documento e e-mail): de onde sai o afiliado incluido a mao.
+  const CLIENTES_C = [
+    { id: 1, nome: 'Marina Duarte', doc: '123.456.789-00', email: 'marina.duarte@gmail.com' },
+    { id: 2, nome: 'Rafael Nogueira', doc: '234.567.890-11', email: 'rafael.nogueira@hotmail.com' },
+    { id: 3, nome: 'Distribuidora Nordeste Ltda', doc: '41.223.556/0001-09', email: 'contato@distnordeste.com.br' },
+    { id: 4, nome: 'Juliana Prado', doc: '345.678.901-22', email: 'juliana.prado@outlook.com' },
+    { id: 5, nome: 'Tech Solutions Imperatriz Ltda', doc: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br' },
+    { id: 6, nome: 'Pedro Henrique Alves', doc: '456.789.012-33', email: 'pedro.alves@gmail.com' },
+    { id: 7, nome: 'Camila Rêgo', doc: '567.890.123-44', email: 'camila.rego@gmail.com' },
+    { id: 8, nome: 'Móveis Bom Preço Ltda', doc: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br' },
+    { id: 9, nome: 'Thiago Almeida', doc: '678.901.234-55', email: 'thiago.almeida@yahoo.com' },
+    { id: 10, nome: 'Larissa Monteiro', doc: '789.012.345-66', email: 'larissa.monteiro@gmail.com' },
+    { id: 11, nome: 'Auto Peças Imperatriz Ltda', doc: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br' },
+    { id: 12, nome: 'Bruno Carvalho', doc: '890.123.456-77', email: 'bruno.carvalho@hotmail.com' },
+    { id: 13, nome: 'Patrícia Farias', doc: '901.234.567-88', email: 'patricia.farias@gmail.com' },
+    { id: 14, nome: 'Papelaria Central Ltda', doc: '44.556.778/0001-90', email: 'vendas@papelariacentral.com.br' }
+  ];
+  // Quem pediu para ser afiliado, pela vitrine de uma loja, aceitando as regras dela. `pix` e o e-mail do
+  // cadastro; `dias` = ha quantos dias pediu. Aprovar, recusar, incluir e suspender gravam em deskAfiliados.
+  const AFILIADOS_C = [
+    { id: 1, cliente: 'Bruno Carvalho',       clienteId: 12, doc: '890.123.456-77', pix: 'bruno.carvalho@hotmail.com', loja: 2, dias: 40, situacao: 'ativo', aprovadoHa: 38 },
+    { id: 2, cliente: 'Larissa Monteiro',     clienteId: 10, doc: '789.012.345-66', pix: 'larissa.monteiro@gmail.com', loja: 1, dias: 33, situacao: 'ativo', aprovadoHa: 31 },
+    { id: 3, cliente: 'Camila Rêgo',          clienteId: 7,  doc: '567.890.123-44', pix: 'camila.rego@gmail.com',      loja: 2, dias: 2,  situacao: 'aguardando' },
+    { id: 4, cliente: 'Pedro Henrique Alves', clienteId: 6,  doc: '456.789.012-33', pix: 'pedro.alves@gmail.com',      loja: 3, dias: 1,  situacao: 'aguardando' }
+  ];
+  // Pedido de saque feito pelo cliente afiliado na vitrine (barganha de 15/out/2026): a partir do minimo do programa.
+  // Aprovar faz nascer o pagamento (e a conta a pagar); recusar pede o motivo. As decisoes gravam em deskSaques.
+  const SAQUES_C = [
+    { id: 1, chave: 'a1', valor: 51.20, dias: 1 }
+  ];
+  // Lancamento a mao na conta de comissao (credito ou debito), referente a um mes. `dias` = ha quantos dias.
+  const LANCAMENTOS_C = [
+    { id: 1, chave: 'v1', tipo: 'credito', valor: 150.00, dias: 6, mesesAtras: 0, descricao: 'Prêmio da campanha do Dia das Crianças' }
+  ];
+
+  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega (15/out/2026).
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
+  function lerLocal(chave, padrao) { try { const b = localStorage.getItem(chave); return b ? JSON.parse(b) : padrao; } catch (e) { return padrao; } }
+  function gravarLocal(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  function moedaC(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function pctC(v) { return String(v).replace('.', ',') + '%'; }
+  function pctDaLoja(loja) { return Number(PARAM['afiliadoPctLoja' + loja]); }
+
+  function afiliados() {
+    const g = lerLocal('deskAfiliados', {});
+    return AFILIADOS_C.concat(g.novos || []).map(a => Object.assign({}, a, (g.mudancas || {})[a.id] || {}));
+  }
+  // `evento` vai para o historico do afiliado (aprovado, recusado, suspenso, reativado), com o dia e o motivo.
+  function mudarAfiliado(id, mudanca, evento) {
+    const g = lerLocal('deskAfiliados', {});
+    g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca);
+    if (evento) { g.eventos = g.eventos || []; g.eventos.push({ id: id, evento: evento, quando: HOJE_ISO, motivo: mudanca.motivo || '' }); }
+    return gravarLocal('deskAfiliados', g);
+  }
+  function saques() {
+    const g = lerLocal('deskSaques', {});
+    return SAQUES_C.map(s => Object.assign({ situacao: 'solicitado' }, s, (g.mudancas || {})[s.id] || {}));
+  }
+  function mudarSaque(id, mudanca) {
+    const g = lerLocal('deskSaques', {});
+    g.mudancas = g.mudancas || {}; g.mudancas[id] = Object.assign({}, g.mudancas[id] || {}, mudanca, { quando: HOJE_ISO });
+    return gravarLocal('deskSaques', g);
+  }
+  // Afiliado desde: o dia da aprovacao (o pedido de inscricao e outro dia, e fica no historico).
+  function desdeDe(a) {
+    if (a.aprovadoHa !== undefined) return isoDe(diaMais(-a.aprovadoHa));
+    const e = (lerLocal('deskAfiliados', {}).eventos || []).filter(x => x.id === a.id && x.evento === 'aprovado').slice(-1)[0];
+    return e ? e.quando : isoDe(diaMais(-(a.dias || 0)));
+  }
+  // Quem recebe comissao: o vendedor do cadastro, ou o cliente aprovado como afiliado de uma loja. A chave
+  // (v1, a1) e o ?id= da conta do afiliado.
+  function beneficiarios() {
+    return VENDEDORES_C.map(v => ({ chave: 'v' + v.id, id: v.id, nome: v.nome, tipo: 'vendedor', aliquota: v.aliquota, regra: v.regra, situacao: v.situacao }))
+      .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(a => ({
+        chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
+        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId })));
+  }
+  function beneficiarioDe(chave) { return beneficiarios().filter(b => b.chave === chave)[0] || null; }
+  // Uma pessoa recebe por pedido: o link do cliente afiliado vale sobre o vendedor marcado.
+  function pedidosDe(b) {
+    return PEDIDOS.filter(p => b.tipo === 'cliente' ? (!!p.ind && p.ind.nome === b.nome && p.loja === b.loja)
+                                                    : (!p.ind && VENDEDORES_DA_LISTA_C[p.vend] === b.nome));
+  }
+  const baseDe = (p) => p.total - (p.frete || 0);
+  const pctDoPedido = (p, b) => p.ind ? p.ind.pct : b.aliquota;
+  // Cada comissao e arredondada em centavos antes de somar: sem isso, o saldo da Marina saia R$ 352,99 num
+  // mes cujas linhas somam R$ 353,00.
+  const comissaoDoPedido = (p, b) => Math.round(Math.round(baseDe(p) * 100) * pctDoPedido(p, b) / 100) / 100;
+  const lucroDe = (p, b) => baseDe(p) - p.custo - comissaoDoPedido(p, b);
+  function vendaDe(p) { return isoDe(diaMais(-p.dv)); }
+
+  // Uma comissao por pedido (duas na regra de metade no faturamento). `libera` = o dia em que liberou;
+  // `prevista` = quando deve liberar, enquanto pendente. Cliente afiliado: com o pedido entregue e 7 dias
+  // sem devolucao. Vendedor: a regra do cadastro (no exemplo, cada pedido e pago de uma vez).
+  function comissoesDe(b) {
+    const ajustes = lerLocal('deskComissoesAjustes', {});
+    const itens = [];
+    pedidosDe(b).forEach(p => {
+      const venda = vendaDe(p), previsto = isoDe(diaMais(p.dp));
+      const fat = ['faturado', 'prontoenvio', 'enviado', 'entregue'].indexOf(p.situacao) >= 0 ? isoDe(diaMais(-Math.max(0, p.dv - 2))) : '';
+      const total = comissaoDoPedido(p, b), meia = Math.round(total * 50) / 100;
+      const partes = [];
+      if (p.situacao === 'cancelado') partes.push({ parte: '', valor: total, cancelada: true, libera: '', prevista: '' });
+      else if (!b.regra) { const lib = somaDias(previsto, 7); partes.push({ parte: '', valor: total, libera: p.situacao === 'entregue' && lib <= HOJE_ISO ? lib : '', prevista: lib }); }
+      else if (b.regra === 'integral_faturamento') partes.push({ parte: '', valor: total, libera: fat, prevista: previsto });
+      else if (b.regra === 'cinquenta_faturamento') {
+        partes.push({ parte: ' (1/2)', valor: meia, libera: fat, prevista: previsto });
+        partes.push({ parte: ' (2/2)', valor: Math.round((total - meia) * 100) / 100, libera: p.pago ? venda : '', prevista: previsto });
+      } else partes.push({ parte: '', valor: total, libera: p.pago ? venda : '', prevista: previsto });
+      partes.forEach((x, i) => {
+        const id = p.id + '-' + i, aj = ajustes[b.chave + ':' + id] || {};
+        if (aj.excluida) return;
+        const item = Object.assign({ id: id, pedido: p, base: baseDe(p), pct: pctDoPedido(p, b), descricao: p.cliente + ' - Pedido ' + p.numero + x.parte }, x);
+        if (aj.valor !== undefined) { item.valor = aj.valor; item.ajustada = true; }
+        if (aj.prevista) { item.prevista = aj.prevista; item.ajustada = true; }
+        // Comissao ja liberada no faturamento cuja parcela venceu sem o cliente pagar sai do saldo
+        // ("comissoes vencidas ainda nao pagas"); a pendente vencida so ganha o ponto vermelho.
+        item.vencidaDebito = !item.cancelada && !!item.libera && !!b.regra && b.regra !== 'parcial_parcelas' && b.regra !== 'integral_primeira_parcela' && !p.pago && previsto < HOJE_ISO ? previsto : '';
+        itens.push(item);
+      });
+    });
+    return itens;
+  }
+  function lancamentosDe(b) {
+    const g = lerLocal('deskComissoesLanc', {});
+    return LANCAMENTOS_C.map(l => {
+      const d = diaMais(-l.dias), m = new Date(HOJE_C.getFullYear(), HOJE_C.getMonth() - l.mesesAtras, 1);
+      return Object.assign({}, l, { data: isoDe(d), mes: m.getMonth() + 1, ano: m.getFullYear() });
+    }).concat(g.novos || []).filter(l => l.chave === b.chave && (g.removidos || []).indexOf(String(l.id)) < 0);
+  }
+
+  // "Realizar pagamento" grava aqui; Financas > Contas a Pagar le a mesma chave e faz a conta nascer la, com o
+  // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
+  // Pagamento cancelado (para refazer com outro valor) sai da conta e da de Contas a Pagar; o registro fica.
+  function pagamentosDe(b) {
+    return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave && !p.cancelado);
+  }
+
+  // A conta do mes, nas linhas do Olist. O saldo anterior e tudo o que liberou, entrou e saiu antes do mes.
+  function contaDoMes(b, mes, ano) {
+    const ini = ano + '-' + String(mes).padStart(2, '0') + '-01', fim = isoDe(new Date(ano, mes, 0));
+    const noMes = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
+    const refMes = (l) => ano * 12 + mes - (l.ano * 12 + l.mes);   // 0 = este mes, positivo = antes
+    const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
+    const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
+    const lib = itens.filter(i => !i.cancelada && i.libera);
+    const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
+    const r = {
+      anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
+                soma(lanc.filter(l => refMes(l) > 0), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
+      mes: soma(lib.filter(i => noMes(i.libera)), i => i.valor),
+      vencidas: soma(itens.filter(i => noMes(i.vencidaDebito)), i => i.valor),
+      devolucoes: 0,
+      creditos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'credito'), l => l.valor),
+      debitos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'debito'), l => l.valor),
+      pagamentos: soma(pags.filter(x => noMes(x.data)), x => x.valor),
+      pendente: soma(itens.filter(i => !i.cancelada && !i.libera), i => i.valor)
+    };
+    r.saldo = r.anterior + r.mes - r.vencidas - r.devolucoes + r.creditos - r.debitos - r.pagamentos;
+    const doMes = pedidosDe(b).filter(p => noMes(vendaDe(p)) && p.situacao !== 'cancelado');
+    r.pedidos = doMes.length;
+    r.vendido = soma(doMes, baseDe);
+    r.lucro = soma(doMes, p => lucroDe(p, b));
+    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes; r.pagamentosLista = pags.filter(x => noMes(x.data));
+    return r;
+  }
+  // As linhas do resumo, com os textos dos (i) do Olist. Saldo anterior e saldo aparecem sempre; as outras, so com valor.
+  const LINHAS_CONTA = [
+    { k: 'anterior',   rotulo: 'Saldo anterior',             dica: 'Comissões pendentes do período anterior', sempre: true },
+    { k: 'mes',        rotulo: '(+) Comissões do mês',       dica: 'Comissões a receber no período atual' },
+    { k: 'vencidas',   rotulo: '(−) Comissões vencidas',     dica: 'Comissões vencidas ainda não pagas' },
+    { k: 'devolucoes', rotulo: '(−) Débitos de devoluções',  dica: 'Débitos de devoluções no período atual' },
+    { k: 'creditos',   rotulo: '(+) Outros créditos',        dica: 'Valor adicional a receber' },
+    { k: 'debitos',    rotulo: '(−) Outros débitos',         dica: 'Valor abatido das comissões a receber' },
+    { k: 'pagamentos', rotulo: '(−) Pagamentos',             dica: 'Valor pago das comissões no período' },
+    { k: 'saldo',      rotulo: '(=) Saldo',                  dica: 'Total a pagar', sempre: true }
+  ];
+  function subDoBeneficiario(b) {
+    if (b.tipo === 'vendedor') return 'Vendedor · ' + pctC(b.aliquota) + ' · ' + REGRA_C[b.regra] + (b.situacao === 'inativo' ? ' · inativo' : '');
+    return 'Cliente afiliado da ' + LOJAS_C[b.loja] + ' · ' + pctC(b.aliquota) + ' nas vendas novas' + (b.situacao === 'suspenso' ? ' · suspenso' : '');
+  }
+  // A situacao do pagamento: a baixa em Contas a Pagar volta para ca em `baixas` (15/out/2026).
+  function situacaoDoPagamento(p) {
+    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0);
+    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago };
+    if (p.cancelado) return { rotulo: 'cancelado', pago: pago };
+    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago };
+    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')', pago: pago };
+    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
+  }
+  // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
+  // mostra o mesmo ao cliente, em "Minhas indicacoes".
+  function historicoDe(b) {
+    const ev = [];
+    const add = (data, texto, valor) => { if (data) ev.push({ data: data, texto: texto, valor: valor === undefined ? null : Math.abs(valor), ordem: ev.length }); };
+    if (b.tipo === 'cliente') {
+      const a = afiliados().filter(x => x.id === b.id)[0] || {};
+      add(isoDe(diaMais(-(a.dias || 0))), a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
+      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'Aprovado no programa de afiliados');
+      const NOME_EVENTO = { aprovado: 'Aprovado no programa de afiliados', recusado: 'Inscrição recusada', suspenso: 'Suspenso do programa', reativado: 'Reativado no programa' };
+      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
+    }
+    pedidosDe(b).forEach(p => add(vendaDe(p), (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente + (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p)));
+    comissoesDe(b).forEach(i => { if (i.libera) add(i.libera, 'Comissão liberada: pedido nº ' + i.pedido.numero + i.parte, i.valor); });
+    const ajustes = lerLocal('deskComissoesAjustes', {});
+    Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
+      const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
+      add(aj.quando, (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''), aj.excluida ? undefined : aj.valor);
+    });
+    lancamentosDe(b).forEach(l => add(l.data, (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor));
+    saques().filter(s => s.chave === b.chave).forEach(s => {
+      add(isoDe(diaMais(-s.dias)), 'Pediu o saque pela vitrine', s.valor);
+      if (s.situacao === 'recusado') add(s.quando, 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''));
+    });
+    (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
+      add(p.data, 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor);
+      (p.baixas || []).forEach(x => add(x.data, 'COM-' + p.n + ' pago em Contas a Pagar', x.valor));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') + ': o valor voltou ao saldo', p.valor);
+    });
+    return ev.sort((x, y) => x.data === y.data ? y.ordem - x.ordem : (x.data < y.data ? 1 : -1));
+  }
+
+  // ===== PROGRAMA DE AFILIADOS (aba Afiliado do cliente, 15/out/2026) =====
+  // So le: a aprovacao e a conta das comissoes sao de Financas > Comissoes Afiliados, um dono so. O bloco de regras
+  // logo acima e o mesmo das telas de Comissoes (teste_comissoes.py compara).
+  (function pintarAfiliado() {
+    const corpo = document.getElementById('corpoAfiliado');
+    if (!corpo) return;
+    const meus = REGISTRO ? afiliados().filter(a => a.clienteId === REGISTRO.id) : [];
+    if (!meus.length) {
+      corpo.innerHTML = '<div class="afi-nota">Este cliente não participa do programa de afiliados. A inscrição é pela vitrine; para convidar, use "Incluir afiliado" em ' +
+        '<a class="add-contato-link" href="../financas/pagina-financas-comissoes.html">Comissões Afiliados</a>.</div>';
+      return;
+    }
+    const SIT = { ativo: 'ativo', aguardando: 'aguardando aprovação', suspenso: 'suspenso', recusado: 'inscrição recusada' };
+    corpo.innerHTML = '<table class="contatos-table"><thead><tr><th>Loja</th><th>Situação</th><th>Comissão</th><th>Saldo a pagar hoje</th><th>Pagamentos feitos</th><th>Já pago</th><th></th></tr></thead><tbody>' +
+      meus.map(a => {
+        const b = beneficiarioDe('a' + a.id), pags = b ? pagamentosDe(b) : [];
+        const feitos = pags.reduce((s, p) => s + p.valor, 0), pago = pags.reduce((s, p) => s + situacaoDoPagamento(p).pago, 0);
+        return '<tr><td>' + LOJAS_C[a.loja] + '</td><td>' + SIT[a.situacao] + '</td><td>' + pctC(pctDaLoja(a.loja)) + '</td>' +
+          '<td>' + (b ? moedaC(contaDoMes(b, HOJE_C.getMonth() + 1, HOJE_C.getFullYear()).saldo) : '—') + '</td><td>' + (b ? moedaC(feitos) : '—') + '</td><td>' + (b ? moedaC(pago) : '—') + '</td>' +
+          '<td>' + (b ? '<a class="add-contato-link" href="../financas/pagina-financas-comissoes-detalhe.html?id=' + b.chave + '">Abrir a conta de comissões</a>'
+                      : '<a class="add-contato-link" href="../financas/pagina-financas-comissoes.html">Ver em Comissões Afiliados</a>') + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  })();
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [

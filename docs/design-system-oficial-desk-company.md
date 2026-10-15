@@ -3667,3 +3667,29 @@ do cancelamento, sem rodar a tela de novo. Comissões, aberta do zero, já mostr
 **Regra que fica:** tela que monta a lista com o que outra tela grava no navegador (aqui, os pagamentos de comissão)
 recarrega quando volta da memória (`pageshow` com `persisted`). Vale para Contas a Pagar (lista e página da conta)
 e para as duas telas de Comissões. A seção 6 de `teste_comissoes.py` simula a volta e confere a recarga nas quatro.
+
+## 14.84 Comissões 2c: o histórico, o saque pedido e o pago que volta da baixa (15/out/2026)
+
+Barganha aprovada pelo usuário em 15/out ("concordo com o recomendado"):
+
+- **O histórico é de Comissões.** A conta do afiliado ganhou o bloco Histórico, de todos os meses, do mais novo
+  para o mais velho: inscrição e aprovação (e recusa, suspensão, reativação, com o motivo), cada venda, cada
+  comissão liberada, os ajustes e lançamentos à mão, os saques pedidos (e recusados), os pagamentos, as baixas e
+  os cancelamentos. "Afiliado desde" passou a ser o dia da aprovação, e não o do pedido de inscrição.
+- **O cadastro só lê.** O cadastro do cliente ganhou a aba Afiliado (loja, situação, comissão, saldo a pagar
+  hoje, pagamentos feitos, já pago e o link para a conta), com o mesmo bloco de regras das telas de Comissões;
+  a suíte compara as três cópias. O cadastro do vendedor ganhou o link para a conta dele.
+- **O cliente afiliado pede o saque** na vitrine, a partir do mínimo de Configurações → Programa de afiliados
+  (R$ 50). O pedido chega no quadro "Pagamentos solicitados" da lista; aprovar (com senha) faz o pagamento e a
+  conta a pagar, e não passa do saldo de hoje; recusar pede o motivo, que volta para o cliente. A conta mostra
+  uma faixa enquanto o pedido espera. O vendedor continua pago pela empresa.
+- **O pago volta da baixa.** A baixa da conta de comissão em Contas a Pagar (na página da conta ou em lote, na
+  lista) grava no pagamento de Comissões, que passa a mostrar "pago em dd/mm"; a conta continua paga ao
+  recarregar, e o estorno a devolve para "a pagar". Pagamento pago não se cancela por Comissões: estorna-se a
+  baixa antes.
+- **Na vitrine**, "Minhas indicações" mostra ao cliente o mesmo acompanhamento, lendo do mesmo banco. Fica
+  para quando a vitrine for construída.
+
+**Provado nos dois sentidos, numa cópia.** A seção 7 de `teste_comissoes.py` cobre o histórico, o saque
+(recusar e aprovar), a baixa e o estorno, a aba Afiliado e o link do vendedor. Treze defeitos injetados, um por
+vez, e os treze pegos.

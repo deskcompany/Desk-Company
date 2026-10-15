@@ -2506,14 +2506,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Realizar pagamento", em Financas > Comissoes Afiliados, grava em deskComissoesPagas; a conta nasce aqui,
   // a pagar, com o vendedor ou o cliente afiliado como favorecido e a categoria de comissoes. Conta 9000 + n,
   // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar. O valor e de Comissoes:
-  // a pagina da conta o trava (`comissao`). Pagamento cancelado vira conta cancelada; excluido nao gera conta.
+  // a pagina da conta o trava (`comissao`). Pagamento cancelado vira conta cancelada; excluido nao gera conta. A baixa
+  // feita aqui volta para Comissoes (`baixas`), que mostra o pagamento como pago (15/out/2026).
   (function contasDeComissao() {
     let g = null;
     try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
     ((g && g.pagamentos) || []).filter(p => !p.excluido).forEach(p => {
       const id = 9000 + p.n;
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
-      if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor, pago: 0,
+      if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor,
+        pago: (p.baixas || []).reduce((s, x) => s + x.valor, 0), pagamentos: (p.baixas || []).map(x => Object.assign({}, x)),
         forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave });
     });
   })();
@@ -3031,6 +3033,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       () => {
         conta.pago = Math.max(0, conta.pago - p.valor);
         conta.pagamentos.splice(i, 1);
+        marcarPagamentoDeComissao(conta, { baixas: conta.pagamentos.map(x => Object.assign({}, x)) });
         const movs = [{
           contaId: p.contaId, data: iso(HOJE), comp: conta.comp,
           hist: 'Estorno de pagamento — ' + conta.hist, pessoa: fornDe(conta.fornId).nome,
@@ -3156,6 +3159,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       () => {
         conta.pago = Math.min(conta.valor, conta.pago + v);
         conta.pagamentos.push({ data: dataIso, valor: v, contaId: cid, juros: juros, desconto: desc });
+        marcarPagamentoDeComissao(conta, { baixas: conta.pagamentos.map(x => Object.assign({}, x)) });   // conta de comissao: o pago volta para Comissoes
         const movs = [{
           contaId: cid, data: dataIso, comp: conta.comp, hist: hist,
           pessoa: fornDe(conta.fornId).nome, catId: Number(catEscolhida || conta.catId),
@@ -3540,7 +3544,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         ' de "' + fornDe(conta.fornId).nome + '"? ' +
         (voltando ? 'Ela volta para em aberto e para o total a pagar.' : 'Ela sai do a pagar e fica no histórico.'),
         () => {
-          alvos.forEach(x => { x.cancelado = !voltando; marcarPagamentoDeComissao(x, { cancelado: !voltando }); });
+          alvos.forEach(x => { x.cancelado = !voltando; marcarPagamentoDeComissao(x, { cancelado: !voltando, canceladoEm: iso(HOJE) }); });
           aplicarModo();
           renderPagamentos();
           mostrarErros([]);
@@ -3566,7 +3570,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         alvos.forEach(x => {
           const i = TITULOS.findIndex(y => y.id === x.id);
           if (i !== -1) TITULOS.splice(i, 1);
-          marcarPagamentoDeComissao(x, { cancelado: true, excluido: true });
+          marcarPagamentoDeComissao(x, { cancelado: true, excluido: true, canceladoEm: iso(HOJE) });
         });
         window.location.href = '../financas/pagina-financas-contas-pagar.html';
       });

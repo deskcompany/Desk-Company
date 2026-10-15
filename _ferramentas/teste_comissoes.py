@@ -13,6 +13,7 @@
 #   [4] Espelhos e ligacoes: pedidos, vendedores, clientes e percentuais iguais as telas donas; o mesmo
 #       valor de comissao na pagina do pedido; menu, catalogo de senha e o bloco comum das duas telas;
 #   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo;
+#   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
@@ -25,7 +26,7 @@ CHROME = _ch[0] if _ch else None
 SO = (sys.argv[1:] or [''])[0]
 LISTA, CONTA = 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html'
 PV, PV_D, CFG = 'pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-configuracoes-cadastro-clientes.html'
-CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskParametros', 'deskLog']
+CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskSaques', 'deskParametros', 'deskLog']
 
 falhas = []
 total = [0]
@@ -249,9 +250,12 @@ with sync_playwright() as p:
         ok(not sem, 'o item Comissões Afiliados do menu tem destino nas %d telas: %s' % (len(localiza.caminhos()), sem[:3]))
         com_cat = [c for c in localiza.caminhos() if "chave:'comissaoAjusta'" in open(c, encoding='utf-8').read()]
         ok(len(com_cat) == 15 and any('confirmacoes-senha' in c for c in com_cat), 'as três ações novas estão no catálogo de senha das 15 telas que o carregam, Confirmações com senha entre elas')
-        fontes = [open(localiza.onde(n), encoding='utf-8').read() for n in (LISTA, CONTA)]
-        bloco = lambda t: t[t.index('  // ===== COMISSOES: DADOS E REGRAS'):t.index('  // ===== COMPONENTE: dropdown customizado')]
-        ok(bloco(fontes[0]) == bloco(fontes[1]) and len(bloco(fontes[0])) > 6000, 'o bloco de dados e regras é idêntico nas duas telas')
+        fontes = [open(localiza.onde(n), encoding='utf-8').read() for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html')]
+        def bloco(t):
+            a = t.index('  // ===== COMISSOES: DADOS E REGRAS')
+            return t[a:t.index('  // ===== ', a + 10)]
+        ok(bloco(fontes[0]) == bloco(fontes[1]) == bloco(fontes[2]) and len(bloco(fontes[0])) > 6000,
+           'o bloco de dados e regras é idêntico nas duas telas de Comissões e no cadastro do cliente (aba Afiliado)')
 
     if secao(5, 'Configurações: o Programa de afiliados'):
         limpar(); ir(CFG)
@@ -336,6 +340,60 @@ with sync_playwright() as p:
         com_cat = [n for n, t in fontes.items() if "'Comissões de vendedores e afiliados'" in t and 'id:25,' in t]
         ok(len(com_cat) == 8 and 'pagina-configuracoes-categorias-financeiras.html' in com_cat, 'a categoria nova está em Configurações e nas 7 telas que repetem as categorias: %d' % len(com_cat))
         ok(len([n for n, t in fontes.items() if "chave:'comissaoPaga'" in t]) == 15, 'e "Realizar pagamento de comissão" está no catálogo de senha das 15 telas')
+        limpar()
+
+    if secao(7, 'Histórico, saque pedido na vitrine, pago e os cadastros (entrega 2c)'):
+        limpar(); ir(CONTA, '?id=a1')
+        hist = pg.inner_text('#corpoHistorico')
+        ok(all(x in hist for x in ['Pediu para ser afiliado da Desk Brands', 'Aprovado no programa de afiliados', 'Venda pelo link: pedido nº 12', 'Comissão liberada: pedido nº 12', 'Pediu o saque pela vitrine']),
+           'o histórico do Bruno traz a inscrição, a aprovação, as vendas, a comissão liberada e o saque pedido')
+        datas = pg.evaluate("historicoDe(B).map(e => e.data)")
+        ok(datas == sorted(datas, reverse=True) and len(datas) >= 6, 'do mais novo para o mais velho: %d eventos' % len(datas))
+        ok(pg.evaluate("getComputedStyle(document.getElementById('avisoSaque')).display") != 'none' and 'R$ 51,20' in pg.inner_text('#avisoSaque'), 'a conta avisa do saque que espera aprovação')
+        ir(LISTA)
+        ok('Bruno Carvalho' in pg.inner_text('#corpoSaques') and pg.inner_text('#minimoSaque') == 'R$ 50,00', 'a lista mostra o saque pedido, com o mínimo do programa')
+        pg.evaluate("document.querySelector('[data-recusar-saque=\"1\"]').click()"); pg.wait_for_timeout(200)
+        pg.evaluate("document.getElementById('btnRecusar').click()"); pg.wait_for_timeout(150)
+        ok(pg.evaluate("document.getElementById('erroMotivoRec').classList.contains('show')") and not modal_aberto(), 'recusar o saque sem motivo não passa')
+        pg.evaluate(MUDA, ['#recMotivo', 'Chave PIX inválida']); pg.evaluate("document.getElementById('btnRecusar').click()"); confirmar(); fechar_aviso()
+        ok(pg.evaluate("getComputedStyle(document.getElementById('cardSaques')).display") == 'none' and pg.evaluate("saques()[0].situacao") == 'recusado', 'recusado, o saque sai da fila')
+        ir(CONTA, '?id=a1')
+        ok('Saque recusado: Chave PIX inválida' in pg.inner_text('#corpoHistorico') and pg.evaluate("getComputedStyle(document.getElementById('avisoSaque')).display") == 'none',
+           'e o histórico diz o motivo, sem a faixa de saque pendente')
+        limpar(); ir(LISTA)
+        saldo0 = pg.evaluate("saldoHoje(beneficiarioDe('a1'))")
+        pg.evaluate("document.querySelector('[data-aprovar-saque=\"1\"]').click()"); pediu = confirmar(); fechar_aviso()
+        ok(pediu and perto(pg.evaluate("saldoHoje(beneficiarioDe('a1'))"), saldo0 - 51.20) and pg.evaluate("getComputedStyle(document.getElementById('cardSaques')).display") == 'none',
+           'aprovar pede senha, faz o pagamento (o saldo desce R$ 51,20) e tira o saque da fila')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("(() => { const t = TITULOS.filter(x => x.id === 9001)[0]; return !!t && fornDe(t.fornId).nome === 'Bruno Carvalho' && t.valor === 51.2; })()"), 'e nasce a COM-1 em Contas a Pagar, para o Bruno')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        pg.evaluate("document.getElementById('btnDarBaixa').click()"); pg.wait_for_timeout(300)
+        pg.evaluate("document.getElementById('btnConfirmarPagamento').click()"); confirmar(); fechar_aviso()
+        ok(pg.evaluate("(JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos[0].baixas || []).length") == 1, 'a baixa em Contas a Pagar volta para o pagamento de Comissões')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        ok(pg.evaluate("conta.pago") == 51.2, 'e a conta continua paga depois de recarregar')
+        ir(CONTA, '?id=a1')
+        ok('pago em ' in pg.inner_text('#corpoPagtos') and 'COM-1 pago em Contas a Pagar' in pg.inner_text('#corpoHistorico'), 'Comissões mostra o pagamento como pago, e o histórico também')
+        ok('cancelar' not in pg.inner_text('#corpoPagtos'), 'pagamento já pago não se cancela por Comissões')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        pg.evaluate("estornar(0)"); confirmar(); fechar_aviso()
+        ir(CONTA, '?id=a1')
+        ok('a pagar até' in pg.inner_text('#corpoPagtos'), 'estornar a baixa em Contas a Pagar devolve o pagamento para "a pagar"')
+        ir('pagina-cadastros-clientes-detalhe.html', '?id=12')
+        pg.evaluate("document.querySelector('.tab-item[data-tab=\"afiliado\"]').click()"); pg.wait_for_timeout(200)
+        txt = pg.inner_text('#corpoAfiliado')
+        ok(pg.evaluate("getComputedStyle(document.getElementById('tab-afiliado')).display") != 'none' and all(x in txt for x in ['Desk Brands', 'ativo', '5%', 'R$ 51,20']),
+           'o cadastro do Bruno tem a aba Afiliado: loja, situação, comissão e o pagamento feito: %s' % txt.replace(chr(10), ' ')[:120])
+        ok(pg.get_attribute('#corpoAfiliado a', 'href') == '../financas/pagina-financas-comissoes-detalhe.html?id=a1', 'e leva à conta de comissões dele')
+        ir('pagina-cadastros-clientes-detalhe.html', '?id=4')
+        ok('não participa do programa' in pg.inner_text('#corpoAfiliado'), 'cliente fora do programa diz isso, com o caminho para convidar')
+        ir('pagina-cadastros-vendedores-detalhe.html', '?id=1')
+        ok(pg.get_attribute('#linkContaComissoes', 'href') == '../financas/pagina-financas-comissoes-detalhe.html?id=v1', 'o cadastro do vendedor leva à conta de comissões dele')
+        ir(CFG)
+        ok(pg.input_value('#afSaqueMin') == '50', 'Configurações tem o saque mínimo, 50 reais')
+        pg.evaluate(MUDA, ['#afSaqueMin', 'abc'])
+        ok(pg.evaluate("document.getElementById('campoSaque').classList.contains('has-error')"), 'e recusa o que não é valor')
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
