@@ -4,12 +4,12 @@
 # A venda por link de indicacao e um Pedido de Venda, com o mesmo funil: nao ganhou lista propria. O
 # pedido chega da vitrine dizendo quem indicou (`ind`), e isso nao se digita. Uma pessoa recebe por
 # pedido, e o link vale sobre o vendedor. O link e sempre de cliente afiliado: o vendedor vende pelo ERP
-# e nao gera link (usuario, 14/out/2026). O item "Vendas Afiliados" do menu abre Pedidos de Venda
-# filtrado nas vendas afiliadas (link ou vendedor). A aba Comissoes do pedido passou a seguir a regra de
+# e nao gera link (usuario, 14/out/2026). As vendas afiliadas (link ou vendedor) sao o filtro de origem de
+# Pedidos de Venda; o item "Vendas Afiliados" saiu do menu em 15/out, porque abria a mesma tela. A aba Comissoes do pedido passou a seguir a regra de
 # quem recebe: o cadastro do vendedor, ou o programa de afiliados (o percentual vem no pedido).
 #
 #   [1] Lista: o filtro de origem, a marca "indicacao de" na linha e no painel, limpar filtros;
-#   [2] Menu: Vendas Afiliados abre a lista ja filtrada, igual em toda tela;
+#   [2] Sem item no menu: o filtro chega pelo endereco, e o menu de filtro abre para baixo, rolando a pagina;
 #   [3] Pagina do pedido: o campo Indicacao, quem recebe a comissao, a regra dita, faturar e o clone;
 #   [4] Espelhos: a indicacao igual nas duas telas, a regra igual ao cadastro de vendedores, e quem
 #       indica e cliente cadastrado e nunca o proprio comprador.
@@ -106,24 +106,32 @@ with sync_playwright() as p:
         pg.set_viewport_size({'width': 1440, 'height': 900}); origem('todos')
         ok(not quebra, 'escolher uma origem não quebra a barra de filtros em mais linhas: %s' % quebra)
 
-    if secao(2, 'Menu: Vendas Afiliados abre a lista filtrada'):
-        ir('pagina-cadastros-marcas.html')
-        pg.click('.nav-item[data-id="vendas"]'); pg.wait_for_timeout(450)
-        pg.click('#flyout-vendas .flyout-item[data-label="Vendas Afiliados"]'); pg.wait_for_timeout(900)
-        ok(pg.url.endswith('pagina-vendas-pedidos.html?origem=afiliadas'), 'o item navega para Pedidos de Venda: %s' % pg.url.split('/')[-1])
+    if secao(2, 'Sem item no menu: o filtro chega pelo endereço, e o menu de filtro abre para baixo'):
+        # 15/out: o item "Vendas Afiliados" abria a mesma tela de Pedidos, e saiu do menu. O filtro fica.
+        com_item = [_os.path.basename(x) for x in localiza.caminhos() if 'data-label="Vendas Afiliados"' in open(x, encoding='utf-8').read()]
+        ok(not com_item, 'nenhuma tela tem o item "Vendas Afiliados" no menu: %s' % com_item[:3])
+        ok(HREF in open(localiza.onde('pagina-financas-comissoes.html'), encoding='utf-8').read(), 'Comissões Afiliados leva às vendas afiliadas')
+        ir(LISTA, '?origem=afiliadas')
         ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'afiliadas' and pg.inner_text('#filtroOrigem .dropdown-select-label') == 'Vendas afiliadas',
-           'e a lista abre com o filtro de afiliadas escolhido')
+           'pelo endereço, a lista abre com o filtro de afiliadas escolhido')
         ok(sorted(pg.evaluate(NUMEROS)) == [n for n in AFILIADAS if n in sorted(pg.evaluate("PEDIDOS.filter(p => passaPeriodo(p)).map(p => p.numero)"))],
            'mostrando só as vendas afiliadas do período')
-        ok('Vendas afiliadas' in pg.inner_text('#breadcrumb'), 'o caminho no topo diz que a lista está filtrada')
+        ok('Vendas afiliadas' not in pg.inner_text('#breadcrumb'), 'e o caminho no topo não repete o filtro, que ficava velho quando a origem mudava')
         ir(LISTA, '?origem=qualquer')
         ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'todos', 'origem desconhecida no endereço abre a lista sem filtro')
-        com, sem_item = [], []
-        for arq in sorted(localiza.caminhos()):
-            t = open(arq, encoding='utf-8').read()
-            if 'data-label="Vendas Afiliados"' not in t: continue
-            (com if t.count('data-label="Vendas Afiliados" data-href="' + HREF + '"') == t.count('data-label="Vendas Afiliados"') else sem_item).append(_os.path.basename(arq))
-        ok(not sem_item and len(com) == len(localiza.caminhos()), 'o item tem o mesmo destino nas %d telas: %s' % (len(com), sem_item[:3]))
+        # 15/out: com a barra de filtros no pé da janela, o menu de situações abria para cima, por cima dos indicadores.
+        pg.set_viewport_size({'width': 1440, 'height': 620}); ir(LISTA)
+        pg.evaluate("window.scrollTo(0, 0)")
+        pg.evaluate("document.querySelector('#filtroSituacao .dropdown-select-btn').click()"); pg.wait_for_timeout(250)
+        caixa = pg.evaluate("(() => { const m = document.querySelector('#filtroSituacao .dropdown-select-menu'); const r = m.getBoundingClientRect(); return [m.classList.contains('open'), m.classList.contains('abrir-para-cima'), Math.round(r.bottom), innerHeight, Math.round(scrollY)]; })()")
+        ok(caixa[0] and not caixa[1] and caixa[2] <= caixa[3] and caixa[4] > 0, 'no pé da janela, o menu de situações abre para baixo e cabe, porque a página rola o que falta: %s' % caixa)
+        pg.evaluate("document.body.click()"); pg.set_viewport_size({'width': 1440, 'height': 900})
+        semfix = []
+        for x in localiza.caminhos():
+            f = open(x, encoding='utf-8').read()
+            if f.count('const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;') != f.count('Rola a pagina o que faltar antes de abrir para cima'):
+                semfix.append(_os.path.basename(x))
+        ok(not semfix, 'a correção do componente está em todo dropdown, de toda tela: %s' % semfix[:3])
 
     if secao(3, 'Página do pedido: a indicação e quem recebe a comissão'):
         ir(DET, '?id=4')

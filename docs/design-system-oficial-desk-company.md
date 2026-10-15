@@ -88,7 +88,7 @@ menu de uma tela e a lista de lá não disserem a mesma coisa, o selo reprova.
 | Início | o dia | Página inicial · Dashboard KPIs · Agenda · Minha Conta |
 | Cadastros | quem → o quê, do geral para o detalhe → onde | Clientes · Fornecedores · Vendedores · Produtos · Categorias · Departamento de Produtos · Seção de Produtos · Marcas de Produtos · Embalagens · Lojas Desk · Depósitos · Endereços de Estoque · Relatórios de Cadastros |
 | Estoque | consultar → comprar → receber → guardar e movimentar → corrigir → analisar | Controle de Estoques · Movimentação de Estoque · Necessidades de Compra · Ordens de Compra · Entrada de Notas · Conferência de Entrada · Endereçamento · Reposição · Transferência Entre Estoques · Inventário · Acerto de Estoque · Tratamento de Perdas · Giro de Estoque · Relatórios de Estoque |
-| Vendas | antes da venda → a venda → o resultado | CRM · Pedidos de Venda · PDV · Notas Fiscais · Vendas Afiliados · Metas e Performance · Margem Contribuição · Custos do E-commerce · Relatórios de Vendas |
+| Vendas | antes da venda → a venda → o resultado | CRM · Pedidos de Venda · PDV · Notas Fiscais · Metas e Performance · Margem Contribuição · Custos do E-commerce · Relatórios de Vendas |
 | Logística | o caminho do pedido no galpão, e a volta | Separação · Conferência de Saída · Expedição · Rastreamento de Pedidos · Devolução · Relatórios de Logística |
 | Finanças | o título nasce → é pago → cai no caixa | Contas a Receber · Contas a Pagar · Caixa · Comissões Afiliados · Relatórios Finanças |
 | Integrações | a venda entra → é paga → vira nota | Marketplaces e Hubs · Gateways de Pagamento · Emissão de Notas Fiscais · Relatórios de Integrações |
@@ -3521,7 +3521,7 @@ contou o que ela é: as vendas feitas pelos links que o cliente logado gera na p
 vitrine, como na Shopee, e as dos vendedores, com o mesmo funil do pedido (aprovar pagamento,
 separação, expedição). Uma segunda lista de pedidos repetiria o funil, a reserva de estoque e a conta a
 receber, e cada conserto teria de ser feito duas vezes. **Por isso não há tela nova:** a venda por
-link é Pedido de Venda, e o item "Vendas Afiliados" do menu abre a lista de pedidos filtrada.
+link é Pedido de Venda, e o item "Vendas Afiliados" do menu abria a lista de pedidos filtrada (saiu do menu em 15/out, §14.81).
 
 **O que mudou:**
 
@@ -3612,3 +3612,27 @@ Decidido na barganha de 14/out: pagar a comissão gera conta a pagar, e o saldo 
 
 **Provado nos dois sentidos, numa cópia.** A seção 6 de `teste_comissoes.py` cobre o pagamento. Oito
 defeitos injetados, um por vez, e os oito pegos.
+
+## 14.81 O teste de Comissões: o menu que abria para cima, o valor da conta e um item a menos no menu (15/out/2026)
+
+O usuário começou a testar Comissões Afiliados e trouxe três pontos.
+
+- **O dropdown abria para cima por cima da lista.** A regra do componente olhava só o espaço que sobra
+  na janela; com a barra de filtros no pé da janela, o menu de situações de Pedidos de Venda subia e
+  cobria os indicadores. **Correção de componente, nas 81 telas** (106 dropdowns): antes de abrir para
+  cima, a página rola o que faltar e o menu abre para baixo. Para cima só quando a página não rola mais,
+  ou quando o dropdown está dentro de painel fixo (painel lateral, modal), que não rola com a página.
+- **A conta de comissão voltava ao valor de Comissões.** Ele editou a COM-1 de R$ 353 para R$ 100 em
+  Contas a Pagar, e ela voltou a R$ 353: no protótipo, Contas a Pagar não guarda edição de uma tela para
+  a outra, e a conta é refeita a partir do pagamento. O número tem um dono só: a conta de comissão diz
+  que veio de Comissões Afiliados, com o link, e o valor fica travado. Para pagar outro valor, o
+  pagamento é cancelado em Comissões (o valor volta ao saldo e a conta sai de Contas a Pagar) e feito
+  de novo. O registro cancelado fica, para o número COM-n não se repetir.
+- **O item "Vendas Afiliados" saiu do menu.** Abria a mesma tela de Pedidos de Venda, e tela que repete
+  outra vira uma página só, sem item no menu. O filtro de origem continua em Pedidos, e Comissões
+  Afiliados leva até ele. O caminho no topo de Pedidos deixou de repetir o filtro, que ficava velho
+  quando a origem mudava. O menu passou a ter 55 itens, 43 com tela.
+
+**Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` (seção 2) mede o menu no pé da janela e
+procura a correção em todo dropdown; `teste_comissoes.py` (seção 6) cobre a conta travada e o cancelar.
+Sete defeitos injetados, um por vez, e os sete pegos.

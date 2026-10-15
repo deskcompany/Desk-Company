@@ -1,12 +1,23 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com Comissões Afiliados inteiro (entregas 2a e 2b) esperando o teste do usuário.*
+*Atualizado em 15/out/2026, com os três pontos do teste de Comissões consertados e esperando o usuário.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**O usuário começou a testar Comissões Afiliados em 15/out e trouxe três pontos, consertados** (§14.81):
+
+- **O menu de filtro abria para cima**, por cima dos indicadores, quando a barra ficava no pé da janela.
+  Correção de componente, nas 81 telas que têm o dropdown: antes de abrir para cima, a página rola o que
+  faltar; para cima só quando não rola mais, ou dentro de painel fixo.
+- **A conta de comissão, editada em Contas a Pagar, voltava ao valor de Comissões.** O valor é de
+  Comissões Afiliados: em Contas a Pagar ele fica travado, com o caminho de volta, e Comissões ganhou
+  "cancelar" no pagamento, para refazer com o valor certo.
+- **O item "Vendas Afiliados" saiu do menu**: abria a mesma tela de Pedidos de Venda. As vendas
+  afiliadas seguem no filtro de origem de Pedidos, e Comissões Afiliados leva até lá.
 
 **Comissões Afiliados, entregas 2a e 2b: feitas e esperando o teste do usuário** (§14.79 e §14.80). Duas telas novas
 em Finanças: a lista, com uma linha por quem recebe comissão (vendedor do cadastro ou cliente aprovado
@@ -21,8 +32,7 @@ afiliado como favorecido e a categoria nova "Comissões de vendedores e afiliado
 **Vendas Afiliados, entrega 1: testada pelo usuário em 14/out** (§14.78). Ele achou um defeito, a
 barra de filtros quebrando de linha ao escolher a origem, que está consertado e espera o teste dele. A venda por link é
 Pedido de Venda. A lista ganhou o filtro de origem e a marca "indicação de" na linha e no painel; o
-item "Vendas Afiliados" do menu, em todas as telas, abre a lista filtrada nas vendas afiliadas (link ou
-vendedor); a página do pedido mostra quem indicou, num campo que não se digita. A aba Comissões passou
+item "Vendas Afiliados" do menu abria a lista filtrada nas vendas afiliadas (saiu do menu em 15/out); a página do pedido mostra quem indicou, num campo que não se digita. A aba Comissões passou
 a seguir a regra de quem recebe: aplicava 5% e "integral no faturamento" a qualquer vendedor, e o
 botão Faturar prometia liberar a comissão a todos. A entrega 2 é Comissões Afiliados.
 
@@ -32,7 +42,7 @@ crédito ou débito, realizar pagamento) e os textos dos (i) das colunas:
 
 - **Venda por link é Pedido de Venda**, com o mesmo funil. O pedido chega da vitrine dizendo que foi
   indicação e de quem; gerar o link e "minhas indicações" são da vitrine, fora do ERP. O item
-  "Vendas Afiliados" do menu abre Pedidos de Venda filtrado; a tela nova é só Comissões Afiliados,
+  "Vendas Afiliados" do menu saiu em 15/out (abria Pedidos filtrado); a tela nova é só Comissões Afiliados,
   em Finanças, que lê os pedidos e cobre cliente afiliado e vendedor.
 - **Afiliado é cliente aprovado** no cadastro (programa com aprovação). **Percentual padrão** em
   Configurações; o vendedor segue a regra do cadastro dele.
@@ -176,10 +186,10 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **44 de 56 (79%)**, em 84 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **43 de 55 (78%)**, em 84 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
-Os 79% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
+Os 78% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
 Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a tela 81 e o item 56.
@@ -189,7 +199,7 @@ Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a t
 | Início | 4 de 4 | nada |
 | Cadastros | 12 de 13 | Relatórios de Cadastros |
 | Estoque | 13 de 14 | Relatórios de Estoque |
-| Vendas | 5 de 9 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
+| Vendas | 4 de 8 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
 | Integrações | 0 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Gateways de Pagamento, Relatórios de Integrações |
@@ -428,7 +438,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e quarenta defeitos injetados de propósito, um por vez; os trezentos e quarenta são pegos. A auditoria do
+e quarenta e sete defeitos injetados de propósito, um por vez; os trezentos e quarenta e sete são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 

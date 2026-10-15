@@ -835,7 +835,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Pedidos de Venda" data-href="../vendas/pagina-vendas-pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Pedidos de Venda</div>
       <div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
       <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
-      <div class="flyout-item" data-label="Vendas Afiliados" data-href="../vendas/pagina-vendas-pedidos.html?origem=afiliadas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Vendas Afiliados</div>
       <div class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas e Performance</div>
       <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
       <div class="flyout-item" data-label="Custos do E-commerce"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
@@ -1671,6 +1670,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           const alturaMenu = menu.offsetHeight;
           menu.style.display = '';
           menu.style.visibility = '';
+          // Rola a pagina o que faltar antes de abrir para cima (15/out/2026): o menu cobria o topo da lista. Painel fixo nao rola.
+          let _fixo = btn; while (_fixo && getComputedStyle(_fixo).position !== 'fixed') _fixo = _fixo.parentElement;
+          if (!_fixo && window.innerHeight - btn.getBoundingClientRect().bottom < alturaMenu + 12) window.scrollBy({ top: alturaMenu + 12 - (window.innerHeight - btn.getBoundingClientRect().bottom), behavior: 'instant' });
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
           menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
         }
@@ -2075,15 +2077,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== CONTAS DE COMISSAO (bloco comum da lista e da pagina da conta, 14/out/2026) =====
   // "Realizar pagamento", em Financas > Comissoes Afiliados, grava em deskComissoesPagas; a conta nasce aqui,
   // a pagar, com o vendedor ou o cliente afiliado como favorecido e a categoria de comissoes. Conta 9000 + n,
-  // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar.
+  // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar. O valor e de Comissoes:
+  // a pagina da conta o trava (`comissao`), e pagamento cancelado la nao gera conta (15/out/2026).
   (function contasDeComissao() {
     let g = null;
     try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
-    ((g && g.pagamentos) || []).forEach(p => {
+    ((g && g.pagamentos) || []).filter(p => !p.cancelado).forEach(p => {
       const id = 9000 + p.n;
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
       if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor, pago: 0,
-        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: false });
+        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: false, comissao: p.chave });
     });
   })();
 

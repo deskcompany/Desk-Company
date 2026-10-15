@@ -290,6 +290,17 @@ with sync_playwright() as p:
         ok('COM-1' in pg.inner_text('.main tbody') or 'Marina Costa' in pg.inner_text('.main tbody'), 'e aparece na lista de Contas a Pagar')
         ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
         ok('Marina Costa' in pg.inner_text('.main') and '100,00' in pg.inner_text('.main'), 'a página da conta abre a COM-1, com a Marina e o valor')
+        # 15/out: o usuario editou a COM-1 para R$ 100 e ela voltou ao valor de Comissoes. O valor e de la: fica travado.
+        ok(pg.evaluate("document.getElementById('inputValor').readOnly") and 'Comissões Afiliados' in pg.inner_text('#subtituloConta'),
+           'a conta de comissão diz de onde veio e trava o valor, que é de Comissões')
+        ok(pg.get_attribute('#origemComissao a', 'href') == '../financas/pagina-financas-comissoes-detalhe.html?id=v1', 'e leva de volta à conta da Marina')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=6')
+        ok(not pg.evaluate("document.getElementById('inputValor').readOnly"), 'conta que não é de comissão continua com o valor editável')
+        ir(CONTA, '?id=v1')
+        pg.evaluate("document.querySelector('[data-cancelar-pg=\"1\"]').click()"); confirmar(); fechar_aviso()
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo) and '(−) pagamentos' not in pg.inner_text('#corpoResumo').lower(), 'cancelar o pagamento devolve o valor ao saldo')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("!TITULOS.some(t => t.id === 9001)"), 'e a conta sai de Contas a Pagar')
         fontes = {n: open(c, encoding='utf-8').read() for n, c in ((_os.path.basename(c), c) for c in localiza.caminhos())}
         cp = [fontes[n] for n in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html')]
         bl = lambda t: t[t.index('  // ===== CONTAS DE COMISSAO'):t.index('  TITULOS.forEach(t => {')]

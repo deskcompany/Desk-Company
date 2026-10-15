@@ -58,14 +58,13 @@
 >
 > **Tratamento de Perdas nasceu em 09/out**, de uma pergunta do usuário diante do "1 bloqueado" na página de um produto: onde eu resolvo isso? Não havia onde. O saldo bloqueado só saía pelo Acerto de Estoque, escolhendo a linha "Bloqueado" como origem; não existia caminho de volta para o disponível, nem tela que bloqueasse. E a falta da Separação e da Conferência de Saída virava uma "divergência aguardando reconferência" que nenhuma tela fechava. Duas decisões do usuário: **a falta bloqueia a unidade sozinha** (revê a regra de 05/out, que não mexia no saldo; continua não sendo baixa) e **o que não é avaria fica no próprio endereço, só travado**. O bloqueio manual é um tipo novo de lançamento na página do produto, em Controle de Estoques. Ver §14.51.
 
-## 🛒 Vendas — 5 de 9
+## 🛒 Vendas — 4 de 8
 | | Submódulo |
 |---|---|
 | ✅ | CRM *(+ tela do assunto; 09/out: funil de pré-venda com assuntos, estágios, ações com data na Agenda, linha do tempo, quadro por estágio, proposta e encerramento como ganho ou perdido)* |
-| ✅ | Pedidos de Venda *(+ página do pedido)* |
+| ✅ | Pedidos de Venda *(+ página do pedido; 14/out: as vendas afiliadas, por link de indicação ou por vendedor, são o filtro de origem daqui. O item Vendas Afiliados saiu do menu em 15/out, porque abria esta mesma tela)* |
 | ✅ | PDV *(09/out: turno de caixa por loja, venda com várias formas de recebimento, sangria, reforço e fechamento cego; a venda vira Pedido de Venda já entregue)* |
 | ❌ | Notas Fiscais |
-| ✅ | Vendas Afiliados *(14/out: não é tela à parte. O item do menu abre Pedidos de Venda filtrado nas vendas afiliadas, por link de indicação ou por vendedor; o pedido diz quem indicou, e a aba Comissões segue a regra de quem recebe)* |
 | ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
 | ❌ | Margem de Contribuição |
 | ❌ | Custos do E-commerce |
@@ -146,13 +145,13 @@
 | Início | 4 | 0 |
 | Cadastros | 12 | 1 |
 | Estoque | 13 | 1 |
-| Vendas | 5 | 4 |
+| Vendas | 4 | 4 |
 | **Logística** | **5** | **1** |
 | Finanças | 4 | 1 |
 | Integrações | 0 | 4 |
 | Configurações | 1 item de menu, 20 telas | 0 |
-| **Total** | **44 itens de menu com tela · 84 telas** | **12** |
+| **Total** | **43 itens de menu com tela · 84 telas** | **12** |
 
-*Contado no menu em 14/out/2026: **56 itens, 44 com destino e 12 sem**, em 84 telas: Vendas Afiliados passou a abrir Pedidos de Venda filtrado, e Comissões Afiliados nasceu, com a conta do afiliado. Em 13/out/2026 eram **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 15/out/2026: **55 itens, 43 com destino e 12 sem**, em 84 telas: Vendas Afiliados saiu do menu (abria a mesma tela de Pedidos de Venda), e Comissões Afiliados nasceu, com a conta do afiliado. Em 13/out/2026 eram **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.
