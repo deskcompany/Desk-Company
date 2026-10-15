@@ -1,12 +1,27 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com Comissões 2c (histórico, saque, pago) e a limpeza feitas, esperando o teste do usuário.*
+*Atualizado em 15/out/2026, com os ajustes do histórico de Comissões (data inicial e final, mês e ano, cadastro) feitos.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**Comissões, ajustes do histórico (2d): feitos e esperando o teste do usuário** (§14.85). Ele testou a 2c e
+pediu três coisas, as três feitas:
+
+- **Data inicial e final no topo da conta do afiliado**, no lugar de mês e ano: o resumo, os pedidos, os
+  lançamentos e os pagamentos passam a ser os do período. Abre no mês inteiro, aceita o que a lista manda
+  (`?mes=` e `?ano=`), usa o calendário de Movimentação de Estoque e escreve o período sob o título, para sair
+  no papel. "Mês atual" volta ao mês inteiro.
+- **O histórico, melhorado, com filtro só de mês e ano** (fica embaixo, no próprio bloco): cada acontecimento
+  tem o tipo, o valor, o **efeito no saldo** (+ entra, − sai) e o **saldo depois dele**, que fecha com o saldo
+  de hoje linha a linha; pedido e conta a pagar viram link; entraram a comissão a liberar, a vencida, o saque
+  aprovado e o pagamento excluído com o valor voltando.
+- **O histórico no cadastro do cliente**: o que ele viu faltar. O cadastro só tinha o resumo (o combinado na
+  barganha); agora a aba Afiliado mostra também o histórico, o mesmo da conta em Comissões, lido de lá, com o
+  mesmo filtro de mês e ano e funcionando com o cadastro em modo leitura.
 
 **Comissões, entrega 2c: feita e esperando o teste do usuário** (§14.84), com a barganha que ele aprovou em
 15/out. A conta do afiliado ganhou o **Histórico** de todos os meses (inscrição, aprovação, vendas, comissões
@@ -456,7 +471,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e sessenta e sete defeitos injetados de propósito, um por vez; os trezentos e sessenta e sete são pegos. A auditoria do
+e oitenta defeitos injetados de propósito, um por vez; os trezentos e oitenta são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 

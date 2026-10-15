@@ -13,6 +13,7 @@
 #   [4] Espelhos e ligacoes: pedidos, vendedores, clientes e percentuais iguais as telas donas; o mesmo
 #       valor de comissao na pagina do pedido; menu, catalogo de senha e o bloco comum das duas telas;
 #   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo;
+#   [8] Periodo por data inicial e final, historico com saldo corrente e filtro de mes e ano, historico no cadastro (2d);
 #   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
 from playwright.sync_api import sync_playwright
@@ -188,8 +189,8 @@ with sync_playwright() as p:
         ok('saldo anterior' in resumo and '(−) outros débitos' not in resumo and '(−) pagamentos' not in resumo, 'e só as linhas com valor, além do saldo anterior e do saldo')
         hrefs = pg.evaluate("Array.from(document.querySelectorAll('#corpoPedidos a')).map(a => a.getAttribute('href'))")
         ok(hrefs and all(h.startswith('../vendas/pagina-vendas-pedidos-detalhe.html?id=') for h in hrefs), 'cada pedido do mês abre o pedido: %s' % hrefs[:2])
-        saldo0 = pg.evaluate("contaDoMes(B, mesSel, anoSel).saldo")
-        pend = pg.evaluate("contaDoMes(B, mesSel, anoSel).itens.filter(i => !i.cancelada && !i.libera).map(i => i.id)")
+        saldo0 = pg.evaluate("contaAtual().saldo")
+        pend = pg.evaluate("contaAtual().itens.filter(i => !i.cancelada && !i.libera).map(i => i.id)")
         ok(len(pend) >= 1, 'a Marina tem comissão pendente: %s' % pend)
         pg.evaluate("(id) => document.querySelector('[data-ajustar=\"' + id + '\"]').click()", pend[0]); pg.wait_for_timeout(200)
         pg.evaluate(MUDA, ['#ajValor', '50,00']); pg.evaluate("document.getElementById('btnAjSalvar').click()"); pg.wait_for_timeout(200)
@@ -201,14 +202,14 @@ with sync_playwright() as p:
         ok(pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').some(l => l.chave === 'comissaoAjusta' && l.detalhe.indexOf('Desconto combinado') >= 0)"), 'e a mudança vai para o registro de atividades, com o motivo')
         pg.evaluate("(id) => document.querySelector('[data-ajustar=\"' + id + '\"]').click()", pend[0]); pg.wait_for_timeout(200)
         pg.evaluate(MUDA, ['#ajMotivo', 'Pedido vai ser refeito']); pg.evaluate("document.getElementById('btnAjExcluir').click()"); confirmar(); fechar_aviso()
-        ok(pg.evaluate("(id) => !contaDoMes(B, mesSel, anoSel).itens.some(i => i.id === id)", pend[0]), 'excluir tira a comissão da conta')
+        ok(pg.evaluate("(id) => !contaAtual().itens.some(i => i.id === id)", pend[0]), 'excluir tira a comissão da conta')
         pg.evaluate("abrirLancamento()"); pg.wait_for_timeout(200)
         pg.evaluate(ESCOLHE, ['lcTipo', 'debito']); pg.evaluate(MUDA, ['#lcValor', '40,00']); pg.evaluate(MUDA, ['#lcDescricao', 'Adiantamento a descontar'])
         pg.evaluate("document.getElementById('btnLcSalvar').click()"); confirmar(); fechar_aviso()
-        ok('(−) outros débitos' in pg.inner_text('#corpoResumo').lower() and perto(pg.evaluate("contaDoMes(B, mesSel, anoSel).saldo"), saldo0 - 40),
+        ok('(−) outros débitos' in pg.inner_text('#corpoResumo').lower() and perto(pg.evaluate("contaAtual().saldo"), saldo0 - 40),
            'o débito lançado aparece no resumo e tira R$ 40,00 do saldo')
         pg.evaluate("document.querySelector('#corpoLanc [data-remover^=\"n\"]').click()"); confirmar(); fechar_aviso()
-        ok(perto(pg.evaluate("contaDoMes(B, mesSel, anoSel).saldo"), saldo0), 'excluir o lançamento devolve o saldo')
+        ok(perto(pg.evaluate("contaAtual().saldo"), saldo0), 'excluir o lançamento devolve o saldo')
         ok(pg.evaluate("getComputedStyle(document.getElementById('itemSuspender')).display") == 'none', 'vendedor não tem "suspender do programa"')
         ir(CONTA, '?id=a1')
         pg.evaluate("document.getElementById('itemSuspender').click()"); confirmar(); fechar_aviso()
@@ -243,7 +244,7 @@ with sync_playwright() as p:
         for pid in (3, 4):
             ir(PV_D, '?id=%d' % pid); pg.evaluate("document.querySelector('.tab-item[data-tab=\"comissoes\"]').click()"); pg.wait_for_timeout(200)
             valores[pid] = pg.inner_text('#resumoComissao').split('\n')[-1].strip()
-        ir(CONTA, '?id=v1'); com3 = pg.evaluate("moedaC(contaDoMes(B, mesSel, anoSel).itens.concat([]).filter(i => i.pedido.id === 3)[0].valor)")
+        ir(CONTA, '?id=v1'); com3 = pg.evaluate("moedaC(contaAtual().itens.concat([]).filter(i => i.pedido.id === 3)[0].valor)")
         ir(CONTA, '?id=a1'); com4 = pg.evaluate("moedaC(comissoesDe(B).filter(i => i.pedido.id === 4)[0].valor)")
         ok(valores[3] == com3 == 'R$ 17,50' and valores[4] == com4 == 'R$ 30,60', 'a página do pedido e Comissões dão o mesmo valor: %s %s / %s %s' % (valores[3], com3, valores[4], com4))
         sem = [_os.path.basename(c) for c in localiza.caminhos() if 'data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"' not in open(c, encoding='utf-8').read()]
@@ -394,6 +395,117 @@ with sync_playwright() as p:
         ok(pg.input_value('#afSaqueMin') == '50', 'Configurações tem o saque mínimo, 50 reais')
         pg.evaluate(MUDA, ['#afSaqueMin', 'abc'])
         ok(pg.evaluate("document.getElementById('campoSaque').classList.contains('has-error')"), 'e recusa o que não é valor')
+        limpar()
+
+    if secao(8, 'Data inicial e final, histórico com saldo e o histórico no cadastro (entrega 2d)'):
+        limpar(); ir(CONTA, '?id=v1')
+        ini = HOJE.replace(day=1)
+        fim = ((ini.replace(day=28) + timedelta(days=4)).replace(day=1)) - timedelta(days=1)
+        br = lambda d: d.strftime('%d/%m/%Y')
+        ok(pg.input_value('#dataIni') == br(ini) and pg.input_value('#dataFim') == br(fim), 'a conta abre no mês inteiro, com data inicial e final')
+        ok(pg.evaluate("document.getElementById('filtroMes') === null && document.getElementById('filtroAno') === null"), 'e o mês e o ano em lista suspensa saíram do topo')
+        ok(('Período: ' + br(ini) + ' a ' + br(fim)) in pg.inner_text('#periodoConta'), 'o período aparece escrito sob o título, e por isso vai para o papel')
+        ok('(+) comissões do mês' in pg.inner_text('#corpoResumo').lower(), 'mês inteiro: a linha se chama "do mês"')
+        mes_cheio = pg.evaluate("contaAtual()")
+        ir(CONTA, '?id=v1&mes=%d&ano=%d' % (HOJE.month, HOJE.year))
+        ok(pg.input_value('#dataIni') == br(ini) and perto(pg.evaluate("contaAtual().saldo"), mes_cheio['saldo']), '?mes= e ?ano= da lista viram o mês inteiro')
+        ir(CONTA, '?id=v1&inicio=%s&fim=%s' % (ini.isoformat(), HOJE.isoformat()))
+        ok(pg.input_value('#dataFim') == br(HOJE), '?inicio= e ?fim= abrem o período pedido')
+
+        def periodo(de, ate):
+            pg.fill('#dataIni', br(de)); pg.fill('#dataFim', br(ate)); pg.keyboard.press('Enter'); pg.wait_for_timeout(250)
+
+        def da_marina(a, b):   # a conta refeita aqui: pedidos da Marina, sem link, nao cancelados, vendidos entre as duas datas
+            return [q for q in PEDIDOS if not q.get('ind') and q['vend'] == 0 and q['situacao'] != 'cancelado' and a <= HOJE - timedelta(days=q['dv']) <= b]
+        ir(CONTA, '?id=v1')
+        periodo(ini, ini + timedelta(days=4))
+        c1 = pg.evaluate("contaAtual()")
+        ok('(+) comissões do período' in pg.inner_text('#corpoResumo').lower() and ('Período: %s a %s' % (br(ini), br(ini + timedelta(days=4)))) in pg.inner_text('#periodoConta'),
+           'período que não é um mês: a linha se chama "do período" e o período é o escrito')
+        esperados = da_marina(ini, ini + timedelta(days=4))
+        ok(c1['pedidos'] == len(esperados) and perto(c1['vendido'], sum(q['total'] - q.get('frete', 0) for q in esperados)),
+           'os pedidos e o vendido do período são os da data inicial à final: %d pedido(s)' % len(esperados))
+        # periodos seguidos: o saldo do fim de um, sem os lancamentos que valem pelo mes, e o saldo anterior do seguinte
+        periodo(ini, ini + timedelta(days=9)); ca = pg.evaluate("contaAtual()")
+        periodo(ini + timedelta(days=10), fim); cb = pg.evaluate("contaAtual()")
+        ok(perto(cb['anterior'], ca['saldo'] - ca['creditos'] + ca['debitos']),
+           'períodos seguidos fecham: o saldo anterior do segundo é o saldo do primeiro, menos os lançamentos do mês (que valem pelo mês a que se referem)')
+        ok(ca['creditos'] == cb['creditos'] == 150, 'o prêmio de R$ 150, referente ao mês, entra nos dois períodos que tocam o mês')
+        periodo(ini + timedelta(days=9), ini + timedelta(days=2))
+        ok(pg.evaluate("document.getElementById('erroPeriodo').classList.contains('show')") and 'depois da final' in pg.inner_text('#erroPeriodo')
+           and pg.evaluate("document.getElementById('campoDataIni').classList.contains('has-error')"), 'data inicial depois da final diz o erro e marca o campo')
+        pg.fill('#dataIni', '32/13/2026'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
+        ok('formato dd/mm/aaaa' in pg.inner_text('#erroPeriodo'), 'data que não existe diz o formato')
+        pg.evaluate("document.getElementById('btnMesAtual').click()"); pg.wait_for_timeout(250)
+        ok(pg.input_value('#dataIni') == br(ini) and pg.input_value('#dataFim') == br(fim) and not pg.evaluate("document.getElementById('erroPeriodo').classList.contains('show')"),
+           '"Mês atual" volta ao mês inteiro e limpa o erro')
+        pg.evaluate("document.querySelector('#dfIni .date-btn').click()"); pg.wait_for_timeout(250)
+        ok(pg.evaluate("document.querySelector('#dfIni .date-pop').classList.contains('open')") and pg.evaluate("document.querySelectorAll('#dfIni .date-dia[data-iso]').length") >= 28,
+           'o calendário abre no botão da data inicial')
+        dia3 = ini + timedelta(days=2)
+        pg.evaluate("document.querySelector('#dfIni .date-dia[data-iso=\"%s\"]').click()" % dia3.isoformat()); pg.wait_for_timeout(250)
+        ok(pg.input_value('#dataIni') == br(dia3) and ('Período: ' + br(dia3)) in pg.inner_text('#periodoConta'), 'escolher o dia no calendário aplica o período')
+
+        # o historico: tipo, efeito, saldo corrente, links, e o filtro so de mes e ano
+        ir(CONTA, '?id=a1')
+        ev = pg.evaluate("historicoDe(B)")
+        ok(all(e['tipo'] in ('inscricao', 'venda', 'comissao', 'saque', 'pagamento', 'lancamento') for e in ev) and len(ev) >= 7, 'cada acontecimento do histórico tem tipo: %d' % len(ev))
+        ok(perto(ev[0]['saldo'], pg.evaluate("saldoDeHoje()")), 'o saldo do acontecimento mais novo é o saldo de hoje da conta (%s)' % ev[0]['saldo'])
+        ok(all(perto(a['saldo'] - b2['saldo'], a['efeito'] or 0) for a, b2 in zip(ev, ev[1:])), 'e cada saldo é o anterior mais o efeito: a conta fecha linha a linha')
+        for chave in ('v1', 'v2', 'a2'):
+            ir(CONTA, '?id=' + chave)
+            ok(perto(pg.evaluate("(historicoDe(B)[0] || { saldo: 0 }).saldo"), pg.evaluate("saldoDeHoje()")), 'o mesmo para a conta %s (sem acontecimento, o saldo é zero)' % chave)
+        ir(CONTA, '?id=a1')
+        cab = pg.evaluate("Array.from(document.querySelectorAll('#wrapHistorico thead th')).map(t => t.textContent.trim())")
+        ok(cab == ['Data', 'Tipo', 'O que aconteceu', 'Valor', 'Efeito no saldo', 'Saldo'], 'a tabela tem tipo, valor, efeito e saldo: %s' % cab)
+        ok(pg.get_attribute('#corpoHistorico a[href*="pedidos-detalhe"]', 'href').startswith('../vendas/pagina-vendas-pedidos-detalhe.html?id='), 'o pedido do histórico abre o pedido')
+        n_hist = pg.evaluate("document.querySelectorAll('#corpoHistorico tr').length")
+        anos = pg.evaluate("Array.from(document.querySelectorAll('#menuHistAno .dropdown-select-item')).map(i => i.getAttribute('data-value'))")
+        meses = pg.evaluate("document.querySelectorAll('#menuHistMes .dropdown-select-item').length")
+        ok(anos[0] == 'todos' and str(HOJE.year) in anos and meses == 13, 'o filtro do histórico é só mês e ano: %d meses (com "todos") e anos %s' % (meses, anos))
+        ok(not pg.evaluate("!!document.querySelector('.com-hist-filtros input, .com-hist-filtros .date-field')"), 'e nenhum campo de data no histórico')
+        usados = sorted(set(int(e['data'][5:7]) for e in ev))
+        mes_velho = int(ev[-1]['data'][5:7])
+        pg.evaluate(ESCOLHE, ['histMes', str(mes_velho)]); pg.wait_for_timeout(250)
+        so_mes = pg.evaluate("Array.from(document.querySelectorAll('#corpoHistorico tr td:first-child')).map(t => Number(t.textContent.slice(3, 5)))")
+        ok(len(so_mes) == len([e for e in ev if int(e['data'][5:7]) == mes_velho]) and set(so_mes) == {mes_velho} and len(so_mes) < n_hist,
+           'escolher o mês de %02d mostra só os acontecimentos dele: %d de %d' % (mes_velho, len(so_mes), n_hist))
+        ok(pg.evaluate("document.getElementById('contHistorico').textContent").endswith('de %d' % n_hist), 'o contador diz quantos são de quantos')
+        ok(perto(pg.evaluate("historicoDe(B)[0].saldo"), ev[0]['saldo']), 'o saldo de cada linha não muda com o filtro')
+        livre = [m for m in range(1, 13) if m not in usados][0]
+        pg.evaluate(ESCOLHE, ['histMes', str(livre)]); pg.wait_for_timeout(250)
+        ok('Nada neste mês e ano' in pg.inner_text('#semHistorico') and pg.evaluate("getComputedStyle(document.getElementById('semHistorico')).display") != 'none',
+           'mês sem acontecimento diz isso')
+        pg.evaluate(ESCOLHE, ['histMes', 'todos']); pg.wait_for_timeout(200)
+        ok(pg.evaluate("document.querySelectorAll('#corpoHistorico tr').length") == n_hist, '"Todos" devolve o histórico inteiro')
+
+        # o que o usuario viu faltar no cadastro: o saque aprovado e o pagamento excluido em Contas a Pagar
+        limpar(); ir(LISTA)
+        pg.evaluate("document.querySelector('[data-aprovar-saque=\"1\"]').click()"); confirmar(); fechar_aviso()
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        pg.evaluate("document.getElementById('linkExcluirConta').click()"); confirmar()
+        pg.wait_for_timeout(500)
+        ir(CONTA, '?id=a1')
+        h = pg.inner_text('#corpoHistorico')
+        ok('Saque aprovado: virou o pagamento COM-1' in h and 'excluído em Contas a Pagar' in h and 'o cliente pode pedir de novo' in h,
+           'o histórico da conta tem o saque aprovado e o pagamento excluído em Contas a Pagar')
+        # O saldo corrente tem de fechar tambem depois do pagamento excluido: sai R$ 51,20 e volta R$ 51,20.
+        ok(perto(pg.evaluate("historicoDe(B)[0].saldo"), pg.evaluate("saldoDeHoje()")) and perto(pg.evaluate("saldoDeHoje()"), 51.2),
+           'depois do pagamento excluído, o saldo do acontecimento mais novo continua sendo o saldo de hoje (R$ 51,20)')
+        na_conta = pg.evaluate("historicoDe(B).length")
+        ir('pagina-cadastros-clientes-detalhe.html', '?id=12')
+        pg.evaluate("document.querySelector('.tab-item[data-tab=\"afiliado\"]').click()"); pg.wait_for_timeout(250)
+        ch = pg.inner_text('#corpoAfiHistorico')
+        ok('Saque aprovado: virou o pagamento COM-1' in ch and 'excluído em Contas a Pagar' in ch and 'Desk Brands' in ch,
+           'o cadastro do cliente mostra o mesmo histórico, inclusive o pagamento excluído')
+        ok(pg.evaluate("document.querySelectorAll('#corpoAfiHistorico tbody tr').length") == na_conta, 'com os mesmos %d acontecimentos da conta' % na_conta)
+        ok(pg.evaluate("getComputedStyle(document.getElementById('afiHistMes')).display") != 'none' and pg.evaluate("document.body.classList.contains('modo-leitura')"),
+           'o filtro de mês e ano aparece com o cadastro em modo leitura')
+        pg.evaluate(ESCOLHE, ['afiHistMes', str(livre)]); pg.wait_for_timeout(250)
+        ok('Nada neste mês e ano' in pg.inner_text('#corpoAfiHistorico') and ' de %d' % na_conta in pg.inner_text('#corpoAfiHistorico .afi-loja'),
+           'e filtra o histórico do cadastro por mês')
+        ir('pagina-cadastros-clientes-detalhe.html', '?id=4')
+        ok(pg.evaluate("getComputedStyle(document.getElementById('afiHistorico')).display") == 'none', 'cliente fora do programa não mostra histórico')
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

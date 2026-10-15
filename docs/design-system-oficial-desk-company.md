@@ -3693,3 +3693,32 @@ Barganha aprovada pelo usuário em 15/out ("concordo com o recomendado"):
 **Provado nos dois sentidos, numa cópia.** A seção 7 de `teste_comissoes.py` cobre o histórico, o saque
 (recusar e aprovar), a baixa e o estorno, a aba Afiliado e o link do vendedor. Treze defeitos injetados, um por
 vez, e os treze pegos.
+
+## 14.85 O período por data inicial e final, e o histórico que fecha a conta (15/out/2026)
+
+O usuário testou a 2c e pediu: data inicial e final no topo da conta do afiliado, filtro só de mês e ano no
+histórico, o histórico melhor, e o histórico também no cadastro do cliente.
+
+- **O período da conta é data inicial e final.** A conta é a de um período qualquer (`contaDoPeriodo`); o mês
+  inteiro continua existindo (`contaDoMes`), e a lista, o painel lateral e o cadastro do cliente seguem por mês.
+  A linha de comissões se chama "do mês" quando o período é um mês inteiro, e "do período" nos outros casos.
+  **Lançamento à mão vale pelo mês a que se refere**, não pelo dia em que foi feito: entra em todo período que
+  toca esse mês, e no saldo anterior quando o mês terminou antes da data inicial. Por isso, dois períodos
+  seguidos fecham (o saldo anterior de um é o saldo do outro), fora os lançamentos do mês.
+- **O período aparece escrito sob o título** ("Período: 01/10/2026 a 31/10/2026"). A barra de filtros não vai
+  para o papel, e a conta impressa não dizia de que período era.
+- **O histórico é um extrato.** Tipo (inscrição, venda, comissão, saque, pagamento, lançamento), valor, efeito
+  no saldo e saldo depois do acontecimento. O saldo se conta do mais velho para o mais novo, e o do mais novo é o
+  saldo de hoje: a conta fecha linha a linha, e a suíte confere isso, inclusive depois de um pagamento excluído.
+  O filtro de mês e ano só recorta a lista; o saldo de cada linha continua o verdadeiro.
+- **O cadastro do cliente também conta o que aconteceu.** A barganha previa só o resumo; o usuário viu faltar o
+  pagamento que ele excluiu. A aba Afiliado ganhou o histórico, o mesmo da conta, lido de lá (uma função, três
+  cópias do bloco, comparadas pela suíte). O filtro fica fora de `.form-field`, que no modo leitura esconde todo
+  dropdown. Ao voltar da memória do navegador, o cadastro refaz só a aba, para não perder o que se digita.
+
+**Regra que fica:** acontecimento que muda o saldo mostra o efeito e o saldo depois dele; histórico que não
+fecha com o saldo de hoje está errado.
+
+**Provado nos dois sentidos, numa cópia.** A seção 8 de `teste_comissoes.py` cobre o período, o histórico e o
+cadastro; o oráculo refaz os pedidos do período em Python. Treze defeitos injetados, um por vez, e os treze
+pegos (um escapou na primeira rodada, o do saldo depois do pagamento excluído, e fechou a lacuna da suíte).

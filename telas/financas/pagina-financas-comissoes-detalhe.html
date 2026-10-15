@@ -865,6 +865,49 @@
   .com-total { font-weight:800; color:var(--text-heading); }
   .com-link { color:var(--active-text); cursor:pointer; font-weight:700; text-decoration:none; font-size:12px; }
   .com-link:hover { text-decoration:underline; }
+  .com-tipo { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
+              border:1px solid var(--border); border-radius:999px; color:var(--text); white-space:nowrap; }
+  .com-hist-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+  .com-hist-filtros { display:flex; gap:10px; flex-wrap:wrap; }
+  .com-datas { display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; }
+  .com-datas .form-field { margin-bottom:0; width:176px; }
+  .com-datas .com-link { padding-bottom:10px; }
+  .com-periodo-linha { font-size:12px; font-weight:700; color:var(--text); margin-top:4px; }
+  /* ===== Campo de data com calendario (componente compartilhado, igual ao de Movimentacao de Estoque) ===== */
+  .date-field { position:relative; }
+  .date-field input[type="text"] { padding-right:34px; }
+  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
+              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
+              color:var(--text); cursor:pointer; }
+  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
+  .date-btn svg { width:13px; height:13px; }
+  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
+     o campo esta no topo da tela e nao ha espaco acima. */
+  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
+              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
+  .date-pop.open { display:block; }
+  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-pop.esquerda { right:auto; left:0; }
+  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
+  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
+  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
+              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
+  .date-nav:hover { background: rgba(120,120,140,0.12); }
+  .date-nav svg { width:11px; height:11px; }
+  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
+             padding-bottom:4px; text-transform:uppercase; }
+  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
+              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
+  .date-dia:hover { background: rgba(120,120,140,0.14); }
+  .date-dia.vazio { cursor:default; }
+  .date-dia.vazio:hover { background:transparent; }
+  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
+  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off:hover { background:transparent; }
+  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
+  .date-rodape b { color:var(--text-heading); }
   /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
      A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
      so serve na tela. O cabecalho do relatorio so existe no papel. Igual em toda tela que tem o bloco
@@ -1088,6 +1131,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div>
       <h1 id="tituloConta">Comissões</h1>
       <div class="subtitle" id="subConta">—</div>
+      <div class="com-periodo-linha" id="periodoConta">—</div>
     </div>
     <div class="header-acoes">
       <a class="btn-secundario-topo" href="../financas/pagina-financas-comissoes.html" id="btnVoltarLista" style="text-decoration:none;">
@@ -1122,32 +1166,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <span id="avisoSaqueTexto"></span>
   </div>
 
+  <!-- O periodo da conta: data inicial e final (usuario, 15/out/2026). Abre no mes inteiro; a lista manda ?mes= e ?ano=. -->
   <div class="estoque-toolbar">
-    <div class="dropdown-select" id="filtroMes" data-value="10">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">Outubro</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroMes" style="max-height:300px; overflow-y:auto;"></div>
-    </div>
-    <div class="dropdown-select" id="filtroAno" data-value="2026">
-      <button type="button" class="dropdown-select-btn pill">
-        <span class="dropdown-select-label">2026</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="dropdown-select-menu" id="menuFiltroAno"></div>
+    <div class="com-datas">
+      <div class="form-field" id="campoDataIni">
+        <label>Data inicial</label>
+        <div class="date-field" id="dfIni">
+          <input type="text" id="dataIni" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data inicial">
+          <button type="button" class="date-btn" aria-label="abrir calendário da data inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+          <div class="date-pop"></div>
+        </div>
+      </div>
+      <div class="form-field" id="campoDataFim">
+        <label>Data final</label>
+        <div class="date-field" id="dfFim">
+          <input type="text" id="dataFim" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data final">
+          <button type="button" class="date-btn" aria-label="abrir calendário da data final"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+          <div class="date-pop"></div>
+        </div>
+      </div>
+      <span class="com-link" id="btnMesAtual">Mês atual</span>
     </div>
   </div>
+  <div class="field-error-msg" id="erroPeriodo" style="margin:-8px 0 12px;"></div>
 
   <div class="card com-resumo">
     <div class="com-titulo">Resumo</div>
-    <div class="com-sub">A conta da comissão no mês. Saldo anterior e saldo aparecem sempre; as outras linhas, só com valor.</div>
+    <div class="com-sub">A conta da comissão no período. Saldo anterior e saldo aparecem sempre; as outras linhas, só com valor.</div>
     <div id="corpoResumo"></div>
   </div>
 
   <div class="card com-bloco">
-    <div class="com-titulo">Pedidos do mês</div>
-    <div class="com-sub">Os pedidos vendidos no mês que geram comissão para esta pessoa. O número abre o pedido.</div>
+    <div class="com-titulo">Pedidos do período</div>
+    <div class="com-sub">Os pedidos vendidos no período que geram comissão para esta pessoa. O número abre o pedido.</div>
     <div class="estoque-table-wrap" id="wrapPedidos">
       <table class="estoque-table">
         <thead>
@@ -1166,7 +1217,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <tbody id="corpoPedidos"></tbody>
       </table>
     </div>
-    <div class="field-hint" id="semPedidos" style="display:none;">Nenhum pedido vendido neste mês.</div>
+    <div class="field-hint" id="semPedidos" style="display:none;">Nenhum pedido vendido neste período.</div>
   </div>
 
   <div class="card com-bloco">
@@ -1195,7 +1246,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="card com-bloco">
     <div class="com-titulo">Outros créditos e débitos</div>
-    <div class="com-sub">Lançamentos à mão referentes ao mês, como um prêmio ou um adiantamento a descontar. Pedem motivo e ficam no registro de atividades.</div>
+    <div class="com-sub">Lançamentos à mão referentes ao período (valem pelo mês a que se referem), como um prêmio ou um adiantamento a descontar. Pedem motivo e ficam no registro de atividades.</div>
     <div class="estoque-table-wrap" id="wrapLanc">
       <table class="estoque-table">
         <thead>
@@ -1210,7 +1261,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <tbody id="corpoLanc"></tbody>
       </table>
     </div>
-    <div class="field-hint" id="semLanc" style="display:none;">Nenhum lançamento neste mês.</div>
+    <div class="field-hint" id="semLanc" style="display:none;">Nenhum lançamento neste período.</div>
   </div>
 
   <div class="card com-bloco">
@@ -1231,25 +1282,50 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <tbody id="corpoPagtos"></tbody>
       </table>
     </div>
-    <div class="field-hint" id="semPagtos" style="display:none;">Nenhum pagamento neste mês.</div>
+    <div class="field-hint" id="semPagtos" style="display:none;">Nenhum pagamento neste período.</div>
   </div>
 
-  <!-- O historico de todos os meses (barganha de 15/out/2026). A vitrine mostra o mesmo ao cliente afiliado. -->
+  <!-- O historico de todos os meses (barganha de 15/out/2026). A vitrine mostra o mesmo ao cliente afiliado. Filtro: so mes e ano. -->
   <div class="card com-bloco">
-    <div class="com-titulo">Histórico</div>
-    <div class="com-sub">Tudo o que aconteceu com esta pessoa no programa, de todos os meses, do mais novo para o mais velho: inscrição, vendas, comissões, saques, pagamentos e lançamentos.</div>
-    <div class="estoque-table-wrap">
+    <div class="com-hist-cab">
+      <div>
+        <div class="com-titulo">Histórico</div>
+        <div class="com-sub">Tudo o que aconteceu com esta pessoa no programa, do mais novo para o mais velho: inscrição, vendas, comissões, saques, pagamentos e lançamentos. O saldo de cada linha é o de depois dela.</div>
+      </div>
+      <div class="com-hist-filtros">
+        <div class="dropdown-select" id="histMes" data-value="todos">
+          <button type="button" class="dropdown-select-btn pill">
+            <span class="dropdown-select-label">Todos os meses</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuHistMes" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+        <div class="dropdown-select" id="histAno" data-value="todos">
+          <button type="button" class="dropdown-select-btn pill">
+            <span class="dropdown-select-label">Todos os anos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuHistAno"></div>
+        </div>
+      </div>
+    </div>
+    <div class="estoque-table-wrap" id="wrapHistorico">
       <table class="estoque-table">
         <thead>
           <tr>
             <th class="col-texto">Data</th>
+            <th class="col-texto">Tipo</th>
             <th class="col-texto">O que aconteceu</th>
-            <th>Valor</th>
+            <th title="O valor do acontecimento: da venda, da comissão, do saque ou do pagamento">Valor</th>
+            <th title="O que o acontecimento fez no saldo de comissão: + entra, − sai. Vazio é só informação">Efeito no saldo</th>
+            <th title="O saldo de comissão depois do acontecimento">Saldo</th>
           </tr>
         </thead>
         <tbody id="corpoHistorico"></tbody>
       </table>
     </div>
+    <div class="field-hint" id="semHistorico" style="display:none;">Nada neste mês e ano.</div>
+    <div class="estoque-rodape"><span id="contHistorico">0 acontecimentos</span><span class="estoque-total">Saldo de hoje: <b id="saldoHistorico">R$ 0,00</b></span></div>
   </div>
 
 <!-- PAINEL LATERAL: realizar pagamento. Nasce a conta em Contas a Pagar; o saldo desce no dia. -->
@@ -2085,8 +2161,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 1, chave: 'v1', tipo: 'credito', valor: 150.00, dias: 6, mesesAtras: 0, descricao: 'Prêmio da campanha do Dia das Crianças' }
   ];
 
-  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega (15/out/2026).
-  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
   function lerLocal(chave, padrao) { try { const b = localStorage.getItem(chave); return b ? JSON.parse(b) : padrao; } catch (e) { return padrao; } }
   function gravarLocal(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function moedaC(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -2121,11 +2195,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // Quem recebe comissao: o vendedor do cadastro, ou o cliente aprovado como afiliado de uma loja. A chave
   // (v1, a1) e o ?id= da conta do afiliado.
+  // Todo afiliado, de qualquer situacao, como quem recebe: o cadastro do cliente mostra o historico ate de quem so
+  // pediu ou foi recusado. Na lista de Comissoes entra so quem esta ativo ou suspenso (`beneficiarios`).
+  const comoBeneficiario = (a) => ({
+    chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
+    situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId });
   function beneficiarios() {
     return VENDEDORES_C.map(v => ({ chave: 'v' + v.id, id: v.id, nome: v.nome, tipo: 'vendedor', aliquota: v.aliquota, regra: v.regra, situacao: v.situacao }))
-      .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(a => ({
-        chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
-        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId })));
+      .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(comoBeneficiario));
   }
   function beneficiarioDe(chave) { return beneficiarios().filter(b => b.chave === chave)[0] || null; }
   // Uma pessoa recebe por pedido: o link do cliente afiliado vale sobre o vendedor marcado.
@@ -2188,38 +2265,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave && !p.cancelado);
   }
 
-  // A conta do mes, nas linhas do Olist. O saldo anterior e tudo o que liberou, entrou e saiu antes do mes.
-  function contaDoMes(b, mes, ano) {
-    const ini = ano + '-' + String(mes).padStart(2, '0') + '-01', fim = isoDe(new Date(ano, mes, 0));
-    const noMes = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
-    const refMes = (l) => ano * 12 + mes - (l.ano * 12 + l.mes);   // 0 = este mes, positivo = antes
+  // A conta de um periodo qualquer, nas linhas do Olist (15/out/2026: o filtro de mes e ano passou a ser data inicial e
+  // final). O saldo anterior e tudo o que liberou, entrou e saiu antes da data inicial; o saldo e o do fim do periodo.
+  // Lancamento vale pelo mes a que se refere: entra no periodo que toca esse mes, e no saldo anterior quando o mes
+  // terminou antes da data inicial.
+  function contaDoPeriodo(b, ini, fim) {
+    const noPeriodo = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
+    const refIni = (l) => l.ano + '-' + String(l.mes).padStart(2, '0') + '-01', refFim = (l) => isoDe(new Date(l.ano, l.mes, 0));
+    const lDentro = (l) => refFim(l) >= ini && refIni(l) <= fim, lAntes = (l) => refFim(l) < ini;
     const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
     const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
     const lib = itens.filter(i => !i.cancelada && i.libera);
     const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
     const r = {
       anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
-                soma(lanc.filter(l => refMes(l) > 0), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
-      mes: soma(lib.filter(i => noMes(i.libera)), i => i.valor),
-      vencidas: soma(itens.filter(i => noMes(i.vencidaDebito)), i => i.valor),
+                soma(lanc.filter(lAntes), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
+      mes: soma(lib.filter(i => noPeriodo(i.libera)), i => i.valor),
+      vencidas: soma(itens.filter(i => noPeriodo(i.vencidaDebito)), i => i.valor),
       devolucoes: 0,
-      creditos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'credito'), l => l.valor),
-      debitos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'debito'), l => l.valor),
-      pagamentos: soma(pags.filter(x => noMes(x.data)), x => x.valor),
+      creditos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'credito'), l => l.valor),
+      debitos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'debito'), l => l.valor),
+      pagamentos: soma(pags.filter(x => noPeriodo(x.data)), x => x.valor),
       pendente: soma(itens.filter(i => !i.cancelada && !i.libera), i => i.valor)
     };
     r.saldo = r.anterior + r.mes - r.vencidas - r.devolucoes + r.creditos - r.debitos - r.pagamentos;
-    const doMes = pedidosDe(b).filter(p => noMes(vendaDe(p)) && p.situacao !== 'cancelado');
-    r.pedidos = doMes.length;
-    r.vendido = soma(doMes, baseDe);
-    r.lucro = soma(doMes, p => lucroDe(p, b));
-    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes; r.pagamentosLista = pags.filter(x => noMes(x.data));
+    const doPeriodo = pedidosDe(b).filter(p => noPeriodo(vendaDe(p)) && p.situacao !== 'cancelado');
+    r.pedidos = doPeriodo.length;
+    r.vendido = soma(doPeriodo, baseDe);
+    r.lucro = soma(doPeriodo, p => lucroDe(p, b));
+    r.itens = itens; r.lancamentos = lanc.filter(lDentro); r.doMes = doPeriodo; r.pagamentosLista = pags.filter(x => noPeriodo(x.data));
+    // O periodo e um mes inteiro: a conta chama a linha de "do mes". Qualquer outro, "do periodo".
+    r.ehMes = ini.slice(8) === '01' && fim === isoDe(new Date(Number(ini.slice(0, 4)), Number(ini.slice(5, 7)), 0));
     return r;
+  }
+  // O mes inteiro: o que a lista de Comissoes, o painel lateral e o cadastro do cliente usam.
+  function contaDoMes(b, mes, ano) {
+    return contaDoPeriodo(b, ano + '-' + String(mes).padStart(2, '0') + '-01', isoDe(new Date(ano, mes, 0)));
   }
   // As linhas do resumo, com os textos dos (i) do Olist. Saldo anterior e saldo aparecem sempre; as outras, so com valor.
   const LINHAS_CONTA = [
     { k: 'anterior',   rotulo: 'Saldo anterior',             dica: 'Comissões pendentes do período anterior', sempre: true },
-    { k: 'mes',        rotulo: '(+) Comissões do mês',       dica: 'Comissões a receber no período atual' },
+    { k: 'mes',        rotulo: '(+) Comissões do mês',       rotuloPeriodo: '(+) Comissões do período', dica: 'Comissões a receber no período atual' },
     { k: 'vencidas',   rotulo: '(−) Comissões vencidas',     dica: 'Comissões vencidas ainda não pagas' },
     { k: 'devolucoes', rotulo: '(−) Débitos de devoluções',  dica: 'Débitos de devoluções no período atual' },
     { k: 'creditos',   rotulo: '(+) Outros créditos',        dica: 'Valor adicional a receber' },
@@ -2241,37 +2327,79 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
   }
   // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
-  // mostra o mesmo ao cliente, em "Minhas indicacoes".
+  // mostra o mesmo ao cliente, em "Minhas indicacoes". Cada acontecimento tem o tipo, o valor, o efeito no saldo
+  // (+ entra, − sai, vazio quando e so informacao) e o saldo depois dele: o do acontecimento mais novo e o saldo de hoje.
+  const TIPOS_HIST = { inscricao: 'Inscrição', venda: 'Venda', comissao: 'Comissão', saque: 'Saque', pagamento: 'Pagamento', lancamento: 'Lançamento' };
+  const hrefPedidoC = (id) => '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + id;
+  const hrefContaC = (n) => '../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + n);
   function historicoDe(b) {
     const ev = [];
-    const add = (data, texto, valor) => { if (data) ev.push({ data: data, texto: texto, valor: valor === undefined ? null : Math.abs(valor), ordem: ev.length }); };
+    const add = (data, tipo, texto, valor, efeito, links) => {
+      if (data) ev.push({ data: data, tipo: tipo, texto: texto, valor: valor === undefined ? null : Math.abs(valor),
+                          efeito: efeito === undefined ? null : efeito, links: links || [], ordem: ev.length });
+    };
+    const ped = (p) => [{ trecho: 'pedido nº ' + p.numero, href: hrefPedidoC(p.id) }];
     if (b.tipo === 'cliente') {
       const a = afiliados().filter(x => x.id === b.id)[0] || {};
-      add(isoDe(diaMais(-(a.dias || 0))), a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
-      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'Aprovado no programa de afiliados');
+      add(isoDe(diaMais(-(a.dias || 0))), 'inscricao', a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
+      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'inscricao', 'Aprovado no programa de afiliados');
       const NOME_EVENTO = { aprovado: 'Aprovado no programa de afiliados', recusado: 'Inscrição recusada', suspenso: 'Suspenso do programa', reativado: 'Reativado no programa' };
-      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
+      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, 'inscricao', NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
     }
-    pedidosDe(b).forEach(p => add(vendaDe(p), (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente + (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p)));
-    comissoesDe(b).forEach(i => { if (i.libera) add(i.libera, 'Comissão liberada: pedido nº ' + i.pedido.numero + i.parte, i.valor); });
+    pedidosDe(b).forEach(p => add(vendaDe(p), 'venda', (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente +
+      (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p), undefined, ped(p)));
+    comissoesDe(b).forEach(i => {
+      const nome = 'pedido nº ' + i.pedido.numero + i.parte;
+      if (!i.cancelada && !i.libera) add(vendaDe(i.pedido), 'comissao', 'Comissão a liberar: ' + nome + ', prevista para ' + brDe(i.prevista), i.valor, undefined, ped(i.pedido));
+      if (i.libera) add(i.libera, 'comissao', 'Comissão liberada: ' + nome, i.valor, i.valor, ped(i.pedido));
+      if (i.vencidaDebito) add(i.vencidaDebito, 'comissao', 'Comissão vencida, o cliente não pagou: ' + nome, i.valor, -i.valor, ped(i.pedido));
+    });
     const ajustes = lerLocal('deskComissoesAjustes', {});
     Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
       const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
-      add(aj.quando, (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''), aj.excluida ? undefined : aj.valor);
+      add(aj.quando, 'comissao', (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''),
+          aj.excluida ? undefined : aj.valor, undefined, p ? ped(p) : []);
     });
-    lancamentosDe(b).forEach(l => add(l.data, (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor));
+    lancamentosDe(b).forEach(l => add(l.data, 'lancamento', (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor, l.tipo === 'credito' ? l.valor : -l.valor));
     saques().filter(s => s.chave === b.chave).forEach(s => {
-      add(isoDe(diaMais(-s.dias)), 'Pediu o saque pela vitrine', s.valor);
-      if (s.situacao === 'recusado') add(s.quando, 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''));
+      add(isoDe(diaMais(-s.dias)), 'saque', 'Pediu o saque pela vitrine', s.valor);
+      if (s.situacao === 'recusado') add(s.quando, 'saque', 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''), s.valor);
+      if (s.situacao === 'aprovado') add(s.quando, 'saque', 'Saque aprovado: virou o pagamento COM-' + s.n, s.valor, undefined, [{ trecho: 'COM-' + s.n, href: hrefContaC(s.n) }]);
     });
     (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
-      add(p.data, 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor);
-      (p.baixas || []).forEach(x => add(x.data, 'COM-' + p.n + ' pago em Contas a Pagar', x.valor));
-      if (p.cancelado) add(p.canceladoEm || p.data, 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') + ': o valor voltou ao saldo', p.valor);
+      const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }];
+      add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor, -p.valor, lk);
+      (p.baixas || []).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') +
+        ': o valor voltou ao saldo' + (p.saque ? '; o cliente pode pedir de novo' : ''), p.valor, p.valor, lk);
     });
-    return ev.sort((x, y) => x.data === y.data ? y.ordem - x.ordem : (x.data < y.data ? 1 : -1));
+    // O saldo depois de cada acontecimento se conta do mais velho para o mais novo; a lista sai do mais novo.
+    const asc = ev.slice().sort((x, y) => x.data === y.data ? x.ordem - y.ordem : (x.data < y.data ? -1 : 1));
+    let saldo = 0;
+    asc.forEach(e => { saldo = Math.round((saldo + (e.efeito || 0)) * 100) / 100; e.saldo = saldo; });
+    return asc.reverse();
   }
-
+  // O filtro do historico e so mes e ano (15/out/2026). O saldo de cada linha continua o de verdade, filtrado ou nao.
+  function filtrarHistorico(ev, mes, ano) {
+    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)));
+  }
+  function anosDoHistorico(ev) {
+    const anos = {};
+    ev.forEach(e => { anos[e.data.slice(0, 4)] = 1; });
+    anos[String(HOJE_C.getFullYear())] = 1;
+    return Object.keys(anos).sort().reverse();
+  }
+  const escC = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // As linhas da tabela do historico: a mesma na conta do afiliado e no cadastro do cliente.
+  function linhasDoHistorico(eventos) {
+    return eventos.map(e => {
+      let txt = escC(e.texto);
+      e.links.forEach(l => { txt = txt.replace(escC(l.trecho), '<a class="com-link" href="' + l.href + '">' + escC(l.trecho) + '</a>'); });
+      return '<tr><td class="col-texto">' + brDe(e.data) + '</td><td class="col-texto"><span class="com-tipo">' + TIPOS_HIST[e.tipo] + '</span></td>' +
+        '<td class="col-texto">' + txt + '</td><td>' + (e.valor === null ? '—' : moedaC(e.valor)) + '</td>' +
+        '<td>' + (e.efeito === null ? '—' : (e.efeito < 0 ? '− ' : '+ ') + moedaC(Math.abs(e.efeito))) + '</td><td>' + moedaC(e.saldo) + '</td></tr>';
+    }).join('');
+  }
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
@@ -2372,15 +2500,141 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
 
+  // ===== COMPONENTE: campo de data com calendario (copia da Agenda) =====
+  const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const MESES_NOME = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  function inicializarDataField(raiz, opcoes) {
+    if (!raiz || raiz.dataset.dateInit) return;
+    raiz.dataset.dateInit = '1';
+    const op = opcoes || {};
+    const input = raiz.querySelector('input');
+    const btn = raiz.querySelector('.date-btn');
+    const pop = raiz.querySelector('.date-pop');
+    if (!input || !btn || !pop) return;
+    let mesVisivel = null;
+
+    const limite = (v) => (typeof v === 'function' ? v() : v) || null;
+    const isoDoInput = () => {
+      const m = String(input.value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return null;
+      const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+      return m[3] + '-' + m[2] + '-' + m[1];
+    };
+
+    function desenhar() {
+      const sel = isoDoInput();
+      const base = mesVisivel || (sel ? new Date(Number(sel.slice(0, 4)), Number(sel.slice(5, 7)) - 1, 1) : new Date());
+      base.setDate(1);
+      mesVisivel = base;
+      const ano = base.getFullYear(), mes = base.getMonth();
+      const primeiro = new Date(ano, mes, 1).getDay();
+      const ultimo = new Date(ano, mes + 1, 0).getDate();
+      const min = limite(op.min), max = limite(op.max);
+      const hojeIso = (function () { const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); })();
+
+      let celulas = '';
+      for (let i = 0; i < primeiro; i++) celulas += '<div class="date-dia vazio"></div>';
+      for (let d = 1; d <= ultimo; d++) {
+        const isoD = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const fora = (min && isoD < min) || (max && isoD > max);
+        const classes = 'date-dia' + (fora ? ' off' : '') + (isoD === sel ? ' sel' : '') + (isoD === hojeIso ? ' hoje' : '');
+        const txt = (v, padrao) => (typeof v === 'function' ? v() : v) || padrao;
+        const motivo = fora ? ' title="' + ((min && isoD < min) ? txt(op.motivoMin, 'Data anterior ao permitido.') : txt(op.motivoMax, 'Data posterior ao permitido.')) + '"' : '';
+        celulas += '<div class="' + classes + '"' + (fora ? '' : ' data-iso="' + isoD + '"') + motivo + '>' + d + '</div>';
+      }
+      pop.innerHTML =
+        '<div class="date-cab">' +
+          '<button type="button" class="date-nav" data-passo="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+          '<span class="date-mes">' + MESES_NOME[mes] + ' ' + ano + '</span>' +
+          '<button type="button" class="date-nav" data-passo="1" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>' +
+        '<div class="date-grade">' + DIAS_SEMANA.map(s => '<div class="date-ds">' + s + '</div>').join('') + celulas + '</div>' +
+        (op.rodape ? '<div class="date-rodape">' + op.rodape() + '</div>' : '');
+
+      pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mesVisivel = new Date(ano, mes + Number(b.getAttribute('data-passo')), 1);
+        desenhar();
+      }));
+      pop.querySelectorAll('.date-dia[data-iso]').forEach(c => c.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = c.getAttribute('data-iso');
+        input.value = v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
+        fechar();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        if (op.aoMudar) op.aoMudar(v);
+      }));
+    }
+
+    function abrir() {
+      document.querySelectorAll('.date-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+      mesVisivel = null;
+      desenhar();
+      // POSICAO: colado no icone, e ACIMA por padrao.
+      //  - Horizontal: o popover alinha pela DIREITA, que e onde o icone fica.
+      //    Abrindo pela esquerda, o mouse atravessa o campo inteiro para chegar
+      //    no dia — foi o que o print de 22/set mostrou.
+      //  - Vertical: para cima. Num formulario preenchido de cima para baixo,
+      //    quando se chega na data os campos de cima ja foram resolvidos; o que
+      //    esta ABAIXO e o proximo passo e o botao de salvar. Cobrir o que ja
+      //    passou custa menos que cobrir o que vem.
+      //  - Desce so quando nao ha espaco acima (campo no topo da tela).
+      pop.style.visibility = 'hidden'; pop.style.display = 'block';
+      const alturaPop = pop.offsetHeight;
+      pop.style.display = ''; pop.style.visibility = '';
+      const caixaBtn = btn.getBoundingClientRect();
+      const espacoAcima = caixaBtn.top;
+      const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
+      pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
+      pop.classList.add('open');
+      // A caixa tem 252px. Num campo estreito, colado na borda esquerda de um painel, alinhar
+      // pela direita jogava a primeira coluna (domingo) para fora da area visivel: era cortada
+      // (Agenda, 09/out/2026). Entao mede: passou da borda de quem a contem, alinha pela esquerda.
+      pop.classList.remove('esquerda');
+      let bordaEsquerda = 0;
+      for (let el = raiz.parentElement; el && el !== document.body; el = el.parentElement) {
+        const o = getComputedStyle(el);
+        if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) { bordaEsquerda = el.getBoundingClientRect().left; break; }
+      }
+      if (pop.getBoundingClientRect().left < bordaEsquerda) pop.classList.add('esquerda');
+    }
+    function fechar() { pop.classList.remove('open'); }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pop.classList.contains('open')) fechar(); else abrir();
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', () => { if (pop.classList.contains('open')) { mesVisivel = null; desenhar(); } });
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
+  }
+
   // ===== COMISSOES AFILIADOS: A CONTA DO AFILIADO (14/out/2026) =====
   // Abre quem foi clicado na lista (?id=v1 ou a1, com o mes e o ano). Sem id que exista, abre o primeiro
-  // vendedor e diz isso. A conta segue as linhas do Olist, com os textos dos (i) dele.
+  // vendedor e diz isso. A conta segue as linhas do Olist, com os textos dos (i) dele. O periodo e data inicial e final
+  // (15/out/2026): ?inicio= e ?fim= (aaaa-mm-dd); ?mes= e ?ano=, da lista, viram o mes inteiro.
   const Q = new URLSearchParams(location.search);
   let B = beneficiarioDe(Q.get('id') || '');
   const SEM_ID = !B;
   if (!B) B = beneficiarios()[0];
-  let mesSel = Number(Q.get('mes')) || HOJE_C.getMonth() + 1, anoSel = Number(Q.get('ano')) || HOJE_C.getFullYear();
-  if (mesSel < 1 || mesSel > 12) mesSel = HOJE_C.getMonth() + 1;
+  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega.
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
+  const isoValido = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || '') && isoDe(new Date(Number(s.slice(0, 4)), Number(s.slice(5, 7)) - 1, Number(s.slice(8)))) === s;
+  let ini, fim;
+  (function periodoDaUrl() {
+    const i = Q.get('inicio'), f = Q.get('fim');
+    if (isoValido(i) && isoValido(f) && i <= f) { ini = i; fim = f; return; }
+    let m = Number(Q.get('mes')), a = Number(Q.get('ano'));
+    if (!(m >= 1 && m <= 12)) m = HOJE_C.getMonth() + 1;
+    if (!(a >= 2000 && a <= 2100)) a = HOJE_C.getFullYear();
+    ini = a + '-' + String(m).padStart(2, '0') + '-01'; fim = isoDe(new Date(a, m, 0));
+  })();
+  const contaAtual = () => contaDoPeriodo(B, ini, fim);
+  let histMes = 'todos', histAno = 'todos';
   let mostrarPendentes = true;
   function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
@@ -2415,7 +2669,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   function render() {
     B = beneficiarioDe(B.chave) || B;
-    const r = contaDoMes(B, mesSel, anoSel);
+    const r = contaAtual();
+    texto('periodoConta', 'Período: ' + brDe(ini) + ' a ' + brDe(fim));
     texto('tituloConta', 'Comissões · ' + B.nome);
     texto('subConta', subDoBeneficiario(B) + (B.tipo === 'cliente' ? ' · chave PIX ' + B.pix : ''));
     path = ['Finanças', 'Comissões Afiliados', B.nome]; renderBreadcrumb();
@@ -2423,7 +2678,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('itemSuspender', B.situacao === 'suspenso' ? 'Reativar no programa' : 'Suspender do programa');
 
     html('corpoResumo', LINHAS_CONTA.filter(c => c.sempre || r[c.k]).map(c =>
-      '<div class="rt-linha"><span class="chave-rotulo">' + c.rotulo + '<span class="com-dica">' + c.dica + '</span></span><span class="chave-valor' + (c.k === 'saldo' ? ' com-total' : '') + '">' + moedaC(r[c.k]) + '</span></div>').join('') +
+      '<div class="rt-linha"><span class="chave-rotulo">' + (c.rotuloPeriodo && !r.ehMes ? c.rotuloPeriodo : c.rotulo) + '<span class="com-dica">' + c.dica + '</span></span><span class="chave-valor' + (c.k === 'saldo' ? ' com-total' : '') + '">' + moedaC(r[c.k]) + '</span></div>').join('') +
       '<div class="rt-linha"><span class="chave-rotulo">Ainda a liberar<span class="com-dica">Comissões ainda pendentes de liberação; não entram no saldo</span></span><span class="chave-valor">' + moedaC(r.pendente) + '</span></div>');
 
     html('corpoPedidos', r.doMes.map(p => {
@@ -2465,9 +2720,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('wrapPagtos').style.display = r.pagamentosLista.length ? '' : 'none';
     document.getElementById('semPagtos').style.display = r.pagamentosLista.length ? 'none' : '';
 
-    // Historico de todos os meses, e o saque que espera decisao (15/out/2026).
-    html('corpoHistorico', historicoDe(B).map(e => '<tr><td class="col-texto">' + brDe(e.data) + '</td><td class="col-texto">' + esc(e.texto) + '</td><td>' +
-      (e.valor === null ? '—' : moedaC(e.valor)) + '</td></tr>').join(''));
+    // Historico de todos os meses (so mes e ano filtram), e o saque que espera decisao (15/out/2026).
+    const todos = historicoDe(B), ev = filtrarHistorico(todos, histMes, histAno);
+    html('corpoHistorico', linhasDoHistorico(ev));
+    document.getElementById('wrapHistorico').style.display = ev.length ? '' : 'none';
+    document.getElementById('semHistorico').style.display = ev.length ? 'none' : '';
+    texto('contHistorico', ev.length + (ev.length === 1 ? ' acontecimento' : ' acontecimentos') + (ev.length === todos.length ? '' : ' de ' + todos.length));
+    texto('saldoHistorico', moedaC(todos.length ? todos[0].saldo : 0));
     const pedido = saques().filter(s => s.chave === B.chave && s.situacao === 'solicitado')[0];
     document.getElementById('avisoSaque').style.display = pedido ? '' : 'none';
     if (pedido) texto('avisoSaqueTexto', B.nome + ' pediu o saque de ' + moedaC(pedido.valor) + ' pela vitrine em ' + brDe(isoDe(diaMais(-pedido.dias))) +
@@ -2526,7 +2785,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== EDITAR OU EXCLUIR COMISSAO =====
   let ajustando = null;
   function abrirAjuste(id) {
-    ajustando = contaDoMes(B, mesSel, anoSel).itens.filter(i => i.id === id)[0];
+    ajustando = contaAtual().itens.filter(i => i.id === id)[0];
     if (!ajustando) return;
     texto('ajDescricao', ajustando.descricao + ' · base ' + moedaC(ajustando.base) + ' a ' + pctC(ajustando.pct));
     document.getElementById('ajData').value = brDe(ajustando.prevista);
@@ -2572,7 +2831,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const meses = [];
     for (let k = 0; k < 6; k++) { const d = new Date(HOJE_C.getFullYear(), HOJE_C.getMonth() - k, 1); meses.push({ v: (d.getMonth() + 1) + '-' + d.getFullYear(), t: NOMES_MES_C[d.getMonth()] + ' de ' + d.getFullYear() }); }
     montar('menuLcMes', meses);
-    const atual = meses.filter(m => m.v === mesSel + '-' + anoSel)[0] || meses[0];
+    const refMes = Number(fim.slice(5, 7)) + '-' + fim.slice(0, 4);   // o lancamento se refere, de inicio, ao mes em que o periodo termina
+    const atual = meses.filter(m => m.v === refMes)[0] || meses[0];
     setDrop('lcMes', atual.v, atual.t);
     setDrop('lcTipo', 'credito', 'Crédito');
     document.getElementById('lcValor').value = ''; document.getElementById('lcDescricao').value = '';
@@ -2611,11 +2871,38 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ===== FILTROS E MAIS ACOES =====
-  montar('menuFiltroMes', NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n })));
-  montar('menuFiltroAno', [HOJE_C.getFullYear() - 1, HOJE_C.getFullYear()].map(a => ({ v: a, t: String(a) })));
-  setDrop('filtroMes', mesSel, NOMES_MES_C[mesSel - 1]); setDrop('filtroAno', anoSel, String(anoSel));
-  inicializarDropdownSelect(document.getElementById('filtroMes'), (v) => { mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES_C[mesSel - 1]); render(); });
-  inicializarDropdownSelect(document.getElementById('filtroAno'), (v) => { anoSel = Number(v); setDrop('filtroAno', v, String(v)); render(); });
+  // O periodo: data inicial e final, com o calendario de Movimentacao de Estoque. Aplica quando a data esta completa,
+  // ao sair do campo e no Enter; data incompleta, invalida ou invertida nao muda a conta e diz o que falta.
+  const campoIni = document.getElementById('dataIni'), campoFim = document.getElementById('dataFim');
+  function mostrarPeriodo() { campoIni.value = brDe(ini); campoFim.value = brDe(fim); ['campoDataIni', 'campoDataFim'].forEach(c => document.getElementById(c).classList.remove('has-error')); texto('erroPeriodo', ''); document.getElementById('erroPeriodo').classList.remove('show'); }
+  function aplicarPeriodo() {
+    const i = isoDoBr(campoIni.value), f = isoDoBr(campoFim.value);
+    const msg = (!i || !f) ? 'Use o formato dd/mm/aaaa nas duas datas.' : (i > f ? 'A data inicial é depois da final.' : '');
+    document.getElementById('campoDataIni').classList.toggle('has-error', !i || (!!f && i > f));
+    document.getElementById('campoDataFim').classList.toggle('has-error', !f || (!!i && i > f));
+    texto('erroPeriodo', msg); document.getElementById('erroPeriodo').classList.toggle('show', !!msg);
+    if (msg) return;
+    ini = i; fim = f; render();
+  }
+  inicializarDataField(document.getElementById('dfIni'), { max: () => isoDoBr(campoFim.value) || null, motivoMax: 'Depois da data final.' });
+  inicializarDataField(document.getElementById('dfFim'), { min: () => isoDoBr(campoIni.value) || null, motivoMin: 'Antes da data inicial.' });
+  [campoIni, campoFim].forEach(c => {
+    c.addEventListener('input', () => { if (c.value.trim().length === 10) aplicarPeriodo(); });
+    c.addEventListener('change', aplicarPeriodo);
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter') aplicarPeriodo(); });
+  });
+  document.getElementById('btnMesAtual').addEventListener('click', () => {
+    ini = HOJE_ISO.slice(0, 8) + '01'; fim = isoDe(new Date(HOJE_C.getFullYear(), HOJE_C.getMonth() + 1, 0));
+    mostrarPeriodo(); render();
+  });
+  mostrarPeriodo();
+
+  // O historico: so mes e ano. Os anos vem dos proprios acontecimentos.
+  montar('menuHistMes', [{ v: 'todos', t: 'Todos os meses' }].concat(NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n }))));
+  montar('menuHistAno', [{ v: 'todos', t: 'Todos os anos' }].concat(anosDoHistorico(historicoDe(B)).map(a => ({ v: a, t: a }))));
+  setDrop('histMes', 'todos', 'Todos os meses'); setDrop('histAno', 'todos', 'Todos os anos');
+  inicializarDropdownSelect(document.getElementById('histMes'), (v) => { histMes = v; render(); });
+  inicializarDropdownSelect(document.getElementById('histAno'), (v) => { histAno = v; render(); });
   document.getElementById('btnExibirPendentes').addEventListener('click', () => { mostrarPendentes = !mostrarPendentes; render(); });
   const menuMais = document.getElementById('menuMaisAcoes');
   inicializarDropdownSelect(menuMais, null);

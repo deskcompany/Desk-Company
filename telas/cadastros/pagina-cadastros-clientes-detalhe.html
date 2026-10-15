@@ -379,6 +379,14 @@
   .add-contato-link:hover { text-decoration:underline; }
   .add-contato-link svg { width:14px; height:14px; }
   .afi-nota { font-size:12px; color:var(--text); margin:0 0 14px; line-height:1.5; }
+  .afi-hist-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; margin-top:26px; }
+  .afi-filtros { display:flex; gap:10px; flex-wrap:wrap; }
+  .contatos-table .col-texto { text-align:left; }   /* a linha do historico e a mesma das telas de Comissoes */
+  .afi-loja { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); margin:14px 0 6px; }
+  .com-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .com-link:hover { text-decoration:underline; }
+  .com-tipo { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
+              border:1px solid var(--border); border-radius:999px; color:var(--text); white-space:nowrap; }
 
   .dropzone { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:2px dashed var(--border); border-radius:14px; padding:34px 20px; cursor:pointer; text-align:center; margin-bottom:18px; }
   .dropzone:hover { background: rgba(120,120,140,0.06); }
@@ -1050,6 +1058,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="section-title">Programa de afiliados</div>
     <div class="afi-nota">O cliente pede pela vitrine de cada loja, aceitando as regras dela. A aprovação e a conta das comissões ficam em Finanças → Comissões Afiliados; aqui é o resumo, lido de lá.</div>
     <div id="corpoAfiliado"></div>
+
+    <div class="afi-hist-cab" id="afiHistorico" style="display:none;">
+      <div>
+        <div class="section-title">Histórico</div>
+        <div class="afi-nota">Tudo o que aconteceu com este cliente no programa, do mais novo para o mais velho. É o mesmo histórico da conta dele em Comissões Afiliados, lido de lá.</div>
+      </div>
+      <div class="afi-filtros">
+        <div class="dropdown-select" id="afiHistMes" data-value="todos">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Todos os meses</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuAfiHistMes" style="max-height:300px; overflow-y:auto;"></div>
+        </div>
+        <div class="dropdown-select" id="afiHistAno" data-value="todos">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Todos os anos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuAfiHistAno"></div>
+        </div>
+      </div>
+    </div>
+    <div id="corpoAfiHistorico"></div>
   </div>
 
   <div class="barra-salvar" id="barraSalvar">
@@ -1917,8 +1949,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 1, chave: 'v1', tipo: 'credito', valor: 150.00, dias: 6, mesesAtras: 0, descricao: 'Prêmio da campanha do Dia das Crianças' }
   ];
 
-  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega (15/out/2026).
-  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
   function lerLocal(chave, padrao) { try { const b = localStorage.getItem(chave); return b ? JSON.parse(b) : padrao; } catch (e) { return padrao; } }
   function gravarLocal(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function moedaC(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -1953,11 +1983,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // Quem recebe comissao: o vendedor do cadastro, ou o cliente aprovado como afiliado de uma loja. A chave
   // (v1, a1) e o ?id= da conta do afiliado.
+  // Todo afiliado, de qualquer situacao, como quem recebe: o cadastro do cliente mostra o historico ate de quem so
+  // pediu ou foi recusado. Na lista de Comissoes entra so quem esta ativo ou suspenso (`beneficiarios`).
+  const comoBeneficiario = (a) => ({
+    chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
+    situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId });
   function beneficiarios() {
     return VENDEDORES_C.map(v => ({ chave: 'v' + v.id, id: v.id, nome: v.nome, tipo: 'vendedor', aliquota: v.aliquota, regra: v.regra, situacao: v.situacao }))
-      .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(a => ({
-        chave: 'a' + a.id, id: a.id, nome: a.cliente, tipo: 'cliente', loja: a.loja, aliquota: pctDaLoja(a.loja), regra: null,
-        situacao: a.situacao, pix: a.pix, doc: a.doc, dias: a.dias, desde: desdeDe(a), clienteId: a.clienteId })));
+      .concat(afiliados().filter(a => a.situacao === 'ativo' || a.situacao === 'suspenso').map(comoBeneficiario));
   }
   function beneficiarioDe(chave) { return beneficiarios().filter(b => b.chave === chave)[0] || null; }
   // Uma pessoa recebe por pedido: o link do cliente afiliado vale sobre o vendedor marcado.
@@ -2020,38 +2053,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave && !p.cancelado);
   }
 
-  // A conta do mes, nas linhas do Olist. O saldo anterior e tudo o que liberou, entrou e saiu antes do mes.
-  function contaDoMes(b, mes, ano) {
-    const ini = ano + '-' + String(mes).padStart(2, '0') + '-01', fim = isoDe(new Date(ano, mes, 0));
-    const noMes = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
-    const refMes = (l) => ano * 12 + mes - (l.ano * 12 + l.mes);   // 0 = este mes, positivo = antes
+  // A conta de um periodo qualquer, nas linhas do Olist (15/out/2026: o filtro de mes e ano passou a ser data inicial e
+  // final). O saldo anterior e tudo o que liberou, entrou e saiu antes da data inicial; o saldo e o do fim do periodo.
+  // Lancamento vale pelo mes a que se refere: entra no periodo que toca esse mes, e no saldo anterior quando o mes
+  // terminou antes da data inicial.
+  function contaDoPeriodo(b, ini, fim) {
+    const noPeriodo = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
+    const refIni = (l) => l.ano + '-' + String(l.mes).padStart(2, '0') + '-01', refFim = (l) => isoDe(new Date(l.ano, l.mes, 0));
+    const lDentro = (l) => refFim(l) >= ini && refIni(l) <= fim, lAntes = (l) => refFim(l) < ini;
     const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
     const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
     const lib = itens.filter(i => !i.cancelada && i.libera);
     const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
     const r = {
       anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
-                soma(lanc.filter(l => refMes(l) > 0), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
-      mes: soma(lib.filter(i => noMes(i.libera)), i => i.valor),
-      vencidas: soma(itens.filter(i => noMes(i.vencidaDebito)), i => i.valor),
+                soma(lanc.filter(lAntes), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
+      mes: soma(lib.filter(i => noPeriodo(i.libera)), i => i.valor),
+      vencidas: soma(itens.filter(i => noPeriodo(i.vencidaDebito)), i => i.valor),
       devolucoes: 0,
-      creditos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'credito'), l => l.valor),
-      debitos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'debito'), l => l.valor),
-      pagamentos: soma(pags.filter(x => noMes(x.data)), x => x.valor),
+      creditos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'credito'), l => l.valor),
+      debitos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'debito'), l => l.valor),
+      pagamentos: soma(pags.filter(x => noPeriodo(x.data)), x => x.valor),
       pendente: soma(itens.filter(i => !i.cancelada && !i.libera), i => i.valor)
     };
     r.saldo = r.anterior + r.mes - r.vencidas - r.devolucoes + r.creditos - r.debitos - r.pagamentos;
-    const doMes = pedidosDe(b).filter(p => noMes(vendaDe(p)) && p.situacao !== 'cancelado');
-    r.pedidos = doMes.length;
-    r.vendido = soma(doMes, baseDe);
-    r.lucro = soma(doMes, p => lucroDe(p, b));
-    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes; r.pagamentosLista = pags.filter(x => noMes(x.data));
+    const doPeriodo = pedidosDe(b).filter(p => noPeriodo(vendaDe(p)) && p.situacao !== 'cancelado');
+    r.pedidos = doPeriodo.length;
+    r.vendido = soma(doPeriodo, baseDe);
+    r.lucro = soma(doPeriodo, p => lucroDe(p, b));
+    r.itens = itens; r.lancamentos = lanc.filter(lDentro); r.doMes = doPeriodo; r.pagamentosLista = pags.filter(x => noPeriodo(x.data));
+    // O periodo e um mes inteiro: a conta chama a linha de "do mes". Qualquer outro, "do periodo".
+    r.ehMes = ini.slice(8) === '01' && fim === isoDe(new Date(Number(ini.slice(0, 4)), Number(ini.slice(5, 7)), 0));
     return r;
+  }
+  // O mes inteiro: o que a lista de Comissoes, o painel lateral e o cadastro do cliente usam.
+  function contaDoMes(b, mes, ano) {
+    return contaDoPeriodo(b, ano + '-' + String(mes).padStart(2, '0') + '-01', isoDe(new Date(ano, mes, 0)));
   }
   // As linhas do resumo, com os textos dos (i) do Olist. Saldo anterior e saldo aparecem sempre; as outras, so com valor.
   const LINHAS_CONTA = [
     { k: 'anterior',   rotulo: 'Saldo anterior',             dica: 'Comissões pendentes do período anterior', sempre: true },
-    { k: 'mes',        rotulo: '(+) Comissões do mês',       dica: 'Comissões a receber no período atual' },
+    { k: 'mes',        rotulo: '(+) Comissões do mês',       rotuloPeriodo: '(+) Comissões do período', dica: 'Comissões a receber no período atual' },
     { k: 'vencidas',   rotulo: '(−) Comissões vencidas',     dica: 'Comissões vencidas ainda não pagas' },
     { k: 'devolucoes', rotulo: '(−) Débitos de devoluções',  dica: 'Débitos de devoluções no período atual' },
     { k: 'creditos',   rotulo: '(+) Outros créditos',        dica: 'Valor adicional a receber' },
@@ -2073,41 +2115,86 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
   }
   // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
-  // mostra o mesmo ao cliente, em "Minhas indicacoes".
+  // mostra o mesmo ao cliente, em "Minhas indicacoes". Cada acontecimento tem o tipo, o valor, o efeito no saldo
+  // (+ entra, − sai, vazio quando e so informacao) e o saldo depois dele: o do acontecimento mais novo e o saldo de hoje.
+  const TIPOS_HIST = { inscricao: 'Inscrição', venda: 'Venda', comissao: 'Comissão', saque: 'Saque', pagamento: 'Pagamento', lancamento: 'Lançamento' };
+  const hrefPedidoC = (id) => '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + id;
+  const hrefContaC = (n) => '../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + n);
   function historicoDe(b) {
     const ev = [];
-    const add = (data, texto, valor) => { if (data) ev.push({ data: data, texto: texto, valor: valor === undefined ? null : Math.abs(valor), ordem: ev.length }); };
+    const add = (data, tipo, texto, valor, efeito, links) => {
+      if (data) ev.push({ data: data, tipo: tipo, texto: texto, valor: valor === undefined ? null : Math.abs(valor),
+                          efeito: efeito === undefined ? null : efeito, links: links || [], ordem: ev.length });
+    };
+    const ped = (p) => [{ trecho: 'pedido nº ' + p.numero, href: hrefPedidoC(p.id) }];
     if (b.tipo === 'cliente') {
       const a = afiliados().filter(x => x.id === b.id)[0] || {};
-      add(isoDe(diaMais(-(a.dias || 0))), a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
-      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'Aprovado no programa de afiliados');
+      add(isoDe(diaMais(-(a.dias || 0))), 'inscricao', a.id > 100 ? 'Incluído à mão como afiliado da ' + LOJAS_C[b.loja] : 'Pediu para ser afiliado da ' + LOJAS_C[b.loja] + ', aceitando as regras da loja');
+      if (a.aprovadoHa !== undefined) add(isoDe(diaMais(-a.aprovadoHa)), 'inscricao', 'Aprovado no programa de afiliados');
       const NOME_EVENTO = { aprovado: 'Aprovado no programa de afiliados', recusado: 'Inscrição recusada', suspenso: 'Suspenso do programa', reativado: 'Reativado no programa' };
-      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
+      (lerLocal('deskAfiliados', {}).eventos || []).filter(e => e.id === b.id).forEach(e => add(e.quando, 'inscricao', NOME_EVENTO[e.evento] + (e.motivo ? ': ' + e.motivo : '')));
     }
-    pedidosDe(b).forEach(p => add(vendaDe(p), (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente + (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p)));
-    comissoesDe(b).forEach(i => { if (i.libera) add(i.libera, 'Comissão liberada: pedido nº ' + i.pedido.numero + i.parte, i.valor); });
+    pedidosDe(b).forEach(p => add(vendaDe(p), 'venda', (p.ind ? 'Venda pelo link: pedido nº ' : 'Venda: pedido nº ') + p.numero + ', ' + p.cliente +
+      (p.situacao === 'cancelado' ? ' (cancelado, sem comissão)' : ''), baseDe(p), undefined, ped(p)));
+    comissoesDe(b).forEach(i => {
+      const nome = 'pedido nº ' + i.pedido.numero + i.parte;
+      if (!i.cancelada && !i.libera) add(vendaDe(i.pedido), 'comissao', 'Comissão a liberar: ' + nome + ', prevista para ' + brDe(i.prevista), i.valor, undefined, ped(i.pedido));
+      if (i.libera) add(i.libera, 'comissao', 'Comissão liberada: ' + nome, i.valor, i.valor, ped(i.pedido));
+      if (i.vencidaDebito) add(i.vencidaDebito, 'comissao', 'Comissão vencida, o cliente não pagou: ' + nome, i.valor, -i.valor, ped(i.pedido));
+    });
     const ajustes = lerLocal('deskComissoesAjustes', {});
     Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
       const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
-      add(aj.quando, (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''), aj.excluida ? undefined : aj.valor);
+      add(aj.quando, 'comissao', (aj.excluida ? 'Comissão excluída à mão: pedido nº ' : 'Comissão ajustada à mão: pedido nº ') + (p ? p.numero : '?') + (aj.motivo ? ' (' + aj.motivo + ')' : ''),
+          aj.excluida ? undefined : aj.valor, undefined, p ? ped(p) : []);
     });
-    lancamentosDe(b).forEach(l => add(l.data, (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor));
+    lancamentosDe(b).forEach(l => add(l.data, 'lancamento', (l.tipo === 'credito' ? 'Crédito lançado: ' : 'Débito lançado: ') + l.descricao, l.valor, l.tipo === 'credito' ? l.valor : -l.valor));
     saques().filter(s => s.chave === b.chave).forEach(s => {
-      add(isoDe(diaMais(-s.dias)), 'Pediu o saque pela vitrine', s.valor);
-      if (s.situacao === 'recusado') add(s.quando, 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''));
+      add(isoDe(diaMais(-s.dias)), 'saque', 'Pediu o saque pela vitrine', s.valor);
+      if (s.situacao === 'recusado') add(s.quando, 'saque', 'Saque recusado' + (s.motivo ? ': ' + s.motivo : ''), s.valor);
+      if (s.situacao === 'aprovado') add(s.quando, 'saque', 'Saque aprovado: virou o pagamento COM-' + s.n, s.valor, undefined, [{ trecho: 'COM-' + s.n, href: hrefContaC(s.n) }]);
     });
     (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
-      add(p.data, 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor);
-      (p.baixas || []).forEach(x => add(x.data, 'COM-' + p.n + ' pago em Contas a Pagar', x.valor));
-      if (p.cancelado) add(p.canceladoEm || p.data, 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') + ': o valor voltou ao saldo', p.valor);
+      const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }];
+      add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor, -p.valor, lk);
+      (p.baixas || []).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') +
+        ': o valor voltou ao saldo' + (p.saque ? '; o cliente pode pedir de novo' : ''), p.valor, p.valor, lk);
     });
-    return ev.sort((x, y) => x.data === y.data ? y.ordem - x.ordem : (x.data < y.data ? 1 : -1));
+    // O saldo depois de cada acontecimento se conta do mais velho para o mais novo; a lista sai do mais novo.
+    const asc = ev.slice().sort((x, y) => x.data === y.data ? x.ordem - y.ordem : (x.data < y.data ? -1 : 1));
+    let saldo = 0;
+    asc.forEach(e => { saldo = Math.round((saldo + (e.efeito || 0)) * 100) / 100; e.saldo = saldo; });
+    return asc.reverse();
   }
-
+  // O filtro do historico e so mes e ano (15/out/2026). O saldo de cada linha continua o de verdade, filtrado ou nao.
+  function filtrarHistorico(ev, mes, ano) {
+    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)));
+  }
+  function anosDoHistorico(ev) {
+    const anos = {};
+    ev.forEach(e => { anos[e.data.slice(0, 4)] = 1; });
+    anos[String(HOJE_C.getFullYear())] = 1;
+    return Object.keys(anos).sort().reverse();
+  }
+  const escC = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // As linhas da tabela do historico: a mesma na conta do afiliado e no cadastro do cliente.
+  function linhasDoHistorico(eventos) {
+    return eventos.map(e => {
+      let txt = escC(e.texto);
+      e.links.forEach(l => { txt = txt.replace(escC(l.trecho), '<a class="com-link" href="' + l.href + '">' + escC(l.trecho) + '</a>'); });
+      return '<tr><td class="col-texto">' + brDe(e.data) + '</td><td class="col-texto"><span class="com-tipo">' + TIPOS_HIST[e.tipo] + '</span></td>' +
+        '<td class="col-texto">' + txt + '</td><td>' + (e.valor === null ? '—' : moedaC(e.valor)) + '</td>' +
+        '<td>' + (e.efeito === null ? '—' : (e.efeito < 0 ? '− ' : '+ ') + moedaC(Math.abs(e.efeito))) + '</td><td>' + moedaC(e.saldo) + '</td></tr>';
+    }).join('');
+  }
   // ===== PROGRAMA DE AFILIADOS (aba Afiliado do cliente, 15/out/2026) =====
+  // O historico (15/out/2026, a pedido do usuario): o cadastro tambem conta o que aconteceu, inclusive o pagamento
+  // excluido. E o mesmo historico da conta em Comissoes, lido de la; o filtro daqui e so mes e ano.
+  let afiHistMes = 'todos', afiHistAno = 'todos';
   // So le: a aprovacao e a conta das comissoes sao de Financas > Comissoes Afiliados, um dono so. O bloco de regras
   // logo acima e o mesmo das telas de Comissoes (teste_comissoes.py compara).
-  (function pintarAfiliado() {
+  function pintarAfiliado() {
     const corpo = document.getElementById('corpoAfiliado');
     if (!corpo) return;
     const meus = REGISTRO ? afiliados().filter(a => a.clienteId === REGISTRO.id) : [];
@@ -2126,7 +2213,33 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<td>' + (b ? '<a class="add-contato-link" href="../financas/pagina-financas-comissoes-detalhe.html?id=' + b.chave + '">Abrir a conta de comissões</a>'
                       : '<a class="add-contato-link" href="../financas/pagina-financas-comissoes.html">Ver em Comissões Afiliados</a>') + '</td></tr>';
       }).join('') + '</tbody></table>';
+    pintarHistoricoAfiliado(meus);
+  }
+  pintarAfiliado();
+
+  function pintarHistoricoAfiliado(meus) {
+    const cab = document.getElementById('afiHistorico'), corpo = document.getElementById('corpoAfiHistorico');
+    cab.style.display = meus.length ? '' : 'none';
+    if (!meus.length) { corpo.innerHTML = ''; return; }
+    corpo.innerHTML = meus.map(a => {
+      const todos = historicoDe(comoBeneficiario(a)), ev = filtrarHistorico(todos, afiHistMes, afiHistAno);
+      return '<div class="afi-loja">' + LOJAS_C[a.loja] + ' · ' + ev.length + (ev.length === 1 ? ' acontecimento' : ' acontecimentos') + (ev.length === todos.length ? '' : ' de ' + todos.length) + '</div>' +
+        (ev.length ? '<table class="contatos-table"><thead><tr><th>Data</th><th>Tipo</th><th>O que aconteceu</th><th>Valor</th><th>Efeito no saldo</th><th>Saldo</th></tr></thead><tbody>' +
+          linhasDoHistorico(ev) + '</tbody></table>' : '<div class="afi-nota">Nada neste mês e ano.</div>');
+    }).join('');
+  }
+  (function ligarFiltroDoHistorico() {
+    const mont = (idMenu, itens) => { document.getElementById(idMenu).innerHTML = itens.map(o => '<div class="dropdown-select-item" data-value="' + o.v + '">' + o.t + '</div>').join(''); };
+    const meus = REGISTRO ? afiliados().filter(a => a.clienteId === REGISTRO.id) : [];
+    const todos = [].concat.apply([], meus.map(a => historicoDe(comoBeneficiario(a))));
+    mont('menuAfiHistMes', [{ v: 'todos', t: 'Todos os meses' }].concat(NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n }))));
+    mont('menuAfiHistAno', [{ v: 'todos', t: 'Todos os anos' }].concat(anosDoHistorico(todos).map(a => ({ v: a, t: a }))));
+    inicializarDropdownSelect(document.getElementById('afiHistMes'), (v) => { afiHistMes = v; pintarAfiliado(); });
+    inicializarDropdownSelect(document.getElementById('afiHistAno'), (v) => { afiHistAno = v; pintarAfiliado(); });
   })();
+  // Voltar pelo navegador traz a pagina da memoria, de antes de cancelar um pagamento: refaz so a aba (sem recarregar,
+  // para nao perder o que estiver sendo digitado no cadastro).
+  window.addEventListener('pageshow', (e) => { if (e.persisted) pintarAfiliado(); });
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [
