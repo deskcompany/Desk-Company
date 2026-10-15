@@ -2071,11 +2071,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           const alturaMenu = menu.offsetHeight;
           menu.style.display = '';
           menu.style.visibility = '';
-          // Rola a pagina o que faltar antes de abrir para cima (15/out/2026): o menu cobria o topo da lista. Painel fixo nao rola.
+          // Abre sempre para baixo (usuario, 15/out/2026): fora de painel fixo, a pagina rola ate o menu aparecer inteiro.
           let _fixo = btn; while (_fixo && getComputedStyle(_fixo).position !== 'fixed') _fixo = _fixo.parentElement;
-          if (!_fixo && window.innerHeight - btn.getBoundingClientRect().bottom < alturaMenu + 12) window.scrollBy({ top: alturaMenu + 12 - (window.innerHeight - btn.getBoundingClientRect().bottom), behavior: 'instant' });
+          if (!_fixo) requestAnimationFrame(() => menu.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+          menu.classList.toggle('abrir-para-cima', !!_fixo && espacoAbaixo < alturaMenu + 12);   // para cima so em painel fixo, que nao rola
         }
         menu.classList.toggle('open');
       });
@@ -2113,11 +2113,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         menu.style.visibility = 'hidden'; menu.style.display = 'block';
         const alturaMenu = menu.offsetHeight;
         menu.style.display = ''; menu.style.visibility = '';
-        // Rola a pagina o que faltar antes de abrir para cima (15/out/2026): o menu cobria o topo da lista. Painel fixo nao rola.
+        // Abre sempre para baixo (usuario, 15/out/2026): fora de painel fixo, a pagina rola ate o menu aparecer inteiro.
         let _fixo = btn; while (_fixo && getComputedStyle(_fixo).position !== 'fixed') _fixo = _fixo.parentElement;
-        if (!_fixo && window.innerHeight - btn.getBoundingClientRect().bottom < alturaMenu + 12) window.scrollBy({ top: alturaMenu + 12 - (window.innerHeight - btn.getBoundingClientRect().bottom), behavior: 'instant' });
+        if (!_fixo) requestAnimationFrame(() => menu.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
         const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-        menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+        menu.classList.toggle('abrir-para-cima', !!_fixo && espacoAbaixo < alturaMenu + 12);   // para cima so em painel fixo, que nao rola
       }
       menu.classList.toggle('open');
     });

@@ -1,12 +1,18 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com os três pontos do teste de Comissões consertados e esperando o usuário.*
+*Atualizado em 15/out/2026, com a segunda rodada do teste de Comissões consertada e esperando o usuário.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**Segunda rodada do teste de Comissões (15/out), consertada** (§14.82). O usuário quer o dropdown sempre para
+baixo, mesmo com a tela baixa: agora ele abre para baixo e a página rola até o menu aparecer inteiro, também em
+lista curta (para cima só dentro de painel lateral ou modal). E cancelar ou excluir a conta de comissão em Contas
+a Pagar não gravava: a conta voltava, refeita a partir do pagamento. Agora cancelar cancela o pagamento em
+Comissões (o valor volta ao saldo e a conta fica cancelada no histórico), reativar desfaz, e excluir tira os dois.
 
 **O usuário começou a testar Comissões Afiliados em 15/out e trouxe três pontos, consertados** (§14.81):
 
@@ -438,7 +444,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e quarenta e sete defeitos injetados de propósito, um por vez; os trezentos e quarenta e sete são pegos. A auditoria do
+e cinquenta e dois defeitos injetados de propósito, um por vez; os trezentos e cinquenta e dois são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 

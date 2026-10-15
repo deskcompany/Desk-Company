@@ -300,7 +300,27 @@ with sync_playwright() as p:
         pg.evaluate("document.querySelector('[data-cancelar-pg=\"1\"]').click()"); confirmar(); fechar_aviso()
         ok(perto(pg.evaluate("saldoDeHoje()"), saldo) and '(−) pagamentos' not in pg.inner_text('#corpoResumo').lower(), 'cancelar o pagamento devolve o valor ao saldo')
         ir('pagina-financas-contas-pagar.html')
-        ok(pg.evaluate("!TITULOS.some(t => t.id === 9001)"), 'e a conta sai de Contas a Pagar')
+        ok(pg.evaluate("(TITULOS.filter(t => t.id === 9001)[0] || {}).cancelado === true"), 'e a conta fica cancelada em Contas a Pagar, no histórico')
+        # Segunda rodada (15/out): cancelar e excluir em Contas a Pagar voltavam ao recarregar. Agora gravam no pagamento.
+        ir(CONTA, '?id=v1')
+        pg.evaluate("abrirPagamento()"); pg.wait_for_timeout(200); pg.evaluate(MUDA, ['#pgValor', '50,00'])
+        pg.evaluate("document.getElementById('btnPgSalvar').click()"); confirmar(); fechar_aviso()
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo - 50), 'um pagamento novo, COM-2, de R$ 50,00')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9002')
+        pg.evaluate("document.getElementById('linkCancelarConta').click()"); confirmar(); fechar_aviso()
+        ir(CONTA, '?id=v1')
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo), 'cancelar a conta em Contas a Pagar cancela o pagamento: o saldo volta, depois de recarregar')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9002')
+        ok(pg.evaluate("conta.cancelado === true"), 'e a conta continua cancelada ao abrir de novo')
+        pg.evaluate("document.getElementById('linkCancelarConta').click()"); confirmar(); fechar_aviso()
+        ir(CONTA, '?id=v1')
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo - 50), 'reativar a conta reativa o pagamento')
+        ir('pagina-financas-contas-pagar.html')
+        pg.evaluate("selTit = [9002]; document.getElementById('linkExcluirSelecionadas').click()"); confirmar(); fechar_aviso()
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("!TITULOS.some(t => t.id === 9002)"), 'excluir a conta na lista some com ela, e ela não volta ao recarregar')
+        ir(CONTA, '?id=v1')
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo), 'e o valor volta ao saldo de comissão')
         fontes = {n: open(c, encoding='utf-8').read() for n, c in ((_os.path.basename(c), c) for c in localiza.caminhos())}
         cp = [fontes[n] for n in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html')]
         bl = lambda t: t[t.index('  // ===== CONTAS DE COMISSAO'):t.index('  TITULOS.forEach(t => {')]

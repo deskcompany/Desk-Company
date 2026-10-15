@@ -1670,11 +1670,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           const alturaMenu = menu.offsetHeight;
           menu.style.display = '';
           menu.style.visibility = '';
-          // Rola a pagina o que faltar antes de abrir para cima (15/out/2026): o menu cobria o topo da lista. Painel fixo nao rola.
+          // Abre sempre para baixo (usuario, 15/out/2026): fora de painel fixo, a pagina rola ate o menu aparecer inteiro.
           let _fixo = btn; while (_fixo && getComputedStyle(_fixo).position !== 'fixed') _fixo = _fixo.parentElement;
-          if (!_fixo && window.innerHeight - btn.getBoundingClientRect().bottom < alturaMenu + 12) window.scrollBy({ top: alturaMenu + 12 - (window.innerHeight - btn.getBoundingClientRect().bottom), behavior: 'instant' });
+          if (!_fixo) requestAnimationFrame(() => menu.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12);
+          menu.classList.toggle('abrir-para-cima', !!_fixo && espacoAbaixo < alturaMenu + 12);   // para cima so em painel fixo, que nao rola
         }
         menu.classList.toggle('open');
       });
@@ -2078,17 +2078,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Realizar pagamento", em Financas > Comissoes Afiliados, grava em deskComissoesPagas; a conta nasce aqui,
   // a pagar, com o vendedor ou o cliente afiliado como favorecido e a categoria de comissoes. Conta 9000 + n,
   // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar. O valor e de Comissoes:
-  // a pagina da conta o trava (`comissao`), e pagamento cancelado la nao gera conta (15/out/2026).
+  // a pagina da conta o trava (`comissao`). Pagamento cancelado vira conta cancelada; excluido nao gera conta.
   (function contasDeComissao() {
     let g = null;
     try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
-    ((g && g.pagamentos) || []).filter(p => !p.cancelado).forEach(p => {
+    ((g && g.pagamentos) || []).filter(p => !p.excluido).forEach(p => {
       const id = 9000 + p.n;
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
       if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor, pago: 0,
-        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: false, comissao: p.chave });
+        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave });
     });
   })();
+  // Cancelar, reativar ou excluir aqui a conta de comissao grava no pagamento de Comissoes (15/out/2026): sem isto
+  // a conta voltava ao recarregar, refeita a partir do pagamento. Excluir some com o pagamento e com a conta.
+  function marcarPagamentoDeComissao(t, mudanca) {
+    if (!t || !t.comissao) return;
+    try {
+      const g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null');
+      const p = g && (g.pagamentos || []).filter(x => 9000 + x.n === t.id)[0];
+      if (p) { Object.assign(p, mudanca); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }
+    } catch (e) { /* armazenamento bloqueado: a mudanca vale so nesta aba */ }
+  }
 
   TITULOS.forEach(t => {
     if (!t.vencIso) t.vencIso = iso(dAtras(t.venc));
@@ -2629,7 +2639,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (voltando ? 'Elas voltam para em aberto e para o total a pagar.' : 'Elas saem do a pagar e ficam no histórico.') +
       (fora > 0 ? ' ' + fora + ' com pagamento fica' + (fora === 1 ? '' : 'm') + ' de fora — estorne antes.' : ''),
       () => {
-        podem.forEach(id => { titDe(id).cancelado = !voltando; });
+        podem.forEach(id => { titDe(id).cancelado = !voltando; marcarPagamentoDeComissao(titDe(id), { cancelado: !voltando }); });
         selTit = [];
         render();
       });
@@ -2645,6 +2655,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       (fora > 0 ? ' ' + fora + ' já ' + (fora === 1 ? 'tem pagamento e fica' : 'têm pagamento e ficam') + ' como ' + (fora === 1 ? 'está' : 'estão') + ' — apagar conta paga deixaria o lançamento do Caixa órfão.' : ''),
       podem.length, () => {
         podem.forEach(id => {
+          marcarPagamentoDeComissao(titDe(id), { cancelado: true, excluido: true });
           const i = TITULOS.findIndex(t => t.id === id);
           if (i !== -1) TITULOS.splice(i, 1);
         });

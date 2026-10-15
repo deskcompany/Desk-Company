@@ -243,7 +243,7 @@ Vendedores é o primeiro módulo do sistema em que "Excluir" **não remove o reg
 
 Substitui **todo** `<select>` nativo do sistema, sem exceção. Estrutura: botão (`.dropdown-select-btn.form-style` em formulário, `.pill` em toolbar) + painel de opções (`.dropdown-select-menu`).
 
-- **Abertura inteligente**: mede o espaço disponível abaixo antes de abrir; se não couber, adiciona `.abrir-para-cima` (abre pra cima). Regra vale pra qualquer dropdown novo, sem exceção.
+- **Abre sempre para baixo** (usuário, 15/out/2026, §14.82): fora de painel fixo, a página rola até o menu aparecer inteiro; `.abrir-para-cima` só dentro de painel fixo (painel lateral, modal), que não rola com a página, quando não cabe embaixo. Regra vale pra qualquer dropdown novo, sem exceção.
 - **`max-height:240px; overflow-y:auto;` é obrigatório em `.dropdown-select-menu`, sem exceção.** Bug real (Lojas Desk detalhe): sem esse limite, uma lista longa (ex: 13 meses) cresce sem teto e não cabe nem abrindo pra baixo nem pra cima — a lógica de "abrir pra cima" fica parecendo quebrada, mas o problema de verdade é a altura ilimitada. Em setembro/2026 essa regra foi varrida e aplicada em **todas** as telas que tinham o componente e ainda estavam sem ela (Clientes, Clientes-detalhe, Fornecedores, Fornecedores-detalhe, Produtos-detalhe e o `pagina-molde-referencia.html`). A auditoria automatizada (seção 4B) agora reprova qualquer `.dropdown-select-menu` sem `max-height`.
 - **Fechamento mútuo**: clicar em qualquer dropdown fecha todos os outros abertos na mesma página — implementado fechando todo `.dropdown-select-menu.open` ao abrir um novo. **Atenção ao integrar um dropdown "diferente" (ex: multi-seleção) — se ele usar uma classe de menu própria em vez de `.dropdown-select-menu`, não vai fechar nem ser fechado pelos outros.** (Bug real que já aconteceu com o campo Loja Desk quando ele ainda era multi-seleção com classe própria — corrigido convertendo pra usar exatamente o mesmo componente.)
 - **Dropdowns em cascata** (um filtra as opções do próximo, ex: Loja → Categoria → Departamento → Seção): o dropdown "filho" nasce travado (`disabled`, texto tipo "Selecione X primeiro") até o "pai" ser escolhido; trocar o pai reseta todos os filhos em cascata.
@@ -3636,3 +3636,23 @@ O usuário começou a testar Comissões Afiliados e trouxe três pontos.
 **Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` (seção 2) mede o menu no pé da janela e
 procura a correção em todo dropdown; `teste_comissoes.py` (seção 6) cobre a conta travada e o cancelar.
 Sete defeitos injetados, um por vez, e os sete pegos.
+
+## 14.82 Dropdown sempre para baixo, e a conta de comissão que voltava (15/out/2026)
+
+Segunda rodada do teste de Comissões Afiliados.
+
+- **"Quero que o filtro fique para baixo, independente se a tela tá mais baixa ou não."** A primeira
+  correção (§14.81) rolava a página o que ela tinha para rolar; numa lista curta não havia o que rolar, e o
+  menu ainda subia. A regra mudou: **todo dropdown abre para baixo.** Fora de painel fixo, o menu aberto já
+  estica a página, e ela rola até ele aparecer inteiro. `.abrir-para-cima` ficou só para dropdown dentro de
+  painel fixo (painel lateral, modal), que não rola com a página e cortaria o menu. Nas 81 telas, nos 106
+  dropdowns, e nas duas skills (o não-negociável, o portão de QA e o código de referência do componente).
+- **Cancelar ou excluir a conta de comissão em Contas a Pagar não gravava.** No protótipo, Contas a Pagar
+  só muda a memória da página, e a conta de comissão é refeita a partir do pagamento ao recarregar. Agora os
+  quatro botões (cancelar e excluir, na página da conta e na seleção da lista) gravam no pagamento de
+  Comissões: cancelar cancela o pagamento, o valor volta ao saldo e a conta fica cancelada no histórico;
+  reativar desfaz; excluir tira o pagamento e a conta. Cancelar pelo lado de Comissões dá o mesmo resultado.
+
+**Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` (seção 2) mede o menu também em lista curta;
+`teste_comissoes.py` (seção 6) cancela, reativa e exclui em Contas a Pagar e confere, depois de recarregar,
+o saldo em Comissões. Cinco defeitos injetados, um por vez, e os cinco pegos.
