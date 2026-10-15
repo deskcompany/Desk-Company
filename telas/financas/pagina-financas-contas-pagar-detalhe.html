@@ -2527,6 +2527,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (p) { Object.assign(p, mudanca); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }
     } catch (e) { /* armazenamento bloqueado: a mudanca vale so nesta aba */ }
   }
+  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega (15/out/2026).
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
 
   TITULOS.forEach(t => {
     if (!t.vencIso) t.vencIso = iso(dAtras(t.venc));

@@ -13,6 +13,9 @@ baixo, mesmo com a tela baixa: agora ele abre para baixo e a página rola até o
 lista curta (para cima só dentro de painel lateral ou modal). E cancelar ou excluir a conta de comissão em Contas
 a Pagar não gravava: a conta voltava, refeita a partir do pagamento. Agora cancelar cancela o pagamento em
 Comissões (o valor volta ao saldo e a conta fica cancelada no histórico), reativar desfaz, e excluir tira os dois.
+Ele testou e a conta cancelada não apareceu em "canceladas", embora o valor tivesse voltado: o Voltar do
+navegador trazia a lista da memória, de antes do cancelamento. Contas a Pagar e Comissões passaram a recarregar
+quando voltam da memória (§14.83).
 
 **O usuário começou a testar Comissões Afiliados em 15/out e trouxe três pontos, consertados** (§14.81):
 
@@ -444,7 +447,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e cinquenta e dois defeitos injetados de propósito, um por vez; os trezentos e cinquenta e dois são pegos. A auditoria do
+e cinquenta e três defeitos injetados de propósito, um por vez; os trezentos e cinquenta e três são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 

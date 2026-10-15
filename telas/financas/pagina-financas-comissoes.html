@@ -2004,6 +2004,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 1, chave: 'v1', tipo: 'credito', valor: 150.00, dias: 6, mesesAtras: 0, descricao: 'Prêmio da campanha do Dia das Crianças' }
   ];
 
+  // Voltar pelo navegador traz a pagina da memoria, como estava antes de cancelar ou pagar: recarrega (15/out/2026).
+  window.addEventListener('pageshow', (e) => { if (e.persisted) location.reload(); });
   function lerLocal(chave, padrao) { try { const b = localStorage.getItem(chave); return b ? JSON.parse(b) : padrao; } catch (e) { return padrao; } }
   function gravarLocal(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function moedaC(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }

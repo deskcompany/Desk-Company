@@ -3656,3 +3656,14 @@ Segunda rodada do teste de Comissões Afiliados.
 **Provado nos dois sentidos, numa cópia.** `teste_afiliados.py` (seção 2) mede o menu também em lista curta;
 `teste_comissoes.py` (seção 6) cancela, reativa e exclui em Contas a Pagar e confere, depois de recarregar,
 o saldo em Comissões. Cinco defeitos injetados, um por vez, e os cinco pegos.
+
+## 14.83 O Voltar do navegador e a tela que mostra dado de outra tela (15/out/2026)
+
+O usuário cancelou a conta de comissão em Contas a Pagar e ela não apareceu em "canceladas", embora o valor
+tivesse voltado ao saldo em Comissões. Testado do zero, os dois caminhos (a página da conta e a seleção da lista)
+põem a conta em "canceladas". A diferença é o Voltar do navegador: ele traz a página da memória, como estava antes
+do cancelamento, sem rodar a tela de novo. Comissões, aberta do zero, já mostrava o certo.
+
+**Regra que fica:** tela que monta a lista com o que outra tela grava no navegador (aqui, os pagamentos de comissão)
+recarrega quando volta da memória (`pageshow` com `persisted`). Vale para Contas a Pagar (lista e página da conta)
+e para as duas telas de Comissões. A seção 6 de `teste_comissoes.py` simula a volta e confere a recarga nas quatro.

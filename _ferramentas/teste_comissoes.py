@@ -321,6 +321,14 @@ with sync_playwright() as p:
         ok(pg.evaluate("!TITULOS.some(t => t.id === 9002)"), 'excluir a conta na lista some com ela, e ela não volta ao recarregar')
         ir(CONTA, '?id=v1')
         ok(perto(pg.evaluate("saldoDeHoje()"), saldo), 'e o valor volta ao saldo de comissão')
+        # 15/out: cancelada pela pagina da conta, ela nao aparecia em "canceladas": o Voltar do navegador trazia a lista
+        # da memoria. As telas recarregam quando voltam da memoria (o navegador marca o evento como `persisted`).
+        recarregou = []
+        for tela in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html', LISTA, CONTA):
+            ir(tela)
+            pg.evaluate("window.__daMemoria = 1; window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))"); pg.wait_for_timeout(900)
+            recarregou.append(pg.evaluate("typeof window.__daMemoria === 'undefined'"))
+        ok(all(recarregou), 'voltar pelo navegador recarrega Contas a Pagar e Comissões, em vez de mostrar a conta como estava: %s' % recarregou)
         fontes = {n: open(c, encoding='utf-8').read() for n, c in ((_os.path.basename(c), c) for c in localiza.caminhos())}
         cp = [fontes[n] for n in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html')]
         bl = lambda t: t[t.index('  // ===== CONTAS DE COMISSAO'):t.index('  TITULOS.forEach(t => {')]
