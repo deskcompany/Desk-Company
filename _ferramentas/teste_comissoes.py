@@ -12,7 +12,8 @@
 #       suspender; o endereco sem id;
 #   [4] Espelhos e ligacoes: pedidos, vendedores, clientes e percentuais iguais as telas donas; o mesmo
 #       valor de comissao na pagina do pedido; menu, catalogo de senha e o bloco comum das duas telas;
-#   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo.
+#   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo;
+#   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
 import os as _os, glob as _g, math, sys
@@ -264,6 +265,38 @@ with sync_playwright() as p:
         ok('6,5%' in pg.inner_text('#corpoTabela tr[data-chave="a1"]'), 'a lista de Comissões passa a mostrar 6,5% para o afiliado da Desk Brands')
         ir(PV_D, '?id=4'); pg.evaluate("document.querySelector('.tab-item[data-tab=\"comissoes\"]').click()"); pg.wait_for_timeout(200)
         ok('5,00%' in pg.inner_text('#resumoComissao'), 'e o pedido já feito continua com o percentual do dia dele (5%)')
+        limpar()
+
+    if secao(6, 'Pagamento: a conta nasce em Contas a Pagar'):
+        limpar(); ir(CONTA, '?id=v1')
+        saldo = pg.evaluate("saldoDeHoje()")
+        ok(saldo > 100, 'a Marina tem saldo para pagar hoje: %s' % saldo)
+        pg.evaluate("document.querySelector('#menuMaisAcoes [data-acao=\"pagar\"]').click()"); pg.wait_for_timeout(250)
+        ok(pg.input_value('#pgValor') == ('%.2f' % saldo).replace('.', ',') and pg.input_value('#pgVenc') == HOJE.strftime('%d/%m/%Y'), 'o painel abre com o saldo de hoje e vencimento hoje')
+        pg.evaluate(MUDA, ['#pgValor', ('%.2f' % (saldo + 10)).replace('.', ',')]); pg.evaluate("document.getElementById('btnPgSalvar').click()"); pg.wait_for_timeout(200)
+        ok(pg.evaluate("document.getElementById('erroPgValor').classList.contains('show')") and 'Não passa do saldo' in pg.inner_text('#erroPgValor') and not modal_aberto(),
+           'pagar mais que o saldo não passa, e diz o saldo')
+        pg.evaluate(MUDA, ['#pgValor', '100,00']); pg.evaluate("document.getElementById('btnPgSalvar').click()")
+        pediu = confirmar(); fechar_aviso()
+        ok(pediu, 'realizar pagamento pede senha (Confirmações com senha)')
+        ok(perto(pg.evaluate("saldoDeHoje()"), saldo - 100) and '(−) pagamentos' in pg.inner_text('#corpoResumo').lower(), 'o saldo desce R$ 100,00 na hora, e o resumo mostra o pagamento')
+        href = pg.get_attribute('#corpoPagtos a', 'href')
+        ok(href == '../financas/pagina-financas-contas-pagar-detalhe.html?id=9001', 'o pagamento leva à conta a pagar: %s' % href)
+        ir('pagina-financas-contas-pagar.html')
+        conta = pg.evaluate("(() => { const t = TITULOS.filter(x => x.id === 9001)[0]; return t ? [fornDe(t.fornId).nome, t.valor, t.doc, catDe(t.catId).nome, t.pago, t.vencIso] : null; })()")
+        ok(conta == ['Marina Costa', 100, 'COM-1', 'Comissões de vendedores e afiliados', 0, HOJE.isoformat()],
+           'em Contas a Pagar, a COM-1 está a pagar, para a Marina, na categoria de comissões, com o vencimento escolhido: %s' % conta)
+        ir('pagina-financas-contas-pagar.html', '?busca=Marina Costa')
+        ok('COM-1' in pg.inner_text('.main tbody') or 'Marina Costa' in pg.inner_text('.main tbody'), 'e aparece na lista de Contas a Pagar')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        ok('Marina Costa' in pg.inner_text('.main') and '100,00' in pg.inner_text('.main'), 'a página da conta abre a COM-1, com a Marina e o valor')
+        fontes = {n: open(c, encoding='utf-8').read() for n, c in ((_os.path.basename(c), c) for c in localiza.caminhos())}
+        cp = [fontes[n] for n in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html')]
+        bl = lambda t: t[t.index('  // ===== CONTAS DE COMISSAO'):t.index('  TITULOS.forEach(t => {')]
+        ok(bl(cp[0]) == bl(cp[1]), 'o bloco que lê os pagamentos é o mesmo na lista e na página de Contas a Pagar')
+        com_cat = [n for n, t in fontes.items() if "'Comissões de vendedores e afiliados'" in t and 'id:25,' in t]
+        ok(len(com_cat) == 8 and 'pagina-configuracoes-categorias-financeiras.html' in com_cat, 'a categoria nova está em Configurações e nas 7 telas que repetem as categorias: %d' % len(com_cat))
+        ok(len([n for n, t in fontes.items() if "chave:'comissaoPaga'" in t]) == 15, 'e "Realizar pagamento de comissão" está no catálogo de senha das 15 telas')
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

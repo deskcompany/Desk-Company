@@ -102,7 +102,7 @@
 | ✅ | Contas a Receber *(+ página da conta)* |
 | ✅ | Contas a Pagar *(+ página da conta)* |
 | ✅ | Caixa e Bancos *(+ lançamento)* |
-| ✅ | Comissões Afiliados *(+ conta do afiliado; 14/out: uma linha por vendedor ou cliente afiliado, com vendido, comissão do mês, lucro, a liberar e saldo; inscrições da vitrine aprovadas aqui; percentual por loja em Configurações; a conta nas linhas do Olist. O pagamento por Contas a Pagar é a entrega 2b)* |
+| ✅ | Comissões Afiliados *(+ conta do afiliado; 14/out: uma linha por vendedor ou cliente afiliado, com vendido, comissão do mês, lucro, a liberar e saldo; inscrições da vitrine aprovadas aqui; percentual por loja em Configurações; a conta nas linhas do Olist; 15/out: realizar pagamento faz nascer a conta em Contas a Pagar)* |
 | ❌ | Relatórios Finanças |
 
 ## 🔧 Operacional — módulo apagado em 08/out/2026

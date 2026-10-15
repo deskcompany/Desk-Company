@@ -1572,6 +1572,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'afiliadoAprova',     nome:'Aprovar, recusar, incluir ou suspender afiliado',      onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:false },
     { chave:'comissaoAjusta',     nome:'Editar ou excluir comissão de afiliado ou vendedor',   onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'comissaoLanca',      nome:'Lançar crédito ou débito na conta de comissão',        onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoPaga',       nome:'Realizar pagamento de comissão',                       onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2081,24 +2082,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).concat(g.novos || []).filter(l => l.chave === b.chave && (g.removidos || []).indexOf(String(l.id)) < 0);
   }
 
+  // "Realizar pagamento" grava aqui; Financas > Contas a Pagar le a mesma chave e faz a conta nascer la, com o
+  // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
+  function pagamentosDe(b) {
+    return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave);
+  }
+
   // A conta do mes, nas linhas do Olist. O saldo anterior e tudo o que liberou, entrou e saiu antes do mes.
   function contaDoMes(b, mes, ano) {
     const ini = ano + '-' + String(mes).padStart(2, '0') + '-01', fim = isoDe(new Date(ano, mes, 0));
     const noMes = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
     const refMes = (l) => ano * 12 + mes - (l.ano * 12 + l.mes);   // 0 = este mes, positivo = antes
     const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
-    const itens = comissoesDe(b), lanc = lancamentosDe(b);
+    const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
     const lib = itens.filter(i => !i.cancelada && i.libera);
     const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
     const r = {
       anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
-                soma(lanc.filter(l => refMes(l) > 0), sinal),
+                soma(lanc.filter(l => refMes(l) > 0), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
       mes: soma(lib.filter(i => noMes(i.libera)), i => i.valor),
       vencidas: soma(itens.filter(i => noMes(i.vencidaDebito)), i => i.valor),
       devolucoes: 0,
       creditos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'credito'), l => l.valor),
       debitos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'debito'), l => l.valor),
-      pagamentos: 0,
+      pagamentos: soma(pags.filter(x => noMes(x.data)), x => x.valor),
       pendente: soma(itens.filter(i => !i.cancelada && !i.libera), i => i.valor)
     };
     r.saldo = r.anterior + r.mes - r.vencidas - r.devolucoes + r.creditos - r.debitos - r.pagamentos;
@@ -2106,7 +2113,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     r.pedidos = doMes.length;
     r.vendido = soma(doMes, baseDe);
     r.lucro = soma(doMes, p => lucroDe(p, b));
-    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes;
+    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes; r.pagamentosLista = pags.filter(x => noMes(x.data));
     return r;
   }
   // As linhas do resumo, com os textos dos (i) do Olist. Saldo anterior e saldo aparecem sempre; as outras, so com valor.

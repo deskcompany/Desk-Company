@@ -3594,3 +3594,21 @@ pagamento no resumo. **Fica para o vale-compra:** pagar a comissão como crédit
 **Provado nos dois sentidos, numa cópia.** `teste_comissoes.py` refaz a conta em Python a partir dos
 pedidos e compara cada linha; tem cinco seções. Vinte e três defeitos injetados, um por vez, e os
 vinte e três pegos.
+
+## 14.80 Comissões Afiliados: o pagamento vira conta a pagar (15/out/2026)
+
+Decidido na barganha de 14/out: pagar a comissão gera conta a pagar, e o saldo desce na hora.
+
+- **Realizar pagamento**, no "Mais ações" da conta do afiliado, abre com o saldo de hoje (o pagamento é
+  feito hoje, qualquer que seja o mês aberto na tela) e vencimento hoje. Dá para pagar menos, nunca
+  mais, e o vencimento é de hoje em diante. Pede senha (Confirmações com senha, ação "Realizar
+  pagamento de comissão"). Feito, o resumo ganha "(−) Pagamentos", e o bloco Pagamentos leva à conta.
+- **A conta nasce em Contas a Pagar**: um bloco igual na lista e na página da conta lê o pagamento e
+  cria a conta 9000 + n, documento COM-n, a pagar, com o vendedor ou o cliente afiliado como favorecido
+  (Contas a Pagar só conhecia fornecedor) e a categoria nova "Comissões de vendedores e afiliados"
+  (despesa variável), que entrou em Configurações e nas 7 telas que repetem as categorias.
+- **Fica para depois:** pagar como crédito na loja (o vale-compra) e o saldo voltar quando a conta for
+  cancelada em Contas a Pagar, que no protótipo não guarda o cancelamento de uma tela para a outra.
+
+**Provado nos dois sentidos, numa cópia.** A seção 6 de `teste_comissoes.py` cobre o pagamento. Oito
+defeitos injetados, um por vez, e os oito pegos.

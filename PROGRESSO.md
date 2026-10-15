@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com Comissões Afiliados (entrega 2a) feita e esperando o teste do usuário.*
+*Atualizado em 15/out/2026, com Comissões Afiliados inteiro (entregas 2a e 2b) esperando o teste do usuário.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,13 +8,15 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Comissões Afiliados, entrega 2a: feita e esperando o teste do usuário** (§14.79). Duas telas novas
+**Comissões Afiliados, entregas 2a e 2b: feitas e esperando o teste do usuário** (§14.79 e §14.80). Duas telas novas
 em Finanças: a lista, com uma linha por quem recebe comissão (vendedor do cadastro ou cliente aprovado
 como afiliado de uma loja), e a conta do afiliado, nas linhas do Olist. O cliente pede pela vitrine,
 aceitando as regras da loja; a aprovação é no quadro "Inscrições aguardando", e há "Incluir afiliado"
 para convite. O percentual é por loja, em Configurações → Cadastro de clientes (Programa de
 afiliados). O vendedor não gera link: vende pelo ERP. Editar, excluir e lançar comissão à mão pedem
-motivo e senha. **A entrega 2b** é o "realizar pagamento", com a conta nascendo em Contas a Pagar.
+motivo e senha. **Na 2b**, "realizar pagamento" na conta do afiliado: não passa do saldo de hoje,
+pede senha, desce o saldo na hora e faz nascer a conta em Contas a Pagar, com o vendedor ou o cliente
+afiliado como favorecido e a categoria nova "Comissões de vendedores e afiliados".
 
 **Vendas Afiliados, entrega 1: testada pelo usuário em 14/out** (§14.78). Ele achou um defeito, a
 barra de filtros quebrando de linha ao escolher a origem, que está consertado e espera o teste dele. A venda por link é
@@ -403,6 +405,9 @@ de testar a conferência:
   MDF-e e a devolução. "Bloquear novo pedido de cliente em atraso" está em Configurações do
   cadastro de clientes. Os 22 parâmetros continuam tendo tela, cada um numa só, e salvar numa tela
   não mexe no que é da outra.
+- **Comissões Afiliados, entrega 2b** (§14.80). Realizar pagamento: a conta nasce em Contas a Pagar
+  (lista e página da conta leem o mesmo bloco), a categoria nova está nas 8 telas que repetem as
+  categorias, e a ação entrou no catálogo de senha.
 - **Comissões Afiliados, entrega 2a** (§14.79). A lista e a conta do afiliado, as inscrições, o
   percentual por loja em Configurações e as ações com senha. Cada comissão é arredondada em centavos
   antes de somar.
@@ -423,7 +428,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e trinta e dois defeitos injetados de propósito, um por vez; os trezentos e trinta e dois são pegos. A auditoria do
+e quarenta defeitos injetados de propósito, um por vez; os trezentos e quarenta são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -435,12 +440,9 @@ constante.
 
 Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
 
-1. **Comissões Afiliados, a entrega 2b**: "realizar pagamento" na conta do afiliado, com a conta
-   nascendo em Contas a Pagar (favorecido vendedor ou cliente afiliado, categoria de comissões) e o
-   pagamento aparecendo no resumo.
-2. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
+1. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
    vale-troca reservado nas telas prontas e o pagamento de comissão como crédito.
-3. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
+2. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
    Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
    pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
@@ -474,8 +476,8 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Duas pendências, que são dele:
 
-1. **O teste de Comissões Afiliados (entrega 2a)**: a lista, as inscrições, a conta do afiliado e o
-   Programa de afiliados em Configurações.
+1. **O teste de Comissões Afiliados (entregas 2a e 2b)**: a lista, as inscrições, a conta do
+   afiliado, o Programa de afiliados em Configurações e o pagamento chegando em Contas a Pagar.
 2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia

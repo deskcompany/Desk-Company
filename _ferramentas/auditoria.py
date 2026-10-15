@@ -216,11 +216,16 @@ def audita(caminho):
              'deskMinMax', 'deskOrdensGeradas',
              'deskMotivosPerda',   # 13/out: o cadastro de motivos de perda, que a baixa de Tratamento de Perdas le
              'deskTransferencias',   # 12/out: o que a conferencia da chegada apurou da transferencia; a lista, a fila e a contagem leem
-             'deskSeparacao'}   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
+             'deskSeparacao',   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
+             # 14/out: Comissoes Afiliados. Aprovar, recusar, incluir e suspender afiliado; ajustar comissao; lancar
+             # credito ou debito; e o pagamento, que Contas a Pagar le para fazer nascer a conta.
+             'deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas'}
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a
     # chave escrita direto na chamada era vista, e a de constante passava sem registro.
     chaves_ls |= set(re.findall(r"const CHAVE\w* = '(desk[A-Za-z]+)'", txt))
+    # E num ajudante (lerLocal / gravarLocal, de Comissoes Afiliados): ate 15/out ele tambem passava sem registro.
+    chaves_ls |= set(re.findall(r"(?:lerLocal|gravarLocal)\('(desk[A-Za-z]+)'", txt))
     if chaves_ls - OK_LS:
         probs.append('8 chave de localStorage inesperada: ' + ', '.join(chaves_ls - OK_LS))
 

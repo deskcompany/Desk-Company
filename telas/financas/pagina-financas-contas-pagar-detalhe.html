@@ -2372,6 +2372,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
     { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
@@ -2496,6 +2497,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         grupo: grupo, diaVencimento: ALUGUEL.diaVencimento, cancelado: false
       });
     }
+  })();
+
+  // ===== CONTAS DE COMISSAO (bloco comum da lista e da pagina da conta, 14/out/2026) =====
+  // "Realizar pagamento", em Financas > Comissoes Afiliados, grava em deskComissoesPagas; a conta nasce aqui,
+  // a pagar, com o vendedor ou o cliente afiliado como favorecido e a categoria de comissoes. Conta 9000 + n,
+  // documento COM-n. No sistema de producao e a mesma tabela de contas a pagar.
+  (function contasDeComissao() {
+    let g = null;
+    try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
+    ((g && g.pagamentos) || []).forEach(p => {
+      const id = 9000 + p.n;
+      if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
+      if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor, pago: 0,
+        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: false });
+    });
   })();
 
   TITULOS.forEach(t => {

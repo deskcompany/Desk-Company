@@ -1101,6 +1101,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="dropdown-select-menu" style="right:0; left:auto; min-width:280px; white-space:nowrap;" id="menuMaisItens">
+          <div class="dropdown-select-item" data-acao="pagar">Realizar pagamento</div>
           <div class="dropdown-select-item" data-acao="lancar">Incluir lançamento</div>
           <div class="dropdown-select-item" data-acao="suspender" id="itemSuspender">Suspender do programa</div>
           <div class="dropdown-select-item" data-acao="cadastro" id="itemCadastro">Abrir o cadastro</div>
@@ -1206,6 +1207,68 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
     <div class="field-hint" id="semLanc" style="display:none;">Nenhum lançamento neste mês.</div>
   </div>
+
+  <div class="card com-bloco">
+    <div class="com-titulo">Pagamentos</div>
+    <div class="com-sub">Cada pagamento vira uma conta em Contas a Pagar, com esta pessoa como favorecida, e o saldo de comissão desce no dia em que é feito.</div>
+    <div class="estoque-table-wrap" id="wrapPagtos">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto">Data</th>
+            <th>Valor</th>
+            <th class="col-texto">Forma</th>
+            <th class="col-texto">Vencimento</th>
+            <th class="col-texto">Conta a pagar</th>
+          </tr>
+        </thead>
+        <tbody id="corpoPagtos"></tbody>
+      </table>
+    </div>
+    <div class="field-hint" id="semPagtos" style="display:none;">Nenhum pagamento neste mês.</div>
+  </div>
+
+<!-- PAINEL LATERAL: realizar pagamento. Nasce a conta em Contas a Pagar; o saldo desce no dia. -->
+<div class="drawer-backdrop" id="pgBackdrop"></div>
+<div class="event-drawer" id="pgDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Realizar pagamento</div>
+    <div class="drawer-close" id="pgClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="field-hint" id="pgResumo" style="margin-bottom:14px;">—</div>
+  <div class="form-row">
+    <div class="form-field" id="campoPgValor">
+      <label>Valor</label>
+      <input type="text" id="pgValor" placeholder="0,00">
+      <div class="field-error-msg" id="erroPgValor">Valor maior que zero.</div>
+    </div>
+    <div class="form-field" id="campoPgVenc">
+      <label>Vencimento</label>
+      <input type="text" id="pgVenc" placeholder="dd/mm/aaaa">
+      <div class="field-error-msg" id="erroPgVenc">Data no formato dd/mm/aaaa, de hoje em diante.</div>
+    </div>
+  </div>
+  <div class="form-field">
+    <label>Forma de pagamento</label>
+    <div class="dropdown-select" id="pgForma" data-value="Pix">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Pix</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="Pix">Pix</div>
+        <div class="dropdown-select-item" data-value="Transferência">Transferência</div>
+        <div class="dropdown-select-item" data-value="Boleto">Boleto</div>
+        <div class="dropdown-select-item" data-value="Dinheiro">Dinheiro</div>
+      </div>
+    </div>
+    <div class="field-hint">Pagar como crédito na loja entra com o vale-compra, que ainda não existe.</div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnPgSalvar">Realizar pagamento</button>
+    <div class="drawer-link" id="pgCancelar">Cancelar</div>
+  </div>
+</div>
 
 <!-- PAINEL LATERAL: editar ou excluir uma comissao pendente. Motivo obrigatorio; a senha vem do catalogo. -->
 <div class="drawer-backdrop" id="ajBackdrop"></div>
@@ -1559,6 +1622,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'afiliadoAprova',     nome:'Aprovar, recusar, incluir ou suspender afiliado',      onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:false },
     { chave:'comissaoAjusta',     nome:'Editar ou excluir comissão de afiliado ou vendedor',   onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'comissaoLanca',      nome:'Lançar crédito ou débito na conta de comissão',        onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoPaga',       nome:'Realizar pagamento de comissão',                       onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2068,24 +2132,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).concat(g.novos || []).filter(l => l.chave === b.chave && (g.removidos || []).indexOf(String(l.id)) < 0);
   }
 
+  // "Realizar pagamento" grava aqui; Financas > Contas a Pagar le a mesma chave e faz a conta nascer la, com o
+  // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
+  function pagamentosDe(b) {
+    return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave);
+  }
+
   // A conta do mes, nas linhas do Olist. O saldo anterior e tudo o que liberou, entrou e saiu antes do mes.
   function contaDoMes(b, mes, ano) {
     const ini = ano + '-' + String(mes).padStart(2, '0') + '-01', fim = isoDe(new Date(ano, mes, 0));
     const noMes = (iso) => !!iso && iso >= ini && iso <= fim, antes = (iso) => !!iso && iso < ini;
     const refMes = (l) => ano * 12 + mes - (l.ano * 12 + l.mes);   // 0 = este mes, positivo = antes
     const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
-    const itens = comissoesDe(b), lanc = lancamentosDe(b);
+    const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
     const lib = itens.filter(i => !i.cancelada && i.libera);
     const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
     const r = {
       anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
-                soma(lanc.filter(l => refMes(l) > 0), sinal),
+                soma(lanc.filter(l => refMes(l) > 0), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
       mes: soma(lib.filter(i => noMes(i.libera)), i => i.valor),
       vencidas: soma(itens.filter(i => noMes(i.vencidaDebito)), i => i.valor),
       devolucoes: 0,
       creditos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'credito'), l => l.valor),
       debitos: soma(lanc.filter(l => refMes(l) === 0 && l.tipo === 'debito'), l => l.valor),
-      pagamentos: 0,
+      pagamentos: soma(pags.filter(x => noMes(x.data)), x => x.valor),
       pendente: soma(itens.filter(i => !i.cancelada && !i.libera), i => i.valor)
     };
     r.saldo = r.anterior + r.mes - r.vencidas - r.devolucoes + r.creditos - r.debitos - r.pagamentos;
@@ -2093,7 +2163,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     r.pedidos = doMes.length;
     r.vendido = soma(doMes, baseDe);
     r.lucro = soma(doMes, p => lucroDe(p, b));
-    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes;
+    r.itens = itens; r.lancamentos = lanc.filter(l => refMes(l) === 0); r.doMes = doMes; r.pagamentosLista = pags.filter(x => noMes(x.data));
     return r;
   }
   // As linhas do resumo, com os textos dos (i) do Olist. Saldo anterior e saldo aparecem sempre; as outras, so com valor.
@@ -2293,7 +2363,48 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('[data-remover]').forEach(el => el.addEventListener('click', () => removerLancamento(el.getAttribute('data-remover'))));
     document.getElementById('wrapLanc').style.display = r.lancamentos.length ? '' : 'none';
     document.getElementById('semLanc').style.display = r.lancamentos.length ? 'none' : '';
+
+    html('corpoPagtos', r.pagamentosLista.map(x => '<tr><td class="col-texto">' + brDe(x.data) + '</td><td>' + moedaC(x.valor) + '</td><td class="col-texto">' + esc(x.forma) + '</td>' +
+      '<td class="col-texto">' + brDe(x.venc) + '</td><td class="col-texto"><a class="com-link" href="../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + x.n) + '">COM-' + x.n + '</a></td></tr>').join(''));
+    document.getElementById('wrapPagtos').style.display = r.pagamentosLista.length ? '' : 'none';
+    document.getElementById('semPagtos').style.display = r.pagamentosLista.length ? 'none' : '';
   }
+
+  // ===== REALIZAR PAGAMENTO =====
+  // O pagamento e feito hoje, entao vale o saldo de hoje, qualquer que seja o mes aberto na tela.
+  const saldoDeHoje = () => contaDoMes(B, HOJE_C.getMonth() + 1, HOJE_C.getFullYear()).saldo;
+  function abrirPagamento() {
+    const saldo = saldoDeHoje();
+    if (saldo <= 0) { avisar('O saldo de comissão de ' + B.nome + ' hoje é ' + moedaC(saldo) + ': não há o que pagar.'); return; }
+    texto('pgResumo', 'Saldo a pagar hoje: ' + moedaC(saldo) + '. Dá para pagar menos, nunca mais.' + (B.tipo === 'cliente' ? ' Chave PIX: ' + B.pix + '.' : ''));
+    document.getElementById('pgValor').value = saldo.toFixed(2).replace('.', ',');
+    document.getElementById('pgVenc').value = brDe(HOJE_ISO);
+    setDrop('pgForma', 'Pix', 'Pix');
+    ['campoPgValor', 'campoPgVenc'].forEach(c => erro(c, false));
+    document.getElementById('pgBackdrop').classList.add('open'); document.getElementById('pgDrawer').classList.add('open');
+  }
+  function fecharPagamento() { document.getElementById('pgBackdrop').classList.remove('open'); document.getElementById('pgDrawer').classList.remove('open'); }
+  inicializarDropdownSelect(document.getElementById('pgForma'), null);
+  document.getElementById('btnPgSalvar').addEventListener('click', () => {
+    const valor = numBr(document.getElementById('pgValor').value), venc = isoDoBr(document.getElementById('pgVenc').value), saldo = saldoDeHoje();
+    texto('erroPgValor', !valor ? 'Valor maior que zero.' : 'Não passa do saldo de hoje, ' + moedaC(saldo) + '.');
+    const ruim = [erro('campoPgValor', !valor || valor > saldo + 0.001), erro('campoPgVenc', !venc || venc < HOJE_ISO)].some(x => x);
+    if (ruim) return;
+    const forma = document.getElementById('pgForma').getAttribute('data-value');
+    fecharPagamento();
+    pedirConfirmacao('comissaoPaga', 'Pagar ' + moedaC(valor) + ' de comissão a ' + B.nome + ', por ' + forma + ', com vencimento em ' + brDe(venc) +
+      '? Nasce uma conta em Contas a Pagar, com ' + B.nome + ' como favorecido, e o saldo de comissão desce agora.', () => {
+      const g = lerLocal('deskComissoesPagas', {});
+      g.pagamentos = g.pagamentos || [];
+      const n = g.pagamentos.length + 1;
+      g.pagamentos.push({ n: n, chave: B.chave, nome: B.nome, tipo: B.tipo, valor: valor, data: HOJE_ISO, venc: venc, forma: forma, pix: B.pix || '',
+                          ref: NOMES_MES_C[HOJE_C.getMonth()].toLowerCase() + ' de ' + HOJE_C.getFullYear() });
+      gravarLocal('deskComissoesPagas', g);
+      render();
+      avisar('Pagamento feito: a conta COM-' + n + ' está em Contas a Pagar, para ' + brDe(venc) + '. O saldo de comissão já desceu.');
+    });
+  });
+  ['pgClose', 'pgCancelar', 'pgBackdrop'].forEach(id => document.getElementById(id).addEventListener('click', fecharPagamento));
 
   // ===== EDITAR OU EXCLUIR COMISSAO =====
   let ajustando = null;
@@ -2396,6 +2507,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTimeout(() => { menuMais.querySelector('.dropdown-select-label').textContent = 'Mais ações'; }, 0);   // o componente poe o item no rotulo
     const acao = item.getAttribute('data-acao');
     if (acao === 'lancar') abrirLancamento();
+    if (acao === 'pagar') abrirPagamento();
     if (acao === 'cadastro') window.location.href = B.tipo === 'vendedor' ? '../cadastros/pagina-cadastros-vendedores-detalhe.html?id=' + B.id
                                                                             : '../cadastros/pagina-cadastros-clientes-detalhe.html?id=' + B.clienteId;
     if (acao === 'suspender') {
