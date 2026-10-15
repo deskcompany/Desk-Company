@@ -83,20 +83,20 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "script_sha": "c6abca3e158dd7a6",
    "selado_em": "2026-10-14"
   },
   "oficial": {
-   "conjunto": "61fffe81816f0f4c",
+   "conjunto": "45e5a0b287f64b50",
    "script_sha": "9cf9eea6ed84596a",
    "selado_em": "2026-10-14"
   }
  },
  "suites": {
   "teste_afiliados.py": {
-   "asseracoes": 44,
+   "asseracoes": 45,
    "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-cadastros-categorias.html": "40f1ad715dd94bde",
@@ -180,11 +180,11 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
-   "teste_sha": "646202a3af1e260c"
+   "teste_sha": "5b8d3f7aecf41b2a"
   },
   "teste_agenda_aviso.py": {
    "asseracoes": 24,
@@ -282,7 +282,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -373,7 +373,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -464,7 +464,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -590,7 +590,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -699,7 +699,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -742,7 +742,7 @@
     "pagina-vendas-crm-detalhe.html": "4bda429fab171c9d",
     "pagina-vendas-crm.html": "b751a53761bbc199",
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -833,7 +833,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -866,7 +866,7 @@
     "pagina-logistica-expedicao-detalhe.html": "12021d1d8e439eb4",
     "pagina-logistica-expedicao.html": "5280d6b9d65630c2",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -957,7 +957,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1048,7 +1048,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1139,7 +1139,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1230,7 +1230,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1321,7 +1321,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1339,7 +1339,7 @@
     "pagina-financas-contas-pagar.html": "f1ffbc40fdce1682",
     "pagina-financas-contas-receber-detalhe.html": "f3d609e2f020ceb5",
     "pagina-financas-contas-receber.html": "fab9e4940ed72d7a",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1450,7 +1450,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1592,7 +1592,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1683,7 +1683,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1800,7 +1800,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1904,7 +1904,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -1995,7 +1995,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2006,7 +2006,7 @@
    "asseracoes_de": "rodada completa 14/10",
    "cobertura": {
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2111,7 +2111,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2224,7 +2224,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2325,7 +2325,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2416,7 +2416,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2535,7 +2535,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2626,7 +2626,7 @@
     "pagina-vendas-metas.html": "dd2a67c224c9c1f2",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",
@@ -2656,7 +2656,7 @@
     "pagina-logistica-rastreamento.html": "4cdc537bbc884183",
     "pagina-vendas-pdv.html": "5815d198ec088efd",
     "pagina-vendas-pedidos-detalhe.html": "0c33a16eec51abd0",
-    "pagina-vendas-pedidos.html": "f99994102fe209bb"
+    "pagina-vendas-pedidos.html": "ef290cb51a6628ef"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
    "selado_em": "2026-10-14",

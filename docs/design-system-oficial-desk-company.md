@@ -3540,8 +3540,11 @@ link é Pedido de Venda, e o item "Vendas Afiliados" do menu abre a lista de ped
   a Marina, no cadastro, libera por parcela paga. Agora o texto e o aviso depois do passo dependem de
   quem recebe e da regra dele.
 
-**Regra que fica:** texto que anuncia um efeito que depende de uma regra de cadastro lê a regra, e não
-promete o caso comum.
+**Regras que ficam:** texto que anuncia um efeito que depende de uma regra de cadastro lê a regra, e não
+promete o caso comum. E rótulo de opção de filtro não passa da largura do rótulo padrão: o usuário
+testou e viu a barra quebrar de linha ao escolher "Afiliadas: link ou vendedor", mais largo que "Todas
+as origens". Os rótulos viraram "Vendas afiliadas" e "Só por link", e a suíte varre larguras de tela de
+20 em 20 px conferindo que nenhuma escolha soma linha à barra.
 
 **O que fica para a entrega 2:** Comissões Afiliados, em Finanças (lista enxuta, conta do afiliado com
 as 9 linhas do Olist, pagamento por conta a pagar, lançamento à mão com motivo e senha), e Contas a

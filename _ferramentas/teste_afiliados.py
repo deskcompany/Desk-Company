@@ -91,17 +91,30 @@ with sync_playwright() as p:
         origem('link'); limpa_lista()
         ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'todos' and pg.inner_text('#filtroOrigem .dropdown-select-label') == 'Todas as origens'
            and len(pg.evaluate(NUMEROS)) == len(PEDIDOS), 'limpar filtros devolve a origem para todas')
+        # 14/out: o usuario viu a barra quebrar de linha ao escolher "Afiliadas: link ou vendedor", mais
+        # largo que "Todas as origens". Em toda largura, escolher uma origem nao pode somar linha a barra.
+        # Na largura dele a barra tinha 1024 a 1064px; a varredura de 20 em 20 passa por essa faixa.
+        LINHAS = "new Set(Array.from(document.querySelectorAll('.estoque-toolbar > *')).filter(e => e.getClientRects().length).map(e => Math.round(e.getBoundingClientRect().top))).size"
+        quebra = []
+        for largura in range(1100, 1720, 20):
+            pg.set_viewport_size({'width': largura, 'height': 900}); pg.wait_for_timeout(60)
+            origem('todos'); padrao = pg.evaluate(LINHAS)
+            for v in ('afiliadas', 'link', 'sem'):
+                origem(v)
+                if pg.evaluate(LINHAS) > padrao: quebra.append('%s em %dpx' % (v, largura))
+        pg.set_viewport_size({'width': 1440, 'height': 900}); origem('todos')
+        ok(not quebra, 'escolher uma origem não quebra a barra de filtros em mais linhas: %s' % quebra)
 
     if secao(2, 'Menu: Vendas Afiliados abre a lista filtrada'):
         ir('pagina-cadastros-marcas.html')
         pg.click('.nav-item[data-id="vendas"]'); pg.wait_for_timeout(450)
         pg.click('#flyout-vendas .flyout-item[data-label="Vendas Afiliados"]'); pg.wait_for_timeout(900)
         ok(pg.url.endswith('pagina-vendas-pedidos.html?origem=afiliadas'), 'o item navega para Pedidos de Venda: %s' % pg.url.split('/')[-1])
-        ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'afiliadas' and pg.inner_text('#filtroOrigem .dropdown-select-label') == 'Afiliadas: link ou vendedor',
+        ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'afiliadas' and pg.inner_text('#filtroOrigem .dropdown-select-label') == 'Vendas afiliadas',
            'e a lista abre com o filtro de afiliadas escolhido')
         ok(sorted(pg.evaluate(NUMEROS)) == [n for n in AFILIADAS if n in sorted(pg.evaluate("PEDIDOS.filter(p => passaPeriodo(p)).map(p => p.numero)"))],
            'mostrando só as vendas afiliadas do período')
-        ok('Afiliadas' in pg.inner_text('#breadcrumb'), 'o caminho no topo diz que a lista está filtrada')
+        ok('Vendas afiliadas' in pg.inner_text('#breadcrumb'), 'o caminho no topo diz que a lista está filtrada')
         ir(LISTA, '?origem=qualquer')
         ok(pg.get_attribute('#filtroOrigem', 'data-value') == 'todos', 'origem desconhecida no endereço abre a lista sem filtro')
         com, sem_item = [], []

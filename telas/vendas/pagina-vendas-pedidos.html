@@ -1029,7 +1029,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
 
     <!-- Vendas afiliadas (barganha de 14/out/2026): as que geram comissao, pelo link de quem indicou
-         ou por vendedor. O item "Vendas Afiliados" do menu abre a lista com este filtro. -->
+         ou por vendedor. O item "Vendas Afiliados" do menu abre a lista com este filtro. Rotulo nao passa
+         da largura de "Todas as origens": mais largo, a barra quebra de linha ao escolher (14/out/2026). -->
     <div class="dropdown-select" id="filtroOrigem" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
         <span class="dropdown-select-label">Todas as origens</span>
@@ -1037,8 +1038,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </button>
       <div class="dropdown-select-menu">
         <div class="dropdown-select-item active" data-value="todos">Todas as origens</div>
-        <div class="dropdown-select-item" data-value="afiliadas">Afiliadas: link ou vendedor</div>
-        <div class="dropdown-select-item" data-value="link">Só link de indicação</div>
+        <div class="dropdown-select-item" data-value="afiliadas">Vendas afiliadas</div>
+        <div class="dropdown-select-item" data-value="link">Só por link</div>
         <div class="dropdown-select-item" data-value="sem">Sem afiliado</div>
       </div>
     </div>

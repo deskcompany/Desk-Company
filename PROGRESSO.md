@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 14/out/2026, com a entrega 1 de Vendas Afiliados feita e esperando o teste do usuário.*
+*Atualizado em 14/out/2026, com a entrega 1 de Vendas Afiliados testada e o defeito do filtro consertado.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,7 +8,8 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Vendas Afiliados, entrega 1: feita e esperando o teste do usuário** (§14.78). A venda por link é
+**Vendas Afiliados, entrega 1: testada pelo usuário em 14/out** (§14.78). Ele achou um defeito, a
+barra de filtros quebrando de linha ao escolher a origem, que está consertado e espera o teste dele. A venda por link é
 Pedido de Venda. A lista ganhou o filtro de origem e a marca "indicação de" na linha e no painel; o
 item "Vendas Afiliados" do menu, nas 82 telas, abre a lista filtrada nas vendas afiliadas (link ou
 vendedor); a página do pedido mostra quem indicou, num campo que não se digita. A aba Comissões passou
