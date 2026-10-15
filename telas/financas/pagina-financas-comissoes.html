@@ -873,6 +873,12 @@
   .com-datas .form-field { margin-bottom:0; width:176px; }
   .com-datas .com-link { padding-bottom:10px; }
   .com-periodo-linha { font-size:12px; font-weight:700; color:var(--text); margin-top:4px; }
+  /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026): cabe no cartao a partir de 1280px. O CSS comum
+     fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a coluna de texto
+     quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
+  .main .estoque-table { min-width:0; }
+  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table td.col-texto { white-space:normal; }
   /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
      A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
      so serve na tela. O cabecalho do relatorio so existe no papel. Igual em toda tela que tem o bloco
@@ -2258,10 +2264,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     asc.forEach(e => { saldo = Math.round((saldo + (e.efeito || 0)) * 100) / 100; e.saldo = saldo; });
     return asc.reverse();
   }
-  // O filtro do historico e so mes e ano (15/out/2026). O saldo de cada linha continua o de verdade, filtrado ou nao.
-  function filtrarHistorico(ev, mes, ano) {
-    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)));
+  // O filtro do historico: mes, ano e tipo (o tipo veio a pedido do usuario, 15/out/2026). O saldo de cada linha continua
+  // o de verdade, filtrado ou nao.
+  function filtrarHistorico(ev, mes, ano, tipo) {
+    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)) &&
+                          (!tipo || tipo === 'todos' || e.tipo === tipo));
   }
+  const opcoesDeTipo = () => [{ v: 'todos', t: 'Todos os tipos' }].concat(Object.keys(TIPOS_HIST).map(k => ({ v: k, t: TIPOS_HIST[k] })));
   function anosDoHistorico(ev) {
     const anos = {};
     ev.forEach(e => { anos[e.data.slice(0, 4)] = 1; });

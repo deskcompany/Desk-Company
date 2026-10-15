@@ -13,6 +13,7 @@
 #   [4] Espelhos e ligacoes: pedidos, vendedores, clientes e percentuais iguais as telas donas; o mesmo
 #       valor de comissao na pagina do pedido; menu, catalogo de senha e o bloco comum das duas telas;
 #   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo;
+#   [9] Sem barra de rolagem na horizontal em nenhuma tabela, de 1280px para cima, no pior caso do historico (2e);
 #   [8] Periodo por data inicial e final, historico com saldo corrente e filtro de mes e ano, historico no cadastro (2d);
 #   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
@@ -456,14 +457,27 @@ with sync_playwright() as p:
             ir(CONTA, '?id=' + chave)
             ok(perto(pg.evaluate("(historicoDe(B)[0] || { saldo: 0 }).saldo"), pg.evaluate("saldoDeHoje()")), 'o mesmo para a conta %s (sem acontecimento, o saldo é zero)' % chave)
         ir(CONTA, '?id=a1')
-        cab = pg.evaluate("Array.from(document.querySelectorAll('#wrapHistorico thead th')).map(t => t.textContent.trim())")
-        ok(cab == ['Data', 'Tipo', 'O que aconteceu', 'Valor', 'Efeito no saldo', 'Saldo'], 'a tabela tem tipo, valor, efeito e saldo: %s' % cab)
-        ok(pg.get_attribute('#corpoHistorico a[href*="pedidos-detalhe"]', 'href').startswith('../vendas/pagina-vendas-pedidos-detalhe.html?id='), 'o pedido do histórico abre o pedido')
         n_hist = pg.evaluate("document.querySelectorAll('#corpoHistorico tr').length")
+        cab = pg.evaluate("Array.from(document.querySelectorAll('#wrapHistorico thead th')).map(t => t.textContent.trim())")
+        ok(cab == ['Data', 'Tipo', 'O que aconteceu', 'Valor', 'Efeito', 'Saldo'], 'a tabela tem tipo, valor, efeito e saldo, com o cabeçalho curto: %s' % cab)
+        ok(pg.get_attribute('#corpoHistorico a[href*="pedidos-detalhe"]', 'href').startswith('../vendas/pagina-vendas-pedidos-detalhe.html?id='), 'o pedido do histórico abre o pedido')
         anos = pg.evaluate("Array.from(document.querySelectorAll('#menuHistAno .dropdown-select-item')).map(i => i.getAttribute('data-value'))")
         meses = pg.evaluate("document.querySelectorAll('#menuHistMes .dropdown-select-item').length")
         ok(anos[0] == 'todos' and str(HOJE.year) in anos and meses == 13, 'o filtro do histórico é só mês e ano: %d meses (com "todos") e anos %s' % (meses, anos))
         ok(not pg.evaluate("!!document.querySelector('.com-hist-filtros input, .com-hist-filtros .date-field')"), 'e nenhum campo de data no histórico')
+        tipos = pg.evaluate("Array.from(document.querySelectorAll('#menuHistTipo .dropdown-select-item')).map(i => i.getAttribute('data-value'))")
+        ok(tipos == ['todos', 'inscricao', 'venda', 'comissao', 'saque', 'pagamento', 'lancamento'], 'e também por tipo: %s' % tipos)
+        pg.evaluate(ESCOLHE, ['histTipo', 'venda']); pg.wait_for_timeout(250)
+        so_vendas = pg.evaluate("Array.from(document.querySelectorAll('#corpoHistorico .com-tipo')).map(t => t.textContent.trim())")
+        ok(len(so_vendas) == len([e for e in ev if e['tipo'] == 'venda']) and len(so_vendas) > 0 and set(so_vendas) == {'Venda'} and len(so_vendas) < n_hist,
+           'escolher "Venda" mostra só as vendas: %d de %d' % (len(so_vendas), n_hist))
+        mes_com = int([e for e in ev if e['tipo'] == 'comissao'][0]['data'][5:7])
+        pg.evaluate(ESCOLHE, ['histTipo', 'comissao']); pg.evaluate(ESCOLHE, ['histMes', str(mes_com)]); pg.wait_for_timeout(250)
+        junto = pg.evaluate("Array.from(document.querySelectorAll('#corpoHistorico tr')).map(r => [r.children[0].textContent.slice(3, 5), r.children[1].textContent.trim()])")
+        esperado_junto = [e for e in ev if e['tipo'] == 'comissao' and int(e['data'][5:7]) == mes_com]
+        ok(len(junto) == len(esperado_junto) > 0 and all(x[1] == 'Comissão' and int(x[0]) == mes_com for x in junto),
+           'tipo e mês funcionam juntos: %d comissão(ões) de %02d' % (len(junto), mes_com))
+        pg.evaluate(ESCOLHE, ['histTipo', 'todos']); pg.evaluate(ESCOLHE, ['histMes', 'todos']); pg.wait_for_timeout(200)
         usados = sorted(set(int(e['data'][5:7]) for e in ev))
         mes_velho = int(ev[-1]['data'][5:7])
         pg.evaluate(ESCOLHE, ['histMes', str(mes_velho)]); pg.wait_for_timeout(250)
@@ -474,7 +488,7 @@ with sync_playwright() as p:
         ok(perto(pg.evaluate("historicoDe(B)[0].saldo"), ev[0]['saldo']), 'o saldo de cada linha não muda com o filtro')
         livre = [m for m in range(1, 13) if m not in usados][0]
         pg.evaluate(ESCOLHE, ['histMes', str(livre)]); pg.wait_for_timeout(250)
-        ok('Nada neste mês e ano' in pg.inner_text('#semHistorico') and pg.evaluate("getComputedStyle(document.getElementById('semHistorico')).display") != 'none',
+        ok('Nada com este mês, ano e tipo' in pg.inner_text('#semHistorico') and pg.evaluate("getComputedStyle(document.getElementById('semHistorico')).display") != 'none',
            'mês sem acontecimento diz isso')
         pg.evaluate(ESCOLHE, ['histMes', 'todos']); pg.wait_for_timeout(200)
         ok(pg.evaluate("document.querySelectorAll('#corpoHistorico tr').length") == n_hist, '"Todos" devolve o histórico inteiro')
@@ -501,11 +515,54 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.querySelectorAll('#corpoAfiHistorico tbody tr').length") == na_conta, 'com os mesmos %d acontecimentos da conta' % na_conta)
         ok(pg.evaluate("getComputedStyle(document.getElementById('afiHistMes')).display") != 'none' and pg.evaluate("document.body.classList.contains('modo-leitura')"),
            'o filtro de mês e ano aparece com o cadastro em modo leitura')
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#menuAfiHistTipo .dropdown-select-item')).length") == 7, 'o cadastro filtra por tipo, com os mesmos seis tipos')
+        pg.evaluate(ESCOLHE, ['afiHistTipo', 'pagamento']); pg.wait_for_timeout(250)
+        pagos = pg.evaluate("Array.from(document.querySelectorAll('#corpoAfiHistorico .com-tipo')).map(t => t.textContent.trim())")
+        ok(len(pagos) >= 2 and set(pagos) == {'Pagamento'}, 'e "Pagamento" mostra o pagamento e o pagamento excluído: %d' % len(pagos))
+        pg.evaluate(ESCOLHE, ['afiHistTipo', 'todos']); pg.wait_for_timeout(200)
         pg.evaluate(ESCOLHE, ['afiHistMes', str(livre)]); pg.wait_for_timeout(250)
-        ok('Nada neste mês e ano' in pg.inner_text('#corpoAfiHistorico') and ' de %d' % na_conta in pg.inner_text('#corpoAfiHistorico .afi-loja'),
+        ok('Nada com este mês, ano e tipo' in pg.inner_text('#corpoAfiHistorico') and ' de %d' % na_conta in pg.inner_text('#corpoAfiHistorico .afi-loja'),
            'e filtra o histórico do cadastro por mês')
         ir('pagina-cadastros-clientes-detalhe.html', '?id=4')
         ok(pg.evaluate("getComputedStyle(document.getElementById('afiHistorico')).display") == 'none', 'cliente fora do programa não mostra histórico')
+        limpar()
+
+    if secao(9, 'Sem barra de rolagem na horizontal (entrega 2e)'):
+        # 15/out: o usuario viu a barra no historico, e pediu a regra para as paginas. O pior caso do historico e a frase do
+        # pagamento excluido; a tabela tem de caber no cartao a partir de 1280px, e a pagina nao pode rolar.
+        limpar(); ir(LISTA)
+        pg.evaluate("document.querySelector('[data-aprovar-saque=\"1\"]').click()"); confirmar(); fechar_aviso()
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9001')
+        pg.evaluate("document.getElementById('linkExcluirConta').click()"); confirmar(); pg.wait_for_timeout(500)
+        MEDE = """() => {
+          const vis = (e) => e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
+          const r = [];
+          document.querySelectorAll('.estoque-table-wrap, .contatos-table').forEach(w => {
+            if (!vis(w)) return;
+            const eh = w.classList.contains('contatos-table');
+            const caixa = eh ? w.parentElement : w, tab = eh ? w : w.querySelector('table');
+            const larg = Math.round(tab ? tab.scrollWidth : w.scrollWidth), cab = Math.round(caixa.clientWidth);
+            if (larg > cab + 1) r.push((w.id || w.className) + ' ' + larg + ' > ' + cab);
+          });
+          if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 1) r.push('a pagina rola');
+          return r;
+        }"""
+        telas = [(LISTA, ''), (CONTA, '?id=a1'), (CONTA, '?id=v1'), ('pagina-cadastros-clientes-detalhe.html', '?id=12')]
+        com_barra = []
+        for largura in (1280, 1440):
+            pg.set_viewport_size({'width': largura, 'height': 900})
+            for tela, q in telas:
+                ir(tela, q)
+                if 'cadastros' in tela:
+                    pg.evaluate("document.querySelector('.tab-item[data-tab=\"afiliado\"]').click()"); pg.wait_for_timeout(250)
+                    ok(pg.evaluate("document.querySelectorAll('#corpoAfiHistorico tbody tr').length") > 0, 'o histórico do cadastro está na tela para medir')
+                for item in pg.evaluate(MEDE):
+                    com_barra.append('%s %dpx %s' % (tela.replace('pagina-', '').replace('.html', ''), largura, item))
+        pg.set_viewport_size({'width': 1440, 'height': 900})
+        ok(not com_barra, 'nenhuma tabela das telas de Comissões nem do histórico no cadastro tem barra na horizontal, e a página não rola: %s' % com_barra[:4])
+        ir(CONTA, '?id=a1')
+        ok(pg.evaluate("getComputedStyle(document.querySelector('#corpoHistorico td.col-texto:nth-child(3)')).whiteSpace") == 'normal',
+           'a frase do histórico quebra linha, em vez de alargar a tabela')
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

@@ -1,12 +1,20 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com os ajustes do histórico de Comissões (data inicial e final, mês e ano, cadastro) feitos.*
+*Atualizado em 15/out/2026, com o histórico de Comissões sem barra de rolagem e com filtro por tipo.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**Histórico de Comissões sem barra de rolagem, e com filtro por tipo (2e): feito e esperando o teste do
+usuário** (§14.86). A tabela do histórico rolava (até em 1440px); agora nenhuma tabela das telas de
+Comissões rola de 1180px para cima, e o cabeçalho "Efeito no saldo" virou "Efeito". O histórico ganhou o
+filtro por **tipo** (inscrição, venda, comissão, saque, pagamento, lançamento), junto de mês e ano, na conta
+e no cadastro do cliente. **A regra "tabela sem barra a partir de 1280px" já existia na skill de QA e foi
+reforçada** (design system, skills e a suíte). O levantamento das outras telas achou **25 de 83** com tabela
+que rola em 1280px (em 1440, nenhuma); estão em "Esperando decisão".
 
 **Comissões, ajustes do histórico (2d): feitos e esperando o teste do usuário** (§14.85). Ele testou a 2c e
 pediu três coisas, as três feitas:
@@ -517,12 +525,19 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Duas pendências, que são dele:
+Quatro pendências, que são dele:
 
 1. **O teste de Comissões Afiliados (2a, 2b e 2c)**: a lista, as inscrições e os saques pedidos, a
    conta do afiliado com o histórico, o pagamento e a baixa em Contas a Pagar, a aba Afiliado do cliente e o
    Programa de afiliados em Configurações (com o saque mínimo).
-2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+2. **A conta a pagar de comissão que vence** (barganha de 15/out): cancela sozinha e devolve o valor ao
+   afiliado, ou fica pendente até a baixa ou o cancelamento de verdade em Contas a Pagar? A recomendação
+   (nunca cancelar sozinha, mostrar "vencido há N dias" em Comissões e na vitrine, e um quadro "Pagamentos
+   vencidos" com reprogramar, cancelar ou dar baixa) está na conversa; falta o ok.
+3. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
+   quebrando a coluna de texto e encurtando cabeçalho, ou deixar como está até a barra incomodar.
+   Recomendação: uma entrega só, pelo mesmo CSS, com a suíte medindo cada uma.
+4. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste

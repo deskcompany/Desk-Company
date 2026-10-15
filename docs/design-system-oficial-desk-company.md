@@ -163,9 +163,9 @@ Estabelecido a partir de Clientes/Fornecedores e replicado em todo cadastro com 
 Cadastro usa **card de item** (uma linha visual por registro, avatar + nome + meta). Tela de **consulta numérica** — muitas colunas comparáveis entre si, onde o usuário lê coluna, não registro — usa **tabela** (`.estoque-table`, primeira em Controle de Estoques, set/2026). Segue as tabelas que já existiam dentro de páginas de detalhe (`.historico-table`, `.custos-table`):
 
 - Cabeçalho `th` em 11px, 700, maiúsculas, `letter-spacing:0.3px`, cor `--text`, com `border-bottom` de 1px. Célula `td` em 13px, cor `--text-heading`, `border-bottom` entre linhas, removido na última.
-- **Números alinhados à direita, texto à esquerda** (`.col-texto`). `white-space:nowrap` em tudo — a largura da tabela é que se adapta, nunca o conteúdo quebra.
+- **Números alinhados à direita, texto à esquerda** (`.col-texto`). `white-space:nowrap` nas células de número; **a coluna de texto quebra linha** (`white-space:normal`) quando a tabela não cabe: a barra de rolagem é o último recurso, não o primeiro (§14.86).
 - **Ordenação por clique no cabeçalho**: `th.ordenavel` com uma seta (`.seta`) em opacidade baixa; a coluna ativa ganha `.ordenado` e a seta vira ▲/▼ na cor `--active-text`. Clicar de novo na mesma coluna inverte.
-- **Sempre dentro de `.estoque-table-wrap` com `overflow-x:auto` e `min-width` na tabela** — a rolagem horizontal fica na tabela, **nunca na página**. Conferir com `document.documentElement.scrollWidth` no navegador, não no olho.
+- **Sempre dentro de `.estoque-table-wrap` com `overflow-x:auto`** — a rolagem horizontal fica na tabela, **nunca na página**, e **não aparece de 1280px para cima** (§14.86); abaixo disso é a degradação prevista. `min-width` só quando a tabela não consegue encolher sem perder a leitura. Conferir com `scrollWidth` no navegador, não no olho.
 - **Cabeçalho longo custa largura mesmo quando a célula é curta.** Em Controle de Estoques, "Estoque reservado"/"Estoque disponível" (células só com "—") sozinhos empurravam a tabela 230px além do visível e escondiam a coluna Localização. Encurtados pra "Reservado"/"Disponível" com `title=` explicando, mais a Unidade virando sufixo do saldo em vez de coluna própria, a tabela passou a caber. **Medir a largura real das colunas antes de dar a tela por pronta.**
 - Linha inteira clicável abre o drawer de detalhe/extrato. Tela de consulta **não tem checkbox nem barra de seleção** — a regra do §8 vale pra listagem com exclusão, e aqui não se exclui nada.
 - **Paginação continua obrigatória** (§7), e o total do card vai no rodapé (§6).
@@ -3722,3 +3722,27 @@ fecha com o saldo de hoje está errado.
 **Provado nos dois sentidos, numa cópia.** A seção 8 de `teste_comissoes.py` cobre o período, o histórico e o
 cadastro; o oráculo refaz os pedidos do período em Python. Treze defeitos injetados, um por vez, e os treze
 pegos (um escapou na primeira rodada, o do saldo depois do pagamento excluído, e fechou a lacuna da suíte).
+
+## 14.86 A tabela não rola na horizontal, e o histórico filtra por tipo (15/out/2026)
+
+O usuário viu a barra de rolagem no histórico da conta do afiliado e pediu: tirar, registrar a regra, e
+filtrar o histórico por tipo.
+
+- **A regra já existia e não foi aplicada.** A skill de QA pedia, desde 12/out, que a tabela não tivesse barra
+  com o dado mais comprido, em 1440, 1366 e 1280. As telas de Comissões foram medidas só com o exemplo curto, e o
+  histórico rolava até em 1440 (1068px de tabela num cartão de 986). Acima do exemplo, a causa mais comum é
+  anterior: o CSS comum fixa `min-width:920px` nas tabelas, e abaixo de uma janela de 1374px isso vira barra.
+- **Como ficou nas telas de Comissões.** O `min-width` fixo saiu; a coluna de texto e o cabeçalho quebram
+  linha; o número fica numa linha; o cabeçalho "Efeito no saldo" virou "Efeito" (o nome inteiro na dica).
+  Nenhuma tabela das duas telas nem o histórico do cadastro rolam de 1180px para cima, e a suíte mede de 1280 e
+  1440, no pior caso do histórico (saque aprovado e pagamento excluído, a frase mais comprida).
+- **Levantamento das outras telas (somente leitura).** Em janela de 1280px, 25 das 83 telas ainda têm tabela
+  que rola, no estado em que abrem: 11 de Estoque, 5 de Logística, 4 de Configurações, 3 de Vendas (CRM, Metas e
+  Pedidos) e 2 de Finanças (Contas a Pagar e a Receber). Em 1440px, nenhuma. Não foram mexidas: esperam a decisão
+  do usuário (PROGRESSO).
+- **O histórico filtra por tipo**, além de mês e ano: inscrição, venda, comissão, saque, pagamento e
+  lançamento, na conta do afiliado e na aba Afiliado do cadastro. Os três filtros se combinam, e o saldo de cada
+  linha continua o verdadeiro.
+
+**Provado nos dois sentidos, numa cópia.** As seções 8 e 9 de `teste_comissoes.py` cobrem o filtro por tipo e a
+barra (nas quatro telas, em 1280 e 1440). Sete defeitos injetados, um por vez, e os sete pegos.

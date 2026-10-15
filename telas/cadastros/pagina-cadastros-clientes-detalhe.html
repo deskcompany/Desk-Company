@@ -1072,6 +1072,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </button>
           <div class="dropdown-select-menu" id="menuAfiHistMes" style="max-height:300px; overflow-y:auto;"></div>
         </div>
+        <div class="dropdown-select" id="afiHistTipo" data-value="todos">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Todos os tipos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuAfiHistTipo"></div>
+        </div>
         <div class="dropdown-select" id="afiHistAno" data-value="todos">
           <button type="button" class="dropdown-select-btn form-style">
             <span class="dropdown-select-label">Todos os anos</span>
@@ -2167,10 +2174,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     asc.forEach(e => { saldo = Math.round((saldo + (e.efeito || 0)) * 100) / 100; e.saldo = saldo; });
     return asc.reverse();
   }
-  // O filtro do historico e so mes e ano (15/out/2026). O saldo de cada linha continua o de verdade, filtrado ou nao.
-  function filtrarHistorico(ev, mes, ano) {
-    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)));
+  // O filtro do historico: mes, ano e tipo (o tipo veio a pedido do usuario, 15/out/2026). O saldo de cada linha continua
+  // o de verdade, filtrado ou nao.
+  function filtrarHistorico(ev, mes, ano, tipo) {
+    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)) &&
+                          (!tipo || tipo === 'todos' || e.tipo === tipo));
   }
+  const opcoesDeTipo = () => [{ v: 'todos', t: 'Todos os tipos' }].concat(Object.keys(TIPOS_HIST).map(k => ({ v: k, t: TIPOS_HIST[k] })));
   function anosDoHistorico(ev) {
     const anos = {};
     ev.forEach(e => { anos[e.data.slice(0, 4)] = 1; });
@@ -2191,7 +2201,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== PROGRAMA DE AFILIADOS (aba Afiliado do cliente, 15/out/2026) =====
   // O historico (15/out/2026, a pedido do usuario): o cadastro tambem conta o que aconteceu, inclusive o pagamento
   // excluido. E o mesmo historico da conta em Comissoes, lido de la; o filtro daqui e so mes e ano.
-  let afiHistMes = 'todos', afiHistAno = 'todos';
+  let afiHistMes = 'todos', afiHistAno = 'todos', afiHistTipo = 'todos';
   // So le: a aprovacao e a conta das comissoes sao de Financas > Comissoes Afiliados, um dono so. O bloco de regras
   // logo acima e o mesmo das telas de Comissoes (teste_comissoes.py compara).
   function pintarAfiliado() {
@@ -2222,20 +2232,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     cab.style.display = meus.length ? '' : 'none';
     if (!meus.length) { corpo.innerHTML = ''; return; }
     corpo.innerHTML = meus.map(a => {
-      const todos = historicoDe(comoBeneficiario(a)), ev = filtrarHistorico(todos, afiHistMes, afiHistAno);
+      const todos = historicoDe(comoBeneficiario(a)), ev = filtrarHistorico(todos, afiHistMes, afiHistAno, afiHistTipo);
       return '<div class="afi-loja">' + LOJAS_C[a.loja] + ' · ' + ev.length + (ev.length === 1 ? ' acontecimento' : ' acontecimentos') + (ev.length === todos.length ? '' : ' de ' + todos.length) + '</div>' +
-        (ev.length ? '<table class="contatos-table"><thead><tr><th>Data</th><th>Tipo</th><th>O que aconteceu</th><th>Valor</th><th>Efeito no saldo</th><th>Saldo</th></tr></thead><tbody>' +
-          linhasDoHistorico(ev) + '</tbody></table>' : '<div class="afi-nota">Nada neste mês e ano.</div>');
+        (ev.length ? '<table class="contatos-table"><thead><tr><th>Data</th><th>Tipo</th><th>O que aconteceu</th><th>Valor</th><th title="O que o acontecimento fez no saldo de comissão: + entra, − sai. Vazio é só informação">Efeito</th><th>Saldo</th></tr></thead><tbody>' +
+          linhasDoHistorico(ev) + '</tbody></table>' : '<div class="afi-nota">Nada com este mês, ano e tipo.</div>');
     }).join('');
   }
   (function ligarFiltroDoHistorico() {
     const mont = (idMenu, itens) => { document.getElementById(idMenu).innerHTML = itens.map(o => '<div class="dropdown-select-item" data-value="' + o.v + '">' + o.t + '</div>').join(''); };
     const meus = REGISTRO ? afiliados().filter(a => a.clienteId === REGISTRO.id) : [];
     const todos = [].concat.apply([], meus.map(a => historicoDe(comoBeneficiario(a))));
+    mont('menuAfiHistTipo', opcoesDeTipo());
     mont('menuAfiHistMes', [{ v: 'todos', t: 'Todos os meses' }].concat(NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n }))));
     mont('menuAfiHistAno', [{ v: 'todos', t: 'Todos os anos' }].concat(anosDoHistorico(todos).map(a => ({ v: a, t: a }))));
     inicializarDropdownSelect(document.getElementById('afiHistMes'), (v) => { afiHistMes = v; pintarAfiliado(); });
     inicializarDropdownSelect(document.getElementById('afiHistAno'), (v) => { afiHistAno = v; pintarAfiliado(); });
+    inicializarDropdownSelect(document.getElementById('afiHistTipo'), (v) => { afiHistTipo = v; pintarAfiliado(); });
   })();
   // Voltar pelo navegador traz a pagina da memoria, de antes de cancelar um pagamento: refaz so a aba (sem recarregar,
   // para nao perder o que estiver sendo digitado no cadastro).

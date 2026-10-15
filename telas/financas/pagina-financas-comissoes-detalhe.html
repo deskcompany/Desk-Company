@@ -873,6 +873,12 @@
   .com-datas .form-field { margin-bottom:0; width:176px; }
   .com-datas .com-link { padding-bottom:10px; }
   .com-periodo-linha { font-size:12px; font-weight:700; color:var(--text); margin-top:4px; }
+  /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026): cabe no cartao a partir de 1280px. O CSS comum
+     fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a coluna de texto
+     quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
+  .main .estoque-table { min-width:0; }
+  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table td.col-texto { white-space:normal; }
   /* ===== Campo de data com calendario (componente compartilhado, igual ao de Movimentacao de Estoque) ===== */
   .date-field { position:relative; }
   .date-field input[type="text"] { padding-right:34px; }
@@ -1300,6 +1306,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </button>
           <div class="dropdown-select-menu" id="menuHistMes" style="max-height:300px; overflow-y:auto;"></div>
         </div>
+        <div class="dropdown-select" id="histTipo" data-value="todos">
+          <button type="button" class="dropdown-select-btn pill">
+            <span class="dropdown-select-label">Todos os tipos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuHistTipo"></div>
+        </div>
         <div class="dropdown-select" id="histAno" data-value="todos">
           <button type="button" class="dropdown-select-btn pill">
             <span class="dropdown-select-label">Todos os anos</span>
@@ -1317,14 +1330,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th class="col-texto">Tipo</th>
             <th class="col-texto">O que aconteceu</th>
             <th title="O valor do acontecimento: da venda, da comissão, do saque ou do pagamento">Valor</th>
-            <th title="O que o acontecimento fez no saldo de comissão: + entra, − sai. Vazio é só informação">Efeito no saldo</th>
+            <th title="O que o acontecimento fez no saldo de comissão: + entra, − sai. Vazio é só informação">Efeito</th>
             <th title="O saldo de comissão depois do acontecimento">Saldo</th>
           </tr>
         </thead>
         <tbody id="corpoHistorico"></tbody>
       </table>
     </div>
-    <div class="field-hint" id="semHistorico" style="display:none;">Nada neste mês e ano.</div>
+    <div class="field-hint" id="semHistorico" style="display:none;">Nada com este mês, ano e tipo.</div>
     <div class="estoque-rodape"><span id="contHistorico">0 acontecimentos</span><span class="estoque-total">Saldo de hoje: <b id="saldoHistorico">R$ 0,00</b></span></div>
   </div>
 
@@ -2379,10 +2392,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     asc.forEach(e => { saldo = Math.round((saldo + (e.efeito || 0)) * 100) / 100; e.saldo = saldo; });
     return asc.reverse();
   }
-  // O filtro do historico e so mes e ano (15/out/2026). O saldo de cada linha continua o de verdade, filtrado ou nao.
-  function filtrarHistorico(ev, mes, ano) {
-    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)));
+  // O filtro do historico: mes, ano e tipo (o tipo veio a pedido do usuario, 15/out/2026). O saldo de cada linha continua
+  // o de verdade, filtrado ou nao.
+  function filtrarHistorico(ev, mes, ano, tipo) {
+    return ev.filter(e => (mes === 'todos' || Number(e.data.slice(5, 7)) === Number(mes)) && (ano === 'todos' || Number(e.data.slice(0, 4)) === Number(ano)) &&
+                          (!tipo || tipo === 'todos' || e.tipo === tipo));
   }
+  const opcoesDeTipo = () => [{ v: 'todos', t: 'Todos os tipos' }].concat(Object.keys(TIPOS_HIST).map(k => ({ v: k, t: TIPOS_HIST[k] })));
   function anosDoHistorico(ev) {
     const anos = {};
     ev.forEach(e => { anos[e.data.slice(0, 4)] = 1; });
@@ -2634,7 +2650,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ini = a + '-' + String(m).padStart(2, '0') + '-01'; fim = isoDe(new Date(a, m, 0));
   })();
   const contaAtual = () => contaDoPeriodo(B, ini, fim);
-  let histMes = 'todos', histAno = 'todos';
+  let histMes = 'todos', histAno = 'todos', histTipo = 'todos';
   let mostrarPendentes = true;
   function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
@@ -2720,8 +2736,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('wrapPagtos').style.display = r.pagamentosLista.length ? '' : 'none';
     document.getElementById('semPagtos').style.display = r.pagamentosLista.length ? 'none' : '';
 
-    // Historico de todos os meses (so mes e ano filtram), e o saque que espera decisao (15/out/2026).
-    const todos = historicoDe(B), ev = filtrarHistorico(todos, histMes, histAno);
+    // Historico de todos os meses (filtram mes, ano e tipo), e o saque que espera decisao (15/out/2026).
+    const todos = historicoDe(B), ev = filtrarHistorico(todos, histMes, histAno, histTipo);
     html('corpoHistorico', linhasDoHistorico(ev));
     document.getElementById('wrapHistorico').style.display = ev.length ? '' : 'none';
     document.getElementById('semHistorico').style.display = ev.length ? 'none' : '';
@@ -2897,12 +2913,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   mostrarPeriodo();
 
-  // O historico: so mes e ano. Os anos vem dos proprios acontecimentos.
+  // O historico: mes, ano e tipo. Os anos vem dos proprios acontecimentos.
   montar('menuHistMes', [{ v: 'todos', t: 'Todos os meses' }].concat(NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n }))));
   montar('menuHistAno', [{ v: 'todos', t: 'Todos os anos' }].concat(anosDoHistorico(historicoDe(B)).map(a => ({ v: a, t: a }))));
-  setDrop('histMes', 'todos', 'Todos os meses'); setDrop('histAno', 'todos', 'Todos os anos');
+  montar('menuHistTipo', opcoesDeTipo());
+  setDrop('histMes', 'todos', 'Todos os meses'); setDrop('histAno', 'todos', 'Todos os anos'); setDrop('histTipo', 'todos', 'Todos os tipos');
   inicializarDropdownSelect(document.getElementById('histMes'), (v) => { histMes = v; render(); });
   inicializarDropdownSelect(document.getElementById('histAno'), (v) => { histAno = v; render(); });
+  inicializarDropdownSelect(document.getElementById('histTipo'), (v) => { histTipo = v; render(); });
   document.getElementById('btnExibirPendentes').addEventListener('click', () => { mostrarPendentes = !mostrarPendentes; render(); });
   const menuMais = document.getElementById('menuMaisAcoes');
   inicializarDropdownSelect(menuMais, null);
