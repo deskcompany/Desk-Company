@@ -1,12 +1,19 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com o histórico de Comissões sem barra de rolagem e com filtro por tipo.*
+*Atualizado em 15/out/2026, com o balanço do projeto (números, fases e projeção) e a decisão B das contas de comissão vencidas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
 commit; o histórico de cada entrega fica no `git log`, e as regras do projeto no `CLAUDE.md`.
 
 ## Onde paramos
+
+**Balanço feito, e a conta a pagar de comissão vencida decidida pela B** (usuário, 15/out). O balanço do
+projeto está na seção "Balanço de 15/out/2026", logo abaixo de "Onde estamos": números, módulos, fases,
+projeção e prioridades. A B: nunca cancelar sozinha; Comissões mostra "vencido há N dias"; um quadro
+"Pagamentos vencidos" com dar baixa, reprogramar ou cancelar e devolver ao saldo (com senha); a vitrine
+mostra Disponível, Em pagamento e Pago; o cancelamento automático fica como opção desligada em
+Configurações. **Não foi construído**: é o primeiro item da fila.
 
 **Histórico de Comissões sem barra de rolagem, e com filtro por tipo (2e): feito e esperando o teste do
 usuário** (§14.86). A tabela do histórico rolava (até em 1440px); agora nenhuma tabela das telas de
@@ -233,7 +240,7 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 Os 78% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
-Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a tela 81 e o item 56.
+Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
 
 | módulo | com tela | falta |
 |---|---|---|
@@ -247,6 +254,101 @@ Eram 80 telas e 55 itens de menu até 12/out. A Movimentação de Estoque é a t
 | Configurações | hub com 19 telas | Formas de pagamento (a lista fiscal da NF-e) |
 
 O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
+
+## Balanço de 15/out/2026
+
+Pedido do usuário no fim da semana: o que existe, o que ganhamos, quanto falta e quando termina. Os números
+são medidos (telas, itens de menu, suítes, commits). A projeção é estimativa, com a premissa dita ao lado.
+
+### O que existe
+
+| | hoje |
+|---|---|
+| Telas de protótipo | 84 (83 telas e o molde de referência) |
+| Itens de menu com tela | 43 de 55 itens (78%) |
+| Telas que faltam para fechar o menu | cerca de 20 (12 itens × 1,5 tela, a média das já feitas) |
+| Produção (o sistema de verdade) | **0%**: não começou |
+| Verificação | 52 suítes, 5.344 asserções, 387 defeitos injetados de propósito e pegos, 2 auditorias nas 84 telas |
+| Documentação | design system até a §14.86 |
+| Trabalho | 88 commits desde 06/out; o projeto tem 32 dias (14/set a 15/out) |
+
+### O que ganhamos desde 12/out (80 telas e 41 de 55 itens)
+
+- **+4 telas e +2 itens de menu**: Movimentação de Estoque, Parâmetros de logística, e Comissões Afiliados
+  (lista e conta do afiliado). O protótipo foi de 75% para 78%.
+- **O programa de afiliados inteiro**: a venda por link é Pedido de Venda, a comissão segue a regra de quem
+  recebe, o cliente pede para ser afiliado e a aprovação é em Comissões, o percentual é por loja, o saque é
+  pedido na vitrine e vira conta a pagar, a baixa volta como "pago", e a conta tem histórico com saldo, período
+  por data inicial e final e filtro por tipo, mês e ano. O cadastro do cliente mostra o mesmo histórico.
+- **Os detalhes abrem o registro clicado** (cadastros, ordens de compra, pedidos de venda).
+- **Impressão em formato de relatório** nas 19 telas de lista e de documento.
+- **A segunda varredura**: seis defeitos de Inventário, Acerto e PDV consertados.
+- **Regras novas de interface**: todo menu de filtro abre para baixo (81 telas) e a tabela não rola na
+  horizontal de 1280 px para cima (regra reforçada; 25 telas antigas ainda não cumprem).
+- **Limpeza**: o desvio morto para o Inventário saiu de 18 telas.
+- **Verificação**: de 50 para 52 suítes, de 5.090 para 5.344 asserções.
+
+### Módulos: prontos e faltantes
+
+| módulo | itens com tela | telas | falta |
+|---|---|---|---|
+| Início | 4 de 4 | 4 | nada |
+| Cadastros | 12 de 13 | 17 | Relatórios de Cadastros |
+| Estoque | 13 de 14 | 18 | Relatórios de Estoque |
+| Vendas | 4 de 8 | 6 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
+| Logística | 5 de 6 | 10 | Relatórios de Logística |
+| Finanças | 4 de 5 | 8 | Relatórios Finanças |
+| Integrações | 0 de 4 | 0 | Marketplaces e Hubs, Gateways de Pagamento, Emissão de Notas Fiscais, Relatórios de Integrações |
+| Configurações | hub (1 item) | 20 | a lista fiscal da NF-e (Formas de pagamento) |
+
+**Fora da contagem de 55**: o Vale-compra (decidido em 14/out, 2 a 3 telas), a vitrine da Desk Shope (F3, app
+separado, sem protótipo aqui) e as Ordens de Serviço da Desk Tech (F7, sem protótipo).
+
+### Onde cada fase do roadmap está
+
+| fase | protótipo | produção |
+|---|---|---|
+| F0 Fundação técnica | n/a | não começou (sem contas de Supabase e Cloudflare, por decisão dele) |
+| F1 Acesso e Core | Dashboard, Interface do usuário, Confirmações com senha, Registro de atividades | não |
+| F2 Cadastros base | 12 de 13 itens | não |
+| F3 Vitrine MVP | **não existe**: a vitrine é outro app | não |
+| F4 Fulfillment | Separação, Conferência de Saída, Expedição, Rastreamento, Devolução | não |
+| F5 Estoque e Financeiro | Estoque 13 de 14, Finanças 4 de 5 | não |
+| F6 Lançamento | n/a | não |
+| F7 Réplica Desk Tech | **não existe**: Ordens de Serviço | não |
+| F8 Pós-MVP | feito adiantado: CRM, PDV, Metas, Comissões; falta NF-e, Marketplaces, Relatórios, Margem, Custos | não |
+
+Dos 12 itens que faltam, **só Gateways de Pagamento está no caminho do MVP** (F0 a F6). Os outros 11 são
+pós-MVP (F8) pelo próprio roadmap. Para vender, o protótipo está praticamente completo; o que não existe é o
+sistema de verdade.
+
+### Projeção (estimativa)
+
+- **Protótipo do menu inteiro.** Premissa: cada item novo leva de 1 a 3 dias (barganha, construção e uma a
+  duas rodadas de teste dele), mais cerca de 7 dias dos itens já decididos (vale-compra, pagamentos vencidos,
+  varredura da barra). São de 19 a 43 dias de trabalho. A partir de 19/out: **mais cedo, 13/nov; mais
+  provável, entre 30/nov (5 dias por semana) e 11/dez (4 dias por semana); mais tarde, 3/jan.** Esta semana o
+  limite semanal fechou na quinta, e é o que decide quantos dias por semana existem.
+- **Produção F0 a F6**, sem medida própria (nada foi feito). Referência: o protótipo levou 32 dias para 84
+  telas, e tela de verdade (banco, regra, teste, segurança) custa de 2 a 3 vezes o protótipo: de 3 a 5 meses
+  depois de começar. **Começando agora, a primeira venda real (F6) cai entre fevereiro e abril/2027; começando
+  depois do protótipo (dezembro), entre abril e junho/2027.** A meta do roadmap (F0 a F6 até dezembro/2026) não
+  fecha nesse ritmo; dá para ter em dezembro F0, F1 e parte da F2 funcionando, se começar já.
+
+### Prioridades dos próximos passos
+
+1. **Testar Comissões 2e** (segunda, 19/out) e construir **Pagamentos vencidos** (decisão B, 1 dia).
+2. **Decidir a varredura da barra de rolagem** nas 25 telas (1 a 2 dias; recomendada).
+3. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
+   está em 0%. Recomendação: começar já, em paralelo com o protótipo que sobra. Conta nova só nasce com o
+   pedido dele.
+4. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
+5. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
+6. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
+7. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
+   (leem o que já existe), depois Relatórios, Notas Fiscais e Integrações.
+8. **Parados de propósito**: kit com composição (depende do cadastro de produtos) e o alinhamento dos exemplos
+   (volta com o banco).
 
 ## O que ficou pronto nesta conversa
 
@@ -479,7 +581,7 @@ de testar a conferência:
 `teste_perdas_baixa.py`, `teste_movimentacao.py`, `teste_cad_melhorias.py`, `teste_esc_painel.py`,
 `teste_busca_setas.py`, `teste_cad_detalhe.py`, `teste_doc_detalhe.py`, `teste_parametros.py` e
 `teste_impressao.py`, `teste_varredura2.py`, `teste_afiliados.py` e `teste_comissoes.py`. Trezentos
-e oitenta defeitos injetados de propósito, um por vez; os trezentos e oitenta são pegos. A auditoria do
+e oitenta e sete defeitos injetados de propósito, um por vez; os trezentos e oitenta e sete são pegos. A auditoria do
 projeto reprova qualquer menção à ferramenta que saiu e enxerga chave de armazenamento guardada em
 constante.
 
@@ -489,13 +591,17 @@ constante.
 
 ## Próximo da fila
 
-Refeita em 13/out, depois da decisão de deixar os exemplos como estão.
+Refeita em 15/out, com o balanço (a lista completa e os porquês estão em "Prioridades dos próximos passos").
 
-1. **Vale-compra (crédito na loja)**, combinado com o usuário em 14/out: submódulo próprio, que liga o
-   vale-troca reservado nas telas prontas e o pagamento de comissão como crédito.
-2. **A barganha dos outros módulos novos**, combinada com o usuário em 14/out: Margem de Contribuição e Custos do E-commerce;
-   Formas de pagamento; Notas Fiscais e Integrações; e os relatórios por último. Módulo novo começa
-   pela barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
+1. **Comissões 2f: Pagamentos vencidos** (decisão B do usuário, 15/out): "vencido há N dias" no pagamento,
+   quadro com dar baixa, reprogramar e cancelar, e a opção de cancelamento automático desligada.
+2. **A varredura da barra de rolagem nas 25 telas** (a decidir).
+3. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+4. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
+   pagamento de comissão como crédito.
+5. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
+6. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+   barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
 exemplo (X1 a X7); os painéis dos outros cadastros (C3 a C8); os links V4 e L4, que dependiam dos
@@ -504,6 +610,12 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
+- **A conta a pagar de comissão que vence** (usuário, 15/out, opção B): ela nunca cancela sozinha, porque o
+  PIX pode já ter saído sem a baixa lançada, e devolver o valor ao saldo faria pagar duas vezes. O
+  pagamento mostra "vencido há N dias" em vermelho; a lista ganha o quadro "Pagamentos vencidos" (dar baixa,
+  reprogramar o vencimento ou cancelar e devolver ao saldo, este com senha); a vitrine mostra Disponível, Em
+  pagamento e Pago, e o vencido aparece como "em pagamento, em atraso". Cancelar sozinho após N dias fica como
+  opção em Configurações, desligada.
 - **Hospedagem: Cloudflare Pages, com o banco no Supabase** (usuário, 10/out/2026). A Vercel fica
   como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
   publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
@@ -525,19 +637,15 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Quatro pendências, que são dele:
+Três pendências, que são dele:
 
 1. **O teste de Comissões Afiliados (2a, 2b e 2c)**: a lista, as inscrições e os saques pedidos, a
    conta do afiliado com o histórico, o pagamento e a baixa em Contas a Pagar, a aba Afiliado do cliente e o
    Programa de afiliados em Configurações (com o saque mínimo).
-2. **A conta a pagar de comissão que vence** (barganha de 15/out): cancela sozinha e devolve o valor ao
-   afiliado, ou fica pendente até a baixa ou o cancelamento de verdade em Contas a Pagar? A recomendação
-   (nunca cancelar sozinha, mostrar "vencido há N dias" em Comissões e na vitrine, e um quadro "Pagamentos
-   vencidos" com reprogramar, cancelar ou dar baixa) está na conversa; falta o ok.
-3. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
+2. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
    quebrando a coluna de texto e encurtando cabeçalho, ou deixar como está até a barra incomodar.
    Recomendação: uma entrega só, pelo mesmo CSS, com a suíte medindo cada uma.
-4. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+3. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste

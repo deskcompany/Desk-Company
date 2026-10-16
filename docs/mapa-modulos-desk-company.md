@@ -1,6 +1,8 @@
 # Mapa dos módulos — ERP Desk Company
 *Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque e com a ordem nova do menu, por sequência de trabalho. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
+*Em 15/out/2026: Comissões Afiliados (lista e conta do afiliado) e a venda por link como filtro de Pedidos de Venda; 43 de 55 itens de menu com tela.*
+
 **84 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **A ordem das tabelas é a do menu** (desde 13/out/2026): primeiro a tela de consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e Relatórios por último. Módulo ou item novo entra na posição da função dele. A regra está no §4 do design system, e a seção 11 de `teste_menu.py` guarda a ordem.

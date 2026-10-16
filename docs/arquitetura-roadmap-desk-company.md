@@ -115,6 +115,25 @@ Cada fase só fecha quando funciona **de ponta a ponta**, não quando as telas e
 
 **Meta:** F0–F6 concluídas até dezembro/2026 — Desk Shope rodando de ponta a ponta, vendendo de verdade. F7 e F8 ficam pra 2027, como sequência natural, não como fracasso.
 
+**Estado das fases em 15/out/2026** (o balanço completo está em `PROGRESSO.md`):
+
+| fase | protótipo | produção |
+|---|---|---|
+| F0 Fundação técnica | n/a | não começou |
+| F1 Acesso e Core | Dashboard e as telas de Configurações de acesso prontas | não começou |
+| F2 Cadastros base | 12 de 13 itens (falta só Relatórios) | não começou |
+| F3 Vitrine MVP | não existe: a vitrine é outro app, sem protótipo no ERP | não começou |
+| F4 Fulfillment | Separação, Conferência de Saída, Expedição, Rastreamento e Devolução prontos | não começou |
+| F5 Estoque e Financeiro básico | Estoque 13 de 14, Finanças 4 de 5 | não começou |
+| F6 Lançamento | n/a | não começou |
+| F7 Réplica Desk Tech | Ordens de Serviço sem protótipo | não começou |
+| F8 Pós-MVP | adiantado: CRM, PDV, Metas, Comissões Afiliados; falta NF-e, Marketplaces, Relatórios, Margem e Custos | não começou |
+
+**O protótipo cobre 43 de 55 itens de menu (78%), em 84 telas; a produção está em 0%.** Dos 12 itens que faltam
+no protótipo, só Gateways de Pagamento está no caminho de F0 a F6. A meta acima (F0 a F6 até dezembro/2026) não
+fecha no ritmo medido: a projeção honesta, com a premissa, está em `PROGRESSO.md` (seção "Projeção"). A meta
+não foi alterada aqui: mudar prazo é decisão do usuário.
+
 ## 5. Regras de Ouro
 
 1. Não pular fases — uma depende da outra.
