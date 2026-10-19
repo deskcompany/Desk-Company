@@ -918,6 +918,10 @@
   /* ===== Vale-compra (19/out/2026): o que as telas do vale acrescentam ao molde de Comissoes Afiliados ===== */
   .vc-kpis { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-bottom:14px; }
   .vc-kpis .kpi-value { font-size:19px; }
+  .vc-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .vc-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .vc-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .vc-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
   @media (max-width:900px) { .vc-kpis { grid-template-columns:minmax(0, 1fr); } }
   /* A situacao do vale: texto e ponto, com o tom redefinido no tema escuro (o mesmo tom nao passa em 4.5:1 nos dois). */
   .vc-sit-disponivel { color:#15803D; }
@@ -1202,19 +1206,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <!-- Os indicadores somam todos os vales, sem a busca nem os filtros: sao o retrato do saldo que as lojas devem aos clientes. -->
-  <div class="vc-kpis">
-    <div class="card kpi-card" style="border-left-color:var(--success)">
+  <!-- Os indicadores somam todos os vales, sem a busca nem os filtros: sao o retrato do saldo que as lojas devem aos clientes.
+       Clicar num deles filtra a lista (junto com a busca, a loja e a origem); clicar de novo desfaz. Mexer numa aba tira o recorte. -->
+  <div class="vc-kpis" id="indicadoresVales">
+    <div class="card kpi-card" data-kpi="saldo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
       <div class="kpi-label">Saldo em vales</div>
       <div class="kpi-value" id="kpiSaldo">R$ 0,00</div>
       <div class="kpi-delta neutral" id="kpiSaldoSub">vales disponíveis</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
+    <div class="card kpi-card" data-kpi="venc30" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
       <div class="kpi-label">Vencem em 30 dias</div>
       <div class="kpi-value" id="kpiVence">0</div>
       <div class="kpi-delta neutral" id="kpiVenceSub">R$ 0,00 em saldo</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
+    <div class="card kpi-card" data-kpi="vencido" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
       <div class="kpi-label">Vencidos com saldo</div>
       <div class="kpi-value" id="kpiVencido">0</div>
       <div class="kpi-delta neutral" id="kpiVencidoSub">R$ 0,00 sem usar</div>
@@ -1284,7 +1289,41 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="contagemLinhas">0 vales</span>
       <span class="estoque-total">Saldo do filtro: <b id="somaFiltro">R$ 0,00</b></span>
     </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
   </div>
+
+<!-- PAINEL LATERAL: o vale em resumo, so leitura. Cancelar e reativar ficam na pagina do vale. -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitulo">Vale-compra</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div id="drawerCorpo"></div>
+</div>
 
 <!-- PAINEL LATERAL: incluir um vale de cortesia. O vencimento sai de hoje mais o prazo de Configuracoes e aparece antes de confirmar. -->
 <div class="drawer-backdrop" id="incBackdrop"></div>
@@ -2200,9 +2239,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
   const PARAMS_URL = new URLSearchParams(window.location.search);
   // O estado da lista (busca, loja, origem, aba, ordem) volta pelo endereco quando a pagina do vale devolve para ca.
+  // Os tres indicadores da lista: a aba que cada um acende e o recorte que faz. Os numeros deles sao os mesmos recortes, sobre todos os vales.
+  const VALE_KPIS = {
+    saldo:   { sit: 'disponivel', quais: v => valeSituacao(v) === 'disponivel' },
+    venc30:  { sit: 'disponivel', quais: v => valeSituacao(v) === 'disponivel' && valeDiasParaVencer(v) <= 30 },
+    vencido: { sit: 'vencido',    quais: v => valeSituacao(v) === 'vencido' }
+  };
+  const kpiValido = (k) => (Object.prototype.hasOwnProperty.call(VALE_KPIS, k) ? k : null);
+  let paginaAtual = 1, itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
   let busca = PARAMS_URL.get('q') || '', fLoja = VALE_LOJAS[PARAMS_URL.get('loja')] ? PARAMS_URL.get('loja') : 'todas',
       fOrigem = VALE_ORIGENS[PARAMS_URL.get('origem')] ? PARAMS_URL.get('origem') : 'todas',
-      fSit = VALE_SITUACOES[PARAMS_URL.get('sit')] ? PARAMS_URL.get('sit') : 'todos', ordem = 'n', asc = false;
+      fSit = VALE_SITUACOES[PARAMS_URL.get('sit')] ? PARAMS_URL.get('sit') : 'todos', fKpi = kpiValido(PARAMS_URL.get('kpi')), ordem = 'n', asc = false;
   function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
   function html(id, v) { const el = document.getElementById(id); if (el) el.innerHTML = v; }
   function setDrop(id, valor, rotulo) {
@@ -2233,6 +2280,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (fLoja !== 'todas') q.push('loja=' + fLoja);
     if (fOrigem !== 'todas') q.push('origem=' + fOrigem);
     if (fSit !== 'todos') q.push('sit=' + fSit);
+    if (fKpi) q.push('kpi=' + fKpi);
     return q.length ? '&' + q.join('&') : '';
   }
 
@@ -2245,11 +2293,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   function filtradas() {
     const dir = asc ? 1 : -1, chave = { n: v => v.n, cliente: v => semAcento(v.cliente), emitido: v => v.emitido, venc: v => v.venc, valor: v => v.valor, saldo: v => valeSaldo(v) }[ordem];
-    return baseFiltrada().filter(v => fSit === 'todos' || valeSituacao(v) === fSit)
+    return baseFiltrada().filter(v => fSit === 'todos' || valeSituacao(v) === fSit).filter(v => !fKpi || VALE_KPIS[fKpi].quais(v))
       .sort((x, y) => (chave(x) < chave(y) ? -1 : chave(x) > chave(y) ? 1 : 0) * dir || (x.n - y.n) * dir);
   }
   function renderIndicadores() {
-    const todos = valeLer(), disp = todos.filter(v => valeSituacao(v) === 'disponivel'), venc30 = disp.filter(v => valeDiasParaVencer(v) <= 30), vencidos = todos.filter(v => valeSituacao(v) === 'vencido');
+    const todos = valeLer(), disp = todos.filter(VALE_KPIS.saldo.quais), venc30 = todos.filter(VALE_KPIS.venc30.quais), vencidos = todos.filter(VALE_KPIS.vencido.quais);
     const soma = (l) => valeArred(l.reduce((s, v) => s + valeSaldo(v), 0)), vales = (n) => n + (n === 1 ? ' vale' : ' vales');
     texto('kpiSaldo', valeMoeda(soma(disp)));
     texto('kpiSaldoSub', vales(disp.length) + (disp.length === 1 ? ' disponível' : ' disponíveis'));
@@ -2257,6 +2305,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('kpiVenceSub', 'somam ' + valeMoeda(soma(venc30)) + ' em saldo');
     texto('kpiVencido', String(vencidos.length));
     texto('kpiVencidoSub', 'somam ' + valeMoeda(soma(vencidos)) + ' sem usar');
+    document.querySelectorAll('#indicadoresVales [data-kpi]').forEach(c => {
+      const ativo = fKpi === c.getAttribute('data-kpi');
+      c.classList.toggle('on', ativo);
+      c.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+    });
   }
   function render() {
     const base = baseFiltrada(), lista = filtradas();
@@ -2266,7 +2319,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       a.classList.toggle('active', a.getAttribute('data-sit') === fSit);
       a.querySelector('.sit-contador').textContent = contagem[a.getAttribute('data-sit')];
     });
-    html('corpoTabela', lista.map(v => {
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual, fim = Math.min(inicio + itensPorPaginaAtual, lista.length);
+    html('corpoTabela', lista.slice(inicio, fim).map(v => {
       const s = valeSituacao(v), aviso = valeVencimentoTexto(v);
       return '<tr class="linha-clicavel" data-n="' + v.n + '">' +
         '<td class="col-texto"><span class="vol-nome vc-nowrap">VC-' + v.n + '</span></td>' +
@@ -2281,12 +2337,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto"><span class="badge-situacao ' + valeClasseSit(s) + '"><span class="sit-dot"></span>' + VALE_SITUACOES[s] + '</span></td>' +
       '</tr>';
     }).join(''));
-    document.querySelectorAll('#corpoTabela tr').forEach(tr => tr.addEventListener('click', () => { window.location.href = hrefVale(tr.getAttribute('data-n')); }));
+    document.querySelectorAll('#corpoTabela tr').forEach(tr => tr.addEventListener('click', () => abrirPainel(Number(tr.getAttribute('data-n')))));
     const vazio = lista.length === 0;
     document.getElementById('wrapVales').style.display = vazio ? 'none' : '';
     document.getElementById('emptyState').style.display = vazio ? '' : 'none';
     texto('contagemLinhas', lista.length + (lista.length === 1 ? ' vale' : ' vales'));
-    texto('somaFiltro', valeMoeda(lista.reduce((s, v) => s + valeSaldo(v), 0)));
+    texto('somaFiltro', valeMoeda(lista.reduce((s, v) => s + valeSaldo(v), 0)));   // o filtro inteiro, nao so a pagina
+    texto('paginacaoResumo', vazio ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + lista.length + (lista.length === 1 ? ' vale' : ' vales'));
+    texto('paginacaoPaginas', 'Página ' + paginaAtual + ' de ' + totalPaginas);
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
     document.querySelectorAll('#wrapVales th.ordenavel').forEach(th => {
       const ativo = th.getAttribute('data-ordem') === ordem;
       th.classList.toggle('ordenado', ativo);
@@ -2295,6 +2355,45 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     renderIndicadores();
   }
+
+  // ----- o painel do vale: o resumo ao clicar na linha, com a pagina completa a um botao daqui -----
+  // Cancelar e reativar ficam so na pagina do vale. O Esc fecha pelo bloco comum "ESC FECHA O PAINEL LATERAL".
+  const hrefCliente = (v) => '../cadastros/pagina-cadastros-clientes-detalhe.html?id=' + v.clienteId + '&aba=vale';
+  const hrefPedido = (id) => '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + id;
+  const eventDrawer = document.getElementById('eventDrawer');
+  function abrirPainel(n) {
+    const v = valeLer().filter(x => x.n === n)[0];
+    if (!v) return;
+    const s = valeSituacao(v), venceTexto = valeVencimentoTexto(v);
+    html('drawerTitulo', 'Vale-compra VC-' + v.n + ' <span class="badge-situacao ' + valeClasseSit(s) + '"><span class="sit-dot"></span>' + VALE_SITUACOES[s] + '</span>');
+    const linha = (rot, val) => '<div class="rt-linha"><div class="chave-rotulo">' + rot + '</div><div class="chave-valor">' + val + '</div></div>';
+    const origem = VALE_ORIGENS[v.origem] + (v.origem === 'cortesia' && v.motivo ? ' · ' + esc(v.motivo) : '') +
+      (v.ref ? ' · ' + (v.ref.href ? '<a class="com-link" href="' + esc(v.ref.href) + '">' + esc(v.ref.texto) + '</a>' : esc(v.ref.texto)) : '');
+    // Os tres usos mais recentes; no mesmo dia, o que veio depois fica em cima.
+    const ultimos = (v.usos || []).map((u, i) => ({ u: u, i: i }))
+      .sort((a, b) => (a.u.data < b.u.data ? 1 : a.u.data > b.u.data ? -1 : b.i - a.i)).slice(0, 3).map(x => x.u);
+    let corpo = linha('Cliente', '<a class="com-link" href="' + hrefCliente(v) + '">' + esc(v.cliente) + '</a> · ' + esc(v.doc)) +
+      linha('Loja', VALE_LOJAS[v.loja] + ' <span class="com-dica">o vale só vale nesta loja</span>') +
+      linha('Origem', origem) +
+      linha('Valor', valeMoeda(v.valor)) +
+      linha('Usado', valeMoeda(valeUsado(v))) +
+      linha('Saldo', '<b class="com-total">' + valeMoeda(valeSaldo(v)) + '</b>') +
+      linha('Emitido em', valeBr(v.emitido)) +
+      linha('Vence em', valeBr(v.venc) + (venceTexto ? ' · <span class="' + (s === 'vencido' ? 'com-atraso' : '') + '">' + venceTexto + '</span>' : '')) +
+      '<div class="rt-sub">Últimos usos</div>' +
+      (ultimos.length ? ultimos.map(u => linha(valeBr(u.data), (u.pedidoId ? '<a class="com-link" href="' + hrefPedido(u.pedidoId) + '">' + esc(u.documento) + '</a>' : esc(u.documento)) + ' · ' + valeMoeda(u.valor))).join('')
+                      : '<div class="field-hint">Nenhum uso ainda.</div>');
+    corpo += '<div class="drawer-footer"><a class="btn-primary" id="btnVerVale" style="text-decoration:none;" href="' + hrefVale(v.n) + '">Ver vale completo</a></div>';
+    html('drawerCorpo', corpo);
+    document.getElementById('drawerBackdrop').classList.add('open');
+    eventDrawer.classList.add('open');
+  }
+  function fecharDrawer() {
+    document.getElementById('drawerBackdrop').classList.remove('open');
+    eventDrawer.classList.remove('open');
+  }
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  document.getElementById('drawerBackdrop').addEventListener('click', fecharDrawer);
 
   // ----- incluir vale (cortesia) -----
   let clienteVale = null, sugestoes = [];
@@ -2385,20 +2484,33 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.querySelectorAll('#wrapVales th.ordenavel').forEach(th => th.addEventListener('click', () => {
     const campo = th.getAttribute('data-ordem');
     if (ordem === campo) asc = !asc; else { ordem = campo; asc = campo === 'cliente'; }
-    render();
+    paginaAtual = 1; render();
   }));
   const campoBusca = document.getElementById('campoBusca');
   campoBusca.value = busca;
-  campoBusca.addEventListener('input', (e) => { busca = e.target.value; render(); });
+  campoBusca.addEventListener('input', (e) => { busca = e.target.value; paginaAtual = 1; render(); });
   montar('menuFiltroLoja', [{ v: 'todas', t: 'Todas as lojas' }].concat(Object.keys(VALE_LOJAS).map(l => ({ v: l, t: VALE_LOJAS[l] }))));
   montar('menuFiltroOrigem', [{ v: 'todas', t: 'Todas as origens' }].concat(Object.keys(VALE_ORIGENS).map(o => ({ v: o, t: VALE_ORIGENS[o] }))));
   setDrop('filtroLoja', fLoja, fLoja === 'todas' ? 'Todas as lojas' : VALE_LOJAS[fLoja]);
   setDrop('filtroOrigem', fOrigem, fOrigem === 'todas' ? 'Todas as origens' : VALE_ORIGENS[fOrigem]);
-  inicializarDropdownSelect(document.getElementById('filtroLoja'), (v) => { fLoja = v; setDrop('filtroLoja', v, v === 'todas' ? 'Todas as lojas' : VALE_LOJAS[v]); render(); });
-  inicializarDropdownSelect(document.getElementById('filtroOrigem'), (v) => { fOrigem = v; setDrop('filtroOrigem', v, v === 'todas' ? 'Todas as origens' : VALE_ORIGENS[v]); render(); });
-  document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.addEventListener('click', () => { fSit = a.getAttribute('data-sit'); render(); }));
+  inicializarDropdownSelect(document.getElementById('filtroLoja'), (v) => { fLoja = v; setDrop('filtroLoja', v, v === 'todas' ? 'Todas as lojas' : VALE_LOJAS[v]); paginaAtual = 1; render(); });
+  inicializarDropdownSelect(document.getElementById('filtroOrigem'), (v) => { fOrigem = v; setDrop('filtroOrigem', v, v === 'todas' ? 'Todas as origens' : VALE_ORIGENS[v]); paginaAtual = 1; render(); });
+  document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.addEventListener('click', () => { fSit = a.getAttribute('data-sit'); fKpi = null; paginaAtual = 1; render(); }));
+  // Indicador: acende a aba que ele conta e faz o recorte; o mesmo de novo desfaz. Busca, loja e origem continuam valendo.
+  function escolherIndicador(id) {
+    if (fKpi === id) { fKpi = null; fSit = 'todos'; }
+    else { fKpi = id; fSit = VALE_KPIS[id].sit; }
+    paginaAtual = 1; render();
+  }
+  document.querySelectorAll('#indicadoresVales [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; render(); } });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; render(); });
   function limparFiltros() {
-    busca = ''; fLoja = 'todas'; fOrigem = 'todas'; fSit = 'todos';
+    busca = ''; fLoja = 'todas'; fOrigem = 'todas'; fSit = 'todos'; fKpi = null; paginaAtual = 1;
     document.getElementById('campoBusca').value = '';
     setDrop('filtroLoja', 'todas', 'Todas as lojas'); setDrop('filtroOrigem', 'todas', 'Todas as origens');
   }
@@ -2455,7 +2567,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // No menu "Mais acoes": data-acao="planilha" e data-acao="imprimir".
   const PLANILHA_NOME = 'vale-compra';
   const PLANILHA_REFAZ = render;   // como a lista se redesenha; null em tela que nao e lista
-  const PLANILHA_PAGINA = null;   // onde esta tela guarda a paginacao; null quando nao pagina
+  const PLANILHA_PAGINA = { ler: () => [itensPorPaginaAtual, paginaAtual], por: (n, p) => { itensPorPaginaAtual = n; paginaAtual = p; } };   // onde esta tela guarda a paginacao; null quando nao pagina
   // Redesenha a lista com todas as paginas, faz o que foi pedido e devolve a pagina como estava.
   function comListaInteira(fazer) {
     const paginada = !!PLANILHA_REFAZ && !!PLANILHA_PAGINA;

@@ -1202,6 +1202,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="contagemLinhas">0 lojas</span>
       <span class="estoque-total">Meta do filtro: <b id="somaFiltro">R$ 0,00</b></span>
     </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
   </div>
 
 <!-- PAINEL LATERAL: a meta por dentro, so leitura -->
@@ -2179,6 +2203,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== FILTROS E ORDEM =====
   let busca = '', nivel = 'loja', fSit = 'todas';
+  let paginaAtual = 1, itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
   let mesSel = MES_HOJE, anoSel = ANO_HOJE;
   let ordem = 'nome', asc = true;
   const eventDrawer = document.getElementById('eventDrawer');
@@ -2277,8 +2302,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const lista = filtradas();
     const corpo = document.getElementById('corpoTabela');
     texto('thNome', nivel === 'loja' ? 'Loja' : 'Vendedor');
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual, fim = Math.min(inicio + itensPorPaginaAtual, lista.length);
+    document.getElementById('paginacaoResumo').textContent = lista.length === 0 ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + lista.length + ' ' + (lista.length === 1 ? (nivel === 'loja' ? 'loja' : 'vendedor') : (nivel === 'loja' ? 'lojas' : 'vendedores'));
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
 
-    corpo.innerHTML = lista.map(function (l) {
+    corpo.innerHTML = lista.slice(inicio, fim).map(function (l) {
       const s = SIT_META[l.sit];
       return '<tr data-id="' + l.id + '">' +
         '<td class="col-texto"><span class="vol-nome">' + l.nome + '</span><span class="vol-sub">' + subDe(l) + '</span></td>' +
@@ -2301,7 +2333,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     const nomeN = nivel === 'loja' ? ['loja', 'lojas'] : ['vendedor', 'vendedores'];
     texto('contagemLinhas', lista.length + ' ' + (lista.length === 1 ? nomeN[0] : nomeN[1]));
-    texto('somaFiltro', moeda(lista.reduce(function (s, l) { return s + (l.meta || 0); }, 0)));
+    texto('somaFiltro', moeda(lista.reduce(function (s, l) { return s + (l.meta || 0); }, 0)));   // o filtro inteiro, nao so a pagina
 
     document.querySelectorAll('#abasNivel .sit-contador').forEach(function (el) {
       el.textContent = unidadesDe(el.getAttribute('data-cont')).length;
@@ -2641,17 +2673,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.querySelectorAll('#abasNivel .aba-sit').forEach(function (a) { a.classList.remove('active'); });
       aba.classList.add('active');
       nivel = aba.getAttribute('data-nivel');
-      render();
+      paginaAtual = 1; render();
     });
   });
   document.querySelectorAll('.estoque-table th.ordenavel').forEach(function (th) {
     th.addEventListener('click', function () {
       const campo = th.getAttribute('data-ordem');
       if (ordem === campo) asc = !asc; else { ordem = campo; asc = true; }
-      render();
+      paginaAtual = 1; render();
     });
   });
-  document.getElementById('campoBusca').addEventListener('input', function (e) { busca = e.target.value; render(); });
+  document.getElementById('campoBusca').addEventListener('input', function (e) { busca = e.target.value; paginaAtual = 1; render(); });
 
   (function ligarFiltros() {
     montar('menuFiltroMes', NOMES_MES.map(function (n, i) { return { v: i + 1, t: n }; }));
@@ -2662,18 +2694,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setDrop('filtroAno', anoSel, String(anoSel));
     setDrop('filtroSituacao', 'todas', 'Qualquer situação');
     inicializarDropdownSelect(document.getElementById('filtroMes'), function (v) {
-      mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES[mesSel - 1]); render();
+      mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES[mesSel - 1]); paginaAtual = 1; render();
     });
     inicializarDropdownSelect(document.getElementById('filtroAno'), function (v) {
-      anoSel = Number(v); setDrop('filtroAno', v, String(v)); render();
+      anoSel = Number(v); setDrop('filtroAno', v, String(v)); paginaAtual = 1; render();
     });
     inicializarDropdownSelect(document.getElementById('filtroSituacao'), function (v) {
-      fSit = v; setDrop('filtroSituacao', v, v === 'todas' ? 'Qualquer situação' : SIT_META[v].rotulo); render();
+      fSit = v; setDrop('filtroSituacao', v, v === 'todas' ? 'Qualquer situação' : SIT_META[v].rotulo); paginaAtual = 1; render();
     });
+    inicializarDropdownSelect(document.getElementById('itensPorPagina'), function (v) { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
+    document.getElementById('btnPaginaAnterior').addEventListener('click', function () { if (paginaAtual > 1) { paginaAtual--; render(); } });
+    document.getElementById('btnPaginaProxima').addEventListener('click', function () { paginaAtual++; render(); });
   })();
 
   document.getElementById('btnLimparFiltros').addEventListener('click', function () {
-    busca = ''; fSit = 'todas';
+    busca = ''; fSit = 'todas'; paginaAtual = 1;
     document.getElementById('campoBusca').value = '';
     setDrop('filtroSituacao', 'todas', 'Qualquer situação');
     render();
@@ -2760,7 +2795,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // No menu "Mais acoes": data-acao="planilha" e data-acao="imprimir".
   const PLANILHA_NOME = 'metas';
   const PLANILHA_REFAZ = render;   // como a lista se redesenha; null em tela que nao e lista
-  const PLANILHA_PAGINA = null;   // onde esta tela guarda a paginacao; null quando nao pagina
+  const PLANILHA_PAGINA = { ler: () => [itensPorPaginaAtual, paginaAtual], por: (n, p) => { itensPorPaginaAtual = n; paginaAtual = p; } };   // onde esta tela guarda a paginacao; null quando nao pagina
   // Redesenha a lista com todas as paginas, faz o que foi pedido e devolve a pagina como estava.
   function comListaInteira(fazer) {
     const paginada = !!PLANILHA_REFAZ && !!PLANILHA_PAGINA;

@@ -13,6 +13,7 @@
 #   [6] a fila da Conferencia de Entrada mostra a transferencia a caminho, e leva a contagem dela;
 #   [7] fechar pede a senha do recebimento, e o numero que vem no endereco nao e aceito de olhos
 #       fechados. A conferencia da nota segue como era.
+#   [8] a barra de paginacao padrao na lista de transferencias (ajuste do teste do usuario, 19/out/2026).
 from playwright.sync_api import sync_playwright
 import datetime, os as _os, glob as _g, re, sys
 import localiza
@@ -330,6 +331,53 @@ with sync_playwright() as p:
         contar(0, 1); validar(0); motivo(0, 'faltou_na_entrega'); abrir_fechamento()
         ok('Saldo da ordem de compra' in texto('#drawerCorpo') and 'Comunicado ao fornecedor' in texto('#drawerCorpo') and pg.locator('#selResto').count() == 0,
            'e o fechamento dela continua com o saldo da ordem de compra e o comunicado ao fornecedor')
+
+    if secao(8, 'A barra de paginação padrão na lista de transferências (ajuste do teste, 19/out/2026)'):
+        do_zero(TRANSF)
+        semeadas = []
+        for i in range(12):
+            recebida = i >= 7
+            semeadas.append({'num': 'TR-02%02d' % i, 'saiu': '2026-09-%02d' % (10 + i), 'enviou': 'Carlos Mendes', 'origem': 2 if i % 2 else 1, 'destino': 3 if i % 3 else 5,
+                             'situacao': 'recebida' if recebida else 'transito',
+                             'itens': [{'produtoId': 6, 'nome': 'Teclado Mecânico Desk', 'sku': 'TEC-MEC-006', 'un': 'UN', 'enviado': 5, 'recebido': 5 if recebida else 0}]})
+            if recebida:
+                semeadas[-1].update(chegou='2026-09-30', recebeu='Ana Souza')
+        pg.evaluate("(s) => { s.forEach(t => TRANSFERENCIAS.push(t)); renderTabela(); }", semeadas)
+        pag = lambda: pg.evaluate("[document.getElementById('paginacaoResumo').textContent, document.getElementById('paginacaoPaginas').textContent, document.getElementById('btnPaginaAnterior').disabled, document.getElementById('btnPaginaProxima').disabled]")
+        linhas_n = lambda: pg.evaluate("document.querySelectorAll('#corpoTabela tr').length")
+        cont = lambda: texto('#contagemTransf')
+        por = lambda n: (clic('#itensPorPagina .dropdown-select-item[data-value="%s"]' % n), pg.wait_for_timeout(200))
+        proximo = lambda: (clic('#btnPaginaProxima'), pg.wait_for_timeout(150))
+        aba = lambda a: (clic('#abasSituacao .aba-sit[data-sit="%s"]' % a), pg.wait_for_timeout(150))
+        ok(pg.evaluate("!!document.querySelector('.paginacao-bar #itensPorPagina') && !!document.querySelector('.paginacao-bar .paginacao-nav')"), 'o rodapé tem a barra de paginação padrão')
+        ok(pg.evaluate("[...document.querySelectorAll('#itensPorPagina .dropdown-select-item')].map(i => i.textContent)") == ['10', '25', '50', '100'] and texto('#itensPorPagina .dropdown-select-label') == '10', 'opções 10, 25, 50 e 100, padrão 10')
+        ok(linhas_n() == 10 and pag() == ['Mostrando 1–10 de 15', 'Página 1 de 2', True, False], 'com 15 transferências, a primeira página tem 10 linhas: %s' % pag())
+        ok(cont() == '15 transferências' and texto('#totalTransito') == '9', 'a contagem (15) e "Em trânsito agora" (9) são do filtro inteiro, não da página: %s / %s' % (cont(), texto('#totalTransito')))
+        proximo()
+        ok(linhas_n() == 5 and pag() == ['Mostrando 11–15 de 15', 'Página 2 de 2', False, True] and cont() == '15 transferências' and texto('#totalTransito') == '9', 'a segunda página tem as 5 que sobram, com a contagem e o total iguais')
+        clic('#btnPaginaAnterior'); pg.wait_for_timeout(150)
+        ok(pag()[1] == 'Página 1 de 2', 'a anterior volta')
+        por(25); ok(linhas_n() == 15 and pag() == ['Mostrando 1–15 de 15', 'Página 1 de 1', True, True], 'com 25 por página, as 15 numa só e os dois botões desligados')
+        por(10); proximo()
+        aba('transito')
+        ok(pag() == ['Mostrando 1–8 de 8', 'Página 1 de 1', True, True] and cont() == '8 transferências', 'clicar numa aba volta à página 1 e a paginação conta só as 8 em trânsito: %s' % pag())
+        aba('todas'); proximo()
+        pg.fill('#campoBusca', 'TR-'); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 1–10 de 15', 'Página 1 de 2', True, False], 'a busca que ainda deixa as 15 também volta à página 1: %s' % pag())
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150); proximo()
+        pg.fill('#campoBusca', 'TR-020'); pg.wait_for_timeout(150)
+        ok(pag()[0] == 'Mostrando 1–10 de 10' and pag()[1] == 'Página 1 de 1', 'a busca volta à página 1 e conta o que ela deixa (TR-0200 a TR-0209): %s' % pag())
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150); proximo()
+        clic('#filtroDeposito .dropdown-select-item[data-value="5"]'); pg.wait_for_timeout(200)
+        ok(pag()[1].startswith('Página 1 de ') and int(pag()[0].split(' de ')[1]) == int(cont().split()[0]), 'trocar o depósito volta à página 1 e a paginação acompanha a contagem: %s / %s' % (pag(), cont()))
+        clic('#filtroDeposito .dropdown-select-item[data-value="todos"]'); pg.wait_for_timeout(150)
+        pg.fill('#campoBusca', 'zzz'); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 0 de 0', 'Página 1 de 1', True, True], 'sem resultado, "Mostrando 0 de 0" e os dois botões desligados')
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150)
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ registrosPorPagina: 25 }))"); ir(TRANSF)
+        pg.evaluate("(s) => { s.forEach(t => TRANSFERENCIAS.push(t)); renderTabela(); }", semeadas)
+        ok(linhas_n() == 15 and texto('#itensPorPagina .dropdown-select-label') == '25', 'a quantidade de abertura é a de Configurações, Interface do usuário (25)')
+        do_zero(TRANSF)
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()

@@ -16,6 +16,10 @@
 #   [7] A aba do cliente: saldo por loja (so a propria loja), os vales, o link para a lista, e o cadastro em modo leitura;
 #   [8] O item de menu na posicao certa em toda tela, e o catalogo de acoes com as tres acoes;
 #   [9] O bloco de leitura identico nas tres copias, a impressao em relatorio e a barra de rolagem de 1280px para cima.
+#   Ajustes do teste do usuario (19/out/2026):
+#   [10] O painel lateral ao clicar na linha (resumo do vale, "Ver vale completo" com os filtros, fechar por tres jeitos);
+#   [11] Os indicadores filtram a lista (cada um, estado aceso, desfaz, combina com loja e busca, vai no endereco);
+#   [12] A barra de paginacao padrao no rodape (quantidade por pagina, navegacao, volta a pagina 1, saldo do filtro inteiro, impressao com tudo).
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
 import os as _os, glob as _g, re, sys
@@ -337,8 +341,9 @@ with sync_playwright() as p:
         limpar(True); ir(LISTA, '?q=rafael&loja=1&sit=usado')
         ok(ns() == ['VC-2'] and pg.input_value('#campoBusca') == 'rafael' and pg.evaluate("document.querySelector('#filtroLoja .dropdown-select-label').textContent") == 'Desk Shope' and
            pg.evaluate("document.querySelector('.aba-sit.active').getAttribute('data-sit')") == 'usado', 'a lista abre com o estado que o endereço traz (busca, loja e aba)')
-        pg.evaluate("document.querySelector('#corpoTabela tr').click()"); pg.wait_for_timeout(600)
-        ok('vale-compra-detalhe.html?id=2' in pg.url and 'q=rafael' in pg.url and 'loja=1' in pg.url and 'sit=usado' in pg.url, 'clicar na linha abre a página do vale e leva o estado no endereço: %s' % pg.url.split('/')[-1])
+        pg.evaluate("document.querySelector('#corpoTabela tr').click()"); pg.wait_for_timeout(400)
+        pg.click('#btnVerVale'); pg.wait_for_timeout(600)
+        ok('vale-compra-detalhe.html?id=2' in pg.url and 'q=rafael' in pg.url and 'loja=1' in pg.url and 'sit=usado' in pg.url, 'a linha abre o painel e "Ver vale completo" abre a página do vale levando o estado no endereço: %s' % pg.url.split('/')[-1])
         href_voltar = pg.get_attribute('#btnVoltarLista', 'href')
         ok(href_voltar.startswith('../financas/pagina-financas-vale-compra.html?') and 'q=rafael' in href_voltar and 'loja=1' in href_voltar and 'sit=usado' in href_voltar, 'o "Voltar" da página do vale leva o mesmo estado de volta: %s' % href_voltar)
         pg.click('#btnVoltarLista'); pg.wait_for_timeout(600)
@@ -708,6 +713,253 @@ with sync_playwright() as p:
                         com_barra.append('%s %s %dpx %s' % (tela.replace('pagina-', '').replace('.html', ''), rotulo + q, largura, item))
         pg.set_viewport_size({'width': 1440, 'height': 900})
         ok(not com_barra, 'nenhuma tabela rola na horizontal, a 1280 e a 1440, na lista, na página do vale e na aba do cliente, nem no pior caso (valores e nomes longos): %s' % com_barra[:4])
+        limpar()
+
+    # ================================================================== [10] o painel lateral ao clicar na linha (ajuste do teste, 19/out/2026)
+    if secao(10, 'O painel lateral: abre pela linha, resume o vale, leva à página completa com os filtros e fecha de três jeitos'):
+        limpar(True); ir(LISTA)
+        def aberto():
+            try: return pg.evaluate("document.getElementById('eventDrawer').classList.contains('open') && document.getElementById('drawerBackdrop').classList.contains('open')")
+            except Exception: return False   # a pagina navegou: o painel nao abriu
+        painel = lambda: pg.evaluate("Object.fromEntries([...document.querySelectorAll('#drawerCorpo .rt-linha')].map(l => [l.children[0].textContent.trim(), l.children[1].textContent.replace(/\\s+/g, ' ').trim()]))")
+        def abre(n):
+            try: pg.evaluate("(n) => document.querySelector('#corpoTabela tr[data-n=\"' + n + '\"]').click()", n)
+            except Exception: pass
+            pg.wait_for_timeout(500)
+        url0 = pg.url
+        ok(not aberto(), 'o painel abre fechado')
+        abre(1)
+        ok(aberto() and pg.url == url0, 'clicar na linha abre o painel e NÃO sai da lista (o endereço é o mesmo): %s' % pg.url.split('/')[-1])
+        ok(pg.evaluate("document.getElementById('drawerTitulo').textContent.replace(/\\s+/g, ' ').trim()") == 'Vale-compra VC-1 Vencido', 'o título é "Vale-compra VC-1" com o selo da situação')
+        ok(pg.evaluate("getComputedStyle(document.querySelector('#drawerTitulo .badge-situacao')).color") == pg.evaluate("getComputedStyle(document.querySelector('#corpoTabela tr[data-n=\"1\"] .badge-situacao')).color"), 'o selo do painel tem a cor do selo da lista')
+        p1 = painel()
+        ok(list(p1.keys()) == ['Cliente', 'Loja', 'Origem', 'Valor', 'Usado', 'Saldo', 'Emitido em', 'Vence em'], 'o painel traz cliente, loja, origem, valor, usado, saldo, emitido e vence, nessa ordem: %s' % list(p1.keys()))
+        ok(p1['Vence em'] == '%s · vencido há 20 dias' % br(dia(-20)) and pg.evaluate("!!document.querySelector('#drawerCorpo .com-atraso')"), 'o vencimento diz "vencido há 20 dias" e esse trecho fica em vermelho')
+        ok(pg.evaluate("""() => { const e = document.querySelector('#drawerCorpo .com-atraso'); const t = document.createElement('span'); t.style.color = 'var(--danger)'; document.body.appendChild(t);
+            const ref = getComputedStyle(t).color; t.remove(); return getComputedStyle(e).color === ref; }"""), 'e o vermelho é o do sistema (--danger)')
+        ok(p1['Cliente'] == 'Camila Rêgo · 567.890.123-44' and p1['Loja'].startswith('Desk Brands') and 'o vale só vale nesta loja' in p1['Loja'] and p1['Origem'] == 'Cortesia · Troca de tamanho sem estoque na loja',
+           'cliente com documento, a loja com "só vale nesta loja" e a origem com o motivo da cortesia: %s' % p1)
+        ok(pg.get_attribute('#drawerCorpo a.com-link', 'href') == '../cadastros/pagina-cadastros-clientes-detalhe.html?id=7&aba=vale', 'o cliente é link para o cadastro, na aba Vale-compra (?aba=vale)')
+        ok('Nenhum uso ainda' in pg.inner_text('#drawerCorpo'), 'o vale sem uso diz "Nenhum uso ainda"')
+        ok(pg.inner_text('#drawerCorpo a#btnVerVale') == 'Ver vale completo' and 'Cancelar' not in pg.inner_text('#eventDrawer') and 'Reativar' not in pg.inner_text('#eventDrawer'), 'o botão principal é "Ver vale completo", e Cancelar e Reativar não estão no painel (ficam na página do vale)')
+        ok(pg.evaluate("document.querySelectorAll('#drawerCorpo button, #drawerCorpo .drawer-link').length") == 0, 'e o painel não tem outra ação')
+        # o conteudo bate com a pagina do vale
+        CAMPOS_PAINEL = ['Cliente', 'Loja', 'Origem', 'Valor', 'Usado', 'Saldo', 'Emitido em', 'Vence em']
+        def bate(n):
+            ir(LISTA); abre(n)
+            a = painel()
+            ir(DET, '?id=%d' % n)
+            b = pg.evaluate("Object.fromEntries([...document.querySelectorAll('#corpoDados .rt-linha')].map(l => [l.children[0].textContent.trim(), l.children[1].textContent.replace(/\\s+/g, ' ').trim()]))")
+            return a, b
+        for n in (1, 3, 2, 5):
+            a, b = bate(n)
+            ok(all(a[k] == b[k] for k in CAMPOS_PAINEL), 'o VC-%d: cada linha do painel é igual à da página do vale (%s)' % (n, a.get('Saldo')))
+        # os ultimos usos: o disponivel com uso, e o limite de tres
+        limpar(True); ir(LISTA); abre(3)
+        usos = pg.evaluate("[...document.querySelectorAll('#drawerCorpo .rt-sub')].map(e => e.textContent.trim())")
+        ok(usos == ['Últimos usos'], 'o bloco "Últimos usos" aparece')
+        linhas_u = pg.evaluate("(() => { const l = [...document.querySelectorAll('#drawerCorpo .rt-linha')].slice(-1)[0]; return l.children[0].textContent.trim() + ' ' + l.children[1].textContent.replace(/\s+/g, ' ').trim(); })()")
+        ok(linhas_u == '%s Pedido nº 10 · R$ 30,00' % br(dia(-11)), 'o VC-3 mostra o único uso: data, documento e valor: %s' % linhas_u)
+        ok(pg.get_attribute('#drawerCorpo .rt-linha a.com-link[href*="pedidos"]', 'href') == '../vendas/pagina-vendas-pedidos-detalhe.html?id=10', 'e o documento é link para o pedido, como na página do vale')
+        cinco = [dict(data=iso(dia(-d)), documento='Pedido nº %d' % (100 + d), pedidoId=0, valor=5) for d in (50, 40, 30, 20, 10)]
+        semear([vale(1, 1, 'Marina Duarte', '123.456.789-00', 1, 100, 60, 120, usos=cinco)]); ir(LISTA); abre(1)
+        docs = pg.evaluate("[...document.querySelectorAll('#drawerCorpo .rt-linha')].slice(-3).map(l => l.children[1].textContent.replace(/\\s+/g, ' ').trim())")
+        ok(docs == ['Pedido nº 110 · R$ 5,00', 'Pedido nº 120 · R$ 5,00', 'Pedido nº 130 · R$ 5,00'], 'com cinco usos, mostra só os três mais recentes, do mais novo para o mais velho: %s' % docs)
+        ok(pg.evaluate("document.querySelectorAll('#drawerCorpo .rt-linha a[href*=\"pedidos\"]').length") == 0, 'uso sem pedido (pedidoId 0) não vira link')
+        # a pagina completa leva os filtros, e o Voltar devolve
+        limpar(True); ir(LISTA, '?q=camila&loja=2&sit=vencido&kpi=vencido')
+        abre(1)
+        href = pg.get_attribute('#btnVerVale', 'href')
+        ok(href == '../financas/pagina-financas-vale-compra-detalhe.html?id=1&q=camila&loja=2&sit=vencido&kpi=vencido', '"Ver vale completo" é o endereço que a linha usava, com os filtros: %s' % href)
+        pg.click('#btnVerVale'); pg.wait_for_timeout(600)
+        ok('vale-compra-detalhe.html?id=1' in pg.url and 'q=camila' in pg.url and 'loja=2' in pg.url and 'sit=vencido' in pg.url and 'kpi=vencido' in pg.url, 'e abre a página do vale levando busca, loja, aba e indicador')
+        voltar = pg.get_attribute('#btnVoltarLista', 'href')
+        ok('q=camila' in voltar and 'loja=2' in voltar and 'sit=vencido' in voltar and 'kpi=vencido' in voltar, 'o "Voltar" da página do vale leva os quatro de volta: %s' % voltar)
+        pg.click('#btnVoltarLista'); pg.wait_for_timeout(600)
+        ok([l['n'] for l in linhas()] == ['VC-1'] and pg.input_value('#campoBusca') == 'camila' and pg.evaluate("document.querySelector('.aba-sit.active').getAttribute('data-sit')") == 'vencido' and
+           pg.evaluate("document.querySelector('#indicadoresVales [data-kpi=\"vencido\"]').getAttribute('aria-pressed')") == 'true', 'o Voltar devolve a lista como estava (busca, loja, aba e indicador)')
+        ok(not aberto(), 'e o painel volta fechado')
+        # fechar: pelo "fechar", pelo fundo e pelo Esc
+        limpar(True); ir(LISTA)
+        abre(4); pg.evaluate("document.getElementById('drawerClose').click()"); pg.wait_for_timeout(300)
+        ok(not aberto(), 'o "fechar" fecha o painel')
+        abre(4); pg.evaluate("document.getElementById('drawerBackdrop').click()"); pg.wait_for_timeout(300)
+        ok(not aberto(), 'clicar no fundo fecha o painel')
+        abre(4); pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
+        ok(not aberto(), 'o Esc fecha o painel')
+        abre(4); ok('VC-4' in pg.evaluate("document.getElementById('drawerTitulo').textContent"), 'e outra linha abre o painel do vale dela (VC-4)')
+        abre(2); ok('VC-2' in pg.evaluate("document.getElementById('drawerTitulo').textContent") and 'Usado' in painel() and painel()['Saldo'] == 'R$ 0,00', 'trocar de linha troca o conteúdo: o VC-2, usado, tem saldo R$ 0,00')
+        ok(pg.url == url0, 'em nenhum momento a lista navegou sozinha')
+        # a aba do cliente continua indo direto para a pagina do vale
+        ir(CLI_D, '?id=1&aba=vale')
+        pg.click('#tabelaValeVales a'); pg.wait_for_timeout(600)
+        ok('vale-compra-detalhe.html?id=4' in pg.url, 'na aba Vale-compra do cadastro do cliente, o número do vale continua indo direto para a página do vale')
+        limpar()
+
+    # ================================================================== [11] os indicadores filtram a lista (ajuste do teste, 19/out/2026)
+    if secao(11, 'Os indicadores filtram a lista: cada um recorta, acende, desfaz ao clicar de novo, combina com loja e busca e vai no endereço'):
+        cen = [vale(1, 1, 'Marina Duarte', '123.456.789-00', 1, 100, 20, 10, usos=[dict(data=iso(dia(-5)), documento='Venda no balcão', pedidoId=0, valor=30)]),
+               vale(2, 2, 'Rafael Nogueira', '234.567.890-11', 1, 40, 20, 30), vale(3, 4, 'Juliana Prado', '345.678.901-22', 2, 25, 20, 31),
+               vale(4, 7, 'Camila Rêgo', '567.890.123-44', 2, 15, 190, -1), vale(5, 11, 'Auto Peças Imperatriz Ltda', '29.887.501/0001-22', 3, 200, 280, -100,
+                    usos=[dict(data=iso(dia(-120)), documento='Venda no balcão', pedidoId=0, valor=50)]),
+               vale(6, 12, 'Bruno Carvalho', '890.123.456-77', 1, 80, 20, 160, cancelado=dict(em=iso(dia(-2)), motivo='x', saldo=80)),
+               vale(7, 13, 'Patrícia Farias', '901.234.567-88', 2, 10, 200, -5, usos=[dict(data=iso(dia(-30)), documento='Venda no balcão', pedidoId=0, valor=10)]),
+               vale(8, 10, 'Larissa Monteiro', '789.012.345-66', 3, 5, 20, 0)]
+        limpar(); semear(cen); ir(LISTA)
+        ns = lambda: [l['n'] for l in linhas()]
+        card = lambda k: pg.evaluate("(k) => { const c = document.querySelector('#indicadoresVales [data-kpi=\"' + k + '\"]'); return [c.classList.contains('on'), c.getAttribute('aria-pressed')]; }", k)
+        clica = lambda k: (pg.evaluate("(k) => document.querySelector('#indicadoresVales [data-kpi=\"' + k + '\"]').click()", k), pg.wait_for_timeout(200))
+        aba = lambda: pg.evaluate("document.querySelector('.aba-sit.active').getAttribute('data-sit')")
+        txt = lambda i: pg.evaluate("document.getElementById('%s').textContent" % i)
+        ok(pg.evaluate("[...document.querySelectorAll('#indicadoresVales .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.getAttribute('aria-pressed') === 'false' && getComputedStyle(c).cursor === 'pointer')"),
+           'os três indicadores são botões (role, tabindex), com o cursor de mão, e abrem desligados')
+        ok(ns() == ['VC-8', 'VC-7', 'VC-6', 'VC-5', 'VC-4', 'VC-3', 'VC-2', 'VC-1'], 'a lista abre com os oito vales')
+        numeros = (txt('kpiSaldo'), txt('kpiVence'), txt('kpiVencido'))
+        clica('saldo')
+        ok(ns() == ['VC-8', 'VC-3', 'VC-2', 'VC-1'] and aba() == 'disponivel' and card('saldo') == [True, 'true'], 'Saldo em vales: mostra os disponíveis (VC-8, 3, 2, 1), acende a aba Disponíveis e o cartão: %s' % ns())
+        ok(card('venc30') == [False, 'false'] and card('vencido') == [False, 'false'], 'e os outros dois cartões ficam apagados')
+        ok((txt('kpiSaldo'), txt('kpiVence'), txt('kpiVencido')) == numeros, 'os números dos indicadores continuam os mesmos com o filtro ligado: %s' % (numeros,))
+        ok(pg.evaluate("getComputedStyle(document.querySelector('#indicadoresVales [data-kpi=\"saldo\"]')).backgroundColor") != pg.evaluate("getComputedStyle(document.querySelector('#indicadoresVales [data-kpi=\"vencido\"]')).backgroundColor"), 'o cartão ligado tem outro fundo (o estado ativo)')
+        clica('saldo')
+        ok(len(ns()) == 8 and aba() == 'todos' and card('saldo') == [False, 'false'], 'clicar de novo tira o filtro: os oito de volta, aba Todos, cartão apagado')
+        clica('venc30')
+        ok(txt('kpiSaldo') == moeda(140) and txt('kpiVence') == '3' and txt('kpiVencido') == '2', 'os três números do cenário são R$ 140,00, 3 e 2 (o recorte de 30 dias não conta vencido, usado nem cancelado)')
+        ir(LISTA, '?kpi=venc30')
+        ok(ns() == ['VC-8', 'VC-2', 'VC-1'], 'o recorte de 30 dias vindo só pelo endereço (sem aba) também deixa só os disponíveis que vencem em até 30 dias: %s' % ns())
+        ir(LISTA); clica('venc30')
+        ok(ns() == ['VC-8', 'VC-2', 'VC-1'] and card('venc30') == [True, 'true'] and aba() == 'disponivel', 'Vencem em 30 dias: o de hoje, o de 30 e o de 10 (e não o de 31 nem os vencidos): %s' % ns())
+        ok('VC-3' not in ns() and 'VC-4' not in ns() and 'VC-5' not in ns(), 'o recorte de 30 dias não inclui o que vence em 31 dias nem os vencidos')
+        clica('vencido')
+        ok(ns() == ['VC-5', 'VC-4'] and card('vencido') == [True, 'true'] and card('venc30') == [False, 'false'] and aba() == 'vencido', 'Vencidos com saldo: VC-5 e VC-4, e trocar de indicador desliga o anterior: %s' % ns())
+        # combina com a busca, a loja e a origem
+        clica('vencido'); clica('saldo')
+        pg.evaluate(ESCOLHE, ['filtroLoja', '1']); pg.wait_for_timeout(150)
+        ok(ns() == ['VC-2', 'VC-1'] and card('saldo')[0], 'Saldo + loja Desk Shope: só os disponíveis dela (VC-2, VC-1), com o indicador ainda aceso: %s' % ns())
+        clica('venc30'); pg.fill('#campoBusca', 'rafael'); pg.wait_for_timeout(150)
+        ok(ns() == ['VC-2'] and card('venc30')[0], 'Vencem em 30 dias + loja + busca "rafael": só o VC-2')
+        pg.fill('#campoBusca', ''); pg.evaluate(ESCOLHE, ['filtroLoja', 'todas']); clica('vencido'); pg.evaluate(ESCOLHE, ['filtroLoja', '3']); pg.wait_for_timeout(150)
+        ok(ns() == ['VC-5'], 'Vencidos + loja Desk Tech: só o VC-5')
+        pg.evaluate(ESCOLHE, ['filtroOrigem', 'devolucao']); pg.wait_for_timeout(150)
+        ok(ns() == [] and card('vencido')[0] and pg.evaluate("document.getElementById('emptyState').style.display") != 'none', 'Vencidos + origem Devolução: nenhum, e a lista diz que não há vale (o indicador segue aceso)')
+        pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(200)
+        ok(len(ns()) == 8 and card('vencido') == [False, 'false'] and aba() == 'todos', 'Limpar filtros também desliga o indicador')
+        # mexer numa aba tira o recorte
+        clica('venc30'); pg.evaluate("document.querySelector('.aba-sit[data-sit=\"disponivel\"]').click()"); pg.wait_for_timeout(200)
+        ok(ns() == ['VC-8', 'VC-3', 'VC-2', 'VC-1'] and card('venc30') == [False, 'false'], 'clicar numa aba tira o recorte do indicador: a aba Disponíveis volta com os quatro')
+        clica('vencido'); pg.evaluate("document.querySelector('.aba-sit[data-sit=\"todos\"]').click()"); pg.wait_for_timeout(200)
+        ok(len(ns()) == 8 and card('vencido') == [False, 'false'], 'e a aba Todos também')
+        # pelo teclado
+        pg.focus('#indicadoresVales [data-kpi="venc30"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
+        ok(ns() == ['VC-8', 'VC-2', 'VC-1'], 'Enter no cartão focado liga o filtro')
+        pg.keyboard.press(' '); pg.wait_for_timeout(200)
+        ok(len(ns()) == 8, 'e a barra de espaço desliga')
+        # o recorte vai no endereco e volta
+        clica('venc30'); abre_linha = pg.evaluate("document.querySelector('#corpoTabela tr[data-n=\"2\"]').click()"); pg.wait_for_timeout(300)
+        href = pg.get_attribute('#btnVerVale', 'href')
+        ok(href.endswith('?id=2&sit=disponivel&kpi=venc30'), 'o recorte vai no endereço da página do vale: %s' % href.split('/')[-1])
+        pg.click('#btnVerVale'); pg.wait_for_timeout(600)
+        ok('kpi=venc30' in pg.get_attribute('#btnVoltarLista', 'href'), 'o Voltar da página do vale leva o recorte de volta')
+        pg.click('#btnVoltarLista'); pg.wait_for_timeout(600)
+        ok(ns() == ['VC-8', 'VC-2', 'VC-1'] and card('venc30') == [True, 'true'] and aba() == 'disponivel', 'a lista volta com o recorte de 30 dias aceso e os mesmos três vales')
+        ir(LISTA, '?kpi=vencido')
+        ok(ns() == ['VC-5', 'VC-4'] and card('vencido')[0], 'o endereço ?kpi=vencido abre a lista já recortada')
+        for ruim in ('zzz', 'constructor', 'toString', ''):
+            ir(LISTA, '?kpi=' + ruim)
+            ok(len(ns()) == 8 and not any(card(k)[0] for k in ('saldo', 'venc30', 'vencido')), 'indicador "%s" no endereço é ignorado, sem quebrar' % ruim)
+        # a folha impressa diz qual indicador esta ligado
+        ir(LISTA); clica('venc30'); pg.evaluate("montarCabecalhoDoRelatorio()")
+        cab = pg.inner_text('#relatorioCabecalho')
+        ok('Indicador: Vencem em 30 dias' in cab and '3 registros' in cab, 'a folha do relatório lista o indicador ligado e conta 3 registros: %s' % cab.replace('\n', ' | ')[-110:])
+        # um vale semeado que vence em 10 dias entra no recorte e no indicador
+        semear([vale(1, 1, 'Marina Duarte', '123.456.789-00', 1, 77, 5, 10)]); ir(LISTA); clica('venc30')
+        ok(ns() == ['VC-1'] and txt('kpiVence') == '1', 'um vale que vence em 10 dias aparece no recorte, e o indicador conta 1')
+        limpar()
+
+    # ================================================================== [12] a barra de paginacao padrao (ajuste do teste, 19/out/2026)
+    if secao(12, 'A paginação padrão no rodapé: quantidade por página, navegação, volta à página 1, saldo do filtro inteiro, impressão e planilha com tudo'):
+        mais = []
+        for n in range(1, 28):
+            if n >= 26: mais.append(vale(n, n % 14 + 1, 'Cliente %d' % n, '111.111.111-%02d' % n, 1 + n % 2, 100 + n, 30, 100, cancelado=dict(em=iso(dia(-1)), motivo='x', saldo=100 + n)))
+            elif n >= 20: mais.append(vale(n, n % 14 + 1, 'Cliente %d' % n, '111.111.111-%02d' % n, 1 + n % 2, 100 + n, 200, -5))
+            else: mais.append(vale(n, n % 14 + 1, 'Cliente %d' % n, '111.111.111-%02d' % n, 1 + n % 2, 100 + n, 10, 170))
+        limpar(); semear(mais); ir(LISTA)
+        ns = lambda: [l['n'] for l in linhas()]
+        pag = lambda: pg.evaluate("[document.getElementById('paginacaoResumo').textContent, document.getElementById('paginacaoPaginas').textContent, document.getElementById('btnPaginaAnterior').disabled, document.getElementById('btnPaginaProxima').disabled]")
+        soma = lambda l: round(sum(saldo(v) for v in l), 2)
+        proximo = lambda: (pg.click('#btnPaginaProxima'), pg.wait_for_timeout(150))
+        anterior = lambda: (pg.click('#btnPaginaAnterior'), pg.wait_for_timeout(150))
+        por = lambda n: (pg.evaluate(ESCOLHE, ['itensPorPagina', str(n)]), pg.wait_for_timeout(200))
+        ok(pg.evaluate("!!document.querySelector('.paginacao-bar #itensPorPagina') && !!document.querySelector('.paginacao-bar .paginacao-nav')"), 'o rodapé tem a barra de paginação padrão (seletor de quantidade e navegação)')
+        ok(pg.evaluate("[...document.querySelectorAll('#itensPorPagina .dropdown-select-item')].map(i => i.textContent)") == ['10', '25', '50', '100'] and pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-label').textContent") == '10',
+           'as opções são 10, 25, 50 e 100, e o padrão é 10 (o de Configurações → Interface)')
+        ok(pg.evaluate("getComputedStyle(document.querySelector('.paginacao-bar')).display") == 'flex' and pg.evaluate("document.querySelector('.estoque-rodape').getBoundingClientRect().bottom <= document.querySelector('.paginacao-bar').getBoundingClientRect().top + 1"), 'a barra vem logo abaixo da contagem e do saldo do filtro')
+        ok(len(ns()) == 10 and ns()[0] == 'VC-27' and ns()[-1] == 'VC-18', 'a primeira página tem 10 linhas, do VC-27 ao VC-18: %s' % ns())
+        ok(pag() == ['Mostrando 1–10 de 27 vales', 'Página 1 de 3', True, False], 'resumo, "Página 1 de 3", anterior desligado e próxima ligado: %s' % pag())
+        ok(pg.evaluate("document.getElementById('contagemLinhas').textContent") == '27 vales', 'a contagem do rodapé continua sendo a do filtro inteiro (27 vales)')
+        ok(pg.evaluate("document.getElementById('somaFiltro').textContent") == moeda(soma([v for v in mais])), 'o saldo do filtro soma os 27 vales, não só a página: %s' % pg.evaluate("document.getElementById('somaFiltro').textContent"))
+        proximo()
+        ok(ns() == ['VC-%d' % i for i in range(17, 7, -1)] and pag() == ['Mostrando 11–20 de 27 vales', 'Página 2 de 3', False, False], 'a próxima leva ao VC-17 ao VC-8 (página 2 de 3): %s' % pag())
+        proximo()
+        ok(len(ns()) == 7 and ns()[-1] == 'VC-1' and pag() == ['Mostrando 21–27 de 27 vales', 'Página 3 de 3', False, True], 'a terceira tem 7 linhas, termina no VC-1 e a próxima se desliga: %s' % pag())
+        pg.evaluate("document.getElementById('btnPaginaProxima').click()"); pg.wait_for_timeout(100)
+        ok(pag()[1] == 'Página 3 de 3', 'a próxima desligada não passa da última')
+        anterior()
+        ok(pag()[1] == 'Página 2 de 3', 'a anterior volta uma página')
+        ok(pg.evaluate("document.getElementById('somaFiltro').textContent") == moeda(soma(mais)) and pg.evaluate("document.getElementById('contagemLinhas').textContent") == '27 vales', 'o saldo e a contagem não mudam ao virar a página')
+        # quantidade por pagina
+        por(25)
+        ok(len(ns()) == 25 and pag() == ['Mostrando 1–25 de 27 vales', 'Página 1 de 2', True, False], 'trocar para 25 volta à página 1 e mostra 25 linhas: %s' % pag())
+        proximo()
+        ok(len(ns()) == 2 and pag()[0] == 'Mostrando 26–27 de 27 vales', 'a segunda página tem as 2 que sobram')
+        por(50)
+        ok(len(ns()) == 27 and pag() == ['Mostrando 1–27 de 27 vales', 'Página 1 de 1', True, True], 'com 50 por página, tudo numa só: anterior e próxima desligados')
+        por(100); ok(len(ns()) == 27, 'com 100, as 27 linhas')
+        por(10); proximo(); proximo()
+        # volta a pagina 1 quando o filtro muda
+        pg.evaluate("document.querySelector('.aba-sit[data-sit=\"todos\"]').click()"); pg.wait_for_timeout(150)
+        ok(pag()[1] == 'Página 1 de 3', 'clicar numa aba volta à página 1')
+        proximo(); proximo(); pg.evaluate(ESCOLHE, ['filtroLoja', '1']); pg.wait_for_timeout(150)
+        l1 = [v for v in mais if v['loja'] == 1]
+        ok(pag()[1].startswith('Página 1 de ') and pg.evaluate("document.getElementById('contagemLinhas').textContent") == '%d vales' % len(l1) and pg.evaluate("document.getElementById('somaFiltro').textContent") == moeda(soma(l1)),
+           'trocar a loja volta à página 1, e a contagem (%d) e o saldo do filtro são os da loja inteira: %s' % (len(l1), pag()))
+        pg.evaluate(ESCOLHE, ['filtroLoja', 'todas']); pg.wait_for_timeout(150)
+        proximo(); pg.evaluate(ESCOLHE, ['filtroOrigem', 'cortesia']); pg.wait_for_timeout(150)
+        ok(pag()[1] == 'Página 1 de 3', 'trocar a origem volta à página 1')
+        proximo(); pg.fill('#campoBusca', 'cliente 2'); pg.wait_for_timeout(150)
+        achados = [v for v in mais if 'cliente 2' in v['cliente'].lower()]
+        ok(pag()[1] == 'Página 1 de 1' and len(ns()) == len(achados) and pg.evaluate("document.getElementById('somaFiltro').textContent") == moeda(soma(achados)), 'a busca volta à página 1 e a paginação conta só o que a busca deixa (%d vales)' % len(achados))
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150); proximo()
+        pg.fill('#campoBusca', 'cliente'); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 1–10 de 27 vales', 'Página 1 de 3', True, False], 'a busca que ainda deixa as 27 também volta à página 1: %s' % pag())
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150); proximo()
+        pg.evaluate("document.querySelector('#indicadoresVales [data-kpi=\"vencido\"]').click()"); pg.wait_for_timeout(200)
+        venc = [v for v in mais if situacao(v) == 'vencido']
+        ok(pag() == ['Mostrando 1–%d de %d vales' % (len(venc), len(venc)), 'Página 1 de 1', True, True] and len(ns()) == len(venc) and pg.evaluate("document.getElementById('somaFiltro').textContent") == moeda(soma(venc)),
+           'clicar num indicador volta à página 1 e a paginação respeita o recorte (%d vencidos): %s' % (len(venc), pag()))
+        pg.evaluate("document.querySelector('#indicadoresVales [data-kpi=\"vencido\"]').click()"); pg.wait_for_timeout(200)
+        proximo(); pg.evaluate("document.querySelector('#wrapVales th[data-ordem=\"saldo\"]').click()"); pg.wait_for_timeout(150)
+        ok(pag()[1] == 'Página 1 de 3', 'ordenar por uma coluna volta à página 1')
+        # as abas contam o filtro inteiro, nao a pagina
+        ok(pg.evaluate("[...document.querySelectorAll('.aba-sit .sit-contador')].map(c => c.textContent)") == ['27', '19', '0', '6', '2'], 'os contadores das abas contam o filtro inteiro: %s' % pg.evaluate("[...document.querySelectorAll('.aba-sit .sit-contador')].map(c => c.textContent)"))
+        # impressao e planilha levam todas as linhas, e devolvem a pagina como estava
+        pg.evaluate("window.print = () => { window.dispatchEvent(new Event('beforeprint')); window.__imp = { linhas: document.querySelectorAll('#corpoTabela tr').length, cab: document.getElementById('relatorioCabecalho').innerText }; window.dispatchEvent(new Event('afterprint')); }")
+        proximo()
+        antes = pag()
+        mais_acao('imprimir')
+        imp = pg.evaluate("window.__imp")
+        ok(imp and imp['linhas'] == 27 and '27 registros' in imp['cab'], 'imprimir leva as 27 linhas, não só a página aberta: %s' % str(imp and (imp['linhas'], imp['cab'].replace(chr(10), ' | ')[-40:])))
+        ok(pag() == antes and len(ns()) == 10, 'e a lista volta à página que estava: %s' % pag())
+        pg.evaluate("window.__n = null; comListaInteira(() => { window.__n = tabelaDaTela().linhas.length; })")
+        ok(pg.evaluate("window.__n") == 27 and pag() == antes, 'a planilha também lê as 27 linhas, e a página volta')
+        pg.evaluate("document.querySelector('.aba-sit[data-sit=\"vencido\"]').click()"); pg.wait_for_timeout(150)
+        pg.evaluate("window.__imp = null"); mais_acao('imprimir')
+        ok(pg.evaluate("window.__imp").get('linhas') == len(venc) and 'Situação: Vencidos' in pg.evaluate("window.__imp").get('cab'), 'com filtro, imprimir leva as linhas do filtro inteiro (%d vencidos)' % len(venc))
+        # a abertura vem de Configuracoes
+        limpar(); semear(mais); params(registrosPorPagina=25); ir(LISTA)
+        ok(len(ns()) == 25 and pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-label').textContent") == '25' and pag()[1] == 'Página 1 de 2', 'a quantidade de abertura é a de Configurações → Interface do usuário (25): %s' % pag())
+        # lista vazia
+        limpar(); ir(LISTA)
+        ok(pag() == ['Mostrando 0 de 0', 'Página 1 de 1', True, True], 'sem vale, a barra diz "Mostrando 0 de 0" e desliga os dois botões: %s' % pag())
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

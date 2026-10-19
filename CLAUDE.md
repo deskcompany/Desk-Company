@@ -184,7 +184,9 @@ Onde o projeto está, o que vem depois e o que espera decisão do usuário moram
 página e dispensa reler o resto para saber onde paramos.
 
 **Toda entrega reescreve o PROGRESSO.md, no mesmo commit.** Reescreve, não acrescenta: ele mostra o
-estado de hoje, e o histórico fica no `git log` e no §14 do design system. Decisão que o usuário
+estado de hoje e fica curto. Quando uma entrega é testada e aprovada, o texto dela sai do PROGRESSO e vai
+para o começo de "Entregas" no [HISTORICO.md](HISTORICO.md), que guarda tudo desde o começo (dividido em
+19/out/2026, a pedido do usuário). O detalhe técnico fica no §14 do design system, e o código no `git log`. Decisão que o usuário
 deixou em aberto entra em "Esperando decisão do usuário" e sai de lá quando ele responder. A seção
 10 de `teste_menu.py` confere os números dele contra o menu, então número velho reprova o selo.
 

@@ -18,6 +18,7 @@
 #   [8] Periodo por data inicial e final, historico com saldo corrente e filtro de mes e ano, historico no cadastro (2d);
 #   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
+#  [11] A barra de paginacao padrao na lista principal (ajuste do teste do usuario, 19/out/2026): so ela pagina, o saldo e o do filtro inteiro.
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
 import os as _os, glob as _g, math, re, sys
@@ -838,6 +839,78 @@ with sync_playwright() as p:
         pg.evaluate("() => { const g = JSON.parse(localStorage.getItem('deskComissoesPagas')); g.pagamentos[0].cancelado = true; g.pagamentos.splice(1, 1); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }")
         ir(LISTA); ir(CONTA, '?id=v1')
         ok(pg.evaluate(LER) == [[1, 'Marina Costa', 50], [3, 'Marina Costa', 40]], 'cancelado ou excluído, o exemplo não volta ao recarregar (a marca segura): %s' % pg.evaluate(LER))
+        limpar()
+
+    if secao(11, 'A barra de paginação padrão na lista (ajuste do teste, 19/out/2026)'):
+        novos = [dict(id=100 + i, cliente='Afiliado %02d' % i, clienteId=1 + i % 14, doc='111.111.111-%02d' % i, pix='afiliado%02d@teste.com' % i, loja=1 + i % 3, dias=50, situacao='ativo', aprovadoHa=40) for i in range(1, 23)]
+        limpar(); ir(LISTA)
+        pg.evaluate("(n) => localStorage.setItem('deskAfiliados', JSON.stringify({ novos: n }))", novos); ir(LISTA)
+        nomes = lambda: pg.evaluate("[...document.querySelectorAll('#corpoTabela tr .vol-nome')].map(e => e.textContent)")
+        pag = lambda: pg.evaluate("[document.getElementById('paginacaoResumo').textContent, document.getElementById('paginacaoPaginas').textContent, document.getElementById('btnPaginaAnterior').disabled, document.getElementById('btnPaginaProxima').disabled]")
+        proximo = lambda: (pg.click('#btnPaginaProxima'), pg.wait_for_timeout(150))
+        anterior = lambda: (pg.click('#btnPaginaAnterior'), pg.wait_for_timeout(150))
+        por = lambda n: (pg.evaluate(ESCOLHE, ['itensPorPagina', str(n)]), pg.wait_for_timeout(200))
+        soma_filtro = lambda: pg.evaluate("document.getElementById('somaFiltro').textContent")
+        moeda = lambda v: 'R$ ' + '{:,.2f}'.format(v).replace(',', 'X').replace('.', ',').replace('X', '.')
+        esperado_saldo = lambda: round(sum(pg.evaluate("filtradas().map(l => l.saldo)")), 2)
+        cont = lambda: pg.evaluate("document.getElementById('contagemLinhas').textContent")
+        quadros = lambda: pg.evaluate("[document.querySelectorAll('#corpoInscricoes tr').length, document.querySelectorAll('#corpoSaques tr').length, document.querySelectorAll('#corpoVencidos tr').length]")
+        ok(pg.evaluate("beneficiarios().length") == 27, 'com 22 afiliados semeados, a lista tem 27 pessoas (para duas ou mais páginas)')
+        outros = quadros()
+        ok(pg.evaluate("!!document.querySelector('.paginacao-bar #itensPorPagina') && !!document.querySelector('.paginacao-bar .paginacao-nav')"), 'o rodapé tem a barra de paginação padrão')
+        ok(pg.evaluate("[...document.querySelectorAll('#itensPorPagina .dropdown-select-item')].map(i => i.textContent)") == ['10', '25', '50', '100'] and pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-label').textContent") == '10', 'opções 10, 25, 50 e 100, padrão 10')
+        ok(len(nomes()) == 10 and pag() == ['Mostrando 1–10 de 27 afiliados', 'Página 1 de 3', True, False], 'a primeira página tem 10 linhas: %s' % pag())
+        ok(cont() == '27 afiliados', 'a contagem do rodapé continua sendo a do filtro inteiro: %s' % cont())
+        esp = esperado_saldo()
+        ok(esp > 0 and soma_filtro() == moeda(esp), 'o saldo a pagar do filtro soma as 27 pessoas (%s), não só a página: %s' % (moeda(esp), soma_filtro()))
+        ok(pg.evaluate("[...document.querySelectorAll('#corpoTabela tr .com-total')].reduce((s, e) => s + Number(e.textContent.replace('R$', '').replace(/\\./g, '').replace(',', '.')), 0)") < esp, 'e a página aberta, sozinha, somaria menos que isso')
+        proximo(); proximo()
+        ok(len(nomes()) == 7 and pag() == ['Mostrando 21–27 de 27 afiliados', 'Página 3 de 3', False, True] and soma_filtro() == moeda(esp), 'a terceira página tem 7 linhas, a próxima se desliga e o saldo do filtro não muda: %s' % pag())
+        ok('Rafael Andrade' in nomes(), 'e nela estão os que vêm depois de "Afiliado" na ordem alfabética (Rafael Andrade)')
+        anterior(); ok(pag()[1] == 'Página 2 de 3', 'a anterior volta uma página')
+        por(25); ok(len(nomes()) == 25 and pag() == ['Mostrando 1–25 de 27 afiliados', 'Página 1 de 2', True, False], 'trocar para 25 volta à página 1: %s' % pag())
+        por(50); ok(len(nomes()) == 27 and pag() == ['Mostrando 1–27 de 27 afiliados', 'Página 1 de 1', True, True], 'com 50, tudo numa página, os dois botões desligados')
+        por(10); proximo()
+        # cada filtro volta a pagina 1
+        pg.fill('#campoBusca', 'afiliado 1'); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 1–10 de 10 afiliados', 'Página 1 de 1', True, True] and cont() == '10 afiliados', 'a busca volta à página 1 e a paginação conta só o que ela deixa (Afiliado 10 a 19): %s' % pag())
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(150); proximo()
+        pg.evaluate(ESCOLHE, ['filtroTipo', 'cliente']); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 1–10 de 24 afiliados', 'Página 1 de 3', True, False], 'o filtro de afiliados volta à página 1 e conta os 24 clientes afiliados: %s' % pag())
+        ok(soma_filtro() == moeda(esperado_saldo()), 'e o saldo do filtro é o dos 24, inteiro')
+        pg.evaluate(ESCOLHE, ['filtroTipo', 'vendedor']); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 1–3 de 3 afiliados', 'Página 1 de 1', True, True], 'só vendedores: 3 linhas, uma página')
+        pg.evaluate(ESCOLHE, ['filtroTipo', 'todos']); pg.wait_for_timeout(150); proximo(); proximo()
+        mes_ant = (HOJE.month - 2) % 12 + 1
+        pg.evaluate(ESCOLHE, ['filtroMes', str(mes_ant)]); pg.wait_for_timeout(200)
+        ok(pag()[1] == 'Página 1 de 3' and soma_filtro() == moeda(esperado_saldo()), 'trocar o mês volta à página 1 e o saldo do filtro acompanha o mês')
+        pg.evaluate(ESCOLHE, ['filtroMes', str(HOJE.month)]); pg.wait_for_timeout(150); proximo()
+        pg.evaluate(ESCOLHE, ['filtroAno', str(HOJE.year - 1)]); pg.wait_for_timeout(200)
+        ok(pag()[1] == 'Página 1 de 3', 'trocar o ano volta à página 1')
+        pg.evaluate(ESCOLHE, ['filtroAno', str(HOJE.year)]); pg.wait_for_timeout(150); proximo()
+        pg.evaluate("document.querySelector('#wrapComissoes th[data-ordem=\"saldo\"]').click()"); pg.wait_for_timeout(150)
+        ok(pag()[1] == 'Página 1 de 3', 'ordenar por uma coluna volta à página 1')
+        pg.fill('#campoBusca', 'zzz'); pg.wait_for_timeout(150)
+        ok(pag() == ['Mostrando 0 de 0', 'Página 1 de 1', True, True], 'sem resultado, a barra diz "Mostrando 0 de 0" e desliga os dois botões')
+        pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(150)
+        ok(len(nomes()) == 10 and pag()[1] == 'Página 1 de 3', 'Limpar filtros traz a lista de volta, na página 1')
+        # os outros quadros da tela nao paginam
+        proximo()
+        ok(quadros() == outros, 'os quadros de inscrições, pagamentos solicitados e vencidos ficam como estão ao virar a página: %s' % quadros())
+        # impressao e planilha levam todas as linhas
+        pg.evaluate("window.print = () => { window.dispatchEvent(new Event('beforeprint')); window.__imp = { linhas: document.querySelectorAll('#corpoTabela tr').length, cab: document.getElementById('relatorioCabecalho').innerText }; window.dispatchEvent(new Event('afterprint')); }")
+        antes = pag()
+        pg.evaluate("document.querySelector('#menuMaisAcoes .dropdown-select-item[data-acao=\"imprimir\"]').click()"); pg.wait_for_timeout(300)
+        imp = pg.evaluate("window.__imp")
+        ok(bool(imp) and imp['linhas'] == 27 and '27 registros' in imp['cab'], 'imprimir leva as 27 linhas: %s' % str(imp and (imp['linhas'], imp['cab'][-30:].replace(chr(10), ' | '))))
+        ok(pag() == antes and len(nomes()) == 10, 'e a lista volta à página que estava')
+        dados = pg.evaluate("(() => { let d; comListaInteira(() => { d = tabelaDaTela(); }); return d; })()")
+        ok(len(dados['linhas']) == 27 and dados['cabecalho'][0].lower() == 'afiliado' and pg.evaluate("document.querySelectorAll('#cardInscricoes').length") == 1,
+           'a planilha leva as 27 linhas da lista (e não a tabela de inscrições, que fica a vista antes dela): %s' % dados['cabecalho'][:2])
+        ok(pag() == antes, 'e a página volta como estava depois da planilha')
+        # o padrao de abertura vem de Configuracoes
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ registrosPorPagina: 25 }))"); ir(LISTA)
+        ok(len(nomes()) == 25 and pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-label').textContent") == '25', 'a quantidade de abertura é a de Configurações → Interface do usuário (25)')
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

@@ -2107,10 +2107,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (exigeSenha(chave)) { confirmarAcao(chave, txt, executar); return; }
     abrirModalConfirmacao(txt, 1, 'primary', () => { registrarLog(chave, txt, false); executar(); });
   }
-  // O estado da lista que mandou para ca (busca, loja, origem, aba) volta no endereco do "Voltar", como estava.
+  // O estado da lista que mandou para ca (busca, loja, origem, aba, indicador) volta no endereco do "Voltar", como estava.
   (function voltarComOsFiltros() {
     const q = [];
-    ['q', 'loja', 'origem', 'sit'].forEach(k => { if (Q.get(k)) q.push(k + '=' + encodeURIComponent(Q.get(k))); });
+    ['q', 'loja', 'origem', 'sit', 'kpi'].forEach(k => { if (Q.get(k)) q.push(k + '=' + encodeURIComponent(Q.get(k))); });
     document.getElementById('btnVoltarLista').setAttribute('href', '../financas/pagina-financas-vale-compra.html' + (q.length ? '?' + q.join('&') : ''));
   })();
   const hrefCliente = (v) => '../cadastros/pagina-cadastros-clientes-detalhe.html?id=' + v.clienteId + '&aba=vale';

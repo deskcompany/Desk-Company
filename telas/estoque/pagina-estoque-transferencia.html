@@ -1070,6 +1070,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="contagemTransf">0 transferências</span>
       <span class="estoque-total">Em trânsito agora: <b id="totalTransito">0</b></span>
     </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1772,6 +1796,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
 
   let buscaAtual = '', filtroDepAtual = 'todos', abaAtual = 'todas';
+  let paginaAtual = 1, itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
 
   const fmtNum = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
   const fmtMoeda = (n) => 'R$ ' + fmtNum(n);
@@ -1876,11 +1901,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       lista.length + (lista.length === 1 ? ' transferência' : ' transferências');
     document.getElementById('totalTransito').textContent =
       base.filter(t => t.situacao === 'transito' || t.situacao === 'parcial').length;
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual, fim = Math.min(inicio + itensPorPaginaAtual, lista.length);
+    document.getElementById('paginacaoResumo').textContent = lista.length === 0 ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + lista.length;
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
 
     if (!lista.length) { wrap.style.display='none'; empty.style.display='flex'; return; }
     wrap.style.display=''; empty.style.display='none';
 
-    lista.forEach(tr => {
+    lista.slice(inicio, fim).forEach(tr => {
       const nItens = tr.itens.length;
       const qtdTotal = tr.itens.reduce((s,i)=> s + i.enviado, 0);
       const un = tr.itens[0] ? tr.itens[0].un : '';
@@ -1968,13 +2000,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnNova').addEventListener('click', () => {
     window.location.href = '../estoque/pagina-estoque-transferencia-nova.html';
   });
-  document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; renderTabela(); });
+  document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; renderTabela(); });
   document.querySelectorAll('#abasSituacao .aba-sit').forEach(aba => {
     aba.addEventListener('click', () => {
       document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
       aba.classList.add('active');
       abaAtual = aba.getAttribute('data-sit');
-      renderTabela();
+      paginaAtual = 1; renderTabela();
     });
   });
   document.querySelectorAll('.toggle-senha-btn').forEach(btn => {
@@ -2098,7 +2130,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('menuFiltroDeposito').innerHTML =
     '<div class="dropdown-select-item active" data-value="todos">Todos os depósitos</div>' + opcoesDep();
 
-  inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => { filtroDepAtual = v; renderTabela(); });
+  inicializarDropdownSelect(document.getElementById('filtroDeposito'), (v) => { filtroDepAtual = v; paginaAtual = 1; renderTabela(); });
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; renderTabela(); });
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; renderTabela(); } });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; renderTabela(); });
 
   path = ['Estoque', 'Transferência Entre Estoques'];
   renderBreadcrumb();

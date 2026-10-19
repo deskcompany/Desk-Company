@@ -1322,6 +1322,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <span id="contagemLinhas">0 afiliados</span>
       <span class="estoque-total">Saldo a pagar do filtro: <b id="somaFiltro">R$ 0,00</b></span>
     </div>
+
+    <div class="paginacao-bar">
+      <div class="paginacao-info">
+        <span id="paginacaoResumo">Mostrando 0 de 0</span>
+        <span>· Por página:</span>
+        <div class="dropdown-select" id="itensPorPagina" data-value="10">
+          <button type="button" class="dropdown-select-btn form-style" style="padding:5px 9px; min-width:56px;">
+            <span class="dropdown-select-label">10</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+            <div class="dropdown-select-item active" data-value="10">10</div>
+            <div class="dropdown-select-item" data-value="25">25</div>
+            <div class="dropdown-select-item" data-value="50">50</div>
+            <div class="dropdown-select-item" data-value="100">100</div>
+          </div>
+        </div>
+      </div>
+      <div class="paginacao-nav">
+        <button class="paginacao-btn" id="btnPaginaAnterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="paginacao-paginas" id="paginacaoPaginas">Página 1 de 1</span>
+        <button class="paginacao-btn" id="btnPaginaProxima"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
   </div>
 
 <!-- PAINEL LATERAL: o afiliado no mes, so leitura -->
@@ -2707,6 +2731,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Uma linha por quem recebe comissao: vendedor do cadastro ou cliente aprovado como afiliado de uma loja.
   // A conta inteira (as linhas do Olist) fica na conta do afiliado; aqui, o que decide o mes (opcao B).
   let busca = '', fTipo = 'todos', ordem = 'nome', asc = true;
+  let paginaAtual = 1, itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario. So a lista principal pagina.
   let mesSel = HOJE_C.getMonth() + 1, anoSel = HOJE_C.getFullYear();
   const eventDrawer = document.getElementById('eventDrawer');
   function texto(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
@@ -2739,7 +2764,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   function render() {
     const lista = filtradas();
-    html('corpoTabela', lista.map(l => '<tr data-chave="' + l.b.chave + '">' +
+    const totalPaginas = Math.max(1, Math.ceil(lista.length / itensPorPaginaAtual));
+    if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+    const inicio = (paginaAtual - 1) * itensPorPaginaAtual, fim = Math.min(inicio + itensPorPaginaAtual, lista.length);
+    html('corpoTabela', lista.slice(inicio, fim).map(l => '<tr data-chave="' + l.b.chave + '">' +
       '<td class="col-texto"><span class="vol-nome">' + esc(l.b.nome) + '</span><span class="vol-sub">' +
         (l.b.tipo === 'vendedor' ? 'Vendedor' + (l.b.situacao === 'inativo' ? ' · inativo' : '') : 'Cliente afiliado · ' + LOJAS_C[l.b.loja] + (l.b.situacao === 'suspenso' ? ' · suspenso' : '')) + '</span></td>' +
       '<td>' + l.pedidos + '</td>' +
@@ -2755,7 +2783,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('wrapComissoes').style.display = vazio ? 'none' : '';
     document.getElementById('emptyState').style.display = vazio ? '' : 'none';
     texto('contagemLinhas', lista.length + (lista.length === 1 ? ' afiliado' : ' afiliados'));
-    texto('somaFiltro', moedaC(lista.reduce((s, l) => s + l.saldo, 0)));
+    texto('somaFiltro', moedaC(lista.reduce((s, l) => s + l.saldo, 0)));   // o filtro inteiro, nao so a pagina
+    texto('paginacaoResumo', vazio ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + lista.length + (lista.length === 1 ? ' afiliado' : ' afiliados'));
+    texto('paginacaoPaginas', 'Página ' + paginaAtual + ' de ' + totalPaginas);
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= totalPaginas;
     document.querySelectorAll('#wrapComissoes th.ordenavel').forEach(th => {
       const ativo = th.getAttribute('data-ordem') === ordem;
       th.classList.toggle('ordenado', ativo);
@@ -2984,20 +3016,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.querySelectorAll('#wrapComissoes th.ordenavel').forEach(th => th.addEventListener('click', () => {
     const campo = th.getAttribute('data-ordem');
     if (ordem === campo) asc = !asc; else { ordem = campo; asc = campo === 'nome'; }
-    render();
+    paginaAtual = 1; render();
   }));
-  document.getElementById('campoBusca').addEventListener('input', (e) => { busca = e.target.value; render(); });
+  document.getElementById('campoBusca').addEventListener('input', (e) => { busca = e.target.value; paginaAtual = 1; render(); });
   montar('menuFiltroMes', NOMES_MES_C.map((n, i) => ({ v: i + 1, t: n })));
   montar('menuFiltroAno', [anoSel - 1, anoSel].map(a => ({ v: a, t: String(a) })));
   setDrop('filtroMes', mesSel, NOMES_MES_C[mesSel - 1]);
   setDrop('filtroAno', anoSel, String(anoSel));
-  inicializarDropdownSelect(document.getElementById('filtroMes'), (v) => { mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES_C[mesSel - 1]); render(); });
-  inicializarDropdownSelect(document.getElementById('filtroAno'), (v) => { anoSel = Number(v); setDrop('filtroAno', v, String(v)); render(); });
+  inicializarDropdownSelect(document.getElementById('filtroMes'), (v) => { mesSel = Number(v); setDrop('filtroMes', v, NOMES_MES_C[mesSel - 1]); paginaAtual = 1; render(); });
+  inicializarDropdownSelect(document.getElementById('filtroAno'), (v) => { anoSel = Number(v); setDrop('filtroAno', v, String(v)); paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('filtroTipo'), (v) => {
-    fTipo = v; setDrop('filtroTipo', v, { todos: 'Todos os afiliados', vendedor: 'Vendedores', cliente: 'Clientes afiliados' }[v]); render();
+    fTipo = v; setDrop('filtroTipo', v, { todos: 'Todos os afiliados', vendedor: 'Vendedores', cliente: 'Clientes afiliados' }[v]); paginaAtual = 1; render();
   });
+  inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
+  document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; render(); } });
+  document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; render(); });
   document.getElementById('btnLimparFiltros').addEventListener('click', () => {
-    busca = ''; fTipo = 'todos';
+    busca = ''; fTipo = 'todos'; paginaAtual = 1;
     document.getElementById('campoBusca').value = '';
     setDrop('filtroTipo', 'todos', 'Todos os afiliados');
     render();
@@ -3059,7 +3094,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // No menu "Mais acoes": data-acao="planilha" e data-acao="imprimir".
   const PLANILHA_NOME = 'comissoes-afiliados';
   const PLANILHA_REFAZ = render;   // como a lista se redesenha; null em tela que nao e lista
-  const PLANILHA_PAGINA = null;   // onde esta tela guarda a paginacao; null quando nao pagina
+  const PLANILHA_PAGINA = { ler: () => [itensPorPaginaAtual, paginaAtual], por: (n, p) => { itensPorPaginaAtual = n; paginaAtual = p; } };   // onde esta tela guarda a paginacao; null quando nao pagina
+  // Esta lista nao e tabela unica: a tela tem quatro (inscricoes, saques, vencidos e a lista), e ela diz qual vai para a planilha e para o papel.
+  function linhasDaPlanilha() {
+    const tabela = document.querySelector('#wrapComissoes table');
+    const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
+    return { cabecalho: Array.from(tabela.querySelectorAll('thead th')).map(limpa),
+             linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => Array.from(tr.children).map(limpa)) };
+  }
   // Redesenha a lista com todas as paginas, faz o que foi pedido e devolve a pagina como estava.
   function comListaInteira(fazer) {
     const paginada = !!PLANILHA_REFAZ && !!PLANILHA_PAGINA;
