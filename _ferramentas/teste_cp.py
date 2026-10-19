@@ -22,7 +22,7 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.goto(ARQ); pg.wait_for_timeout(400)
     # Sem os tres pagamentos de comissao de exemplo (2f): esta suite conta as contas da propria tela. As contas de comissao tem suite propria.
-    pg.evaluate("localStorage.clear(); localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [] }))")
+    pg.evaluate("localStorage.clear(); localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [] })); localStorage.setItem('deskComissoesExemplo', '1')")
     pg.goto(ARQ); pg.wait_for_timeout(500)
 
     print('0. a lista nasce no MES CORRENTE')

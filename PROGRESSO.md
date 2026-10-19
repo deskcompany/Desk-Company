@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 19/out/2026, com a entrega 2f de Comissões: os pagamentos vencidos (a decisão B de 15/out, construída).*
+*Atualizado em 19/out/2026, com o conserto do exemplo de Comissões e a varredura da barra de rolagem das tabelas.*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,7 +8,26 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Comissões 2f, os pagamentos vencidos: testada e aprovada pelo usuário em 19/out** (§14.87), com a decisão B dele
+**Duas entregas de 19/out, feitas e esperando o teste do usuário.**
+
+**A. O exemplo de Comissões nasce também em navegador que já tinha pagamento** (§14.87). O usuário não viu os três
+pagamentos da Marina Costa porque o navegador dele já guardava pagamentos dos testes da 2b e da 2c, e o bloco do exemplo
+saía assim que a chave existia. Agora o exemplo tem marca própria (`deskComissoesExemplo`) e **acrescenta sem apagar**:
+navegador com pagamento gravado ganha os três ao fim; navegador que já tinha os três antigos não duplica; excluído ou
+cancelado, não volta; limpar o navegador traz de volta. O bloco é o mesmo nas seis telas.
+
+**B. A varredura da barra de rolagem** (§14.88). Das **25 telas** com tabela rolando a 1280px, **22 foram consertadas**, todas
+pelo mesmo CSS de Comissões (o `min-width` fixo sai, a coluna de texto e o cabeçalho quebram linha, o número fica numa linha),
+sem precisar de mais nada. **3 não cabem só com o bloco e ficaram como estavam, esperando decisão dele:** Necessidades de
+Compra, CRM e Metas (o que as segura é texto que não quebra: SKU, selos e linhas de apoio). **Segunda rodada, no mesmo dia:**
+a tabela dos itens (`.itens-table`) dos detalhes da Ordem de Compra, do Pedido de Venda e do Rastreamento ganhou o mesmo
+bloco, o detalhe do Controle de Estoques com registro aberto também cabe, e a data com hora de Conferência de Saída e de
+Separação não quebra mais entre a data e a hora. A suíte nova, `teste_barra_tabelas.py`, mede as 83 telas e esses quatro
+detalhes com registro aberto, a 1280 e a 1440, e exige que as 3 pendentes continuem como relatadas. Para ver uma
+tela consertada: `http://localhost:3000/estoque/pagina-estoque-ordens-compra.html` (a tabela cabe no cartão, sem barra
+embaixo; o mesmo vale para Contas a Pagar, Devolução e Pedidos de Venda).
+
+**Antes disso, Comissões 2f, os pagamentos vencidos: testada e aprovada pelo usuário em 19/out** (§14.87), com a decisão B dele
 de 15/out. A conta de comissão vencida **nunca se cancela sozinha**. A lista de Comissões Afiliados ganhou o quadro
 **"Pagamentos vencidos"** (o mais atrasado primeiro, com os dias de atraso em vermelho) e três saídas: **dar baixa**
 (abre a conta em Contas a Pagar com o painel da baixa aberto, e o pago volta para Comissões), **reprogramar** (o
@@ -281,8 +300,8 @@ são medidos (telas, itens de menu, suítes, commits). A projeção é estimativ
 | Itens de menu com tela | 43 de 55 itens (78%) |
 | Telas que faltam para fechar o menu | cerca de 20 (12 itens × 1,5 tela, a média das já feitas) |
 | Produção (o sistema de verdade) | **0%**: não começou |
-| Verificação | 52 suítes, 5.344 asserções, 387 defeitos injetados de propósito e pegos, 2 auditorias nas 84 telas |
-| Documentação | design system até a §14.86 |
+| Verificação | 53 suítes, 5.519 asserções, 419 defeitos injetados de propósito e pegos, 2 auditorias nas 84 telas |
+| Documentação | design system até a §14.88 |
 | Trabalho | 88 commits desde 06/out; o projeto tem 32 dias (14/set a 15/out) |
 
 ### O que ganhamos desde 12/out (80 telas e 41 de 55 itens)
@@ -297,7 +316,7 @@ são medidos (telas, itens de menu, suítes, commits). A projeção é estimativ
 - **Impressão em formato de relatório** nas 19 telas de lista e de documento.
 - **A segunda varredura**: seis defeitos de Inventário, Acerto e PDV consertados.
 - **Regras novas de interface**: todo menu de filtro abre para baixo (81 telas) e a tabela não rola na
-  horizontal de 1280 px para cima (regra reforçada; 25 telas antigas ainda não cumprem).
+  horizontal de 1280 px para cima (regra reforçada; das 25 telas antigas que não cumpriam, 22 foram consertadas em 19/out e 3 esperam decisão).
 - **Limpeza**: o desvio morto para o Inventário saiu de 18 telas.
 - **Verificação**: de 50 para 52 suítes, de 5.090 para 5.344 asserções.
 
@@ -350,17 +369,16 @@ sistema de verdade.
 
 ### Prioridades dos próximos passos
 
-1. **Testar Comissões 2e** (segunda, 19/out) e construir **Pagamentos vencidos** (decisão B, 1 dia).
-2. **Decidir a varredura da barra de rolagem** nas 25 telas (1 a 2 dias; recomendada).
-3. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
+1. **Testar a varredura da barra e o conserto do exemplo de Comissões.**
+2. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
    está em 0%. Recomendação: começar já, em paralelo com o protótipo que sobra. Conta nova só nasce com o
    pedido dele.
-4. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
-5. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
-6. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
-7. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
+3. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
+4. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
+5. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
+6. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
    (leem o que já existe), depois Relatórios, Notas Fiscais e Integrações.
-8. **Parados de propósito**: kit com composição (depende do cadastro de produtos) e o alinhamento dos exemplos
+7. **Parados de propósito**: kit com composição (depende do cadastro de produtos) e o alinhamento dos exemplos
    (volta com o banco).
 
 ## O que ficou pronto nesta conversa
@@ -608,16 +626,23 @@ cancelar sozinho como opção desligada, reprogramar no catálogo de ações, o 
 Início somando as contas de comissão, e o link para Contas a Pagar que escondia a conta do mês seguinte. A seção 10
 de `teste_comissoes.py` tem 71 asserções; 23 defeitos injetados e os 23 pegos. Selo: 52 suítes, 5.414 asserções.
 
+**16. O exemplo de Comissões em navegador com pagamento** (19/out, §14.87): marca própria `deskComissoesExemplo`, que
+acrescenta os três pagamentos sem apagar nem duplicar. Quatro asserções novas na seção 10 de `teste_comissoes.py`.
+
+**17. A varredura da barra de rolagem** (19/out, §14.88): 22 das 25 telas com tabela rolando a 1280px consertadas pelo
+bloco de Comissões, 3 pendentes de decisão, e a suíte `teste_barra_tabelas.py`. Na segunda rodada: a `.itens-table` dos
+três detalhes de documento, a data com hora que não quebra em Conferência de Saída e Separação, e a suíte passou a medir
+quatro detalhes com registro aberto (87 asserções). Selo: 53 suítes, 5.519 asserções.
+
 ## Próximo da fila
 
-Refeita em 19/out, depois da 2f (a lista completa e os porquês estão em "Prioridades dos próximos passos").
+Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos").
 
-1. **A varredura da barra de rolagem nas 25 telas** (a decidir).
-2. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-3. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
+1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+2. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
    pagamento de comissão como crédito.
-4. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
-5. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+3. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
+4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -650,10 +675,14 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Três pendências, que são dele:
 
-1. Olhar os dois ajustes da 2f (o calendário em Reprogramar, na lista e na conta, e o espaço dos filtros do histórico).
-2. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
-   quebrando a coluna de texto e encurtando cabeçalho, ou deixar como está até a barra incomodar.
-   Recomendação: uma entrega só, pelo mesmo CSS, com a suíte medindo cada uma.
+1. Olhar os dois ajustes da 2f (o calendário em Reprogramar, na lista e na conta, e o espaço dos filtros do histórico),
+   e as duas entregas de 19/out (os três pagamentos de exemplo que agora nascem, e as tabelas sem barra).
+2. **As 3 telas que a varredura não resolveu sozinha** (Necessidades de Compra, CRM e Metas): deixar o SKU, os selos e as
+   linhas de apoio quebrarem linha, ou aceitar a barra nessas três até incomodar. E **os itens da Ordem de Compra e do
+   Pedido de Venda em 1280px**: são campos de digitar (nove na Ordem, oito no Pedido), e inteiros eles pedem uns 986px de
+   tabela, onde a janela de 1280 dá 826. Hoje não há barra, o nome do produto aparece inteiro e o código comprido (SKU,
+   GTIN) corta alguns caracteres, embora continue inteiro dentro do campo. A outra saída é voltar a barra só nesses dois.
+   Em 1440 nada corta. O corte do nome já existia antes da varredura, até em 1440, e foi consertado.
 3. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia

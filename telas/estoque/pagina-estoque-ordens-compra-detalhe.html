@@ -549,6 +549,16 @@
   /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
   .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
   .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
+  /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026; varredura de 19/out/2026): cabe no cartao a partir de
+     1280px. O CSS comum fixa 880px de largura minima, e abaixo de 1334px de janela isso vira barra; aqui a tabela encolhe, a
+     coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
+  .main .itens-table { min-width:0; }
+  .main .itens-table th { white-space:normal; vertical-align:bottom; }
+  .main .itens-table td.col-texto { white-space:normal; }
+  /* Sem largura, o campo do item cortava o nome do produto (ate em 1440). Em 1280 os nove campos nao cabem inteiros: pendente
+     de decisao do usuario (barra ou corte), PROGRESSO e 14.88. */
+  .main .itens-table th:nth-child(1) { width:19%; }
+  .main .itens-table input[type="text"] { min-width:0; }
   .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
   .itens-table th.col-texto { text-align:left; }
   .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }

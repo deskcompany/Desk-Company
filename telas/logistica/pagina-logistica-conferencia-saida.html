@@ -463,6 +463,13 @@
   /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026; varredura de 19/out/2026): cabe no cartao a partir de
+     1280px. O CSS comum fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a
+     coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
+  .main .estoque-table { min-width:0; }
+  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table td.col-texto { white-space:normal; }
+  .main .estoque-table td.col-nowrap { white-space:nowrap; }   /* data com hora nao quebra entre a data e a hora */
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
   .estoque-table th.ordenavel { cursor:pointer; }
@@ -1836,7 +1843,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto">' + p.cliente + '</td>' +
         '<td>' + p.qtdItens + ' <span class="un-sufixo">· ' + p.pecas + ' pç</span></td>' +
         '<td class="col-texto">' + celulaOperador(p.separador) + '</td>' +
-        '<td class="col-texto">' + fmtDataHora(p.fechouSep) + '</td>' +
+        '<td class="col-texto col-nowrap">' + fmtDataHora(p.fechouSep) + '</td>' +
         '<td><span class="' + classeEspera(p.espera) + '">' + textoEspera(p.espera) + '</span></td>' +
         '<td class="col-texto"><span class="badge-situacao ' + SITUACAO_CLASSE[p.situacao] + '"><span class="sit-dot"></span>' + SITUACAO_LABEL[p.situacao] + '</span></td>';
       const chk = tr.querySelector('.item-checkbox');

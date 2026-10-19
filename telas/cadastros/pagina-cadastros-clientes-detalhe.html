@@ -2060,16 +2060,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
   // Pagamento cancelado (para refazer com outro valor) sai da conta e da de Contas a Pagar; o registro fica.
   // Pagamentos de comissao de exemplo (entrega 2f, 15/out/2026): o vencimento de um pagamento feito na tela e sempre de hoje em
-  // diante, entao sem estes tres nao haveria como ver um pagamento vencido. Nascem uma vez por navegador, contados a partir de hoje,
-  // da vendedora Marina Costa, e valem como qualquer outro (em Contas a Pagar sao COM-1 a COM-3). Limpar o navegador traz de volta.
+  // diante, entao sem estes tres nao haveria como ver um pagamento vencido. Nascem uma vez por navegador (marca deskComissoesExemplo),
+  // mesmo que ja haja pagamentos; excluidos, nao voltam. Limpar o navegador traz de volta. Sao da vendedora Marina Costa, contados a
+  // partir de hoje, e valem como qualquer outro (em Contas a Pagar, num navegador novo, sao COM-1 a COM-3).
   (function semearPagamentosDeExemplo() {
     try {
-      if (localStorage.getItem('deskComissoesPagas')) return;
+      if (localStorage.getItem('deskComissoesExemplo')) return;
+      let g = null;
+      try { g = JSON.parse(localStorage.getItem('deskComissoesPagas')); } catch (e) { g = null; }
+      const lista = g && Array.isArray(g.pagamentos) ? g.pagamentos : [];
+      // shortcut: reconhece o exemplo antigo pelos três valores da Marina; some quando houver banco
+      const tem = (v) => lista.some(p => p.nome === 'Marina Costa' && p.valor === v);
+      if (tem(50) && tem(30) && tem(40)) { localStorage.setItem('deskComissoesExemplo', '1'); return; }
       const dia = (n) => { const x = new Date(); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
       const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-      const pag = (n, valor, emitido, venc) => ({ n: n, chave: 'v1', nome: 'Marina Costa', tipo: 'vendedor', valor: valor, data: dia(emitido), venc: dia(venc), forma: 'Pix', pix: '',
+      let proximo = lista.reduce((m, p) => Math.max(m, Number(p.n) || 0), 0);
+      const pag = (valor, emitido, venc) => ({ n: ++proximo, chave: 'v1', nome: 'Marina Costa', tipo: 'vendedor', valor: valor, data: dia(emitido), venc: dia(venc), forma: 'Pix', pix: '',
         ref: MESES[Number(dia(emitido).slice(5, 7)) - 1] + ' de ' + dia(emitido).slice(0, 4) });
-      localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [pag(1, 50, -14, -12), pag(2, 30, -6, -4), pag(3, 40, -2, 5)] }));
+      localStorage.setItem('deskComissoesPagas', JSON.stringify(Object.assign({}, g, { pagamentos: lista.concat([pag(50, -14, -12), pag(30, -6, -4), pag(40, -2, 5)]) })));
+      localStorage.setItem('deskComissoesExemplo', '1');
     } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
   })();
   function pagamentosDe(b) {

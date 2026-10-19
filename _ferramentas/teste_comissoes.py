@@ -30,7 +30,7 @@ SO = (sys.argv[1:] or [''])[0]
 LISTA, CONTA = 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html'
 PV, PV_D, CFG = 'pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-configuracoes-cadastro-clientes.html'
 BV = 'pagina-inicio-boas-vindas.html'
-CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskSaques', 'deskParametros', 'deskLog']
+CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskComissoesExemplo', 'deskSaques', 'deskParametros', 'deskLog']
 
 falhas = []
 total = [0]
@@ -101,7 +101,7 @@ with sync_playwright() as p:
         # Os tres pagamentos de exemplo (2f) nascem sozinhos no primeiro acesso. As secoes 1 a 9 partem de uma conta sem pagamentos,
         # que e o que as contas refeitas aqui supoem; a secao 10 e a que testa o estado de fabrica (com_exemplo=True).
         if not com_exemplo:
-            pg.evaluate("localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [] }))")
+            pg.evaluate("localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [] })); localStorage.setItem('deskComissoesExemplo', '1')")
 
     def modal_aberto():
         return pg.evaluate("document.getElementById('confirmModal').classList.contains('open')")
@@ -816,6 +816,28 @@ with sync_playwright() as p:
                     com_barra.append('%s %dpx %s' % (tela.replace('pagina-', '').replace('.html', ''), largura, item))
         pg.set_viewport_size({'width': 1440, 'height': 900})
         ok(not com_barra, 'o quadro de vencidos e a tabela de pagamentos da conta não têm barra na horizontal, e a página não rola: %s' % com_barra[:4])
+        limpar()
+
+        # ---- o exemplo nasce também em navegador que já tinha pagamento (conserto de 19/out), com marca própria
+        LER = "JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos.map(p => [p.n, p.nome, p.valor])"
+        MARCA = "localStorage.getItem('deskComissoesExemplo')"
+        limpar(True)
+        pg.evaluate("""() => localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [{ n: 1, chave: 'a1', nome: 'Bruno Carvalho', tipo: 'cliente', valor: 20, data: '2026-10-10', venc: '2026-11-10',
+            forma: 'Pix', pix: 'bruno.carvalho@hotmail.com', ref: 'outubro de 2026' }] }))""")
+        ir(LISTA)
+        ok(pg.evaluate(LER) == [[1, 'Bruno Carvalho', 20], [2, 'Marina Costa', 50], [3, 'Marina Costa', 30], [4, 'Marina Costa', 40]] and pg.evaluate(MARCA) == '1',
+           'navegador com um pagamento já gravado e sem a marca: os três de exemplo entram ao fim, com n 2, 3 e 4, e a marca fica gravada: %s' % pg.evaluate(LER))
+        limpar(True)
+        pg.evaluate("""() => localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [50, 30, 40].map((v, i) => ({ n: i + 1, chave: 'v1', nome: 'Marina Costa', tipo: 'vendedor', valor: v,
+            data: '2026-10-05', venc: '2026-10-07', forma: 'Pix', pix: '', ref: 'outubro de 2026' })) }))""")
+        ir(LISTA)
+        ok(pg.evaluate(LER) == [[1, 'Marina Costa', 50], [2, 'Marina Costa', 30], [3, 'Marina Costa', 40]] and pg.evaluate(MARCA) == '1',
+           'navegador com os três do exemplo antigo e sem a marca: continuam três, sem duplicar, e a marca fica gravada: %s' % pg.evaluate(LER))
+        ir(LISTA)
+        ok(pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos.length") == 3, 'abrir de novo não duplica')
+        pg.evaluate("() => { const g = JSON.parse(localStorage.getItem('deskComissoesPagas')); g.pagamentos[0].cancelado = true; g.pagamentos.splice(1, 1); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }")
+        ir(LISTA); ir(CONTA, '?id=v1')
+        ok(pg.evaluate(LER) == [[1, 'Marina Costa', 50], [3, 'Marina Costa', 40]], 'cancelado ou excluído, o exemplo não volta ao recarregar (a marca segura): %s' % pg.evaluate(LER))
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
