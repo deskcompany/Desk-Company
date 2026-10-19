@@ -736,6 +736,50 @@ with sync_playwright() as p:
         ok(pg.evaluate("""(() => { const a = Array.from(document.querySelectorAll('.main .aba-sit, .main [data-aba]')).filter(x => (x.getAttribute('data-sit') || x.getAttribute('data-aba')) === 'atrasada')[0];
             return Number((a.querySelector('.sit-contador, .aba-contador, span:last-child') || a).textContent.replace(/[^0-9]/g, '')); })()""") == base_atraso + 1, 'e é o mesmo da aba de atrasadas de Contas a Pagar')
 
+        def clica(sel):
+            try:
+                pg.click(sel, timeout=2000)
+            except Exception:  # sem o calendário o clique não acha o alvo: a asserção seguinte reprova, em vez de a suíte cair
+                pass
+
+        # ---- o calendário padrão no "Reprogramar o vencimento" e o espaço dos filtros do histórico (ajustes do teste de 19/out)
+        for tela, q, gatilho in ((LISTA, '', '[data-reprog-venc="1"]'), (CONTA, '?id=v1', '[data-reprog-pg="1"]')):
+            nome = 'lista' if tela == LISTA else 'conta'
+            limpar(True); ir(tela, q)
+            pg.evaluate("(s) => document.querySelector(s).click()", gatilho); pg.wait_for_timeout(450)
+            ok(pg.evaluate("!!document.querySelector('#rpDrawer #dfRpVenc.date-field #rpVenc') && !!document.querySelector('#dfRpVenc .date-btn') && !!document.querySelector('#dfRpVenc .date-pop')"),
+               'na %s, o novo vencimento é o campo de data com calendário (.date-field, .date-btn, .date-pop)' % nome)
+            clica('#dfRpVenc .date-btn'); pg.wait_for_timeout(200)
+            ok(pg.evaluate("document.querySelector('#dfRpVenc .date-pop').classList.contains('open')"), 'na %s, clicar no ícone abre o calendário' % nome)
+            caixa = pg.evaluate("(() => { const r = document.querySelector('#dfRpVenc .date-pop').getBoundingClientRect(); return [r.top, r.left, r.bottom, r.right, innerHeight, innerWidth]; })()")
+            ok(caixa[0] >= 0 and caixa[1] >= 0 and caixa[2] <= caixa[4] and caixa[3] <= caixa[5], 'na %s, o calendário abre inteiro dentro da janela: %s' % (nome, [round(x) for x in caixa]))
+            ontem = dia(-1)
+            if ontem.month == HOJE.month:
+                ok(pg.evaluate("(n) => Array.from(document.querySelectorAll('#dfRpVenc .date-dia.off')).some(e => e.textContent.trim() === String(n) && !e.hasAttribute('data-iso'))", ontem.day)
+                   and pg.evaluate("document.querySelectorAll('#dfRpVenc .date-dia[data-iso]')[0].getAttribute('data-iso')") == HOJE.isoformat(),
+                   'na %s, o dia de ontem (%d) fica riscado e não clicável, e o primeiro dia clicável é hoje' % (nome, ontem.day))
+            else:
+                ok(pg.evaluate("document.querySelectorAll('#dfRpVenc .date-dia.off').length") == 0, 'na %s, hoje é dia 1: nenhum dia do mês visível fica riscado' % nome)
+            alvo = dia(3)
+            if alvo.month != HOJE.month:
+                clica('#dfRpVenc .date-nav[data-passo="1"]'); pg.wait_for_timeout(120)
+            clica('#dfRpVenc .date-dia[data-iso="%s"]' % alvo.isoformat()); pg.wait_for_timeout(200)
+            ok(pg.input_value('#rpVenc') == BR(alvo) and not pg.evaluate("document.querySelector('#dfRpVenc .date-pop').classList.contains('open')"),
+               'na %s, clicar num dia preenche o campo (%s) e fecha o calendário' % (nome, BR(alvo)))
+
+        for largura in (1280, 1440):
+            pg.set_viewport_size({'width': largura, 'height': 900})
+            limpar(True); ir(CONTA, '?id=v1')
+            folga = pg.evaluate("document.querySelector('#wrapHistorico thead').getBoundingClientRect().top - document.querySelector('.com-hist-filtros').getBoundingClientRect().bottom")
+            ok(folga >= 12, 'na conta, os filtros do histórico não encostam no cabeçalho da tabela (%dpx): %.0fpx de folga' % (largura, folga))
+            ir('pagina-cadastros-clientes-detalhe.html', '?id=12')
+            pg.evaluate("document.querySelector('.tab-item[data-tab=\"afiliado\"]').click()"); pg.wait_for_timeout(250)
+            folga = pg.evaluate("""(() => { const c = document.getElementById('corpoAfiHistorico'); const e = Array.from(c.children).filter(x => x.getClientRects().length)[0];
+                return e.getBoundingClientRect().top - document.getElementById('afiHistorico').getBoundingClientRect().bottom; })()""")
+            ok(folga >= 12, 'no cadastro, os filtros do histórico da aba Afiliado não encostam no que vem embaixo (%dpx): %.0fpx de folga' % (largura, folga))
+        pg.set_viewport_size({'width': 1440, 'height': 900})
+        limpar()
+
         # ---- o mesmo texto nas telas que repetem
         fontes = dict((n, open(localiza.onde(n), encoding='utf-8').read()) for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', 'pagina-financas-contas-pagar.html',
                                                                                     'pagina-financas-contas-pagar-detalhe.html', CFG))

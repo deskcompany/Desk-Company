@@ -3795,3 +3795,5 @@ pagamentos de exemplo, e a suíte das comissões testa o estado de fábrica.
 **Provado nos dois sentidos, numa cópia.** A seção 10 de `teste_comissoes.py` (71 asserções) cobre o exemplo de fábrica, o
 quadro, a conta, a vitrine, dar baixa, reprogramar, cancelar, cancelar sozinho, Configurações, o catálogo, o Início, os
 blocos repetidos e a barra de rolagem. Vinte e três defeitos injetados, um por vez, e os vinte e três pegos.
+
+**Ajustes do teste (19/out/2026).** O usuário testou a 2f e aprovou. O "Reprogramar o vencimento" ganhou o calendário padrão (o mesmo campo de data de "Data inicial" e "Data final", com os dias antes de hoje riscados e não clicáveis), na lista e na conta, e os filtros do histórico deixaram de encostar no cabeçalho da tabela (16px na conta; a aba Afiliado do cadastro já tinha 14px). A seção 10 de `teste_comissoes.py` passou a ter 85 asserções, e os três defeitos injetados numa cópia (calendário ausente na lista, dia passado clicável, filtros colados na conta) foram pegos.

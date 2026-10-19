@@ -8,7 +8,7 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Comissões 2f, os pagamentos vencidos: feita e esperando o teste do usuário** (§14.87), com a decisão B dele
+**Comissões 2f, os pagamentos vencidos: testada e aprovada pelo usuário em 19/out** (§14.87), com a decisão B dele
 de 15/out. A conta de comissão vencida **nunca se cancela sozinha**. A lista de Comissões Afiliados ganhou o quadro
 **"Pagamentos vencidos"** (o mais atrasado primeiro, com os dias de atraso em vermelho) e três saídas: **dar baixa**
 (abre a conta em Contas a Pagar com o painel da baixa aberto, e o pago volta para Comissões), **reprogramar** (o
@@ -17,7 +17,7 @@ quando) e **cancelar** (o valor volta ao saldo, com senha). A conta do afiliado 
 cliente afiliado, o que a vitrine vai mostrar: **Disponível, Em pagamento e Pago** ("em atraso" quando vencido).
 **Cancelar sozinho** é opção em Configurações → Cadastro de clientes → Programa de afiliados, **desligada**, com o
 prazo em dias; ligada, só cancela o que não teve nenhuma baixa. Reprogramar entrou no catálogo de ações (Registro de
-atividades), sem senha por padrão.
+atividades), sem senha por padrão. Os dois ajustes que ele pediu no teste (o calendário no reprogramar e o espaço dos filtros do histórico) estão feitos e esperam a olhada dele.
 
 Para dar o que ver, **três pagamentos de exemplo da vendedora Marina Costa** nascem sozinhos no navegador, contados
 a partir de hoje: R$ 50,00 vencido há 12 dias, R$ 30,00 vencido há 4 e R$ 40,00 que vence em 5. Eles aparecem em
@@ -650,10 +650,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Três pendências, que são dele:
 
-1. **O teste de Comissões Afiliados (2a a 2f)**: a lista, as inscrições e os saques pedidos, a
-   conta do afiliado com o histórico, o pagamento e a baixa em Contas a Pagar, a aba Afiliado do cliente, o
-   Programa de afiliados em Configurações (com o saque mínimo e o cancelar sozinho), e os pagamentos vencidos
-   (o quadro, dar baixa, reprogramar e cancelar).
+1. Olhar os dois ajustes da 2f (o calendário em Reprogramar, na lista e na conta, e o espaço dos filtros do histórico).
 2. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
    quebrando a coluna de texto e encurtando cabeçalho, ou deixar como está até a barra incomodar.
    Recomendação: uma entrega só, pelo mesmo CSS, com a suíte medindo cada uma.

@@ -880,6 +880,41 @@
   .main .estoque-table { min-width:0; }
   .main .estoque-table th { white-space:normal; vertical-align:bottom; }
   .main .estoque-table td.col-texto { white-space:normal; }
+  /* ===== Campo de data com calendario (componente compartilhado, igual ao de Movimentacao de Estoque) ===== */
+  .date-field { position:relative; }
+  .date-field input[type="text"] { padding-right:34px; }
+  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
+              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
+              color:var(--text); cursor:pointer; }
+  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
+  .date-btn svg { width:13px; height:13px; }
+  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
+     o campo esta no topo da tela e nao ha espaco acima. */
+  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
+              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
+  .date-pop.open { display:block; }
+  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-pop.esquerda { right:auto; left:0; }
+  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
+  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
+  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
+              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
+  .date-nav:hover { background: rgba(120,120,140,0.12); }
+  .date-nav svg { width:11px; height:11px; }
+  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
+             padding-bottom:4px; text-transform:uppercase; }
+  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
+              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
+  .date-dia:hover { background: rgba(120,120,140,0.14); }
+  .date-dia.vazio { cursor:default; }
+  .date-dia.vazio:hover { background:transparent; }
+  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
+  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off:hover { background:transparent; }
+  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
+  .date-rodape b { color:var(--text-heading); }
   /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
      A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
      so serve na tela. O cabecalho do relatorio so existe no papel. Igual em toda tela que tem o bloco
@@ -1308,7 +1343,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="field-hint" id="rpResumo" style="margin-bottom:14px;">—</div>
   <div class="form-field" id="campoRpVenc">
     <label>Novo vencimento</label>
-    <input type="text" id="rpVenc" placeholder="dd/mm/aaaa">
+    <div class="date-field" id="dfRpVenc">
+      <input type="text" id="rpVenc" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Novo vencimento">
+      <button type="button" class="date-btn" aria-label="abrir calendário do novo vencimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+      <div class="date-pop"></div>
+    </div>
     <div class="field-error-msg" id="erroRpVenc">Data no formato dd/mm/aaaa, de hoje em diante.</div>
   </div>
   <div class="drawer-footer">
@@ -2361,6 +2400,119 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + (e.efeito === null ? '—' : (e.efeito < 0 ? '− ' : '+ ') + moedaC(Math.abs(e.efeito))) + '</td><td>' + moedaC(e.saldo) + '</td></tr>';
     }).join('');
   }
+  // ===== COMPONENTE: campo de data com calendario (copia da Agenda) =====
+  const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+  const MESES_NOME = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+  function inicializarDataField(raiz, opcoes) {
+    if (!raiz || raiz.dataset.dateInit) return;
+    raiz.dataset.dateInit = '1';
+    const op = opcoes || {};
+    const input = raiz.querySelector('input');
+    const btn = raiz.querySelector('.date-btn');
+    const pop = raiz.querySelector('.date-pop');
+    if (!input || !btn || !pop) return;
+    let mesVisivel = null;
+
+    const limite = (v) => (typeof v === 'function' ? v() : v) || null;
+    const isoDoInput = () => {
+      const m = String(input.value || '').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!m) return null;
+      const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+      return m[3] + '-' + m[2] + '-' + m[1];
+    };
+
+    function desenhar() {
+      const sel = isoDoInput();
+      const base = mesVisivel || (sel ? new Date(Number(sel.slice(0, 4)), Number(sel.slice(5, 7)) - 1, 1) : new Date());
+      base.setDate(1);
+      mesVisivel = base;
+      const ano = base.getFullYear(), mes = base.getMonth();
+      const primeiro = new Date(ano, mes, 1).getDay();
+      const ultimo = new Date(ano, mes + 1, 0).getDate();
+      const min = limite(op.min), max = limite(op.max);
+      const hojeIso = (function () { const h = new Date(); return h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0'); })();
+
+      let celulas = '';
+      for (let i = 0; i < primeiro; i++) celulas += '<div class="date-dia vazio"></div>';
+      for (let d = 1; d <= ultimo; d++) {
+        const isoD = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const fora = (min && isoD < min) || (max && isoD > max);
+        const classes = 'date-dia' + (fora ? ' off' : '') + (isoD === sel ? ' sel' : '') + (isoD === hojeIso ? ' hoje' : '');
+        const txt = (v, padrao) => (typeof v === 'function' ? v() : v) || padrao;
+        const motivo = fora ? ' title="' + ((min && isoD < min) ? txt(op.motivoMin, 'Data anterior ao permitido.') : txt(op.motivoMax, 'Data posterior ao permitido.')) + '"' : '';
+        celulas += '<div class="' + classes + '"' + (fora ? '' : ' data-iso="' + isoD + '"') + motivo + '>' + d + '</div>';
+      }
+      pop.innerHTML =
+        '<div class="date-cab">' +
+          '<button type="button" class="date-nav" data-passo="-1" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>' +
+          '<span class="date-mes">' + MESES_NOME[mes] + ' ' + ano + '</span>' +
+          '<button type="button" class="date-nav" data-passo="1" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>' +
+        '</div>' +
+        '<div class="date-grade">' + DIAS_SEMANA.map(s => '<div class="date-ds">' + s + '</div>').join('') + celulas + '</div>' +
+        (op.rodape ? '<div class="date-rodape">' + op.rodape() + '</div>' : '');
+
+      pop.querySelectorAll('.date-nav').forEach(b => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mesVisivel = new Date(ano, mes + Number(b.getAttribute('data-passo')), 1);
+        desenhar();
+      }));
+      pop.querySelectorAll('.date-dia[data-iso]').forEach(c => c.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = c.getAttribute('data-iso');
+        input.value = v.slice(8, 10) + '/' + v.slice(5, 7) + '/' + v.slice(0, 4);
+        fechar();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        if (op.aoMudar) op.aoMudar(v);
+      }));
+    }
+
+    function abrir() {
+      document.querySelectorAll('.date-pop.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+      mesVisivel = null;
+      desenhar();
+      // POSICAO: colado no icone, e ACIMA por padrao.
+      //  - Horizontal: o popover alinha pela DIREITA, que e onde o icone fica.
+      //    Abrindo pela esquerda, o mouse atravessa o campo inteiro para chegar
+      //    no dia — foi o que o print de 22/set mostrou.
+      //  - Vertical: para cima. Num formulario preenchido de cima para baixo,
+      //    quando se chega na data os campos de cima ja foram resolvidos; o que
+      //    esta ABAIXO e o proximo passo e o botao de salvar. Cobrir o que ja
+      //    passou custa menos que cobrir o que vem.
+      //  - Desce so quando nao ha espaco acima (campo no topo da tela).
+      pop.style.visibility = 'hidden'; pop.style.display = 'block';
+      const alturaPop = pop.offsetHeight;
+      pop.style.display = ''; pop.style.visibility = '';
+      const caixaBtn = btn.getBoundingClientRect();
+      const espacoAcima = caixaBtn.top;
+      const espacoAbaixo = window.innerHeight - caixaBtn.bottom;
+      pop.classList.toggle('abaixo', espacoAcima < alturaPop + 12 && espacoAbaixo > espacoAcima);
+      pop.classList.add('open');
+      // A caixa tem 252px. Num campo estreito, colado na borda esquerda de um painel, alinhar
+      // pela direita jogava a primeira coluna (domingo) para fora da area visivel: era cortada
+      // (Agenda, 09/out/2026). Entao mede: passou da borda de quem a contem, alinha pela esquerda.
+      pop.classList.remove('esquerda');
+      let bordaEsquerda = 0;
+      for (let el = raiz.parentElement; el && el !== document.body; el = el.parentElement) {
+        const o = getComputedStyle(el);
+        if (/(auto|scroll|hidden)/.test(o.overflowX + ' ' + o.overflowY)) { bordaEsquerda = el.getBoundingClientRect().left; break; }
+      }
+      if (pop.getBoundingClientRect().left < bordaEsquerda) pop.classList.add('esquerda');
+    }
+    function fechar() { pop.classList.remove('open'); }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (pop.classList.contains('open')) fechar(); else abrir();
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('input', () => { if (pop.classList.contains('open')) { mesVisivel = null; desenhar(); } });
+    document.addEventListener('click', (e) => { if (!raiz.contains(e.target)) fechar(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fechar(); });
+  }
+
   // ===== PAGAMENTO VENCIDO: dar baixa, reprogramar, cancelar (entrega 2f, 15/out/2026) =====
   // O mesmo bloco na lista (quadro "Pagamentos vencidos") e na conta do afiliado; teste_comissoes.py compara as duas copias.
   const pagamentoDe = (n) => (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(x => x.n === n)[0];
@@ -2420,6 +2572,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   });
   ['rpClose', 'rpCancelar', 'rpBackdrop'].forEach(id => document.getElementById(id).addEventListener('click', fecharReprogramar));
+  inicializarDataField(document.getElementById('dfRpVenc'), { min: () => HOJE_ISO, motivoMin: 'O vencimento novo é de hoje em diante.' });
   // Cancelar sozinho: opcao de Configuracoes, desligada (decisao B do usuario). So cancela o que nao teve nenhuma baixa: com baixa o
   // dinheiro saiu. No sistema de producao e uma tarefa diaria; no prototipo roda quando Comissoes abre.
   function cancelarVencidosSozinho() {
