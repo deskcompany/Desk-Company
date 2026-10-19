@@ -8,6 +8,19 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
+**Vale-compra: barganha aprovada pelo usuário em 19/out, construção começando.** Ele escolheu as quatro recomendações:
+- **O vale é saldo do cliente**, sem código: fica no cadastro, e no caixa aparece ao escolher o cliente.
+- **Vale só na loja que emitiu** (cada loja tem o seu caixa, e a comissão de afiliado já é por loja).
+- **Tem validade ajustável** em Configurações, 180 dias de fábrica. O vencido fica no histórico e reativa com senha.
+- **Fica em Finanças**, depois de Comissões Afiliados.
+
+A proposta de base, sem objeção dele: um nome só, "Vale-compra", no lugar de "Vale-troca"; o vale nasce de uma devolução,
+do pagamento de comissão de afiliado ou à mão, como cortesia (motivo e senha); usa-se como forma de pagamento no PDV e no
+Pedido de Venda, em parte se quiser, e a sobra continua valendo; cancelar pede senha. São duas telas (a lista e a página
+do vale) e uma aba no cadastro do cliente. **Três entregas:** (1) o vale nasce à mão e se vê (lista, página, aba,
+Configurações); (2) o vale se usa (PDV, Pedido de Venda, Formas de Recebimento); (3) o vale nasce da Devolução e da
+Comissão. Ele não mandou prints do Olist; a tela é desenho nosso.
+
 **Duas entregas de 19/out, testadas e aprovadas pelo usuário no mesmo dia**, junto com os dois ajustes da 2f. Ele decidiu deixar como estão as 3 telas que a varredura não resolveu e o código cortado em 1280 nos itens da Ordem de Compra e do Pedido (ver "Decidido, e ainda não feito de propósito").
 
 **A. O exemplo de Comissões nasce também em navegador que já tinha pagamento** (§14.87). O usuário não viu os três
