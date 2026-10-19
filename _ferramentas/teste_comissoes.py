@@ -13,13 +13,14 @@
 #   [4] Espelhos e ligacoes: pedidos, vendedores, clientes e percentuais iguais as telas donas; o mesmo
 #       valor de comissao na pagina do pedido; menu, catalogo de senha e o bloco comum das duas telas;
 #   [5] Configuracoes: o Programa de afiliados valida, grava, e a lista passa a usar o percentual novo;
+#  [10] Pagamentos vencidos (2f): o exemplo de fabrica, o quadro, dar baixa, reprogramar, cancelar (com senha), cancelar sozinho (opcao desligada);
 #   [9] Sem barra de rolagem na horizontal em nenhuma tabela, de 1280px para cima, no pior caso do historico (2e);
 #   [8] Periodo por data inicial e final, historico com saldo corrente e filtro de mes e ano, historico no cadastro (2d);
 #   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
-import os as _os, glob as _g, math, sys
+import os as _os, glob as _g, math, re, sys
 import localiza
 PASTA = _os.environ.get('DESK_PASTA') or _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _os.chdir(PASTA)
@@ -28,6 +29,7 @@ CHROME = _ch[0] if _ch else None
 SO = (sys.argv[1:] or [''])[0]
 LISTA, CONTA = 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html'
 PV, PV_D, CFG = 'pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-configuracoes-cadastro-clientes.html'
+BV = 'pagina-inicio-boas-vindas.html'
 CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskSaques', 'deskParametros', 'deskLog']
 
 falhas = []
@@ -94,8 +96,12 @@ with sync_playwright() as p:
     def ir(tela, q=''):
         pg.goto(localiza.uri(tela) + q); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
 
-    def limpar():
+    def limpar(com_exemplo=False):
         pg.evaluate("(ks) => ks.forEach(k => localStorage.removeItem(k))", CHAVES_LOCAIS)
+        # Os tres pagamentos de exemplo (2f) nascem sozinhos no primeiro acesso. As secoes 1 a 9 partem de uma conta sem pagamentos,
+        # que e o que as contas refeitas aqui supoem; a secao 10 e a que testa o estado de fabrica (com_exemplo=True).
+        if not com_exemplo:
+            pg.evaluate("localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [] }))")
 
     def modal_aberto():
         return pg.evaluate("document.getElementById('confirmModal').classList.contains('open')")
@@ -563,6 +569,209 @@ with sync_playwright() as p:
         ir(CONTA, '?id=a1')
         ok(pg.evaluate("getComputedStyle(document.querySelector('#corpoHistorico td.col-texto:nth-child(3)')).whiteSpace") == 'normal',
            'a frase do histórico quebra linha, em vez de alargar a tabela')
+        limpar()
+
+    if secao(10, 'Pagamentos vencidos (entrega 2f, decisão B de 15/out)'):
+        BR = lambda d: d.strftime('%d/%m/%Y')
+        # ---- o exemplo de fábrica
+        limpar(); ir(LISTA)
+        saldo_sem = pg.evaluate("saldoHoje(beneficiarioDe('v1'))")
+        limpar(True); ir(LISTA)
+        pags = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos")
+        ok([p['n'] for p in pags] == [1, 2, 3] and all(p['chave'] == 'v1' and p['nome'] == 'Marina Costa' and p['forma'] == 'Pix' for p in pags) and [p['valor'] for p in pags] == [50, 30, 40],
+           'de fábrica há três pagamentos da Marina, de R$ 50, R$ 30 e R$ 40: %s' % [(p['n'], p['valor']) for p in pags])
+        ok([p['venc'] for p in pags] == [dia(-12).isoformat(), dia(-4).isoformat(), dia(5).isoformat()] and [p['data'] for p in pags] == [dia(-14).isoformat(), dia(-6).isoformat(), dia(-2).isoformat()],
+           'contados a partir de hoje: dois vencidos (há 12 e há 4 dias) e um que vence em 5 dias')
+        ok(perto(saldo_sem - pg.evaluate("saldoHoje(beneficiarioDe('v1'))"), 120), 'os três pagamentos descem R$ 120,00 do saldo da Marina')
+        ok(not pg.evaluate("PARAM.afiliadoCancelaVencido") and pg.evaluate("PARAM.afiliadoCancelaVencidoDias") == 30, 'o cancelamento sozinho nasce desligado, com 30 dias')
+
+        # ---- o quadro da lista
+        ok(pg.inner_text('#contVencidos') == '(2)' and pg.evaluate("getComputedStyle(document.getElementById('cardVencidos')).display") != 'none', 'a lista mostra o quadro Pagamentos vencidos, com 2')
+        linhas = pg.evaluate("""Array.from(document.querySelectorAll('#corpoVencidos tr')).map(t => [t.getAttribute('data-n'), t.children[0].querySelector('.vol-nome').innerText,
+            t.children[1].innerText, t.children[2].innerText, t.children[3].innerText, t.children[4].innerText])""")
+        ok(linhas == [['1', 'Marina Costa', 'COM-1', 'R$ 50,00', BR(dia(-12)), '12 dias'], ['2', 'Marina Costa', 'COM-2', 'R$ 30,00', BR(dia(-4)), '4 dias']],
+           'o mais atrasado primeiro, com o valor, o vencimento e os dias de atraso: %s' % linhas)
+        ok(pg.evaluate("""(() => { const p = document.createElement('i'); p.style.color = 'var(--danger)'; document.body.appendChild(p); const c = getComputedStyle(p).color; p.remove();
+            const els = Array.from(document.querySelectorAll('#corpoVencidos .com-atraso')); return els.length === 2 && els.every(e => getComputedStyle(e).color === c); })()"""), 'o atraso sai em vermelho')
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoVencidos tr')).map(t => Array.from(t.querySelectorAll('button')).map(b => b.innerText))") == [['Dar baixa', 'Reprogramar', 'Cancelar']] * 2,
+           'cada linha tem Dar baixa, Reprogramar e Cancelar')
+        ok(pg.evaluate("document.querySelector('#corpoVencidos a.com-link').getAttribute('href')") == '../financas/pagina-financas-contas-pagar-detalhe.html?id=9001', 'COM-1 leva à conta a pagar')
+
+        # ---- a conta da Marina
+        ir(CONTA, '?id=v1')
+        txt = pg.inner_text('#corpoPagtos')
+        ok('vencido há 12 dias' in txt and 'vencido há 4 dias' in txt and txt.count('a pagar até') == 1, 'a conta mostra "vencido há 12 dias", "vencido há 4 dias" e o que ainda está no prazo')
+        ok(pg.evaluate("document.querySelectorAll('#corpoPagtos .com-atraso').length") == 2, 'o atraso sai em vermelho também na conta')
+        ok('2 pagamentos vencidos' in pg.inner_text('#avisoAtraso') and 'R$ 80,00' in pg.inner_text('#avisoAtraso'), 'a conta avisa quantos estão vencidos e quanto somam')
+        ok(pg.evaluate("getComputedStyle(document.getElementById('vitrineCliente')).display") == 'none', 'o quadro "na vitrine" é só do cliente afiliado')
+        acoes = pg.evaluate("Array.from(document.querySelectorAll('#corpoPagtos tr')).map(t => Array.from(t.querySelectorAll('a.com-link, span.com-link')).map(x => x.innerText.trim()))")
+        ok(acoes == [['COM-1', 'dar baixa', 'reprogramar', 'cancelar'], ['COM-2', 'dar baixa', 'reprogramar', 'cancelar'], ['COM-3', 'cancelar']], 'só o vencido ganha dar baixa e reprogramar: %s' % acoes)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoPagtos a.com-link')).map(a => a.getAttribute('href')).filter(h => h.indexOf('baixar=1') > 0)") ==
+           ['../financas/pagina-financas-contas-pagar-detalhe.html?id=9001&baixar=1', '../financas/pagina-financas-contas-pagar-detalhe.html?id=9002&baixar=1'], 'dar baixa abre a conta em Contas a Pagar com o painel da baixa')
+        ok(perto(pg.evaluate("historicoDe(B)[0].saldo"), pg.evaluate("saldoDeHoje()")), 'o histórico, com os três pagamentos, fecha com o saldo de hoje')
+
+        # ---- o cliente afiliado: o que a vitrine mostra, e o pagamento pago em parte
+        limpar(True); ir(LISTA)
+        pg.evaluate("""(a) => { const g = JSON.parse(localStorage.getItem('deskComissoesPagas')); g.pagamentos.push({ n: 4, chave: 'a1', nome: 'Bruno Carvalho', tipo: 'cliente', valor: 20, data: a.data, venc: a.venc,
+            forma: 'Pix', pix: 'bruno.carvalho@hotmail.com', ref: 'outubro de 2026', baixas: [{ data: a.data, valor: 5 }] }); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }""",
+                    {'data': dia(-9).isoformat(), 'venc': dia(-3).isoformat()})
+        ir(CONTA, '?id=a1')
+        vit = pg.inner_text('#vitrineCliente')
+        ok(all(x in vit for x in ['Disponível R$ 31,20', 'Em pagamento R$ 15,00', 'em atraso: R$ 15,00', 'Pago R$ 5,00']), 'na vitrine o Bruno vê Disponível, Em pagamento (com o atraso) e Pago: %s' % vit)
+        ok('pago em parte (R$ 5,00), vencido há 3 dias' in pg.inner_text('#corpoPagtos') and 'cancelar' not in pg.inner_text('#corpoPagtos'), 'pago em parte e vencido: a conta diz as duas coisas e não deixa cancelar (já houve baixa)')
+        ir(LISTA)
+        linha4 = pg.evaluate("(() => { const t = document.querySelector('#corpoVencidos tr[data-n=\"4\"]'); return [t.children[2].innerText.replace(/\\s+/g, ' '), Array.from(t.querySelectorAll('button')).map(b => b.innerText)]; })()")
+        ok(linha4 == ['R$ 15,00 de R$ 20,00, já pago R$ 5,00', ['Dar baixa', 'Reprogramar']], 'no quadro, o que falta pagar é R$ 15,00, e o cancelar some porque já houve baixa: %s' % linha4)
+        ir('pagina-cadastros-clientes-detalhe.html', '?id=12')
+        pg.evaluate("document.querySelector('.tab-item[data-tab=\"afiliado\"]').click()"); pg.wait_for_timeout(200)
+        ok('1 vencido' in pg.inner_text('#corpoAfiliado'), 'a aba Afiliado do cadastro avisa "1 vencido"')
+
+        # ---- reprogramar
+        limpar(True); ir(LISTA)
+        pg.evaluate("document.querySelector('[data-reprog-venc=\"1\"]').click()"); pg.wait_for_timeout(250)
+        ok(pg.evaluate("document.getElementById('rpDrawer').classList.contains('open')") and pg.input_value('#rpVenc') == BR(HOJE) and 'COM-1' in pg.inner_text('#rpResumo') and 'vencido há 12 dias' in pg.inner_text('#rpResumo'),
+           'reprogramar abre o painel com a conta, o atraso e a data de hoje')
+        for ruim in ('01/01/2020', '31/02/2027', 'amanhã'):
+            pg.evaluate(MUDA, ['#rpVenc', ruim]); pg.evaluate("document.getElementById('btnRpSalvar').click()"); pg.wait_for_timeout(120)
+            ok(pg.evaluate("document.getElementById('erroRpVenc').classList.contains('show')") and not modal_aberto() and pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos[0].venc") == dia(-12).isoformat(),
+               'data recusada (%s): o painel diz, e nada muda' % ruim)
+        pg.evaluate(MUDA, ['#rpVenc', BR(dia(3))]); pg.evaluate("document.getElementById('btnRpSalvar').click()"); pg.wait_for_timeout(250)
+        ok(modal_aberto() and 'COM-1' in pg.inner_text('#confirmModalTexto') and BR(dia(-12)) in pg.inner_text('#confirmModalTexto') and BR(dia(3)) in pg.inner_text('#confirmModalTexto'),
+           'salvar pergunta antes, dizendo de quando para quando')
+        pediu = confirmar()
+        ok(not pediu, 'reprogramar não pede senha (a ação nasce sem senha em Confirmações com senha), só confirma')
+        ok(modal_aberto() and 'reprogramado' in pg.inner_text('#confirmModalTexto') and 'mudou de data' in pg.inner_text('#confirmModalTexto'), 'e o aviso diz que a conta mudou de data em Contas a Pagar')
+        fechar_aviso()
+        log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]')[0]")
+        ok(log and log['chave'] == 'comissaoReprograma' and log['senha'] is False and 'COM-1' in log['detalhe'], 'a reprogramação entra no registro de atividades: %s' % (log and log['acao']))
+        p1 = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos[0]")
+        ok(p1['venc'] == dia(3).isoformat() and p1.get('reprog') == [{'em': HOJE.isoformat(), 'de': dia(-12).isoformat(), 'para': dia(3).isoformat()}], 'o vencimento muda e o pagamento guarda de quando para quando: %s' % p1.get('reprog'))
+        ok(pg.inner_text('#contVencidos') == '(1)' and [t for t in pg.evaluate("Array.from(document.querySelectorAll('#corpoVencidos tr')).map(t => t.getAttribute('data-n'))")] == ['2'], 'o quadro passa a ter só a COM-2')
+        ir(CONTA, '?id=v1')
+        ok('a pagar até ' + BR(dia(3)) in pg.inner_text('#corpoPagtos')
+           and ('Pagamento COM-1 reprogramado: vencimento de %s para %s' % (BR(dia(-12)), BR(dia(3)))) in pg.inner_text('#corpoHistorico'), 'a conta mostra o prazo novo, e o histórico guarda a reprogramação')
+        ok(perto(pg.evaluate("historicoDe(B)[0].saldo"), pg.evaluate("saldoDeHoje()")), 'a reprogramação não mexe no saldo: o histórico continua fechando')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("TITULOS.filter(t => t.id === 9001)[0].vencIso") == dia(3).isoformat(), 'em Contas a Pagar, a COM-1 passou para o vencimento novo')
+
+        # ---- cancelar e devolver ao saldo (pede senha)
+        ir(LISTA)
+        saldo_antes = pg.evaluate("saldoHoje(beneficiarioDe('v1'))")
+        pg.evaluate("document.querySelector('[data-cancelar-venc=\"2\"]').click()"); pediu = confirmar(); fechar_aviso()
+        ok(pediu, 'cancelar o pagamento vencido pede senha')
+        ok(perto(pg.evaluate("saldoHoje(beneficiarioDe('v1'))"), saldo_antes + 30) and pg.evaluate("getComputedStyle(document.getElementById('cardVencidos')).display") == 'none',
+           'o valor volta ao saldo (R$ 30,00) e o quadro some, porque não há mais vencidos')
+        p2 = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos[1]")
+        ok(p2['cancelado'] and p2['canceladoEm'] == HOJE.isoformat() and not p2.get('canceladoAuto'), 'o registro fica, cancelado por uma pessoa')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("TITULOS.filter(t => t.id === 9002)[0].cancelado") is True, 'em Contas a Pagar, a COM-2 ficou cancelada')
+        ir(CONTA, '?id=v1')
+        ok('Pagamento COM-2 cancelado: o valor voltou ao saldo' in pg.inner_text('#corpoHistorico'), 'o histórico conta o cancelamento')
+
+        # ---- dar baixa
+        limpar(True); ir(LISTA)
+        pg.evaluate("document.querySelector('[data-baixar-venc=\"1\"]').click()"); pg.wait_for_timeout(700)
+        ok('pagina-financas-contas-pagar-detalhe.html' in pg.url and 'id=9001' in pg.url and 'baixar=1' in pg.url, 'dar baixa abre a COM-1 em Contas a Pagar: %s' % pg.url.split('/')[-1])
+        ok(pg.evaluate("document.getElementById('drawerPagamento').classList.contains('open')"), 'com o painel da baixa já aberto')
+        pg.evaluate("document.getElementById('btnConfirmarPagamento').click()"); confirmar(); fechar_aviso()
+        ok(pg.evaluate("(JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos[0].baixas || []).length") == 1, 'a baixa feita lá volta para o pagamento')
+        ir(LISTA)
+        ok(pg.inner_text('#contVencidos') == '(1)' and pg.evaluate("Array.from(document.querySelectorAll('#corpoVencidos tr')).map(t => t.getAttribute('data-n'))") == ['2'], 'paga, a COM-1 sai do quadro')
+        ir(CONTA, '?id=v1')
+        ok('pago em ' + BR(HOJE) in pg.inner_text('#corpoPagtos'), 'e a conta mostra "pago em"')
+        ir('pagina-financas-contas-pagar-detalhe.html', '?id=9003')
+        ok(not pg.evaluate("document.getElementById('drawerPagamento').classList.contains('open')"), 'sem o parâmetro, o painel da baixa não abre sozinho')
+
+        # ---- cancelar sozinho (opção de Configurações, desligada)
+        limpar(True); ir(LISTA)
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ afiliadoCancelaVencido: true, afiliadoCancelaVencidoDias: 10 }))")
+        pg.evaluate("""() => { const g = JSON.parse(localStorage.getItem('deskComissoesPagas')); g.pagamentos[1].baixas = [{ data: g.pagamentos[1].data, valor: 5 }]; g.pagamentos[1].venc = g.pagamentos[0].venc; localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }""")
+        ir(LISTA)
+        ok(modal_aberto() and '1 pagamento vencido foi cancelado sozinho' in pg.inner_text('#confirmModalTexto'), 'ligado, a lista avisa que cancelou 1: %s' % pg.inner_text('#confirmModalTexto')[:90])
+        fechar_aviso()
+        ps = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos")
+        ok(ps[0]['cancelado'] and ps[0]['canceladoAuto'] == 12 and not ps[1].get('cancelado') and not ps[2].get('cancelado'),
+           'cancelou só o que tinha 10 dias ou mais e nenhuma baixa (a COM-1, de 12 dias); a COM-2 tem baixa e a COM-3 não venceu')
+        ok(pg.inner_text('#contVencidos') == '(1)' and 'já pago R$ 5,00' in pg.inner_text('#corpoVencidos'), 'a COM-2, com baixa, continua no quadro para alguém decidir')
+        ir(CONTA, '?id=v1')
+        ok('Pagamento COM-1 cancelado sozinho, vencido há 12 dias: o valor voltou ao saldo' in pg.inner_text('#corpoHistorico'), 'o histórico diz que foi sozinho e quantos dias tinha')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("TITULOS.filter(t => t.id === 9001)[0].cancelado") is True, 'em Contas a Pagar, a COM-1 ficou cancelada')
+        pg.evaluate("localStorage.removeItem('deskParametros')")
+
+        # ---- Configurações
+        limpar(); ir(CFG)
+        ok(pg.evaluate("!document.getElementById('swCancelaVencido').classList.contains('on')") and pg.input_value('#afCancelaDias') == '30', 'a opção abre desligada, com 30 dias')
+        for ruim in ('0', '366', 'x'):
+            pg.evaluate(MUDA, ['#afCancelaDias', ruim])
+            ok(pg.evaluate("document.getElementById('campoCancelaDias').classList.contains('has-error')") and 'inválido' in pg.inner_text('#notaBarra'), '%s dias é recusado, e a barra diz que há campo inválido' % ruim)
+        pg.evaluate(MUDA, ['#afCancelaDias', '15']); pg.evaluate("document.getElementById('swCancelaVencido').click()")
+        ok('15 dias ou mais' in pg.inner_text('#previaCancelaVencido') and 'cancelado sozinho' in pg.inner_text('#previaCancelaVencido'), 'a prévia diz o efeito da opção ligada')
+        pg.evaluate("document.getElementById('btnSalvarParam').click()"); pg.wait_for_timeout(300)
+        ok('cancelado sozinho com 15 dias de atraso ou mais' in pg.inner_text('#avisoTexto'), 'salvar diz o que ficou')
+        pg.evaluate("document.getElementById('avisoBackdrop').classList.remove('open'); document.getElementById('avisoModal').classList.remove('open')")
+        ir(LISTA)
+        ok(pg.evaluate("PARAM.afiliadoCancelaVencido") is True and pg.evaluate("PARAM.afiliadoCancelaVencidoDias") == 15, 'a lista de Comissões lê a opção e os 15 dias')
+        limpar(); ir(CFG)
+        pg.evaluate("document.getElementById('btnRestaurarParam').click()")
+        ok(pg.evaluate("!document.getElementById('swCancelaVencido').classList.contains('on')") and pg.input_value('#afCancelaDias') == '30', 'restaurar o padrão volta a opção desligada e 30 dias')
+
+        # ---- o catalogo de acoes auditaveis
+        cat = [c for c in localiza.caminhos() if "chave:'comissaoReprograma'" in open(c, encoding='utf-8').read()]
+        ok(len(cat) == 15 and any('confirmacoes-senha' in c for c in cat) and all(re.search(r"chave:'comissaoReprograma'.*exigePadrao:false", open(c, encoding='utf-8').read()) for c in cat),
+           'reprogramar está no catálogo das 15 telas que o carregam, Confirmações com senha entre elas, sem senha por padrão')
+        ir('pagina-configuracoes-confirmacoes-senha.html')
+        ok('Reprogramar o vencimento de pagamento de comissão' in pg.inner_text('.main'), 'e aparece em Configurações > Confirmações com senha')
+
+        # ---- o Inicio soma as contas de comissao ao numero de contas a pagar atrasadas
+        limpar(); ir(BV)
+        base_atraso, base_prazo = pg.evaluate("[Number(document.querySelector('.dia-fila[data-fila=\"pagar\"] .dia-numero').textContent), Number(document.querySelector('.dia-fila[data-fila=\"pagar\"] .dia-sub').textContent.match(/^\\d+/)[0])]")
+        limpar(True); ir(BV)
+        ok(pg.evaluate("[Number(document.querySelector('.dia-fila[data-fila=\"pagar\"] .dia-numero').textContent), Number(document.querySelector('.dia-fila[data-fila=\"pagar\"] .dia-sub').textContent.match(/^\\d+/)[0])]") == [base_atraso + 2, base_prazo + 1],
+           'o Início conta as duas contas de comissão vencidas e a que está no prazo, como Contas a Pagar')
+        ir(CONTA, '?id=v1'); pg.evaluate("cancelarPagamento(2)"); confirmar(); fechar_aviso()
+        ir(BV)
+        ok(pg.evaluate("Number(document.querySelector('.dia-fila[data-fila=\"pagar\"] .dia-numero').textContent)") == base_atraso + 1, 'cancelado um pagamento vencido, o número do Início desce junto')
+        ir('pagina-financas-contas-pagar.html')
+        ok(pg.evaluate("""(() => { const a = Array.from(document.querySelectorAll('.main .aba-sit, .main [data-aba]')).filter(x => (x.getAttribute('data-sit') || x.getAttribute('data-aba')) === 'atrasada')[0];
+            return Number((a.querySelector('.sit-contador, .aba-contador, span:last-child') || a).textContent.replace(/[^0-9]/g, '')); })()""") == base_atraso + 1, 'e é o mesmo da aba de atrasadas de Contas a Pagar')
+
+        # ---- o mesmo texto nas telas que repetem
+        fontes = dict((n, open(localiza.onde(n), encoding='utf-8').read()) for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', 'pagina-financas-contas-pagar.html',
+                                                                                    'pagina-financas-contas-pagar-detalhe.html', CFG))
+        def trecho(t, ini, fim):
+            a = t.index(ini)
+            return t[a:t.index(fim, a + len(ini))]
+        acoes_b = [trecho(fontes[n], '  // ===== PAGAMENTO VENCIDO: dar baixa', '  // ===== COMPONENTE') for n in (LISTA, CONTA)]
+        ok(acoes_b[0] == acoes_b[1] and len(acoes_b[0]) > 4000, 'o bloco das ações (dar baixa, reprogramar, cancelar, cancelar sozinho) é idêntico na lista e na conta')
+        sit_b = [trecho(fontes[n], '  // Pagamento vencido (entrega 2f', '  // O historico do afiliado, de todos os meses') for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html')]
+        ok(sit_b[0] == sit_b[1] == sit_b[2] and len(sit_b[0]) > 1500, 'o cálculo do atraso e da situação do pagamento é idêntico nas duas telas de Comissões e no cadastro do cliente')
+        gav = [trecho(fontes[n], '<div class="drawer-backdrop" id="rpBackdrop">', '<!-- PAINEL LATERAL:') for n in (LISTA, CONTA)]
+        ok(gav[0] == gav[1] and 'rpVenc' in gav[0], 'o painel de reprogramar é o mesmo na lista e na conta')
+        fontes[BV] = open(localiza.onde(BV), encoding='utf-8').read()
+        sem_b = [trecho(fontes[n], '  // Pagamentos de comissao de exemplo (entrega 2f', '  })();\n') for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', 'pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html', BV)]
+        ok(all(s == sem_b[0] for s in sem_b) and 'semearPagamentosDeExemplo' in sem_b[0], 'o exemplo de fábrica é o mesmo nas seis telas que leem os pagamentos (o Início entre elas)')
+        padrao = [(('afiliadoCancelaVencido: false,' in fontes[n]) and ('afiliadoCancelaVencidoDias: 30,' in fontes[n])) for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', CFG)]
+        ok(all(padrao), 'o padrão das duas opções (desligada, 30 dias) é o mesmo nas quatro cópias do padrão')
+
+        # ---- sem barra de rolagem, no pior caso
+        limpar(True); ir(LISTA)
+        pg.evaluate("""(a) => { const g = JSON.parse(localStorage.getItem('deskComissoesPagas')); g.pagamentos.push({ n: 4, chave: 'a1', nome: 'Bruno Carvalho', tipo: 'cliente', valor: 20, data: a.data, venc: a.venc,
+            forma: 'Transferência', pix: 'bruno.carvalho@hotmail.com', ref: 'outubro de 2026', baixas: [{ data: a.data, valor: 5 }], reprog: [{ em: a.data, de: a.venc, para: a.venc }] }); localStorage.setItem('deskComissoesPagas', JSON.stringify(g)); }""",
+                    {'data': dia(-9).isoformat(), 'venc': dia(-3).isoformat()})
+        MEDE2 = """() => { const r = []; document.querySelectorAll('.estoque-table-wrap').forEach(w => { if (w.getClientRects().length && w.scrollWidth > w.clientWidth + 1) r.push((w.id || w.parentElement.id || 'tabela') + ' ' + w.scrollWidth + ' > ' + w.clientWidth); });
+            if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 1) r.push('a pagina rola'); return r; }"""
+        com_barra = []
+        for largura in (1280, 1440):
+            pg.set_viewport_size({'width': largura, 'height': 900})
+            for tela, q in ((LISTA, ''), (CONTA, '?id=v1'), (CONTA, '?id=a1')):
+                ir(tela, q)
+                if tela == LISTA:
+                    ok(pg.evaluate("document.querySelectorAll('#corpoVencidos tr').length") == 3, 'o quadro está na tela para medir (%dpx)' % largura)
+                for item in pg.evaluate(MEDE2):
+                    com_barra.append('%s %dpx %s' % (tela.replace('pagina-', '').replace('.html', ''), largura, item))
+        pg.set_viewport_size({'width': 1440, 'height': 900})
+        ok(not com_barra, 'o quadro de vencidos e a tabela de pagamentos da conta não têm barra na horizontal, e a página não rola: %s' % com_barra[:4])
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

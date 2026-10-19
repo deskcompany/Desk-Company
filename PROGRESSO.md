@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 15/out/2026, com o balanço do projeto (números, fases e projeção) e a decisão B das contas de comissão vencidas.*
+*Atualizado em 19/out/2026, com a entrega 2f de Comissões: os pagamentos vencidos (a decisão B de 15/out, construída).*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,12 +8,25 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Balanço feito, e a conta a pagar de comissão vencida decidida pela B** (usuário, 15/out). O balanço do
-projeto está na seção "Balanço de 15/out/2026", logo abaixo de "Onde estamos": números, módulos, fases,
-projeção e prioridades. A B: nunca cancelar sozinha; Comissões mostra "vencido há N dias"; um quadro
-"Pagamentos vencidos" com dar baixa, reprogramar ou cancelar e devolver ao saldo (com senha); a vitrine
-mostra Disponível, Em pagamento e Pago; o cancelamento automático fica como opção desligada em
-Configurações. **Não foi construído**: é o primeiro item da fila.
+**Comissões 2f, os pagamentos vencidos: feita e esperando o teste do usuário** (§14.87), com a decisão B dele
+de 15/out. A conta de comissão vencida **nunca se cancela sozinha**. A lista de Comissões Afiliados ganhou o quadro
+**"Pagamentos vencidos"** (o mais atrasado primeiro, com os dias de atraso em vermelho) e três saídas: **dar baixa**
+(abre a conta em Contas a Pagar com o painel da baixa aberto, e o pago volta para Comissões), **reprogramar** (o
+vencimento novo, de hoje em diante; a conta muda de data em Contas a Pagar, e o histórico guarda de quando para
+quando) e **cancelar** (o valor volta ao saldo, com senha). A conta do afiliado mostra "vencido há N dias" e, para o
+cliente afiliado, o que a vitrine vai mostrar: **Disponível, Em pagamento e Pago** ("em atraso" quando vencido).
+**Cancelar sozinho** é opção em Configurações → Cadastro de clientes → Programa de afiliados, **desligada**, com o
+prazo em dias; ligada, só cancela o que não teve nenhuma baixa. Reprogramar entrou no catálogo de ações (Registro de
+atividades), sem senha por padrão.
+
+Para dar o que ver, **três pagamentos de exemplo da vendedora Marina Costa** nascem sozinhos no navegador, contados
+a partir de hoje: R$ 50,00 vencido há 12 dias, R$ 30,00 vencido há 4 e R$ 40,00 que vence em 5. Eles aparecem em
+Contas a Pagar como COM-1 a COM-3, descem R$ 120,00 do saldo da Marina, e o Início soma as contas de comissão ao
+número de contas a pagar atrasadas. **Achado no caminho:** o link do painel do fornecedor para Contas a Pagar
+escondia a conta que vence no mês seguinte (a lista abria em "vencem neste mês"); está consertado. Para ver:
+`http://localhost:3000/financas/pagina-financas-comissoes.html`, o quadro fica logo abaixo de "Pagamentos solicitados".
+
+O balanço do projeto continua na seção "Balanço de 15/out/2026", logo abaixo de "Onde estamos".
 
 **Histórico de Comissões sem barra de rolagem, e com filtro por tipo (2e): feito e esperando o teste do
 usuário** (§14.86). A tabela do histórico rolava (até em 1440px); agora nenhuma tabela das telas de
@@ -589,18 +602,22 @@ constante.
 "mapa de vizinhança". O texto está na cópia que o Claude carrega neste computador e em
 `C:\Claude AI\Skills\Skills ERP System`.
 
+**15. Comissões 2f: os pagamentos vencidos** (19/out, §14.87): o quadro "Pagamentos vencidos" com dar baixa,
+reprogramar e cancelar, "vencido há N dias" na conta e no cadastro, o que a vitrine vai mostrar ao cliente, o
+cancelar sozinho como opção desligada, reprogramar no catálogo de ações, o exemplo de fábrica em seis telas, o
+Início somando as contas de comissão, e o link para Contas a Pagar que escondia a conta do mês seguinte. A seção 10
+de `teste_comissoes.py` tem 71 asserções; 23 defeitos injetados e os 23 pegos. Selo: 52 suítes, 5.414 asserções.
+
 ## Próximo da fila
 
-Refeita em 15/out, com o balanço (a lista completa e os porquês estão em "Prioridades dos próximos passos").
+Refeita em 19/out, depois da 2f (a lista completa e os porquês estão em "Prioridades dos próximos passos").
 
-1. **Comissões 2f: Pagamentos vencidos** (decisão B do usuário, 15/out): "vencido há N dias" no pagamento,
-   quadro com dar baixa, reprogramar e cancelar, e a opção de cancelamento automático desligada.
-2. **A varredura da barra de rolagem nas 25 telas** (a decidir).
-3. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-4. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
+1. **A varredura da barra de rolagem nas 25 telas** (a decidir).
+2. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+3. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
    pagamento de comissão como crédito.
-5. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
-6. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+4. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
+5. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -610,12 +627,6 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
-- **A conta a pagar de comissão que vence** (usuário, 15/out, opção B): ela nunca cancela sozinha, porque o
-  PIX pode já ter saído sem a baixa lançada, e devolver o valor ao saldo faria pagar duas vezes. O
-  pagamento mostra "vencido há N dias" em vermelho; a lista ganha o quadro "Pagamentos vencidos" (dar baixa,
-  reprogramar o vencimento ou cancelar e devolver ao saldo, este com senha); a vitrine mostra Disponível, Em
-  pagamento e Pago, e o vencido aparece como "em pagamento, em atraso". Cancelar sozinho após N dias fica como
-  opção em Configurações, desligada.
 - **Hospedagem: Cloudflare Pages, com o banco no Supabase** (usuário, 10/out/2026). A Vercel fica
   como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
   publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
@@ -639,9 +650,10 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 Três pendências, que são dele:
 
-1. **O teste de Comissões Afiliados (2a, 2b e 2c)**: a lista, as inscrições e os saques pedidos, a
-   conta do afiliado com o histórico, o pagamento e a baixa em Contas a Pagar, a aba Afiliado do cliente e o
-   Programa de afiliados em Configurações (com o saque mínimo).
+1. **O teste de Comissões Afiliados (2a a 2f)**: a lista, as inscrições e os saques pedidos, a
+   conta do afiliado com o histórico, o pagamento e a baixa em Contas a Pagar, a aba Afiliado do cliente, o
+   Programa de afiliados em Configurações (com o saque mínimo e o cancelar sozinho), e os pagamentos vencidos
+   (o quadro, dar baixa, reprogramar e cancelar).
 2. **A barra de rolagem nas outras 25 telas** (a 1280px): fazer a varredura, tirando o `min-width` fixo,
    quebrando a coluna de texto e encurtando cabeçalho, ou deixar como está até a barra incomodar.
    Recomendação: uma entrega só, pelo mesmo CSS, com a suíte medindo cada uma.
@@ -699,6 +711,9 @@ O usuário aceitou, em 10/out/2026, que isto fique assim nesta fase:
 - **O documento do movimento não é link para a tela de origem.** A nota, o pedido e a transferência
   do histórico não existem no exemplo de Entrada de Notas, de Pedidos de Venda nem da Transferência.
   O painel mostra o documento inteiro; o link nasce quando os exemplos se alinharem.
+- **Os três pagamentos de comissão de exemplo** (2f) nascem no primeiro acesso de cada navegador, contados a partir
+  daquele dia; limpar o navegador traz de volta. O Início soma as contas de comissão ao número de contas a pagar, mas
+  o resto daquele número é o do exemplo da própria tela.
 - **Reservado aparece 0 em todo produto:** o Controle de Estoques ainda não calcula a reserva a
   partir dos pedidos, e a Movimentação lê de lá.
 - **O lançamento feito na página do produto vale até recarregar a página**, como o saldo dela. O

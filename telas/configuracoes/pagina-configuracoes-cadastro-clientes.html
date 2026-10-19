@@ -1459,12 +1459,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <div class="par-num"><input type="text" id="afSaqueMin" value="50"><span class="par-num-sufixo">reais</span></div>
           </div>
         </div>
-        <span class="par-erro" id="erroAfiliados">O percentual vai de 0 a 50%, com até duas casas; o link vale de 1 a 365 dias; o saque mínimo vai de 0 a 100.000 reais.</span>
+        <span class="par-erro" id="erroAfiliados">O percentual vai de 0 a 50%, com até duas casas; o link vale de 1 a 365 dias; o saque mínimo vai de 0 a 100.000 reais; o cancelamento sozinho vale de 1 a 365 dias.</span>
         <div class="par-previa" id="previaAfiliados"></div>
       </div>
       <div class="par-exp">
         <b>O pedido guarda o percentual do dia em que foi feito:</b> mudar aqui vale para as próximas vendas e não refaz comissão já gerada. A comissão do link libera com o pedido entregue e 7 dias sem devolução, e quem compra pelo próprio link não gera comissão. O vendedor não entra aqui: ele vende pelo ERP, e a regra dele está no cadastro de vendedores.
         <span class="par-onde">Onde pega: <b>Finanças → Comissões Afiliados</b>, e a vitrine de cada loja, quando o cliente pede para ser afiliado e quando gera o link.</span>
+      </div>
+    </div>
+
+    <!-- Pagamento de comissao vencido (entrega 2f, decisao B do usuario em 15/out/2026): nunca se cancela sozinho, porque o
+         Pix pode ja ter saido sem a baixa lancada. Cancelar sozinho e uma opcao, e nasce desligada. -->
+    <div class="par-linha">
+      <div>
+        <div class="switch-row" style="margin-bottom:0;">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Cancelar sozinho o pagamento vencido</div>
+            <div class="field-hint">A conta de comissão que passa do vencimento sem nenhuma baixa é cancelada, e o valor volta ao saldo do afiliado.</div>
+          </div>
+          <div class="switch" id="swCancelaVencido" data-param="afiliadoCancelaVencido" role="switch"></div>
+        </div>
+        <div class="par-campos" style="margin-top:12px;">
+          <div class="par-campo" id="campoCancelaDias">
+            <label>Cancelar com atraso de</label>
+            <div class="par-num"><input type="text" id="afCancelaDias" value="30"><span class="par-num-sufixo">dias ou mais</span></div>
+          </div>
+        </div>
+        <div class="par-previa" id="previaCancelaVencido"></div>
+      </div>
+      <div class="par-exp">
+        <b>Nasce desligado, de propósito.</b> Cancelar sozinho devolve o valor ao saldo, e o afiliado poderia receber duas vezes se o Pix já tivesse saído sem a baixa lançada. Desligado, o pagamento vencido aparece no quadro <b>Pagamentos vencidos</b>, e uma pessoa escolhe: dar baixa, reprogramar o vencimento ou cancelar e devolver ao saldo. Ligado, só cancela o que não teve <b>nenhuma</b> baixa; com baixa, o dinheiro saiu, e o pagamento continua no quadro.
+        <span class="par-onde">Onde pega: <b>Finanças → Comissões Afiliados</b>, ao abrir a lista e a conta do afiliado (no sistema de verdade será uma tarefa diária), e <b>Finanças → Contas a Pagar</b>, onde a conta fica cancelada.</span>
       </div>
     </div>
   </div>
@@ -1569,6 +1594,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
     afiliadoSaqueMinimo: 50,   // o cliente afiliado pede o saque na vitrine a partir deste valor (15/out/2026)
+    afiliadoCancelaVencido: false,        // cancelar sozinho o pagamento de comissao vencido (2f, 15/out/2026): nasce desligado
+    afiliadoCancelaVencidoDias: 30,       // e depois de quantos dias de atraso
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2141,7 +2168,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // o bloqueio por atraso, por `../vendas/pagina-vendas-pedidos-detalhe.html` (veio de Parametros
   // de estoque em 13/out/2026: e regra sobre o cliente, e nao sobre o estoque).
   const CHAVES_CLI = ['permitirDocDuplicado', 'mostrarObservacoesCliente', 'bloquearPedidoAtrasoDias',
-                      'afiliadoPctLoja1', 'afiliadoPctLoja2', 'afiliadoPctLoja3', 'afiliadoLinkDias', 'afiliadoSaqueMinimo'];
+                      'afiliadoPctLoja1', 'afiliadoPctLoja2', 'afiliadoPctLoja3', 'afiliadoLinkDias', 'afiliadoSaqueMinimo',
+                      'afiliadoCancelaVencido', 'afiliadoCancelaVencidoDias'];
   const elNota = document.getElementById('notaBarra');
   let edicao = {};
   CHAVES_CLI.forEach(k => { edicao[k] = PARAM[k]; });
@@ -2163,7 +2191,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'afPct2', chave: 'afiliadoPctLoja2', campo: 'campoPct2', max: 50, min: 0, casas: true },
     { id: 'afPct3', chave: 'afiliadoPctLoja3', campo: 'campoPct3', max: 50, min: 0, casas: true },
     { id: 'afLinkDias', chave: 'afiliadoLinkDias', campo: 'campoLink', max: 365, min: 1, casas: false },
-    { id: 'afSaqueMin', chave: 'afiliadoSaqueMinimo', campo: 'campoSaque', max: 100000, min: 0, casas: true }
+    { id: 'afSaqueMin', chave: 'afiliadoSaqueMinimo', campo: 'campoSaque', max: 100000, min: 0, casas: true },
+    { id: 'afCancelaDias', chave: 'afiliadoCancelaVencidoDias', campo: 'campoCancelaDias', max: 365, min: 1, casas: false }
   ];
   const fmtPct = (n) => String(n).replace('.', ',');
   CAMPOS_AFILIADO.forEach(c => {
@@ -2206,6 +2235,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const ruins = CAMPOS_AFILIADO.filter(c => edicao[c.chave] === null), pv = document.getElementById('previaAfiliados');
     CAMPOS_AFILIADO.forEach(c => document.getElementById(c.campo).classList.toggle('has-error', edicao[c.chave] === null));
     document.getElementById('erroAfiliados').classList.toggle('show', ruins.length > 0);
+    const dc = edicao.afiliadoCancelaVencidoDias, pc = document.getElementById('previaCancelaVencido');
+    pc.classList.toggle('alerta', dc === null);
+    pc.innerHTML = dc === null ? 'Corrija o prazo em vermelho para ver o efeito.'
+      : (edicao.afiliadoCancelaVencido
+        ? 'Ligado: o pagamento de comissão <b>sem nenhuma baixa</b> e vencido há <b>' + plural(dc, 'dia', 'dias') + ' ou mais</b> é cancelado sozinho, e o valor volta ao saldo do afiliado. Se já houve baixa, ele fica em "Pagamentos vencidos" para alguém decidir.'
+        : 'Desligado: o pagamento vencido fica no quadro <b>Pagamentos vencidos</b>, em Comissões Afiliados, até alguém dar baixa, reprogramar o vencimento ou cancelar. É o jeito mais seguro.');
     pv.classList.toggle('alerta', ruins.length > 0);
     pv.innerHTML = ruins.length ? 'Corrija o campo em vermelho para ver o efeito.'
       : 'Venda pelo link de um afiliado rende a ele <b>' + fmtPct(edicao.afiliadoPctLoja1) + '%</b> na Desk Shope, <b>' + fmtPct(edicao.afiliadoPctLoja2) +
@@ -2228,7 +2263,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     if (edicao.bloquearPedidoAtrasoDias === null) { avisar('O prazo do bloqueio por atraso precisa ser um número inteiro de 0 a 365. Zero desliga o bloqueio.'); return; }
-    if (CAMPOS_AFILIADO.some(c => edicao[c.chave] === null)) { avisar('No programa de afiliados, o percentual vai de 0 a 50%, com até duas casas, o link vale de 1 a 365 dias e o saque mínimo vai de 0 a 100.000 reais. Corrija o campo em vermelho para salvar.'); return; }
+    if (CAMPOS_AFILIADO.some(c => edicao[c.chave] === null)) { avisar('No programa de afiliados, o percentual vai de 0 a 50%, com até duas casas, o link vale de 1 a 365 dias, o saque mínimo vai de 0 a 100.000 reais e o cancelamento sozinho vale de 1 a 365 dias. Corrija o campo em vermelho para salvar.'); return; }
     const mudadas = CHAVES_CLI.filter(k => edicao[k] !== PARAM[k]);
     if (mudadas.length === 0) { avisar('Nenhuma configuração mudou.'); return; }
     CHAVES_CLI.forEach(k => { PARAM[k] = edicao[k]; });
@@ -2240,6 +2275,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ' O bloqueio por atraso ' + (PARAM.bloquearPedidoAtrasoDias ? 'vale a partir de ' + plural(PARAM.bloquearPedidoAtrasoDias, 'dia', 'dias') + '.' : 'fica desligado.') +
       ' Afiliados: ' + fmtPct(PARAM.afiliadoPctLoja1) + '% na Desk Shope, ' + fmtPct(PARAM.afiliadoPctLoja2) + '% na Desk Brands, ' + fmtPct(PARAM.afiliadoPctLoja3) +
       '% na Desk Tech, o link vale ' + plural(PARAM.afiliadoLinkDias, 'dia', 'dias') + ' e o saque é a partir de R$ ' + fmtPct(PARAM.afiliadoSaqueMinimo) + '.' +
+      ' O pagamento vencido ' + (PARAM.afiliadoCancelaVencido ? 'é cancelado sozinho com ' + plural(PARAM.afiliadoCancelaVencidoDias, 'dia', 'dias') + ' de atraso ou mais.' : 'não é cancelado sozinho.') +
       (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então isto vale só nesta aba.)'));
   });
 

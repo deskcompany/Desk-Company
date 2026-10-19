@@ -3746,3 +3746,52 @@ filtrar o histórico por tipo.
 
 **Provado nos dois sentidos, numa cópia.** As seções 8 e 9 de `teste_comissoes.py` cobrem o filtro por tipo e a
 barra (nas quatro telas, em 1280 e 1440). Sete defeitos injetados, um por vez, e os sete pegos.
+
+## 14.87 Comissões 2f: o pagamento vencido (19/out/2026)
+
+Decisão B do usuário, de 15/out: a conta a pagar de comissão que vence **nunca se cancela sozinha**, porque o Pix pode já ter
+saído sem a baixa lançada, e devolver o valor ao saldo faria pagar duas vezes.
+
+- **O que é vencido.** O pagamento passou do vencimento, não está cancelado nem excluído, e a baixa não cobre o valor. Ele
+  mostra "vencido há N dias" em vermelho (`.com-atraso`, o vermelho de texto, `--danger`). Pago em parte e vencido diz as duas
+  coisas. O cálculo (`diasDeAtraso`, `situacaoDoPagamento`, `situacaoHtml`) é um bloco só, igual na lista, na conta do
+  afiliado e no cadastro do cliente.
+- **O quadro "Pagamentos vencidos"**, na lista de Comissões Afiliados, logo depois de "Pagamentos solicitados": o mais
+  atrasado primeiro, com a conta, o que falta pagar, o vencimento e os dias de atraso. Três saídas:
+  - **Dar baixa** abre a conta em Contas a Pagar com o painel da baixa já aberto (`?baixar=1`). A baixa continua tendo um
+    dono só, que escreve no Caixa, e o pago volta para Comissões em `baixas` (§14.84).
+  - **Reprogramar** pede o vencimento novo, de hoje em diante, pergunta antes e grava; a conta muda de data em Contas a
+    Pagar, e o histórico guarda de quando para quando. É ação nova do catálogo (`comissaoReprograma`, "Reprogramar o
+    vencimento de pagamento de comissão"), sem senha por padrão, nas 15 telas que carregam o catálogo: entra no Registro
+    de atividades, e a senha pode ser ligada em Confirmações com senha.
+  - **Cancelar** devolve o valor ao saldo e deixa a conta cancelada em Contas a Pagar, com senha (a mesma de realizar
+    pagamento). Não aparece quando já houve baixa: estorna-se a baixa antes.
+- **A conta do afiliado** mostra o atraso em vermelho, um aviso com quantos estão vencidos e quanto somam, e "dar baixa ·
+  reprogramar" só no pagamento vencido. Para o cliente afiliado, uma linha diz o que a vitrine vai mostrar a ele:
+  **Disponível** (o saldo de hoje), **Em pagamento** (o que falta pagar, com "em atraso" quando vencido) e **Pago**. A
+  vitrine ainda não existe; a linha lê o mesmo banco que ela vai ler. O cadastro do cliente, na aba Afiliado, avisa
+  "1 vencido".
+- **Cancelar sozinho é opção, desligada.** Configurações → Cadastro de clientes → Programa de afiliados: "Cancelar sozinho o
+  pagamento vencido", com o prazo (1 a 365 dias, 30 de fábrica). Ligada, cancela só o que não teve **nenhuma** baixa e venceu
+  há o prazo ou mais; com baixa, o dinheiro saiu, e ele fica no quadro. O histórico diz "cancelado sozinho, vencido há N
+  dias". No protótipo roda quando Comissões abre; no sistema de verdade será uma tarefa diária. Os dois parâmetros nasceram
+  no mesmo dia que o código que os lê.
+- **O exemplo de fábrica.** O vencimento de um pagamento feito na tela é sempre de hoje em diante, então sem exemplo não
+  haveria como ver um vencido. Três pagamentos da vendedora Marina Costa nascem uma vez por navegador, contados a partir de
+  hoje: R$ 50,00 vencido há 12 dias, R$ 30,00 vencido há 4 e R$ 40,00 que vence em 5. O bloco é o mesmo nas seis telas que
+  leem os pagamentos (as duas de Comissões, o cadastro do cliente, as duas de Contas a Pagar e o Início). Efeito nas
+  vizinhas: Contas a Pagar ganha COM-1 a COM-3, o saldo da Marina desce R$ 120,00, e o Início soma as contas de comissão ao
+  número de contas a pagar atrasadas e ao de "em aberto, ainda no prazo" (lendo os pagamentos, e não um número digitado,
+  para não desmentir Contas a Pagar quando alguém cancela ou dá baixa).
+- **Achado no caminho: o link para Contas a Pagar escondia a conta.** O painel do fornecedor leva a Contas a Pagar com
+  `?busca=`; o bloco comum da busca tira o período padrão clicando no botão "todos", mas em Contas a Pagar o período é um
+  dropdown, e a lista abria em "vencem neste mês". A conta da TechParts, que vence em novembro, sumia em outubro. Agora o
+  link abre em todos os períodos. A suíte `teste_cad_melhorias.py` já reprovava isso desde que a data virou.
+
+**Regra que fica:** tela que mostra passagem do tempo (vencido, atrasado, há N dias) nasce com exemplo que já passou do
+prazo, contado a partir de hoje; senão o usuário não tem como testar. Suíte que conta as contas de uma tela parte sem os
+pagamentos de exemplo, e a suíte das comissões testa o estado de fábrica.
+
+**Provado nos dois sentidos, numa cópia.** A seção 10 de `teste_comissoes.py` (71 asserções) cobre o exemplo de fábrica, o
+quadro, a conta, a vitrine, dar baixa, reprogramar, cancelar, cancelar sozinho, Configurações, o catálogo, o Início, os
+blocos repetidos e a barra de rolagem. Vinte e três defeitos injetados, um por vez, e os vinte e três pegos.

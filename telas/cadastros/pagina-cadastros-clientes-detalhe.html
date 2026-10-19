@@ -385,6 +385,7 @@
   .afi-loja { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); margin:14px 0 6px; }
   .com-link { color:var(--active-text); font-weight:700; text-decoration:none; }
   .com-link:hover { text-decoration:underline; }
+  .com-atraso { color:var(--danger); font-weight:700; }
   .com-tipo { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
               border:1px solid var(--border); border-radius:999px; color:var(--text); white-space:nowrap; }
 
@@ -1161,6 +1162,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
     afiliadoSaqueMinimo: 50,
+    afiliadoCancelaVencido: false,        // cancelar sozinho o pagamento de comissao vencido (2f, 15/out/2026): nasce desligado
+    afiliadoCancelaVencidoDias: 30,       // e depois de quantos dias de atraso
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2056,6 +2059,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Realizar pagamento" grava aqui; Financas > Contas a Pagar le a mesma chave e faz a conta nascer la, com o
   // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
   // Pagamento cancelado (para refazer com outro valor) sai da conta e da de Contas a Pagar; o registro fica.
+  // Pagamentos de comissao de exemplo (entrega 2f, 15/out/2026): o vencimento de um pagamento feito na tela e sempre de hoje em
+  // diante, entao sem estes tres nao haveria como ver um pagamento vencido. Nascem uma vez por navegador, contados a partir de hoje,
+  // da vendedora Marina Costa, e valem como qualquer outro (em Contas a Pagar sao COM-1 a COM-3). Limpar o navegador traz de volta.
+  (function semearPagamentosDeExemplo() {
+    try {
+      if (localStorage.getItem('deskComissoesPagas')) return;
+      const dia = (n) => { const x = new Date(); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+      const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const pag = (n, valor, emitido, venc) => ({ n: n, chave: 'v1', nome: 'Marina Costa', tipo: 'vendedor', valor: valor, data: dia(emitido), venc: dia(venc), forma: 'Pix', pix: '',
+        ref: MESES[Number(dia(emitido).slice(5, 7)) - 1] + ' de ' + dia(emitido).slice(0, 4) });
+      localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [pag(1, 50, -14, -12), pag(2, 30, -6, -4), pag(3, 40, -2, 5)] }));
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
   function pagamentosDe(b) {
     return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave && !p.cancelado);
   }
@@ -2112,14 +2128,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (b.tipo === 'vendedor') return 'Vendedor · ' + pctC(b.aliquota) + ' · ' + REGRA_C[b.regra] + (b.situacao === 'inativo' ? ' · inativo' : '');
     return 'Cliente afiliado da ' + LOJAS_C[b.loja] + ' · ' + pctC(b.aliquota) + ' nas vendas novas' + (b.situacao === 'suspenso' ? ' · suspenso' : '');
   }
+  // Pagamento vencido (entrega 2f, 15/out/2026): passou do vencimento, nao esta cancelado e a baixa nao cobre o valor.
+  // Nunca se cancela sozinho, salvo a opcao de Configuracoes (desligada): o Pix pode ja ter saido sem a baixa lancada.
+  function diasDeAtraso(p) {
+    if (p.excluido || p.cancelado || !p.venc || p.venc >= HOJE_ISO) return 0;
+    if ((p.baixas || []).reduce((s, x) => s + x.valor, 0) >= p.valor - 0.005) return 0;
+    return Math.round((Date.parse(HOJE_ISO + 'T00:00:00') - Date.parse(p.venc + 'T00:00:00')) / 86400000);
+  }
+  const haDias = (n) => 'vencido há ' + n + (n === 1 ? ' dia' : ' dias');
   // A situacao do pagamento: a baixa em Contas a Pagar volta para ca em `baixas` (15/out/2026).
   function situacaoDoPagamento(p) {
-    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0);
-    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago };
-    if (p.cancelado) return { rotulo: 'cancelado', pago: pago };
-    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago };
-    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')', pago: pago };
-    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
+    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0), atraso = diasDeAtraso(p);
+    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago, atraso: 0 };
+    if (p.cancelado) return { rotulo: p.canceladoAuto ? 'cancelado sozinho' : 'cancelado', pago: pago, atraso: 0 };
+    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago, atraso: 0 };
+    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')' + (atraso ? ', ' + haDias(atraso) : ''), pago: pago, atraso: atraso };
+    if (atraso) return { rotulo: haDias(atraso), pago: pago, atraso: atraso };
+    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago, atraso: 0 };
+  }
+  // O mesmo texto com o atraso em vermelho: o que a lista, a conta e a vitrine mostram.
+  function situacaoHtml(p) {
+    const s = situacaoDoPagamento(p);
+    return s.atraso ? '<span class="com-atraso">' + s.rotulo + '</span>' : s.rotulo;
   }
   // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
   // mostra o mesmo ao cliente, em "Minhas indicacoes". Cada acontecimento tem o tipo, o valor, o efeito no saldo
@@ -2165,7 +2195,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }];
       add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor, -p.valor, lk);
       (p.baixas || []).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
-      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') +
+      (p.reprog || []).forEach(x => add(x.em, 'pagamento', 'Pagamento COM-' + p.n + ' reprogramado: vencimento de ' + brDe(x.de) + ' para ' + brDe(x.para), p.valor, undefined, lk));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : (p.canceladoAuto ? ' cancelado sozinho, ' + haDias(p.canceladoAuto) : ' cancelado')) +
         ': o valor voltou ao saldo' + (p.saque ? '; o cliente pode pedir de novo' : ''), p.valor, p.valor, lk);
     });
     // O saldo depois de cada acontecimento se conta do mais velho para o mais novo; a lista sai do mais novo.
@@ -2217,9 +2248,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     corpo.innerHTML = '<table class="contatos-table"><thead><tr><th>Loja</th><th>Situação</th><th>Comissão</th><th>Saldo a pagar hoje</th><th>Pagamentos feitos</th><th>Já pago</th><th></th></tr></thead><tbody>' +
       meus.map(a => {
         const b = beneficiarioDe('a' + a.id), pags = b ? pagamentosDe(b) : [];
-        const feitos = pags.reduce((s, p) => s + p.valor, 0), pago = pags.reduce((s, p) => s + situacaoDoPagamento(p).pago, 0);
+        const feitos = pags.reduce((s, p) => s + p.valor, 0), pago = pags.reduce((s, p) => s + situacaoDoPagamento(p).pago, 0), atrasados = pags.filter(p => diasDeAtraso(p) > 0).length;
         return '<tr><td>' + LOJAS_C[a.loja] + '</td><td>' + SIT[a.situacao] + '</td><td>' + pctC(pctDaLoja(a.loja)) + '</td>' +
-          '<td>' + (b ? moedaC(contaDoMes(b, HOJE_C.getMonth() + 1, HOJE_C.getFullYear()).saldo) : '—') + '</td><td>' + (b ? moedaC(feitos) : '—') + '</td><td>' + (b ? moedaC(pago) : '—') + '</td>' +
+          '<td>' + (b ? moedaC(contaDoMes(b, HOJE_C.getMonth() + 1, HOJE_C.getFullYear()).saldo) : '—') + '</td><td>' + (b ? moedaC(feitos) + (atrasados ? ' · <span class="com-atraso">' + atrasados + (atrasados === 1 ? ' vencido' : ' vencidos') + '</span>' : '') : '—') + '</td><td>' + (b ? moedaC(pago) : '—') + '</td>' +
           '<td>' + (b ? '<a class="add-contato-link" href="../financas/pagina-financas-comissoes-detalhe.html?id=' + b.chave + '">Abrir a conta de comissões</a>'
                       : '<a class="add-contato-link" href="../financas/pagina-financas-comissoes.html">Ver em Comissões Afiliados</a>') + '</td></tr>';
       }).join('') + '</tbody></table>';

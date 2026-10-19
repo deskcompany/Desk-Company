@@ -865,6 +865,7 @@
   .com-total { font-weight:800; color:var(--text-heading); }
   .com-link { color:var(--active-text); cursor:pointer; font-weight:700; text-decoration:none; font-size:12px; }
   .com-link:hover { text-decoration:underline; }
+  .com-atraso { color:var(--danger); font-weight:700; }
   .com-tipo { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; padding:2px 8px;
               border:1px solid var(--border); border-radius:999px; color:var(--text); white-space:nowrap; }
   .com-hist-cab { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; }
@@ -1198,6 +1199,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <!-- Pagamentos vencidos (entrega 2f, decisao B do usuario em 15/out/2026): a conta de comissao que passou do vencimento nunca se
+       cancela sozinha, porque o Pix pode ja ter saido sem a baixa lancada. Alguem confere no banco e escolhe. -->
+  <div class="card com-inscricoes" id="cardVencidos">
+    <div class="com-titulo">Pagamentos vencidos <span id="contVencidos"></span></div>
+    <div class="com-sub">Contas de comissão que passaram do vencimento sem baixa. Elas não se cancelam sozinhas, porque o Pix pode já ter saído sem a baixa lançada: confira no banco e escolha. <b>Dar baixa</b> abre a conta em Contas a Pagar, <b>Reprogramar</b> muda o vencimento e <b>Cancelar</b> devolve o valor ao saldo do afiliado (pede senha).</div>
+    <div class="estoque-table-wrap">
+      <table class="estoque-table">
+        <thead>
+          <tr>
+            <th class="col-texto">Afiliado</th>
+            <th class="col-texto">Conta</th>
+            <th>A pagar</th>
+            <th class="col-texto">Venceu em</th>
+            <th class="col-texto">Atraso</th>
+            <th class="col-texto"></th>
+          </tr>
+        </thead>
+        <tbody id="corpoVencidos"></tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="estoque-toolbar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1273,6 +1296,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
   </div>
   <div id="drawerCorpo"></div>
+</div>
+
+<!-- PAINEL LATERAL: reprogramar o vencimento de um pagamento vencido (entrega 2f). A conta em Contas a Pagar muda de data junto. -->
+<div class="drawer-backdrop" id="rpBackdrop"></div>
+<div class="event-drawer" id="rpDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Reprogramar o vencimento</div>
+    <div class="drawer-close" id="rpClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+  <div class="field-hint" id="rpResumo" style="margin-bottom:14px;">—</div>
+  <div class="form-field" id="campoRpVenc">
+    <label>Novo vencimento</label>
+    <input type="text" id="rpVenc" placeholder="dd/mm/aaaa">
+    <div class="field-error-msg" id="erroRpVenc">Data no formato dd/mm/aaaa, de hoje em diante.</div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn-primary" id="btnRpSalvar">Reprogramar</button>
+    <div class="drawer-link" id="rpCancelar">Cancelar</div>
+  </div>
 </div>
 
 <!-- PAINEL LATERAL: recusar inscricao ou saque, com o motivo que volta para o cliente -->
@@ -1430,6 +1472,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoPctLoja3: 3,
     afiliadoLinkDias: 30,
     afiliadoSaqueMinimo: 50,
+    afiliadoCancelaVencido: false,        // cancelar sozinho o pagamento de comissao vencido (2f, 15/out/2026): nasce desligado
+    afiliadoCancelaVencidoDias: 30,       // e depois de quantos dias de atraso
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1609,6 +1653,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'comissaoAjusta',     nome:'Editar ou excluir comissão de afiliado ou vendedor',   onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'comissaoLanca',      nome:'Lançar crédito ou débito na conta de comissão',        onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'comissaoPaga',       nome:'Realizar pagamento de comissão',                       onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoReprograma', nome:'Reprogramar o vencimento de pagamento de comissão',    onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2146,6 +2191,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // "Realizar pagamento" grava aqui; Financas > Contas a Pagar le a mesma chave e faz a conta nascer la, com o
   // vendedor ou o cliente afiliado como favorecido (conta 9000 + n, documento COM-n). O saldo desce no dia do pagamento.
   // Pagamento cancelado (para refazer com outro valor) sai da conta e da de Contas a Pagar; o registro fica.
+  // Pagamentos de comissao de exemplo (entrega 2f, 15/out/2026): o vencimento de um pagamento feito na tela e sempre de hoje em
+  // diante, entao sem estes tres nao haveria como ver um pagamento vencido. Nascem uma vez por navegador, contados a partir de hoje,
+  // da vendedora Marina Costa, e valem como qualquer outro (em Contas a Pagar sao COM-1 a COM-3). Limpar o navegador traz de volta.
+  (function semearPagamentosDeExemplo() {
+    try {
+      if (localStorage.getItem('deskComissoesPagas')) return;
+      const dia = (n) => { const x = new Date(); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+      const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+      const pag = (n, valor, emitido, venc) => ({ n: n, chave: 'v1', nome: 'Marina Costa', tipo: 'vendedor', valor: valor, data: dia(emitido), venc: dia(venc), forma: 'Pix', pix: '',
+        ref: MESES[Number(dia(emitido).slice(5, 7)) - 1] + ' de ' + dia(emitido).slice(0, 4) });
+      localStorage.setItem('deskComissoesPagas', JSON.stringify({ pagamentos: [pag(1, 50, -14, -12), pag(2, 30, -6, -4), pag(3, 40, -2, 5)] }));
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
   function pagamentosDe(b) {
     return (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave && !p.cancelado);
   }
@@ -2202,14 +2260,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (b.tipo === 'vendedor') return 'Vendedor · ' + pctC(b.aliquota) + ' · ' + REGRA_C[b.regra] + (b.situacao === 'inativo' ? ' · inativo' : '');
     return 'Cliente afiliado da ' + LOJAS_C[b.loja] + ' · ' + pctC(b.aliquota) + ' nas vendas novas' + (b.situacao === 'suspenso' ? ' · suspenso' : '');
   }
+  // Pagamento vencido (entrega 2f, 15/out/2026): passou do vencimento, nao esta cancelado e a baixa nao cobre o valor.
+  // Nunca se cancela sozinho, salvo a opcao de Configuracoes (desligada): o Pix pode ja ter saido sem a baixa lancada.
+  function diasDeAtraso(p) {
+    if (p.excluido || p.cancelado || !p.venc || p.venc >= HOJE_ISO) return 0;
+    if ((p.baixas || []).reduce((s, x) => s + x.valor, 0) >= p.valor - 0.005) return 0;
+    return Math.round((Date.parse(HOJE_ISO + 'T00:00:00') - Date.parse(p.venc + 'T00:00:00')) / 86400000);
+  }
+  const haDias = (n) => 'vencido há ' + n + (n === 1 ? ' dia' : ' dias');
   // A situacao do pagamento: a baixa em Contas a Pagar volta para ca em `baixas` (15/out/2026).
   function situacaoDoPagamento(p) {
-    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0);
-    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago };
-    if (p.cancelado) return { rotulo: 'cancelado', pago: pago };
-    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago };
-    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')', pago: pago };
-    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago };
+    const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0), atraso = diasDeAtraso(p);
+    if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago, atraso: 0 };
+    if (p.cancelado) return { rotulo: p.canceladoAuto ? 'cancelado sozinho' : 'cancelado', pago: pago, atraso: 0 };
+    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago, atraso: 0 };
+    if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')' + (atraso ? ', ' + haDias(atraso) : ''), pago: pago, atraso: atraso };
+    if (atraso) return { rotulo: haDias(atraso), pago: pago, atraso: atraso };
+    return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago, atraso: 0 };
+  }
+  // O mesmo texto com o atraso em vermelho: o que a lista, a conta e a vitrine mostram.
+  function situacaoHtml(p) {
+    const s = situacaoDoPagamento(p);
+    return s.atraso ? '<span class="com-atraso">' + s.rotulo + '</span>' : s.rotulo;
   }
   // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
   // mostra o mesmo ao cliente, em "Minhas indicacoes". Cada acontecimento tem o tipo, o valor, o efeito no saldo
@@ -2255,7 +2327,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }];
       add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor, -p.valor, lk);
       (p.baixas || []).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
-      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : ' cancelado') +
+      (p.reprog || []).forEach(x => add(x.em, 'pagamento', 'Pagamento COM-' + p.n + ' reprogramado: vencimento de ' + brDe(x.de) + ' para ' + brDe(x.para), p.valor, undefined, lk));
+      if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : (p.canceladoAuto ? ' cancelado sozinho, ' + haDias(p.canceladoAuto) : ' cancelado')) +
         ': o valor voltou ao saldo' + (p.saque ? '; o cliente pode pedir de novo' : ''), p.valor, p.valor, lk);
     });
     // O saldo depois de cada acontecimento se conta do mais velho para o mais novo; a lista sai do mais novo.
@@ -2288,6 +2361,80 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + (e.efeito === null ? '—' : (e.efeito < 0 ? '− ' : '+ ') + moedaC(Math.abs(e.efeito))) + '</td><td>' + moedaC(e.saldo) + '</td></tr>';
     }).join('');
   }
+  // ===== PAGAMENTO VENCIDO: dar baixa, reprogramar, cancelar (entrega 2f, 15/out/2026) =====
+  // O mesmo bloco na lista (quadro "Pagamentos vencidos") e na conta do afiliado; teste_comissoes.py compara as duas copias.
+  const pagamentoDe = (n) => (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(x => x.n === n)[0];
+  // Dar baixa e acao de Contas a Pagar (escreve no Caixa, com a conta de onde o dinheiro saiu): a conta abre la com o painel
+  // da baixa aberto, e o pago volta para ca em `baixas`. Um dono so para a baixa.
+  const hrefDarBaixa = (n) => hrefContaC(n) + '&baixar=1';
+  // Cancelar: o valor volta ao saldo e a conta fica cancelada em Contas a Pagar. Pede senha. O registro fica, para o numero
+  // COM-n nao se repetir. Pagamento com baixa nao se cancela: estorna-se a baixa antes.
+  function cancelarPagamento(n) {
+    const g = lerLocal('deskComissoesPagas', {}), p = (g.pagamentos || []).filter(x => x.n === n)[0];
+    if (!p) return;
+    if (situacaoDoPagamento(p).pago) { avisar('O pagamento COM-' + n + ' já tem baixa em Contas a Pagar. Estorne a baixa lá antes de cancelar.'); return; }
+    pedirConfirmacao('comissaoPaga', 'Cancelar o pagamento COM-' + n + ', de ' + moedaC(p.valor) + ', a ' + p.nome + '? A conta fica cancelada em Contas a Pagar e o valor volta ao saldo de comissão.', () => {
+      p.cancelado = true; p.canceladoEm = HOJE_ISO;
+      gravarLocal('deskComissoesPagas', g);
+      render();
+      avisar('Pagamento COM-' + n + ' cancelado: a conta ficou cancelada em Contas a Pagar e ' + moedaC(p.valor) + ' voltou ao saldo.');
+    });
+  }
+  // Reprogramar: o vencimento novo e de hoje em diante. A conta muda de data em Contas a Pagar (que le o pagamento), e o
+  // historico guarda de quando para quando.
+  let reprogramando = null;
+  const rpIsoDoBr = (s) => {
+    const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(s).trim());
+    if (!m) return null;
+    const d = new Date(+m[3], +m[2] - 1, +m[1]);
+    return d.getFullYear() === +m[3] && d.getMonth() === +m[2] - 1 && d.getDate() === +m[1] ? isoDe(d) : null;
+  };
+  function abrirReprogramar(n) {
+    const p = pagamentoDe(n);
+    if (!p) return;
+    reprogramando = n;
+    document.getElementById('rpResumo').textContent = 'COM-' + n + ' · ' + p.nome + ' · ' + moedaC(p.valor) + ' · venceu em ' + brDe(p.venc) + ' (' + haDias(diasDeAtraso(p)) + '). ' +
+      'O vencimento novo é de hoje em diante, e a conta muda de data em Contas a Pagar.';
+    document.getElementById('rpVenc').value = brDe(HOJE_ISO);
+    document.getElementById('campoRpVenc').classList.remove('has-error');
+    document.getElementById('erroRpVenc').classList.remove('show');
+    document.getElementById('rpBackdrop').classList.add('open'); document.getElementById('rpDrawer').classList.add('open');
+  }
+  function fecharReprogramar() { document.getElementById('rpBackdrop').classList.remove('open'); document.getElementById('rpDrawer').classList.remove('open'); }
+  document.getElementById('btnRpSalvar').addEventListener('click', () => {
+    const venc = rpIsoDoBr(document.getElementById('rpVenc').value), ruim = !venc || venc < HOJE_ISO;
+    document.getElementById('campoRpVenc').classList.toggle('has-error', ruim);
+    document.getElementById('erroRpVenc').classList.toggle('show', ruim);
+    if (ruim) return;
+    const g = lerLocal('deskComissoesPagas', {}), p = (g.pagamentos || []).filter(x => x.n === reprogramando)[0];
+    if (!p) return;
+    const de = p.venc;
+    fecharReprogramar();
+    pedirConfirmacao('comissaoReprograma', 'Reprogramar o vencimento da COM-' + p.n + ', de ' + p.nome + ', de ' + brDe(de) + ' para ' + brDe(venc) + '? A conta em Contas a Pagar muda de data junto.', () => {
+      const h = lerLocal('deskComissoesPagas', {}), q = (h.pagamentos || []).filter(x => x.n === p.n)[0];
+      q.reprog = (q.reprog || []).concat([{ em: HOJE_ISO, de: de, para: venc }]);
+      q.venc = venc;
+      gravarLocal('deskComissoesPagas', h);
+      render();
+      avisar('Pagamento COM-' + p.n + ' reprogramado: o vencimento passou de ' + brDe(de) + ' para ' + brDe(venc) + '. A conta em Contas a Pagar mudou de data junto.');
+    });
+  });
+  ['rpClose', 'rpCancelar', 'rpBackdrop'].forEach(id => document.getElementById(id).addEventListener('click', fecharReprogramar));
+  // Cancelar sozinho: opcao de Configuracoes, desligada (decisao B do usuario). So cancela o que nao teve nenhuma baixa: com baixa o
+  // dinheiro saiu. No sistema de producao e uma tarefa diaria; no prototipo roda quando Comissoes abre.
+  function cancelarVencidosSozinho() {
+    if (!PARAM.afiliadoCancelaVencido) return 0;
+    const g = lerLocal('deskComissoesPagas', {});
+    let n = 0;
+    (g.pagamentos || []).forEach(p => {
+      const atraso = diasDeAtraso(p);
+      if (atraso >= PARAM.afiliadoCancelaVencidoDias && !(p.baixas || []).length) { p.cancelado = true; p.canceladoEm = HOJE_ISO; p.canceladoAuto = atraso; n++; }
+    });
+    if (n) gravarLocal('deskComissoesPagas', g);
+    return n;
+  }
+  const avisoDoCancelamento = (n) => n + (n === 1 ? ' pagamento vencido foi cancelado' : ' pagamentos vencidos foram cancelados') + ' sozinho, como está em Configurações → Cadastro de clientes → Programa de afiliados. O valor voltou ao saldo e a conta ficou cancelada em Contas a Pagar.';
+
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
     const btn = raiz.querySelector('.dropdown-select-btn');
@@ -2455,6 +2602,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('kpiPendente', moedaC(soma('pendente'))); texto('kpiSaldo', moedaC(soma('saldo')));
     renderInscricoes();
     renderSaques();
+    renderVencidos();
   }
 
   // ===== PAGAMENTOS SOLICITADOS (saque pedido na vitrine, 15/out/2026) =====
@@ -2473,6 +2621,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).join(''));
     document.querySelectorAll('[data-aprovar-saque]').forEach(bt => bt.addEventListener('click', () => aprovarSaque(Number(bt.getAttribute('data-aprovar-saque')))));
     document.querySelectorAll('[data-recusar-saque]').forEach(bt => bt.addEventListener('click', () => abrirRecusa(Number(bt.getAttribute('data-recusar-saque')), 'saque')));
+  }
+  // ===== PAGAMENTOS VENCIDOS (entrega 2f) =====
+  function renderVencidos() {
+    const fila = (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => diasDeAtraso(p) > 0)
+      .sort((x, y) => diasDeAtraso(y) - diasDeAtraso(x) || x.n - y.n);
+    document.getElementById('cardVencidos').style.display = fila.length ? '' : 'none';
+    texto('contVencidos', '(' + fila.length + ')');
+    html('corpoVencidos', fila.map(p => {
+      const sit = situacaoDoPagamento(p), falta = p.valor - sit.pago, dias = diasDeAtraso(p);
+      return '<tr data-n="' + p.n + '"><td class="col-texto"><span class="vol-nome">' + esc(p.nome) + '</span>' +
+        '<span class="vol-sub">' + (p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado') + ' · ' + esc(p.forma) + (p.pix ? ' · ' + esc(p.pix) : '') + '</span></td>' +
+        '<td class="col-texto"><a class="com-link" href="' + hrefContaC(p.n) + '">COM-' + p.n + '</a></td>' +
+        '<td>' + moedaC(falta) + (sit.pago ? '<span class="vol-sub">de ' + moedaC(p.valor) + ', já pago ' + moedaC(sit.pago) + '</span>' : '') + '</td>' +
+        '<td class="col-texto">' + brDe(p.venc) + '</td>' +
+        '<td class="col-texto"><span class="com-atraso">' + dias + (dias === 1 ? ' dia' : ' dias') + '</span></td>' +
+        '<td class="col-texto"><div class="com-acoes"><button class="btn-primary" data-baixar-venc="' + p.n + '">Dar baixa</button>' +
+        '<button class="btn-ghost" data-reprog-venc="' + p.n + '">Reprogramar</button>' +
+        (sit.pago ? '' : '<button class="btn-ghost" data-cancelar-venc="' + p.n + '">Cancelar</button>') + '</div></td></tr>';
+    }).join(''));
+    document.querySelectorAll('[data-baixar-venc]').forEach(bt => bt.addEventListener('click', () => { window.location.href = hrefDarBaixa(Number(bt.getAttribute('data-baixar-venc'))); }));
+    document.querySelectorAll('[data-reprog-venc]').forEach(bt => bt.addEventListener('click', () => abrirReprogramar(Number(bt.getAttribute('data-reprog-venc')))));
+    document.querySelectorAll('[data-cancelar-venc]').forEach(bt => bt.addEventListener('click', () => cancelarPagamento(Number(bt.getAttribute('data-cancelar-venc')))));
   }
   function aprovarSaque(id) {
     const s = saques().filter(x => x.id === id)[0], b = beneficiarioDe(s.chave), saldo = saldoHoje(b);
@@ -2678,7 +2848,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (acao === 'programa') window.location.href = '../configuracoes/pagina-configuracoes-cadastro-clientes.html';
   }));
 
+  const cancelados = cancelarVencidosSozinho();
   render();
+  if (cancelados) avisar(avisoDoCancelamento(cancelados));
 
   // ===== BUSCA PELO ENDERECO (bloco compartilhado, 10/out/2026) =====
   // Link de outra tela chega com ?busca=...: a lista abre ja filtrada naquele registro, com uma
