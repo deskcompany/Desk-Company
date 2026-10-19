@@ -1312,6 +1312,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Contas a Pagar" data-href="../financas/pagina-financas-contas-pagar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="8"/><polyline points="8 12 12 8 16 12"/></svg>Contas a Pagar</div>
       <div class="flyout-item" data-label="Caixa" data-href="../financas/pagina-financas-caixa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>Caixa</div>
       <div class="flyout-item" data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
+      <div class="flyout-item" data-label="Vale-compra" data-href="../financas/pagina-financas-vale-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Vale-compra</div>
       <div class="flyout-item" data-label="Relatórios Finanças"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Finanças</div>
     </div>
   </div>
@@ -1494,6 +1495,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <!-- Vale-compra (barganha de 19/out/2026): o credito do cliente vale so na loja que emitiu, e o prazo e um so para as lojas.
+       O vencimento e fixado na emissao: Financas > Vale-compra le este prazo ao incluir um vale e ao reativar um vencido. -->
+  <div class="par-secao">
+    <div class="par-secao-titulo">Vale-compra</div>
+    <div class="par-secao-sub">O crédito que o cliente ganha da loja, numa devolução, numa comissão de afiliado ou como cortesia: por quanto tempo ele vale.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoValeDias">
+            <label>Validade do vale</label>
+            <div class="par-num"><input type="text" id="valeDias" value="180"><span class="par-num-sufixo">dias</span></div>
+          </div>
+        </div>
+        <div class="field-hint" style="margin-top:8px;">O vencimento é fixado no dia em que o vale nasce: mudar o prazo aqui vale para os vales novos e não muda os que já existem.</div>
+        <span class="par-erro" id="erroVale">A validade vai de 1 a 3650 dias, em número inteiro.</span>
+        <div class="par-previa" id="previaVale"></div>
+      </div>
+      <div class="par-exp">
+        <b>Um prazo só, para todas as lojas.</b> O vale é saldo do cliente e só vale na loja que o emitiu, porque cada loja tem o seu caixa. Passou do vencimento com saldo, ele fica no histórico como vencido e pode ser reativado, com senha, ganhando um vencimento novo de hoje mais este prazo.
+        <span class="par-onde">Onde pega: <b>Finanças → Vale-compra</b>, ao incluir um vale de cortesia e ao reativar um vencido, e a aba <b>Vale-compra</b> do cadastro do cliente.</span>
+      </div>
+    </div>
+  </div>
+
   <div class="par-secao par-futuro">
     <div class="par-secao-titulo">Ainda não estão nesta tela</div>
     <div class="par-secao-sub">Três parâmetros do Olist que dependem de módulo que ainda não existe.</div>
@@ -1596,6 +1622,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     afiliadoSaqueMinimo: 50,   // o cliente afiliado pede o saque na vitrine a partir deste valor (15/out/2026)
     afiliadoCancelaVencido: false,        // cancelar sozinho o pagamento de comissao vencido (2f, 15/out/2026): nasce desligado
     afiliadoCancelaVencidoDias: 30,       // e depois de quantos dias de atraso
+    valeCompraValidadeDias: 180,          // validade do vale-compra, em dias (19/out/2026): fixada na emissao, um prazo so para as lojas
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2169,7 +2196,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // de estoque em 13/out/2026: e regra sobre o cliente, e nao sobre o estoque).
   const CHAVES_CLI = ['permitirDocDuplicado', 'mostrarObservacoesCliente', 'bloquearPedidoAtrasoDias',
                       'afiliadoPctLoja1', 'afiliadoPctLoja2', 'afiliadoPctLoja3', 'afiliadoLinkDias', 'afiliadoSaqueMinimo',
-                      'afiliadoCancelaVencido', 'afiliadoCancelaVencidoDias'];
+                      'afiliadoCancelaVencido', 'afiliadoCancelaVencidoDias', 'valeCompraValidadeDias'];
   const elNota = document.getElementById('notaBarra');
   let edicao = {};
   CHAVES_CLI.forEach(k => { edicao[k] = PARAM[k]; });
@@ -2183,6 +2210,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
+  // Hoje mais n dias, no formato dd/mm/aaaa (a previa do vale-compra).
+  function brHoje(n) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
 
   // Programa de afiliados: tres percentuais (0 a 50, ate duas casas) e a validade do link (1 a 365 dias).
   // `edicao` guarda o numero, ou null enquanto o campo esta invalido, como no bloqueio por atraso.
@@ -2195,6 +2224,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'afCancelaDias', chave: 'afiliadoCancelaVencidoDias', campo: 'campoCancelaDias', max: 365, min: 1, casas: false }
   ];
   const fmtPct = (n) => String(n).replace('.', ',');
+  // Vale-compra (19/out/2026): a validade em dias, inteira, de 1 a 3650. `edicao` guarda o numero, ou null enquanto o campo esta invalido.
+  document.getElementById('valeDias').addEventListener('input', (e) => {
+    const bruto = e.target.value.trim();
+    const n = /^[0-9]+$/.test(bruto) ? parseInt(bruto, 10) : null;
+    edicao.valeCompraValidadeDias = (n === null || n < 1 || n > 3650) ? null : n;
+    atualizarPrevias(); contar();
+  });
   CAMPOS_AFILIADO.forEach(c => {
     document.getElementById(c.id).addEventListener('input', (e) => {
       const bruto = e.target.value.trim().replace(',', '.');
@@ -2210,6 +2246,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     if (edicao.bloquearPedidoAtrasoDias !== null) elAtraso.value = edicao.bloquearPedidoAtrasoDias;
     CAMPOS_AFILIADO.forEach(c => { if (edicao[c.chave] !== null) document.getElementById(c.id).value = fmtPct(edicao[c.chave]); });
+    if (edicao.valeCompraValidadeDias !== null) document.getElementById('valeDias').value = edicao.valeCompraValidadeDias;
   }
 
   function atualizarPrevias() {
@@ -2241,6 +2278,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : (edicao.afiliadoCancelaVencido
         ? 'Ligado: o pagamento de comissão <b>sem nenhuma baixa</b> e vencido há <b>' + plural(dc, 'dia', 'dias') + ' ou mais</b> é cancelado sozinho, e o valor volta ao saldo do afiliado. Se já houve baixa, ele fica em "Pagamentos vencidos" para alguém decidir.'
         : 'Desligado: o pagamento vencido fica no quadro <b>Pagamentos vencidos</b>, em Comissões Afiliados, até alguém dar baixa, reprogramar o vencimento ou cancelar. É o jeito mais seguro.');
+    const vd = edicao.valeCompraValidadeDias, pvv = document.getElementById('previaVale');
+    document.getElementById('campoValeDias').classList.toggle('has-error', vd === null);
+    document.getElementById('erroVale').classList.toggle('show', vd === null);
+    pvv.classList.toggle('alerta', vd === null);
+    pvv.innerHTML = vd === null ? 'Corrija o prazo em vermelho para ver o efeito.'
+      : 'O vale que nascer hoje vence em <b>' + brHoje(vd) + '</b> (hoje mais <b>' + plural(vd, 'dia', 'dias') + '</b>). Os vales que já existem mantêm o vencimento que tinham.';
     pv.classList.toggle('alerta', ruins.length > 0);
     pv.innerHTML = ruins.length ? 'Corrija o campo em vermelho para ver o efeito.'
       : 'Venda pelo link de um afiliado rende a ele <b>' + fmtPct(edicao.afiliadoPctLoja1) + '%</b> na Desk Shope, <b>' + fmtPct(edicao.afiliadoPctLoja2) +
@@ -2264,6 +2307,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     if (edicao.bloquearPedidoAtrasoDias === null) { avisar('O prazo do bloqueio por atraso precisa ser um número inteiro de 0 a 365. Zero desliga o bloqueio.'); return; }
     if (CAMPOS_AFILIADO.some(c => edicao[c.chave] === null)) { avisar('No programa de afiliados, o percentual vai de 0 a 50%, com até duas casas, o link vale de 1 a 365 dias, o saque mínimo vai de 0 a 100.000 reais e o cancelamento sozinho vale de 1 a 365 dias. Corrija o campo em vermelho para salvar.'); return; }
+    if (edicao.valeCompraValidadeDias === null) { avisar('A validade do vale-compra vai de 1 a 3650 dias, em número inteiro. Corrija o campo em vermelho para salvar.'); return; }
     const mudadas = CHAVES_CLI.filter(k => edicao[k] !== PARAM[k]);
     if (mudadas.length === 0) { avisar('Nenhuma configuração mudou.'); return; }
     CHAVES_CLI.forEach(k => { PARAM[k] = edicao[k]; });
@@ -2276,6 +2320,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ' Afiliados: ' + fmtPct(PARAM.afiliadoPctLoja1) + '% na Desk Shope, ' + fmtPct(PARAM.afiliadoPctLoja2) + '% na Desk Brands, ' + fmtPct(PARAM.afiliadoPctLoja3) +
       '% na Desk Tech, o link vale ' + plural(PARAM.afiliadoLinkDias, 'dia', 'dias') + ' e o saque é a partir de R$ ' + fmtPct(PARAM.afiliadoSaqueMinimo) + '.' +
       ' O pagamento vencido ' + (PARAM.afiliadoCancelaVencido ? 'é cancelado sozinho com ' + plural(PARAM.afiliadoCancelaVencidoDias, 'dia', 'dias') + ' de atraso ou mais.' : 'não é cancelado sozinho.') +
+      ' O vale-compra vale por ' + plural(PARAM.valeCompraValidadeDias, 'dia', 'dias') + ' a partir da emissão, e os vales que já existem não mudam.' +
       (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então isto vale só nesta aba.)'));
   });
 

@@ -530,6 +530,15 @@
   .toggle-leitura { display:none; }
   body.modo-leitura .toggle-leitura { display:block; margin-bottom:18px; }
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* Vale-compra (19/out/2026): a situacao do vale, com o tom redefinido no tema escuro */
+  .vc-sit-disponivel { color:#15803D; font-weight:700; }
+  .vc-sit-usado      { color:#0A4EE4; font-weight:700; }
+  .vc-sit-vencido    { color:#B91C1C; font-weight:700; }
+  .vc-sit-cancelado  { color:#6B7280; font-weight:700; }
+  body.dark .vc-sit-disponivel { color:#4ADE80; }
+  body.dark .vc-sit-usado      { color:#9DB8F0; }
+  body.dark .vc-sit-vencido    { color:#FCA5A5; }
+  body.dark .vc-sit-cancelado  { color:#9CA3AF; }
 </style>
 </head>
 <body class="dark">
@@ -683,6 +692,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Contas a Pagar" data-href="../financas/pagina-financas-contas-pagar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="8"/><polyline points="8 12 12 8 16 12"/></svg>Contas a Pagar</div>
       <div class="flyout-item" data-label="Caixa" data-href="../financas/pagina-financas-caixa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>Caixa</div>
       <div class="flyout-item" data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
+      <div class="flyout-item" data-label="Vale-compra" data-href="../financas/pagina-financas-vale-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Vale-compra</div>
       <div class="flyout-item" data-label="Relatórios Finanças"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Finanças</div>
     </div>
   </div>
@@ -750,6 +760,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="tab-item" data-tab="anexos">Anexos</div>
     <div class="tab-item" data-tab="observacoes" id="abaObservacoes">Observações</div>
     <div class="tab-item" data-tab="afiliado">Afiliado</div>
+    <div class="tab-item" data-tab="vale">Vale-compra</div>
   </div>
 
   <!-- ABA: DADOS GERAIS -->
@@ -1090,6 +1101,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
     <div id="corpoAfiHistorico"></div>
+  </div>
+
+  <!-- Vale-compra (19/out/2026): so le. O vale e de Financas > Vale-compra, que e a dona; aqui e o saldo do cliente por loja e os vales dele. -->
+  <div class="tab-panel" id="tab-vale">
+    <div class="section-title">Vale-compra</div>
+    <div class="afi-nota">O vale é saldo do cliente em cada loja, e só vale na loja que o emitiu. Quem emite, cancela e reativa é Finanças → Vale-compra; aqui está o saldo e os vales dele, lidos de lá.</div>
+    <div id="corpoVale"></div>
   </div>
 
   <div class="barra-salvar" id="barraSalvar">
@@ -2292,6 +2310,127 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Voltar pelo navegador traz a pagina da memoria, de antes de cancelar um pagamento: refaz so a aba (sem recarregar,
   // para nao perder o que estiver sendo digitado no cadastro).
   window.addEventListener('pageshow', (e) => { if (e.persisted) pintarAfiliado(); });
+
+  // ===== VALE-COMPRA: DADOS E REGRAS (bloco de leitura comum as tres telas, 19/out/2026) =====
+  // Identico na lista (Financas > Vale-compra), na pagina do vale e na aba Vale-compra do cadastro do cliente; teste_vale_compra.py
+  // compara as tres copias. O dono do dado e Financas > Vale-compra. Uma chave so no navegador, `deskValesCompra` ({ vales: [...] });
+  // o prazo de validade e de Configuracoes > Cadastro de clientes (deskParametros.valeCompraValidadeDias).
+  // O vale e SALDO DO CLIENTE, sem codigo, e so vale na loja que o emitiu. Cada vale:
+  //   { n, clienteId, cliente, doc, loja, origem ('cortesia' | 'devolucao' | 'comissao'), motivo (so na cortesia), ref ({ texto, href }: o documento de
+  //     onde o vale nasceu, na devolucao e na comissao), valor, emitido, venc,
+  //     usos: [{ data, documento, pedidoId, valor }], reativacoes: [{ em, de, para }], cancelado: { em, motivo, saldo } | null }
+  // ESPELHOS: clienteId, cliente e doc sao do cadastro de Clientes; loja e de Lojas Desk; pedidoId e o id de Pedidos de Venda.
+  const VALE_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const VALE_ORIGENS = { devolucao: 'Devolução', comissao: 'Comissão', cortesia: 'Cortesia' };
+  const VALE_SITUACOES = { disponivel: 'Disponível', usado: 'Usado', vencido: 'Vencido', cancelado: 'Cancelado' };
+  // A classe da cor da situacao, montada aqui para o atributo class nao trazer um pedaco de classe emendado a uma variavel.
+  const valeClasseSit = (s) => 'vc-sit-' + s;
+  const valeIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const VALE_HOJE = valeIso(new Date());
+  function valeSomaDias(iso, n) { const p = iso.split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return valeIso(d); }
+  function valeDiasEntre(de, ate) {
+    const a = de.split('-'), b = ate.split('-');
+    return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000);
+  }
+  const valeBr = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
+  const valeMoeda = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const valeArred = (v) => Math.round(v * 100) / 100;
+  const valeEsc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // O prazo vale para o vale que nasce ou e reativado hoje; o vencimento de quem ja existe nao muda.
+  function valePrazo() {
+    try { const n = Number(JSON.parse(localStorage.getItem('deskParametros') || '{}').valeCompraValidadeDias); return Number.isInteger(n) && n >= 1 && n <= 3650 ? n : 180; }
+    catch (e) { return 180; }
+  }
+  function valeLer() {
+    try { const g = JSON.parse(localStorage.getItem('deskValesCompra')); return g && Array.isArray(g.vales) ? g.vales : []; }
+    catch (e) { return []; }
+  }
+  function valeGravar(vales) {
+    try { localStorage.setItem('deskValesCompra', JSON.stringify({ vales: vales })); return true; }
+    catch (e) { return false; }
+  }
+  const valeUsado = (v) => valeArred((v.usos || []).reduce((s, u) => s + u.valor, 0));
+  const valeSaldo = (v) => v.cancelado ? 0 : valeArred(v.valor - valeUsado(v));
+  // Cancelado e o que manda; depois saldo zero (usado); depois o vencimento. O vale vale ate o dia do vencimento, inclusive.
+  function valeSituacao(v) {
+    if (v.cancelado) return 'cancelado';
+    if (valeSaldo(v) <= 0) return 'usado';
+    return VALE_HOJE > v.venc ? 'vencido' : 'disponivel';
+  }
+  // Dias ate o vencimento: positivo vence, negativo venceu ha tantos dias.
+  const valeDiasParaVencer = (v) => valeDiasEntre(VALE_HOJE, v.venc);
+  function valeVencimentoTexto(v) {
+    const s = valeSituacao(v), d = valeDiasParaVencer(v);
+    if (s === 'disponivel') return d === 0 ? 'vence hoje' : 'vence em ' + d + (d === 1 ? ' dia' : ' dias');
+    if (s === 'vencido') return 'vencido há ' + (-d) + (d === -1 ? ' dia' : ' dias');
+    return '';
+  }
+  // O saldo do cliente numa loja: so os vales disponiveis dele, daquela loja. Vale de outra loja nao entra.
+  const valeSaldoDoCliente = (clienteId, loja) => valeArred(valeLer()
+    .filter(v => v.clienteId === clienteId && v.loja === loja && valeSituacao(v) === 'disponivel').reduce((s, v) => s + valeSaldo(v), 0));
+  // Exemplo de fabrica (19/out/2026): sem vale gravado a tela abriria vazia e nao haveria como ver um vencido nem um usado. Nasce uma
+  // vez por navegador (marca deskValesCompraExemplo), acrescentando sem apagar o que ja existe; cancelado ou excluido nao volta, e limpar o
+  // navegador traz de volta. Contado a partir de hoje, com o prazo de fabrica (180 dias). Clientes do cadastro de Clientes, lojas de Lojas
+  // Desk, pedidos de Pedidos de Venda (o mesmo cliente e a mesma loja do vale).
+  (function valeSemear() {
+    try {
+      if (localStorage.getItem('deskValesCompraExemplo')) return;
+      const lista = valeLer();
+      let n = lista.reduce((m, v) => Math.max(m, Number(v.n) || 0), 0);
+      const dia = (k) => valeSomaDias(VALE_HOJE, k);
+      const vale = (cliente, emitidoHa, valor, motivo, extra) => Object.assign({ n: ++n, clienteId: cliente[0], cliente: cliente[1], doc: cliente[2], loja: cliente[3],
+        origem: 'cortesia', motivo: motivo, valor: valor, emitido: dia(-emitidoHa), venc: dia(180 - emitidoHa), usos: [], reativacoes: [], cancelado: null }, extra || {});
+      const novos = [
+        vale([7, 'Camila Rêgo', '567.890.123-44', 2], 200, 50, 'Troca de tamanho sem estoque na loja'),
+        vale([2, 'Rafael Nogueira', '234.567.890-11', 1], 60, 40, 'Atraso na entrega do pedido anterior',
+          { usos: [{ data: dia(-28), documento: 'Pedido nº 16', pedidoId: 16, valor: 25 }, { data: dia(-2), documento: 'Pedido nº 3', pedidoId: 3, valor: 15 }] }),
+        vale([11, 'Auto Peças Imperatriz Ltda', '29.887.501/0001-22', 3], 40, 80, 'Cortesia pelo volume de compras do trimestre',
+          { usos: [{ data: dia(-11), documento: 'Pedido nº 10', pedidoId: 10, valor: 30 }] }),
+        vale([1, 'Marina Duarte', '123.456.789-00', 1], 20, 120, 'Boas-vindas ao cliente que voltou a comprar'),
+        vale([4, 'Juliana Prado', '345.678.901-22', 2], 15, 60, 'Compensação por produto com defeito',
+          { cancelado: { em: dia(-5), motivo: 'Emitido em duplicidade: o cliente já tinha recebido o crédito', saldo: 60 } })
+      ];
+      valeGravar(lista.concat(novos));
+      localStorage.setItem('deskValesCompraExemplo', '1');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  // ===== FIM DO BLOCO VALE-COMPRA =====
+
+  // ===== VALE-COMPRA (aba Vale-compra do cliente, 19/out/2026) =====
+  // So le: o vale e de Financas > Vale-compra, um dono so. O saldo e por loja, porque o vale so vale na loja que o emitiu; nao ha total, que
+  // somaria o que nao se junta. O bloco de dados logo acima e o mesmo das telas do vale (teste_vale_compra.py compara).
+  function pintarVale() {
+    const corpo = document.getElementById('corpoVale');
+    if (!corpo) return;
+    const meus = REGISTRO ? valeLer().filter(v => v.clienteId === REGISTRO.id).sort((a, b) => b.n - a.n) : [];
+    if (!meus.length) {
+      corpo.innerHTML = '<div class="afi-nota">' + (REGISTRO ? 'Este cliente não tem vale-compra.' : 'O cadastro novo ainda não tem vale-compra.') +
+        ' Para dar um vale de cortesia, use "Incluir vale" em <a class="add-contato-link" href="../financas/pagina-financas-vale-compra.html">Vale-compra</a>.</div>';
+      return;
+    }
+    const lojas = Object.keys(VALE_LOJAS).map(Number).filter(l => meus.some(v => v.loja === l));
+    corpo.innerHTML = '<div class="afi-loja">Saldo por loja</div>' +
+      '<table class="contatos-table" id="tabelaValeSaldos"><thead><tr><th>Loja</th><th>Saldo disponível</th><th>Vales disponíveis</th><th>Próximo a vencer</th></tr></thead><tbody>' +
+      lojas.map(l => {
+        const disp = meus.filter(v => v.loja === l && valeSituacao(v) === 'disponivel').sort((a, b) => (a.venc < b.venc ? -1 : 1)), prox = disp[0];
+        return '<tr data-loja="' + l + '"><td>' + VALE_LOJAS[l] + '</td><td>' + valeMoeda(valeSaldoDoCliente(REGISTRO.id, l)) + '</td><td>' + disp.length + '</td>' +
+          '<td>' + (prox ? valeBr(prox.venc) + ' · ' + valeVencimentoTexto(prox) : '—') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="afi-loja">Vales do cliente · ' + meus.length + (meus.length === 1 ? ' vale' : ' vales') + '</div>' +
+      '<table class="contatos-table" id="tabelaValeVales"><thead><tr><th>Nº</th><th>Loja</th><th>Origem</th><th>Emitido</th><th>Vence</th><th>Valor</th><th>Saldo</th><th>Situação</th></tr></thead><tbody>' +
+      meus.map(v => {
+        const s = valeSituacao(v), aviso = valeVencimentoTexto(v);
+        return '<tr data-n="' + v.n + '"><td><a class="com-link" href="../financas/pagina-financas-vale-compra-detalhe.html?id=' + v.n + '">VC-' + v.n + '</a></td><td>' + VALE_LOJAS[v.loja] + '</td><td>' + VALE_ORIGENS[v.origem] + '</td>' +
+          '<td>' + valeBr(v.emitido) + '</td><td>' + valeBr(v.venc) + (aviso ? ' · <span' + (s === 'vencido' ? ' class="com-atraso"' : '') + '>' + aviso + '</span>' : '') + '</td>' +
+          '<td>' + valeMoeda(v.valor) + '</td><td>' + valeMoeda(valeSaldo(v)) + '</td><td><span class="' + valeClasseSit(s) + '">' + VALE_SITUACOES[s] + '</span></td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<a class="add-contato-link" id="linkVerVales" href="../financas/pagina-financas-vale-compra.html?busca=' + encodeURIComponent(REGISTRO.nome) + '">Ver em Vale-compra</a>';
+  }
+  pintarVale();
+  // O link do vale leva para ca ja com a aba aberta.
+  if (new URLSearchParams(window.location.search).get('aba') === 'vale') { const abaVale = document.querySelector('.tab-item[data-tab="vale"]'); if (abaVale) abaVale.click(); }
+  // Voltar pelo navegador traz a pagina da memoria, de antes de cancelar ou reativar um vale: refaz so a aba.
+  window.addEventListener('pageshow', (e) => { if (e.persisted) pintarVale(); });
 
   // ===== PESSOAS DE CONTATO =====
   let CONTATOS = [

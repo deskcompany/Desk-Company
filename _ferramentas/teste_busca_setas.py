@@ -32,6 +32,8 @@ BUSCAS = [
     ('pagina-estoque-itens-bloqueados.html', '', "document.getElementById('btnBloquearItem').click()", '#bloqBusca', 'desk'),
     ('pagina-estoque-movimentacao.html', '', None, '#buscaProduto', 'desk'),
     ('pagina-cadastros-fornecedores-detalhe.html', '?editar=1', "document.querySelector('.tab-item[data-tab=\"produtos\"]').click()", '#pfBusca', 'a'),
+    # 19/out: a busca de cliente do Incluir vale-compra e a mesma busca padrao, agora de cliente.
+    ('pagina-financas-vale-compra.html', '', "document.getElementById('btnIncluirVale').click()", '#buscaClienteVale', 'a'),
 ]
 SO = (sys.argv[1:] or [''])[0]
 
@@ -82,9 +84,9 @@ with sync_playwright() as p:
     if secao(1, 'O bloco está em toda tela que tem a caixa de sugestões'):
         todas = {_os.path.basename(c): open(c, encoding='utf-8').read() for c in localiza.caminhos()}
         com = sorted(n for n in todas if 'class="sugestoes"' in todas[n])
-        ok(com == sorted(b[0] for b in BUSCAS), 'as telas com caixa de sugestões são as cinco que esta suíte percorre: %s' % [n.replace('pagina-', '') for n in com])
+        ok(com == sorted(b[0] for b in BUSCAS), 'as telas com caixa de sugestões são as seis que esta suíte percorre: %s' % [n.replace('pagina-', '') for n in com])
         sem = [n for n in com if MARCA not in todas[n]]
-        ok(not sem, 'e as cinco têm o bloco das setas: %s' % sem)
+        ok(not sem, 'e as seis têm o bloco das setas: %s' % sem)
         ok(len(set(bloco(todas[n]) for n in com if MARCA in todas[n])) == 1, 'com o mesmo texto em todas')
 
     if secao(2, 'Em cada busca, as setas andam pela lista e o Enter escolhe o item ativo'):

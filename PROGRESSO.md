@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 19/out/2026, com o conserto do exemplo de Comissões e a varredura da barra de rolagem das tabelas.*
+*Atualizado em 19/out/2026, com a entrega 1 do Vale-compra (o vale nasce à mão e se vê).*
 
 Esta página diz onde o projeto está, o que vem depois e o que está esperando decisão. Serve para
 começar uma conversa nova sem reler o projeto inteiro. É **reescrita a cada entrega**, no mesmo
@@ -8,18 +8,28 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Vale-compra: barganha aprovada pelo usuário em 19/out, construção começando.** Ele escolheu as quatro recomendações:
-- **O vale é saldo do cliente**, sem código: fica no cadastro, e no caixa aparece ao escolher o cliente.
-- **Vale só na loja que emitiu** (cada loja tem o seu caixa, e a comissão de afiliado já é por loja).
-- **Tem validade ajustável** em Configurações, 180 dias de fábrica. O vencido fica no histórico e reativa com senha.
-- **Fica em Finanças**, depois de Comissões Afiliados.
+**Vale-compra, entrega 1 de 3: feita e esperando o teste do usuário** (§14.89). O vale nasce à mão e se vê. É o desenho que ele aprovou em 19/out
+(mantido depois de saber que o Olist usa código): o vale é **saldo do cliente**, sem código, e **só vale na loja que o emitiu**; a **validade é
+ajustável**, 180 dias de fábrica, e o vencido reativa com senha; o menu é **Finanças**, logo depois de Comissões Afiliados. O que foi construído:
 
-A proposta de base, sem objeção dele: um nome só, "Vale-compra", no lugar de "Vale-troca"; o vale nasce de uma devolução,
-do pagamento de comissão de afiliado ou à mão, como cortesia (motivo e senha); usa-se como forma de pagamento no PDV e no
-Pedido de Venda, em parte se quiser, e a sobra continua valendo; cancelar pede senha. São duas telas (a lista e a página
-do vale) e uma aba no cadastro do cliente. **Três entregas:** (1) o vale nasce à mão e se vê (lista, página, aba,
-Configurações); (2) o vale se usa (PDV, Pedido de Venda, Formas de Recebimento); (3) o vale nasce da Devolução e da
-Comissão. Ele não mandou prints do Olist; a tela é desenho nosso.
+- **A lista** (Finanças → Vale-compra): saldo em vales, os que vencem em 30 dias e os vencidos com saldo; busca por cliente, documento ou número,
+  loja, origem e abas por situação com contagem; o vencido em vermelho ("vencido há N dias"); a linha abre a página do vale. **Incluir vale**
+  (cortesia): cliente pela busca padrão, loja, valor e motivo, com o vencimento (hoje mais o prazo) à vista antes de confirmar, e senha.
+- **A página do vale**: dados, usos e histórico; **Cancelar** (só com saldo, com motivo e senha) e **Reativar** (só o vencido, vencimento novo de
+  hoje mais o prazo, com senha). O "Voltar" leva a lista de volta com os mesmos filtros.
+- **A aba Vale-compra no cadastro do cliente**: saldo por loja, os vales dele e o link "Ver em Vale-compra"; funciona em modo leitura.
+- **Configurações → Cadastro de clientes → Vale-compra**: a validade do vale, de 1 a 3650 dias; mudar o prazo não muda os vales que já existem.
+- **Cinco vales de exemplo** nascem uma vez por navegador (R$ 170,00 em vales disponíveis, 1 vencido de R$ 50,00, 1 usado, 1 cancelado); as três
+  ações novas (`valeCompraIncluir`, `valeCompraCancelar`, `valeCompraReativar`) entraram no catálogo de 17 telas, com senha por padrão.
+
+Para ver: `http://localhost:3000/financas/pagina-financas-vale-compra.html`. Conferir: o VC-1 (Camila Rêgo) vencido, em vermelho; abri-lo e reativar
+(a senha do protótipo é qualquer texto); incluir um vale e ver o vencimento no painel antes de confirmar; cancelar um disponível; mudar a validade em
+Configurações e ver que os vales que existem não mudam; abrir o cadastro da Marina Duarte e ver a aba Vale-compra. Verificação: `teste_vale_compra.py`
+(223 asserções), 23 defeitos injetados numa cópia e os 23 pegos; selo com 54 suítes e 5.787 asserções.
+
+**Entregas que faltam:** (2) o vale se usa, no PDV e no Pedido de Venda, em parte se o cliente quiser, com a sobra valendo, e Formas de Recebimento;
+(3) o vale nasce da Devolução e do pagamento de Comissão. Nada de PDV, Pedidos, Devolução, Formas de Recebimento, Contas a Receber nem do
+"Vale-troca" reservado foi mexido agora. As escolhas que couberam a quem construiu estão em "Esperando decisão".
 
 **Duas entregas de 19/out, testadas e aprovadas pelo usuário no mesmo dia**, junto com os dois ajustes da 2f. Ele decidiu deixar como estão as 3 telas que a varredura não resolveu e o código cortado em 1280 nos itens da Ordem de Compra e do Pedido (ver "Decidido, e ainda não feito de propósito").
 
@@ -279,7 +289,7 @@ A impressão em formato de relatório segue analisada e por fazer: ele pediu par
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **43 de 55 (78%)**, em 84 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **43 de 55 (78%)**, em 86 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 78% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
@@ -309,12 +319,12 @@ são medidos (telas, itens de menu, suítes, commits). A projeção é estimativ
 
 | | hoje |
 |---|---|
-| Telas de protótipo | 84 (83 telas e o molde de referência) |
+| Telas de protótipo | 86 (85 telas e o molde de referência) |
 | Itens de menu com tela | 43 de 55 itens (78%) |
 | Telas que faltam para fechar o menu | cerca de 20 (12 itens × 1,5 tela, a média das já feitas) |
 | Produção (o sistema de verdade) | **0%**: não começou |
-| Verificação | 53 suítes, 5.519 asserções, 419 defeitos injetados de propósito e pegos, 2 auditorias nas 84 telas |
-| Documentação | design system até a §14.88 |
+| Verificação | 54 suítes, 5.787 asserções, 442 defeitos injetados de propósito e pegos, 2 auditorias nas 86 telas |
+| Documentação | design system até a §14.89 |
 | Trabalho | 88 commits desde 06/out; o projeto tem 32 dias (14/set a 15/out) |
 
 ### O que ganhamos desde 12/out (80 telas e 41 de 55 itens)
@@ -342,11 +352,11 @@ são medidos (telas, itens de menu, suítes, commits). A projeção é estimativ
 | Estoque | 13 de 14 | 18 | Relatórios de Estoque |
 | Vendas | 4 de 8 | 6 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
 | Logística | 5 de 6 | 10 | Relatórios de Logística |
-| Finanças | 4 de 5 | 8 | Relatórios Finanças |
+| Finanças | 4 de 5 | 10 | Relatórios Finanças |
 | Integrações | 0 de 4 | 0 | Marketplaces e Hubs, Gateways de Pagamento, Emissão de Notas Fiscais, Relatórios de Integrações |
 | Configurações | hub (1 item) | 20 | a lista fiscal da NF-e (Formas de pagamento) |
 
-**Fora da contagem de 55**: o Vale-compra (decidido em 14/out, 2 a 3 telas), a vitrine da Desk Shope (F3, app
+**Fora da contagem de 55**: o Vale-compra (decidido em 14/out; as 2 telas da entrega 1 e a aba do cliente estão feitas), a vitrine da Desk Shope (F3, app
 separado, sem protótipo aqui) e as Ordens de Serviço da Desk Tech (F7, sem protótipo).
 
 ### Onde cada fase do roadmap está
@@ -385,7 +395,7 @@ sistema de verdade.
 1. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
    está em 0%. Recomendação: começar já, em paralelo com o protótipo que sobra. Conta nova só nasce com o
    pedido dele.
-2. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
+2. **Vale-compra, entregas 2 e 3** (1 a 2 dias): usar o vale no PDV e no Pedido de Venda, e nascer da Devolução e da Comissão; liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
 3. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
 4. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
 5. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
@@ -646,13 +656,17 @@ bloco de Comissões, 3 pendentes de decisão, e a suíte `teste_barra_tabelas.py
 três detalhes de documento, a data com hora que não quebra em Conferência de Saída e Separação, e a suíte passou a medir
 quatro detalhes com registro aberto (87 asserções). Selo: 53 suítes, 5.519 asserções.
 
+**18. Vale-compra, entrega 1** (19/out, §14.89): a lista, a página do vale, a aba do cliente e a validade em Configurações; o vale é saldo do
+cliente por loja, nasce como cortesia (com senha), cancela e reativa. `teste_vale_compra.py` tem 223 asserções; 23 defeitos injetados e os 23 pegos.
+Selo: 54 suítes, 5.787 asserções.
+
 ## Próximo da fila
 
 Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos").
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Vale-compra (crédito na loja)**, combinado em 14/out: liga o vale-troca reservado nas telas prontas e o
-   pagamento de comissão como crédito.
+2. **Vale-compra, entregas 2 e 3** (a 1 está feita, §14.89): (2) o vale se usa, no PDV e no Pedido de Venda, com Formas de
+   Recebimento; (3) o vale nasce da Devolução e do pagamento de Comissão. Liga o vale-troca reservado nas telas prontas.
 3. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
 4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
@@ -691,7 +705,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Uma pendência, que é dele:
+Duas pendências, que são dele:
 
 1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
@@ -699,6 +713,11 @@ Uma pendência, que é dele:
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
    computador; para atualizar, reenvia por lá a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`.
+
+2. **Confirmar quatro escolhas da entrega 1 do Vale-compra** (§14.89): (a) a busca de cliente do "Incluir vale" é a busca padrão de produto, adaptada
+   (nome, CPF/CNPJ ou e-mail), porque o sistema só tinha a de produto; (b) o "Voltar" da página do vale leva os filtros da lista pelo endereço, o que
+   Comissões não fazia; (c) os três indicadores da lista não filtram ao clicar; (d) o uso do VC-3 é de 11 dias atrás, e não dos 10 do plano, para
+   cair no dia do Pedido nº 10. De fábrica nenhum vale vence em 30 dias (o prazo é 180), então esse indicador abre em zero.
 
 O defeito dos links do chat que não traziam o navegador para a frente era da sessão do editor e
 sumiu sozinho (confirmado por ele em 13/out).

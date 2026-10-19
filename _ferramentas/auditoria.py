@@ -221,6 +221,8 @@ def audita(caminho):
              # credito ou debito; e o pagamento, que Contas a Pagar le para fazer nascer a conta.
              'deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas',
              'deskComissoesExemplo',   # 19/out: marca de que os tres pagamentos de exemplo ja nasceram neste navegador
+             'deskValesCompra',   # 19/out: Vale-compra. Os vales (saldo do cliente por loja): a lista inclui, a pagina do vale cancela e reativa, e o cadastro do cliente le
+             'deskValesCompraExemplo',   # 19/out: marca de que os cinco vales de exemplo ja nasceram neste navegador
              'deskSaques'}   # 15/out: a decisao sobre o saque que o cliente afiliado pede na vitrine (aprovado ou recusado)
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a

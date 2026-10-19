@@ -156,6 +156,9 @@ with sync_playwright() as p:
     # entao os numeros dela sao conferidos contra o proprio sistema.
     menu = open(localiza.onde('pagina-configuracoes.html'), encoding='utf-8').read()
     itens = re.findall(r'<div class="flyout-item"([^>]*)>', menu)
+    # 19/out: o Vale-compra (decidido em 14/out, barganhado em 19/out) esta FORA da contagem de 55 itens do roadmap: ele nao era um
+    # dos itens que faltavam, entrou como submodulo extra. O PROGRESSO.md continua contando os 55.
+    itens = [i for i in itens if 'data-label="Vale-compra"' not in i]
     com_tela = len([i for i in itens if 'data-href' in i])
     progresso = open(os.path.join(PASTA, 'PROGRESSO.md'), encoding='utf-8').read()
     dito = re.search(r'\*\*(\d+) de (\d+) \((\d+)%\)\*\*, em (\d+) telas', progresso)
@@ -179,7 +182,7 @@ with sync_playwright() as p:
         'vendas': ['CRM', 'Pedidos de Venda', 'PDV', 'Notas Fiscais', 'Metas e Performance', 'Margem Contribuição', 'Custos do E-commerce',
                    'Relatórios de Vendas'],
         'logistica': ['Separação', 'Conferência de Saída', 'Expedição', 'Rastreamento de Pedidos', 'Devolução', 'Relatórios de Logística'],
-        'financas': ['Contas a Receber', 'Contas a Pagar', 'Caixa', 'Comissões Afiliados', 'Relatórios Finanças'],
+        'financas': ['Contas a Receber', 'Contas a Pagar', 'Caixa', 'Comissões Afiliados', 'Vale-compra', 'Relatórios Finanças'],
         'integracoes': ['Marketplaces e Hubs', 'Gateways de Pagamento', 'Emissão de Notas Fiscais', 'Relatórios de Integrações'],
     }
     BLOCO = re.compile(r'<div class="flyout-col" id="flyout-(%s)">\n[^\n]*<h4>[^\n]*\n[^\n]*<div class="flyout-body">\n((?:[ \t]*<div class="flyout-item"[^\n]*\n)+)' % '|'.join(ORDEM))
