@@ -703,6 +703,14 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   refeitas na produção, ou antes se alguém trabalhar em 1280 todo dia. A suíte `teste_barra_tabelas.py` segura as três
   como estão.
 
+- **Para a próxima revisão geral: a barra do caminho** (usuário, 19/out/2026, "não mexa agora"). Ele quer usá-la como
+  no Olist, para voltar uma tela ou mudar de módulo. Análise: é um bloco comum (`renderBreadcrumb`) em 87 telas, e cada
+  nome é um texto, não um link. Clicar num nome do meio só corta o caminho e troca o título, sem sair da tela. O primeiro
+  nome sempre leva ao Início, mesmo quando é o módulo: em "Finanças › Vale-compra › VC-6", "Finanças" abre o Início.
+  Proposta para a revisão: o módulo abre o menu daquele módulo, a tela de lista leva à lista (com os filtros, como o
+  "Voltar" faz) e o último nome continua parado. Consertar no bloco comum, nas 87 de uma vez, com uma suíte que clica em
+  cada nome de cada tela.
+
 ## Esperando decisão do usuário
 
 Duas pendências, que são dele:
