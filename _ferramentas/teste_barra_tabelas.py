@@ -54,7 +54,7 @@ MEDE = """(cortes) => {
   return r;
 }"""
 
-# Ordem de Compra e Pedido de Venda: em 1280 os campos do item nao cabem inteiros sem barra; pendente de decisao (19/out). Corte medido so em 1440.
+# Ordem de Compra e Pedido de Venda: em 1280 os campos do item nao cabem inteiros sem barra; o usuario decidiu deixar assim (19/out). Corte medido so em 1440.
 CORTE_SO_1440 = {'pagina-estoque-ordens-compra-detalhe.html', 'pagina-vendas-pedidos-detalhe.html'}
 
 falhas = []
@@ -88,7 +88,7 @@ with sync_playwright() as p:
             com_barra += ['%dpx %s' % (largura, i) for i in pg.evaluate(MEDE, cortes)]
         nome += q
         if nome in PENDENTES:
-            ok(com_barra, '%s: pendente de decisão, e ainda rola (se passou, tire da lista PENDENTES): %s' % (nome, '; '.join(com_barra)))
+            ok(com_barra, '%s: barra mantida por decisão do usuário (19/out), e ainda rola (se passou, tire da lista PENDENTES): %s' % (nome, '; '.join(com_barra)))
         else:
             ok(not com_barra, '%s: nenhuma tabela rola na horizontal e a página não rola%s' % (nome, (': ' + '; '.join(com_barra)) if com_barra else ''))
         ctx.close()

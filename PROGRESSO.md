@@ -8,7 +8,7 @@ commit; o histórico de cada entrega fica no `git log`, e as regras do projeto n
 
 ## Onde paramos
 
-**Duas entregas de 19/out, feitas e esperando o teste do usuário.**
+**Duas entregas de 19/out, testadas e aprovadas pelo usuário no mesmo dia**, junto com os dois ajustes da 2f. Ele decidiu deixar como estão as 3 telas que a varredura não resolveu e o código cortado em 1280 nos itens da Ordem de Compra e do Pedido (ver "Decidido, e ainda não feito de propósito").
 
 **A. O exemplo de Comissões nasce também em navegador que já tinha pagamento** (§14.87). O usuário não viu os três
 pagamentos da Marina Costa porque o navegador dele já guardava pagamentos dos testes da 2b e da 2c, e o bloco do exemplo
@@ -369,16 +369,15 @@ sistema de verdade.
 
 ### Prioridades dos próximos passos
 
-1. **Testar a varredura da barra e o conserto do exemplo de Comissões.**
-2. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
+1. **Decidir quando começar a produção** (F0: contas, esquema do banco, login). É o caminho crítico, e hoje
    está em 0%. Recomendação: começar já, em paralelo com o protótipo que sobra. Conta nova só nasce com o
    pedido dele.
-3. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
-4. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
-5. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
-6. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
+2. **Vale-compra** (2 a 3 dias): liga o vale-troca que Devolução, Formas de Recebimento e PDV deixam reservado.
+3. **Gateways de Pagamento**: o único item do menu que está no caminho do MVP.
+4. **O protótipo da vitrine Desk Shope** (F3): não existe; decidir quando desenhar.
+5. **Os 11 itens pós-MVP**, quando a produção estiver de pé: Margem de Contribuição e Custos do E-commerce
    (leem o que já existe), depois Relatórios, Notas Fiscais e Integrações.
-7. **Parados de propósito**: kit com composição (depende do cadastro de produtos) e o alinhamento dos exemplos
+6. **Parados de propósito**: kit com composição (depende do cadastro de produtos) e o alinhamento dos exemplos
    (volta com o banco).
 
 ## O que ficou pronto nesta conversa
@@ -671,19 +670,17 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
   exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
+- **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
+  barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
+  (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem
+  refeitas na produção, ou antes se alguém trabalhar em 1280 todo dia. A suíte `teste_barra_tabelas.py` segura as três
+  como estão.
+
 ## Esperando decisão do usuário
 
-Três pendências, que são dele:
+Uma pendência, que é dele:
 
-1. Olhar os dois ajustes da 2f (o calendário em Reprogramar, na lista e na conta, e o espaço dos filtros do histórico),
-   e as duas entregas de 19/out (os três pagamentos de exemplo que agora nascem, e as tabelas sem barra).
-2. **As 3 telas que a varredura não resolveu sozinha** (Necessidades de Compra, CRM e Metas): deixar o SKU, os selos e as
-   linhas de apoio quebrarem linha, ou aceitar a barra nessas três até incomodar. E **os itens da Ordem de Compra e do
-   Pedido de Venda em 1280px**: são campos de digitar (nove na Ordem, oito no Pedido), e inteiros eles pedem uns 986px de
-   tabela, onde a janela de 1280 dá 826. Hoje não há barra, o nome do produto aparece inteiro e o código comprido (SKU,
-   GTIN) corta alguns caracteres, embora continue inteiro dentro do campo. A outra saída é voltar a barra só nesses dois.
-   Em 1440 nada corta. O corte do nome já existia antes da varredura, até em 1440, e foi consertado.
-3. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
