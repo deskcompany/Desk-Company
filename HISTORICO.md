@@ -10,6 +10,29 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Vale-compra, entrega 1 e os ajustes do teste (19/out/2026) — testada e aprovada pelo usuário no mesmo dia
+
+**Vale-compra, entrega 1 e os ajustes do teste dela** (§14.89). O vale é saldo do
+cliente, só vale na loja que o emitiu, tem validade ajustável (180 dias de fábrica) e fica em Finanças, depois de
+Comissões Afiliados. A lista tem indicadores que filtram ao clicar, busca, loja, origem e abas por situação; clicar na
+linha abre o painel lateral com o resumo e "Ver vale completo". A página do vale tem usos, histórico, Cancelar e Reativar
+(com senha). O cadastro do cliente ganhou a aba Vale-compra, e Configurações → Cadastro de clientes, a validade.
+
+**A barra de paginação padrão** entrou também em Comissões Afiliados, Reposição, Transferência Entre Estoques e Metas e
+Performance, a pedido dele. Em Comissões, a planilha e a impressão levavam a tabela das inscrições quando havia inscrição
+pendente; agora levam a lista.
+
+Para ver:
+- `http://localhost:3000/financas/pagina-financas-vale-compra.html`
+- `http://localhost:3000/financas/pagina-financas-comissoes.html`
+- `http://localhost:3000/estoque/pagina-estoque-reposicao.html` (já abre com duas páginas)
+- `http://localhost:3000/estoque/pagina-estoque-transferencia.html`
+- `http://localhost:3000/vendas/pagina-vendas-metas.html`
+
+Ele testou tudo (Vale-compra, Comissões, Reposição, Transferência e Metas) e deu ok, e confirmou as três escolhas de quem
+construiu: a busca de cliente por nome, CPF/CNPJ ou e-mail; o "Voltar" da página do vale com os filtros da lista; e o uso
+de exemplo do VC-3 no dia do Pedido nº 10.
+
 As seções abaixo são o PROGRESSO.md de 19/out/2026, inteiro.
 
 ### Onde paramos

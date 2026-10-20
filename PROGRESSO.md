@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 19/out/2026, com os ajustes do teste da entrega 1 do Vale-compra e a divisão deste arquivo.*
+*Atualizado em 19/out/2026: a entrega 1 do Vale-compra, aprovada pelo usuário.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,22 +10,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Vale-compra, entrega 1 e os ajustes do teste dela: feitos e esperando o teste do usuário** (§14.89). O vale é saldo do
-cliente, só vale na loja que o emitiu, tem validade ajustável (180 dias de fábrica) e fica em Finanças, depois de
-Comissões Afiliados. A lista tem indicadores que filtram ao clicar, busca, loja, origem e abas por situação; clicar na
-linha abre o painel lateral com o resumo e "Ver vale completo". A página do vale tem usos, histórico, Cancelar e Reativar
-(com senha). O cadastro do cliente ganhou a aba Vale-compra, e Configurações → Cadastro de clientes, a validade.
-
-**A barra de paginação padrão** entrou também em Comissões Afiliados, Reposição, Transferência Entre Estoques e Metas e
-Performance, a pedido dele. Em Comissões, a planilha e a impressão levavam a tabela das inscrições quando havia inscrição
-pendente; agora levam a lista.
-
-Para ver:
-- `http://localhost:3000/financas/pagina-financas-vale-compra.html`
-- `http://localhost:3000/financas/pagina-financas-comissoes.html`
-- `http://localhost:3000/estoque/pagina-estoque-reposicao.html` (já abre com duas páginas)
-- `http://localhost:3000/estoque/pagina-estoque-transferencia.html`
-- `http://localhost:3000/vendas/pagina-vendas-metas.html`
+**Vale-compra, entrega 1: testada e aprovada pelo usuário em 19/out** (§14.89; o que foi feito está no HISTORICO.md),
+junto com a barra de paginação em Comissões, Reposição, Transferência e Metas. **O próximo é a entrega 2: o vale se usa.**
 
 **Entregas que faltam do Vale-compra:** (2) o vale se usa, no PDV e no Pedido de Venda, em parte se o cliente quiser, e
 Formas de Recebimento; (3) o vale nasce da Devolução e do pagamento de Comissão.
@@ -113,7 +99,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Esperando decisão do usuário
 
-Duas pendências, que são dele:
+Uma pendência, que é dele:
 
 1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
@@ -121,11 +107,6 @@ Duas pendências, que são dele:
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
    computador; para atualizar, reenvia por lá a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`.
-
-2. **Confirmar três escolhas da entrega 1 do Vale-compra** (§14.89): (a) a busca de cliente do "Incluir vale" é a busca
-   padrão de produto, adaptada (nome, CPF/CNPJ ou e-mail), porque o sistema só tinha a de produto; (b) o "Voltar" da página
-   do vale leva os filtros da lista pelo endereço; (c) o uso do VC-3 é de 11 dias atrás, para cair no dia do Pedido nº 10.
-   A quarta (os indicadores não filtrarem) ele respondeu no teste: agora filtram.
 
 O defeito dos links do chat que não traziam o navegador para a frente era da sessão do editor e
 sumiu sozinho (confirmado por ele em 13/out).
