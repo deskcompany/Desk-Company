@@ -10,6 +10,24 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Vale-compra, entrega 2: o vale se usa (19 e 20/out/2026) — testada e aprovada pelo usuário em 20/out
+
+**O vale se usa** (§14.90). No PDV, tudo ou uma parte, só o saldo da loja do PDV; no Pedido de Venda, desconta ao salvar,
+e cancelar, excluir ou mudar a situação para Cancelado devolve, também em massa na lista de Pedidos. A forma de
+recebimento passou a se chamar **Vale-compra** (a chave interna segue `valetroca`). A parte paga com vale vira **título
+já recebido** em Contas a Receber, **sem entrar no Caixa**. Na revisão, excluir o pedido e cancelar à mão, que não
+devolviam o vale, passaram a devolver.
+
+Para ver:
+- `http://localhost:3000/vendas/pagina-vendas-pdv.html` (caixa na Desk Shope, venda para a Marina Duarte, R$ 50,00 do vale)
+- `http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=1&editar=1` (100 em "Usar do vale", salvar, cancelar ou excluir)
+- `http://localhost:3000/financas/pagina-financas-contas-receber.html?busca=vale-compra`
+- `http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html`
+
+Ele testou e deu ok, e confirmou as cinco escolhas de quem construiu: um título por uso do vale; "Estornado" e
+"Perdido" no histórico do vale; o limite de crédito do pedido olhando só o que falta depois do vale; o vale como nota
+no fechamento do caixa, sem contagem; e o cliente do Pedido achado pelo nome (na produção, pelo número do cadastro).
+
 ### Vale-compra, entrega 1 e os ajustes do teste (19/out/2026) — testada e aprovada pelo usuário no mesmo dia
 
 **Vale-compra, entrega 1 e os ajustes do teste dela** (§14.89). O vale é saldo do

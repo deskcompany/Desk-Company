@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 19/out/2026: a entrega 2 do Vale-compra (o vale se usa), feita e esperando o teste do usuário.*
+*Atualizado em 20/out/2026: a entrega 2 do Vale-compra, aprovada pelo usuário.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,31 +10,9 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Vale-compra, entrega 2: o vale se usa. Feita em 19/out, esperando o teste do usuário** (§14.90). O vale se usa no PDV (tudo ou uma
-parte, só o saldo da loja do PDV) e no Pedido de Venda (desconta ao salvar; cancelar, excluir ou mudar a situação para Cancelado devolve, também em massa na
-lista), e a forma de recebimento
-passou a se chamar **Vale-compra** (a chave interna segue `valetroca`). A parte paga com vale vira **título já recebido** em Contas
-a Receber, **sem entrar no Caixa**. A Devolução segue com o vale reservado e o nome antigo: é a entrega 3.
-
-**O que conferir** (servidor: `node _ferramentas/servidor.js`):
-
-1. **PDV** — [http://localhost:3000/vendas/pagina-vendas-pdv.html](http://localhost:3000/vendas/pagina-vendas-pdv.html): abra o caixa na
-   Desk Shope, venda o Fone de Ouvido Bluetooth (R$ 249,90) para a Marina Duarte e clique em Continuar. O quadro "Vale-compra
-   disponível R$ 120,00" aparece no cartão de Recebimentos; use R$ 50,00, adicione o Pix (leva os R$ 199,90 que faltam) e finalize: a
-   venda diz "R$ 50,00 pagos com vale-compra (VC-4)" e o saldo do vale fica em R$ 70,00. Com a Marina numa venda da Desk Brands o quadro
-   não aparece, só a linha "R$ ... em vales da Desk Shope, que não valem nesta loja". Em "Detalhes do caixa", o vale aparece como nota e não pede contagem.
-2. **Pedido com vale** — [http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=10](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=10)
-   mostra "Pago com vale-compra: R$ 30,00 (VC-3)", com link para o vale. Para usar, abra
-   [?id=1&editar=1](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=1&editar=1) (Marina, Desk Shope), escolha "3x" e digite
-   100 em "Usar do vale": as parcelas passam a somar só o que falta, e a prévia diz "R$ 100,00 pagos com vale-compra". Salvar tira do vale;
-   editar refaz o uso; cancelar o pedido devolve ("R$ 100,00 voltam para o vale VC-4"). Trocando a loja para Desk Brands, o vale não vale.
-3. **Contas a Receber** — [http://localhost:3000/financas/pagina-financas-contas-receber.html?busca=vale-compra](http://localhost:3000/financas/pagina-financas-contas-receber.html?busca=vale-compra)
-   lista os três usos de exemplo como títulos recebidos; o de [?id=9300](http://localhost:3000/financas/pagina-financas-contas-receber-detalhe.html?id=9300)
-   abre só para leitura ("o valor muda no pedido ou no vale"). O título 9 (PV 7) passou de Vale-troca para Crediário.
-4. **Formas de recebimento** — [http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html](http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html):
-   o Vale-compra nasce habilitado, sem conta nem taxa, e desabilitar tira o quadro do PDV e do Pedido.
-
-**Falta do Vale-compra:** a entrega 3, o vale nascer da Devolução e do pagamento de Comissão.
+**Vale-compra, entrega 2: testada e aprovada pelo usuário em 20/out** (§14.90; o que foi feito está no HISTORICO.md).
+**O próximo é a entrega 3: o vale nasce da Devolução** (o ressarcimento que vira crédito na loja) **e do pagamento de
+Comissão**, começando pela barganha. É a última do Vale-compra: com ela a Devolução deixa o vale reservado e o nome antigo.
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
