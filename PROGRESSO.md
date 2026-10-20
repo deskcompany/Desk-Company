@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 20/out/2026: a entrega 2 do Vale-compra, aprovada pelo usuário.*
+*Atualizado em 20/out/2026: a entrega 3 do Vale-compra, feita e esperando o teste do usuário.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,9 +10,28 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Vale-compra, entrega 2: testada e aprovada pelo usuário em 20/out** (§14.90; o que foi feito está no HISTORICO.md).
-**O próximo é a entrega 3: o vale nasce da Devolução** (o ressarcimento que vira crédito na loja) **e do pagamento de
-Comissão**. É a última do Vale-compra: com ela a Devolução deixa o vale reservado e o nome antigo.
+**Vale-compra, entrega 3: o vale nasce da Devolução e do pagamento de Comissão. Feita em 20/out/2026, esperando o teste do
+usuário** (§14.91). A Devolução finaliza em vale (a forma "Vale-compra" no lugar do reservado "Vale-troca"; o vale nasce ao
+finalizar, e cancelar a devolução cancela o vale intacto ou é barrado se ele já foi usado). O afiliado, e só ele, recebe a comissão em
+vale (sem bônus, na loja dele), e o pagamento aparece em Contas a Pagar já pago, só leitura, sem saída do Caixa. Com ela as três
+entregas do Vale-compra estão feitas (a entrega 2 foi testada e aprovada em 20/out; o texto dela está no HISTORICO.md).
+
+**O que conferir** (com o servidor de preview de pé em `http://localhost:3000`):
+1. A devolução que dá para finalizar com vale:
+   [DV-0009, de Bruno Carvalho](http://localhost:3000/logistica/pagina-logistica-devolucao-detalhe.html?id=4). Em "Como o
+   dinheiro volta" escolha Vale-compra, salve e finalize (R$ 414,80, na Desk Shope). As outras devoluções, de clientes fora do
+   cadastro, mostram por que a opção não vale. Depois de finalizada, a forma trava, e cancelar a devolução cancela o vale.
+2. O vale gerado: a [lista do Vale-compra](http://localhost:3000/financas/pagina-financas-vale-compra.html) (o novo é o VC-6, de
+   origem Devolução, com o link de volta para a devolução).
+3. A conta de afiliado pagando em vale:
+   [Bruno Carvalho](http://localhost:3000/financas/pagina-financas-comissoes-detalhe.html?id=a1) (saldo R$ 51,20, Desk Brands).
+   "Realizar pagamento", forma Vale-compra: o vencimento trava em hoje e o texto diz o que vai acontecer.
+4. O título em Contas a Pagar: o COM-4 que esse pagamento criou, em
+   [Contas a Pagar](http://localhost:3000/financas/pagina-financas-contas-pagar-detalhe.html?id=9004) (já pago, só leitura, sem
+   dar baixa; o Caixa não ganha lançamento).
+5. A conta de vendedor, sem a opção:
+   [Marina Costa](http://localhost:3000/financas/pagina-financas-comissoes-detalhe.html?id=v1): "Realizar pagamento" só tem
+   Pix, Transferência, Boleto e Dinheiro.
 
 **Barganha da entrega 3, aprovada pelo usuário em 20/out** (ele escolheu as cinco recomendações):
 - **Devolução: o vale nasce ao finalizar**, com o total da devolução, na loja do pedido de origem. Escolher a forma só anota.
@@ -58,8 +77,8 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos", no HISTORICO.md).
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Vale-compra, entrega 3** (as entregas 1 e 2 estão feitas, §14.89 e §14.90): o vale nasce da Devolução (o ressarcimento que vira
-   crédito) e do pagamento de Comissão como crédito na loja. Liga o vale-troca que a Devolução ainda deixa reservado.
+2. **Vale-compra:** as três entregas estão feitas (§14.89, §14.90 e §14.91), esperando o teste da 3 (o vale que nasce da Devolução
+   e do pagamento de Comissão de afiliado).
 3. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
 4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).

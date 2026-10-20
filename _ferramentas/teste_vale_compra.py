@@ -676,13 +676,14 @@ with sync_playwright() as p:
 
     # ================================================================== [9] bloco identico, impressao e barra de rolagem
     if secao(9, 'O bloco de leitura idêntico nas três cópias, a impressão em relatório e a barra de rolagem'):
-        TODAS = (LISTA, DET, CLI_D, 'pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-vendas-pedidos.html', 'pagina-financas-contas-receber.html', 'pagina-financas-contas-receber-detalhe.html')
+        TODAS = (LISTA, DET, CLI_D, 'pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-vendas-pedidos.html', 'pagina-financas-contas-receber.html', 'pagina-financas-contas-receber-detalhe.html',
+                 'pagina-logistica-devolucao-detalhe.html', 'pagina-financas-comissoes-detalhe.html')
         fontes = dict((n, fonte(n)) for n in TODAS)
         INI, FIM = '  // ===== VALE-COMPRA: DADOS E REGRAS', '  // ===== FIM DO BLOCO VALE-COMPRA ====='
         blocos = [trecho(fontes[n], INI, FIM) for n in (LISTA, DET, CLI_D)]
-        ok(len(set(trecho(fontes[n], INI, FIM) for n in TODAS)) == 1 and len(blocos[0]) > 4000, 'o bloco do vale é idêntico nas oito cópias: lista, página do vale, cadastro do cliente, PDV, Pedido de Venda (lista e detalhe) e Contas a Receber (lista e detalhe) (%d caracteres)' % len(blocos[0]))
+        ok(len(set(trecho(fontes[n], INI, FIM) for n in TODAS)) == 1 and len(blocos[0]) > 4000, 'o bloco do vale é idêntico nas dez cópias: lista, página do vale, cadastro do cliente, PDV, Pedido de Venda (lista e detalhe), Contas a Receber (lista e detalhe), detalhe da Devolução e detalhe de Comissões Afiliados (%d caracteres)' % len(blocos[0]))
         ok("localStorage.getItem('deskValesCompra')" in blocos[0] and "localStorage.setItem('deskValesCompraExemplo'" in blocos[0], 'o bloco lê a chave deskValesCompra e grava a marca do exemplo')
-        ok(sum(1 for n in TODAS if 'function valeSituacao' in fontes[n]) == 8 and all(fontes[n].count('function valeSituacao') == 1 for n in fontes), 'a situação do vale é calculada num lugar só em cada tela, no bloco')
+        ok(sum(1 for n in TODAS if 'function valeSituacao' in fontes[n]) == 10 and all(fontes[n].count('function valeSituacao') == 1 for n in fontes), 'a situação do vale é calculada num lugar só em cada tela, no bloco')
         # a chave so e escrita pelos donos: a lista e a pagina do vale; o cadastro do cliente so le
         ok('valeGravar(' not in fontes[CLI_D].replace(blocos[2], ''), 'o cadastro do cliente só lê: não grava vale')
         # impressao em formato de relatorio

@@ -600,13 +600,13 @@ with sync_playwright() as p:
 
     # ================================================================== [7] bloco identico e barra de rolagem
     if secao(7, 'O bloco do vale idêntico em todas as cópias e sem barra de rolagem'):
-        TODAS = (VALE_L, VALE_D, CLI_D, PDV, PED_D, PED_L, CR_L, CR_D)
+        TODAS = (VALE_L, VALE_D, CLI_D, PDV, PED_D, PED_L, CR_L, CR_D, 'pagina-logistica-devolucao-detalhe.html', 'pagina-financas-comissoes-detalhe.html')
         INI, FIM = '  // ===== VALE-COMPRA: DADOS E REGRAS', '  // ===== FIM DO BLOCO VALE-COMPRA ====='
         blocos = []
         for n in TODAS:
             t = fonte(n)
             blocos.append(t[t.index(INI):t.index(FIM)])
-        ok(len(set(blocos)) == 1 and len(blocos[0]) > 8000, 'o bloco é idêntico nas oito cópias (%d caracteres)' % len(blocos[0]))
+        ok(len(set(blocos)) == 1 and len(blocos[0]) > 8000, 'o bloco é idêntico nas dez cópias (%d caracteres)' % len(blocos[0]))
         ok(all(f in blocos[0] for f in ('function usarVale(', 'function estornarUsos(', 'function valeUsosDoDoc(', 'function valeTodosUsos(', 'function valeDocHref(')), 'e traz o uso do vale: usarVale, estornarUsos e os que leem os usos')
         ok(fonte(CLI_D).replace(blocos[0], '').count('valeGravar(') == 0 and fonte(CLI_D).replace(blocos[0], '').count('usarVale(') == 0, 'o cadastro do cliente continua só lendo o vale')
         for larg in (1280, 1440):

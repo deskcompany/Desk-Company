@@ -1915,13 +1915,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
-  // ===== VALE-COMPRA: DADOS E REGRAS (bloco comum a oito telas, 19/out/2026) =====
-  // Identico em oito telas: a lista e a pagina do vale (Financas > Vale-compra), a aba Vale-compra do cadastro do cliente, o PDV, o Pedido de Venda
-  // (lista e detalhe) e Contas a Receber (lista e detalhe); teste_vale_compra.py compara as copias. A entrega 2 (19/out/2026) acrescentou o USO do vale. O dono do dado e Financas > Vale-compra. Uma chave so no navegador, `deskValesCompra` ({ vales: [...] });
+  // ===== VALE-COMPRA: DADOS E REGRAS (bloco comum a dez telas, 19/out/2026) =====
+  // Identico em dez telas: a lista e a pagina do vale (Financas > Vale-compra), a aba Vale-compra do cadastro do cliente, o PDV, o Pedido de Venda
+  // (lista e detalhe), Contas a Receber (lista e detalhe), o detalhe da Devolucao e o detalhe de Comissoes Afiliados; teste_vale_compra.py compara as copias.
+  // A entrega 2 (19/out/2026) acrescentou o USO do vale; a entrega 3 (20/out/2026), o vale que NASCE de outro documento. O dono do dado e Financas > Vale-compra. Uma chave so no navegador, `deskValesCompra` ({ vales: [...] });
   // o prazo de validade e de Configuracoes > Cadastro de clientes (deskParametros.valeCompraValidadeDias).
   // O vale e SALDO DO CLIENTE, sem codigo, e so vale na loja que o emitiu. Cada vale:
-  //   { n, clienteId, cliente, doc, loja, origem ('cortesia' | 'devolucao' | 'comissao'), motivo (so na cortesia), ref ({ texto, href }: o documento de
-  //     onde o vale nasceu, na devolucao e na comissao), valor, emitido, venc,
+  //   { n, clienteId, cliente, doc, loja, origem ('cortesia' | 'devolucao' | 'comissao'), motivo (so na cortesia), ref ({ tipo ('devolucao' | 'comissao'),
+  //     id (o id da devolucao / o n do pagamento COM-n), texto, href }: o documento de onde o vale nasceu, na devolucao e na comissao), valor, emitido, venc,
   //     usos: [{ data, valor, doc: { tipo, id, rotulo }, estornado: { em, motivo }, perdido: { em, motivo } }], reativacoes: [{ em, de, para }], cancelado: { em, motivo, saldo } | null }
   // ESPELHOS: clienteId, cliente e doc sao do cadastro de Clientes; loja e de Lojas Desk; doc.id e o id de Pedidos de Venda (tipo 'pedido') ou o numero da venda do PDV (tipo 'pdv').
   const VALE_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
@@ -2060,6 +2061,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const r = [];
     valeLer().forEach(v => v.usos.forEach((u, i) => r.push({ vale: v, uso: u, id: 9000 + v.n * 100 + i })));
     return r;
+  }
+  // ----- O VALE QUE NASCE DE OUTRO DOCUMENTO (entrega 3, 20/out/2026) -----
+  // Devolucao (ao finalizar, com o total devolvido) e pagamento de comissao de afiliado (em vale) emitem o vale por aqui. A ref { tipo, id } liga
+  // o vale ao documento: valeDaOrigem acha o vale do documento (o mais novo, em qualquer situacao) e a trava de duplicidade barra emitir duas vezes.
+  function valeDaOrigem(tipo, id) {
+    return valeLer().filter(v => v.ref && v.ref.tipo === tipo && String(v.ref.id) === String(id)).sort((a, b) => a.n - b.n).slice(-1)[0] || null;
+  }
+  // d = { clienteId, cliente, doc, loja, origem, ref, valor }. Valida e grava; se algo falha, lanca erro e nao grava nada. Devolve o vale.
+  function emitirVale(d) {
+    const valor = valeArred(Number(d.valor));
+    if (!(valor > 0)) throw new Error('O valor do vale-compra precisa ser maior que zero.');
+    if (!VALE_LOJAS[d.loja]) throw new Error('Esta loja não emite vale-compra.');
+    if (!d.clienteId) throw new Error('O cliente não está no cadastro de clientes: o vale-compra é saldo de um cliente cadastrado.');
+    if (!d.ref || !d.ref.tipo || !d.ref.id) throw new Error('O vale-compra precisa dizer de qual documento nasce.');
+    const vales = valeLer();
+    if (vales.some(v => !v.cancelado && v.ref && v.ref.tipo === d.ref.tipo && String(v.ref.id) === String(d.ref.id))) throw new Error('Já existe um vale-compra emitido por ' + d.ref.texto + '.');
+    const vale = { n: vales.reduce((m, v) => Math.max(m, Number(v.n) || 0), 0) + 1, clienteId: d.clienteId, cliente: d.cliente, doc: d.doc, loja: d.loja,
+      origem: d.origem, ref: d.ref, valor: valor, emitido: VALE_HOJE, venc: valeSomaDias(VALE_HOJE, valePrazo()), usos: [], reativacoes: [], cancelado: null };
+    vales.push(vale);
+    if (!valeGravar(vales)) throw new Error('Não foi possível gravar o vale-compra neste navegador.');
+    return vale;
+  }
+  // Cancela o vale do documento (quando o documento e desfeito). Vale ja usado, mesmo em parte, nao se cancela: lanca erro com o valor usado.
+  // Sem vale, ou vale ja cancelado, nao faz nada. Devolve o vale.
+  function cancelarValeDaOrigem(tipo, id, motivo) {
+    const vales = valeLer(), v = vales.filter(x => x.ref && x.ref.tipo === tipo && String(x.ref.id) === String(id)).sort((a, b) => a.n - b.n).slice(-1)[0];
+    if (!v || v.cancelado) return v || null;
+    if (valeUsado(v) > 0) throw new Error('O vale-compra VC-' + v.n + ' já foi usado: ' + valeMoeda(valeUsado(v)) + '.');
+    v.cancelado = { em: VALE_HOJE, motivo: motivo, saldo: valeSaldo(v) };
+    if (!valeGravar(vales)) throw new Error('Não foi possível gravar o cancelamento do vale-compra neste navegador.');
+    return v;
   }
   // ===== FIM DO BLOCO VALE-COMPRA =====
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====

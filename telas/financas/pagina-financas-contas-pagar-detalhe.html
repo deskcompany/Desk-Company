@@ -2539,7 +2539,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
       if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor,
         pago: (p.baixas || []).reduce((s, x) => s + x.valor, 0), pagamentos: (p.baixas || []).map(x => Object.assign({}, x)),
-        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave });
+        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : '') + (p.vale ? ' · Pago com vale-compra VC-' + p.vale : ''),
+        ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave, vale: p.vale });   // `vale`: pago em vale-compra (entrega 3, 20/out/2026): so leitura, nunca no Caixa
     });
   })();
   // Cancelar, reativar ou excluir aqui a conta de comissao grava no pagamento de Comissoes (15/out/2026): sem isto
@@ -2677,18 +2678,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let emPagamento = [];
 
   function aplicarModo() {
+    // Conta paga com vale-compra (comissao de afiliado em vale) e so leitura: sem baixa, sem estorno, sem editar, sem cancelar nem excluir. O valor muda em Comissoes Afiliados ou no vale.
+    const soLeitura = !!(conta && conta.vale);
+    if (soLeitura) modoLeitura = true;
     document.body.classList.toggle('modo-leitura', modoLeitura);
     const sit = conta ? situacaoDe(conta) : 'aberta';
     const podeBaixar = !!conta && saldoDe(conta) > 0 && !conta.cancelado;
-    document.getElementById('acoesLeitura').style.display = modoLeitura ? 'flex' : 'none';
-    document.getElementById('btnDarBaixa').style.display = podeBaixar ? 'inline-flex' : 'none';
+    document.getElementById('acoesLeitura').style.display = modoLeitura && !soLeitura ? 'flex' : 'none';
+    document.getElementById('btnDarBaixa').style.display = podeBaixar && !soLeitura ? 'inline-flex' : 'none';
     document.getElementById('rodapeEdicao').style.display = modoLeitura ? 'none' : 'flex';
 
     // Cancelar troca de rotulo em vez de virar dois links: e a MESMA acao,
     // de ida e de volta, e dois links fariam a tela parecer ter duas.
 
     // as duas acoes vivem no menu; some o menu inteiro, nao cada item
-    document.getElementById('menuMaisAcoes').style.display = conta ? '' : 'none';
+    document.getElementById('menuMaisAcoes').style.display = conta && !soLeitura ? '' : 'none';
     document.getElementById('rotuloCancelar').textContent = (conta && conta.cancelado) ? 'Reativar conta' : 'Cancelar conta';
     document.getElementById('tituloConta').innerHTML =
       (conta ? (modoLeitura ? 'Conta a pagar' : 'Editar conta a pagar') : 'Nova conta a pagar') +
@@ -3027,11 +3031,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     corpo.innerHTML = pgs.map((p, i) =>
       '<tr>' +
       '<td>' + fmtData(p.data) + '</td>' +
-      '<td>' + (contaDe(p.contaId) ? contaDe(p.contaId).nome : '—') + '</td>' +
+      '<td>' + (p.vale ? 'Vale-compra' : (contaDe(p.contaId) ? contaDe(p.contaId).nome : '—')) + '</td>' +
       '<td class="cx-num">R$ ' + fmtDin(p.valor) + '</td>' +
       '<td class="cx-num">' + (p.juros ? 'R$ ' + fmtDin(p.juros) : '—') + '</td>' +
       '<td class="cx-num">' + (p.desconto ? 'R$ ' + fmtDin(p.desconto) : '—') + '</td>' +
-      '<td class="cx-num"><span class="link-perigo" data-acao="estornar" data-i="' + i + '">estornar</span></td>' +
+      '<td class="cx-num">' + (p.vale ? '—' : '<span class="link-perigo" data-acao="estornar" data-i="' + i + '">estornar</span>') + '</td>' +
       '</tr>').join('');
     document.querySelectorAll('[data-acao="estornar"]').forEach(l => {
       l.addEventListener('click', () => estornar(Number(l.getAttribute('data-i'))));
@@ -3699,6 +3703,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     atualizarCompetencia();
   }
 
+  if (conta && conta.vale) {
+    mostrarAvisoTopo('<span>Pago com vale-compra <b>VC-' + conta.vale + '</b>: esta conta é <b>só leitura</b>, sem baixa, sem estorno e sem editar o valor, e nada saiu do Caixa. O valor muda em Comissões Afiliados ou no vale.</span>' +
+      '<a href="../financas/pagina-financas-vale-compra-detalhe.html?id=' + conta.vale + '">Abrir o vale</a>');
+  }
   if (conta) {
     const f = fornDe(conta.fornId), cat = catDe(conta.catId);
     document.getElementById('inputFornecedor').value = f.nome;

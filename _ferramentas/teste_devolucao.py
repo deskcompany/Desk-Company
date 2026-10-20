@@ -12,7 +12,7 @@
 #   lançar estoque é AÇÃO EXPLÍCITA: no Olist a SEFAZ dispara, e nós não temos NF-e
 #   o estado é POR ITEM, sugerido pelo motivo e confirmado por quem recebe a caixa
 #   o código da reversa mora na devolução, não no Rastreamento (lá é a ida)
-#   Vale-troca aparece e fica RESERVADO enquanto o submódulo não existe
+#   Vale-compra (chave `valetroca`) é forma de verdade desde a entrega 3 do Vale-compra (20/out/2026): o vale nasce ao finalizar
 #   os dois parâmetros nasceram em Configurações no mesmo dia da tela
 #   devolver mais do que foi vendido é barrado: isso é entrada, não devolução
 #   finalizar com estoque pendente é barrado: a caixa ficaria fora do saldo
@@ -205,18 +205,18 @@ with sync_playwright() as pw:
     ok(pg.evaluate("String(DEV.motivoId)") != exige, 'e o motivo novo nao foi gravado')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
-    print('\n[11] Vale-troca aparece e fica RESERVADO')
-    # Forma que nao gera documento nenhum seria prometer um credito que ninguem
-    # consegue usar. Mesma regra do campo fiscal: visivel e desabilitado.
-    reservada = pg.evaluate("FORMAS.filter(f => f.reservado).map(f => f.id)")
-    ok(reservada == ['valetroca'], 'vale-troca e a unica forma reservada: %s' % reservada)
+    print('\n[11] Vale-compra e uma forma como as outras; fica indisponivel quando o cliente nao esta no cadastro')
+    # Desde a entrega 3 do Vale-compra (20/out/2026) a forma gera o vale ao finalizar. Nesta devolucao (DV-0011, Mariana Rocha) o cliente
+    # nao esta no cadastro de clientes: a opcao aparece, mas escolher explica por que nao vale. O fluxo completo esta em teste_vale_origem.py.
+    ok(pg.evaluate("FORMAS.filter(f => f.reservado).length") == 0, 'nenhuma forma e mais reservada')
+    ok(pg.evaluate("formaDe('valetroca').rotulo") == 'Vale-compra', 'o rotulo e Vale-compra (a chave interna segue valetroca)')
     ok(pg.locator('#menuForma .dropdown-select-item[data-value="valetroca"]').count() == 1,
        'ela APARECE na lista, nao some')
     antesF = pg.evaluate("DEV.forma")
     pg.locator('#inputForma .dropdown-select-btn').click(); pg.wait_for_timeout(250)
     pg.locator('#menuForma .dropdown-select-item[data-value="valetroca"]').click(); pg.wait_for_timeout(450)
     ok(pg.evaluate("DEV.forma") == antesF, 'escolher nao muda nada: a forma segue %s' % antesF)
-    ok('vales-troca' in pg.inner_text('body').lower(), 'e a tela explica por que')
+    ok('cadastro de clientes' in pg.inner_text('body').lower(), 'e a tela explica por que')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(300)
 
     print('\n[12] O codigo da reversa mora AQUI, nao no Rastreamento')

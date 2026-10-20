@@ -2349,7 +2349,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const pago = (p.baixas || []).reduce((s, x) => s + x.valor, 0), atraso = diasDeAtraso(p);
     if (p.excluido) return { rotulo: 'excluído em Contas a Pagar', pago: pago, atraso: 0 };
     if (p.cancelado) return { rotulo: p.canceladoAuto ? 'cancelado sozinho' : 'cancelado', pago: pago, atraso: 0 };
-    if (pago >= p.valor - 0.005) return { rotulo: 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago, atraso: 0 };
+    if (pago >= p.valor - 0.005) return { rotulo: p.vale ? 'pago em vale-compra VC-' + p.vale : 'pago em ' + brDe(p.baixas[p.baixas.length - 1].data), pago: pago, atraso: 0 };
     if (pago > 0) return { rotulo: 'pago em parte (' + moedaC(pago) + ')' + (atraso ? ', ' + haDias(atraso) : ''), pago: pago, atraso: atraso };
     if (atraso) return { rotulo: haDias(atraso), pago: pago, atraso: atraso };
     return { rotulo: 'a pagar até ' + brDe(p.venc), pago: pago, atraso: 0 };
@@ -2357,6 +2357,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O mesmo texto com o atraso em vermelho: o que a lista, a conta e a vitrine mostram.
   function situacaoHtml(p) {
     const s = situacaoDoPagamento(p);
+    if (p.vale && s.pago && !p.cancelado && !p.excluido) return s.rotulo.replace('VC-' + p.vale, '<a class="com-link" href="' + hrefValeC(p.vale) + '">VC-' + p.vale + '</a>');
     return s.atraso ? '<span class="com-atraso">' + s.rotulo + '</span>' : s.rotulo;
   }
   // O historico do afiliado, de todos os meses, do mais novo para o mais velho (barganha de 15/out/2026). A vitrine
@@ -2365,6 +2366,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const TIPOS_HIST = { inscricao: 'Inscrição', venda: 'Venda', comissao: 'Comissão', saque: 'Saque', pagamento: 'Pagamento', lancamento: 'Lançamento' };
   const hrefPedidoC = (id) => '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + id;
   const hrefContaC = (n) => '../financas/pagina-financas-contas-pagar-detalhe.html?id=' + (9000 + n);
+  const hrefValeC = (n) => '../financas/pagina-financas-vale-compra-detalhe.html?id=' + n;   // pagamento em vale-compra (entrega 3 do Vale-compra, 20/out/2026)
   function historicoDe(b) {
     const ev = [];
     const add = (data, tipo, texto, valor, efeito, links) => {
@@ -2400,9 +2402,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (s.situacao === 'aprovado') add(s.quando, 'saque', 'Saque aprovado: virou o pagamento COM-' + s.n, s.valor, undefined, [{ trecho: 'COM-' + s.n, href: hrefContaC(s.n) }]);
     });
     (lerLocal('deskComissoesPagas', {}).pagamentos || []).filter(p => p.chave === b.chave).forEach(p => {
-      const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }];
-      add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + ': conta a pagar para ' + brDe(p.venc), p.valor, -p.valor, lk);
-      (p.baixas || []).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
+      const lk = [{ trecho: 'COM-' + p.n, href: hrefContaC(p.n) }].concat(p.vale ? [{ trecho: 'VC-' + p.vale, href: hrefValeC(p.vale) }] : []);
+      add(p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.saque ? ', do saque pedido pela vitrine' : '') + (p.vale ? ': pago em vale-compra VC-' + p.vale : ': conta a pagar para ' + brDe(p.venc)), p.valor, -p.valor, lk);
+      (p.baixas || []).filter(x => !x.vale).forEach(x => add(x.data, 'pagamento', 'COM-' + p.n + ' pago em Contas a Pagar', x.valor, undefined, lk));
       (p.reprog || []).forEach(x => add(x.em, 'pagamento', 'Pagamento COM-' + p.n + ' reprogramado: vencimento de ' + brDe(x.de) + ' para ' + brDe(x.para), p.valor, undefined, lk));
       if (p.cancelado) add(p.canceladoEm || p.data, 'pagamento', 'Pagamento COM-' + p.n + (p.excluido ? ' excluído em Contas a Pagar' : (p.canceladoAuto ? ' cancelado sozinho, ' + haDias(p.canceladoAuto) : ' cancelado')) +
         ': o valor voltou ao saldo' + (p.saque ? '; o cliente pode pedir de novo' : ''), p.valor, p.valor, lk);
@@ -2561,6 +2563,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function cancelarPagamento(n) {
     const g = lerLocal('deskComissoesPagas', {}), p = (g.pagamentos || []).filter(x => x.n === n)[0];
     if (!p) return;
+    if (p.vale) { cancelarPagamentoEmVale(p); return; }   // so a conta do afiliado tem o bloco do vale e a funcao; na lista o pago em vale nunca esta vencido, e nao chega aqui
     if (situacaoDoPagamento(p).pago) { avisar('O pagamento COM-' + n + ' já tem baixa em Contas a Pagar. Estorne a baixa lá antes de cancelar.'); return; }
     pedirConfirmacao('comissaoPaga', 'Cancelar o pagamento COM-' + n + ', de ' + moedaC(p.valor) + ', a ' + p.nome + '? A conta fica cancelada em Contas a Pagar e o valor volta ao saldo de comissão.', () => {
       p.cancelado = true; p.canceladoEm = HOJE_ISO;

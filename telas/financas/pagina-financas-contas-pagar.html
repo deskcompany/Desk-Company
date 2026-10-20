@@ -2117,7 +2117,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!FORNECEDORES.some(f => f.id === id)) FORNECEDORES.push({ id: id, nome: p.nome, fantasia: p.tipo === 'vendedor' ? 'Vendedor' : 'Cliente afiliado' });
       if (!TITULOS.some(t => t.id === id)) TITULOS.push({ id: id, fornId: id, doc: 'COM-' + p.n, vencIso: p.venc, emis: 0, catId: 25, valor: p.valor,
         pago: (p.baixas || []).reduce((s, x) => s + x.valor, 0), pagamentos: (p.baixas || []).map(x => Object.assign({}, x)),
-        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : ''), ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave });
+        forma: p.forma, hist: 'Comissão de ' + p.ref + ' — ' + p.nome + (p.pix ? ' (PIX ' + p.pix + ')' : '') + (p.vale ? ' · Pago com vale-compra VC-' + p.vale : ''),
+        ocorrencia: 'Única', cancelado: !!p.cancelado, comissao: p.chave, vale: p.vale });   // `vale`: pago em vale-compra (entrega 3, 20/out/2026): so leitura, nunca no Caixa
     });
   })();
   // Cancelar, reativar ou excluir aqui a conta de comissao grava no pagamento de Comissoes (15/out/2026): sem isto
@@ -2405,7 +2406,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     btn.style.opacity = pagaveis === 0 ? '0.5' : '';
     // O link de cancelar troca de rotulo com a selecao: com tudo cancelado ele
     // desfaz. Mesma acao de ida e de volta, um controle so.
-    const semPgto = selTit.map(id => titDe(id)).filter(x => x && x.pago === 0);
+    const semPgto = selTit.map(id => titDe(id)).filter(x => x && x.pago === 0 && !x.vale);   // conta paga com vale-compra e so leitura
     const link = document.getElementById('linkCancelarSelecionadas');
     const voltando = semPgto.length > 0 && semPgto.every(x => x.cancelado);
     link.textContent = voltando ? 'Reativar contas' : 'Cancelar contas';
@@ -2662,7 +2663,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A aba "canceladas" existia desde o inicio sem que ninguem pudesse chegar
   // nesse estado — falha corrigida em 23/set/2026.
   document.getElementById('linkCancelarSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.pago === 0; });
+    const podem = selTit.filter(id => { const t = titDe(id); return t && t.pago === 0 && !t.vale; });
     if (!podem.length) return;
     // Se a selecao e toda de canceladas, o link desfaz em vez de fazer: pedido
     // cancelado as vezes e retomado.
@@ -2680,7 +2681,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   document.getElementById('linkExcluirSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.pago === 0; });
+    const podem = selTit.filter(id => { const t = titDe(id); return t && t.pago === 0 && !t.vale; });
     if (!podem.length) return;
     const fora = selTit.length - podem.length;
     armarSenhaModal('contasPagarExclui');
@@ -2787,12 +2788,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       linha('Forma de pagamento', t.forma) +
       linha('Ocorrência', t.ocorrencia + (t.grupo ? ' · ' + TITULOS.filter(x => x.grupo === t.grupo).length + ' no grupo' : '')) +
       linha('Histórico', t.hist || '—') +
+      (t.vale ? linha('Vale-compra', '<a class="painel-link" href="../financas/pagina-financas-vale-compra-detalhe.html?id=' + t.vale + '">VC-' + t.vale + '</a> · só leitura: o valor muda em Comissões Afiliados ou no vale') : '') +
       '<div class="pc-titulo">De onde veio</div><div id="contaOrigem">' + (t.nota
         ? linha('Nota de entrada', '<a class="painel-link" href="../estoque/pagina-estoque-entrada-notas.html?busca=' + t.nota + '">nº ' + t.nota + '</a>') +
           linha('Ordem de compra', t.oc ? '<a class="painel-link" href="../estoque/pagina-estoque-ordens-compra.html?busca=' + t.oc + '">nº ' + t.oc + '</a>' : 'nota sem ordem vinculada')
         : linha('Lançada à mão', 'sem nota de entrada')) + '</div>' +
       '<div class="pc-titulo">Pagamentos</div><div id="contaBaixas">' +
-      (baixas.length ? baixas.map(b => linha(fmtData(b.data) + ' · ' + ((contaDe(b.contaId) || {}).nome || 'conta'), 'R$ ' + fmtDin(b.valor))).join('')
+      (baixas.length ? baixas.map(b => linha(fmtData(b.data) + ' · ' + (b.vale ? 'Vale-compra' : ((contaDe(b.contaId) || {}).nome || 'conta')), 'R$ ' + fmtDin(b.valor))).join('')
                      : '<div class="pc-linha"><span>Nenhum pagamento ainda.</span></div>') + '</div>';
     h += '<div class="drawer-footer">' +
       (!t.cancelado && saldo > 0 ? '<button class="btn-primary" id="btnBaixarDaConta">Pagar</button>' : '') +

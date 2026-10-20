@@ -1886,13 +1886,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 'cancelada',  rotulo: nome('devolucao.situacao.cancelada'),  fase: 'cancelada' }
   ];
 
-  // Como o dinheiro volta. Vale-troca existe na lista e fica RESERVADO: o
-  // submodulo de Vales-troca ainda nao existe, e oferecer uma forma que nao
-  // gera documento nenhum seria prometer um credito que ninguem consegue usar.
+  // Como o dinheiro volta. Vale-compra (chave `valetroca`) gera o vale na loja do pedido ao FINALIZAR a devolucao (entrega 3 do Vale-compra, 20/out/2026).
   const FORMAS = [
     { id: 'sem',         rotulo: 'Sem pagamento',  nota: 'não gera crédito ao cliente' },
     { id: 'dinheiro',    rotulo: 'Dinheiro',       nota: 'lança a saída no Caixa' },
-    { id: 'valetroca',   rotulo: 'Vale-troca',     nota: 'gera um código para nova compra', reservado: true },
+    { id: 'valetroca',   rotulo: 'Vale-compra',    nota: 'gera um vale-compra para o cliente, na loja do pedido' },
     { id: 'contaspagar', rotulo: 'Contas a pagar', nota: 'gera a conta com o valor devolvido' }
   ];
 
@@ -1950,8 +1948,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       contato: '(81) 99912-4410', endereco: 'Rua do Sol, 88 · Boa Viagem · Recife/PE · 51020-100',
       dataVenda: '2026-09-20', entregaEm: '2026-09-28', vendedor: 'Bianca Duarte', dep: 1, total: 2240.00,
       itens: [ { sku: 'BRD-1180', nome: 'Kit expositor de vitrine', qtd: 2, unit: 1120.00 } ] },
-    { id: 4, numero: 'PV-4903', cliente: 'Pedro Antunes',           doc: '771.209.338-10', loja: 1, canal: 'Vitrine Desk Shope',
-      contato: '(21) 98110-7755', endereco: 'Rua Haddock Lobo, 45 · Tijuca · Rio de Janeiro/RJ · 20260-140',
+    { id: 4, numero: 'PV-4903', cliente: 'Bruno Carvalho',          doc: '890.123.456-77', loja: 1, canal: 'Vitrine Desk Shope',
+      contato: '(99) 98234-5512', endereco: 'Rua Haddock Lobo, 45 · Tijuca · Rio de Janeiro/RJ · 20260-140',
       dataVenda: '2026-10-02', entregaEm: '2026-10-05', vendedor: null, dep: 3, total: 389.90,
       itens: [ { sku: 'SHO-7781', nome: 'Mochila antifurto 25L', qtd: 1, unit: 389.90 } ] },
     { id: 5, numero: 'PV-4845', cliente: 'Supermercados Lemos S/A', doc: '44.102.771/0001-88', loja: 4, canal: 'Venda interna · representante',
@@ -2616,11 +2614,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (acao === 'parametros') { window.location.href = '../configuracoes/pagina-configuracoes-parametros-logistica.html'; return; }
       if (acao === 'exportar') {
         avisar('A exportação para planilha entra junto com os relatórios de Logística. Por enquanto a lista filtrada é o que existe.');
-        return;
-      }
-      if (acao === 'valestroca') {
-        // Promessa vazia e pior que ausencia: a tela diz o que falta e por que.
-        avisar('Vales-troca ainda não tem tela. Enquanto ela não existe, a forma "Vale-troca" fica desabilitada na devolução — oferecer um crédito que ninguém consegue usar seria pior que não oferecer.');
         return;
       }
     });
