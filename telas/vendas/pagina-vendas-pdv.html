@@ -949,6 +949,9 @@
   /* Bloco do cartao: as contas (taxa, valor a passar, o que a loja recebe) ficam em linhas de leitura. */
   .pdv-receb-conta { margin-top:4px; }
   .pdv-receb .switch-row { margin:12px 0 4px; background:var(--card-bg); }
+  .pdv-receb .switch.travado { opacity:.6; cursor:not-allowed; }
+  /* Cartao sem maquininha habilitada na loja (Gateways, entrega 2, 21/out/2026): o motivo fica a vista, com o caminho para os gateways. */
+  .pdv-aviso-maq { margin-top:10px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); background:var(--page-bg); }
   /* Detalhes do caixa: painel largo, com situacao, fatos em grade e tabelas. */
   #caixaDrawer { width:680px; right:-700px; }
   #caixaDrawer.open { right:0; }
@@ -1394,6 +1397,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             </button>
             <div class="dropdown-select-menu" id="menuAddReceb" style="min-width:300px;"></div>
           </div>
+          <div class="pdv-aviso-maq" id="avisoSemMaquininha" style="display:none;"></div>
           <div id="listaReceb"></div>
           <div class="pdv-falta" id="faltaReceber"></div>
         </div>
@@ -1928,6 +1932,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'pdvFechaComDiferenca', nome:'Fechar o caixa do PDV com diferença',            onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvDescontoAcima',     nome:'Liberar desconto acima do máximo no PDV',        onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvRepasseTaxa',       nome:'Liberar o repasse da taxa do cartão ao cliente no PDV', onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2492,6 +2497,82 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return v;
   }
   // ===== FIM DO BLOCO VALE-COMPRA =====
+  // ===== GATEWAYS: LEITURA (bloco comum, 21/out/2026) =====
+  // Identico no PDV e em Configuracoes > Formas de recebimento; teste_gateway_uso.py compara as copias. So LE `deskGateways`: o dono do dado e
+  // Integracoes > Gateways de Pagamento, que grava. O gateway e dono das taxas e dos prazos dos CARTOES (debito e credito): a forma escolhe o
+  // gateway padrao, e o PDV, na venda, deixa o caixa escolher a maquininha (gateway do tipo Outro, habilitado, da loja do PDV) e a bandeira.
+  // A semeadura do exemplo e a mesma da pagina do gateway (mesma marca, `deskGatewaysExemplo`): sem ela o PDV de um navegador que nunca abriu
+  // Gateways ficaria sem maquininha. O gateway padrao de cada cartao mora em `deskParametros.formaGatewayPadrao` ({ debito: id, credito: id }),
+  // gravado em Formas de recebimento; sem escolha gravada vale o de fabrica (o primeiro habilitado do tipo Outro).
+  // ESPELHOS: GWL_LOJAS e de Cadastros > Lojas Desk; o formato do gateway e o descrito no bloco "GATEWAYS: DADOS E REGRAS" da pagina do gateway.
+  const GWL_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const GWL_TIPOS = { infinitypay: 'InfinityPay', outro: 'Outro' };
+  const GWL_BANDEIRAS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', diners: 'Diners Club', elo: 'Elo', hipercard: 'Hipercard', bndes: 'BNDES', outro: 'Outro' };
+  const GWL_TARIFACOES = { especifico: 'Em dia específico', transacao: 'No dia da transação', seguinte: 'Dia seguinte após a transação', pagamento: 'No dia do pagamento (somada à taxa)' };
+  const GWL_REPASSES = { nao: 'Não', sim: 'Sim', opcional: 'Opcional', gerente: 'Opcional com liberação do gerente' };
+  const GWL_TAXAS_FABRICA = [3, 3.6, 4.25, 4.9, 5.5, 6.15, 6.8, 7.45, 8, 8.7, 9.35, 10];
+  function gwlLinhaFabrica(forma, bandeira, parcelas) {
+    if (forma === 'credito') return { forma: forma, bandeira: bandeira, parcelas: parcelas, prazo: parcelas === 12 ? 30 : 31, taxa: GWL_TAXAS_FABRICA[parcelas - 1], tarifa: 0 };
+    return { forma: forma, bandeira: '', parcelas: 0, prazo: forma === 'pix' ? 0 : 2, taxa: 0, tarifa: forma === 'pix' ? 0 : 2 };
+  }
+  const gwlOrdemLinha = (c) => ['debito', 'boleto', 'pix', 'credito'].indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GWL_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  function gwlCondicoesFabrica(bandeiras) {
+    const linhas = ['debito', 'boleto', 'pix'].map(f => gwlLinhaFabrica(f, '', 0));
+    Object.keys(GWL_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { for (let p = 1; p <= 12; p++) linhas.push(gwlLinhaFabrica('credito', b, p)); });
+    return linhas.sort((a, b) => gwlOrdemLinha(a) - gwlOrdemLinha(b));
+  }
+  function gwlLer() {
+    try {
+      const d = JSON.parse(localStorage.getItem('deskGateways'));
+      const lista = d && Array.isArray(d.gateways) ? d.gateways : [];
+      lista.forEach(g => { g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : []; });
+      return lista;
+    } catch (e) { return []; }
+  }
+  // Exemplo de fabrica: o mesmo da pagina do gateway, uma vez por navegador, acrescentando sem apagar. O que ja esta gravado vence.
+  (function gwlSemear() {
+    try {
+      if (localStorage.getItem('deskGatewaysExemplo')) return;
+      const lista = gwlLer();
+      let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
+      const base = { situacao: 'habilitado', cnpj: '', endereco: '', municipio: '', antecipacao: 'sem', proximoDiaUtil: false, repassar: 'nao', repassarAPartir: 1 };
+      const novo = (extra) => { const g = Object.assign({ id: ++n }, base, extra); g.condicoes = gwlCondicoesFabrica(g.bandeiras); return g; };
+      lista.push(novo({ tipo: 'infinitypay', descricao: 'InfinityPay — loja virtual', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao', juros: 1, multa: 2,
+        diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
+        conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo'], bandeiraPadrao: 'visa', proximoDiaUtil: true, repassar: 'opcional', repassarAPartir: 2 }));
+      lista.push(novo({ tipo: 'outro', descricao: 'Stone — maquininha da loja', lojas: [1], tarifacao: 'seguinte', diaDebito: null, categoriaTarifaId: 17,
+        bandeiras: Object.keys(GWL_BANDEIRAS), bandeiraPadrao: 'mastercard', antecipacao: 'antecipado' }));
+      lista.push(novo({ tipo: 'outro', descricao: 'Cielo (antiga)', situacao: 'desabilitado', lojas: [2], tarifacao: 'especifico', diaDebito: 10, categoriaTarifaId: 18,
+        bandeiras: ['visa', 'mastercard'], bandeiraPadrao: 'visa' }));
+      localStorage.setItem('deskGateways', JSON.stringify({ gateways: lista }));
+      localStorage.setItem('deskGatewaysExemplo', '1');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  const gwlPorId = (id) => gwlLer().filter(g => g.id === Number(id))[0] || null;
+  // Os gateways habilitados de uma loja, do tipo pedido (sem tipo, de qualquer um). Sem loja, de qualquer loja.
+  const gwlHabilitados = (lojaId, tipo) => gwlLer().filter(g => g.situacao === 'habilitado' && (!lojaId || g.lojas.indexOf(Number(lojaId)) >= 0) && (!tipo || g.tipo === tipo));
+  // O gateway padrao do cartao (chave 'debito' ou 'credito'): o gravado em Formas de recebimento, se ainda esta habilitado; senao o de fabrica,
+  // o primeiro habilitado do tipo Outro (e, sem nenhum, o primeiro habilitado). Sem gateway habilitado, nulo.
+  function gwlPadraoDaForma(chave) {
+    let id = null;
+    try { id = (JSON.parse(localStorage.getItem('deskParametros') || '{}').formaGatewayPadrao || {})[chave]; } catch (e) { id = null; }
+    const todos = gwlHabilitados(null, null);
+    return todos.filter(g => g.id === Number(id))[0] || todos.filter(g => g.tipo === 'outro')[0] || todos[0] || null;
+  }
+  // A condicao de uma forma no gateway: { prazo (dias corridos), taxa (%), tarifa (R$) }, ou nulo quando o gateway nao tem a linha.
+  // Debito nao tem bandeira nem parcela na tabela (a bandeira escolhida nao muda a taxa); credito e por bandeira e por numero de vezes.
+  function gwlCondicao(g, forma, bandeira, vezes) {
+    if (!g) return null;
+    const c = g.condicoes.filter(x => x.forma === forma && (forma !== 'credito' || (x.bandeira === bandeira && x.parcelas === Number(vezes))))[0];
+    return c ? { prazo: Number(c.prazo), taxa: Number(c.taxa), tarifa: Number(c.tarifa) } : null;
+  }
+  // As parcelas (de 1x a 12x) que o gateway tem para a bandeira.
+  const gwlVezes = (g, bandeira) => (g ? g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira).map(x => x.parcelas).sort((a, b) => a - b) : []);
+  // As regras de repasse: 'nao' | 'sim' | 'opcional' | 'gerente', e a parcela a partir da qual valem.
+  const gwlRepasse = (g) => ({ modo: g.repassar || 'nao', aPartirDa: Number(g.repassarAPartir) || 1 });
+  // A conta financeira do gateway (nasce com ele, em Contas financeiras).
+  const gwlConta = (g) => ({ id: 'gw' + g.id, nome: g.descricao });
+  // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
   // ---------- ESPELHOS (no sistema de producao viram join; a suite compara cada um) ----------
   // Pedido de Venda: lojas, depositos e catalogo com saldo por deposito.
   const LOJAS = [{ id: 1, nome: 'Desk Shope' }, { id: 2, nome: 'Desk Brands' }, { id: 3, nome: 'Desk Tech' }];
@@ -2532,10 +2613,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const FORMAS = [
     { chave: 'dinheiro',      nome: 'Dinheiro',          uso: 'ambos',   destino: 'conta',  contaId: 1,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
     { chave: 'pix',           nome: 'Pix',               uso: 'ambos',   destino: 'conta',  contaId: 2,    tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
-    { chave: 'debito',        nome: 'Cartão de débito',  uso: 'ambos',   destino: 'titulo', contaId: 3,    tarifacao: 'seguinte',  taxaPct: 1.39, taxaFixa: 0,    validaLimite: false, ativo: true,
-      prazoUteis: 1, parcelasMax: 1, taxasParcela: [], repassa: false },
-    { chave: 'credito',       nome: 'Cartão de crédito', uso: 'receber', destino: 'titulo', contaId: 3,    tarifacao: 'pagamento', taxaPct: 3.49, taxaFixa: 0,    validaLimite: false, ativo: true,
-      prazoUteis: 1, parcelasMax: 12, taxasParcela: [4.59, 5.97, 7.33, 8.66, 9.96, 11.24, 12.50, 13.73, 14.93, 16.12, 17.28], repassa: false },
+    // Desde 21/out/2026 (Gateways, entrega 2) os cartoes NAO tem taxa, prazo, parcelas, repasse nem conta na forma: tudo isso e do GATEWAY (`viaGateway`),
+    // que o caixa escolhe na venda (a maquininha) com a bandeira. A forma so guarda qual e o gateway padrao, em `deskParametros.formaGatewayPadrao`.
+    { chave: 'debito',        nome: 'Cartão de débito',  uso: 'ambos',   destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true,
+      prazoUteis: null, parcelasMax: 1, taxasParcela: [], repassa: false, viaGateway: true },
+    { chave: 'credito',       nome: 'Cartão de crédito', uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true,
+      prazoUteis: null, parcelasMax: 1, taxasParcela: [], repassa: false, viaGateway: true },
     { chave: 'boleto',        nome: 'Boleto',            uso: 'ambos',   destino: 'titulo', contaId: 2,    tarifacao: 'pagamento', taxaPct: 0,    taxaFixa: 2.90, validaLimite: true,  ativo: true },
     { chave: 'crediario',     nome: 'Crediário',         uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: true,  ativo: true },
     { chave: 'cheque',        nome: 'Cheque',            uso: 'receber', destino: 'titulo', contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
@@ -2543,9 +2626,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave: 'valetroca',     nome: 'Vale-compra',       uso: 'receber', destino: 'vale',   contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true },
     { chave: 'transferencia', nome: 'Transferência',     uso: 'pagar',   destino: null,     contaId: null, tarifacao: 'sem',       taxaPct: 0,    taxaFixa: 0,    validaLimite: false, ativo: true }
   ];
-  // Prazo fixo da operadora (os cartoes): dias uteis ate cair, parcelas na maquininha, taxa de 2x em
-  // diante e o padrao do repasse. `prazoUteis: null` e a forma com vencimento combinado na venda.
+  // `prazoUteis: null` e a forma com vencimento combinado na venda; o cartao tem o prazo do gateway (`viaGateway`).
   FORMAS.forEach(f => { if (f.prazoUteis === undefined) Object.assign(f, { prazoUteis: null, parcelasMax: 1, taxasParcela: [], repassa: false }); });
+  FORMAS.forEach(f => { if (f.viaGateway === undefined) f.viaGateway = false; });
   // Configuracoes > Contas financeiras (as ativas) e Categorias financeiras: as de receita de vendas,
   // ativas, fora as de deducao ("Descontos concedidos" nao e categoria de uma venda).
   const CONTAS_FINANCEIRAS = [
@@ -2560,7 +2643,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const GAVETA = 1;          // conta financeira em que o dinheiro do PDV entra
   const COFRE = 4;           // destino sugerido da sangria
   const SIT_VENDA = { faturado: 'Faturado', prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue' };
-  const TARIFACOES = { seguinte: 'no dia seguinte', pagamento: 'no dia do pagamento', transacao: 'no dia da transação' };
+  const TARIFACOES = { seguinte: 'no dia seguinte', pagamento: 'no dia do pagamento', transacao: 'no dia da transação', especifico: 'em dia específico do mês' };
 
   // ===== COMPONENTE: dropdown customizado (substitui select nativo — §9) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
@@ -2691,9 +2774,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // shortcut: so feriado nacional de data fixa; Carnaval, Sexta-feira Santa, Corpus Christi e feriado local entram quando houver calendario de feriados.
   const FERIADOS_FIXOS = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '20/11', '25/12'];
   function diaUtil(d) { return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(dataBr(d).slice(0, 5)) === -1; }
-  function maisDiasUteis(d, n) { const x = new Date(d.getTime()); while (n > 0) { x.setDate(x.getDate() + 1); if (diaUtil(x)) n -= 1; } return x; }
   function diasAte(d, alvo) { return Math.round((new Date(alvo.getFullYear(), alvo.getMonth(), alvo.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000); }
-  function prazoTexto(n) { return n === 0 ? 'no mesmo dia' : (n === 1 ? 'próximo dia útil' : n + ' dias úteis'); }
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   const MESES_NOME_PDV = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
   function dataExtenso(d) { return DIAS_NOME[d.getDay()] + ', ' + d.getDate() + ' de ' + MESES_NOME_PDV[d.getMonth()] + ' de ' + d.getFullYear(); }
@@ -2727,7 +2808,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const lojaDe = (id) => LOJAS.filter(l => l.id === id)[0] || null;
   const depositoDe = (id) => DEPOSITOS.filter(d => d.id === id)[0] || null;
   const formaDe = (chave) => FORMAS.filter(f => f.chave === chave)[0] || null;
-  const contaDe = (id) => CONTAS_FINANCEIRAS.filter(c => c.id === id)[0] || null;
+  // A conta do gateway (id 'gw<n>') nasce com ele e nao esta na lista fixa de Contas financeiras.
+  const contaDe = (id) => CONTAS_FINANCEIRAS.filter(c => c.id === id)[0] || (typeof id === 'string' && id.indexOf('gw') === 0 && gwlPorId(id.slice(2)) ? gwlConta(gwlPorId(id.slice(2))) : null);
   const vendedorDe = (id) => VENDEDORES.filter(v => v.id === id)[0] || null;
   const produtoDe = (sku) => CATALOGO.filter(p => p.sku === sku)[0] || null;
 
@@ -3137,31 +3219,84 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O vale-compra tem o quadro proprio ("Usar"), nao o menu: so aparece com cliente que tem saldo na loja.
   function formasDisponiveis() { return FORMAS.filter(f => f.ativo && f.uso !== 'pagar' && f.destino !== 'vale'); }
   function somaRecebimentos() { return arred(venda.recebimentos.reduce((s, r) => s + (r.valor || 0), 0)); }
-  // A taxa do cartao depende do numero de parcelas: 1x e o percentual da forma, de 2x em diante vem da tabela do cadastro.
-  function pctDe(f, vezes) {
-    if (f.tarifacao === 'sem') return 0;
-    return vezes > 1 && f.taxasParcela[vezes - 2] !== undefined ? f.taxasParcela[vezes - 2] : f.taxaPct;
+  // ----- o cartao le o gateway (Gateways, entrega 2, 21/out/2026) -----
+  // Debito e credito nao tem taxa na forma: o caixa escolhe a MAQUININHA (gateway do tipo Outro, habilitado, da loja do turno; a InfinityPay e da loja
+  // virtual) e a BANDEIRA, e a taxa, a tarifa, o prazo e as regras de repasse saem da tabela de condicoes do gateway. O debito tem uma linha so ("Cartao de
+  // debito", sem bandeira): a bandeira escolhida nao muda a taxa dele. O credito e por bandeira e por numero de vezes: so se oferece as vezes que o gateway tem.
+  const ehCartao = (f) => !!(f && f.viaGateway);
+  const maquininhasDoTurno = () => gwlHabilitados(turno.lojaId, 'outro');
+  const vezesDe = (g, chave, bandeira) => (chave === 'debito' ? [1] : gwlVezes(g, bandeira));
+  const gatewayDe = (r) => (r.gatewayId ? gwlPorId(r.gatewayId) : null);
+  // Poe o cartao em ordem sem gravar nada: maquininha da loja (a padrao da forma, se for dela, senao a primeira), bandeira da maquininha (a padrao dela)
+  // e vezes que o gateway tem para a bandeira. Venda gravada antes desta entrega entra por aqui e ganha maquininha e bandeira.
+  function acertarCartao(r) {
+    const maqs = maquininhasDoTurno();
+    let g = maqs.filter(x => x.id === r.gatewayId)[0];
+    if (!g) {
+      const padrao = gwlPadraoDaForma(r.chave);
+      g = maqs.filter(x => !!padrao && x.id === padrao.id)[0] || maqs[0] || null;
+      r.bandeira = null;
+    }
+    r.gatewayId = g ? g.id : null;
+    if (!g) { r.bandeira = null; return; }
+    if (g.bandeiras.indexOf(r.bandeira) < 0) r.bandeira = g.bandeiras.indexOf(g.bandeiraPadrao) >= 0 ? g.bandeiraPadrao : (g.bandeiras[0] || null);
+    const v = vezesDe(g, r.chave, r.bandeira);
+    if (v.length && v.indexOf(r.vezes) < 0) r.vezes = v.filter(n => n <= (r.vezes || 1)).pop() || v[0];
   }
+  // A condicao do cartao no gateway da venda: { prazo, taxa, tarifa } ou nulo (o gateway nao tem a linha).
+  function condicaoDe(r, vezes) {
+    const g = gatewayDe(r);
+    return r.chave === 'debito' ? gwlCondicao(g, 'debito', '', 1) : gwlCondicao(g, 'credito', r.bandeira, vezes || r.vezes || 1);
+  }
+  // O repasse pelas regras do gateway. modo: nao (sem repasse e sem switch) | abaixo (antes da parcela "a partir da": sem repasse) | sim (sempre, travado)
+  // | opcional (switch livre, desligado de fabrica) | gerente (ligar pede a senha do gerente).
+  function repasseDe(r, vezes) {
+    const g = gatewayDe(r), n = vezes || r.vezes || 1;
+    if (!g) return { modo: 'nao', ativo: false, aPartirDa: 1 };
+    const reg = gwlRepasse(g), modo = reg.modo === 'nao' ? 'nao' : (n < reg.aPartirDa ? 'abaixo' : reg.modo);
+    return { modo: modo, ativo: modo === 'sim' ? true : (modo === 'opcional' || modo === 'gerente' ? !!r.repassa : false), aPartirDa: reg.aPartirDa };
+  }
+  // Percentual e valor fixo (a tarifa) da forma para o numero de vezes. Cartao: da condicao do gateway. As outras formas: do cadastro, como sempre
+  // (1x e o percentual da forma, de 2x em diante vem da tabela de parcelas).
+  function taxaPorForma(r, vezes) {
+    const f = formaDe(r.chave);
+    if (ehCartao(f)) { const c = condicaoDe(r, vezes); return c ? { pct: c.taxa, fixa: c.tarifa } : { pct: 0, fixa: 0 }; }
+    if (f.tarifacao === 'sem') return { pct: 0, fixa: 0 };
+    return { pct: vezes > 1 && f.taxasParcela[vezes - 2] !== undefined ? f.taxasParcela[vezes - 2] : f.taxaPct, fixa: f.taxaFixa };
+  }
+  function repassaEm(r, vezes) { return ehCartao(formaDe(r.chave)) ? repasseDe(r, vezes).ativo : !!r.repassa; }
   // Quanto passa no cartao do cliente. Sem repasse e o valor da venda; com repasse, o bastante para
   // que, tirada a taxa, sobre o valor da venda (dividir por 1 - taxa, e nao somar a taxa por cima).
   function cobradoDe(r, vezes) {
     const f = formaDe(r.chave), v = r.valor || 0;
-    if (!f || !r.repassa || f.tarifacao === 'sem' || !v) return v;
-    return arred((v + f.taxaFixa) / (1 - pctDe(f, vezes || r.vezes || 1) / 100));
+    if (!f || !v || !repassaEm(r, vezes)) return v;
+    const t = taxaPorForma(r, vezes || r.vezes || 1);
+    return arred((v + t.fixa) / (1 - t.pct / 100));
   }
   function taxaDe(r) {
     const f = formaDe(r.chave);
-    if (!f || f.tarifacao === 'sem' || !r.valor) return 0;
-    return arred(cobradoDe(r) * pctDe(f, r.vezes || 1) / 100 + f.taxaFixa);
+    if (!f || !r.valor) return 0;
+    const t = taxaPorForma(r, r.vezes || 1);
+    if (!(t.pct > 0) && !(t.fixa > 0)) return 0;
+    return arred(cobradoDe(r) * t.pct / 100 + t.fixa);
   }
   function acrescimos() { return arred(venda.recebimentos.reduce((s, r) => s + cobradoDe(r) - (r.valor || 0), 0)); }
-  // Forma com prazo fixo da operadora: um titulo so, no valor que passa no cartao, vencendo no dia util do cadastro.
+  // O vencimento do cartao: hoje mais o prazo do gateway, em dias corridos; com "considerar proximo dia util" ligado no gateway, cai no proximo dia util.
+  function vencimentoDoCartao(r, hoje) {
+    const g = gatewayDe(r), c = condicaoDe(r);
+    let d = maisDias(hoje, c ? c.prazo : 0);
+    if (g && g.proximoDiaUtil) while (!diaUtil(d)) d = maisDias(d, 1);
+    return d;
+  }
+  const rotuloPrazoGw = (n) => (n === 0 ? 'no mesmo dia' : n + (n === 1 ? ' dia' : ' dias'));
+  // Cartao: um titulo so, no valor que passa no cartao, vencendo pelo prazo do gateway. Sem maquininha ou sem condicao, sem titulo (a venda nao fecha).
   function acertarTitulo(r) {
     const f = formaDe(r.chave);
-    if (!f || f.prazoUteis === null) return;
+    if (!ehCartao(f)) return;
+    acertarCartao(r);
+    if (!r.gatewayId || !condicaoDe(r)) { r.parcelas = []; return; }
     const hoje = new Date();
-    r.vezes = Math.min(r.vezes || 1, f.parcelasMax);
-    r.parcelas = [{ dias: diasAte(hoje, maisDiasUteis(hoje, f.prazoUteis)), valor: cobradoDe(r) }];
+    r.parcelas = [{ dias: diasAte(hoje, vencimentoDoCartao(r, hoje)), valor: cobradoDe(r) }];
   }
   // O que falta receber entra sozinho na primeira forma em que ninguem digitou valor; as outras
   // sem valor digitado ficam vazias. Forma com valor digitado nunca e mexida daqui.
@@ -3173,7 +3308,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (novo === r.valor) return;
       r.valor = novo;
       const f = formaDe(r.chave);
-      if (f.destino === 'titulo' && f.prazoUteis === null) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
     });
     venda.recebimentos.forEach(acertarTitulo);
   }
@@ -3246,8 +3381,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const f = formaDe(chave);
     if (!f || venda.recebimentos.some(r => r.chave === chave)) return;
     // Nasce sem valor: quem preenche o que falta e acertarRecebimentos, na pintura.
-    const r = { chave, valor: 0, digitado: false, recebido: null, parcelas: [], expr: '1x', vezes: 1,
-                repassa: f.prazoUteis !== null && f.tarifacao !== 'sem' && f.repassa };
+    if (ehCartao(f) && maquininhasDoTurno().length === 0) { avisar(f.nome + ': não há maquininha habilitada nesta loja. Habilite ou inclua uma em Integrações → Gateways de Pagamento.'); return; }
+    // Cartao: a maquininha e a bandeira nascem pelo acertarCartao (as padrao); o repasse segue a regra do gateway e o switch, quando livre, nasce desligado.
+    const r = { chave, valor: 0, digitado: false, recebido: null, parcelas: [], expr: '1x', vezes: 1, repassa: false, gatewayId: null, bandeira: null };
     venda.recebimentos.push(r);
     pintarFinalizar(); gravar();
   }
@@ -3275,10 +3411,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < r.valor - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(r.valor) + ').');
       if (f.destino === 'titulo') {
         // Titulo precisa de devedor. No prazo fixo da operadora (cartao) o devedor e ela, e a venda passa sem cliente.
-        if (!cli && f.prazoUteis === null) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
+        if (!cli && !ehCartao(f)) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
+        // Cartao: precisa de maquininha habilitada na loja e de condicao no gateway para a bandeira e as vezes.
+        if (ehCartao(f)) {
+          const gc = gatewayDe(r), nomeBand = r.bandeira ? GWL_BANDEIRAS[r.bandeira] : '';
+          if (!gc || !maquininhasDoTurno().some(x => x.id === gc.id)) p.push(f.nome + ': não há maquininha habilitada nesta loja. Habilite ou inclua uma em Gateways, ou remova este recebimento.');
+          else if (!condicaoDe(r)) p.push(f.nome + ': a maquininha ' + gc.descricao + ' não tem condição para ' + (r.chave === 'debito' ? 'débito' : (nomeBand || 'esta bandeira') + ' em ' + r.vezes + 'x') + '. Acrescente em Gateways ou escolha outra.');
+        }
         const somaParc = arred(r.parcelas.reduce((s, x) => s + (x.valor || 0), 0));
         if (!r.valor) { /* sem valor ja foi dito acima; parcela de zero nao e um segundo problema */ }
-        else if (r.parcelas.length === 0) p.push(f.nome + ': gere as parcelas.');
+        else if (r.parcelas.length === 0) { if (!ehCartao(f)) p.push(f.nome + ': gere as parcelas.'); }
         else if (r.parcelas.some(x => !(x.valor > 0) || !(x.dias >= 0))) p.push(f.nome + ': toda parcela precisa de dias e de valor.');
         else if (Math.abs(somaParc - cobradoDe(r)) > 0.005) p.push(f.nome + ': as parcelas somam ' + moeda(somaParc) + ' e o valor é ' + moeda(cobradoDe(r)) + '.');
       }
@@ -3327,14 +3469,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     pintarQuadroVale();
     // menu de formas: so as habilitadas que valem para receber, e que ainda nao estao na venda
     const livres = formasDisponiveis().filter(f => !venda.recebimentos.some(r => r.chave === f.chave));
-    html('menuAddReceb', livres.length
-      ? livres.map(f => '<div class="dropdown-select-item" data-value="' + f.chave + '">' + esc(f.nome) + '</div>').join('')
-      : '<div class="pdv-sug-vazio">Todas as formas habilitadas já estão na venda.</div>');
+    // Cartao sem maquininha habilitada nesta loja nao pode ser usado: sai do menu, e o motivo (com o caminho para Gateways) fica a vista.
+    const semMaq = maquininhasDoTurno().length === 0, bloqueados = livres.filter(f => ehCartao(f) && semMaq), oferecidas = livres.filter(f => !(ehCartao(f) && semMaq));
+    html('menuAddReceb', oferecidas.length
+      ? oferecidas.map(f => '<div class="dropdown-select-item" data-value="' + f.chave + '">' + esc(f.nome) + '</div>').join('')
+      : (bloqueados.length ? '' : '<div class="pdv-sug-vazio">Todas as formas habilitadas já estão na venda.</div>'));
     setDrop('selAddReceb', '', 'Adicionar recebimento');
+    mostrar('avisoSemMaquininha', bloqueados.length > 0);
+    html('avisoSemMaquininha', bloqueados.length ? esc(bloqueados.map(f => f.nome).join(' e ')) + ' não pode ser usado nesta venda: não há maquininha (gateway do tipo Outro) habilitada na ' + esc(lojaDe(turno.lojaId).nome) +
+      '. <a class="pdv-link" id="linkSemMaquininha" href="../integracoes/pagina-integracoes-gateways.html">Ver os gateways</a>' : '');
 
     html('listaReceb', venda.recebimentos.map((r, i) => {
       const f = formaDe(r.chave);
-      const conta = contaDe(f.contaId);
+      const conta = ehCartao(f) ? (gatewayDe(r) ? gwlConta(gatewayDe(r)) : null) : contaDe(f.contaId);
       const taxa = taxaDe(r);
       const destino = f.destino === 'vale'
         ? 'consome o vale-compra do cliente; título já recebido em Contas a Receber, sem entrar no Caixa'
@@ -3344,27 +3491,53 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       let corpo = '<div class="form-row"><div class="form-field"><label>Valor (R$)</label><input type="text" inputmode="decimal" data-receb-valor="' + i + '" value="' + (r.valor ? fmtNum(r.valor) : '') + '"></div>';
       if (r.chave === 'dinheiro') corpo += '<div class="form-field"><label>Recebido em dinheiro (R$)</label><input type="text" inputmode="decimal" data-receb-recebido="' + i + '" placeholder="igual ao valor" value="' + (r.recebido !== null && r.recebido !== undefined ? fmtNum(r.recebido) : '') + '"></div>';
       // Prazo fixo da operadora (cartao): o operador escolhe so as parcelas; data e valor do titulo saem do cadastro.
-      const fixo = f.prazoUteis !== null;
-      if (fixo && f.parcelasMax > 1) {
+      // Cartao: o caixa escolhe a maquininha e a bandeira, e a parcela vale so as vezes que o gateway tem para a bandeira.
+      const fixo = ehCartao(f), gw = fixo ? gatewayDe(r) : null, maqs = fixo ? maquininhasDoTurno() : [];
+      const pronto = fixo && !!gw && maqs.some(x => x.id === gw.id), vezesOk = pronto ? vezesDe(gw, r.chave, r.bandeira) : [];
+      if (fixo && vezesOk.length > 1) {
         const rotuloVezes = (n) => n + 'x' + (r.valor ? ' de ' + moeda(arred(cobradoDe(r, n) / n)) : '');
         let itens = '';
-        for (let n = 1; n <= f.parcelasMax; n++) itens += '<div class="dropdown-select-item' + (n === r.vezes ? ' active' : '') + '" data-value="' + n + '">' + rotuloVezes(n) + '</div>';
+        vezesOk.forEach(n => { itens += '<div class="dropdown-select-item' + (n === r.vezes ? ' active' : '') + '" data-value="' + n + '">' + rotuloVezes(n) + '</div>'; });
         corpo += '<div class="form-field"><label>Parcelas</label><div class="dropdown-select" data-receb-vezes="' + i + '" data-value="' + r.vezes + '">' +
           '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + rotuloVezes(r.vezes) + '</span>' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
           '<div class="dropdown-select-menu">' + itens + '</div></div></div>';
       } else if (f.destino === 'titulo' && !fixo) corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
       corpo += '</div>';
+      if (pronto) {
+        const menu = (itens) => itens.map(x => '<div class="dropdown-select-item' + (x.v === x.atual ? ' active' : '') + '" data-value="' + x.v + '">' + esc(x.t) + '</div>').join('');
+        const caixa = (rotulo, attr, valor, texto, itens) => '<div class="form-field"><label>' + rotulo + '</label><div class="dropdown-select" ' + attr + '="' + i + '" data-value="' + valor + '">' +
+          '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + esc(texto) + '</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+          '<div class="dropdown-select-menu">' + menu(itens) + '</div></div></div>';
+        let linha2 = '';
+        // Com uma maquininha so, o campo nao aparece (o nome dela vem no resumo abaixo).
+        if (maqs.length > 1) linha2 += caixa('Maquininha', 'data-receb-maq', gw.id, gw.descricao, maqs.map(x => ({ v: x.id, t: x.descricao, atual: gw.id })));
+        if (gw.bandeiras.length) linha2 += caixa('Bandeira', 'data-receb-band', r.bandeira, GWL_BANDEIRAS[r.bandeira] || '', gw.bandeiras.map(b => ({ v: b, t: GWL_BANDEIRAS[b], atual: r.bandeira })));
+        if (linha2) corpo += '<div class="form-row">' + linha2 + '</div>';
+        if (r.chave === 'debito' && gw.bandeiras.length) corpo += '<div class="field-hint">A bandeira não muda a taxa do débito: o gateway tem uma linha só, “Cartão de débito”.</div>';
+      }
       if (r.chave === 'dinheiro' && trocoDe(r) > 0) corpo += '<div class="pdv-receb-info">Troco: <b>' + moeda(trocoDe(r)) + '</b></div>';
       if (fixo) {
-        const cobrado = cobradoDe(r), pct = pctDe(f, r.vezes);
-        if (f.tarifacao !== 'sem') corpo += '<div class="switch-row"><div class="switch-row-texto"><div class="switch-row-titulo">Repassar a taxa ao cliente</div>' +
-          '<div class="field-hint">' + (r.repassa ? 'O cliente paga a taxa: o valor a passar no cartão já sai com ela por cima.' : 'A loja paga a taxa: o cliente passa o valor da venda.') + '</div></div>' +
-          '<div class="switch' + (r.repassa ? ' on' : '') + '" data-receb-repassa="' + i + '"></div></div>';
-        if (r.valor) corpo += '<div class="pdv-receb-conta">' +
-          (taxa > 0 ? linhaChave('Taxa da operadora (' + (pct ? fmtNum(pct) + '%' : '') + (pct && f.taxaFixa ? ' + ' : '') + (f.taxaFixa ? moeda(f.taxaFixa) : '') + ')', moeda(taxa)) : '') +
-          linhaChave('Passar no cartão do cliente', moeda(cobrado) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '')) +
-          linhaChave('A loja recebe em ' + dataBr(maisDiasUteis(new Date(), f.prazoUteis)) + ' (' + prazoTexto(f.prazoUteis) + ')', moeda(arred(cobrado - taxa))) + '</div>';
+        if (!pronto) corpo += '<div class="pdv-receb-erro">Sem maquininha habilitada na ' + esc(lojaDe(turno.lojaId).nome) + '. <a class="pdv-link" href="../integracoes/pagina-integracoes-gateways.html">Ver os gateways</a></div>';
+        else if (!condicaoDe(r)) corpo += '<div class="pdv-receb-erro">A maquininha ' + esc(gw.descricao) + ' não tem condição para ' + (r.chave === 'debito' ? 'débito' : esc(GWL_BANDEIRAS[r.bandeira] || 'esta bandeira') + ' em ' + r.vezes + 'x') + '. Acrescente em Gateways ou escolha outra.</div>';
+        else {
+          const cobrado = cobradoDe(r), t = taxaPorForma(r, r.vezes), rep = repasseDe(r), venc = vencimentoDoCartao(r, new Date()), cd = condicaoDe(r);
+          // O repasse segue a regra do gateway: nao (o switch some), sim (sempre, travado), opcional (livre) e opcional com liberacao do gerente (ligar pede senha).
+          if (rep.modo === 'abaixo') corpo += '<div class="pdv-receb-info">O gateway só repassa a taxa a partir da ' + rep.aPartirDa + 'ª parcela: em ' + r.vezes + 'x a loja paga a taxa.</div>';
+          else if (rep.modo !== 'nao') {
+            const travado = rep.modo === 'sim';
+            const dica = travado ? 'O gateway repassa a taxa sempre: o cliente paga a taxa e o valor a passar no cartão já sai com ela por cima.'
+              : (rep.ativo ? 'O cliente paga a taxa: o valor a passar no cartão já sai com ela por cima.' : 'A loja paga a taxa: o cliente passa o valor da venda.') + (rep.modo === 'gerente' ? ' Ligar o repasse pede a liberação do gerente.' : '');
+            corpo += '<div class="switch-row"><div class="switch-row-texto"><div class="switch-row-titulo">Repassar a taxa ao cliente</div><div class="field-hint">' + dica + '</div></div>' +
+              '<div class="switch' + (rep.ativo ? ' on' : '') + (travado ? ' travado' : '') + '" role="switch" aria-checked="' + (rep.ativo ? 'true' : 'false') + '"' +
+              (travado ? ' aria-disabled="true"' : ' tabindex="0" data-receb-repassa="' + i + '"') + '></div></div>';
+          }
+          if (r.valor) corpo += '<div class="pdv-receb-conta">' +
+            linhaChave('Maquininha', esc(gw.descricao)) +
+            (taxa > 0 ? linhaChave('Taxa da maquininha (' + (t.pct ? fmtNum(t.pct) + '%' : '') + (t.pct && t.fixa ? ' + ' : '') + (t.fixa ? moeda(t.fixa) : '') + ')', moeda(taxa)) : '') +
+            linhaChave('Passar no cartão do cliente', moeda(cobrado) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '')) +
+            linhaChave('A loja recebe em ' + dataBr(venc) + ' (' + rotuloPrazoGw(cd.prazo) + (gw.proximoDiaUtil ? ', no dia útil' : '') + ')', moeda(arred(cobrado - taxa))) + '</div>';
+        }
       } else if (f.destino === 'titulo') {
         corpo += '<table class="pdv-parcelas"><thead><tr><th style="width:40px;">Nº</th><th style="width:90px;">Dias</th><th>Vencimento</th><th style="width:130px;">Valor (R$)</th></tr></thead><tbody>' +
           r.parcelas.map((x, n) => '<tr><td>' + (n + 1) + '</td>' +
@@ -3410,18 +3583,38 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // Campo apagado volta a ser "sem valor digitado": na pintura ele recebe de novo o que faltar.
       r.digitado = r.valor > 0;
       const f = formaDe(r.chave);
-      if (f.destino === 'titulo' && f.prazoUteis === null) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      pintarFinalizar(); gravar();
+    }));
+    // Trocar a maquininha ou a bandeira recalcula tudo, como mudar as parcelas: a taxa, a tarifa, o prazo e o repasse saem da condicao nova.
+    cx.querySelectorAll('[data-receb-maq]').forEach(raiz => inicializarDropdownSelect(raiz, (v) => {
+      venda.recebimentos[Number(raiz.getAttribute('data-receb-maq'))].gatewayId = Number(v);
+      pintarFinalizar(); gravar();
+    }));
+    cx.querySelectorAll('[data-receb-band]').forEach(raiz => inicializarDropdownSelect(raiz, (v) => {
+      venda.recebimentos[Number(raiz.getAttribute('data-receb-band'))].bandeira = v;
       pintarFinalizar(); gravar();
     }));
     cx.querySelectorAll('[data-receb-vezes]').forEach(raiz => inicializarDropdownSelect(raiz, (v) => {
       venda.recebimentos[Number(raiz.getAttribute('data-receb-vezes'))].vezes = Number(v);
       pintarFinalizar(); gravar();
     }));
-    cx.querySelectorAll('[data-receb-repassa]').forEach(sw => sw.addEventListener('click', () => {
-      const r = venda.recebimentos[Number(sw.getAttribute('data-receb-repassa'))];
-      r.repassa = !r.repassa;
-      pintarFinalizar(); gravar();
-    }));
+    cx.querySelectorAll('[data-receb-repassa]').forEach(sw => {
+      const alternar = () => {
+        const r = venda.recebimentos[Number(sw.getAttribute('data-receb-repassa'))];
+        // Opcional com liberacao do gerente: ligar o repasse pede a senha dele; desligar nao.
+        if (!r.repassa && repasseDe(r).modo === 'gerente') {
+          confirmarAcao('pdvRepasseTaxa', 'Liberar o repasse da taxa de ' + moeda(taxaDe(r)) + ' ao cliente em ' + formaDe(r.chave).nome + '? O gateway ' + (gatewayDe(r) ? gatewayDe(r).descricao : '') + ' só repassa com a liberação do gerente.', () => {
+            r.repassa = true; pintarFinalizar(); gravar();
+          });
+          return;
+        }
+        r.repassa = !r.repassa;
+        pintarFinalizar(); gravar();
+      };
+      sw.addEventListener('click', alternar);
+      sw.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternar(); } });
+    });
     cx.querySelectorAll('[data-receb-recebido]').forEach(inp => inp.addEventListener('change', () => {
       const r = venda.recebimentos[Number(inp.getAttribute('data-receb-recebido'))];
       const n = numero(inp.value);
@@ -3473,9 +3666,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       recebimentos: venda.recebimentos.map(r => {
         const f = formaDe(r.chave);
         // `valor` e a parte da venda paga nesta forma; `cobrado`, o que passou no cartao (igual, sem repasse).
-        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: f.contaId, valor: r.valor, cobrado: cobradoDe(r), vezes: r.vezes || 1, prazoFixo: f.prazoUteis !== null,
+        // Cartao: a conta e a do gateway, e o titulo leva a maquininha, a bandeira e o vencimento (o que vira o historico em Contas a Receber).
+        const cartao = ehCartao(f), gc = cartao ? gatewayDe(r) : null, nomeBand = cartao && r.bandeira ? GWL_BANDEIRAS[r.bandeira] : null;
+        const venc = cartao ? vencimentoDoCartao(r, agora) : null;
+        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: cartao ? (gc ? gwlConta(gc).id : null) : f.contaId, valor: r.valor, cobrado: cobradoDe(r), vezes: r.vezes || 1, prazoFixo: cartao,
                  recebido: r.chave === 'dinheiro' ? (r.recebido === null ? r.valor : r.recebido) : null,
-                 troco: trocoDe(r), taxa: taxaDe(r), tarifacao: f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })) };
+                 troco: trocoDe(r), taxa: taxaDe(r), tarifacao: cartao ? (gc ? gc.tarifacao || '' : '') : f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })),
+                 gatewayId: gc ? gc.id : null, gatewayNome: gc ? gc.descricao : null, bandeira: cartao ? r.bandeira : null, bandeiraNome: nomeBand, repasse: cartao ? repasseDe(r).ativo : false,
+                 vencimento: venc ? venc.getFullYear() + '-' + doisDigitos(venc.getMonth() + 1) + '-' + doisDigitos(venc.getDate()) : null,
+                 historico: cartao ? f.nome + (nomeBand ? ' · ' + nomeBand : '') + (r.vezes > 1 ? ' · ' + r.vezes + 'x' : '') + (gc ? ' · ' + gc.descricao : '') : null };
       })
     };
     registro.itens.forEach(it => { baixas[it.sku] = baixas[it.sku] || {}; baixas[it.sku][registro.depositoId] = arred((baixas[it.sku][registro.depositoId] || 0) + it.qtd); });
@@ -3532,10 +3731,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), ' +
           // No prazo fixo quem deve e a operadora: o titulo e a receber dela, com ou sem cliente na venda.
           (r.prazoFixo && conta ? 'a receber de ' + esc(conta.nome) : 'em nome de ' + esc(v.clienteNome)) + '. ' +
+          (r.gatewayNome ? 'Maquininha ' + esc(r.gatewayNome) + (r.bandeiraNome ? ', bandeira ' + esc(r.bandeiraNome) : '') + '. ' : '') +
           (r.parcelas.length === 1 ? 'Vencimento' : 'Primeiro vencimento') + ' em ' + primeiro + '.' +
           (cob > r.valor ? ' Inclui ' + moeda(arred(cob - r.valor)) + ' de taxa repassada ao cliente.' : ''));
       }
-      if (r.taxa > 0) g.push('<b>Taxa de ' + moeda(r.taxa) + '</b> em ' + esc(r.nome) + ', descontada ' + TARIFACOES[r.tarifacao] + '. Entra líquido: ' + moeda(arred(cob - r.taxa)) + '.');
+      if (r.taxa > 0) g.push('<b>Taxa de ' + moeda(r.taxa) + '</b> em ' + esc(r.nome) + ', descontada ' + (TARIFACOES[r.tarifacao] || 'conforme o gateway') + '. Entra líquido: ' + moeda(arred(cob - r.taxa)) + '.');
     });
     return g;
   }

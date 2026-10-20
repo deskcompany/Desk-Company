@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 20/out/2026: o Vale-compra concluído; Gateways de Pagamento, entrega 1, feita.*
+*Atualizado em 21/out/2026: Gateways de Pagamento, entrega 2, feita (esperando o teste do usuário).*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -13,9 +13,31 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
-**Gateways de Pagamento, entrega 1: testada e aprovada pelo usuário em 20/out** (§14.92; o que foi feito está no HISTORICO.md).
-**O próximo é a entrega 2: ligar Formas de Recebimento e o PDV às condições do gateway.** Barganha aprovada em 20/out (as três
-recomendações):
+**Gateways de Pagamento, entrega 2: feita em 21/out/2026, esperando o teste do usuário (§14.93).** A entrega 1 (a lista, a página do gateway, o
+menu e a conta financeira) foi testada e aprovada em 20/out (§14.92; está no HISTORICO.md).
+- **Formas de Recebimento:** o débito e o crédito escolhem o **gateway padrão** e mostram as condições dele só para ler (prazo, parcelas, taxa, tarifa,
+  repasse, conta), com o link "editar no gateway". Os 3,49% de fábrica saíram: vale a Stone do exemplo (3,00% em 1x, 31 dias; débito com tarifa de R$ 2,00).
+- **PDV:** o caixa escolhe a **maquininha** (gateway Outro, habilitado, da loja) e a **bandeira**; taxa, tarifa, prazo e título saem da condição do gateway; o
+  repasse segue as quatro regras dele (a de liberação do gerente pede senha); loja sem maquininha não vende no cartão. O título leva a conta, a maquininha e a bandeira.
+- Pedido de Venda e a vitrine não mudaram (o Pedido só lê o total da venda do PDV).
+
+O que conferir (o PDV e Formas semeiam os três gateways de exemplo sozinhos: não precisa abrir Gateways antes):
+1. Formas de Recebimento: http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html . Abra o Cartão de crédito: o campo "Gateway padrão" já vem na
+   Stone, e o resumo mostra o prazo, as parcelas, a taxa de 1x e das demais, a tarifa e o repasse, só para ler, com o link "editar no gateway". Abra o débito (2 dias, tarifa
+   de R$ 2,00), o Pix e o Boleto (seguem como eram). Troque o crédito para a InfinityPay e salve: pede senha, e o resumo mudou na hora.
+2. O PDV no crédito: http://localhost:3000/vendas/pagina-vendas-pdv.html . Abra o caixa na Desk Shope, venda o Fone de Ouvido, Continuar, Adicionar recebimento → Cartão de
+   crédito: a maquininha é a Stone (sem campo, porque é a única da loja), a bandeira Mastercard já vem marcada, e escolher 3x mostra a taxa de 4,25% e a loja recebendo em 31 dias.
+   Troque a bandeira para Visa e finalize: a tela diz o título, a conta (Stone — maquininha da loja), a maquininha, a bandeira e o vencimento.
+3. A bandeira muda a taxa: em http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=2 abra a faixa American Express, mude a taxa do 3x para 6,00 e salve; volte ao PDV e
+   troque a bandeira para American Express: a taxa do crédito muda, e a do débito não (ela é uma linha só, "Cartão de débito").
+4. O repasse: na mesma página do gateway (Stone), ponha "Repassar taxas para o cliente" em Opcional e salve; no PDV aparece o switch "Repassar a taxa ao cliente" (desligado).
+   Com "Opcional com liberação do gerente", ligar pede a senha; com "Sim", o switch fica ligado e travado; com "Repassar a partir da 3ª parcela", em 1x e 2x não há repasse.
+5. Loja sem maquininha: abra o caixa na Desk Brands (produto Camiseta básica): o cartão não aparece no menu de recebimentos, e um aviso diz o motivo, com o link para
+   http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Habilite a Cielo (antiga) para a Desk Brands lá e volte: o cartão aparece.
+6. Duas maquininhas: inclua em http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?novo=1 um gateway "Outro" para a Desk Shope; no PDV o campo "Maquininha" aparece (a
+   InfinityPay nunca entra), e em Formas você escolhe qual é a padrão do crédito.
+
+A barganha da entrega 2, aprovada em 20/out (as três recomendações):
 - **Só os cartões** (débito e crédito) passam a ler o gateway: em Formas de Recebimento escolhem o gateway padrão e mostram as
   condições dele só para leitura. Pix e Boleto seguem como hoje; as linhas deles no gateway ficam para a vitrine.
 - **No PDV o caixa escolhe a maquininha** entre os gateways habilitados da loja do PDV (só os do tipo Outro; a InfinityPay é da
@@ -71,7 +93,7 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos", no HISTORICO.md).
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
+2. **Gateways de Pagamento:** as entregas 1 e 2 estão feitas (a 2, esperando o teste); falta o protótipo da vitrine.
 3. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
