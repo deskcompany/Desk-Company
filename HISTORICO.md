@@ -10,6 +10,34 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Vale-compra, entrega 3: o vale nasce da Devolução e da Comissão (20/out/2026) — testada e aprovada pelo usuário no mesmo dia. Com ela o Vale-compra fica concluído
+
+**O vale nasce da Devolução e do pagamento de Comissão de afiliado** (§14.91). Na Devolução, "Vale-compra" deixou de
+ser reservado: escolher a forma só anota, e o vale nasce ao finalizar, com o total da devolução, na loja do pedido.
+Cancelar a devolução cancela o vale ainda intacto; vale já usado impede o cancelamento. Na Comissão, só o afiliado pode
+receber em vale, sem bônus, e o pagamento nasce pago e aparece em Contas a Pagar já pago, só leitura, sem saída do Caixa.
+O vendedor não vê a opção. O exemplo DV-0009 passou a ser do Bruno Carvalho, cliente do cadastro, para o fluxo poder
+ser testado.
+
+**O conserto do teste dele:** salvar a forma na DV-0009 se perdia ao sair, porque a devolução vivia só na memória da
+página, e "Finalizar" ficava escondido em "Mais ações". A devolução passou a ser gravada no navegador (a lista lê o mesmo
+gravado), e com Vale-compra salvo a tela diz que o vale nasce em Mais ações → Finalizar. Na revisão, finalizar com
+alteração não salva passou a pedir que se salve antes.
+
+Para ver:
+- `http://localhost:3000/logistica/pagina-logistica-devolucao-detalhe.html?id=4` (Vale-compra, Salvar alterações, Mais ações → Finalizar)
+- `http://localhost:3000/financas/pagina-financas-vale-compra.html`
+- `http://localhost:3000/financas/pagina-financas-comissoes-detalhe.html?id=a1` (Realizar pagamento em Vale-compra)
+- `http://localhost:3000/financas/pagina-financas-comissoes-detalhe.html?id=v1` (vendedor, sem a opção)
+
+Ele testou os cinco pontos e deu ok, depois do conserto da gravação. As escolhas de quem construiu, mostradas a ele
+na entrega e sem objeção: cancelar a comissão paga em vale segue a regra da devolução (vale intacto cancela junto, vale
+usado impede); cancelar um vale direto no Vale-compra não desfaz a devolução nem o pagamento; e a troca de cliente
+da DV-0009.
+
+**Ficou de fora:** ao salvar uma devolução nova, o endereço continua `?venda=`, e recarregar abre um formulário em
+branco (já era assim; ela abre pela lista).
+
 ### Vale-compra, entrega 2: o vale se usa (19 e 20/out/2026) — testada e aprovada pelo usuário em 20/out
 
 **O vale se usa** (§14.90). No PDV, tudo ou uma parte, só o saldo da loja do PDV; no Pedido de Venda, desconta ao salvar,
