@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 19/out/2026: a entrega 1 do Vale-compra, aprovada pelo usuário.*
+*Atualizado em 19/out/2026: a entrega 2 do Vale-compra (o vale se usa), feita e esperando o teste do usuário.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,11 +10,31 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Vale-compra, entrega 1: testada e aprovada pelo usuário em 19/out** (§14.89; o que foi feito está no HISTORICO.md),
-junto com a barra de paginação em Comissões, Reposição, Transferência e Metas. **O próximo é a entrega 2: o vale se usa.**
+**Vale-compra, entrega 2: o vale se usa. Feita em 19/out, esperando o teste do usuário** (§14.90). O vale se usa no PDV (tudo ou uma
+parte, só o saldo da loja do PDV) e no Pedido de Venda (desconta ao salvar; cancelar, excluir ou mudar a situação para Cancelado devolve, também em massa na
+lista), e a forma de recebimento
+passou a se chamar **Vale-compra** (a chave interna segue `valetroca`). A parte paga com vale vira **título já recebido** em Contas
+a Receber, **sem entrar no Caixa**. A Devolução segue com o vale reservado e o nome antigo: é a entrega 3.
 
-**Entregas que faltam do Vale-compra:** (2) o vale se usa, no PDV e no Pedido de Venda, em parte se o cliente quiser, e
-Formas de Recebimento; (3) o vale nasce da Devolução e do pagamento de Comissão.
+**O que conferir** (servidor: `node _ferramentas/servidor.js`):
+
+1. **PDV** — [http://localhost:3000/vendas/pagina-vendas-pdv.html](http://localhost:3000/vendas/pagina-vendas-pdv.html): abra o caixa na
+   Desk Shope, venda o Fone de Ouvido Bluetooth (R$ 249,90) para a Marina Duarte e clique em Continuar. O quadro "Vale-compra
+   disponível R$ 120,00" aparece no cartão de Recebimentos; use R$ 50,00, adicione o Pix (leva os R$ 199,90 que faltam) e finalize: a
+   venda diz "R$ 50,00 pagos com vale-compra (VC-4)" e o saldo do vale fica em R$ 70,00. Com a Marina numa venda da Desk Brands o quadro
+   não aparece, só a linha "R$ ... em vales da Desk Shope, que não valem nesta loja". Em "Detalhes do caixa", o vale aparece como nota e não pede contagem.
+2. **Pedido com vale** — [http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=10](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=10)
+   mostra "Pago com vale-compra: R$ 30,00 (VC-3)", com link para o vale. Para usar, abra
+   [?id=1&editar=1](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?id=1&editar=1) (Marina, Desk Shope), escolha "3x" e digite
+   100 em "Usar do vale": as parcelas passam a somar só o que falta, e a prévia diz "R$ 100,00 pagos com vale-compra". Salvar tira do vale;
+   editar refaz o uso; cancelar o pedido devolve ("R$ 100,00 voltam para o vale VC-4"). Trocando a loja para Desk Brands, o vale não vale.
+3. **Contas a Receber** — [http://localhost:3000/financas/pagina-financas-contas-receber.html?busca=vale-compra](http://localhost:3000/financas/pagina-financas-contas-receber.html?busca=vale-compra)
+   lista os três usos de exemplo como títulos recebidos; o de [?id=9300](http://localhost:3000/financas/pagina-financas-contas-receber-detalhe.html?id=9300)
+   abre só para leitura ("o valor muda no pedido ou no vale"). O título 9 (PV 7) passou de Vale-troca para Crediário.
+4. **Formas de recebimento** — [http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html](http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html):
+   o Vale-compra nasce habilitado, sem conta nem taxa, e desabilitar tira o quadro do PDV e do Pedido.
+
+**Falta do Vale-compra:** a entrega 3, o vale nascer da Devolução e do pagamento de Comissão.
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
@@ -51,8 +71,8 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos", no HISTORICO.md).
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Vale-compra, entregas 2 e 3** (a 1 está feita, §14.89): (2) o vale se usa, no PDV e no Pedido de Venda, com Formas de
-   Recebimento; (3) o vale nasce da Devolução e do pagamento de Comissão. Liga o vale-troca reservado nas telas prontas.
+2. **Vale-compra, entrega 3** (as entregas 1 e 2 estão feitas, §14.89 e §14.90): o vale nasce da Devolução (o ressarcimento que vira
+   crédito) e do pagamento de Comissão como crédito na loja. Liga o vale-troca que a Devolução ainda deixa reservado.
 3. **Gateways de Pagamento**, o único item do menu no caminho do MVP, e o protótipo da vitrine.
 4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
@@ -89,13 +109,35 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   refeitas na produção, ou antes se alguém trabalhar em 1280 todo dia. A suíte `teste_barra_tabelas.py` segura as três
   como estão.
 
-- **Para a próxima revisão geral: a barra do caminho** (usuário, 19/out/2026, "não mexa agora"). Ele quer usá-la como
-  no Olist, para voltar uma tela ou mudar de módulo. Análise: é um bloco comum (`renderBreadcrumb`) em 87 telas, e cada
-  nome é um texto, não um link. Clicar num nome do meio só corta o caminho e troca o título, sem sair da tela. O primeiro
-  nome sempre leva ao Início, mesmo quando é o módulo: em "Finanças › Vale-compra › VC-6", "Finanças" abre o Início.
-  Proposta para a revisão: o módulo abre o menu daquele módulo, a tela de lista leva à lista (com os filtros, como o
-  "Voltar" faz) e o último nome continua parado. Consertar no bloco comum, nas 87 de uma vez, com uma suíte que clica em
-  cada nome de cada tela.
+## Para a próxima revisão geral
+
+Pedidos do usuário de 19/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
+revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
+
+1. **A barra do caminho navega.** Hoje cada nome é texto: clicar num nome do meio só corta o caminho e troca o título, e o
+   primeiro nome sempre leva ao Início, mesmo quando é o módulo ("Finanças" em "Finanças › Vale-compra › VC-6" abre o
+   Início). É o bloco comum `renderBreadcrumb`, em 87 telas. Proposta: o módulo abre o menu daquele módulo, a tela de
+   lista leva à lista com os filtros, e o último nome fica parado.
+2. **O "voltar" vira botão no cabeçalho, como em Vale-compra.** Hoje as páginas de detalhe têm um link pequeno embaixo
+   da barra do caminho ("voltar para o extrato", "Voltar pra listagem"). O usuário prefere o botão "Voltar para <lista>"
+   à direita do título, o primeiro da fila dos botões, como "Voltar para Vale-compra". Opinião registrada: concordo; o
+   botão é o caminho óbvio de volta (com os filtros) e a barra do caminho fica para pular de nível ou de módulo. Os dois
+   convivem, e o link de baixo sai.
+3. **Cards que filtram também nas filas de Logística.** Devolução e Rastreamento têm cards no topo que filtram a tabela;
+   Separação, Conferência de Saída e Expedição não têm cards. **Não há critério registrado:** as três filas nasceram antes
+   do padrão de indicadores, e a proposta G4 (`docs/melhorias-modulos-prontos.md`, 13/out) também as deixou de fora. Na
+   revisão: dar às três os cards que filtram, no padrão de Contas a Pagar.
+4. **Controle de Estoques: os cards no padrão de Contas a Pagar.** Só "Abaixo do mínimo" reage, e escurece em vez de
+   ficar com a borda azul; "A endereçar" e "Bloqueado" não mostram efeito nenhum (hoje são links para outras telas).
+   Todos devem mostrar que filtram, com a borda azul quando ativos.
+5. **Necessidades de Compra: os cards não filtram.** Mesmo padrão.
+6. **Campo de dinheiro digitado a partir dos centavos.** Hoje o campo mostra "0,00" e o que se digita entra como texto.
+   O usuário quer a digitação da direita para a esquerda: com "0,00" na tela, digitar 2 dá 0,02; 0 dá 0,20; 0 dá 2,00;
+   0 dá 20,00. Digitar 250 dá 2,50; digitar 1589 dá 15,89. Vale para **todo campo de valor em reais**: mapear todos na
+   revisão e fazer um componente só. Atenção ao campo que aceita valor ou percentual ("Ex: 3,00 ou 10%", o desconto do
+   PDV), que precisa de regra própria.
+7. **O seletor Pessoa Física / Pessoa Jurídica justo.** O fundo cinza é bem mais largo que as duas opções, em Clientes,
+   Fornecedores e Vendedores (cadastro novo e página). Deve ter a largura só das duas opções.
 
 ## Esperando decisão do usuário
 

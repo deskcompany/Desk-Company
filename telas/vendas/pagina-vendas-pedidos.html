@@ -1756,6 +1756,154 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   })();
 
+  // ===== VALE-COMPRA: DADOS E REGRAS (bloco comum a oito telas, 19/out/2026) =====
+  // Identico em oito telas: a lista e a pagina do vale (Financas > Vale-compra), a aba Vale-compra do cadastro do cliente, o PDV, o Pedido de Venda
+  // (lista e detalhe) e Contas a Receber (lista e detalhe); teste_vale_compra.py compara as copias. A entrega 2 (19/out/2026) acrescentou o USO do vale. O dono do dado e Financas > Vale-compra. Uma chave so no navegador, `deskValesCompra` ({ vales: [...] });
+  // o prazo de validade e de Configuracoes > Cadastro de clientes (deskParametros.valeCompraValidadeDias).
+  // O vale e SALDO DO CLIENTE, sem codigo, e so vale na loja que o emitiu. Cada vale:
+  //   { n, clienteId, cliente, doc, loja, origem ('cortesia' | 'devolucao' | 'comissao'), motivo (so na cortesia), ref ({ texto, href }: o documento de
+  //     onde o vale nasceu, na devolucao e na comissao), valor, emitido, venc,
+  //     usos: [{ data, valor, doc: { tipo, id, rotulo }, estornado: { em, motivo }, perdido: { em, motivo } }], reativacoes: [{ em, de, para }], cancelado: { em, motivo, saldo } | null }
+  // ESPELHOS: clienteId, cliente e doc sao do cadastro de Clientes; loja e de Lojas Desk; doc.id e o id de Pedidos de Venda (tipo 'pedido') ou o numero da venda do PDV (tipo 'pdv').
+  const VALE_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const VALE_ORIGENS = { devolucao: 'Devolução', comissao: 'Comissão', cortesia: 'Cortesia' };
+  const VALE_SITUACOES = { disponivel: 'Disponível', usado: 'Usado', vencido: 'Vencido', cancelado: 'Cancelado' };
+  // A classe da cor da situacao, montada aqui para o atributo class nao trazer um pedaco de classe emendado a uma variavel.
+  const valeClasseSit = (s) => 'vc-sit-' + s;
+  const valeIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const VALE_HOJE = valeIso(new Date());
+  function valeSomaDias(iso, n) { const p = iso.split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return valeIso(d); }
+  function valeDiasEntre(de, ate) {
+    const a = de.split('-'), b = ate.split('-');
+    return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000);
+  }
+  const valeBr = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
+  const valeMoeda = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const valeArred = (v) => Math.round(v * 100) / 100;
+  const valeEsc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // O prazo vale para o vale que nasce ou e reativado hoje; o vencimento de quem ja existe nao muda.
+  function valePrazo() {
+    try { const n = Number(JSON.parse(localStorage.getItem('deskParametros') || '{}').valeCompraValidadeDias); return Number.isInteger(n) && n >= 1 && n <= 3650 ? n : 180; }
+    catch (e) { return 180; }
+  }
+  function valeLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskValesCompra'));
+      const vales = g && Array.isArray(g.vales) ? g.vales : [];
+      // Uso gravado antes da entrega 2 tinha { documento, pedidoId }; aqui ele passa a ser { doc: { tipo, id, rotulo } }.
+      vales.forEach(v => { v.usos = v.usos || []; v.usos.forEach(u => { if (!u.doc) u.doc = { tipo: u.pedidoId ? 'pedido' : 'outro', id: u.pedidoId || 0, rotulo: u.documento || '' }; }); });
+      return vales;
+    }
+    catch (e) { return []; }
+  }
+  function valeGravar(vales) {
+    try { localStorage.setItem('deskValesCompra', JSON.stringify({ vales: vales })); return true; }
+    catch (e) { return false; }
+  }
+  // Uso estornado nao conta: o valor voltou ao vale. Uso "perdido" (vale cancelado quando o documento foi desfeito) continua contando.
+  const valeUsado = (v) => valeArred((v.usos || []).filter(u => !u.estornado).reduce((s, u) => s + u.valor, 0));
+  const valeSaldo = (v) => v.cancelado ? 0 : valeArred(v.valor - valeUsado(v));
+  // Cancelado e o que manda; depois saldo zero (usado); depois o vencimento. O vale vale ate o dia do vencimento, inclusive.
+  function valeSituacao(v) {
+    if (v.cancelado) return 'cancelado';
+    if (valeSaldo(v) <= 0) return 'usado';
+    return VALE_HOJE > v.venc ? 'vencido' : 'disponivel';
+  }
+  // Dias ate o vencimento: positivo vence, negativo venceu ha tantos dias.
+  const valeDiasParaVencer = (v) => valeDiasEntre(VALE_HOJE, v.venc);
+  function valeVencimentoTexto(v) {
+    const s = valeSituacao(v), d = valeDiasParaVencer(v);
+    if (s === 'disponivel') return d === 0 ? 'vence hoje' : 'vence em ' + d + (d === 1 ? ' dia' : ' dias');
+    if (s === 'vencido') return 'vencido há ' + (-d) + (d === -1 ? ' dia' : ' dias');
+    return '';
+  }
+  // O saldo do cliente numa loja: so os vales disponiveis dele, daquela loja. Vale de outra loja nao entra.
+  const valeSaldoDoCliente = (clienteId, loja) => valeArred(valeLer()
+    .filter(v => v.clienteId === clienteId && v.loja === loja && valeSituacao(v) === 'disponivel').reduce((s, v) => s + valeSaldo(v), 0));
+  // Exemplo de fabrica (19/out/2026): sem vale gravado a tela abriria vazia e nao haveria como ver um vencido nem um usado. Nasce uma
+  // vez por navegador (marca deskValesCompraExemplo), acrescentando sem apagar o que ja existe; cancelado ou excluido nao volta, e limpar o
+  // navegador traz de volta. Contado a partir de hoje, com o prazo de fabrica (180 dias). Clientes do cadastro de Clientes, lojas de Lojas
+  // Desk, pedidos de Pedidos de Venda (o mesmo cliente e a mesma loja do vale).
+  (function valeSemear() {
+    try {
+      if (localStorage.getItem('deskValesCompraExemplo')) return;
+      const lista = valeLer();
+      let n = lista.reduce((m, v) => Math.max(m, Number(v.n) || 0), 0);
+      const dia = (k) => valeSomaDias(VALE_HOJE, k);
+      const vale = (cliente, emitidoHa, valor, motivo, extra) => Object.assign({ n: ++n, clienteId: cliente[0], cliente: cliente[1], doc: cliente[2], loja: cliente[3],
+        origem: 'cortesia', motivo: motivo, valor: valor, emitido: dia(-emitidoHa), venc: dia(180 - emitidoHa), usos: [], reativacoes: [], cancelado: null }, extra || {});
+      const novos = [
+        vale([7, 'Camila Rêgo', '567.890.123-44', 2], 200, 50, 'Troca de tamanho sem estoque na loja'),
+        vale([2, 'Rafael Nogueira', '234.567.890-11', 1], 60, 40, 'Atraso na entrega do pedido anterior',
+          { usos: [{ data: dia(-28), valor: 25, doc: { tipo: 'pedido', id: 16, rotulo: 'Pedido nº 16' } }, { data: dia(-2), valor: 15, doc: { tipo: 'pedido', id: 3, rotulo: 'Pedido nº 3' } }] }),
+        vale([11, 'Auto Peças Imperatriz Ltda', '29.887.501/0001-22', 3], 40, 80, 'Cortesia pelo volume de compras do trimestre',
+          { usos: [{ data: dia(-11), valor: 30, doc: { tipo: 'pedido', id: 10, rotulo: 'Pedido nº 10' } }] }),
+        vale([1, 'Marina Duarte', '123.456.789-00', 1], 20, 120, 'Boas-vindas ao cliente que voltou a comprar'),
+        vale([4, 'Juliana Prado', '345.678.901-22', 2], 15, 60, 'Compensação por produto com defeito',
+          { cancelado: { em: dia(-5), motivo: 'Emitido em duplicidade: o cliente já tinha recebido o crédito', saldo: 60 } })
+      ];
+      valeGravar(lista.concat(novos));
+      localStorage.setItem('deskValesCompraExemplo', '1');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  // ----- O USO DO VALE (entrega 2, 19/out/2026) -----
+  // doc = { tipo: 'pedido' | 'pdv', id, rotulo }: o documento que usou o vale ("Pedido nº 17", "PDV-0003").
+  const valeMesmoDoc = (u, doc) => u.doc.tipo === doc.tipo && String(u.doc.id) === String(doc.id);
+  // O link do documento: o pedido abre na pagina dele; a venda do balcao, no Pedido que o PDV gera (900000 + numero da venda).
+  function valeDocHref(doc) {
+    if (doc.tipo === 'pedido' && doc.id) return '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + doc.id;
+    if (doc.tipo === 'pdv' && doc.id) return '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + (900000 + Number(doc.id));
+    return '';
+  }
+  // Gasta do vale que vence primeiro (e segue para o proximo) ate completar `valor`; grava um uso em cada vale tocado e devolve [{ n, valor }].
+  // Passou do saldo do cliente naquela loja, ou nao deu para gravar: lanca erro e nao grava nada.
+  function usarVale(cliId, lojaId, valor, doc) {
+    valor = valeArred(Number(valor));
+    if (!(valor > 0)) throw new Error('Informe um valor maior que zero.');
+    const vales = valeLer();
+    const prontos = vales.filter(v => v.clienteId === cliId && v.loja === lojaId && valeSituacao(v) === 'disponivel')
+      .sort((a, b) => (a.venc < b.venc ? -1 : a.venc > b.venc ? 1 : a.n - b.n));
+    const saldo = valeArred(prontos.reduce((s, v) => s + valeSaldo(v), 0));
+    if (valor > saldo + 0.001) throw new Error('O saldo de vale deste cliente nesta loja é ' + valeMoeda(saldo) + '.');
+    const usados = [];
+    let resta = valor;
+    prontos.forEach(v => {
+      if (resta <= 0) return;
+      const parte = valeArred(Math.min(resta, valeSaldo(v)));
+      v.usos.push({ data: VALE_HOJE, valor: parte, doc: { tipo: doc.tipo, id: doc.id, rotulo: doc.rotulo } });
+      usados.push({ n: v.n, valor: parte });
+      resta = valeArred(resta - parte);
+    });
+    if (!valeGravar(vales)) throw new Error('Não foi possível gravar o uso do vale neste navegador.');
+    return usados;
+  }
+  // Desfaz o uso de um documento: o uso fica no historico como estornado e o valor volta ao saldo do vale (vencido volta e continua vencido).
+  // Vale cancelado nao recebe: o uso fica marcado como perdido, o valor nao volta. Devolve [{ n, valor, perdido }].
+  function estornarUsos(doc, motivo) {
+    const vales = valeLer(), voltou = [];
+    vales.forEach(v => v.usos.forEach(u => {
+      if (u.estornado || u.perdido || !valeMesmoDoc(u, doc)) return;
+      const perdido = !!v.cancelado;
+      u[perdido ? 'perdido' : 'estornado'] = { em: VALE_HOJE, motivo: motivo };
+      voltou.push({ n: v.n, valor: u.valor, perdido: perdido });
+    }));
+    if (voltou.length && !valeGravar(vales)) throw new Error('Não foi possível gravar o estorno do vale neste navegador.');
+    return voltou;
+  }
+  // O que o documento tem de vale valendo agora (nem estornado, nem perdido): [{ n, valor, cancelado }].
+  function valeUsosDoDoc(doc) {
+    const r = [];
+    valeLer().forEach(v => v.usos.forEach(u => { if (!u.estornado && !u.perdido && valeMesmoDoc(u, doc)) r.push({ n: v.n, valor: u.valor, cancelado: !!v.cancelado }); }));
+    return r;
+  }
+  // Todos os usos de todos os vales, com um id estavel para o titulo de Contas a Receber: 9000 + (numero do vale * 100) + posicao do uso.
+  function valeTodosUsos() {
+    const r = [];
+    valeLer().forEach(v => v.usos.forEach((u, i) => r.push({ vale: v, uso: u, id: 9000 + v.n * 100 + i })));
+    return r;
+  }
+  // ===== FIM DO BLOCO VALE-COMPRA =====
+
   let buscaAtual = '';
   let situacaoAtual = 'todos';
   let periodoAtual = '30';
@@ -2064,6 +2212,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function pedidoDe(id) { return PEDIDOS.filter(p => p.id === id)[0]; }
+  // O vale-compra que o pedido usou (entrega 2): cancelar ou excluir o pedido devolve o valor ao vale, como o botao Cancelar da pagina do pedido.
+  // O pedido da lista e do balcao quando tem `pdv`; o resto e pedido numerado.
+  const valeDocDe = (p) => (p.pdv ? { tipo: 'pdv', id: Number(String(p.numero).slice(4)), rotulo: p.numero } : { tipo: 'pedido', id: p.numero, rotulo: 'Pedido nº ' + p.numero });
+  function valeUsosDosPedidos(pedidos) {
+    const r = [];
+    pedidos.forEach(p => valeUsosDoDoc(valeDocDe(p)).forEach(u => r.push({ pedido: p, n: u.n, valor: u.valor, cancelado: u.cancelado })));
+    return r;
+  }
+  const valeFrase = (u) => valeDocDe(u.pedido).rotulo + ': ' + (u.cancelado ? fmtMoeda(u.valor) + ' do vale VC-' + u.n + ' não voltam, porque o vale está cancelado' : fmtMoeda(u.valor) + ' voltam para o vale VC-' + u.n);
+  function valeDevolver(pedidos, motivo) {
+    pedidos.forEach(p => { try { estornarUsos(valeDocDe(p), motivo); } catch (e) { /* sem armazenamento: o pedido muda, o vale fica como estava */ } });
+  }
 
   function separarComSaida(ids) {
     const travados = [], livres = [];
@@ -2116,7 +2276,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       texto += ' ' + (jaSairam === 1 ? 'Um deles já teve a mercadoria expedida' : jaSairam + ' deles já tiveram a mercadoria expedida') +
                ': o estoque que saiu não volta por aqui, a devolução é o caminho.';
     }
+    const usosVale = valeUsosDosPedidos(alvos);
+    if (usosVale.length) texto += ' ' + usosVale.map(valeFrase).join('; ') + '.';
     abrirModalConfirmacao(texto, alvos.length, 'primary', () => {
+      valeDevolver(alvos, 'pedido cancelado');
       alvos.forEach(p => { p.situacao = 'cancelado'; });
       itensSelecionados.clear();
       renderTabela();
@@ -2133,8 +2296,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const comReserva = livres.map(pedidoDe).filter(p => p && reserva(p)).length;
     if (comReserva > 0) texto += ' ' + (comReserva === 1 ? 'A reserva de estoque volta' : comReserva + ' reservas de estoque voltam') + ' para disponível.';
     if (travados.length > 0) texto += ' ' + travados.length + (travados.length === 1 ? ' pedido será ignorado por já ter sido expedido.' : ' pedidos serão ignorados por já terem sido expedidos.');
+    const usosVale = valeUsosDosPedidos(livres.map(pedidoDe).filter(Boolean));
+    if (usosVale.length) texto += ' ' + usosVale.map(valeFrase).join('; ') + '.';
     armarSenhaModal('pedidosExclui');
     abrirModalConfirmacao(texto, livres.length, 'danger', () => {
+      valeDevolver(livres.map(pedidoDe).filter(Boolean), 'pedido excluído');
       for (let i = PEDIDOS.length - 1; i >= 0; i--) {
         if (livres.indexOf(PEDIDOS[i].id) >= 0) PEDIDOS.splice(i, 1);
       }

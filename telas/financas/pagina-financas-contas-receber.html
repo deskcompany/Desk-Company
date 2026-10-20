@@ -2036,12 +2036,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A lista COMPLETA do filtro do Olist (§11 do roadmap). A do cadastro dele tem
   // so duas opcoes — inconsistencia da ferramenta, nao modelo a copiar: conta
   // vinda de pedido traz o meio real, conta digitada a mao oferece o que da para
-  // digitar. `Vale-troca` e `Crediario` ficam: sao meios que a Desk usa e que
+  // digitar. `Vale-compra` e `Crediario` ficam: sao meios que a Desk usa e que
   // NAO sao dinheiro entrando de fato.
   // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
   // valem para receber. Mudou la, muda aqui; teste_formas_recebimento.py compara.
   const FORMAS = ['Dinheiro', 'Pix', 'Cartão de crédito', 'Cartão de débito', 'Boleto',
-                  'Cheque', 'Depósito', 'Crediário', 'Vale-troca', 'Não informada'];
+                  'Cheque', 'Depósito', 'Crediário', 'Vale-compra', 'Não informada'];
   const OCORRENCIAS = ['Única', 'Semanal', 'Mensal', 'Trimestral', 'Semestral', 'Anual', 'Parcelada'];
 
   // `venc` e `emis` sao em DIAS a partir de hoje: positivo = passado.
@@ -2065,7 +2065,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:6,  cliId:1, doc:'PV 2',  pedido:2,  venc:-6,  emis:1,  catId:1, valor:7430.50, recebido:0,       taxas:0,      liquido:7430.50, forma:'Boleto',           hist:'Ref. ao pedido de venda nº 2',  ocorrencia:'Única', cancelado:false },
     { id:7,  cliId:3, doc:'PV 1',  pedido:1,  venc:-9,  emis:-2, catId:1, valor:1890.00, recebido:0,       taxas:113.40, liquido:1776.60, forma:'Cartão de débito', hist:'Ref. ao pedido de venda nº 1',  ocorrencia:'Única', cancelado:false },
     { id:8,  cliId:7, doc:'',      venc:-14, emis:-4, catId:2, valor:450.00,  recebido:0,       taxas:0,      liquido:450.00,  forma:'Crediário',        hist:'Venda de balcão sem pedido — lançada à mão', ocorrencia:'Única', cancelado:false },
-    { id:9,  cliId:2, doc:'PV 7',  pedido:7,  venc:-22, emis:-12, catId:1, valor:1024.00, recebido:0,       taxas:0,      liquido:1024.00, forma:'Vale-troca',       hist:'Ref. ao pedido de venda nº 7',  ocorrencia:'Única', cancelado:false },
+    { id:9,  cliId:2, doc:'PV 7',  pedido:7,  venc:-22, emis:-12, catId:1, valor:1024.00, recebido:0,       taxas:0,      liquido:1024.00, forma:'Crediário',        hist:'Ref. ao pedido de venda nº 7',  ocorrencia:'Única', cancelado:false },
     { id:10, cliId:3, doc:'PV 15', pedido:15, venc:20,  emis:30, catId:1, valor:189.90,  recebido:0,       taxas:0,      liquido:189.90,  forma:'Boleto',           hist:'Pedido cancelado pelo cliente', ocorrencia:'Única', cancelado:true }
   ];
 
@@ -2096,6 +2096,174 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   })();
 
+  // ===== VALE-COMPRA: DADOS E REGRAS (bloco comum a oito telas, 19/out/2026) =====
+  // Identico em oito telas: a lista e a pagina do vale (Financas > Vale-compra), a aba Vale-compra do cadastro do cliente, o PDV, o Pedido de Venda
+  // (lista e detalhe) e Contas a Receber (lista e detalhe); teste_vale_compra.py compara as copias. A entrega 2 (19/out/2026) acrescentou o USO do vale. O dono do dado e Financas > Vale-compra. Uma chave so no navegador, `deskValesCompra` ({ vales: [...] });
+  // o prazo de validade e de Configuracoes > Cadastro de clientes (deskParametros.valeCompraValidadeDias).
+  // O vale e SALDO DO CLIENTE, sem codigo, e so vale na loja que o emitiu. Cada vale:
+  //   { n, clienteId, cliente, doc, loja, origem ('cortesia' | 'devolucao' | 'comissao'), motivo (so na cortesia), ref ({ texto, href }: o documento de
+  //     onde o vale nasceu, na devolucao e na comissao), valor, emitido, venc,
+  //     usos: [{ data, valor, doc: { tipo, id, rotulo }, estornado: { em, motivo }, perdido: { em, motivo } }], reativacoes: [{ em, de, para }], cancelado: { em, motivo, saldo } | null }
+  // ESPELHOS: clienteId, cliente e doc sao do cadastro de Clientes; loja e de Lojas Desk; doc.id e o id de Pedidos de Venda (tipo 'pedido') ou o numero da venda do PDV (tipo 'pdv').
+  const VALE_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const VALE_ORIGENS = { devolucao: 'Devolução', comissao: 'Comissão', cortesia: 'Cortesia' };
+  const VALE_SITUACOES = { disponivel: 'Disponível', usado: 'Usado', vencido: 'Vencido', cancelado: 'Cancelado' };
+  // A classe da cor da situacao, montada aqui para o atributo class nao trazer um pedaco de classe emendado a uma variavel.
+  const valeClasseSit = (s) => 'vc-sit-' + s;
+  const valeIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const VALE_HOJE = valeIso(new Date());
+  function valeSomaDias(iso, n) { const p = iso.split('-'); const d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() + n); return valeIso(d); }
+  function valeDiasEntre(de, ate) {
+    const a = de.split('-'), b = ate.split('-');
+    return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000);
+  }
+  const valeBr = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
+  const valeMoeda = (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const valeArred = (v) => Math.round(v * 100) / 100;
+  const valeEsc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // O prazo vale para o vale que nasce ou e reativado hoje; o vencimento de quem ja existe nao muda.
+  function valePrazo() {
+    try { const n = Number(JSON.parse(localStorage.getItem('deskParametros') || '{}').valeCompraValidadeDias); return Number.isInteger(n) && n >= 1 && n <= 3650 ? n : 180; }
+    catch (e) { return 180; }
+  }
+  function valeLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskValesCompra'));
+      const vales = g && Array.isArray(g.vales) ? g.vales : [];
+      // Uso gravado antes da entrega 2 tinha { documento, pedidoId }; aqui ele passa a ser { doc: { tipo, id, rotulo } }.
+      vales.forEach(v => { v.usos = v.usos || []; v.usos.forEach(u => { if (!u.doc) u.doc = { tipo: u.pedidoId ? 'pedido' : 'outro', id: u.pedidoId || 0, rotulo: u.documento || '' }; }); });
+      return vales;
+    }
+    catch (e) { return []; }
+  }
+  function valeGravar(vales) {
+    try { localStorage.setItem('deskValesCompra', JSON.stringify({ vales: vales })); return true; }
+    catch (e) { return false; }
+  }
+  // Uso estornado nao conta: o valor voltou ao vale. Uso "perdido" (vale cancelado quando o documento foi desfeito) continua contando.
+  const valeUsado = (v) => valeArred((v.usos || []).filter(u => !u.estornado).reduce((s, u) => s + u.valor, 0));
+  const valeSaldo = (v) => v.cancelado ? 0 : valeArred(v.valor - valeUsado(v));
+  // Cancelado e o que manda; depois saldo zero (usado); depois o vencimento. O vale vale ate o dia do vencimento, inclusive.
+  function valeSituacao(v) {
+    if (v.cancelado) return 'cancelado';
+    if (valeSaldo(v) <= 0) return 'usado';
+    return VALE_HOJE > v.venc ? 'vencido' : 'disponivel';
+  }
+  // Dias ate o vencimento: positivo vence, negativo venceu ha tantos dias.
+  const valeDiasParaVencer = (v) => valeDiasEntre(VALE_HOJE, v.venc);
+  function valeVencimentoTexto(v) {
+    const s = valeSituacao(v), d = valeDiasParaVencer(v);
+    if (s === 'disponivel') return d === 0 ? 'vence hoje' : 'vence em ' + d + (d === 1 ? ' dia' : ' dias');
+    if (s === 'vencido') return 'vencido há ' + (-d) + (d === -1 ? ' dia' : ' dias');
+    return '';
+  }
+  // O saldo do cliente numa loja: so os vales disponiveis dele, daquela loja. Vale de outra loja nao entra.
+  const valeSaldoDoCliente = (clienteId, loja) => valeArred(valeLer()
+    .filter(v => v.clienteId === clienteId && v.loja === loja && valeSituacao(v) === 'disponivel').reduce((s, v) => s + valeSaldo(v), 0));
+  // Exemplo de fabrica (19/out/2026): sem vale gravado a tela abriria vazia e nao haveria como ver um vencido nem um usado. Nasce uma
+  // vez por navegador (marca deskValesCompraExemplo), acrescentando sem apagar o que ja existe; cancelado ou excluido nao volta, e limpar o
+  // navegador traz de volta. Contado a partir de hoje, com o prazo de fabrica (180 dias). Clientes do cadastro de Clientes, lojas de Lojas
+  // Desk, pedidos de Pedidos de Venda (o mesmo cliente e a mesma loja do vale).
+  (function valeSemear() {
+    try {
+      if (localStorage.getItem('deskValesCompraExemplo')) return;
+      const lista = valeLer();
+      let n = lista.reduce((m, v) => Math.max(m, Number(v.n) || 0), 0);
+      const dia = (k) => valeSomaDias(VALE_HOJE, k);
+      const vale = (cliente, emitidoHa, valor, motivo, extra) => Object.assign({ n: ++n, clienteId: cliente[0], cliente: cliente[1], doc: cliente[2], loja: cliente[3],
+        origem: 'cortesia', motivo: motivo, valor: valor, emitido: dia(-emitidoHa), venc: dia(180 - emitidoHa), usos: [], reativacoes: [], cancelado: null }, extra || {});
+      const novos = [
+        vale([7, 'Camila Rêgo', '567.890.123-44', 2], 200, 50, 'Troca de tamanho sem estoque na loja'),
+        vale([2, 'Rafael Nogueira', '234.567.890-11', 1], 60, 40, 'Atraso na entrega do pedido anterior',
+          { usos: [{ data: dia(-28), valor: 25, doc: { tipo: 'pedido', id: 16, rotulo: 'Pedido nº 16' } }, { data: dia(-2), valor: 15, doc: { tipo: 'pedido', id: 3, rotulo: 'Pedido nº 3' } }] }),
+        vale([11, 'Auto Peças Imperatriz Ltda', '29.887.501/0001-22', 3], 40, 80, 'Cortesia pelo volume de compras do trimestre',
+          { usos: [{ data: dia(-11), valor: 30, doc: { tipo: 'pedido', id: 10, rotulo: 'Pedido nº 10' } }] }),
+        vale([1, 'Marina Duarte', '123.456.789-00', 1], 20, 120, 'Boas-vindas ao cliente que voltou a comprar'),
+        vale([4, 'Juliana Prado', '345.678.901-22', 2], 15, 60, 'Compensação por produto com defeito',
+          { cancelado: { em: dia(-5), motivo: 'Emitido em duplicidade: o cliente já tinha recebido o crédito', saldo: 60 } })
+      ];
+      valeGravar(lista.concat(novos));
+      localStorage.setItem('deskValesCompraExemplo', '1');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  // ----- O USO DO VALE (entrega 2, 19/out/2026) -----
+  // doc = { tipo: 'pedido' | 'pdv', id, rotulo }: o documento que usou o vale ("Pedido nº 17", "PDV-0003").
+  const valeMesmoDoc = (u, doc) => u.doc.tipo === doc.tipo && String(u.doc.id) === String(doc.id);
+  // O link do documento: o pedido abre na pagina dele; a venda do balcao, no Pedido que o PDV gera (900000 + numero da venda).
+  function valeDocHref(doc) {
+    if (doc.tipo === 'pedido' && doc.id) return '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + doc.id;
+    if (doc.tipo === 'pdv' && doc.id) return '../vendas/pagina-vendas-pedidos-detalhe.html?id=' + (900000 + Number(doc.id));
+    return '';
+  }
+  // Gasta do vale que vence primeiro (e segue para o proximo) ate completar `valor`; grava um uso em cada vale tocado e devolve [{ n, valor }].
+  // Passou do saldo do cliente naquela loja, ou nao deu para gravar: lanca erro e nao grava nada.
+  function usarVale(cliId, lojaId, valor, doc) {
+    valor = valeArred(Number(valor));
+    if (!(valor > 0)) throw new Error('Informe um valor maior que zero.');
+    const vales = valeLer();
+    const prontos = vales.filter(v => v.clienteId === cliId && v.loja === lojaId && valeSituacao(v) === 'disponivel')
+      .sort((a, b) => (a.venc < b.venc ? -1 : a.venc > b.venc ? 1 : a.n - b.n));
+    const saldo = valeArred(prontos.reduce((s, v) => s + valeSaldo(v), 0));
+    if (valor > saldo + 0.001) throw new Error('O saldo de vale deste cliente nesta loja é ' + valeMoeda(saldo) + '.');
+    const usados = [];
+    let resta = valor;
+    prontos.forEach(v => {
+      if (resta <= 0) return;
+      const parte = valeArred(Math.min(resta, valeSaldo(v)));
+      v.usos.push({ data: VALE_HOJE, valor: parte, doc: { tipo: doc.tipo, id: doc.id, rotulo: doc.rotulo } });
+      usados.push({ n: v.n, valor: parte });
+      resta = valeArred(resta - parte);
+    });
+    if (!valeGravar(vales)) throw new Error('Não foi possível gravar o uso do vale neste navegador.');
+    return usados;
+  }
+  // Desfaz o uso de um documento: o uso fica no historico como estornado e o valor volta ao saldo do vale (vencido volta e continua vencido).
+  // Vale cancelado nao recebe: o uso fica marcado como perdido, o valor nao volta. Devolve [{ n, valor, perdido }].
+  function estornarUsos(doc, motivo) {
+    const vales = valeLer(), voltou = [];
+    vales.forEach(v => v.usos.forEach(u => {
+      if (u.estornado || u.perdido || !valeMesmoDoc(u, doc)) return;
+      const perdido = !!v.cancelado;
+      u[perdido ? 'perdido' : 'estornado'] = { em: VALE_HOJE, motivo: motivo };
+      voltou.push({ n: v.n, valor: u.valor, perdido: perdido });
+    }));
+    if (voltou.length && !valeGravar(vales)) throw new Error('Não foi possível gravar o estorno do vale neste navegador.');
+    return voltou;
+  }
+  // O que o documento tem de vale valendo agora (nem estornado, nem perdido): [{ n, valor, cancelado }].
+  function valeUsosDoDoc(doc) {
+    const r = [];
+    valeLer().forEach(v => v.usos.forEach(u => { if (!u.estornado && !u.perdido && valeMesmoDoc(u, doc)) r.push({ n: v.n, valor: u.valor, cancelado: !!v.cancelado }); }));
+    return r;
+  }
+  // Todos os usos de todos os vales, com um id estavel para o titulo de Contas a Receber: 9000 + (numero do vale * 100) + posicao do uso.
+  function valeTodosUsos() {
+    const r = [];
+    valeLer().forEach(v => v.usos.forEach((u, i) => r.push({ vale: v, uso: u, id: 9000 + v.n * 100 + i })));
+    return r;
+  }
+  // ===== FIM DO BLOCO VALE-COMPRA =====
+
+  // ===== TITULOS DO VALE-COMPRA (entrega 2, 19/out/2026) =====
+  // Cada uso de vale e um titulo JA RECEBIDO, forma Vale-compra, na mesma categoria dos titulos de venda (Venda de mercadorias), com
+  // o cliente do vale, emissao e vencimento no dia do uso e o valor do uso. Uso estornado (ou perdido, com o vale cancelado) vira titulo
+  // cancelado. NAO ha movimento no Caixa: o vale nao e dinheiro novo. O id fica fora da faixa dos de exemplo: 9000 + (n do vale * 100)
+  // + a posicao do uso. O titulo e so leitura (`vale`): o valor muda no pedido ou no vale, nunca aqui.
+  (function titulosDoVale() {
+    valeTodosUsos().forEach(x => {
+      const v = x.vale, u = x.uso, morto = !!(u.estornado || u.perdido);
+      let cli = CLIENTES.filter(c => c.nome === v.cliente)[0];
+      if (!cli) { cli = { id: 9000 + v.clienteId, nome: v.cliente, fantasia: '' }; CLIENTES.push(cli); }
+      TITULOS.push({
+        id: x.id, cliId: cli.id, doc: u.doc.rotulo, pedido: u.doc.tipo === 'pedido' && u.doc.id ? u.doc.id : undefined,
+        origemTexto: u.doc.tipo === 'pdv' ? u.doc.rotulo : '', vale: { n: v.n },
+        vencIso: u.data, emis: valeDiasEntre(u.data, VALE_HOJE), catId: 1, valor: u.valor, recebido: morto ? 0 : u.valor, taxas: 0, liquido: u.valor,
+        forma: 'Vale-compra', ocorrencia: 'Única', cancelado: morto,
+        hist: 'Pago com vale-compra VC-' + v.n + (u.estornado ? ' — estornado: ' + u.estornado.motivo : (u.perdido ? ' — ' + u.perdido.motivo + '; o vale estava cancelado' : '')),
+        recebimentos: morto ? [] : [{ data: u.data, valor: u.valor, contaId: null, juros: 0, desconto: 0, vale: true }]
+      });
+    });
+  })();
   TITULOS.forEach(t => {
     // Campos de valor do §12.4: `liquido` e GRAVADO (default = o valor cheio
     // quando nao ha taxa); `saldo` e `recebido` sao derivados.
@@ -2276,7 +2444,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           // link nenhum, e isso tambem e informacao.
           '<td class="col-texto cx-data">' + (t.pedido
               ? '<span class="tit-origem" data-pedido="' + t.pedido + '">Pedido ' + t.pedido + '</span>'
-              : '<span class="cf-vazio">à mão</span>') + '</td>' +
+              : (t.origemTexto ? '<span>' + t.origemTexto + '</span>' : '<span class="cf-vazio">à mão</span>')) + '</td>' +
           '<td class="col-texto cx-data' + (sit === 'atrasada' ? ' tit-venc-atraso' : '') + '">' + fmtData(t.vencIso) + '</td>' +
           '<td class="cx-num">' + fmtDin(t.valor) + '</td>' +
           '<td class="cx-num">' + (t.taxas > 0
@@ -2397,7 +2565,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     btn.style.opacity = pagaveis === 0 ? '0.5' : '';
     // O link de cancelar troca de rotulo com a selecao: com tudo cancelado ele
     // desfaz. Mesma acao de ida e de volta, um controle so.
-    const semReceb = selTit.map(id => titDe(id)).filter(x => x && x.recebido === 0);
+    const semReceb = selTit.map(id => titDe(id)).filter(x => x && x.recebido === 0 && !x.vale);   // titulo de vale e so leitura
     const link = document.getElementById('linkCancelarSelecionadas');
     const voltando = semReceb.length > 0 && semReceb.every(x => x.cancelado);
     link.textContent = voltando ? 'Reativar contas' : 'Cancelar contas';
@@ -2659,7 +2827,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A aba "canceladas" existia desde o inicio sem que ninguem pudesse chegar
   // nesse estado — falha corrigida em 23/set/2026.
   document.getElementById('linkCancelarSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0; });
+    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0 && !t.vale; });
     if (!podem.length) return;
     // Se a selecao e toda de canceladas, o link desfaz em vez de fazer: pedido
     // cancelado as vezes e retomado.
@@ -2677,7 +2845,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   document.getElementById('linkExcluirSelecionadas').addEventListener('click', () => {
-    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0; });
+    const podem = selTit.filter(id => { const t = titDe(id); return t && t.recebido === 0 && !t.vale; });
     if (!podem.length) return;
     const fora = selTit.length - podem.length;
     armarSenhaModal('contasReceberExclui');
@@ -2786,10 +2954,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       linha('Histórico', t.hist || '—') +
       '<div class="pc-titulo">De onde veio</div><div id="contaOrigem">' + (t.pedido
         ? linha('Pedido de venda', '<a class="painel-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(pessoa.nome) + '">nº ' + t.pedido + '</a>')
-        : linha('Lançada à mão', 'sem pedido de venda')) +
+        : (t.origemTexto ? linha('Venda do balcão', t.origemTexto) : linha('Lançada à mão', 'sem pedido de venda'))) +
+        (t.vale ? linha('Vale-compra', '<a class="painel-link" href="../financas/pagina-financas-vale-compra-detalhe.html?id=' + t.vale.n + '">VC-' + t.vale.n + '</a> · só leitura: o valor muda no pedido ou no vale') : '') +
         (pessoa.nome !== 'Consumidor Final' ? linha('Cadastro', '<a class="painel-link" href="../cadastros/pagina-cadastros-clientes.html?busca=' + encodeURIComponent(pessoa.nome) + '">Abrir o cliente</a>') : '') + '</div>' +
       '<div class="pc-titulo">Recebimentos</div><div id="contaBaixas">' +
-      (baixas.length ? baixas.map(b => linha(fmtData(b.data) + ' · ' + ((contaDe(b.contaId) || {}).nome || 'conta'), 'R$ ' + fmtDin(b.valor))).join('')
+      (baixas.length ? baixas.map(b => linha(fmtData(b.data) + ' · ' + (b.vale ? 'Vale-compra' : ((contaDe(b.contaId) || {}).nome || 'conta')), 'R$ ' + fmtDin(b.valor))).join('')
                      : '<div class="pc-linha"><span>Nenhum recebimento ainda.</span></div>') + '</div>';
     h += '<div class="drawer-footer">' +
       (!t.cancelado && saldo > 0 ? '<button class="btn-primary" id="btnBaixarDaConta">Receber</button>' : '') +

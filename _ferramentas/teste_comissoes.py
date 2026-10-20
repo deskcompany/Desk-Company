@@ -425,12 +425,16 @@ with sync_playwright() as p:
 
         def da_marina(a, b):   # a conta refeita aqui: pedidos da Marina, sem link, nao cancelados, vendidos entre as duas datas
             return [q for q in PEDIDOS if not q.get('ind') and q['vend'] == 0 and q['situacao'] != 'cancelado' and a <= HOJE - timedelta(days=q['dv']) <= b]
+        # o exemplo e datado a partir de hoje: a janela de 5 dias e a primeira do mes com comissao liberada, para a linha nao sumir por ser zero
         ir(CONTA, '?id=v1')
-        periodo(ini, ini + timedelta(days=4))
-        c1 = pg.evaluate("contaAtual()")
-        ok('(+) comissões do período' in pg.inner_text('#corpoResumo').lower() and ('Período: %s a %s' % (br(ini), br(ini + timedelta(days=4)))) in pg.inner_text('#periodoConta'),
+        for k in range((fim - ini).days - 3):
+            a5 = ini + timedelta(days=k)
+            periodo(a5, a5 + timedelta(days=4))
+            c1 = pg.evaluate("contaAtual()")
+            if c1['mes'] > 0: break
+        ok('(+) comissões do período' in pg.inner_text('#corpoResumo').lower() and ('Período: %s a %s' % (br(a5), br(a5 + timedelta(days=4)))) in pg.inner_text('#periodoConta'),
            'período que não é um mês: a linha se chama "do período" e o período é o escrito')
-        esperados = da_marina(ini, ini + timedelta(days=4))
+        esperados = da_marina(a5, a5 + timedelta(days=4))
         ok(c1['pedidos'] == len(esperados) and perto(c1['vendido'], sum(q['total'] - q.get('frete', 0) for q in esperados)),
            'os pedidos e o vendido do período são os da data inicial à final: %d pedido(s)' % len(esperados))
         # periodos seguidos: o saldo do fim de um, sem os lancamentos que valem pelo mes, e o saldo anterior do seguinte

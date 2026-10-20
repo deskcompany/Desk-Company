@@ -260,9 +260,9 @@ with sync_playwright() as p:
         ok(len(usos) == 3, 'os três usos do exemplo estão gravados')
         for v, u in usos:
             for tela in (PED_L, PED_D):
-                p_ = peds[tela].get(u['pedidoId'])
-                ok(bool(p_) and p_[0] == int(u['documento'].split('º ')[1]) and p_[2] == v['cliente'] and p_[3] == v['loja'] and iso(dia(-p_[1])) == u['data'],
-                   'o uso de %s no %s existe em %s, do mesmo cliente, da mesma loja e no dia da venda' % (moeda(u['valor']), u['documento'], tela.replace('pagina-vendas-', '').replace('.html', '')))
+                p_ = peds[tela].get(u['doc']['id'])
+                ok(u['doc']['tipo'] == 'pedido' and bool(p_) and p_[0] == int(u['doc']['rotulo'].split('º ')[1]) and p_[2] == v['cliente'] and p_[3] == v['loja'] and iso(dia(-p_[1])) == u['data'],
+                   'o uso de %s no %s existe em %s, do mesmo cliente, da mesma loja e no dia da venda (uso no formato da entrega 2: doc tipo/id/rotulo)' % (moeda(u['valor']), u['doc']['rotulo'], tela.replace('pagina-vendas-', '').replace('.html', '')))
         ok(pg.evaluate("CLIENTES_VALE.map(c => [c.id, c.nome, c.doc])") == [[k, cad[k][0], cad[k][1]] for k in sorted(cad)], 'a busca de cliente do Incluir vale é o espelho do cadastro (14 clientes, mesmo id, nome e documento)')
 
     # ================================================================== [2] os indicadores
@@ -676,12 +676,13 @@ with sync_playwright() as p:
 
     # ================================================================== [9] bloco identico, impressao e barra de rolagem
     if secao(9, 'O bloco de leitura idêntico nas três cópias, a impressão em relatório e a barra de rolagem'):
-        fontes = dict((n, fonte(n)) for n in (LISTA, DET, CLI_D))
+        TODAS = (LISTA, DET, CLI_D, 'pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-vendas-pedidos.html', 'pagina-financas-contas-receber.html', 'pagina-financas-contas-receber-detalhe.html')
+        fontes = dict((n, fonte(n)) for n in TODAS)
         INI, FIM = '  // ===== VALE-COMPRA: DADOS E REGRAS', '  // ===== FIM DO BLOCO VALE-COMPRA ====='
         blocos = [trecho(fontes[n], INI, FIM) for n in (LISTA, DET, CLI_D)]
-        ok(blocos[0] == blocos[1] == blocos[2] and len(blocos[0]) > 4000, 'o bloco de leitura do vale é idêntico na lista, na página do vale e no cadastro do cliente (%d caracteres)' % len(blocos[0]))
+        ok(len(set(trecho(fontes[n], INI, FIM) for n in TODAS)) == 1 and len(blocos[0]) > 4000, 'o bloco do vale é idêntico nas oito cópias: lista, página do vale, cadastro do cliente, PDV, Pedido de Venda (lista e detalhe) e Contas a Receber (lista e detalhe) (%d caracteres)' % len(blocos[0]))
         ok("localStorage.getItem('deskValesCompra')" in blocos[0] and "localStorage.setItem('deskValesCompraExemplo'" in blocos[0], 'o bloco lê a chave deskValesCompra e grava a marca do exemplo')
-        ok(sum(1 for n in (LISTA, DET, CLI_D) if 'function valeSituacao' in fontes[n]) == 3 and all(fontes[n].count('function valeSituacao') == 1 for n in fontes), 'a situação do vale é calculada num lugar só em cada tela, no bloco')
+        ok(sum(1 for n in TODAS if 'function valeSituacao' in fontes[n]) == 8 and all(fontes[n].count('function valeSituacao') == 1 for n in fontes), 'a situação do vale é calculada num lugar só em cada tela, no bloco')
         # a chave so e escrita pelos donos: a lista e a pagina do vale; o cadastro do cliente so le
         ok('valeGravar(' not in fontes[CLI_D].replace(blocos[2], ''), 'o cadastro do cliente só lê: não grava vale')
         # impressao em formato de relatorio

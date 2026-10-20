@@ -835,6 +835,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-menu">
           <div class="dropdown-select-item active" data-value="titulo">Contas a receber</div>
           <div class="dropdown-select-item" data-value="conta">Conta financeira</div>
+          <div class="dropdown-select-item" data-value="vale">Consome o vale do cliente</div>
         </div>
       </div>
       <div class="field-hint" id="hintDestino"></div>
@@ -888,7 +889,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
 
-    <div class="form-field">
+    <div class="form-field" id="campoTarifacao">
       <label>Taxa</label>
       <div class="dropdown-select" id="inputTarifacao" data-value="sem">
         <button type="button" class="dropdown-select-btn form-style">
@@ -931,7 +932,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
 
-    <div class="switch-row">
+    <div class="switch-row" id="linhaAntecipa">
       <div class="switch-row-texto">
         <div class="switch-row-titulo">Antecipação dos recebíveis</div>
         <div class="field-hint">O valor chega antes do vencimento, já com o desconto da antecipação.</div>
@@ -939,7 +940,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="switch" id="swAntecipa"></div>
     </div>
 
-    <div class="switch-row">
+    <div class="switch-row" id="linhaLimite">
       <div class="switch-row-texto">
         <div class="switch-row-titulo">Validar limite de crédito</div>
         <div class="field-hint">O Pedido de Venda confere o limite do cliente quando esta forma é escolhida. Faz sentido para venda a prazo.</div>
@@ -1583,7 +1584,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   ];
 
   const USOS = { ambos:'Receber e pagar', receber:'Receber', pagar:'Pagar' };
-  const DESTINOS = { titulo:'Contas a receber', conta:'Conta financeira' };
+  // `vale` e so da forma Vale-compra (entrega 2, 19/out/2026): consome o saldo de vale do cliente na loja, sem conta, sem taxa e sem entrar no Caixa.
+  const DESTINOS = { titulo:'Contas a receber', conta:'Conta financeira', vale:'Consome o vale do cliente' };
   const TARIFACOES = { sem:'Sem taxa', transacao:'no dia da transação', seguinte:'no dia seguinte', pagamento:'no dia do pagamento' };
 
   const FORMAS = [
@@ -1601,9 +1603,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Cheque NAO valida limite: decisao do usuario em 08/out/2026.
     { id:7,  chave:'cheque',        nome:'Cheque',            sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
     { id:8,  chave:'deposito',      nome:'Depósito',          sistema:true,  uso:'receber', destino:'titulo', contaId:2,    tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
-    // Reservada: a Devolucao ja oferece vale-troca como ressarcimento, tambem
-    // marcado como reservado. As duas pontas ligam juntas.
-    { id:9,  chave:'valetroca',     nome:'Vale-troca',        sistema:true,  uso:'receber', destino:'titulo', contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:false, reservada:true },
+    // Vale-compra (entrega 2, 19/out/2026): paga com o saldo de vale do cliente, so na loja que o emitiu. A chave interna continua
+    // `valetroca` (as outras telas reconhecem a forma por ela). A Devolucao segue com o vale reservado ate a entrega 3.
+    { id:9,  chave:'valetroca',     nome:'Vale-compra',       sistema:true,  uso:'receber', destino:'vale',   contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
     { id:10, chave:'transferencia', nome:'Transferência',     sistema:true,  uso:'pagar',   destino:null,     contaId:null, tarifacao:'sem',       taxaPct:0,    taxaFixa:0,    antecipa:false, validaLimite:false, ativo:true },
     // A unica forma criada pelo usuario no mock. Sem uma assim, o caminho de
     // exclusao nunca seria exercitado — e trava que nunca deixa passar e bug.
@@ -1774,9 +1776,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('blocoReceber').style.display = valorDe('inputUso') === 'pagar' ? 'none' : 'block';
     document.getElementById('blocoTaxa').style.display = valorDe('inputTarifacao') === 'sem' ? 'none' : 'block';
     document.getElementById('rotuloConta').textContent = direto ? 'Conta em que o valor entra' : 'Conta preferencial para a baixa';
-    document.getElementById('hintDestino').textContent = direto
-      ? 'O valor entra na conta na hora da venda, sem título. É o caso do dinheiro.'
-      : 'A venda vira título em Contas a Receber, porque o dinheiro só chega depois. É o caso de cartão, boleto e crediário.';
+    const vale = valorDe('inputDestino') === 'vale';
+    document.getElementById('hintDestino').textContent = vale
+      ? 'O valor sai do vale-compra do cliente, só na loja que emitiu o vale. Não é dinheiro novo: não entra no Caixa, e o título nasce em Contas a Receber já recebido.'
+      : (direto
+        ? 'O valor entra na conta na hora da venda, sem título. É o caso do dinheiro.'
+        : 'A venda vira título em Contas a Receber, porque o dinheiro só chega depois. É o caso de cartão, boleto e crediário.');
     document.getElementById('hintConta').textContent = direto
       ? 'Obrigatória: sem ela a venda não tem onde cair.'
       : 'Opcional. Vem escolhida quando o título desta forma é baixado.';
@@ -1794,6 +1799,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('blocoPrazoFixo').style.display = fixo ? 'block' : 'none';
     document.getElementById('campoTaxasParcela').style.display = comTaxa && maxParcelas > 1 ? 'block' : 'none';
     document.getElementById('linhaRepassa').style.display = comTaxa && fixo ? 'flex' : 'none';
+    // Vale-compra: sem conta, sem vencimento, sem taxa, sem antecipacao e sem limite. O que nao se aplica some.
+    ['campoConta', 'campoTarifacao', 'linhaAntecipa', 'linhaLimite'].forEach(id => { document.getElementById(id).style.display = vale ? 'none' : ''; });
+    if (vale) ['campoVencimento', 'blocoPrazoFixo', 'blocoTaxa'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     document.getElementById('swRepassa').classList.toggle('on', repassaEdicao);
     const pct1x = document.getElementById('inputTaxaPct').value;
     document.querySelectorAll('#gradeTaxasParcela .cf-taxa').forEach(cel => {
@@ -1811,7 +1819,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const el = document.getElementById('notaForma');
     const motivos = [];
     if (f && f.sistema)   motivos.push('É uma forma do sistema: <b>pode ser desabilitada, mas não excluída nem renomeada</b>. As outras telas a reconhecem pelo nome.');
-    if (f && f.reservada) motivos.push('Está <b>reservada</b>: passa a valer quando o vale-troca da Devolução for ligado. Até lá não pode ser habilitada.');
     el.innerHTML = motivos.join('<br>');
     el.style.display = motivos.length ? 'block' : 'none';
   }
@@ -1827,6 +1834,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? 'Forma do sistema: o nome é fixo.'
       : 'É este nome que aparece no Pedido de Venda, em Contas a Receber e em Contas a Pagar.';
     setDropdownValor('inputUso', f ? f.uso : 'receber');
+    // A opcao "consome o vale" e so da forma Vale-compra, e essa forma so tem ela.
+    document.querySelectorAll('#inputDestino .dropdown-select-item').forEach(i => {
+      const dela = i.getAttribute('data-value') === 'vale', eVale = !!(f && f.chave === 'valetroca');
+      i.style.display = dela === eVale ? '' : 'none';
+    });
     setDropdownValor('inputDestino', f && f.destino ? f.destino : 'titulo');
     setDropdownValor('inputConta', f && f.contaId ? String(f.contaId) : '');
     setDropdownValor('inputTarifacao', f ? f.tarifacao : 'sem');
@@ -1898,8 +1910,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const uso = valorDe('inputUso');
     const vaiReceber = uso !== 'pagar';
     const destino = vaiReceber ? valorDe('inputDestino') : null;
-    const contaId = vaiReceber && valorDe('inputConta') ? Number(valorDe('inputConta')) : null;
-    const tarifacao = vaiReceber ? valorDe('inputTarifacao') : 'sem';
+    const eVale = destino === 'vale';
+    const contaId = vaiReceber && !eVale && valorDe('inputConta') ? Number(valorDe('inputConta')) : null;
+    const tarifacao = vaiReceber && !eVale ? valorDe('inputTarifacao') : 'sem';
     const pct = tarifacao === 'sem' ? 0 : numero(document.getElementById('inputTaxaPct').value);
     const fixa = tarifacao === 'sem' ? 0 : numero(document.getElementById('inputTaxaFixa').value);
     let erro = false;
@@ -1939,7 +1952,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (erro) return;
 
     const dados = { uso, destino, contaId, tarifacao, taxaPct: pct, taxaFixa: fixa,
-                    antecipa: vaiReceber && antecipaEdicao, validaLimite: vaiReceber && limiteEdicao,
+                    antecipa: vaiReceber && !eVale && antecipaEdicao, validaLimite: vaiReceber && !eVale && limiteEdicao,
                     prazoUteis, parcelasMax, taxasParcela, repassa };
     // Mudar para onde o dinheiro vai, quanto fica de taxa ou se o limite e
     // conferido e mexer em regra de dinheiro: tem acao propria, que pede senha
@@ -1969,11 +1982,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('linkSituacaoForma').addEventListener('click', () => {
     const f = FORMAS.filter(x => x.id === formaEmEdicaoId)[0];
     if (!f) return;
-    if (!f.ativo && f.reservada) {
-      fecharDrawer();
-      setTimeout(() => avisarHTML('<b>' + f.nome + '</b> está reservada: passa a valer quando o vale-troca da Devolução for ligado.'), 260);
-      return;
-    }
     const vai = !f.ativo;
     abrirModalConfirmacao(vai
       ? 'Habilitar a forma "' + f.nome + '"? Ela volta a aparecer nas telas que a oferecem.'

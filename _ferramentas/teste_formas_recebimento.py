@@ -106,7 +106,7 @@ with sync_playwright() as p:
     ok(n == 11, 'com 25 por pagina as onze cabem numa pagina so: %d' % n)
     corpo = pg.inner_text('#listaFormas')
     for nome in ['Dinheiro', 'Pix', 'Cartão de crédito', 'Cartão de débito', 'Boleto', 'Crediário',
-                 'Cheque', 'Depósito', 'Vale-troca', 'Transferência']:
+                 'Cheque', 'Depósito', 'Vale-compra', 'Transferência']:
         ok(nome in corpo, 'a forma "%s" tem cadastro' % nome)
     ok(pg.evaluate("FORMAS.filter(f => f.sistema).length") == 10, 'dez sao do sistema')
     ok(pg.locator('#listaFormas .cf-cadeado').count() == 10, 'e as dez trazem o cadeado na lista')
@@ -129,8 +129,10 @@ with sync_playwright() as p:
     ok('r$ 2,90' in l and 'no dia do pagamento' in l, 'Boleto mostra a taxa fixa e quando ela incide: %s' % l)
     l = linha(pg, 'Transferência')
     ok(l.count('—') == 3 and '| pagar |' in l, 'forma que so paga nao inventa destino, conta nem taxa: %s' % l)
-    l = linha(pg, 'Vale-troca')
-    ok('reservada' in l and 'desabilitada' in l, 'Vale-troca aparece reservada e desabilitada: %s' % l)
+    l = linha(pg, 'Vale-compra')
+    ok('consome o vale do cliente' in l and 'habilitada' in l and 'desabilitada' not in l and 'reservada' not in l and l.count('—') == 1 and 'sem taxa' in l,
+       'Vale-compra (a chave interna continua valetroca) nasce habilitada, consome o vale do cliente, sem conta e sem taxa: %s' % l)
+    ok(pg.evaluate("FORMAS.filter(f => f.chave === 'valetroca')[0].nome") == 'Vale-compra', 'e a chave interna valetroca fica, com o nome novo')
     l = linha(pg, 'Cheque')
     ok('valida limite' not in l, 'Cheque NAO valida limite (decisao do usuario): %s' % l)
 
@@ -143,8 +145,7 @@ with sync_playwright() as p:
     ok('Transferência' in t and 'Dinheiro' in t and 'Cheque' not in t, '"valem para pagar" mostra Transferencia e Dinheiro, e tira o Cheque')
     escolher(pg, 'filtroUso', 'todos')
     escolher(pg, 'filtroSituacao', 'inativo')
-    ok(pg.locator('#listaFormas tbody tr').count() == 1 and 'Vale-troca' in pg.inner_text('#listaFormas'),
-       '"desabilitadas" mostra so o Vale-troca')
+    ok(pg.locator('#listaFormas tbody tr').count() == 0, '"desabilitadas" nao mostra nada: o Vale-compra nasce habilitado')
     escolher(pg, 'filtroSituacao', 'todos')
     pg.fill('#campoBusca', 'mercado')
     pg.wait_for_timeout(250)
@@ -335,17 +336,31 @@ with sync_playwright() as p:
     ok(pg.inner_text('#linkSituacaoForma').strip() == 'Habilitar', 'o link do painel vira "Habilitar"')
     clic(pg, '#linkSituacaoForma'); pg.wait_for_timeout(350); confirmar(pg, senha=False)
     ok('habilitada' in linha(pg, 'Depósito') and 'desabilitada' not in linha(pg, 'Depósito'), 'e ela volta')
-    abrir(pg, 'Vale-troca')
-    ok('reservada' in pg.inner_text('#notaForma').lower(), 'a reservada avisa no painel que nao pode ser ligada')
-    clic(pg, '#linkSituacaoForma')
-    pg.wait_for_timeout(600)
-    ok(pg.evaluate("FORMAS.filter(f => f.chave === 'valetroca')[0].ativo") is False and
-       pg.locator('#confirmModal.open').count() == 1 and 'reservada' in pg.inner_text('#confirmModalTexto'),
-       'e tentar habilitar explica, em vez de ligar')
-    clic(pg, '#btnConfirmModalConfirmar')
-    pg.wait_for_timeout(350)
-    if pg.locator('#confirmModal.open').count():
-        clic(pg, '#btnConfirmModalCancelar'); pg.wait_for_timeout(300)
+    # Vale-compra: forma do sistema que consome o vale do cliente. Sem conta, sem vencimento, sem taxa, sem antecipacao e sem limite.
+    abrir(pg, 'Vale-compra')
+    nota = pg.inner_text('#notaForma').lower()
+    ok('forma do sistema' in nota and 'reservada' not in nota, 'o painel do Vale-compra diz que e forma do sistema e nao fala em reservada: %s' % nota[:90])
+    ok(pg.inner_text('#inputDestino .dropdown-select-label').strip() == 'Consome o vale do cliente' and pg.inner_text('#linkSituacaoForma').strip() == 'Desabilitar',
+       'o destino e "Consome o vale do cliente" e o link e Desabilitar (ja nasce ligada)')
+    ok(not any(visivel(pg, s) for s in ['#campoConta', '#campoTarifacao', '#campoVencimento', '#blocoTaxa', '#linhaAntecipa', '#linhaLimite']),
+       'conta, taxa, vencimento, antecipacao e limite somem: nao se aplicam ao vale')
+    ok(pg.evaluate("[...document.querySelectorAll('#inputDestino .dropdown-select-item')].filter(i => i.style.display !== 'none').map(i => i.getAttribute('data-value'))") == ['vale'],
+       'a forma do vale so tem a opcao de destino dela')
+    clic(pg, '#linkSituacaoForma'); pg.wait_for_timeout(350)
+    ok(pg.locator('#confirmModal.open').count() == 1 and 'Desabilitar' in pg.inner_text('#confirmModalTexto'), 'desabilitar o Vale-compra pergunta antes')
+    confirmar(pg, senha=False)
+    ok('desabilitada' in linha(pg, 'Vale-compra') and pg.evaluate("FORMAS.filter(f => f.chave === 'valetroca')[0].ativo") is False, 'e ele fica desabilitado na lista (sai das telas que oferecem formas)')
+    escolher(pg, 'filtroSituacao', 'inativo')
+    ok(pg.locator('#listaFormas tbody tr').count() == 1 and 'Vale-compra' in pg.inner_text('#listaFormas'), '"desabilitadas" passa a mostrar so o Vale-compra')
+    escolher(pg, 'filtroSituacao', 'todos')
+    abrir(pg, 'Vale-compra')
+    clic(pg, '#linkSituacaoForma'); pg.wait_for_timeout(350); confirmar(pg, senha=False)
+    ok('habilitada' in linha(pg, 'Vale-compra') and 'desabilitada' not in linha(pg, 'Vale-compra'), 'e habilitar volta a forma sem aviso de reservada')
+    abrir(pg, 'Carteira digital')
+    ok([visivel(pg, s) for s in ['#campoConta', '#campoTarifacao']] == [True, True] and
+       pg.evaluate("[...document.querySelectorAll('#inputDestino .dropdown-select-item')].filter(i => i.style.display !== 'none').map(i => i.getAttribute('data-value'))") == ['titulo', 'conta'],
+       'forma comum nao oferece o destino do vale e continua mostrando conta e taxa')
+    clic(pg, '#drawerClose'); pg.wait_for_timeout(300)
 
     print('\n[10] Excluir so o que o usuario criou, e com senha')
     abrir(pg, 'Carteira digital')
