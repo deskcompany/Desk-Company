@@ -12,7 +12,16 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 **Vale-compra, entrega 2: testada e aprovada pelo usuário em 20/out** (§14.90; o que foi feito está no HISTORICO.md).
 **O próximo é a entrega 3: o vale nasce da Devolução** (o ressarcimento que vira crédito na loja) **e do pagamento de
-Comissão**, começando pela barganha. É a última do Vale-compra: com ela a Devolução deixa o vale reservado e o nome antigo.
+Comissão**. É a última do Vale-compra: com ela a Devolução deixa o vale reservado e o nome antigo.
+
+**Barganha da entrega 3, aprovada pelo usuário em 20/out** (ele escolheu as cinco recomendações):
+- **Devolução: o vale nasce ao finalizar**, com o total da devolução, na loja do pedido de origem. Escolher a forma só anota.
+- **Devolução finalizada com vale e depois cancelada:** o vale intacto é cancelado junto; vale já usado, mesmo em parte,
+  impede cancelar a devolução (o caminho é um acerto).
+- **Comissão: só afiliado recebe em vale** (vendedor é funcionário, e comissão de funcionário é salário, em dinheiro).
+- **Sem bônus:** R$ 100 de comissão viram R$ 100 de vale, na loja da comissão.
+- **A comissão paga em vale aparece em Contas a Pagar já paga**, forma Vale-compra, só leitura, sem saída do Caixa (o
+  espelho do que a entrega 2 fez em Contas a Receber).
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
