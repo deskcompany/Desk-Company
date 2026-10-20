@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 20/out/2026: o Vale-compra concluído, com a entrega 3 aprovada pelo usuário.*
+*Atualizado em 20/out/2026: o Vale-compra concluído; Gateways de Pagamento, entrega 1, feita.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -13,9 +13,30 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
-**Gateways de Pagamento: barganha aprovada pelo usuário em 20/out, construção começando.** Ele decidiu fazer este antes da F0
-(o único item do menu no caminho do MVP) e deixar os relatórios e as telas que leem o que já existe para depois, com banco.
-Mandou os prints do Olist (lista, página com Pagar.me, Pagar.me 2.0 e Outro, e os menus). Escolheu as quatro recomendações:
+**Gateways de Pagamento, entrega 1: feita em 20/out/2026, esperando o teste do usuário (§14.92).**
+- **A lista e a página do gateway** (InfinityPay e Outro): as lojas em que vale, a tabela de condições comerciais dos cartões (até 99 linhas,
+  agrupada por bandeira), a chave da API que nunca volta inteira, o teste de conexão (simulado) e o link de conciliação.
+- **A conta financeira nasce com o gateway** e aparece em Configurações → Contas financeiras (renomeia, acompanha a situação, sai com ele).
+- **O item do menu ganhou destino em todas as telas:** 44 de 55 itens, 88 telas. Formas de Recebimento e o PDV não mudaram: é a entrega 2.
+
+O que conferir (abra a lista primeiro: é ela que cria os três gateways de exemplo no navegador):
+1. A lista: http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Abre só nos Habilitados (InfinityPay e Stone); troque o filtro para
+   Todos (aparece a Cielo, desabilitada), busque, e use "limpar filtros". "Incluir gateway" abre a página em branco.
+2. O InfinityPay do exemplo: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=1 . A chave aparece como `••••d605`; "testar conexão"
+   diz "Conexão ok (simulada no protótipo)"; "Trocar chave" abre a caixa de senha (chave curta dá erro; salvar a chave nova pede a senha); "Gerar link
+   para conciliação" mostra o endereço fictício e o "copiar". As faixas de crédito da tabela abrem e fecham.
+3. O Stone, do tipo Outro, com as oito bandeiras: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=2 . Tire uma bandeira (as linhas dela saem; se
+   você editou uma taxa, a tela avisa), troque a tarifação para "Em dia específico" (aparece o Dia para débito), ponha "Repassar taxas" em "Não" (o
+   "a partir da" trava) e tente "adicionar condição comercial" repetindo uma que já existe.
+4. Um gateway novo: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?novo=1 . Escolha o tipo (os blocos mudam e a descrição nasce com o nome do tipo), marque as
+   lojas e salve: a conta financeira nasce. Mexa num campo e tente voltar sem salvar: a tela pergunta.
+5. A conta financeira: http://localhost:3000/configuracoes/pagina-configuracoes-contas-financeiras.html . Uma conta por gateway, só leitura, com o link de volta. Renomeie o gateway,
+   desabilite-o (a conta passa para Inativas) e exclua-o (a conta sai; pede senha e o painel diz isso).
+6. O menu: em qualquer tela, Integrações → Gateways de Pagamento abre a lista. E http://localhost:3000/configuracoes/pagina-configuracoes-confirmacoes-senha.html mostra as quatro
+   ações novas (grupo Integrações); trocar a chave e excluir pedem senha, incluir e alterar não.
+
+A barganha que ele aprovou em 20/out (ele decidiu fazer este antes da F0, o único item do menu no caminho do MVP, e deixar os relatórios e as
+telas que leem o que já existe para depois, com banco; mandou os prints do Olist e escolheu as quatro recomendações):
 - **O gateway é dono das taxas e prazos dos cartões:** a tabela "Condições comerciais" (forma, bandeira, parcelas, prazo, taxa,
   tarifa) fica no gateway; em Formas de Recebimento o cartão escolhe o gateway e mostra as condições só para leitura.
 - **Gateways: InfinityPay** (o decidido no roadmap: chave da API, testar conexão, conciliação) **e Outro** (maquininha ou banco
@@ -37,10 +58,10 @@ num pacote só. Medir nas próximas rodadas.
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **43 de 55 (78%)**, em 86 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **44 de 55 (80%)**, em 88 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
-Os 78% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
+Os 80% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
 Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
@@ -53,7 +74,7 @@ Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
 | Vendas | 4 de 8 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
-| Integrações | 0 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Gateways de Pagamento, Relatórios de Integrações |
+| Integrações | 1 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Relatórios de Integrações |
 | Configurações | hub com 19 telas | Formas de pagamento (a lista fiscal da NF-e) |
 
 O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.

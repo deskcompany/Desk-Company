@@ -506,6 +506,10 @@
   .cf-chip.pref  { color:#1E6B2E; }
   .cf-chip.fora  { color:#B45309; }
   .cf-chip.banco { color:var(--active-text); }
+  .cf-chip.gw    { color:var(--active-text); }
+  .cf-origem { font-size:11.5px; color:var(--text); margin-top:4px; }
+  .cf-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .cf-link:hover { text-decoration:underline; }
   body.dark .cf-chip.pref { color:#6FCF97; }
   body.dark .cf-chip.fora { color:#F5A623; }
   .cf-cadeado { width:14px; height:14px; color:var(--text); vertical-align:-2px; margin-right:6px; }
@@ -676,7 +680,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <h4>Integrações</h4>
     <div class="flyout-body">
       <div class="flyout-item" data-label="Marketplaces e Hubs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Marketplaces e Hubs</div>
-      <div class="flyout-item" data-label="Gateways de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
+      <div class="flyout-item" data-label="Gateways de Pagamento" data-href="../integracoes/pagina-integracoes-gateways.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
       <div class="flyout-item" data-label="Emissão de Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Emissão de Notas Fiscais</div>
       <div class="flyout-item" data-label="Relatórios de Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Integrações</div>
     </div>
@@ -1425,6 +1429,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:6, nome:'Conta teste',                  contabil:'',        sistema:false, preferencial:false, foraFluxo:false, ativo:true,  saldo:0,        bancaria:false }
   ];
 
+  // As contas que os gateways criaram (Integracoes > Gateways de Pagamento, 20/out/2026). O dono do dado e o gateway: cada um gravado em `deskGateways` tem uma conta
+  // com a descricao dele, na situacao dele. Elas so se leem aqui (renomear, inativar e excluir se faz na pagina do gateway) e nao entram no saldo: no prototipo nao ha
+  // lancamento nelas. As outras telas que tem espelho de Contas financeiras seguem com a lista fixa acima: ligar o gateway a elas e a entrega 2.
+  function contasDosGateways() {
+    try {
+      const d = JSON.parse(localStorage.getItem('deskGateways'));
+      return (d && Array.isArray(d.gateways) ? d.gateways : []).map(g => ({ id:'gw' + g.id, nome:g.descricao, contabil:'', sistema:false, preferencial:false, foraFluxo:false,
+        ativo:g.situacao === 'habilitado', saldo:0, bancaria:false, gatewayId:g.id }));
+    } catch (e) { return []; }
+  }
+  const escHtml = (s) => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+
   let contaEmEdicaoId = null;
   let paginaAtual = 1;
   let itensPorPaginaAtual = PARAM.registrosPorPagina;   // padrao de abertura: Configuracoes > Interface do usuario
@@ -1450,7 +1466,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function listaFiltrada() {
     const b = semAcento(buscaAtual);
-    return CONTAS.filter(c =>
+    return CONTAS.concat(contasDosGateways()).filter(c =>
       (filtroSituacaoAtual === 'todos' || (filtroSituacaoAtual === 'ativo' ? c.ativo : !c.ativo)) &&
       (b === '' || semAcento(c.nome).indexOf(b) !== -1 || semAcento(c.contabil).indexOf(b) !== -1)
     );
@@ -1484,17 +1500,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           if (c.preferencial) chips.push('<span class="cf-chip pref">preferencial</span>');
           if (c.foraFluxo)    chips.push('<span class="cf-chip fora">fora do fluxo</span>');
           if (c.bancaria)     chips.push('<span class="cf-chip banco">tem conta banc\u00e1ria</span>');
-          return '<tr data-id="' + c.id + '">' +
+          if (c.gatewayId)    chips.push('<span class="cf-chip gw">gateway</span>');
+          return '<tr data-id="' + c.id + '"' + (c.gatewayId ? ' data-gw="' + c.gatewayId + '"' : '') + '>' +
             '<td class="col-texto">' +
-              (c.sistema ? cadeado : '') + '<span class="cf-nome">' + c.nome + '</span>' +
+              (c.sistema ? cadeado : '') + '<span class="cf-nome">' + escHtml(c.nome) + '</span>' +
               (chips.length ? '<div class="cf-chips">' + chips.join('') + '</div>' : '') +
+              (c.gatewayId ? '<div class="cf-origem">criada pelo gateway <a class="cf-link" href="../integracoes/pagina-integracoes-gateways-detalhe.html?id=' + c.gatewayId + '">' + escHtml(c.nome) + '</a>. Para mudar, use a p\u00e1gina do gateway.</div>' : '') +
             '</td>' +
             '<td class="col-texto cf-contabil">' + (c.contabil || '<span class="cf-vazio">\u2014</span>') + '</td>' +
             '<td>' + fmtMoeda(c.saldo) + '</td>' +
             '<td class="col-texto">' + (c.ativo ? 'Ativa' : 'Inativa') + '</td>' +
           '</tr>';
         }).join('') + '</tbody></table></div>';
-      cx.querySelectorAll('tbody tr').forEach(tr => {
+      cx.querySelectorAll('tbody tr:not([data-gw])').forEach(tr => {
         tr.style.cursor = 'pointer';
         tr.addEventListener('click', () => abrirDrawerConta(Number(tr.getAttribute('data-id'))));
       });

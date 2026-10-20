@@ -223,6 +223,8 @@ def audita(caminho):
              'deskComissoesExemplo',   # 19/out: marca de que os tres pagamentos de exemplo ja nasceram neste navegador
              'deskValesCompra',   # 19/out: Vale-compra. Os vales (saldo do cliente por loja): a lista inclui, a pagina do vale cancela e reativa, e o cadastro do cliente le
              'deskValesCompraExemplo',   # 19/out: marca de que os cinco vales de exemplo ja nasceram neste navegador
+             'deskGateways',   # 20/out: Gateways de Pagamento. Os gateways (tipo, lojas, condicoes comerciais dos cartoes, chave da API): a pagina grava, a lista le, e Contas financeiras le para mostrar a conta de cada um
+             'deskGatewaysExemplo',   # 20/out: marca de que os tres gateways de exemplo ja nasceram neste navegador
              'deskDevolucoes',   # 20/out: a devolucao inteira, por id, gravada pelo detalhe a cada acao; a lista le (a gravada vence a de exemplo)
              'deskSaques'}   # 15/out: a decisao sobre o saque que o cliente afiliado pede na vitrine (aprovado ou recusado)
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])

@@ -1321,7 +1321,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <h4>Integrações</h4>
     <div class="flyout-body">
       <div class="flyout-item" data-label="Marketplaces e Hubs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Marketplaces e Hubs</div>
-      <div class="flyout-item" data-label="Gateways de Pagamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
+      <div class="flyout-item" data-label="Gateways de Pagamento" data-href="../integracoes/pagina-integracoes-gateways.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
       <div class="flyout-item" data-label="Emissão de Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Emissão de Notas Fiscais</div>
       <div class="flyout-item" data-label="Relatórios de Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Integrações</div>
     </div>
@@ -1596,6 +1596,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'valeCompraIncluir',   nome:'Incluir vale-compra de cortesia',                     onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'valeCompraCancelar',  nome:'Cancelar vale-compra',                                onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
     { chave:'valeCompraReativar',  nome:'Reativar vale-compra vencido',                        onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'gatewayIncluir',      nome:'Incluir gateway de pagamento',                        onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:false },
+    { chave:'gatewayEditar',       nome:'Alterar gateway de pagamento',                        onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:false },
+    { chave:'gatewayChave',        nome:'Guardar, trocar ou apagar a chave da API de um gateway', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
+    { chave:'gatewayExcluir',      nome:'Excluir gateway de pagamento e a conta financeira dele', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
     { chave:'formasRecebimentoRegra', nome:'Alterar destino, taxa ou limite de uma forma de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', pronto:true,  exigePadrao:true },
     { chave:'pdvSangria',           nome:'Lançar sangria de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },

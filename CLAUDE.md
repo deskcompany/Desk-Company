@@ -49,7 +49,7 @@ ERP System\
 │   ├── inicio\            boas-vindas, agenda, minha conta e o dashboard de KPIs
 │   ├── cadastros\  estoque\  vendas\  logistica\  financas\
 │   ├── configuracoes\     abre pelo hub; guarda também Transportadoras e os Motivos
-│   ├── integracoes\       vazia: nenhuma tela construída ainda
+│   ├── integracoes\       Gateways de Pagamento (a lista e a página); o resto do módulo ainda não tem tela
 │   ├── _molde\            pagina-molde-referencia.html
 │   └── fontes\            Nunito, usada por todas as telas
 ├── docs\                  design system, arquitetura, mapa dos módulos, pesquisas
