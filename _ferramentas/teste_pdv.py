@@ -19,7 +19,7 @@
 #   [8]   turno: sangria com senha e limite, reforco, fechamento CEGO, diferenca
 #         que so fecha com senha;
 #   [9]   ESPELHOS: tudo que o PDV le de outro cadastro bate com o cadastro;
-#   [10]  parametros: os nove nascem nas duas telas, e o PDV obedece;
+#   [10]  parametros: os dez nascem nas duas telas, e o PDV obedece;
 #   [11]  as acoes estao no catalogo de senhas;
 #   [12]  atalhos, os dois temas e erro de JS.
 from playwright.sync_api import sync_playwright
@@ -43,7 +43,7 @@ CATEG_CAD = 'pagina-configuracoes-categorias-financeiras.html'
 CATALOGOS = ['pagina-configuracoes-confirmacoes-senha.html', 'pagina-configuracoes-registro-atividades.html',
              'pagina-cadastros-vendedores-detalhe.html']
 CHAVES = ['pdvSituacaoVenda', 'pdvVendedorObrigatorio', 'pdvClienteObrigatorio', 'pdvBloqueiaSemEstoque',
-          'pdvBloqueiaAlterarPreco', 'pdvDescontoMaximoPct', 'pdvAgrupaIguais', 'pdvAbreComUltimoFechamento', 'pdvFechamentoCego']
+          'pdvBloqueiaAlterarPreco', 'pdvDescontoMaximoPct', 'pdvAgrupaIguais', 'pdvAbreComUltimoFechamento', 'pdvFechamentoCego', 'pdvDescontoAVista']
 
 falhas = []
 total = [0]
@@ -87,7 +87,10 @@ def fechar_aviso(pg):
 
 
 def zerar(pg, param=None):
-    """Comeca do zero: sem turno guardado e com os parametros pedidos."""
+    """Comeca do zero: sem turno guardado e com os parametros pedidos. O desconto a vista (Pix e dinheiro) fica DESLIGADO aqui, para os numeros destas vendas
+    serem os do valor cheio; ele tem suite propria (teste_gateway_uso.py)."""
+    param = dict(param or {})
+    param.setdefault('pdvDescontoAVista', False)
     pg.goto(localiza.http(TELA)); pg.wait_for_load_state('load')
     pg.evaluate("(p) => { localStorage.removeItem('deskPdv'); if (p) localStorage.setItem('deskParametros', JSON.stringify(p)); else localStorage.removeItem('deskParametros'); }", param)
     pg.reload(); pg.wait_for_load_state('load'); pg.wait_for_timeout(600)
@@ -332,17 +335,17 @@ with sync_playwright() as p:
     ok('recebido' in pg.inner_text('#faltaReceber') and 'menor' in pg.inner_text('#faltaReceber'), 'dinheiro recebido menor que o valor e barrado')
     pg.fill('[data-receb-recebido="0"]', '350'); pg.locator('[data-receb-recebido="0"]').blur(); pg.wait_for_timeout(250)
     ok(pg.inner_text('#totTroco') == 'R$ 50,00', 'recebido maior vira troco: %s' % pg.inner_text('#totTroco'))
-    # Desde 21/out/2026 o cartao le o gateway: o PDV oferece a maquininha da loja (a Stone) e a bandeira, e o repasse segue a regra do gateway.
-    # A Stone de fabrica nao repassa; aqui ela passa a "opcional", para o switch existir.
+    # Desde 21/out/2026 o cartao le o gateway: o PDV oferece a maquininha da loja (a InfinitePay Bronze) e a bandeira, e o repasse segue a regra do gateway.
+    # A Bronze de fabrica ja repassa "opcional" a partir da 1a parcela; o auxiliar garante o cenario, para o switch existir.
     gateway(pg, 2, repassar='opcional', repassarAPartir=1)
     receber(pg, 'credito')
     ok(pg.evaluate('venda.recebimentos[1].valor') == 449.7, 'a segunda forma ja vem com o que falta')
     # Cartao: prazo do gateway. Ninguem digita dia nem parcela de titulo; a conta e a do gateway.
     lr = pg.inner_text('#listaReceb')
-    ok('Taxa da maquininha (3,00%)' in lr and 'R$ 13,49' in lr and 'R$ 436,21' in lr, 'cartao em 1x mostra a taxa do gateway (Stone, 3,00%) e quanto a loja recebe')
+    ok('Taxa da maquininha (3,15%)' in lr and 'R$ 14,17' in lr and 'R$ 435,53' in lr, 'cartao em 1x mostra a taxa do gateway (Bronze, Visa, 3,15%) e quanto a loja recebe')
     ok('Passar no cartão do cliente' in lr and 'R$ 449,70' in lr, 'sem repasse, o valor a passar no cartao e o valor da venda')
-    util = (datetime.date.today() + datetime.timedelta(days=31)).strftime('%d/%m/%Y')
-    ok(('A loja recebe em ' + util) in lr and '(31 dias)' in lr, 'e a loja recebe em 31 dias corridos, pelo prazo do gateway: %s' % util)
+    util = prox_util(datetime.date.today(), 1).strftime('%d/%m/%Y')
+    ok(('A loja recebe em ' + util) in lr and '(1 dia útil)' in lr, 'e a loja recebe em 1 dia util, pelo prazo do gateway: %s' % util)
     ok(pg.locator('[data-receb-expr="1"]').count() == 0 and pg.locator('[data-parc-dias^="1:"]').count() == 0 and pg.locator('[data-parc-valor^="1:"]').count() == 0,
        'no cartao nao ha campo de dias nem de valor de parcela para digitar')
     ok('limite de crédito' not in lr, 'e o cartao NAO confere o limite de credito do cliente')
@@ -350,22 +353,22 @@ with sync_playwright() as p:
        'dia util: sexta 09/10 sim; sabado, domingo e o feriado nacional de data fixa (segunda 12/10) nao; terca 13/10 sim')
     vezes(pg, 1, 3)
     r1 = pg.evaluate('venda.recebimentos[1]')
-    ok(r1['vezes'] == 3 and pg.evaluate('taxaDe(venda.recebimentos[1])') == 19.11 and 'Taxa da maquininha (4,25%)' in pg.inner_text('#listaReceb'),
-       'em 3x a taxa vem da linha do gateway (Mastercard 3x): 4,25% de 449,70 = 19,11')
+    ok(r1['vezes'] == 3 and pg.evaluate('taxaDe(venda.recebimentos[1])') == 27.52 and 'Taxa da maquininha (6,12%)' in pg.inner_text('#listaReceb'),
+       'em 3x a taxa vem da linha do gateway (Visa 3x): 6,12% de 449,70 = 27,52')
     ok(len(r1['parcelas']) == 1 and r1['parcelas'][0]['valor'] == 449.7, 'e continua UM titulo so, no valor cheio: a operadora paga tudo no prazo')
     ok(not visivel(pg, '#finAcrescimoLinha') and pg.inner_text('#finTotal') == 'R$ 749,70', 'sem repasse, nao ha acrescimo e o total nao muda')
     clic(pg, '[data-receb-repassa="1"]'); pg.wait_for_timeout(250)
     lr = pg.inner_text('#listaReceb')
-    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 469.66 and 'R$ 469,66 em 3x' in lr,
-       'com repasse, passa no cartao 449,70 / (1 - 4,25%%) = 469,66: %s' % pg.evaluate('cobradoDe(venda.recebimentos[1])'))
-    ok(pg.evaluate('taxaDe(venda.recebimentos[1])') == 19.96 and lr.count('R$ 449,70') >= 1 and 'O cliente paga a taxa' in lr,
-       'e tirada a taxa de 19,96 a loja recebe os 449,70 cheios')
-    ok(visivel(pg, '#finAcrescimoLinha') and '+ R$ 19,96' in pg.inner_text('#finAcrescimo') and pg.inner_text('#finTotal') == 'R$ 769,66' and pg.inner_text('#totVendaFin') == 'R$ 769,66',
+    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 479.02 and 'R$ 479,02 em 3x' in lr,
+       'com repasse, passa no cartao 449,70 / (1 - 6,12%%) = 479,02: %s' % pg.evaluate('cobradoDe(venda.recebimentos[1])'))
+    ok(pg.evaluate('taxaDe(venda.recebimentos[1])') == 29.32 and lr.count('R$ 449,70') >= 1 and 'O cliente paga a taxa' in lr,
+       'e tirada a taxa de 29,32 a loja recebe os 449,70 cheios')
+    ok(visivel(pg, '#finAcrescimoLinha') and '+ R$ 29,32' in pg.inner_text('#finAcrescimo') and pg.inner_text('#finTotal') == 'R$ 779,02' and pg.inner_text('#totVendaFin') == 'R$ 779,02',
        'o acrescimo aparece no resumo e o total da venda sobe junto: %s' % pg.inner_text('#finTotal'))
-    ok('Pode finalizar' in pg.inner_text('#faltaReceber') and 'R$ 769,66' in pg.inner_text('#faltaReceber'), 'e a venda continua fechando, agora no total com acrescimo')
+    ok('Pode finalizar' in pg.inner_text('#faltaReceber') and 'R$ 779,02' in pg.inner_text('#faltaReceber'), 'e a venda continua fechando, agora no total com acrescimo')
     pg.fill('[data-receb-valor="1"]', '249,70'); pg.locator('[data-receb-valor="1"]').blur(); pg.wait_for_timeout(250)
-    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 260.78 and pg.inner_text('#finTotal') == 'R$ 760,78' and 'Falta receber R$ 200,00' in pg.inner_text('#faltaReceber'),
-       'mudar o valor do cartao refaz o repasse (260,78) e o que falta e medido pela venda, nao pelo acrescimo')
+    ok(pg.evaluate('cobradoDe(venda.recebimentos[1])') == 265.98 and pg.inner_text('#finTotal') == 'R$ 765,98' and 'Falta receber R$ 200,00' in pg.inner_text('#faltaReceber'),
+       'mudar o valor do cartao refaz o repasse (265,98) e o que falta e medido pela venda, nao pelo acrescimo')
     # Boleto: vencimento combinado na venda. Aqui os dias e as parcelas sao digitados, e o limite e conferido.
     receber(pg, 'boleto')
     ok(pg.evaluate('venda.recebimentos[2].valor') == 200, 'a terceira forma ja vem com o que falta')
@@ -402,23 +405,23 @@ with sync_playwright() as p:
     clic(pg, '#btnFinalizar'); pg.wait_for_timeout(450)
     ok(pg.evaluate('momento') == 'concluida' and pg.inner_text('#concTitulo') == 'Venda nº 1 finalizada', 'a venda finaliza e ganha numero')
     ok('Bianca Furtado' in pg.inner_text('#concSub') and 'Nordeste' in pg.inner_text('#concSub'), 'com vendedor e cliente')
-    ok(pg.inner_text('#concTotal') == 'R$ 760,78' and pg.inner_text('#concDinheiro') == 'R$ 350,00' and pg.inner_text('#concTroco') == 'R$ 50,00', 'total (com o acrescimo do cartao), recebido em dinheiro e troco conferem')
+    ok(pg.inner_text('#concTotal') == 'R$ 765,98' and pg.inner_text('#concDinheiro') == 'R$ 350,00' and pg.inner_text('#concTroco') == 'R$ 50,00', 'total (com o acrescimo do cartao), recebido em dinheiro e troco conferem')
     g = pg.inner_text('#concGerado')
     ok('Pedido de Venda PDV-0001' in g and 'Entregue' in g and 'Bianca Furtado' in g, 'gerou o Pedido de Venda ja entregue, na meta do vendedor')
     ok('Baixa de estoque em Geral: 3 unidades de 1 produto' in g, 'gerou a baixa no deposito: %s' % [l for l in g.split(chr(10)) if 'Baixa' in l][:1])
     ok('R$ 300,00 entram na hora em Caixa' in g, 'o dinheiro entra direto na conta, sem titulo')
-    ok('1 título em Contas a Receber, somando R$ 260,78 (Cartão de crédito em 3x)' in g and ('Vencimento em ' + util) in g and 'Inclui R$ 11,08 de taxa repassada' in g,
+    ok('1 título em Contas a Receber, somando R$ 265,98 (Cartão de crédito em 3x)' in g and ('Vencimento em ' + util) in g and 'Inclui R$ 16,28 de taxa repassada' in g,
        'o cartao gerou UM titulo, no valor cobrado, vencendo pelo prazo do gateway: %s' % [l for l in g.split(chr(10)) if 'Cartão' in l][:1])
-    ok('a receber de Stone — maquininha da loja' in g and 'Maquininha Stone — maquininha da loja, bandeira Mastercard' in g, 'a receber da conta do gateway, com a maquininha e a bandeira no titulo')
-    ok('Taxa de R$ 11,08 em Cartão de crédito' in g and 'Entra líquido: R$ 249,70' in g, 'com a taxa e o liquido, que e o valor cheio da venda no cartao')
+    ok('a receber de InfinitePay Maquininha — Bronze' in g and 'Maquininha InfinitePay Maquininha — Bronze, bandeira Visa' in g, 'a receber da conta do gateway, com a maquininha e a bandeira no titulo')
+    ok('Taxa de R$ 16,28 em Cartão de crédito' in g and 'Entra líquido: R$ 249,70' in g, 'com a taxa e o liquido, que e o valor cheio da venda no cartao')
     ok('2 títulos em Contas a Receber, somando R$ 200,00 (Boleto)' in g and 'Distribuidora Nordeste' in g and 'Taxa de R$ 2,90 em Boleto' in g,
        'o boleto gerou os dois titulos combinados, em nome do cliente')
     ok(pg.evaluate("saldoDe('FON-BT-200', 1)") == 31, 'o saldo do produto baixou de 34 para 31')
     ok(pg.evaluate('usados[3]') == 200, 'e o limite do cliente passou a contar so o boleto, nao o cartao')
     clic(pg, '#btnRecibo'); pg.wait_for_timeout(250)
     r = pg.evaluate("document.getElementById('folhaImpressao').innerText")
-    ok(pg.evaluate('window.__imprimiu') == 1 and 'Recibo de venda' in r and 'R$ 760,78' in r and 'Troco' in r, 'o recibo traz itens, valores, formas e troco')
-    ok('Acréscimo do cartão' in r and 'R$ 11,08' in r and 'Cartão de crédito · 3x' in r and 'R$ 260,78' in r and ('venc. ' + util) not in r,
+    ok(pg.evaluate('window.__imprimiu') == 1 and 'Recibo de venda' in r and 'R$ 765,98' in r and 'Troco' in r, 'o recibo traz itens, valores, formas e troco')
+    ok('Acréscimo do cartão' in r and 'R$ 16,28' in r and 'Cartão de crédito · 3x' in r and 'R$ 265,98' in r and ('venc. ' + util) not in r,
        'o recibo mostra o acrescimo e o cartao em 3x, sem "vencimento" de cartao para o cliente')
     clic(pg, '#btnReciboTroca'); pg.wait_for_timeout(250)
     r = pg.evaluate("document.getElementById('folhaImpressao').innerText")
@@ -429,17 +432,17 @@ with sync_playwright() as p:
     print('\n[8] Turno: sangria, reforco e fechamento cego')
     clic(pg, '#btnDetalhesCaixa'); pg.wait_for_timeout(300)
     d = pg.inner_text('#caixaCorpo')
-    ok('Caixa aberto em ' in d and 'R$ 150,00' in d and '1 · R$ 760,78' in d, 'detalhes mostra abertura, troco e vendas')
+    ok('Caixa aberto em ' in d and 'R$ 150,00' in d and '1 · R$ 765,98' in d, 'detalhes mostra abertura, troco e vendas')
     ok(all(x in d for x in ['Loja', 'Desk Shope', 'Operador de abertura', 'Troco inicial', 'Sangrias', 'Reforços']) and 'resumo por forma' in d.lower(),
        'com loja, operador, troco, sangrias, reforcos e o resumo por forma')
-    ok('não aparece com o caixa aberto' in d and 'R$ 450,00' not in d and 'R$ 260,78' not in d, 'e NAO mostra o esperado por forma: o fechamento e cego')
+    ok('não aparece com o caixa aberto' in d and 'R$ 450,00' not in d and 'R$ 265,98' not in d, 'e NAO mostra o esperado por forma: o fechamento e cego')
     ok(pg.evaluate("Array.from(document.querySelectorAll('#caixaCorpo .pdv-tab tbody tr')).map(tr => tr.innerText.replace(/\\s+/g, ' ').trim())") == ['Dinheiro 1', 'Cartão de crédito 1', 'Boleto 1'],
        'no cego, o resumo diz as formas usadas e quantas vendas, sem valor')
     ok(pg.evaluate("document.getElementById('caixaDrawer').getBoundingClientRect().width") >= 600 and pg.inner_text('#contVendasCaixa') == '1' and pg.inner_text('#contMovCaixa') == '0',
        'o painel e largo e as abas contam vendas e lancamentos')
     clic(pg, '#abasCaixa [data-aba="vendas"]'); pg.wait_for_timeout(200)
     dv = pg.inner_text('#caixaCorpo')
-    ok('Venda nº 1' in dv and 'Cartão de crédito 3x R$ 260,78' in dv and 'Boleto R$ 200,00' in dv and 'Distribuidora Nordeste' in dv and 'R$ 760,78' in dv,
+    ok('Venda nº 1' in dv and 'Cartão de crédito 3x R$ 265,98' in dv and 'Boleto R$ 200,00' in dv and 'Distribuidora Nordeste' in dv and 'R$ 765,98' in dv,
        'a aba de vendas lista a venda com cliente, formas e total')
     antes = pg.evaluate('window.__imprimiu')
     clic(pg, '#caixaCorpo [data-recibo-venda="1"]'); pg.wait_for_timeout(250)
@@ -486,8 +489,8 @@ with sync_playwright() as p:
     ok('não aparece' in pg.inner_text('#fecharNota'), 'e a nota do painel diz que o esperado nao aparece')
     clic(pg, '#btnConfirmarFechamento'); pg.wait_for_timeout(250)
     ok('todas' in pg.inner_text('#fecharDivergencia') and pg.evaluate('turno') is not None, 'campo em branco nao fecha')
-    # No cartao o esperado e o que passou na maquininha (260,78, com a taxa repassada), nao a parte da venda (249,70).
-    pg.fill('[data-fechar="dinheiro"]', '380'); pg.fill('[data-fechar="credito"]', '260,78'); pg.fill('[data-fechar="boleto"]', '200')
+    # No cartao o esperado e o que passou na maquininha (265,98, com a taxa repassada), nao a parte da venda (249,70).
+    pg.fill('[data-fechar="dinheiro"]', '380'); pg.fill('[data-fechar="credito"]', '265,98'); pg.fill('[data-fechar="boleto"]', '200')
     clic(pg, '#btnConfirmarFechamento'); pg.wait_for_timeout(300)
     dv = pg.inner_text('#fecharDivergencia')
     ok('Dinheiro' in dv and 'Cartão de crédito' not in dv and 'Boleto' not in dv and '400' not in dv and pg.evaluate('turno') is not None,
@@ -559,12 +562,12 @@ with sync_playwright() as p:
     ids_cat = p2.evaluate("CATEGORIAS.map(c => c.id)")
     ok(len(ids_cat) == len(set(ids_cat)), 'cadastro de categorias financeiras sem id repetido: %s' % sorted(i for i in set(ids_cat) if ids_cat.count(i) > 1))
 
-    print('\n[10] Os nove parametros nascem nas duas telas, e o PDV obedece')
+    print('\n[10] Os dez parametros nascem nas duas telas, e o PDV obedece')
     padrao_pdv = pg.evaluate("(ks) => ks.map(k => PARAM_PADRAO[k])", CHAVES)
     p2.goto(localiza.http(CFG)); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
     p2.evaluate("localStorage.removeItem('deskParametros')"); p2.reload(); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
     ok(p2.evaluate("(ks) => ks.map(k => PARAM_PADRAO[k])", CHAVES) == padrao_pdv and None not in padrao_pdv,
-       'as nove chaves existem nas duas telas, com o mesmo padrao: %s' % padrao_pdv)
+       'as dez chaves existem nas duas telas, com o mesmo padrao: %s' % padrao_pdv)
     ok('Nenhuma alteração pendente' in p2.inner_text('#notaBarra'), 'Configuracoes do PDV abre sem pendencia')
     clic(p2, '#swVendedor'); clic(p2, '#swPreco'); p2.fill('#descMax', '5'); p2.wait_for_timeout(200)
     ok('3 configurações alteradas' in p2.inner_text('#notaBarra'), 'mexer em tres parametros faz a nota contar tres')
@@ -640,14 +643,14 @@ with sync_playwright() as p:
     ok('cartão' in pg.inner_text('#docClienteFin').lower() and 'Boleto' in pg.inner_text('#docClienteFin'), 'e a tela diz o que vale sem cliente e o que pede cliente')
     clic(pg, '#btnFinalizar'); pg.wait_for_timeout(450)
     g = pg.inner_text('#concGerado')
-    ok(pg.evaluate('momento') == 'concluida' and '1 título em Contas a Receber' in g and 'a receber de Stone — maquininha da loja' in g and 'em nome de Consumidor final' not in g,
+    ok(pg.evaluate('momento') == 'concluida' and '1 título em Contas a Receber' in g and 'a receber de InfinitePay Maquininha — Bronze' in g and 'em nome de Consumidor final' not in g,
        'a venda finaliza e o titulo nasce a receber da operadora: %s' % [l for l in g.split(chr(10)) if 'título' in l][:1])
     acoes = pg.evaluate("ACOES_SENHA.filter(a => a.chave.indexOf('pdv') === 0).map(a => a.chave + '/' + a.exigePadrao)")
-    ok(sorted(acoes) == ['pdvDescontoAcima/true', 'pdvFechaComDiferenca/true', 'pdvReforco/false', 'pdvRepasseTaxa/true', 'pdvSangria/true'], 'as cinco do PDV, com o padrao de cada: %s' % sorted(acoes))
+    ok(sorted(acoes) == ['pdvDescontoAVistaTira/true', 'pdvDescontoAcima/true', 'pdvFechaComDiferenca/true', 'pdvReforco/false', 'pdvRepasseTaxa/true', 'pdvSangria/true'], 'as seis do PDV, com o padrao de cada: %s' % sorted(acoes))
     for arq in CATALOGOS:
         txt = open(localiza.onde(arq), encoding='utf-8').read()
-        falta = [k for k in ['pdvSangria', 'pdvReforco', 'pdvFechaComDiferenca', 'pdvDescontoAcima', 'pdvRepasseTaxa', 'pdvCegoDesliga'] if ("chave:'" + k + "'") not in txt]
-        ok(not falta, '%s conhece as seis acoes: %s' % (arq.replace('pagina-', ''), falta or 'todas'))
+        falta = [k for k in ['pdvSangria', 'pdvReforco', 'pdvFechaComDiferenca', 'pdvDescontoAcima', 'pdvRepasseTaxa', 'pdvDescontoAVistaTira', 'pdvCegoDesliga'] if ("chave:'" + k + "'") not in txt]
+        ok(not falta, '%s conhece as sete acoes: %s' % (arq.replace('pagina-', ''), falta or 'todas'))
 
     print('\n[12] Atalhos, os dois temas e erro de JS')
     zerar(pg)

@@ -1158,6 +1158,8 @@
   .mtz-legenda .conf-cadeado { width:14px; height:14px; }
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  .cf-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .cf-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -1503,6 +1505,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <div class="par-secao">
+    <div class="par-secao-titulo">Pagamento à vista</div>
+    <div class="par-secao-sub">O que o Pix e o dinheiro ganham por não usar a maquininha.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="switch-row" style="margin-bottom:0;">
+          <div class="switch-row-texto">
+            <div class="switch-row-titulo">Desconto Pix e dinheiro igual à taxa do crédito à vista</div>
+            <div class="field-hint">O preço já embute a taxa do cartão: quem paga à vista não a usa, e leva o desconto.</div>
+          </div>
+          <div class="switch on" id="swAVista" data-param="pdvDescontoAVista" role="switch"></div>
+        </div>
+        <div class="par-previa" id="previaAVista"></div>
+      </div>
+      <div class="par-exp">
+        <b>O percentual não é digitado: é a taxa do crédito em 1x</b> da bandeira padrão da maquininha padrão de cada loja, lida do gateway (<a class="cf-link" href="../integracoes/pagina-integracoes-gateways.html">Integrações → Gateways de Pagamento</a>). Quando a loja sobe de nível na maquininha, o desconto acompanha sozinho. Loja sem maquininha não tem desconto.
+        <span class="par-onde">Onde pega: <b>Vendas → PDV</b>, no Pix e no dinheiro da finalização. O caixa pode tirar o desconto de uma venda com senha (<b>Confirmações por senha</b>).</span>
+      </div>
+    </div>
+  </div>
+
   <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarParam">Salvar configurações</button>
     <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
@@ -1591,7 +1615,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     casasPreco: 2,
     permitirDocDuplicado: false,
     mostrarObservacoesCliente: true,
-    // PDV (esta tela grava, Vendas > PDV le). As mesmas nove chaves nas duas telas.
+    // PDV (esta tela grava, Vendas > PDV le). As mesmas dez chaves nas duas telas.
     pdvSituacaoVenda: 'entregue',
     pdvVendedorObrigatorio: false,
     pdvClienteObrigatorio: false,
@@ -1601,6 +1625,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     pdvAgrupaIguais: true,
     pdvAbreComUltimoFechamento: false,
     pdvFechamentoCego: true,
+    pdvDescontoAVista: true,   // 21/out/2026: Pix e dinheiro descontam a taxa do credito a vista (esta tela grava, Vendas > PDV le)
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -2183,14 +2208,185 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   })();
 
+  // ===== GATEWAYS: LEITURA (bloco comum, 21/out/2026) =====
+  // Identico no PDV e em Configuracoes > Formas de recebimento; teste_gateway_uso.py compara as copias. So LE `deskGateways`: o dono do dado e
+  // Integracoes > Gateways de Pagamento, que grava. O gateway e dono das taxas e dos prazos dos CARTOES (debito e credito): a forma escolhe o
+  // gateway padrao, e o PDV, na venda, deixa o caixa escolher a maquininha (gateway do tipo Outro, habilitado, da loja do PDV) e a bandeira.
+  // A semeadura do exemplo e a mesma da pagina do gateway (mesma marca, `deskGatewaysExemplo`): sem ela o PDV de um navegador que nunca abriu
+  // Gateways ficaria sem maquininha. O gateway padrao de cada cartao mora em `deskParametros.formaGatewayPadrao` ({ debito: id, credito: id }),
+  // gravado em Formas de recebimento; sem escolha gravada vale o de fabrica (o primeiro habilitado do tipo Outro).
+  // ESPELHOS: GWL_LOJAS e de Cadastros > Lojas Desk; o formato do gateway e o descrito no bloco "GATEWAYS: DADOS E REGRAS" da pagina do gateway.
+  const GWL_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const GWL_TIPOS = { infinitepay: 'InfinitePay', outro: 'Outro' };
+  const GWL_BANDEIRAS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', diners: 'Diners Club', elo: 'Elo', hipercard: 'Hipercard', bndes: 'BNDES', outro: 'Outro' };
+  const GWL_TARIFACOES = { especifico: 'Em dia específico', transacao: 'No dia da transação', seguinte: 'Dia seguinte após a transação', pagamento: 'No dia do pagamento (somada à taxa)' };
+  const GWL_REPASSES = { nao: 'Não', sim: 'Sim', opcional: 'Opcional', gerente: 'Opcional com liberação do gerente' };
+  const GWL_TAXAS_FABRICA = [3, 3.6, 4.25, 4.9, 5.5, 6.15, 6.8, 7.45, 8, 8.7, 9.35, 10];
+  function gwlLinhaFabrica(forma, bandeira, parcelas) {
+    if (forma === 'debito' && bandeira) return { forma: forma, bandeira: bandeira, parcelas: 0, prazo: 2, taxa: 0, tarifa: 2 };
+    if (forma === 'credito') return { forma: forma, bandeira: bandeira, parcelas: parcelas, prazo: parcelas === 12 ? 30 : 31, taxa: GWL_TAXAS_FABRICA[parcelas - 1], tarifa: 0 };
+    return { forma: forma, bandeira: '', parcelas: 0, prazo: forma === 'pix' ? 0 : 2, taxa: 0, tarifa: forma === 'pix' ? 0 : 2 };
+  }
+  const gwlOrdemLinha = (c) => (c.bandeira ? 1000000 : 0) + ['debito', 'boleto', 'pix', 'credito'].indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GWL_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  const gwlOrdenar = (linhas) => linhas.sort((a, b) => gwlOrdemLinha(a) - gwlOrdemLinha(b));
+  function gwlCondicoesFabrica(bandeiras) {
+    const linhas = ['debito', 'boleto', 'pix'].map(f => gwlLinhaFabrica(f, '', 0));
+    Object.keys(GWL_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { linhas.push(gwlLinhaFabrica('debito', b, 0)); for (let p = 1; p <= 12; p++) linhas.push(gwlLinhaFabrica('credito', b, p)); });
+    return gwlOrdenar(linhas);
+  }
+  function gwlLer() {
+    try {
+      const d = JSON.parse(localStorage.getItem('deskGateways'));
+      const lista = d && Array.isArray(d.gateways) ? d.gateways : [];
+      lista.forEach(g => {
+        g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : [];
+        if (g.tipo === 'infinitypay') g.tipo = 'infinitepay';   // o nome foi corrigido em 21/out/2026: gravado antigo le com o tipo novo
+        delete g.proximoDiaUtil;                                 // o toggle saiu: o prazo e sempre em dias uteis
+      });
+      return lista;
+    } catch (e) { return []; }
+  }
+  const gwlGravar = (lista) => { try { localStorage.setItem('deskGateways', JSON.stringify({ gateways: lista })); return true; } catch (e) { return false; } };   // so para a semente
+  // Exemplo de fabrica (21/out/2026, versao 2): a configuracao real da Desk. Taxas oficiais da InfinitePay (infinitepay.io/taxas, consultadas em 21/out/2026), maquininha,
+  // "Em 1 dia util", parcelas antecipadas, por nivel de faturamento mensal (os nomes da pagina de planos): Bronze = "Plano Inicial" (ate R$ 20 mil), Prata (acima de
+  // 20 mil), Ouro (acima de 40 mil) e Infinite (acima de 80 mil). Cada nivel e um gateway do tipo Outro; so o Bronze nasce habilitado. A pagina agrupa Hipercard com
+  // Elo e American Express. Cada lista e [debito, 1x, 2x, ... 12x], em %. Pix e gratis, sem tarifa fixa; prazo de 1 dia util em debito e em todas as parcelas do credito.
+  const GWL_TAXAS_INFINITEPAY = {
+    vm: {   // Visa e Mastercard
+      bronze:   [1.37, 3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40],
+      prata:    [0.85, 2.89, 4.22, 4.83, 5.44, 6.05, 6.64, 7.24, 7.82, 8.41, 8.98, 9.56, 10.12],
+      ouro:     [0.79, 2.79, 4.08, 4.65, 5.21, 5.77, 6.32, 6.87, 7.42, 7.96, 8.49, 9.03, 9.56],
+      infinite: [0.75, 2.69, 3.94, 4.46, 4.98, 5.49, 5.99, 6.51, 6.99, 7.51, 7.99, 8.49, 8.99]
+    },
+    ea: {   // Elo, American Express e Hipercard
+      bronze:   [2.58, 4.91, 6.47, 7.20, 7.92, 8.63, 9.33, 10.03, 10.72, 11.41, 12.08, 12.75, 13.41],
+      prata:    [2.08, 4.65, 6.09, 6.69, 7.28, 7.87, 8.46, 9.05, 9.63, 10.20, 10.76, 11.33, 11.88],
+      ouro:     [1.98, 4.56, 5.95, 6.50, 7.05, 7.60, 8.15, 8.69, 9.23, 9.76, 10.29, 10.81, 11.33],
+      infinite: [1.88, 4.46, 5.81, 6.32, 6.83, 7.33, 7.83, 8.34, 8.83, 9.32, 9.81, 10.29, 10.77]
+    }
+  };
+  // O Link de Pagamento (a loja virtual): tabela geral "Em 1 dia util", de 1x a 12x. Sem debito. A pagina nao da a do Plano Inicial por nivel: conferir na conta.
+  const GWL_TAXAS_LINK_INFINITEPAY = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
+  const GWL_GRUPO_INFINITEPAY = { visa: 'vm', mastercard: 'vm', elo: 'ea', amex: 'ea', hipercard: 'ea' };
+  const GWL_NIVEIS_INFINITEPAY = [['Bronze', 'bronze', 'habilitado'], ['Prata', 'prata', 'desabilitado'], ['Ouro', 'ouro', 'desabilitado'], ['Infinite', 'infinite', 'desabilitado']];
+  // A maquininha de um nivel: Pix (prazo 0) e, para cada bandeira, o debito da bandeira e o credito de 1x a 12x, todos em 1 dia util e sem tarifa.
+  function gwlCondicoesMaquininhaInfinitePay(nivel, bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => {
+      const t = GWL_TAXAS_INFINITEPAY[GWL_GRUPO_INFINITEPAY[b]][nivel];
+      linhas.push({ forma: 'debito', bandeira: b, parcelas: 0, prazo: 1, taxa: t[0], tarifa: 0 });
+      for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: t[p], tarifa: 0 });
+    });
+    return gwlOrdenar(linhas);
+  }
+  function gwlCondicoesLinkInfinitePay(bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: GWL_TAXAS_LINK_INFINITEPAY[p - 1], tarifa: 0 }); });
+    return gwlOrdenar(linhas);
+  }
+  const GWL_DESCRICAO_ONLINE = 'InfinitePay — loja virtual';
+  // Os cinco gateways do exemplo, sem id: o online (tipo InfinitePay, com a chave) e os quatro niveis da maquininha.
+  function gwlExemplosDeFabrica() {
+    const base = { cnpj: '', endereco: '', municipio: '', antecipacao: 'antecipado', repassar: 'opcional', repassarAPartir: 1 };
+    const online = Object.assign({}, base, { tipo: 'infinitepay', descricao: GWL_DESCRICAO_ONLINE, situacao: 'habilitado', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao',
+      juros: 1, multa: 2, diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
+      conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo', 'amex'], bandeiraPadrao: 'visa' });
+    online.condicoes = gwlCondicoesLinkInfinitePay(online.bandeiras);
+    const bandeiras = ['visa', 'mastercard', 'elo', 'amex', 'hipercard'];
+    const niveis = GWL_NIVEIS_INFINITEPAY.map(n => Object.assign({}, base, { tipo: 'outro', descricao: 'InfinitePay Maquininha — ' + n[0], situacao: n[2], lojas: [1, 2, 3], tarifacao: 'pagamento', diaDebito: null,
+      categoriaTarifaId: 17, bandeiras: bandeiras.slice(), bandeiraPadrao: 'visa', condicoes: gwlCondicoesMaquininhaInfinitePay(n[1], bandeiras) }));
+    return [online].concat(niveis);
+  }
+  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '2'). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
+  // exemplo de 20/out, com a Stone e a Cielo), o exemplo antigo e trocado: saem a Stone (id 2) e a Cielo (id 3), achadas pelo id E pela descricao de fabrica (e nao so pelo nome
+  // digitado), o online (id 1, com a descricao de fabrica) e atualizado mantendo a chave e o link, e acrescentam-se os quatro niveis. Gateway criado pelo usuario fica como esta.
+  // O gateway padrao de Formas que apontava para um dos que sairam e apagado (cai no de fabrica, o primeiro maquininha habilitado: o Bronze).
+  (function gwlSemear() {
+    try {
+      const marca = localStorage.getItem('deskGatewaysExemplo');
+      if (marca === '2') return;
+      let lista = gwlLer();
+      const novos = gwlExemplosDeFabrica();
+      let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
+      const comId = (g) => Object.assign({ id: ++n }, g);
+      const online = novos.shift();
+      if (marca === '1') {
+        const sairam = lista.filter(g => (g.id === 2 && g.descricao === 'Stone — maquininha da loja') || (g.id === 3 && g.descricao === 'Cielo (antiga)')).map(g => g.id);
+        lista = lista.filter(g => sairam.indexOf(g.id) < 0);
+        const antigo = lista.filter(g => g.id === 1 && g.descricao === 'InfinityPay — loja virtual')[0];   // grafia errada do exemplo de 20/out: so aqui, para achar o gravado antigo
+        if (antigo) lista[lista.indexOf(antigo)] = Object.assign({}, online, { id: 1, chave: antigo.chave, conciliacao: antigo.conciliacao || null });
+        else if (!lista.some(g => g.descricao === online.descricao)) lista.push(comId(online));
+        try {
+          const p = JSON.parse(localStorage.getItem('deskParametros') || '{}');
+          if (p.formaGatewayPadrao) {
+            Object.keys(p.formaGatewayPadrao).forEach(k => { if (sairam.indexOf(p.formaGatewayPadrao[k]) >= 0) delete p.formaGatewayPadrao[k]; });
+            localStorage.setItem('deskParametros', JSON.stringify(p));
+          }
+        } catch (e) { /* parametro estragado: fica como esta */ }
+      } else {
+        lista.push(comId(online));
+      }
+      novos.forEach(g => { if (!lista.some(x => x.descricao === g.descricao)) lista.push(comId(g)); });
+      gwlGravar(lista);
+      localStorage.setItem('deskGatewaysExemplo', '2');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  const gwlPorId = (id) => gwlLer().filter(g => g.id === Number(id))[0] || null;
+  // Os gateways habilitados de uma loja, do tipo pedido (sem tipo, de qualquer um). Sem loja, de qualquer loja.
+  const gwlHabilitados = (lojaId, tipo) => gwlLer().filter(g => g.situacao === 'habilitado' && (!lojaId || g.lojas.indexOf(Number(lojaId)) >= 0) && (!tipo || g.tipo === tipo));
+  // O gateway padrao do cartao (chave 'debito' ou 'credito'): o gravado em Formas de recebimento, se ainda esta habilitado; senao o de fabrica,
+  // o primeiro habilitado do tipo Outro (e, sem nenhum, o primeiro habilitado). Sem gateway habilitado, nulo.
+  function gwlPadraoDaForma(chave) {
+    let id = null;
+    try { id = (JSON.parse(localStorage.getItem('deskParametros') || '{}').formaGatewayPadrao || {})[chave]; } catch (e) { id = null; }
+    const todos = gwlHabilitados(null, null);
+    return todos.filter(g => g.id === Number(id))[0] || todos.filter(g => g.tipo === 'outro')[0] || todos[0] || null;
+  }
+  // A condicao de uma forma no gateway: { prazo (dias UTEIS), taxa (%), tarifa (R$) }, ou nulo quando o gateway nao tem a linha.
+  // O credito e por bandeira e por numero de vezes. O debito e por bandeira quando o gateway separa (a InfinitePay cobra debito diferente por bandeira): vale a linha
+  // da bandeira; sem ela, vale a linha unica "Cartao de debito", sem bandeira, que e a dos gateways que nao separam.
+  function gwlCondicao(g, forma, bandeira, vezes) {
+    if (!g) return null;
+    let c;
+    if (forma === 'credito') c = g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira && x.parcelas === Number(vezes))[0];
+    else if (forma === 'debito') c = g.condicoes.filter(x => x.forma === 'debito' && !!bandeira && x.bandeira === bandeira)[0] || g.condicoes.filter(x => x.forma === 'debito' && !x.bandeira)[0];
+    else c = g.condicoes.filter(x => x.forma === forma)[0];
+    return c ? { prazo: Number(c.prazo), taxa: Number(c.taxa), tarifa: Number(c.tarifa) } : null;
+  }
+  // O gateway tem debito por bandeira (a bandeira escolhida muda a taxa do debito)?
+  const gwlDebitoPorBandeira = (g) => !!g && g.condicoes.some(x => x.forma === 'debito' && !!x.bandeira);
+  // As parcelas (de 1x a 12x) que o gateway tem para a bandeira.
+  const gwlVezes = (g, bandeira) => (g ? g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira).map(x => x.parcelas).sort((a, b) => a - b) : []);
+  // As regras de repasse: 'nao' | 'sim' | 'opcional' | 'gerente', e a parcela a partir da qual valem.
+  const gwlRepasse = (g) => ({ modo: g.repassar || 'nao', aPartirDa: Number(g.repassarAPartir) || 1 });
+  // A conta financeira do gateway (nasce com ele, em Contas financeiras).
+  const gwlConta = (g) => ({ id: 'gw' + g.id, nome: g.descricao });
+  // A maquininha padrao de uma loja (a do desconto a vista do PDV): o gateway padrao do credito, se for do tipo Outro, habilitado e da loja; senao a primeira
+  // maquininha habilitada da loja; sem maquininha, nulo. A bandeira de referencia e a padrao dela.
+  function gwlMaquininhaDaLoja(lojaId) {
+    const maqs = gwlHabilitados(lojaId, 'outro');
+    const padrao = gwlPadraoDaForma('credito');
+    return maqs.filter(x => !!padrao && x.id === padrao.id)[0] || maqs[0] || null;
+  }
+  const gwlBandeiraPadrao = (g) => (g.bandeiras.indexOf(g.bandeiraPadrao) >= 0 ? g.bandeiraPadrao : (g.bandeiras[0] || null));
+  // O desconto a vista (Pix e dinheiro) de uma loja: a taxa do CREDITO A VISTA (1x) da bandeira padrao da maquininha padrao da loja, em %. Sobe o nivel do gateway, o
+  // desconto acompanha sozinho. Loja sem maquininha, ou maquininha sem a linha de 1x: 0. Devolve { pct, gateway, bandeira }.
+  function gwlDescontoAVista(lojaId) {
+    const g = gwlMaquininhaDaLoja(lojaId);
+    if (!g) return { pct: 0, gateway: null, bandeira: null };
+    const b = gwlBandeiraPadrao(g), c = b ? gwlCondicao(g, 'credito', b, 1) : null;
+    return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
+  }
+  // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
+
   // ===== CONFIGURAÇÕES DO PDV =====
-  // Nove parametros da EMPRESA, no bloco compartilhado do topo. Quem le e
+  // Dez parametros da EMPRESA (o decimo, o desconto a vista, nasceu em 21/out/2026), no bloco compartilhado do topo. Quem le e
   // `../vendas/pagina-vendas-pdv.html`, e so ele. Nasceram no mesmo dia que o
   // PDV (09/out/2026): parametro que nasce no codigo sem tela de Configuracoes
   // e divida, e ja custou isso duas vezes aqui.
   const CHAVES_PDV = ['pdvSituacaoVenda', 'pdvVendedorObrigatorio', 'pdvClienteObrigatorio', 'pdvBloqueiaSemEstoque',
                       'pdvAgrupaIguais', 'pdvBloqueiaAlterarPreco', 'pdvDescontoMaximoPct',
-                      'pdvFechamentoCego', 'pdvAbreComUltimoFechamento'];
+                      'pdvFechamentoCego', 'pdvAbreComUltimoFechamento', 'pdvDescontoAVista'];
   const SIT_VENDA = { faturado: 'Faturado', prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue' };
   const elNota = document.getElementById('notaBarra');
 
@@ -2240,6 +2436,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : (d === 100 ? '<b>Nenhum desconto pede liberação</b>: o operador pode zerar o preço sozinho.'
       : 'Até <b>' + fmtPct(d) + '%</b> o operador aplica sozinho. Acima disso o PDV pede a senha de quem pode liberar.')) +
       (edicao.pdvBloqueiaAlterarPreco ? ' O preço unitário fica travado no do cadastro.' : ' O preço unitário pode ser digitado no item.');
+
+    const av = document.getElementById('previaAVista');
+    av.classList.toggle('alerta', !edicao.pdvDescontoAVista);
+    const pct2 = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const escP = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const porLoja = Object.keys(GWL_LOJAS).map(id => {
+      const d = gwlDescontoAVista(Number(id));
+      return '<b>' + GWL_LOJAS[id] + '</b>: ' + (d.gateway && d.pct > 0 ? pct2(d.pct) + '% (' + escP(d.gateway.descricao) + ', ' + GWL_BANDEIRAS[d.bandeira] + ' em 1x)' : 'sem desconto (nenhuma maquininha habilitada na loja)');
+    });
+    av.innerHTML = edicao.pdvDescontoAVista
+      ? 'O Pix e o dinheiro ganham desconto igual à taxa do crédito à vista, hoje: ' + porLoja.join(' · ') + '.'
+      : 'O PDV <b>não aplica</b> desconto no Pix e no dinheiro: o cliente paga o valor cheio em qualquer forma.';
 
     const cego = document.getElementById('previaCego');
     cego.classList.toggle('alerta', !edicao.pdvFechamentoCego);

@@ -127,7 +127,7 @@ with sync_playwright() as p:
         ir(PED); limpar_guardado(); ir(PED)
         antes = pg.evaluate("PEDIDOS.length")
         ir(PDV)
-        pg.evaluate("localStorage.removeItem('deskParametros')"); ir(PDV)
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ pdvDescontoAVista: false }))"); ir(PDV)   # sem o desconto Pix/dinheiro (21/out/2026): o teste conta o valor cheio
         clic('#btnAbrirCaixa'); pg.wait_for_timeout(300)
         escolher('abrirLoja', 1); pg.fill('#abrirTroco', '0')
         clic('#btnConfirmarAbertura'); pg.wait_for_timeout(450)

@@ -99,6 +99,8 @@ with sync_playwright() as p:
         if pg.url == 'about:blank':
             ir(VALE_L)
         pg.evaluate("(ks) => ks.forEach(k => localStorage.removeItem(k))", CHAVES_LOCAIS)
+        # O desconto Pix/dinheiro do PDV (21/out/2026) nasce ligado; aqui os numeros contam o valor cheio, entao ele fica desligado.
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ pdvDescontoAVista: false }))")
         # Sem exemplo o armazenamento parte vazio, com a marca; com exemplo, o vale nasce do estado de fabrica.
         if not com_exemplo:
             pg.evaluate("localStorage.setItem('deskValesCompra', JSON.stringify({ vales: [] })); localStorage.setItem('deskValesCompraExemplo', '1')")

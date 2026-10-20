@@ -1197,7 +1197,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Gateways</h1>
-      <div class="subtitle">Gateways são os intermediários entre as operadoras de cartões e a sua empresa. Exemplo: InfinityPay, Stone, Cielo, etc...</div>
+      <div class="subtitle">Gateways são os intermediários entre as operadoras de cartões e a sua empresa. Exemplo: InfinitePay, Stone, Cielo, etc...</div>
     </div>
     <div class="header-acoes">
       <a class="btn-primary" id="btnIncluirGateway" href="../integracoes/pagina-integracoes-gateways-detalhe.html?novo=1">Incluir gateway</a>
@@ -1949,18 +1949,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== GATEWAYS: DADOS E REGRAS (bloco comum a duas telas, 20/out/2026) =====
   // Identico na lista e na pagina do gateway (Integracoes > Gateways de Pagamento); teste_gateways.py compara as duas copias. O dono do dado e esta
   // tela: uma chave so no navegador, `deskGateways` ({ gateways: [...] }). Configuracoes > Contas financeiras le a mesma chave e mostra uma conta por gateway.
-  // O gateway e DONO das taxas e dos prazos dos cartoes (a tabela de condicoes comerciais); ligar Formas de Recebimento e o PDV a ele e a entrega 2.
-  // Cada gateway (os campos de InfinityPay so existem no tipo infinitypay; os de Outro, so no tipo outro):
-  //   { id, tipo ('infinitypay' | 'outro'), descricao (unica; e o nome da conta financeira do gateway), situacao, lojas: [ids de Lojas Desk],
-  //     categoriaId, contaCreditoId, baixa, juros, multa, diasMulta, calculaAtraso, chave, conciliacao,      <- infinitypay
+  // O gateway e DONO das taxas e dos prazos dos cartoes (a tabela de condicoes comerciais); Formas de Recebimento e o PDV leem dele (entrega 2, 21/out/2026).
+  // O prazo da condicao e em DIAS UTEIS (ajuste do teste, 21/out/2026; antes o toggle "considerar proximo dia util" existia: saiu, e o campo `proximoDiaUtil` gravado e ignorado).
+  // O nome e InfinitePay (corrigido em 21/out/2026; o tipo gravado como `infinitypay` e lido como `infinitepay`).
+  // Cada gateway (os campos de InfinitePay so existem no tipo infinitepay; os de Outro, so no tipo outro):
+  //   { id, tipo ('infinitepay' | 'outro'), descricao (unica; e o nome da conta financeira do gateway), situacao, lojas: [ids de Lojas Desk],
+  //     categoriaId, contaCreditoId, baixa, juros, multa, diasMulta, calculaAtraso, chave, conciliacao,      <- infinitepay
   //     tarifacao, diaDebito, categoriaTarifaId,                                                              <- outro
-  //     cnpj, endereco, municipio, bandeiras: [...], bandeiraPadrao, antecipacao, proximoDiaUtil, repassar, repassarAPartir,
-  //     condicoes: [{ forma, bandeira, parcelas, prazo, taxa, tarifa }] }
+  //     cnpj, endereco, municipio, bandeiras: [...], bandeiraPadrao, antecipacao, repassar, repassarAPartir,
+  //     condicoes: [{ forma, bandeira, parcelas, prazo (dias uteis), taxa, tarifa }] }   (o debito tem uma linha sem bandeira e, se o gateway separa, uma por bandeira)
   // shortcut: a chave da API fica inteira no localStorage; e so no prototipo. Na producao ela vai para o servidor como segredo (cofre do banco ou variavel
   // de ambiente) e a tela nunca mais a recebe de volta: so os quatro ultimos caracteres, ja mascarados. Quando a tela da producao nascer.
   // ESPELHOS: GW_LOJAS e de Cadastros > Lojas Desk; as categorias, de Configuracoes > Categorias financeiras; as contas, de Configuracoes > Contas financeiras.
   const GW_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
-  const GW_TIPOS = { infinitypay: 'InfinityPay', outro: 'Outro' };
+  const GW_TIPOS = { infinitepay: 'InfinitePay', outro: 'Outro' };
   const GW_SITUACOES = { habilitado: 'Habilitado', desabilitado: 'Desabilitado' };
   const GW_BANDEIRAS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', diners: 'Diners Club', elo: 'Elo', hipercard: 'Hipercard', bndes: 'BNDES', outro: 'Outro' };
   const GW_FORMAS = { debito: 'Cartão de débito', boleto: 'Boleto', pix: 'Pix', credito: 'Cartão de crédito' };
@@ -1994,23 +1996,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function gwChaveErro(c) {
     c = String(c || '').trim();
     if (!c) return 'Informe a chave da API.';
-    if (c.length < 16) return 'A chave da API é curta demais: a InfinityPay usa chaves de pelo menos 16 caracteres.';
-    if (!/^[A-Za-z0-9_-]+$/.test(c)) return 'A chave da API tem caracteres que não existem numa chave da InfinityPay (só letras, números, _ e -).';
+    if (c.length < 16) return 'A chave da API é curta demais: a InfinitePay usa chaves de pelo menos 16 caracteres.';
+    if (!/^[A-Za-z0-9_-]+$/.test(c)) return 'A chave da API tem caracteres que não existem numa chave da InfinitePay (só letras, números, _ e -).';
     return '';
   }
   // ----- as condicoes comerciais: o que a fabrica poe em cada linha -----
   function gwLinhaFabrica(forma, bandeira, parcelas) {
+    if (forma === 'debito' && bandeira) return { forma: forma, bandeira: bandeira, parcelas: 0, prazo: 2, taxa: 0, tarifa: 2 };
     if (forma === 'credito') return { forma: forma, bandeira: bandeira, parcelas: parcelas, prazo: parcelas === 12 ? 30 : 31, taxa: GW_TAXAS_FABRICA[parcelas - 1], tarifa: 0 };
     return { forma: forma, bandeira: '', parcelas: 0, prazo: forma === 'pix' ? 0 : 2, taxa: 0, tarifa: forma === 'pix' ? 0 : 2 };
   }
-  const gwOrdemLinha = (c) => Object.keys(GW_FORMAS).indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GW_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  // As linhas sem bandeira (debito, boleto e Pix) vem primeiro; depois, por bandeira, o debito dela e o credito de 1x a 12x.
+  const gwOrdemLinha = (c) => (c.bandeira ? 1000000 : 0) + Object.keys(GW_FORMAS).indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GW_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
   const gwOrdenar = (linhas) => linhas.sort((a, b) => gwOrdemLinha(a) - gwOrdemLinha(b));
   const gwChaveLinha = (c) => c.forma + '|' + c.bandeira + '|' + c.parcelas;
-  // Debito, boleto e pix, e para cada bandeira escolhida o credito de 1x a 12x.
+  // Debito, boleto e pix, e para cada bandeira escolhida o debito dela e o credito de 1x a 12x.
   function gwCondicoesFabrica(bandeiras) {
     const linhas = ['debito', 'boleto', 'pix'].map(f => gwLinhaFabrica(f, '', 0));
-    Object.keys(GW_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { for (let p = 1; p <= 12; p++) linhas.push(gwLinhaFabrica('credito', b, p)); });
-    return linhas;
+    Object.keys(GW_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { linhas.push(gwLinhaFabrica('debito', b, 0)); for (let p = 1; p <= 12; p++) linhas.push(gwLinhaFabrica('credito', b, p)); });
+    return gwOrdenar(linhas);
   }
   // Linha mexida a mao: prazo, taxa ou tarifa diferentes da fabrica (valor que nao e numero tambem conta).
   function gwEditada(c) {
@@ -2026,7 +2030,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     try {
       const d = JSON.parse(localStorage.getItem('deskGateways'));
       const lista = d && Array.isArray(d.gateways) ? d.gateways : [];
-      lista.forEach(g => { g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : []; });
+      lista.forEach(g => {
+        g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : [];
+        if (g.tipo === 'infinitypay') g.tipo = 'infinitepay';   // o nome foi corrigido em 21/out/2026: gravado antigo le com o tipo novo
+        delete g.proximoDiaUtil;                                 // o toggle saiu: o prazo e sempre em dias uteis
+      });
       return lista;
     } catch (e) { return []; }
   }
@@ -2035,24 +2043,88 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     catch (e) { return false; }
   }
   const gwContas = () => gwLer().map(gwConta);
-  // Exemplo de fabrica (20/out/2026): sem gateway gravado a lista abriria vazia e nao haveria como ver uma chave mascarada, um desabilitado nem a tabela inteira.
-  // Nasce uma vez por navegador (marca deskGatewaysExemplo), acrescentando sem apagar o que ja existe; excluido nao volta, e limpar o navegador traz de volta.
+  // Exemplo de fabrica (21/out/2026, versao 2): a configuracao real da Desk. Taxas oficiais da InfinitePay (infinitepay.io/taxas, consultadas em 21/out/2026), maquininha,
+  // "Em 1 dia util", parcelas antecipadas, por nivel de faturamento mensal (os nomes da pagina de planos): Bronze = "Plano Inicial" (ate R$ 20 mil), Prata (acima de
+  // 20 mil), Ouro (acima de 40 mil) e Infinite (acima de 80 mil). Cada nivel e um gateway do tipo Outro; so o Bronze nasce habilitado. A pagina agrupa Hipercard com
+  // Elo e American Express. Cada lista e [debito, 1x, 2x, ... 12x], em %. Pix e gratis, sem tarifa fixa; prazo de 1 dia util em debito e em todas as parcelas do credito.
+  const GW_TAXAS_INFINITEPAY = {
+    vm: {   // Visa e Mastercard
+      bronze:   [1.37, 3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40],
+      prata:    [0.85, 2.89, 4.22, 4.83, 5.44, 6.05, 6.64, 7.24, 7.82, 8.41, 8.98, 9.56, 10.12],
+      ouro:     [0.79, 2.79, 4.08, 4.65, 5.21, 5.77, 6.32, 6.87, 7.42, 7.96, 8.49, 9.03, 9.56],
+      infinite: [0.75, 2.69, 3.94, 4.46, 4.98, 5.49, 5.99, 6.51, 6.99, 7.51, 7.99, 8.49, 8.99]
+    },
+    ea: {   // Elo, American Express e Hipercard
+      bronze:   [2.58, 4.91, 6.47, 7.20, 7.92, 8.63, 9.33, 10.03, 10.72, 11.41, 12.08, 12.75, 13.41],
+      prata:    [2.08, 4.65, 6.09, 6.69, 7.28, 7.87, 8.46, 9.05, 9.63, 10.20, 10.76, 11.33, 11.88],
+      ouro:     [1.98, 4.56, 5.95, 6.50, 7.05, 7.60, 8.15, 8.69, 9.23, 9.76, 10.29, 10.81, 11.33],
+      infinite: [1.88, 4.46, 5.81, 6.32, 6.83, 7.33, 7.83, 8.34, 8.83, 9.32, 9.81, 10.29, 10.77]
+    }
+  };
+  // O Link de Pagamento (a loja virtual): tabela geral "Em 1 dia util", de 1x a 12x. Sem debito. A pagina nao da a do Plano Inicial por nivel: conferir na conta.
+  const GW_TAXAS_LINK_INFINITEPAY = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
+  const GW_GRUPO_INFINITEPAY = { visa: 'vm', mastercard: 'vm', elo: 'ea', amex: 'ea', hipercard: 'ea' };
+  const GW_NIVEIS_INFINITEPAY = [['Bronze', 'bronze', 'habilitado'], ['Prata', 'prata', 'desabilitado'], ['Ouro', 'ouro', 'desabilitado'], ['Infinite', 'infinite', 'desabilitado']];
+  // A maquininha de um nivel: Pix (prazo 0) e, para cada bandeira, o debito da bandeira e o credito de 1x a 12x, todos em 1 dia util e sem tarifa.
+  function gwCondicoesMaquininhaInfinitePay(nivel, bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => {
+      const t = GW_TAXAS_INFINITEPAY[GW_GRUPO_INFINITEPAY[b]][nivel];
+      linhas.push({ forma: 'debito', bandeira: b, parcelas: 0, prazo: 1, taxa: t[0], tarifa: 0 });
+      for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: t[p], tarifa: 0 });
+    });
+    return gwOrdenar(linhas);
+  }
+  function gwCondicoesLinkInfinitePay(bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: GW_TAXAS_LINK_INFINITEPAY[p - 1], tarifa: 0 }); });
+    return gwOrdenar(linhas);
+  }
+  const GW_DESCRICAO_ONLINE = 'InfinitePay — loja virtual';
+  // Os cinco gateways do exemplo, sem id: o online (tipo InfinitePay, com a chave) e os quatro niveis da maquininha.
+  function gwExemplosDeFabrica() {
+    const base = { cnpj: '', endereco: '', municipio: '', antecipacao: 'antecipado', repassar: 'opcional', repassarAPartir: 1 };
+    const online = Object.assign({}, base, { tipo: 'infinitepay', descricao: GW_DESCRICAO_ONLINE, situacao: 'habilitado', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao',
+      juros: 1, multa: 2, diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
+      conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo', 'amex'], bandeiraPadrao: 'visa' });
+    online.condicoes = gwCondicoesLinkInfinitePay(online.bandeiras);
+    const bandeiras = ['visa', 'mastercard', 'elo', 'amex', 'hipercard'];
+    const niveis = GW_NIVEIS_INFINITEPAY.map(n => Object.assign({}, base, { tipo: 'outro', descricao: 'InfinitePay Maquininha — ' + n[0], situacao: n[2], lojas: [1, 2, 3], tarifacao: 'pagamento', diaDebito: null,
+      categoriaTarifaId: 17, bandeiras: bandeiras.slice(), bandeiraPadrao: 'visa', condicoes: gwCondicoesMaquininhaInfinitePay(n[1], bandeiras) }));
+    return [online].concat(niveis);
+  }
+  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '2'). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
+  // exemplo de 20/out, com a Stone e a Cielo), o exemplo antigo e trocado: saem a Stone (id 2) e a Cielo (id 3), achadas pelo id E pela descricao de fabrica (e nao so pelo nome
+  // digitado), o online (id 1, com a descricao de fabrica) e atualizado mantendo a chave e o link, e acrescentam-se os quatro niveis. Gateway criado pelo usuario fica como esta.
+  // O gateway padrao de Formas que apontava para um dos que sairam e apagado (cai no de fabrica, o primeiro maquininha habilitado: o Bronze).
   (function gwSemear() {
     try {
-      if (localStorage.getItem('deskGatewaysExemplo')) return;
-      const lista = gwLer();
+      const marca = localStorage.getItem('deskGatewaysExemplo');
+      if (marca === '2') return;
+      let lista = gwLer();
+      const novos = gwExemplosDeFabrica();
       let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
-      const base = { situacao: 'habilitado', cnpj: '', endereco: '', municipio: '', antecipacao: 'sem', proximoDiaUtil: false, repassar: 'nao', repassarAPartir: 1 };
-      const novo = (extra) => { const g = Object.assign({ id: ++n }, base, extra); g.condicoes = gwCondicoesFabrica(g.bandeiras); gwOrdenar(g.condicoes); return g; };
-      lista.push(novo({ tipo: 'infinitypay', descricao: 'InfinityPay — loja virtual', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao', juros: 1, multa: 2,
-        diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
-        conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo'], bandeiraPadrao: 'visa', proximoDiaUtil: true, repassar: 'opcional', repassarAPartir: 2 }));
-      lista.push(novo({ tipo: 'outro', descricao: 'Stone — maquininha da loja', lojas: [1], tarifacao: 'seguinte', diaDebito: null, categoriaTarifaId: 17,
-        bandeiras: Object.keys(GW_BANDEIRAS), bandeiraPadrao: 'mastercard', antecipacao: 'antecipado' }));
-      lista.push(novo({ tipo: 'outro', descricao: 'Cielo (antiga)', situacao: 'desabilitado', lojas: [2], tarifacao: 'especifico', diaDebito: 10, categoriaTarifaId: 18,
-        bandeiras: ['visa', 'mastercard'], bandeiraPadrao: 'visa' }));
+      const comId = (g) => Object.assign({ id: ++n }, g);
+      const online = novos.shift();
+      if (marca === '1') {
+        const sairam = lista.filter(g => (g.id === 2 && g.descricao === 'Stone — maquininha da loja') || (g.id === 3 && g.descricao === 'Cielo (antiga)')).map(g => g.id);
+        lista = lista.filter(g => sairam.indexOf(g.id) < 0);
+        const antigo = lista.filter(g => g.id === 1 && g.descricao === 'InfinityPay — loja virtual')[0];   // grafia errada do exemplo de 20/out: so aqui, para achar o gravado antigo
+        if (antigo) lista[lista.indexOf(antigo)] = Object.assign({}, online, { id: 1, chave: antigo.chave, conciliacao: antigo.conciliacao || null });
+        else if (!lista.some(g => g.descricao === online.descricao)) lista.push(comId(online));
+        try {
+          const p = JSON.parse(localStorage.getItem('deskParametros') || '{}');
+          if (p.formaGatewayPadrao) {
+            Object.keys(p.formaGatewayPadrao).forEach(k => { if (sairam.indexOf(p.formaGatewayPadrao[k]) >= 0) delete p.formaGatewayPadrao[k]; });
+            localStorage.setItem('deskParametros', JSON.stringify(p));
+          }
+        } catch (e) { /* parametro estragado: fica como esta */ }
+      } else {
+        lista.push(comId(online));
+      }
+      novos.forEach(g => { if (!lista.some(x => x.descricao === g.descricao)) lista.push(comId(g)); });
       gwGravar(lista);
-      localStorage.setItem('deskGatewaysExemplo', '1');
+      localStorage.setItem('deskGatewaysExemplo', '2');
     } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
   })();
   // ===== FIM DO BLOCO GATEWAYS =====

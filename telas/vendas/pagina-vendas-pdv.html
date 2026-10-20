@@ -951,6 +951,8 @@
   .pdv-receb .switch-row { margin:12px 0 4px; background:var(--card-bg); }
   .pdv-receb .switch.travado { opacity:.6; cursor:not-allowed; }
   /* Cartao sem maquininha habilitada na loja (Gateways, entrega 2, 21/out/2026): o motivo fica a vista, com o caminho para os gateways. */
+  .pdv-aviso-maq .btn-secundario { display:inline-flex; padding:4px 11px; font-size:12px; margin-left:8px; vertical-align:middle; }
+  .pdv-aviso-maq b { color:var(--text-heading); }
   .pdv-aviso-maq { margin-top:10px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); background:var(--page-bg); }
   /* Detalhes do caixa: painel largo, com situacao, fatos em grade e tabelas. */
   #caixaDrawer { width:680px; right:-700px; }
@@ -1344,6 +1346,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="pdv-linha"><span>Subtotal</span><b id="finSubtotal">R$ 0,00</b></div>
           <div class="pdv-linha"><span>Desconto na venda</span><b id="finDescontoValor">R$ 0,00</b></div>
           <div class="pdv-linha" id="finAcrescimoLinha" style="display:none;"><span>Acréscimo do cartão</span><b id="finAcrescimo">R$ 0,00</b></div>
+          <div class="pdv-linha" id="finDescAVistaLinha" style="display:none;"><span id="finDescAVistaRotulo">Desconto Pix/dinheiro</span><b id="finDescAVista">− R$ 0,00</b></div>
           <div class="pdv-linha forte"><span>Total</span><b id="finTotal">R$ 0,00</b></div>
         </div>
       </div>
@@ -1398,6 +1401,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <div class="dropdown-select-menu" id="menuAddReceb" style="min-width:300px;"></div>
           </div>
           <div class="pdv-aviso-maq" id="avisoSemMaquininha" style="display:none;"></div>
+          <div class="pdv-aviso-maq" id="avisoAVista" style="display:none;"></div>
           <div id="listaReceb"></div>
           <div class="pdv-falta" id="faltaReceber"></div>
         </div>
@@ -1741,6 +1745,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     pdvAgrupaIguais: true,
     pdvAbreComUltimoFechamento: false,
     pdvFechamentoCego: true,
+    pdvDescontoAVista: true,   // 21/out/2026: Pix e dinheiro descontam a taxa do credito a vista (Configuracoes > PDV grava, o PDV le)
     // por usuario
     registrosPorPagina: 10,
     aoSalvar: 'listagem',
@@ -1933,6 +1938,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'pdvFechaComDiferenca', nome:'Fechar o caixa do PDV com diferença',            onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvDescontoAcima',     nome:'Liberar desconto acima do máximo no PDV',        onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvRepasseTaxa',       nome:'Liberar o repasse da taxa do cartão ao cliente no PDV', onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvDescontoAVistaTira', nome:'Tirar o desconto à vista (Pix e dinheiro) de uma venda no PDV', onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -2506,46 +2512,118 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // gravado em Formas de recebimento; sem escolha gravada vale o de fabrica (o primeiro habilitado do tipo Outro).
   // ESPELHOS: GWL_LOJAS e de Cadastros > Lojas Desk; o formato do gateway e o descrito no bloco "GATEWAYS: DADOS E REGRAS" da pagina do gateway.
   const GWL_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
-  const GWL_TIPOS = { infinitypay: 'InfinityPay', outro: 'Outro' };
+  const GWL_TIPOS = { infinitepay: 'InfinitePay', outro: 'Outro' };
   const GWL_BANDEIRAS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', diners: 'Diners Club', elo: 'Elo', hipercard: 'Hipercard', bndes: 'BNDES', outro: 'Outro' };
   const GWL_TARIFACOES = { especifico: 'Em dia específico', transacao: 'No dia da transação', seguinte: 'Dia seguinte após a transação', pagamento: 'No dia do pagamento (somada à taxa)' };
   const GWL_REPASSES = { nao: 'Não', sim: 'Sim', opcional: 'Opcional', gerente: 'Opcional com liberação do gerente' };
   const GWL_TAXAS_FABRICA = [3, 3.6, 4.25, 4.9, 5.5, 6.15, 6.8, 7.45, 8, 8.7, 9.35, 10];
   function gwlLinhaFabrica(forma, bandeira, parcelas) {
+    if (forma === 'debito' && bandeira) return { forma: forma, bandeira: bandeira, parcelas: 0, prazo: 2, taxa: 0, tarifa: 2 };
     if (forma === 'credito') return { forma: forma, bandeira: bandeira, parcelas: parcelas, prazo: parcelas === 12 ? 30 : 31, taxa: GWL_TAXAS_FABRICA[parcelas - 1], tarifa: 0 };
     return { forma: forma, bandeira: '', parcelas: 0, prazo: forma === 'pix' ? 0 : 2, taxa: 0, tarifa: forma === 'pix' ? 0 : 2 };
   }
-  const gwlOrdemLinha = (c) => ['debito', 'boleto', 'pix', 'credito'].indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GWL_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  const gwlOrdemLinha = (c) => (c.bandeira ? 1000000 : 0) + ['debito', 'boleto', 'pix', 'credito'].indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GWL_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  const gwlOrdenar = (linhas) => linhas.sort((a, b) => gwlOrdemLinha(a) - gwlOrdemLinha(b));
   function gwlCondicoesFabrica(bandeiras) {
     const linhas = ['debito', 'boleto', 'pix'].map(f => gwlLinhaFabrica(f, '', 0));
-    Object.keys(GWL_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { for (let p = 1; p <= 12; p++) linhas.push(gwlLinhaFabrica('credito', b, p)); });
-    return linhas.sort((a, b) => gwlOrdemLinha(a) - gwlOrdemLinha(b));
+    Object.keys(GWL_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { linhas.push(gwlLinhaFabrica('debito', b, 0)); for (let p = 1; p <= 12; p++) linhas.push(gwlLinhaFabrica('credito', b, p)); });
+    return gwlOrdenar(linhas);
   }
   function gwlLer() {
     try {
       const d = JSON.parse(localStorage.getItem('deskGateways'));
       const lista = d && Array.isArray(d.gateways) ? d.gateways : [];
-      lista.forEach(g => { g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : []; });
+      lista.forEach(g => {
+        g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : [];
+        if (g.tipo === 'infinitypay') g.tipo = 'infinitepay';   // o nome foi corrigido em 21/out/2026: gravado antigo le com o tipo novo
+        delete g.proximoDiaUtil;                                 // o toggle saiu: o prazo e sempre em dias uteis
+      });
       return lista;
     } catch (e) { return []; }
   }
-  // Exemplo de fabrica: o mesmo da pagina do gateway, uma vez por navegador, acrescentando sem apagar. O que ja esta gravado vence.
+  const gwlGravar = (lista) => { try { localStorage.setItem('deskGateways', JSON.stringify({ gateways: lista })); return true; } catch (e) { return false; } };   // so para a semente
+  // Exemplo de fabrica (21/out/2026, versao 2): a configuracao real da Desk. Taxas oficiais da InfinitePay (infinitepay.io/taxas, consultadas em 21/out/2026), maquininha,
+  // "Em 1 dia util", parcelas antecipadas, por nivel de faturamento mensal (os nomes da pagina de planos): Bronze = "Plano Inicial" (ate R$ 20 mil), Prata (acima de
+  // 20 mil), Ouro (acima de 40 mil) e Infinite (acima de 80 mil). Cada nivel e um gateway do tipo Outro; so o Bronze nasce habilitado. A pagina agrupa Hipercard com
+  // Elo e American Express. Cada lista e [debito, 1x, 2x, ... 12x], em %. Pix e gratis, sem tarifa fixa; prazo de 1 dia util em debito e em todas as parcelas do credito.
+  const GWL_TAXAS_INFINITEPAY = {
+    vm: {   // Visa e Mastercard
+      bronze:   [1.37, 3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40],
+      prata:    [0.85, 2.89, 4.22, 4.83, 5.44, 6.05, 6.64, 7.24, 7.82, 8.41, 8.98, 9.56, 10.12],
+      ouro:     [0.79, 2.79, 4.08, 4.65, 5.21, 5.77, 6.32, 6.87, 7.42, 7.96, 8.49, 9.03, 9.56],
+      infinite: [0.75, 2.69, 3.94, 4.46, 4.98, 5.49, 5.99, 6.51, 6.99, 7.51, 7.99, 8.49, 8.99]
+    },
+    ea: {   // Elo, American Express e Hipercard
+      bronze:   [2.58, 4.91, 6.47, 7.20, 7.92, 8.63, 9.33, 10.03, 10.72, 11.41, 12.08, 12.75, 13.41],
+      prata:    [2.08, 4.65, 6.09, 6.69, 7.28, 7.87, 8.46, 9.05, 9.63, 10.20, 10.76, 11.33, 11.88],
+      ouro:     [1.98, 4.56, 5.95, 6.50, 7.05, 7.60, 8.15, 8.69, 9.23, 9.76, 10.29, 10.81, 11.33],
+      infinite: [1.88, 4.46, 5.81, 6.32, 6.83, 7.33, 7.83, 8.34, 8.83, 9.32, 9.81, 10.29, 10.77]
+    }
+  };
+  // O Link de Pagamento (a loja virtual): tabela geral "Em 1 dia util", de 1x a 12x. Sem debito. A pagina nao da a do Plano Inicial por nivel: conferir na conta.
+  const GWL_TAXAS_LINK_INFINITEPAY = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
+  const GWL_GRUPO_INFINITEPAY = { visa: 'vm', mastercard: 'vm', elo: 'ea', amex: 'ea', hipercard: 'ea' };
+  const GWL_NIVEIS_INFINITEPAY = [['Bronze', 'bronze', 'habilitado'], ['Prata', 'prata', 'desabilitado'], ['Ouro', 'ouro', 'desabilitado'], ['Infinite', 'infinite', 'desabilitado']];
+  // A maquininha de um nivel: Pix (prazo 0) e, para cada bandeira, o debito da bandeira e o credito de 1x a 12x, todos em 1 dia util e sem tarifa.
+  function gwlCondicoesMaquininhaInfinitePay(nivel, bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => {
+      const t = GWL_TAXAS_INFINITEPAY[GWL_GRUPO_INFINITEPAY[b]][nivel];
+      linhas.push({ forma: 'debito', bandeira: b, parcelas: 0, prazo: 1, taxa: t[0], tarifa: 0 });
+      for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: t[p], tarifa: 0 });
+    });
+    return gwlOrdenar(linhas);
+  }
+  function gwlCondicoesLinkInfinitePay(bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: GWL_TAXAS_LINK_INFINITEPAY[p - 1], tarifa: 0 }); });
+    return gwlOrdenar(linhas);
+  }
+  const GWL_DESCRICAO_ONLINE = 'InfinitePay — loja virtual';
+  // Os cinco gateways do exemplo, sem id: o online (tipo InfinitePay, com a chave) e os quatro niveis da maquininha.
+  function gwlExemplosDeFabrica() {
+    const base = { cnpj: '', endereco: '', municipio: '', antecipacao: 'antecipado', repassar: 'opcional', repassarAPartir: 1 };
+    const online = Object.assign({}, base, { tipo: 'infinitepay', descricao: GWL_DESCRICAO_ONLINE, situacao: 'habilitado', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao',
+      juros: 1, multa: 2, diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
+      conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo', 'amex'], bandeiraPadrao: 'visa' });
+    online.condicoes = gwlCondicoesLinkInfinitePay(online.bandeiras);
+    const bandeiras = ['visa', 'mastercard', 'elo', 'amex', 'hipercard'];
+    const niveis = GWL_NIVEIS_INFINITEPAY.map(n => Object.assign({}, base, { tipo: 'outro', descricao: 'InfinitePay Maquininha — ' + n[0], situacao: n[2], lojas: [1, 2, 3], tarifacao: 'pagamento', diaDebito: null,
+      categoriaTarifaId: 17, bandeiras: bandeiras.slice(), bandeiraPadrao: 'visa', condicoes: gwlCondicoesMaquininhaInfinitePay(n[1], bandeiras) }));
+    return [online].concat(niveis);
+  }
+  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '2'). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
+  // exemplo de 20/out, com a Stone e a Cielo), o exemplo antigo e trocado: saem a Stone (id 2) e a Cielo (id 3), achadas pelo id E pela descricao de fabrica (e nao so pelo nome
+  // digitado), o online (id 1, com a descricao de fabrica) e atualizado mantendo a chave e o link, e acrescentam-se os quatro niveis. Gateway criado pelo usuario fica como esta.
+  // O gateway padrao de Formas que apontava para um dos que sairam e apagado (cai no de fabrica, o primeiro maquininha habilitado: o Bronze).
   (function gwlSemear() {
     try {
-      if (localStorage.getItem('deskGatewaysExemplo')) return;
-      const lista = gwlLer();
+      const marca = localStorage.getItem('deskGatewaysExemplo');
+      if (marca === '2') return;
+      let lista = gwlLer();
+      const novos = gwlExemplosDeFabrica();
       let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
-      const base = { situacao: 'habilitado', cnpj: '', endereco: '', municipio: '', antecipacao: 'sem', proximoDiaUtil: false, repassar: 'nao', repassarAPartir: 1 };
-      const novo = (extra) => { const g = Object.assign({ id: ++n }, base, extra); g.condicoes = gwlCondicoesFabrica(g.bandeiras); return g; };
-      lista.push(novo({ tipo: 'infinitypay', descricao: 'InfinityPay — loja virtual', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao', juros: 1, multa: 2,
-        diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
-        conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo'], bandeiraPadrao: 'visa', proximoDiaUtil: true, repassar: 'opcional', repassarAPartir: 2 }));
-      lista.push(novo({ tipo: 'outro', descricao: 'Stone — maquininha da loja', lojas: [1], tarifacao: 'seguinte', diaDebito: null, categoriaTarifaId: 17,
-        bandeiras: Object.keys(GWL_BANDEIRAS), bandeiraPadrao: 'mastercard', antecipacao: 'antecipado' }));
-      lista.push(novo({ tipo: 'outro', descricao: 'Cielo (antiga)', situacao: 'desabilitado', lojas: [2], tarifacao: 'especifico', diaDebito: 10, categoriaTarifaId: 18,
-        bandeiras: ['visa', 'mastercard'], bandeiraPadrao: 'visa' }));
-      localStorage.setItem('deskGateways', JSON.stringify({ gateways: lista }));
-      localStorage.setItem('deskGatewaysExemplo', '1');
+      const comId = (g) => Object.assign({ id: ++n }, g);
+      const online = novos.shift();
+      if (marca === '1') {
+        const sairam = lista.filter(g => (g.id === 2 && g.descricao === 'Stone — maquininha da loja') || (g.id === 3 && g.descricao === 'Cielo (antiga)')).map(g => g.id);
+        lista = lista.filter(g => sairam.indexOf(g.id) < 0);
+        const antigo = lista.filter(g => g.id === 1 && g.descricao === 'InfinityPay — loja virtual')[0];   // grafia errada do exemplo de 20/out: so aqui, para achar o gravado antigo
+        if (antigo) lista[lista.indexOf(antigo)] = Object.assign({}, online, { id: 1, chave: antigo.chave, conciliacao: antigo.conciliacao || null });
+        else if (!lista.some(g => g.descricao === online.descricao)) lista.push(comId(online));
+        try {
+          const p = JSON.parse(localStorage.getItem('deskParametros') || '{}');
+          if (p.formaGatewayPadrao) {
+            Object.keys(p.formaGatewayPadrao).forEach(k => { if (sairam.indexOf(p.formaGatewayPadrao[k]) >= 0) delete p.formaGatewayPadrao[k]; });
+            localStorage.setItem('deskParametros', JSON.stringify(p));
+          }
+        } catch (e) { /* parametro estragado: fica como esta */ }
+      } else {
+        lista.push(comId(online));
+      }
+      novos.forEach(g => { if (!lista.some(x => x.descricao === g.descricao)) lista.push(comId(g)); });
+      gwlGravar(lista);
+      localStorage.setItem('deskGatewaysExemplo', '2');
     } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
   })();
   const gwlPorId = (id) => gwlLer().filter(g => g.id === Number(id))[0] || null;
@@ -2559,19 +2637,41 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const todos = gwlHabilitados(null, null);
     return todos.filter(g => g.id === Number(id))[0] || todos.filter(g => g.tipo === 'outro')[0] || todos[0] || null;
   }
-  // A condicao de uma forma no gateway: { prazo (dias corridos), taxa (%), tarifa (R$) }, ou nulo quando o gateway nao tem a linha.
-  // Debito nao tem bandeira nem parcela na tabela (a bandeira escolhida nao muda a taxa); credito e por bandeira e por numero de vezes.
+  // A condicao de uma forma no gateway: { prazo (dias UTEIS), taxa (%), tarifa (R$) }, ou nulo quando o gateway nao tem a linha.
+  // O credito e por bandeira e por numero de vezes. O debito e por bandeira quando o gateway separa (a InfinitePay cobra debito diferente por bandeira): vale a linha
+  // da bandeira; sem ela, vale a linha unica "Cartao de debito", sem bandeira, que e a dos gateways que nao separam.
   function gwlCondicao(g, forma, bandeira, vezes) {
     if (!g) return null;
-    const c = g.condicoes.filter(x => x.forma === forma && (forma !== 'credito' || (x.bandeira === bandeira && x.parcelas === Number(vezes))))[0];
+    let c;
+    if (forma === 'credito') c = g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira && x.parcelas === Number(vezes))[0];
+    else if (forma === 'debito') c = g.condicoes.filter(x => x.forma === 'debito' && !!bandeira && x.bandeira === bandeira)[0] || g.condicoes.filter(x => x.forma === 'debito' && !x.bandeira)[0];
+    else c = g.condicoes.filter(x => x.forma === forma)[0];
     return c ? { prazo: Number(c.prazo), taxa: Number(c.taxa), tarifa: Number(c.tarifa) } : null;
   }
+  // O gateway tem debito por bandeira (a bandeira escolhida muda a taxa do debito)?
+  const gwlDebitoPorBandeira = (g) => !!g && g.condicoes.some(x => x.forma === 'debito' && !!x.bandeira);
   // As parcelas (de 1x a 12x) que o gateway tem para a bandeira.
   const gwlVezes = (g, bandeira) => (g ? g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira).map(x => x.parcelas).sort((a, b) => a - b) : []);
   // As regras de repasse: 'nao' | 'sim' | 'opcional' | 'gerente', e a parcela a partir da qual valem.
   const gwlRepasse = (g) => ({ modo: g.repassar || 'nao', aPartirDa: Number(g.repassarAPartir) || 1 });
   // A conta financeira do gateway (nasce com ele, em Contas financeiras).
   const gwlConta = (g) => ({ id: 'gw' + g.id, nome: g.descricao });
+  // A maquininha padrao de uma loja (a do desconto a vista do PDV): o gateway padrao do credito, se for do tipo Outro, habilitado e da loja; senao a primeira
+  // maquininha habilitada da loja; sem maquininha, nulo. A bandeira de referencia e a padrao dela.
+  function gwlMaquininhaDaLoja(lojaId) {
+    const maqs = gwlHabilitados(lojaId, 'outro');
+    const padrao = gwlPadraoDaForma('credito');
+    return maqs.filter(x => !!padrao && x.id === padrao.id)[0] || maqs[0] || null;
+  }
+  const gwlBandeiraPadrao = (g) => (g.bandeiras.indexOf(g.bandeiraPadrao) >= 0 ? g.bandeiraPadrao : (g.bandeiras[0] || null));
+  // O desconto a vista (Pix e dinheiro) de uma loja: a taxa do CREDITO A VISTA (1x) da bandeira padrao da maquininha padrao da loja, em %. Sobe o nivel do gateway, o
+  // desconto acompanha sozinho. Loja sem maquininha, ou maquininha sem a linha de 1x: 0. Devolve { pct, gateway, bandeira }.
+  function gwlDescontoAVista(lojaId) {
+    const g = gwlMaquininhaDaLoja(lojaId);
+    if (!g) return { pct: 0, gateway: null, bandeira: null };
+    const b = gwlBandeiraPadrao(g), c = b ? gwlCondicao(g, 'credito', b, 1) : null;
+    return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
+  }
   // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
   // ---------- ESPELHOS (no sistema de producao viram join; a suite compara cada um) ----------
   // Pedido de Venda: lojas, depositos e catalogo com saldo por deposito.
@@ -2774,6 +2874,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // shortcut: so feriado nacional de data fixa; Carnaval, Sexta-feira Santa, Corpus Christi e feriado local entram quando houver calendario de feriados.
   const FERIADOS_FIXOS = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '20/11', '25/12'];
   function diaUtil(d) { return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(dataBr(d).slice(0, 5)) === -1; }
+  // Soma `n` dias UTEIS: o prazo do gateway e em dias uteis (sabado, domingo e feriado nacional de data fixa nao contam). Zero e o mesmo dia.
+  function maisDiasUteis(d, n) { const x = new Date(d.getTime()); while (n > 0) { x.setDate(x.getDate() + 1); if (diaUtil(x)) n -= 1; } return x; }
   function diasAte(d, alvo) { return Math.round((new Date(alvo.getFullYear(), alvo.getMonth(), alvo.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000); }
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
   const MESES_NOME_PDV = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
@@ -3220,7 +3322,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function formasDisponiveis() { return FORMAS.filter(f => f.ativo && f.uso !== 'pagar' && f.destino !== 'vale'); }
   function somaRecebimentos() { return arred(venda.recebimentos.reduce((s, r) => s + (r.valor || 0), 0)); }
   // ----- o cartao le o gateway (Gateways, entrega 2, 21/out/2026) -----
-  // Debito e credito nao tem taxa na forma: o caixa escolhe a MAQUININHA (gateway do tipo Outro, habilitado, da loja do turno; a InfinityPay e da loja
+  // Debito e credito nao tem taxa na forma: o caixa escolhe a MAQUININHA (gateway do tipo Outro, habilitado, da loja do turno; a InfinitePay e da loja
   // virtual) e a BANDEIRA, e a taxa, a tarifa, o prazo e as regras de repasse saem da tabela de condicoes do gateway. O debito tem uma linha so ("Cartao de
   // debito", sem bandeira): a bandeira escolhida nao muda a taxa dele. O credito e por bandeira e por numero de vezes: so se oferece as vezes que o gateway tem.
   const ehCartao = (f) => !!(f && f.viaGateway);
@@ -3246,7 +3348,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A condicao do cartao no gateway da venda: { prazo, taxa, tarifa } ou nulo (o gateway nao tem a linha).
   function condicaoDe(r, vezes) {
     const g = gatewayDe(r);
-    return r.chave === 'debito' ? gwlCondicao(g, 'debito', '', 1) : gwlCondicao(g, 'credito', r.bandeira, vezes || r.vezes || 1);
+    // O debito vale pela linha da bandeira, quando o gateway separa o debito por bandeira (a InfinitePay), ou pela linha unica "Cartao de debito".
+    return r.chave === 'debito' ? gwlCondicao(g, 'debito', r.bandeira, 1) : gwlCondicao(g, 'credito', r.bandeira, vezes || r.vezes || 1);
   }
   // O repasse pelas regras do gateway. modo: nao (sem repasse e sem switch) | abaixo (antes da parcela "a partir da": sem repasse) | sim (sempre, travado)
   // | opcional (switch livre, desligado de fabrica) | gerente (ligar pede a senha do gerente).
@@ -3281,14 +3384,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return arred(cobradoDe(r) * t.pct / 100 + t.fixa);
   }
   function acrescimos() { return arred(venda.recebimentos.reduce((s, r) => s + cobradoDe(r) - (r.valor || 0), 0)); }
-  // O vencimento do cartao: hoje mais o prazo do gateway, em dias corridos; com "considerar proximo dia util" ligado no gateway, cai no proximo dia util.
-  function vencimentoDoCartao(r, hoje) {
-    const g = gatewayDe(r), c = condicaoDe(r);
-    let d = maisDias(hoje, c ? c.prazo : 0);
-    if (g && g.proximoDiaUtil) while (!diaUtil(d)) d = maisDias(d, 1);
-    return d;
+  // Tirar o desconto da venda: acao com senha (Confirmacoes de senha); some de todos os recebimentos a vista dela, e o Registro de atividades diz quem tirou.
+  function tirarDescontoAVista() {
+    const d = descontosAVista(), pct = descontoAVistaPct();
+    confirmarAcao('pdvDescontoAVistaTira', 'Tirar o desconto à vista de ' + fmtNum(pct) + '% (− ' + moeda(d) + ') desta venda? O Pix e o dinheiro passam a valer o valor cheio. Quem tirou: ' + USUARIO_SESSAO.nome + '.', () => {
+      venda.semDescontoAVista = true;
+      pintarFinalizar(); gravar();
+    });
   }
-  const rotuloPrazoGw = (n) => (n === 0 ? 'no mesmo dia' : n + (n === 1 ? ' dia' : ' dias'));
+  // ----- o desconto a vista, Pix e dinheiro (ajuste do teste, 21/out/2026) -----
+  // O preco ja embute a taxa do cartao; quem paga a vista nao a usa, entao leva o desconto. O percentual e a taxa do credito a vista (1x) da bandeira padrao da
+  // maquininha padrao da loja do PDV (lida do gateway: sobe o nivel, o desconto acompanha sozinho; loja sem maquininha, sem desconto). O desconto cai sobre o valor
+  // CHEIO que o recebimento quita (`valor`), e o cliente paga o resto; so Pix e dinheiro (vale-compra, crediario, cheque e boleto nao). Vem depois do desconto manual
+  // da venda (a base e o total ja com ele). Configuracoes > PDV liga e desliga (`pdvDescontoAVista`); o caixa tira da venda com senha (`venda.semDescontoAVista`).
+  const A_VISTA = ['pix', 'dinheiro'];
+  const descontoDeReferencia = () => gwlDescontoAVista(turno.lojaId);
+  function descontoAVistaPct() { return PARAM.pdvDescontoAVista && !venda.semDescontoAVista ? descontoDeReferencia().pct : 0; }
+  // Em centavos inteiros: R$ 50,00 a 3,15% fica R$ 48,43, e nunca sobra um centavo na conferencia do total.
+  const pagoAVista = (valor, pct) => Math.round(Math.round(valor * 100) * (10000 - Math.round(pct * 100)) / 10000) / 100;
+  function descontoDe(r) {
+    const pct = descontoAVistaPct();
+    return A_VISTA.indexOf(r.chave) >= 0 && r.valor > 0 && pct > 0 ? arred(r.valor - pagoAVista(r.valor, pct)) : 0;
+  }
+  // O que o cliente paga por um recebimento: no Pix e no dinheiro, o valor menos o desconto; no cartao, o que passa na maquininha.
+  const pagoDe = (r) => (A_VISTA.indexOf(r.chave) >= 0 ? arred((r.valor || 0) - descontoDe(r)) : cobradoDe(r));
+  const descontosAVista = () => arred(venda.recebimentos.reduce((s, r) => s + descontoDe(r), 0));
+  // O total que o cliente paga: a venda, mais o repasse do cartao, menos o desconto a vista.
+  const totalAPagar = () => arred(totalVenda() + acrescimos() - descontosAVista());
+  // O vencimento do cartao: hoje mais o prazo da condicao do gateway, em DIAS UTEIS (venda numa sexta com prazo de 1 dia util cai na segunda).
+  function vencimentoDoCartao(r, hoje) {
+    const c = condicaoDe(r);
+    return maisDiasUteis(hoje, c ? c.prazo : 0);
+  }
+  const rotuloPrazoGw = (n) => (n === 0 ? 'no mesmo dia' : n + (n === 1 ? ' dia útil' : ' dias úteis'));
   // Cartao: um titulo so, no valor que passa no cartao, vencendo pelo prazo do gateway. Sem maquininha ou sem condicao, sem titulo (a venda nao fecha).
   function acertarTitulo(r) {
     const f = formaDe(r.chave);
@@ -3314,7 +3442,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   function trocoDe(r) {
     if (r.chave !== 'dinheiro' || r.recebido === null || r.recebido === undefined) return 0;
-    return Math.max(0, arred(r.recebido - (r.valor || 0)));
+    return Math.max(0, arred(r.recebido - pagoDe(r)));   // o troco e sobre o que o cliente paga, ja com o desconto a vista
   }
   function trocoTotal() { return arred(venda.recebimentos.reduce((s, r) => s + trocoDe(r), 0)); }
   // "30 60 90" sao vencimentos em dias; "3x" sao tres parcelas de 30 em 30.
@@ -3408,7 +3536,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         else if (r.valor > saldoVale + 0.005) p.push('Vale-compra: o valor (' + moeda(r.valor) + ') passa do saldo de vale de ' + cli.nome + ' nesta loja (' + moeda(saldoVale) + ').');
       }
       if (!r.valor || r.valor <= 0) p.push(f.nome + ': sem valor. Diminua o valor de outra forma, que o que faltar entra aqui, ou remova esta.');
-      if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < r.valor - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(r.valor) + ').');
+      if (r.chave === 'dinheiro' && r.recebido !== null && r.recebido < pagoDe(r) - 0.005) p.push('Dinheiro: o recebido (' + moeda(r.recebido) + ') é menor que o valor (' + moeda(pagoDe(r)) + ').');
       if (f.destino === 'titulo') {
         // Titulo precisa de devedor. No prazo fixo da operadora (cartao) o devedor e ela, e a venda passa sem cliente.
         if (!cli && !ehCartao(f)) p.push(f.nome + ' vira título em Contas a Receber e precisa de cliente identificado.');
@@ -3476,6 +3604,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : (bloqueados.length ? '' : '<div class="pdv-sug-vazio">Todas as formas habilitadas já estão na venda.</div>'));
     setDrop('selAddReceb', '', 'Adicionar recebimento');
     mostrar('avisoSemMaquininha', bloqueados.length > 0);
+    // O desconto a vista: aparece quando ha Pix ou dinheiro na venda e a loja tem maquininha com o credito de 1x; o caixa tira da venda com senha.
+    const ref = descontoDeReferencia(), temAVista = venda.recebimentos.some(r => A_VISTA.indexOf(r.chave) >= 0 && r.valor > 0);
+    let av = '';
+    if (PARAM.pdvDescontoAVista && ref.pct > 0 && temAVista) {
+      av = venda.semDescontoAVista
+        ? 'O desconto à vista de <b>' + fmtNum(ref.pct) + '%</b> foi tirado desta venda: o Pix e o dinheiro valem o valor cheio.'
+        : 'Desconto à vista de <b>' + fmtNum(ref.pct) + '%</b> no Pix e no dinheiro (a taxa do crédito à vista de ' + esc(ref.gateway.descricao) + ', ' + esc(GWL_BANDEIRAS[ref.bandeira]) + '): <b>− ' + moeda(descontosAVista()) +
+          '</b>. <button type="button" class="btn-secundario" id="btnTirarDescAVista">Tirar o desconto desta venda</button>';
+    }
+    mostrar('avisoAVista', !!av); html('avisoAVista', av);
+    const btnTirar = document.getElementById('btnTirarDescAVista');
+    if (btnTirar) btnTirar.addEventListener('click', tirarDescontoAVista);
     html('avisoSemMaquininha', bloqueados.length ? esc(bloqueados.map(f => f.nome).join(' e ')) + ' não pode ser usado nesta venda: não há maquininha (gateway do tipo Outro) habilitada na ' + esc(lojaDe(turno.lojaId).nome) +
       '. <a class="pdv-link" id="linkSemMaquininha" href="../integracoes/pagina-integracoes-gateways.html">Ver os gateways</a>' : '');
 
@@ -3489,7 +3629,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           ? 'entra na hora em ' + (conta ? conta.nome : 'conta financeira')
           : 'vira título em Contas a Receber' + (conta ? ', baixa em ' + conta.nome : ''));
       let corpo = '<div class="form-row"><div class="form-field"><label>Valor (R$)</label><input type="text" inputmode="decimal" data-receb-valor="' + i + '" value="' + (r.valor ? fmtNum(r.valor) : '') + '"></div>';
-      if (r.chave === 'dinheiro') corpo += '<div class="form-field"><label>Recebido em dinheiro (R$)</label><input type="text" inputmode="decimal" data-receb-recebido="' + i + '" placeholder="igual ao valor" value="' + (r.recebido !== null && r.recebido !== undefined ? fmtNum(r.recebido) : '') + '"></div>';
+      if (r.chave === 'dinheiro') corpo += '<div class="form-field"><label>Recebido em dinheiro (R$)</label><input type="text" inputmode="decimal" data-receb-recebido="' + i + '" placeholder="igual ao que o cliente paga" value="' + (r.recebido !== null && r.recebido !== undefined ? fmtNum(r.recebido) : '') + '"></div>';
       // Prazo fixo da operadora (cartao): o operador escolhe so as parcelas; data e valor do titulo saem do cadastro.
       // Cartao: o caixa escolhe a maquininha e a bandeira, e a parcela vale so as vezes que o gateway tem para a bandeira.
       const fixo = ehCartao(f), gw = fixo ? gatewayDe(r) : null, maqs = fixo ? maquininhasDoTurno() : [];
@@ -3504,6 +3644,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="dropdown-select-menu">' + itens + '</div></div></div>';
       } else if (f.destino === 'titulo' && !fixo) corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
       corpo += '</div>';
+      if (descontoDe(r) > 0) corpo += '<div class="pdv-receb-info">Quita <b>' + moeda(r.valor) + '</b> · com o desconto à vista de <b>' + fmtNum(descontoAVistaPct()) + '%</b> o cliente paga <b>' + moeda(pagoDe(r)) + '</b>.</div>';
       if (pronto) {
         const menu = (itens) => itens.map(x => '<div class="dropdown-select-item' + (x.v === x.atual ? ' active' : '') + '" data-value="' + x.v + '">' + esc(x.t) + '</div>').join('');
         const caixa = (rotulo, attr, valor, texto, itens) => '<div class="form-field"><label>' + rotulo + '</label><div class="dropdown-select" ' + attr + '="' + i + '" data-value="' + valor + '">' +
@@ -3514,7 +3655,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (maqs.length > 1) linha2 += caixa('Maquininha', 'data-receb-maq', gw.id, gw.descricao, maqs.map(x => ({ v: x.id, t: x.descricao, atual: gw.id })));
         if (gw.bandeiras.length) linha2 += caixa('Bandeira', 'data-receb-band', r.bandeira, GWL_BANDEIRAS[r.bandeira] || '', gw.bandeiras.map(b => ({ v: b, t: GWL_BANDEIRAS[b], atual: r.bandeira })));
         if (linha2) corpo += '<div class="form-row">' + linha2 + '</div>';
-        if (r.chave === 'debito' && gw.bandeiras.length) corpo += '<div class="field-hint">A bandeira não muda a taxa do débito: o gateway tem uma linha só, “Cartão de débito”.</div>';
+        if (r.chave === 'debito' && gw.bandeiras.length) corpo += '<div class="field-hint">' + (gwlDebitoPorBandeira(gw)
+          ? 'O débito usa a taxa da bandeira escolhida: este gateway cobra o débito por bandeira.'
+          : 'A bandeira não muda a taxa do débito: este gateway tem uma linha só, “Cartão de débito”.') + '</div>';
       }
       if (r.chave === 'dinheiro' && trocoDe(r) > 0) corpo += '<div class="pdv-receb-info">Troco: <b>' + moeda(trocoDe(r)) + '</b></div>';
       if (fixo) {
@@ -3536,7 +3679,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             linhaChave('Maquininha', esc(gw.descricao)) +
             (taxa > 0 ? linhaChave('Taxa da maquininha (' + (t.pct ? fmtNum(t.pct) + '%' : '') + (t.pct && t.fixa ? ' + ' : '') + (t.fixa ? moeda(t.fixa) : '') + ')', moeda(taxa)) : '') +
             linhaChave('Passar no cartão do cliente', moeda(cobrado) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '')) +
-            linhaChave('A loja recebe em ' + dataBr(venc) + ' (' + rotuloPrazoGw(cd.prazo) + (gw.proximoDiaUtil ? ', no dia útil' : '') + ')', moeda(arred(cobrado - taxa))) + '</div>';
+            linhaChave('A loja recebe em ' + dataBr(venc) + ' (' + rotuloPrazoGw(cd.prazo) + ')', moeda(arred(cobrado - taxa))) + '</div>';
         }
       } else if (f.destino === 'titulo') {
         corpo += '<table class="pdv-parcelas"><thead><tr><th style="width:40px;">Nº</th><th style="width:90px;">Dias</th><th>Vencimento</th><th style="width:130px;">Valor (R$)</th></tr></thead><tbody>' +
@@ -3562,15 +3705,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     el.classList.toggle('alerta', pend.length > 0 && venda.recebimentos.length > 0);
     el.classList.toggle('certo', pend.length === 0);
     // Taxa repassada entra por cima do total: o cliente paga a venda mais o acrescimo do cartao.
-    const acresc = acrescimos();
+    const acresc = acrescimos(), desc = descontosAVista();
     el.innerHTML = pend.length === 0
-      ? 'Recebimentos fecham com o total: <b>' + moeda(arred(soma + acresc)) + '</b>. Pode finalizar.'
+      ? 'Recebimentos fecham com o total: <b>' + moeda(arred(soma + acresc - desc)) + '</b>. Pode finalizar.'
       : (venda.recebimentos.length === 0 ? 'Total a receber: <b>' + moeda(total) + '</b>. Escolha a forma de recebimento.' : pend.map(esc).join('<br>'));
     mostrar('finAcrescimoLinha', acresc > 0);
     texto('finAcrescimo', '+ ' + moeda(acresc));
+    // O desconto a vista (Pix e dinheiro) tira do que o cliente paga: o total a pagar e a venda mais o repasse do cartao, menos o desconto.
+    mostrar('finDescAVistaLinha', desc > 0);
+    texto('finDescAVistaRotulo', 'Desconto Pix/dinheiro (' + fmtNum(descontoAVistaPct()) + '%)');
+    texto('finDescAVista', '− ' + moeda(desc));
     texto('totTroco', moeda(trocoTotal()));
-    texto('totVendaFin', moeda(arred(total + acresc)));
-    texto('finTotal', moeda(arred(total + acresc)));
+    texto('totVendaFin', moeda(totalAPagar()));
+    texto('finTotal', moeda(totalAPagar()));
   }
   // Os campos dos recebimentos sao refeitos a cada pintura, entao gravam no `blur`
   // (change) e nao a cada tecla: repintar no meio da digitacao tiraria o foco.
@@ -3654,13 +3801,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       try { usosVale = usarVale(cli.id, turno.lojaId, rv.valor, { tipo: 'pdv', id: numeroVenda, rotulo: 'PDV-' + String(numeroVenda).padStart(4, '0') }); }
       catch (e) { avisar('Não foi possível usar o vale-compra: ' + e.message); return; }
     }
+    const descAV = descontosAVista(), pctAV = descontoAVistaPct(), refAV = descontoDeReferencia();
     const registro = {
       numero: numeroVenda, quando: agora.toISOString(), lojaId: turno.lojaId, depositoId: venda.depositoId, categoriaId: venda.categoriaId,
       vendedorId: venda.vendedorId, vendedorNome: vend ? vend.nome : null, clienteId: venda.clienteId, clienteNome: cli ? cli.nome : 'Consumidor final',
       clienteDoc: cli ? cli.documento : '', situacao: PARAM.pdvSituacaoVenda,
       itens: venda.itens.map(it => ({ sku: it.sku, nome: it.nome, un: it.un, qtd: it.qtd, preco: it.preco, total: totalDoItem(it) })),
-      // `total` e o que o cliente pagou: a venda mais a taxa de cartao repassada, quando ha.
-      subtotal: subtotal(), desconto: descontoGeral() || 0, acrescimo: acrescimos(), total: arred(totalVenda() + acrescimos()), troco: trocoTotal(),
+      // `total` e o que o cliente pagou: a venda mais a taxa de cartao repassada, menos o desconto a vista (Pix e dinheiro), quando ha. A comissao e a meta leem esse total.
+      subtotal: subtotal(), desconto: descontoGeral() || 0, acrescimo: acrescimos(), total: totalAPagar(), troco: trocoTotal(),
+      descontoAVista: descAV > 0 ? { pct: pctAV, valor: descAV, gatewayId: refAV.gateway ? refAV.gateway.id : null } : null, descontoAVistaTirado: !!venda.semDescontoAVista,
       // Os vales tocados e o que sobrou para o cliente nesta loja (so quando a venda usou vale).
       vale: usosVale.length ? { usos: usosVale, saldo: valeSaldoDoCliente(cli.id, turno.lojaId) } : null,
       recebimentos: venda.recebimentos.map(r => {
@@ -3669,8 +3818,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         // Cartao: a conta e a do gateway, e o titulo leva a maquininha, a bandeira e o vencimento (o que vira o historico em Contas a Receber).
         const cartao = ehCartao(f), gc = cartao ? gatewayDe(r) : null, nomeBand = cartao && r.bandeira ? GWL_BANDEIRAS[r.bandeira] : null;
         const venc = cartao ? vencimentoDoCartao(r, agora) : null;
-        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: cartao ? (gc ? gwlConta(gc).id : null) : f.contaId, valor: r.valor, cobrado: cobradoDe(r), vezes: r.vezes || 1, prazoFixo: cartao,
-                 recebido: r.chave === 'dinheiro' ? (r.recebido === null ? r.valor : r.recebido) : null,
+        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: cartao ? (gc ? gwlConta(gc).id : null) : f.contaId, valor: r.valor, cobrado: pagoDe(r), desconto: descontoDe(r), vezes: r.vezes || 1, prazoFixo: cartao,
+                 recebido: r.chave === 'dinheiro' ? (r.recebido === null ? pagoDe(r) : r.recebido) : null,
                  troco: trocoDe(r), taxa: taxaDe(r), tarifacao: cartao ? (gc ? gc.tarifacao || '' : '') : f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })),
                  gatewayId: gc ? gc.id : null, gatewayNome: gc ? gc.descricao : null, bandeira: cartao ? r.bandeira : null, bandeiraNome: nomeBand, repasse: cartao ? repasseDe(r).ativo : false,
                  vencimento: venc ? venc.getFullYear() + '-' + doisDigitos(venc.getMonth() + 1) + '-' + doisDigitos(venc.getDate()) : null,
@@ -3688,7 +3837,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const extras = JSON.parse(localStorage.getItem('deskCaixaExtras') || '[]');
       registro.recebimentos.filter(r => r.destino === 'conta' && r.contaId).forEach(r => extras.push({
         contaId: r.contaId, data: dia, comp: dia.slice(0, 7), hist: 'Venda de balcão ' + numeroPedido(registro) + ' — ' + r.nome,
-        pessoa: registro.clienteNome, catId: registro.categoriaId, tipo: 'entrada', valor: r.valor, origem: numeroPedido(registro) }));
+        pessoa: registro.clienteNome, catId: registro.categoriaId, tipo: 'entrada', valor: cobradoNo(r), origem: numeroPedido(registro) }));
       localStorage.setItem('deskCaixaExtras', JSON.stringify(extras.slice(-300)));
     } catch (e) { /* armazenamento bloqueado: a venda vale, so nao chega ao extrato */ }
     ultimaVenda = registro;
@@ -3725,7 +3874,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         g.push('<b>' + moeda(r.valor) + '</b> pagos com vale-compra (' + vs.map(u => 'VC-' + u.n).join(' e ') + '); o saldo do vale fica em <b>' + moeda(v.vale ? v.vale.saldo : 0) + '</b>. Título já recebido em Contas a Receber, sem entrar no Caixa.');
         return;
       }
-      if (r.destino === 'conta') g.push('<b>' + moeda(r.valor) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + '). Aparece no Caixa de Finanças, sem título.');
+      if (r.destino === 'conta') g.push('<b>' + moeda(cobradoNo(r)) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + (r.desconto > 0 ? ', já com o desconto à vista de ' + moeda(r.desconto) : '') + '). Aparece no Caixa de Finanças, sem título.');
       else {
         const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
         g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), ' +
@@ -3985,12 +4134,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Recibo para troca nao leva valor: quem recebe o presente nao precisa saber quanto custou.
     if (!paraTroca) {
       c += folhaLinha('Valor total', moeda(v.subtotal)) + folhaLinha('Desconto', moeda(v.desconto)) +
-        (v.acrescimo > 0 ? folhaLinha('Acréscimo do cartão', moeda(v.acrescimo)) : '') + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
+        (v.acrescimo > 0 ? folhaLinha('Acréscimo do cartão', moeda(v.acrescimo)) : '') +
+        (v.descontoAVista ? folhaLinha('Desconto Pix/dinheiro (' + fmtNum(v.descontoAVista.pct) + '%)', '− ' + moeda(v.descontoAVista.valor)) : '') + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
         // No cartao o cliente nao tem vencimento: o recibo diz em quantas vezes passou, nao quando a operadora paga a loja.
         v.recebimentos.map(r => r.prazoFixo ? folhaLinha(esc(r.nome) + (r.vezes > 1 ? ' · ' + r.vezes + 'x' : '') + ' · ' + dataBr(d), moeda(cobradoNo(r)))
           : r.destino === 'titulo'
           ? r.parcelas.map(x => folhaLinha(esc(r.nome) + ' · venc. ' + dataBr(maisDias(d, x.dias)), moeda(x.valor))).join('')
-          : folhaLinha(esc(r.nome) + ' · ' + dataBr(d), moeda(r.valor))).join('') +
+          : folhaLinha(esc(r.nome) + ' · ' + dataBr(d), moeda(cobradoNo(r)))).join('') +
         (v.troco > 0 ? folhaLinha('Troco', moeda(v.troco)) : '');
     }
     c += '<div class="pdv-folha-sep"></div><div class="pdv-folha-sub">' + esc(v.clienteNome) + (v.clienteDoc ? ' · ' + esc(v.clienteDoc) : '') + '</div>' +

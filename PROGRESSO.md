@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 21/out/2026: Gateways de Pagamento, entrega 2, feita (esperando o teste do usuário).*
+*Atualizado em 21/out/2026: Gateways de Pagamento, ajustes do teste da entrega 2 feitos (esperando o teste do usuário).*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -13,34 +13,38 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
-**Gateways de Pagamento, entrega 2: feita em 21/out/2026, esperando o teste do usuário (§14.93).** A entrega 1 (a lista, a página do gateway, o
-menu e a conta financeira) foi testada e aprovada em 20/out (§14.92; está no HISTORICO.md).
-- **Formas de Recebimento:** o débito e o crédito escolhem o **gateway padrão** e mostram as condições dele só para ler (prazo, parcelas, taxa, tarifa,
-  repasse, conta), com o link "editar no gateway". Os 3,49% de fábrica saíram: vale a Stone do exemplo (3,00% em 1x, 31 dias; débito com tarifa de R$ 2,00).
-- **PDV:** o caixa escolhe a **maquininha** (gateway Outro, habilitado, da loja) e a **bandeira**; taxa, tarifa, prazo e título saem da condição do gateway; o
-  repasse segue as quatro regras dele (a de liberação do gerente pede senha); loja sem maquininha não vende no cartão. O título leva a conta, a maquininha e a bandeira.
-- Pedido de Venda e a vitrine não mudaram (o Pedido só lê o total da venda do PDV).
+**Gateways de Pagamento: a entrega 2 foi aprovada em 21/out/2026; os ajustes do teste dela estão feitos e esperam o teste do usuário (§14.94).** A entrega 1
+(§14.92) e a 2 (§14.93) foram testadas e aprovadas; o que se fez está no design system, e o texto delas vai para o HISTORICO.md quando os ajustes forem aprovados.
 
-O que conferir (o PDV e Formas semeiam os três gateways de exemplo sozinhos: não precisa abrir Gateways antes):
-1. Formas de Recebimento: http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html . Abra o Cartão de crédito: o campo "Gateway padrão" já vem na
-   Stone, e o resumo mostra o prazo, as parcelas, a taxa de 1x e das demais, a tarifa e o repasse, só para ler, com o link "editar no gateway". Abra o débito (2 dias, tarifa
-   de R$ 2,00), o Pix e o Boleto (seguem como eram). Troque o crédito para a InfinityPay e salve: pede senha, e o resumo mudou na hora.
-2. O PDV no crédito: http://localhost:3000/vendas/pagina-vendas-pdv.html . Abra o caixa na Desk Shope, venda o Fone de Ouvido, Continuar, Adicionar recebimento → Cartão de
-   crédito: a maquininha é a Stone (sem campo, porque é a única da loja), a bandeira Mastercard já vem marcada, e escolher 3x mostra a taxa de 4,25% e a loja recebendo em 31 dias.
-   Troque a bandeira para Visa e finalize: a tela diz o título, a conta (Stone — maquininha da loja), a maquininha, a bandeira e o vencimento.
-3. A bandeira muda a taxa: em http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=2 abra a faixa American Express, mude a taxa do 3x para 6,00 e salve; volte ao PDV e
-   troque a bandeira para American Express: a taxa do crédito muda, e a do débito não (ela é uma linha só, "Cartão de débito").
-4. O repasse: na mesma página do gateway (Stone), ponha "Repassar taxas para o cliente" em Opcional e salve; no PDV aparece o switch "Repassar a taxa ao cliente" (desligado).
-   Com "Opcional com liberação do gerente", ligar pede a senha; com "Sim", o switch fica ligado e travado; com "Repassar a partir da 3ª parcela", em 1x e 2x não há repasse.
-5. Loja sem maquininha: abra o caixa na Desk Brands (produto Camiseta básica): o cartão não aparece no menu de recebimentos, e um aviso diz o motivo, com o link para
-   http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Habilite a Cielo (antiga) para a Desk Brands lá e volte: o cartão aparece.
-6. Duas maquininhas: inclua em http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?novo=1 um gateway "Outro" para a Desk Shope; no PDV o campo "Maquininha" aparece (a
-   InfinityPay nunca entra), e em Formas você escolhe qual é a padrão do crédito.
+Quatro decisões dele, depois de testar (não se reabrem):
+- **Prazo em dias úteis** (coluna "Prazo (dias úteis)"; todo vencimento conta só dia útil; o interruptor "próximo dia útil" saiu).
+- **O nome é InfinitePay** (não InfinityPay), em tudo.
+- **O exemplo de fábrica é a configuração real da Desk:** a maquininha InfinitePay em quatro níveis (Bronze, Prata, Ouro, Infinite; só a Bronze habilitada) com as taxas
+  oficiais por bandeira e o débito por bandeira, e a loja virtual com as taxas do Link de Pagamento. A Stone e a Cielo saíram; quem já tinha o exemplo antigo é migrado sozinho.
+- **Desconto Pix/dinheiro no PDV:** igual à taxa do crédito à vista (1x) da bandeira padrão da maquininha da loja (hoje 3,15%), sobre o valor que o recebimento quita; o caixa
+  tira o desconto de uma venda com senha; liga e desliga em Configurações › PDV.
+
+Para ele confirmar (decididas por quem construiu): a **comissão do vendedor** sai sobre o valor já descontado; e as **taxas da loja virtual** são as da tabela geral "Em 1 dia útil",
+a conferir na conta da InfinitePay.
+
+O que conferir (o PDV, Formas e Configurações › PDV semeiam o exemplo sozinhos; quem já tinha o antigo é migrado ao abrir):
+1. Os quatro níveis: http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Em "Situação" escolha Todos: aparecem a loja virtual e a maquininha Bronze, Prata,
+   Ouro e Infinite (só a Bronze e a loja virtual habilitadas). Abra a Bronze: a tabela tem a faixa "Sem bandeira" e uma faixa por bandeira, com débito e crédito de 1x a 12x, e a coluna
+   "Prazo (dias úteis)" (1).
+2. Venda tudo no Pix: http://localhost:3000/vendas/pagina-vendas-pdv.html . Abra o caixa na Desk Shope, venda o Fone de Ouvido, Continuar, Adicionar recebimento → Pix: a
+   linha "Desconto Pix/dinheiro (3,15%)" aparece, o total a pagar é R$ 242,03 (e não 249,90) e o recebimento diz "Quita R$ 249,90 · com o desconto à vista de 3,15% o cliente paga R$ 242,03". Finalize.
+3. Venda dividida: na mesma tela, Dinheiro de R$ 100,00 e o resto no Cartão de crédito: só o dinheiro tem desconto (R$ 3,15); o cartão passa o valor cheio. Em Dinheiro de R$ 50,00 com
+   R$ 100,00 recebidos, o troco é R$ 51,57. Clique em "Tirar o desconto desta venda": pede a senha, e o Registro de atividades guarda quem tirou.
+4. Débito por bandeira: no PDV, Adicionar recebimento → Cartão de débito: na Visa a taxa é 1,37%; troque a bandeira para Elo e ela vira 2,58%. O vencimento é em 1 dia útil.
+5. Configurações › PDV: http://localhost:3000/configuracoes/pagina-configuracoes-pdv.html . A seção "Pagamento à vista" tem o interruptor do desconto (ligado) e mostra o
+   percentual de hoje por loja. Desligue, salve e volte ao PDV: o Pix paga o valor cheio.
+6. Subir de nível: em http://localhost:3000/integracoes/pagina-integracoes-gateways.html desabilite a Bronze e habilite a Prata: o desconto no PDV passa a 2,89%. Sem nenhuma maquininha
+   habilitada para a loja, não há desconto e o cartão não é oferecido.
 
 A barganha da entrega 2, aprovada em 20/out (as três recomendações):
 - **Só os cartões** (débito e crédito) passam a ler o gateway: em Formas de Recebimento escolhem o gateway padrão e mostram as
   condições dele só para leitura. Pix e Boleto seguem como hoje; as linhas deles no gateway ficam para a vitrine.
-- **No PDV o caixa escolhe a maquininha** entre os gateways habilitados da loja do PDV (só os do tipo Outro; a InfinityPay é da
+- **No PDV o caixa escolhe a maquininha** entre os gateways habilitados da loja do PDV (só os do tipo Outro; a InfinitePay é da
   loja virtual), com o padrão da forma já marcado; com uma só, o campo não aparece.
 - **O caixa marca a bandeira**, com a bandeira padrão do gateway já marcada; trocar recalcula a taxa e o repasse.
 
@@ -48,7 +52,7 @@ A barganha que ele aprovou em 20/out (ele decidiu fazer este antes da F0, o úni
 telas que leem o que já existe para depois, com banco; mandou os prints do Olist e escolheu as quatro recomendações):
 - **O gateway é dono das taxas e prazos dos cartões:** a tabela "Condições comerciais" (forma, bandeira, parcelas, prazo, taxa,
   tarifa) fica no gateway; em Formas de Recebimento o cartão escolhe o gateway e mostra as condições só para leitura.
-- **Gateways: InfinityPay** (o decidido no roadmap: chave da API, testar conexão, conciliação) **e Outro** (maquininha ou banco
+- **Gateways: InfinitePay** (o decidido no roadmap: chave da API, testar conexão, conciliação) **e Outro** (maquininha ou banco
   sem integração, condições à mão). Sem Pagar.me.
 - **Cada gateway escolhe as lojas** em que vale ("Vale para", como Formas de Recebimento).
 - **A conta financeira do gateway nasce sozinha** ao salvar, com o nome dele, em Configurações › Contas financeiras; a "conta para

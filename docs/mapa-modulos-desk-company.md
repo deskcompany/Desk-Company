@@ -121,7 +121,7 @@
 | | Submódulo |
 |---|---|
 | ❌ | Marketplaces e Hubs |
-| ✅ | Gateways de Pagamento *(20/out, entrega 1: a lista e a página do gateway; InfinityPay e Outro; cada gateway diz as lojas em que vale, guarda as condições comerciais dos cartões e cria a sua conta financeira. A entrega 2 liga Formas de Recebimento e o PDV a ele)* |
+| ✅ | Gateways de Pagamento *(20/out, entrega 1: a lista e a página do gateway; InfinitePay e Outro; cada gateway diz as lojas em que vale, guarda as condições comerciais dos cartões e cria a sua conta financeira. A entrega 2 liga Formas de Recebimento e o PDV a ele)* |
 | ❌ | Emissão de Notas Fiscais |
 | ❌ | Relatórios de Integrações |
 
