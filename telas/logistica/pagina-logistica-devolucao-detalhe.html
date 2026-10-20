@@ -2368,6 +2368,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                  { data: '2026-09-22', tipo: 'cancelou', nota: 'Cancelada: aberta no pedido errado.' } ] }
   ];
 
+  // ===== DEVOLUCOES GRAVADAS NO NAVEGADOR (bloco igual no detalhe e na lista) =====
+  // Chave deskDevolucoes = { devolucoes: { <id>: <devolucao inteira> } }. A gravada vence a de exemplo de mesmo id, e a que nao existe no exemplo
+  // (devolucao nova) entra na lista. Nao ha botao de limpar: limpar os dados do navegador traz o exemplo de fabrica de volta.
+  const CHAVE_DEVOLUCOES = 'deskDevolucoes';
+  function devolucoesGravadas() {
+    try {
+      const g = (JSON.parse(localStorage.getItem(CHAVE_DEVOLUCOES) || '{}') || {}).devolucoes;
+      return g && typeof g === 'object' ? g : {};
+    } catch (e) { return {}; }
+  }
+  (function aplicarDevolucoesGravadas() {
+    const gr = devolucoesGravadas();
+    Object.keys(gr).forEach(k => {
+      const g = gr[k];
+      if (!g || !Number.isInteger(g.id) || !Array.isArray(g.itens) || !Array.isArray(g.eventos)) return;   // gravacao estragada: ignora so essa
+      const i = DEVOLUCOES.findIndex(d => d.id === g.id);
+      if (i >= 0) DEVOLUCOES[i] = g; else DEVOLUCOES.push(g);
+    });
+  })();
+  // ===== FIM DEVOLUCOES GRAVADAS =====
+
   const ROTULO_EVENTO = {
     abriu: 'Devolução aberta', reversa: 'Logística reversa solicitada',
     estoque: 'Estoque lançado', finalizou: 'Devolução finalizada',
@@ -2631,15 +2652,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SEM_DEV = !DEV;
   // Recarregar nao pode deixar finalizar de novo e gerar outro vale: o vale gravado diz que esta devolucao ja foi finalizada com vale
   // (ou cancelada, se o vale foi cancelado pelo cancelamento da devolucao; vale cancelado a mao no Vale-compra NAO cancela a devolucao).
-  // shortcut: o id da devolucao nova e o maximo + 1 e a devolucao nao e gravada, entao um id reaproveitado herdaria o vale de uma devolucao de outra sessao; deixa de existir com o banco.
   (function abrirComOValeGravado() {
     const v = valeDaDev();
     if (!v) return;
     DEV.forma = 'valetroca';
-    const cancelada = !!v.cancelado && v.cancelado.motivo === MOTIVO_VALE_CANCELA;
+    // Cancelada tambem quando a gravada ja diz cancelada: vale cancelado a mao e devolucao cancelada depois deixa o vale com o motivo dele.
+    const cancelada = (!!v.cancelado && v.cancelado.motivo === MOTIVO_VALE_CANCELA) || DEV.situacao === 'cancelada';
     DEV.situacao = cancelada ? 'cancelada' : 'finalizada';
-    DEV.eventos.push({ data: v.emitido, tipo: 'finalizou', nota: 'Finalizada. Vale-compra ' + linkVale(v) + ' de ' + moeda(v.valor) + '.' });
-    if (cancelada) DEV.eventos.push({ data: v.cancelado.em, tipo: 'cancelou', nota: 'Cancelada. O vale-compra ' + linkVale(v) + ' foi cancelado junto.' });
+    // A gravada ja traz o historico dela; o vale so completa o que faltar (devolucao de exemplo, que nao e gravada).
+    if (!DEV.eventos.some(e => e.tipo === 'finalizou')) DEV.eventos.push({ data: v.emitido, tipo: 'finalizou', nota: 'Finalizada. Vale-compra ' + linkVale(v) + ' de ' + moeda(v.valor) + '.' });
+    if (cancelada && !DEV.eventos.some(e => e.tipo === 'cancelou')) DEV.eventos.push({ data: v.cancelado ? v.cancelado.em : v.emitido, tipo: 'cancelou', nota: 'Cancelada. O vale-compra ' + linkVale(v) + ' foi cancelado junto.' });
   })();
 
   function pintarCabecalho() {
@@ -2873,7 +2895,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       it.classList.toggle('active', it.getAttribute('data-value') === idF);
     });
     const sem = motivoSemVale(DEV), vd = valeDaDev();
-    texto('hintForma', f.rotulo + ': ' + f.nota + '.' + (sem ? ' O vale-compra está indisponível nesta devolução: ' + sem + '.' : ''));
+    const prox = idF === 'valetroca' ? fraseValeNasce(DEV) : '';
+    texto('hintForma', f.rotulo + ': ' + f.nota + '.' + (sem ? ' O vale-compra está indisponível nesta devolução: ' + sem + '.' : '') + (prox ? ' ' + prox : ''));
     // Finalizada com vale, a forma nao muda mais: o vale ja existe.
     raiz.querySelector('.dropdown-select-btn').disabled = !!vd;
     const nota = document.getElementById('notaVale');
@@ -3202,6 +3225,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     info.innerHTML = partes.join(' · ') + ' — ainda não salvo.';
   }
 
+  // ===== GRAVAR A DEVOLUCAO =====
+  // Chamada no fim de cada acao que muda a devolucao (salvar, finalizar, cancelar, reversa, chegada, eventos). Rascunho nao entra: so o que a acao confirmou.
+  // Falhou (armazenamento cheio ou bloqueado): avisa e a tela segue, com a devolucao so na memoria ate recarregar.
+  function gravarDevolucao() {
+    if (!DEV || NOVA || !DEV.id) return true;
+    try {
+      const gr = devolucoesGravadas();
+      gr[DEV.id] = DEV;
+      localStorage.setItem(CHAVE_DEVOLUCOES, JSON.stringify({ devolucoes: gr }));
+      return true;
+    } catch (e) {
+      avisar('Não foi possível gravar a devolução ' + DEV.numero + ' neste navegador. Ela vale só até recarregar a tela.');
+      return false;
+    }
+  }
+  // A frase do proximo passo: com a forma Vale-compra salva e a devolucao nao finalizada, o vale ainda nao existe.
+  function fraseValeNasce(d) {
+    if (!d || NOVA || d.forma !== 'valetroca' || d.situacao === 'finalizada' || d.situacao === 'cancelada' || valeDaDev() || motivoSemVale(d)) return '';
+    return 'O vale-compra de ' + moeda(valeArred(totalDevolver(d))) + ' nasce quando a devolução for finalizada (Mais ações → Finalizar).';
+  }
+
   // ===== SALVAR =====
   function validar() {
     const campo = document.getElementById('campoDescricao');
@@ -3265,6 +3309,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             nota: 'Aberta a partir do pedido ' + (vendaDe(DEV.vendaId) || {}).numero + '.' });
           DEVOLUCOES.push(DEV);
           NOVA = false;
+          gravarDevolucao();
           pintarTudo();
         });
       return;
@@ -3284,7 +3329,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       function () {
         aplicarRascunho();
         DEV.eventos.push({ data: HOJE, tipo: 'editou', nota: 'Alterado: ' + partes.join(', ') + '.' });
+        const gravou = gravarDevolucao();
         pintarTudo();
+        const prox = fraseValeNasce(DEV);
+        if (gravou && prox) avisar('Alterações salvas na devolução ' + DEV.numero + '. ' + prox);
       });
   }
 
@@ -3313,6 +3361,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           nota: 'Mercadoria recebida. Nota ' + DEV.notaEntrada.numero +
                 ' entrou na fila de Conferência de Entrada.' });
         if (DEV.situacao === 'aberta') DEV.situacao = 'andamento';
+        gravarDevolucao();
         pintarTudo();
       });
   }
@@ -3569,6 +3618,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             nota: 'Conta a receber de ' + moeda(o.valor) + ' aberta no nome do cliente, referente ao frete da reversa.' });
         }
         fecharPainelReversa();
+        gravarDevolucao();
         pintarTudo();
         avisar(o.entrega === 'propria'
           ? 'Coleta da nossa frota agendada. A declaração de conteúdo precisa ir com a caixa.'
@@ -3642,6 +3692,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         DEV.eventos.push({ data: HOJE, tipo: 'reversa', interna: true,
           nota: 'Conta a receber do frete ajustada de ' + moeda(cotado) + ' para ' + moeda(real) + '.' });
       }
+      gravarDevolucao();
       pintarTudo();
       avisar('Cobrança registrada. ' + (DEV.reversa.paga === 'cliente'
         ? 'A conta a receber do frete acompanha o valor real.'
@@ -3684,6 +3735,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
               (DEV.reversa.entrega === 'etiqueta'
                 ? 'A etiqueta precisa ser impressa e colada na caixa.'
                 : 'Basta levar o código à agência.') });
+        gravarDevolucao();
         pintarTudo();
         avisar(antigo
           ? 'Código corrigido. A vitrine do cliente mostra o novo, e o antigo fica registrado no histórico.'
@@ -3722,6 +3774,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       function () {
         DEV.situacao = 'finalizada';
         DEV.eventos.push({ data: HOJE, tipo: 'finalizou', nota: 'Finalizada. ' + f.rotulo + ': ' + f.nota + '.' });
+        gravarDevolucao();
         pintarTudo();
       });
   }
@@ -3741,6 +3794,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         } catch (e) { avisar('A devolução não foi finalizada: ' + e.message); return; }
         DEV.situacao = 'finalizada';
         DEV.eventos.push({ data: VALE_HOJE, tipo: 'finalizou', nota: 'Finalizada. Vale-compra ' + linkVale(vale) + ' de ' + moeda(vale.valor) + '.' });
+        gravarDevolucao();
         pintarTudo();
       });
   }
@@ -3767,6 +3821,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         }
         DEV.situacao = 'cancelada';
         DEV.eventos.push({ data: HOJE, tipo: 'cancelou', nota: 'Cancelada por ' + OPERADORES[EU] + '.' });
+        gravarDevolucao();
         pintarTudo();
       });
   }

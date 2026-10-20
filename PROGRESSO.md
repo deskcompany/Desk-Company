@@ -19,8 +19,10 @@ entregas do Vale-compra estão feitas (a entrega 2 foi testada e aprovada em 20/
 **O que conferir** (com o servidor de preview de pé em `http://localhost:3000`):
 1. A devolução que dá para finalizar com vale:
    [DV-0009, de Bruno Carvalho](http://localhost:3000/logistica/pagina-logistica-devolucao-detalhe.html?id=4). Em "Como o
-   dinheiro volta" escolha Vale-compra, salve e finalize (R$ 414,80, na Desk Shope). As outras devoluções, de clientes fora do
-   cadastro, mostram por que a opção não vale. Depois de finalizada, a forma trava, e cancelar a devolução cancela o vale.
+   dinheiro volta" escolha Vale-compra, clique em Salvar alterações e depois em Mais ações → Finalizar (R$ 414,80, na Desk Shope):
+   o vale só nasce ao finalizar, e a tela avisa isso depois de salvar. Agora a devolução continua salva ao sair e voltar (ela é
+   gravada no navegador). As outras devoluções, de clientes fora do cadastro, mostram por que a opção não vale. Depois de
+   finalizada, a forma trava, e cancelar a devolução cancela o vale.
 2. O vale gerado: a [lista do Vale-compra](http://localhost:3000/financas/pagina-financas-vale-compra.html) (o novo é o VC-6, de
    origem Devolução, com o link de volta para a devolução).
 3. A conta de afiliado pagando em vale:

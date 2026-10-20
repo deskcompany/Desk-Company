@@ -27,7 +27,7 @@ CP_L, CP_D, CAIXA = 'pagina-financas-contas-pagar.html', 'pagina-financas-contas
 VALE_L, VALE_D, CLI_D, INICIO = 'pagina-financas-vale-compra.html', 'pagina-financas-vale-compra-detalhe.html', 'pagina-cadastros-clientes-detalhe.html', 'pagina-inicio-boas-vindas.html'
 FORMAS_CAD = 'pagina-configuracoes-formas-recebimento.html'
 CHAVES_LOCAIS = ['deskValesCompra', 'deskValesCompraExemplo', 'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskComissoesPagas', 'deskComissoesExemplo',
-                 'deskAfiliados', 'deskSaques', 'deskComissoesLanc', 'deskComissoesAjustes']
+                 'deskAfiliados', 'deskSaques', 'deskComissoesLanc', 'deskComissoesAjustes', 'deskDevolucoes']
 PADRAO = {}   # confirmacoes de senha no padrao do catalogo: finalizar e cancelar a devolucao pedem senha, e e a senha ligada que abre o painel com o texto do que vai acontecer
 
 falhas = []
@@ -358,6 +358,51 @@ with sync_playwright() as p:
         ir(DEV_L)
         ok('Vale-compra' in pg.evaluate("FORMAS.map(f => f.rotulo).join('|')") and 'Vale-troca' not in fonte(DEV_L) and 'reservado: true' not in fonte(DEV_L), 'a lista de devoluções chama a forma de Vale-compra e não reserva mais nada')
         ok(pg.evaluate("document.body.innerText").count('Pedro Antunes') == 0 and 'Bruno Carvalho' in pg.evaluate("document.body.innerText"), 'o cliente de exemplo da venda PV-4903 é o mesmo nas duas telas (Bruno Carvalho)')
+
+        # ---- 2k. a devolucao e gravada (defeito do teste do usuario em 20/out): salvar a forma, sair e voltar nao desfaz; o proximo passo fica visivel
+        PROX = 'O vale-compra de R$ 414,80 nasce quando a devolução for finalizada (Mais ações → Finalizar).'
+        gravadas = lambda: pg.evaluate("(JSON.parse(localStorage.getItem('deskDevolucoes') || '{}').devolucoes || {})")
+        linha_lista = lambda num: pg.evaluate("(n) => Array.from(document.querySelectorAll('#corpoTabela tr')).filter(r => r.innerText.indexOf(n) >= 0)[0].innerText.toLowerCase()", num)
+        limpar(); ir(DEV_D, '?id=4')
+        ok(PROX not in pg.inner_text('#hintForma'), 'com a forma de fábrica (Dinheiro) o hint não fala de vale')
+        clic('#inputForma .dropdown-select-btn'); pg.wait_for_timeout(150)
+        pg.evaluate("document.querySelector('#menuForma .dropdown-select-item[data-value=\"valetroca\"]').click()"); pg.wait_for_timeout(300)
+        ok(PROX not in pg.inner_text('#hintForma') and gravadas() == {}, 'escolhida e ainda não salva, a forma não gera o aviso do próximo passo nem grava nada')
+        clic('#btnSalvar'); pg.wait_for_timeout(400)   # a senha de salvar nao esta ligada: o aviso de salvo abre direto
+        ok(modal() == 'Alterações salvas na devolução DV-0009. ' + PROX, 'o aviso de salvo acrescenta o próximo passo: %s' % modal())
+        fechar_modal()
+        ok(PROX in pg.inner_text('#hintForma'), 'e o hint da forma, com Vale-compra salvo e a devolução não finalizada, diz: %s' % pg.inner_text('#hintForma')[-100:])
+        ok(gravadas().get('4', {}).get('forma') == 'valetroca' and len(gravados()) == 0, 'a devolução foi gravada no navegador com a forma Vale-compra, e nenhum vale nasceu')
+        ir(DEV_D, '?id=4')
+        ok(pg.evaluate("DEV.forma") == 'valetroca' and pg.evaluate("DEV.situacao") == 'aberta' and pg.evaluate("document.getElementById('inputForma').getAttribute('data-value')") == 'valetroca',
+           'sair e voltar: a DV-0009 continua com a forma Vale-compra salva (antes voltava Dinheiro)')
+        ok(PROX in pg.inner_text('#hintForma') and 'Nenhuma alteração pendente' in pg.inner_text('#infoPendente'), 'o hint do próximo passo segue lá, e nada fica pendente')
+        ir(DEV_L)
+        lin = linha_lista('DV-0009')
+        ok('vale-compra' in lin and 'em aberto' in lin, 'a lista mostra a DV-0009 em aberto com a forma Vale-compra, igual ao detalhe: %s' % lin.replace('\n', ' | ')[:100])
+        ir(DEV_D, '?id=4')
+        pg.evaluate("finalizar()"); pg.wait_for_timeout(300); confirmar()
+        ok(pg.evaluate("DEV.situacao") == 'finalizada' and len(gravados()) == 1 and gravadas()['4']['situacao'] == 'finalizada', 'finalizar grava a devolução finalizada e o vale nasce')
+        ok(PROX not in pg.inner_text('#hintForma') and 'nasce quando' not in pg.inner_text('#hintForma'), 'depois de finalizada o hint do próximo passo some')
+        ir(DEV_D, '?id=4')
+        ok(pg.evaluate("DEV.situacao") == 'finalizada' and pg.evaluate("DEV.forma") == 'valetroca' and visivel('#notaVale') and 'VC-1' in pg.inner_text('#notaValeTexto'), 'sair e voltar: segue finalizada, com a linha do vale VC-1')
+        ok(pg.evaluate("DEV.eventos.filter(e => e.tipo === 'finalizou').length") == 1 and pg.evaluate("DEV.eventos.filter(e => e.tipo === 'editou').length") == 1,
+           'o histórico não duplica a finalização ao restaurar (uma finalização, uma alteração)')
+        ok(PROX not in pg.inner_text('#hintForma'), 'e o hint do próximo passo continua ausente')
+        pg.evaluate("finalizar()"); pg.wait_for_timeout(250)
+        ok('já está finalizada' in modal() and len(gravados()) == 1, 'recarregada, não finaliza de novo e o segundo vale não nasce'); fechar_modal()
+        ir(DEV_L)
+        lin = linha_lista('DV-0009')
+        ok('vale-compra' in lin and 'finalizada' in lin, 'a lista mostra a DV-0009 finalizada com Vale-compra: %s' % lin.replace('\n', ' | ')[:100])
+        # vale cancelado a mao e devolucao cancelada depois: a gravada manda (o vale ficou com o motivo dele)
+        ir(DEV_D, '?id=4')
+        pg.evaluate("(() => { const vs = valeLer(); vs[0].cancelado = { em: VALE_HOJE, motivo: 'Emitido por engano', saldo: valeSaldo(vs[0]) }; valeGravar(vs); })()")
+        ir(DEV_D, '?id=4')
+        pg.evaluate("cancelar()"); pg.wait_for_timeout(250); confirmar()
+        ir(DEV_D, '?id=4')
+        ok(pg.evaluate("DEV.situacao") == 'cancelada' and pg.evaluate("DEV.eventos.filter(e => e.tipo === 'cancelou').length") == 1, 'vale cancelado à mão e devolução cancelada depois: recarregada, segue cancelada (a gravada manda), com um evento só')
+        ir(DEV_L)
+        ok('cancelada' in linha_lista('DV-0009'), 'e a lista também diz cancelada')
 
     # ================================================================== [3] Comissoes
     if secao(3, 'Comissões Afiliados: só o afiliado recebe em vale; o pagamento nasce pago e gera o vale certo'):

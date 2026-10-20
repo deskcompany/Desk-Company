@@ -2018,6 +2018,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                  { data: '2026-09-22', tipo: 'cancelou', nota: 'Cancelada: aberta no pedido errado.' } ] }
   ];
 
+  // ===== DEVOLUCOES GRAVADAS NO NAVEGADOR (bloco igual no detalhe e na lista) =====
+  // Chave deskDevolucoes = { devolucoes: { <id>: <devolucao inteira> } }. A gravada vence a de exemplo de mesmo id, e a que nao existe no exemplo
+  // (devolucao nova) entra na lista. Nao ha botao de limpar: limpar os dados do navegador traz o exemplo de fabrica de volta.
+  const CHAVE_DEVOLUCOES = 'deskDevolucoes';
+  function devolucoesGravadas() {
+    try {
+      const g = (JSON.parse(localStorage.getItem(CHAVE_DEVOLUCOES) || '{}') || {}).devolucoes;
+      return g && typeof g === 'object' ? g : {};
+    } catch (e) { return {}; }
+  }
+  (function aplicarDevolucoesGravadas() {
+    const gr = devolucoesGravadas();
+    Object.keys(gr).forEach(k => {
+      const g = gr[k];
+      if (!g || !Number.isInteger(g.id) || !Array.isArray(g.itens) || !Array.isArray(g.eventos)) return;   // gravacao estragada: ignora so essa
+      const i = DEVOLUCOES.findIndex(d => d.id === g.id);
+      if (i >= 0) DEVOLUCOES[i] = g; else DEVOLUCOES.push(g);
+    });
+  })();
+  // ===== FIM DEVOLUCOES GRAVADAS =====
+
   // ===== REGRAS DE DOMINIO =====
   function fmtData(s) {
     if (!s) return '—';

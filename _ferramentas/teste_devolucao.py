@@ -56,6 +56,10 @@ with sync_playwright() as pw:
     erros = []
     nav = pw.chromium.launch(executable_path=CHROME)
     pg = nav.new_page(viewport={'width': 1440, 'height': 1000})
+    # A devolucao e gravada no navegador (deskDevolucoes): esta suite parte do exemplo de fabrica em cada tela aberta. A gravacao tem a secao propria, no fim.
+    pg.add_init_script("try { localStorage.removeItem('deskDevolucoes'); } catch (e) {}")
+    # A devolucao agora e gravada no navegador (deskDevolucoes): esta suite parte do exemplo de fabrica em cada tela aberta; a gravacao tem a secao propria no fim.
+    pg.add_init_script("try { localStorage.removeItem('deskDevolucoes'); } catch (e) {}")
     pg.on('pageerror', lambda e: erros.append(str(e)))
     pg.on('console', lambda m: erros.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
     pg.goto(localiza.uri(LISTA)); pg.wait_for_timeout(600)
@@ -552,6 +556,112 @@ with sync_playwright() as pw:
        'Limpar filtros devolve os tres botoes ao rotulo inicial')
     ok(p7.evaluate(linhas) == total, 'e a lista volta inteira (%d)' % total)
     p7.close()
+
+    print('\n[23] A devolucao e GRAVADA no navegador: sair e voltar nao desfaz, e a lista mostra o mesmo que o detalhe')
+    # Defeito achado pelo usuario em 20/out/2026: a devolucao vivia so na memoria, entao salvar a forma parecia salvar e, ao voltar, tudo estava como antes.
+    # Pagina propria (contexto proprio, sem o script que limpa deskDevolucoes). O fluxo com vale esta em teste_vale_origem.py.
+    p8 = nav.new_page(viewport={'width': 1440, 'height': 1000})
+    e8 = []
+    p8.on('pageerror', lambda e: e8.append(str(e)))
+    p8.on('console', lambda m: e8.append(m.text) if m.type == 'error' and not ruido(m.text) else None)
+
+    def abre8(tela, q=''):
+        p8.goto(localiza.uri(tela) + q); p8.wait_for_load_state('load'); p8.wait_for_timeout(600)
+
+    def confirma8():
+        p8.wait_for_timeout(250)
+        if p8.evaluate("document.getElementById('confirmModal').classList.contains('open')"):
+            if p8.locator('#campoSenhaModal').count() and p8.locator('#campoSenhaModal').is_visible():
+                p8.fill('#inputSenhaModal', 'senha-de-teste')
+            clicarId(p8, 'btnConfirmModalConfirmar'); p8.wait_for_timeout(450)
+
+    def fecha8():
+        if p8.evaluate("document.getElementById('confirmModal').classList.contains('open')"):
+            clicarId(p8, 'btnConfirmModalConfirmar'); p8.wait_for_timeout(300)
+
+    gravadas = lambda: p8.evaluate("(JSON.parse(localStorage.getItem('deskDevolucoes') || '{}').devolucoes || {})")
+    abre8(LISTA)
+    ok(gravadas() == {}, 'de fabrica nada esta gravado: o exemplo vem do codigo')
+    abre8(DET, '?id=2')
+    ok(p8.evaluate("DEV.forma") == 'dinheiro', 'DV-0011 abre com a forma de exemplo (Dinheiro)')
+    trocar(p8, 'inputForma', 'menuForma', 'sem')
+    ok(gravadas() == {}, 'escolher sem salvar nao grava nada (rascunho nao entra)')
+    clicarId(p8, 'btnSalvar'); confirma8(); fecha8()
+    g = gravadas()
+    ok(list(g.keys()) == ['2'] and g['2']['forma'] == 'sem' and g['2']['numero'] == 'DV-0011', 'salvar grava a devolucao inteira, com o id dela: %s' % list(g.keys()))
+    abre8(DET, '?id=2')
+    ok(p8.evaluate("DEV.forma") == 'sem' and 'sem' in p8.evaluate("document.getElementById('inputForma').getAttribute('data-value')"), 'recarregada, a forma salva continua (era Dinheiro)')
+    ok(p8.evaluate("DEV.eventos.filter(e => e.tipo === 'editou').length") == 1 and 'Nenhuma alteração pendente' in p8.inner_text('#infoPendente'), 'o historico guardou a alteracao uma vez e nada fica pendente')
+    forma_det = p8.evaluate("formaDe(DEV.forma).rotulo")
+    abre8(LISTA)
+    linha = p8.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).filter(r => r.innerText.indexOf('DV-0011') >= 0)[0].innerText")
+    ok(forma_det in linha and p8.evaluate("DEVOLUCOES.filter(d => d.id === 2)[0].forma") == 'sem', 'a lista mostra a mesma forma do detalhe (%s): %s' % (forma_det, linha.replace('\n', ' | ')[:90]))
+
+    # confirmar a chegada: situacao e nota mudam e continuam
+    abre8(DET, '?id=1')
+    ok(p8.evaluate("DEV.situacao") == 'aberta' and p8.evaluate("DEV.notaEntrada.chegada") == '', 'DV-0012 abre aberta, mercadoria em transito')
+    p8.evaluate("confirmarChegada()"); confirma8(); fecha8()
+    abre8(DET, '?id=1')
+    ok(p8.evaluate("DEV.situacao") == 'andamento' and p8.evaluate("DEV.notaEntrada.situacao") == 'aconferir' and p8.evaluate("!!DEV.notaEntrada.chegada"), 'confirmar a chegada tambem e gravado: recarregada, segue em andamento e a conferir')
+    abre8(LISTA)
+    linha = p8.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).filter(r => r.innerText.indexOf('DV-0012') >= 0)[0].innerText")
+    ok('em andamento' in linha.lower(), 'e a lista mostra DV-0012 em andamento: %s' % linha.replace('\n', ' | ')[:90])
+
+    # finalizar (forma sem vale) e cancelar
+    abre8(DET, '?id=2')
+    p8.evaluate("DEV.notaEntrada.situacao = 'lancada'; DEV.notaEntrada.chegada = DEV.notaEntrada.chegada || '2026-10-07'; DEV.estoque = { em: '2026-10-08', por: 3, dep: 1 };")
+    p8.evaluate("finalizar()"); confirma8(); fecha8()
+    ok(p8.evaluate("DEV.situacao") == 'finalizada' and gravadas()['2']['situacao'] == 'finalizada', 'finalizar grava a situacao')
+    abre8(DET, '?id=2')
+    ok(p8.evaluate("DEV.situacao") == 'finalizada', 'recarregada, a devolucao segue finalizada')
+    abre8(DET, '?id=1')
+    p8.evaluate("cancelar()"); confirma8(); fecha8()
+    abre8(LISTA)
+    linha = p8.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).filter(r => r.innerText.indexOf('DV-0012') >= 0)[0].innerText")
+    ok('cancelada' in linha.lower() and gravadas()['1']['situacao'] == 'cancelada', 'cancelar tambem e gravado, e a lista mostra DV-0012 cancelada: %s' % linha.replace('\n', ' | ')[:90])
+
+    # devolucao nova: gravada ao salvar, com id que nao colide
+    ids0 = p8.evaluate("DEVOLUCOES.map(d => d.id)")
+    abre8(DET, '?venda=2')
+    p8.fill('#inputDescricao', 'Teste da gravacao.')   # o motivo generico exige descricao
+    ok(p8.evaluate("NOVA") is True and p8.evaluate("DEV.id") == 0, 'a devolucao nova ainda nao existe, e nada dela esta gravado')
+    ok(len(gravadas()) == 2, 'abrir a tela da nova nao grava: continuam so as 2 de antes')
+    clicarId(p8, 'btnSalvar'); confirma8(); fecha8()
+    id1, num1 = p8.evaluate("[DEV.id, DEV.numero]")
+    ok(id1 == max(ids0) + 1 and str(id1) in gravadas() and gravadas()[str(id1)]['numero'] == num1, 'salva, ganha o proximo id (%s) e vai para o navegador' % id1)
+    abre8(DET, '?id=%d' % id1)
+    ok(p8.evaluate("NOVA") is False and p8.evaluate("DEV.numero") == num1 and p8.evaluate("DEV.vendaId") == 2, 'recarregada, abre de novo pelo id (%s)' % num1)
+    abre8(DET, '?venda=1')
+    p8.fill('#inputDescricao', 'Teste da gravacao.')
+    clicarId(p8, 'btnSalvar'); confirma8(); fecha8()
+    id2, num2 = p8.evaluate("[DEV.id, DEV.numero]")
+    ok(id2 == id1 + 1 and num2 != num1, 'a segunda nova ganha outro id e outro numero, sem colidir (%s e %s)' % (num1, num2))
+    ok(sorted(int(k) for k in gravadas().keys()) == [1, 2, id1, id2], 'e as gravadas sao as 4 esperadas: %s' % sorted(gravadas().keys()))
+    abre8(LISTA)
+    corpo = p8.inner_text('#corpoTabela')
+    ok(num1 in corpo and num2 in corpo and p8.evaluate("DEVOLUCOES.length") == 6 + 2, 'a lista mostra as duas novas junto das de exemplo (%d no total)' % p8.evaluate("DEVOLUCOES.length"))
+    ok(p8.evaluate("new Set(DEVOLUCOES.map(d => d.id)).size") == 8 and p8.evaluate("new Set(DEVOLUCOES.map(d => d.numero)).size") == 8, 'nenhum id nem numero se repete')
+
+    # gravacao estragada: ignora so a estragada
+    p8.evaluate("localStorage.setItem('deskDevolucoes', JSON.stringify({ devolucoes: { '3': { id: 'x' }, '2': JSON.parse(localStorage.getItem('deskDevolucoes')).devolucoes['2'] } }))")
+    abre8(LISTA)
+    ok(p8.evaluate("DEVOLUCOES.length") == 6 and p8.evaluate("DEVOLUCOES.filter(d => d.id === 2)[0].forma") == 'sem' and p8.evaluate("DEVOLUCOES.filter(d => d.id === 3)[0].numero") == 'DV-0010',
+       'uma gravacao estragada e ignorada (a de exemplo vale) e a boa e lida')
+    p8.evaluate("localStorage.setItem('deskDevolucoes', '{nao e json')")
+    abre8(LISTA)
+    ok(p8.evaluate("DEVOLUCOES.length") == 6 and p8.locator('#corpoTabela tr').count() > 0, 'JSON estragado nao derruba a tela: volta o exemplo')
+    p8.evaluate("localStorage.removeItem('deskDevolucoes')")
+    abre8(DET, '?id=2')
+    ok(p8.evaluate("DEV.forma") == 'dinheiro', 'sem nada gravado (dados do navegador limpos), volta o exemplo de fabrica')
+
+    # falha ao gravar: avisa, e a tela segue
+    p8.evaluate("(() => { Storage.prototype.setItem = function () { throw new Error('cheio'); }; })()")
+    trocar(p8, 'inputForma', 'menuForma', 'sem')
+    clicarId(p8, 'btnSalvar'); confirma8()
+    ok('Não foi possível gravar' in p8.evaluate("document.getElementById('confirmModalTexto').textContent") and 'só até recarregar' in p8.evaluate("document.getElementById('confirmModalTexto').textContent"),
+       'se o navegador nao grava, a tela avisa que a devolucao vale so ate recarregar')
+    ok(p8.evaluate("DEV.forma") == 'sem' and not e8, 'e segue funcionando na memoria, sem erro de JS: %s' % e8[:1])
+    p8.close()
 
     nav.close()
 
