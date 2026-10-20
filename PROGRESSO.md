@@ -11,8 +11,22 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 ## Onde paramos
 
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
-que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91. **O próximo é o
-item 1 de "Próximo da fila".**
+que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
+
+**Gateways de Pagamento: barganha aprovada pelo usuário em 20/out, construção começando.** Ele decidiu fazer este antes da F0
+(o único item do menu no caminho do MVP) e deixar os relatórios e as telas que leem o que já existe para depois, com banco.
+Mandou os prints do Olist (lista, página com Pagar.me, Pagar.me 2.0 e Outro, e os menus). Escolheu as quatro recomendações:
+- **O gateway é dono das taxas e prazos dos cartões:** a tabela "Condições comerciais" (forma, bandeira, parcelas, prazo, taxa,
+  tarifa) fica no gateway; em Formas de Recebimento o cartão escolhe o gateway e mostra as condições só para leitura.
+- **Gateways: InfinityPay** (o decidido no roadmap: chave da API, testar conexão, conciliação) **e Outro** (maquininha ou banco
+  sem integração, condições à mão). Sem Pagar.me.
+- **Cada gateway escolhe as lojas** em que vale ("Vale para", como Formas de Recebimento).
+- **A conta financeira do gateway nasce sozinha** ao salvar, com o nome dele, em Configurações › Contas financeiras; a "conta para
+  crédito" é o banco que recebe os resgates.
+
+Fica de fora: a faixa "Etapa atual · 1 de 4 · acessar o guia" (tutorial do Olist) e o caminho "finanças › configurações" (aqui é
+Integrações). **Duas entregas:** (1) a lista e a página do gateway, o menu ligado nas telas e a conta em Contas financeiras;
+(2) ligar: Formas de Recebimento e PDV passam a ler as condições do gateway.
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
