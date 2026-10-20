@@ -10,6 +10,29 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Gateways de Pagamento, entrega 1: a lista, a página, o menu e a conta (20/out/2026) — testada e aprovada pelo usuário no mesmo dia
+
+**Gateways de Pagamento em Integrações** (§14.92), feito antes da F0 por decisão dele, no piso dos prints do Olist que ele
+mandou. Dois tipos: **InfinityPay** (o gateway do roadmap, com a chave da API que nunca volta inteira à tela e pede senha,
+testar conexão e o link de conciliação, simulados) e **Outro** (maquininha ou banco sem integração, com a tarifação à mão).
+Cada gateway diz em que lojas vale e tem a tabela de condições comerciais dos cartões por bandeira e parcela (até 99
+linhas, agrupada por bandeira). A conta financeira do gateway nasce com ele em Contas financeiras, e o item do menu
+ganhou destino nas telas (44 de 55 itens, 88 telas).
+
+Ele perguntou se a API de pagamento fica na vitrine. A resposta registrada: o checkout é a tela da vitrine, mas quem fala
+com a InfinityPay é o servidor comum (a chave é segredo do servidor e não pode ir ao navegador do cliente), que recebe o
+aviso de pagamento e cria o pedido e o título no ERP. O ERP guarda as configurações e as taxas.
+
+Para ver:
+- `http://localhost:3000/integracoes/pagina-integracoes-gateways.html` (abrir primeiro: cria os três exemplos)
+- `http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=1` (InfinityPay)
+- `http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=2` (Stone, tipo Outro, oito bandeiras)
+- `http://localhost:3000/configuracoes/pagina-configuracoes-contas-financeiras.html`
+
+Ele testou os seis pontos e deu ok. As escolhas de quem construiu, mostradas a ele na entrega e sem objeção: a chave
+pede senha ao guardar, trocar ou apagar (incluir e alterar não); os obrigatórios por tipo; CNPJ com 14 números, sem
+conferir os dígitos; "Diners Club" no lugar do "Dinners" do print.
+
 ### Vale-compra, entrega 3: o vale nasce da Devolução e da Comissão (20/out/2026) — testada e aprovada pelo usuário no mesmo dia. Com ela o Vale-compra fica concluído
 
 **O vale nasce da Devolução e do pagamento de Comissão de afiliado** (§14.91). Na Devolução, "Vale-compra" deixou de

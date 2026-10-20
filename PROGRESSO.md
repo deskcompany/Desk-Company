@@ -13,27 +13,14 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
-**Gateways de Pagamento, entrega 1: feita em 20/out/2026, esperando o teste do usuário (§14.92).**
-- **A lista e a página do gateway** (InfinityPay e Outro): as lojas em que vale, a tabela de condições comerciais dos cartões (até 99 linhas,
-  agrupada por bandeira), a chave da API que nunca volta inteira, o teste de conexão (simulado) e o link de conciliação.
-- **A conta financeira nasce com o gateway** e aparece em Configurações → Contas financeiras (renomeia, acompanha a situação, sai com ele).
-- **O item do menu ganhou destino em todas as telas:** 44 de 55 itens, 88 telas. Formas de Recebimento e o PDV não mudaram: é a entrega 2.
-
-O que conferir (abra a lista primeiro: é ela que cria os três gateways de exemplo no navegador):
-1. A lista: http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Abre só nos Habilitados (InfinityPay e Stone); troque o filtro para
-   Todos (aparece a Cielo, desabilitada), busque, e use "limpar filtros". "Incluir gateway" abre a página em branco.
-2. O InfinityPay do exemplo: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=1 . A chave aparece como `••••d605`; "testar conexão"
-   diz "Conexão ok (simulada no protótipo)"; "Trocar chave" abre a caixa de senha (chave curta dá erro; salvar a chave nova pede a senha); "Gerar link
-   para conciliação" mostra o endereço fictício e o "copiar". As faixas de crédito da tabela abrem e fecham.
-3. O Stone, do tipo Outro, com as oito bandeiras: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?id=2 . Tire uma bandeira (as linhas dela saem; se
-   você editou uma taxa, a tela avisa), troque a tarifação para "Em dia específico" (aparece o Dia para débito), ponha "Repassar taxas" em "Não" (o
-   "a partir da" trava) e tente "adicionar condição comercial" repetindo uma que já existe.
-4. Um gateway novo: http://localhost:3000/integracoes/pagina-integracoes-gateways-detalhe.html?novo=1 . Escolha o tipo (os blocos mudam e a descrição nasce com o nome do tipo), marque as
-   lojas e salve: a conta financeira nasce. Mexa num campo e tente voltar sem salvar: a tela pergunta.
-5. A conta financeira: http://localhost:3000/configuracoes/pagina-configuracoes-contas-financeiras.html . Uma conta por gateway, só leitura, com o link de volta. Renomeie o gateway,
-   desabilite-o (a conta passa para Inativas) e exclua-o (a conta sai; pede senha e o painel diz isso).
-6. O menu: em qualquer tela, Integrações → Gateways de Pagamento abre a lista. E http://localhost:3000/configuracoes/pagina-configuracoes-confirmacoes-senha.html mostra as quatro
-   ações novas (grupo Integrações); trocar a chave e excluir pedem senha, incluir e alterar não.
+**Gateways de Pagamento, entrega 1: testada e aprovada pelo usuário em 20/out** (§14.92; o que foi feito está no HISTORICO.md).
+**O próximo é a entrega 2: ligar Formas de Recebimento e o PDV às condições do gateway.** Barganha aprovada em 20/out (as três
+recomendações):
+- **Só os cartões** (débito e crédito) passam a ler o gateway: em Formas de Recebimento escolhem o gateway padrão e mostram as
+  condições dele só para leitura. Pix e Boleto seguem como hoje; as linhas deles no gateway ficam para a vitrine.
+- **No PDV o caixa escolhe a maquininha** entre os gateways habilitados da loja do PDV (só os do tipo Outro; a InfinityPay é da
+  loja virtual), com o padrão da forma já marcado; com uma só, o campo não aparece.
+- **O caixa marca a bandeira**, com a bandeira padrão do gateway já marcada; trocar recalcula a taxa e o repasse.
 
 A barganha que ele aprovou em 20/out (ele decidiu fazer este antes da F0, o único item do menu no caminho do MVP, e deixar os relatórios e as
 telas que leem o que já existe para depois, com banco; mandou os prints do Olist e escolheu as quatro recomendações):
