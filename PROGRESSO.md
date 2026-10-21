@@ -13,54 +13,10 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
-**Gateways de Pagamento: a entrega 2 foi aprovada em 21/out/2026; os ajustes do teste dela estão feitos e esperam o teste do usuário (§14.94).** A entrega 1
-(§14.92) e a 2 (§14.93) foram testadas e aprovadas; o que se fez está no design system, e o texto delas vai para o HISTORICO.md quando os ajustes forem aprovados.
-
-Quatro decisões dele, depois de testar (não se reabrem):
-- **Prazo em dias úteis** (coluna "Prazo (dias úteis)"; todo vencimento conta só dia útil; o interruptor "próximo dia útil" saiu).
-- **O nome é InfinitePay** (não InfinityPay), em tudo.
-- **O exemplo de fábrica é a configuração real da Desk:** a maquininha InfinitePay em quatro níveis (Bronze, Prata, Ouro, Infinite; só a Bronze habilitada) com as taxas
-  oficiais por bandeira e o débito por bandeira, e a loja virtual com as taxas do Link de Pagamento. A Stone e a Cielo saíram; quem já tinha o exemplo antigo é migrado sozinho.
-- **Desconto Pix/dinheiro no PDV:** igual à taxa do crédito à vista (1x) da bandeira padrão da maquininha da loja (hoje 3,15%), sobre o valor que o recebimento quita; o caixa
-  tira o desconto de uma venda com senha; liga e desliga em Configurações › PDV.
-
-Para ele confirmar (decididas por quem construiu): a **comissão do vendedor** sai sobre o valor já descontado; e as **taxas da loja virtual** são as da tabela geral "Em 1 dia útil",
-a conferir na conta da InfinitePay.
-
-O que conferir (o PDV, Formas e Configurações › PDV semeiam o exemplo sozinhos; quem já tinha o antigo é migrado ao abrir):
-1. Os quatro níveis: http://localhost:3000/integracoes/pagina-integracoes-gateways.html . Em "Situação" escolha Todos: aparecem a loja virtual e a maquininha Bronze, Prata,
-   Ouro e Infinite (só a Bronze e a loja virtual habilitadas). Abra a Bronze: a tabela tem a faixa "Sem bandeira" e uma faixa por bandeira, com débito e crédito de 1x a 12x, e a coluna
-   "Prazo (dias úteis)" (1).
-2. Venda tudo no Pix: http://localhost:3000/vendas/pagina-vendas-pdv.html . Abra o caixa na Desk Shope, venda o Fone de Ouvido, Continuar, Adicionar recebimento → Pix: a
-   linha "Desconto Pix/dinheiro (3,15%)" aparece, o total a pagar é R$ 242,03 (e não 249,90) e o recebimento diz "Quita R$ 249,90 · com o desconto à vista de 3,15% o cliente paga R$ 242,03". Finalize.
-3. Venda dividida: na mesma tela, Dinheiro de R$ 100,00 e o resto no Cartão de crédito: só o dinheiro tem desconto (R$ 3,15); o cartão passa o valor cheio. Em Dinheiro de R$ 50,00 com
-   R$ 100,00 recebidos, o troco é R$ 51,57. Clique em "Tirar o desconto desta venda": pede a senha, e o Registro de atividades guarda quem tirou.
-4. Débito por bandeira: no PDV, Adicionar recebimento → Cartão de débito: na Visa a taxa é 1,37%; troque a bandeira para Elo e ela vira 2,58%. O vencimento é em 1 dia útil.
-5. Configurações › PDV: http://localhost:3000/configuracoes/pagina-configuracoes-pdv.html . A seção "Pagamento à vista" tem o interruptor do desconto (ligado) e mostra o
-   percentual de hoje por loja. Desligue, salve e volte ao PDV: o Pix paga o valor cheio.
-6. Subir de nível: em http://localhost:3000/integracoes/pagina-integracoes-gateways.html desabilite a Bronze e habilite a Prata: o desconto no PDV passa a 2,89%. Sem nenhuma maquininha
-   habilitada para a loja, não há desconto e o cartão não é oferecido.
-
-A barganha da entrega 2, aprovada em 20/out (as três recomendações):
-- **Só os cartões** (débito e crédito) passam a ler o gateway: em Formas de Recebimento escolhem o gateway padrão e mostram as
-  condições dele só para leitura. Pix e Boleto seguem como hoje; as linhas deles no gateway ficam para a vitrine.
-- **No PDV o caixa escolhe a maquininha** entre os gateways habilitados da loja do PDV (só os do tipo Outro; a InfinitePay é da
-  loja virtual), com o padrão da forma já marcado; com uma só, o campo não aparece.
-- **O caixa marca a bandeira**, com a bandeira padrão do gateway já marcada; trocar recalcula a taxa e o repasse.
-
-A barganha que ele aprovou em 20/out (ele decidiu fazer este antes da F0, o único item do menu no caminho do MVP, e deixar os relatórios e as
-telas que leem o que já existe para depois, com banco; mandou os prints do Olist e escolheu as quatro recomendações):
-- **O gateway é dono das taxas e prazos dos cartões:** a tabela "Condições comerciais" (forma, bandeira, parcelas, prazo, taxa,
-  tarifa) fica no gateway; em Formas de Recebimento o cartão escolhe o gateway e mostra as condições só para leitura.
-- **Gateways: InfinitePay** (o decidido no roadmap: chave da API, testar conexão, conciliação) **e Outro** (maquininha ou banco
-  sem integração, condições à mão). Sem Pagar.me.
-- **Cada gateway escolhe as lojas** em que vale ("Vale para", como Formas de Recebimento).
-- **A conta financeira do gateway nasce sozinha** ao salvar, com o nome dele, em Configurações › Contas financeiras; a "conta para
-  crédito" é o banco que recebe os resgates.
-
-Fica de fora: a faixa "Etapa atual · 1 de 4 · acessar o guia" (tutorial do Olist) e o caminho "finanças › configurações" (aqui é
-Integrações). **Duas entregas:** (1) a lista e a página do gateway, o menu ligado nas telas e a conta em Contas financeiras;
-(2) ligar: Formas de Recebimento e PDV passam a ler as condições do gateway.
+**Gateways de Pagamento: as entregas 1 e 2 e os ajustes do teste, testados e aprovados pelo usuário em 21/out** (§14.92 a
+§14.94; o que foi feito está no HISTORICO.md). Ficaram três consertos pedidos no teste (comissão sem o vale-compra, a loja
+virtual com as taxas da Bronze, os feriados móveis) e a calculadora de precificação: estão no item 2 e 3 de "Próximo da fila".
+**O próximo é decidir com ele por onde seguir:** esses consertos, a calculadora, a vitrine ou a F0.
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
@@ -97,8 +53,18 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos", no HISTORICO.md).
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Gateways de Pagamento:** as entregas 1 e 2 estão feitas (a 2, esperando o teste); falta o protótipo da vitrine.
-3. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+2. **Gateways de Pagamento:** as entregas 1 e 2 e os ajustes do teste estão feitos e aprovados (21/out); falta o protótipo
+   da vitrine. **Três consertos pedidos por ele no teste dos ajustes (21/out), a fazer:** (a) **a comissão não conta o
+   vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com
+   vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro
+   incluído); (b) **a loja virtual usa as taxas da Bronze da maquininha**, decisão dele (a página pública mostra o Link de
+   Pagamento mais caro; conferir na conta), e a vitrine dá o mesmo desconto Pix; (c) **os feriados nacionais móveis entram
+   no dia útil**: Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi.
+3. **Calculadora de precificação** (pedido dele em 21/out, começa pela barganha): custo do produto, frete da compra,
+   embalagem completa (um item só, em vez de separar tag, caixa e saco), a taxa da maquininha e a margem desejada (20%,
+   30%, 50%), dando o custo total e o preço final para o cliente. Onde mora: no cadastro do produto ou como item próprio
+   (decidir na barganha; os itens Margem de Contribuição e Custos do E-commerce do menu são vizinhos).
+4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -162,6 +128,10 @@ revisão. Até lá, seguimos construindo. Cada item vira conserto de componente,
    PDV), que precisa de regra própria.
 7. **O seletor Pessoa Física / Pessoa Jurídica justo.** O fundo cinza é bem mais largo que as duas opções, em Clientes,
    Fornecedores e Vendedores (cadastro novo e página). Deve ter a largura só das duas opções.
+8. **O campo de número com sufixo ("dias") desnivelado nos cards de Configurações** (21/out, com print de Parâmetros de
+   Estoque: Conferência de compra e Endereçamento). A caixa do número fica cerca de 1 px mais alta em cima e embaixo
+   que a do "dias", e o card fica com um degrau. Ele viu em Estoque, em todos os cards; mapear na revisão todos os
+   campos número + sufixo das telas de Configurações (e onde mais houver) e deixar número e sufixo com a mesma altura.
 
 ## Esperando decisão do usuário
 

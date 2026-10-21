@@ -10,6 +10,32 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Gateways de Pagamento, entrega 2 e os ajustes do teste (20 e 21/out/2026) — testados e aprovados pelo usuário em 21/out
+
+**Entrega 2: os cartões leem o gateway** (§14.93). Débito e crédito escolhem o gateway padrão em Formas de Recebimento e
+mostram as condições dele só para leitura; no PDV o caixa escolhe a maquininha da loja e a bandeira, e taxa, prazo,
+parcelas e repasse vêm do gateway. Pix e Boleto seguem como eram.
+
+**Os ajustes do teste dele** (§14.94): o prazo é em **dias úteis** (a entrega 2 tinha posto dias corridos sem perguntar);
+o nome é **InfinitePay**; o exemplo virou a configuração real da Desk, a **maquininha InfinitePay em quatro níveis** com as
+taxas oficiais (Bronze habilitada; Prata, Ouro e Infinite desabilitadas), com débito por bandeira, e a loja virtual; e o
+**desconto Pix/dinheiro no PDV**, igual à taxa do crédito à vista da maquininha da loja (3,15% na Bronze), só na parte à
+vista, tirado com senha, com a chave em Configurações › PDV. O preço do produto já embute a taxa do cartão: quem paga à
+vista recebe a taxa de volta como desconto.
+
+Para ver:
+- `http://localhost:3000/integracoes/pagina-integracoes-gateways.html` (os quatro níveis)
+- `http://localhost:3000/vendas/pagina-vendas-pdv.html` (Pix com desconto, venda dividida, débito Visa × Elo)
+- `http://localhost:3000/configuracoes/pagina-configuracoes-pdv.html` ("Pagamento à vista")
+- `http://localhost:3000/configuracoes/pagina-configuracoes-formas-recebimento.html`
+
+Ele testou tudo e deu ok. Respostas dele às confirmações: **a comissão é sobre o valor final, já com todos os
+descontos, e o vale-compra não entra** (hoje entra: conserto na fila); **a loja virtual usa as mesmas taxas da Bronze** e
+dá o mesmo desconto Pix (conserto na fila; a página pública mostra o Link de Pagamento mais caro, conferir na conta);
+**os feriados nacionais móveis entram** (Carnaval, Sexta-feira Santa, Corpus Christi; conserto na fila), sabendo que venda
+antes de feriado cai no dia útil seguinte. As decisões de quem construiu na entrega 2 (repasse Opcional desligado, venda
+sem condição não fecha, padrão desabilitado cai no de fábrica, trocar o padrão pede senha) ficaram sem objeção.
+
 ### Gateways de Pagamento, entrega 1: a lista, a página, o menu e a conta (20/out/2026) — testada e aprovada pelo usuário no mesmo dia
 
 **Gateways de Pagamento em Integrações** (§14.92), feito antes da F0 por decisão dele, no piso dos prints do Olist que ele
