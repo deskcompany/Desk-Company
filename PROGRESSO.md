@@ -54,16 +54,8 @@ Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês 
 
 1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
 2. **Gateways de Pagamento:** as entregas 1 e 2 e os ajustes do teste estão feitos e aprovados (21/out); falta o protótipo
-   da vitrine. **Três consertos pedidos por ele no teste dos ajustes (21/out), a fazer:** (a) **a comissão não conta o
-   vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com
-   vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro
-   incluído); (b) **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo
-   desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do
-   Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais; (c) **os feriados nacionais móveis entram
-   no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça,
-   banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
-   Sobre (a), ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original
-   já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
+   da vitrine.
+   Os três consertos pedidos no teste dos ajustes foram para "Para a próxima revisão geral" (itens 9 a 11).
 3. **Calculadora de precificação** (pedido dele em 21/out, começa pela barganha): custo do produto, frete da compra,
    embalagem completa (um item só, em vez de separar tag, caixa e saco), a taxa da maquininha e a margem desejada (20%,
    30%, 50%), dando o custo total e o preço final para o cliente. Onde mora: no cadastro do produto ou como item próprio
@@ -105,7 +97,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Pedidos do usuário de 19/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
+Pedidos do usuário de 19 a 21/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
 revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
 
 1. **A barra do caminho navega.** Hoje cada nome é texto: clicar num nome do meio só corta o caminho e troca o título, e o
@@ -136,6 +128,9 @@ revisão. Até lá, seguimos construindo. Cada item vira conserto de componente,
    Estoque: Conferência de compra e Endereçamento). A caixa do número fica cerca de 1 px mais alta em cima e embaixo
    que a do "dias", e o card fica com um degrau. Ele viu em Estoque, em todos os cards; mapear na revisão todos os
    campos número + sufixo das telas de Configurações (e onde mais houver) e deixar número e sufixo com a mesma altura.
+9. **a comissão não conta o vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro incluído) Ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
+10. **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais
+11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
 
 ## Esperando decisão do usuário
 
