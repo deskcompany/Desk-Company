@@ -10,6 +10,31 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Custos do E-commerce, entrega 1 (21 e 22/out/2026) — testada e aprovada pelo usuário em 22/out
+
+**A barganha (21/out).** Os prints e a ajuda do Olist mostraram que o módulo de lá não é cadastro de custos: é um relatório
+do lucro de cada pedido online, com os custos que vêm das integrações. Ele aprovou: só as vendas online (PDV e balcão vão
+para a Margem de Contribuição); a taxa do gateway calculada, e não digitada; a comissão de venda e a embalagem como colunas;
+a embalagem por loja, nas configurações deste módulo (a calculadora lê dali); o imposto e o custo fixo fora; uma lista viva
+em vez de painel com relatório e botão "gerar". Depois de uma pesquisa além do Olist (Bling, guias de margem de
+contribuição), aprovou também: a devolução, a antecipação, o vale de cortesia, a margem em %, a barra de composição, o mês a
+mês, os alertas de prejuízo e de produto sem custo, mais agrupamentos, o lucro depois dos anúncios, **uma conta só para o
+lucro** em todo o sistema, a tela Parâmetros de Vendas e o módulo restrito por perfil. Ficou dividido em três entregas.
+
+**O que nasceu** (§14.95). A tela `vendas/pagina-vendas-custos-ecommerce.html`: os 8 pedidos online, com venda, frete
+cobrado, diferencial de frete, taxa do gateway, comissão, embalagem, custo, lucro e margem; os cards (os de alerta filtram);
+a barra de composição; agrupar por Loja, Vendedor/Afiliado e Forma de pagamento; o painel do pedido; e ações › configurar
+(situações, custo da compra ou médio, embalagem por loja). O pedido ganhou canal, frete pago pela loja, custo médio e
+pagamento, e a página dele ganhou a caixa "Resultado do pedido". O bloco `RESULTADO DO PEDIDO` é a conta única, idêntico em
+5 telas (a nova, o pedido, as duas de Comissões e o cadastro do cliente); o lucro antigo de Comissões saiu. O selo fechou em
+60 suítes e 0 falhas; 4 de 4 defeitos injetados foram pegos.
+
+**O teste dele (22/out).** Os testes passaram. Confirmou: "do mês" vai do dia 1 até hoje, e os cards somam a lista toda.
+Pediu um ajuste para depois: o título da barra ("Para onde vai cada R$ 100 vendidos") não ficou claro, e a legenda deve
+ficar organizada, com cada nome junto da sua cor e mais centralizada. Ele informou também que a InfinitePay deposita a
+venda no cartão, mesmo parcelada, inteira no dia útil seguinte, já sem a taxa: o gateway da loja virtual já estava
+cadastrado como "Antecipado" e com as taxas da tabela de 1 dia útil, então a taxa que a conta usa já é a cobrada.
+
 ### Gateways de Pagamento, entrega 2 e os ajustes do teste (20 e 21/out/2026) — testados e aprovados pelo usuário em 21/out
 
 **Entrega 2: os cartões leem o gateway** (§14.93). Débito e crédito escolhem o gateway padrão em Formas de Recebimento e

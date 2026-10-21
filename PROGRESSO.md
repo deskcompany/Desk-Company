@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 22/out/2026: Custos do E-commerce, entrega 1, pronta e esperando o teste do usuário; a calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 22/out/2026: Custos do E-commerce, entrega 1, aprovada; pausa por cota, com o ajuste da barra e as entregas 2 e 3 na fila. A calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,18 +10,28 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce, entrega 1: pronta, esperando o teste do usuário** (barganha aprovada em 21/out; o que nasceu e as
-decisões estão no §14.95). Relatório vivo do **lucro de cada pedido online** (canal Loja virtual: as vitrines da Desk Shope e da
-Desk Brands): venda, diferencial de frete, taxa do gateway, comissão, embalagem e custo, o lucro e a margem. Abra
-`http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html` (servidor: `node _ferramentas/servidor.js`). O que ele precisa
-conferir: os cards (os dois de alerta filtram), a barra dos R$ 100, agrupar por Loja, Vendedor/Afiliado e Forma de pagamento (e o
-clique que volta para o pedido), o painel do pedido, **Mais ações › Configurar** (situações, custo da compra ou médio, embalagem por
-loja), a página do pedido (o campo "Frete pago pela loja", o canal no cabeçalho e a caixa "Resultado do pedido", ao vivo) e o lucro
-de Comissões, que passou a ser esta mesma conta. O pedido 11 está no prejuízo de propósito (frete grátis para longe). As decisões que
-couberam ao executor estão no fim do §14.95, para ele confirmar. **Faltam duas entregas** (não começaram):
+**Custos do E-commerce: entrega 1 testada e aprovada pelo usuário em 22/out** (o que foi feito e a barganha estão no
+HISTORICO.md; o detalhe no §14.95). Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. **Pausa por
+cota** (22/out, 92% da semanal usados): retomar numa conversa nova, por aqui. Ao voltar, nesta ordem:
 
-- **Entrega 2:** a devolução (o frete da reversa e a perda do item avariado), a taxa de antecipação, o vale de cortesia como
-  desconto, e os itens nos pedidos online, com eles o agrupar e o filtrar por Produto, Categoria e Estado de destino.
+1. **Ajuste da barra, pedido no teste:** o título "Para onde vai cada R$ 100 vendidos" não ficou claro; trocar por um nome
+   direto (proposta a barganhar: "Composição da venda" ou "Do que se vende, quanto fica com cada custo"). A legenda fica
+   desarrumada: cada nome junto da sua cor, alinhados, e o conjunto mais centralizado.
+2. **Responder a ele sobre o "pedido copiado"** (decisão (3) do executor, §14.95). Explicação dada em 22/out: o pedido copiado
+   (o clone, na página do pedido) é um pedido novo digitado no ERP, por isso nasce como venda manual e não traz o frete pago
+   pela loja nem o pagamento do original; e a caixa "Resultado do pedido" mostra um aviso, em vez de números, no pedido novo,
+   no copiado, no do PDV e na página aberta sem escolher um pedido, porque ainda não há pedido salvo para fazer a conta.
+   Recomendação: manter. Esperando o ok dele.
+3. **Entregas 2 e 3**, abaixo.
+
+Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:**
+ele informou que a venda no cartão, mesmo parcelada, cai inteira no dia útil seguinte, já sem a taxa. Já estava assim: o
+gateway da loja virtual é "Antecipado" e as taxas são as da tabela de 1 dia útil, com a antecipação dentro. Por isso, na
+entrega 2, **a antecipação não soma nada à InfinitePay**; ela só conta para um gateway que cobre antecipação à parte.
+
+- **Entrega 2:** a devolução (o frete da reversa e a perda do item avariado), a antecipação (só para gateway que a cobre à
+  parte; ver acima), o vale de cortesia como desconto, e os itens nos pedidos online, com eles o agrupar e o filtrar por
+  Produto, Categoria e Estado de destino.
 - **Entrega 3:** os anúncios (o lucro depois dos anúncios, lido de Contas a Pagar), o gráfico mês a mês, Parâmetros de Vendas (o imposto
   padrão e a margem mínima, com o alerta da margem) e o módulo na lista de "módulos habilitados" do perfil.
 
