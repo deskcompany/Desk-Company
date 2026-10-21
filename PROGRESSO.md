@@ -16,7 +16,16 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 **Gateways de Pagamento: as entregas 1 e 2 e os ajustes do teste, testados e aprovados pelo usuário em 21/out** (§14.92 a
 §14.94; o que foi feito está no HISTORICO.md). Ficaram três consertos pedidos no teste (comissão sem o vale-compra, a loja
 virtual com as taxas da Bronze, os feriados móveis) e a calculadora de precificação: estão no item 2 e 3 de "Próximo da fila".
-**O próximo é decidir com ele por onde seguir:** esses consertos, a calculadora, a vitrine ou a F0.
+Os três consertos foram para a revisão geral (decisão dele em 21/out: a cota semanal está no fim e ele prefere construir agora).
+
+**Calculadora de precificação: barganha aprovada pelo usuário em 21/out** (as quatro recomendações):
+- **Mora na aba Preços do produto:** o botão "Calcular preço" abre a calculadora com o custo do produto; aplicar preenche o
+  Preço de venda e o markup, e o produto guarda os dados do cálculo (embalagem, frete, margem, parcelas, imposto) para refazer.
+- **Margem sobre o preço final**, com taxa e imposto por dentro: preço = custo total ÷ (1 − margem − taxa − imposto). Exemplo
+  dele: R$ 50 + R$ 5 de embalagem, margem 30%, taxa 3,15% → R$ 82,27, lucro de R$ 24,68 (30%).
+- **A taxa é a do parcelamento sem juros** escolhido (padrão 1x), lida do gateway habilitado (Bronze: 1x 3,15%, 3x 6,12%).
+- **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
+- Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
 
 **Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
 executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
