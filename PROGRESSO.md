@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 21/out/2026: Gateways de Pagamento, ajustes do teste da entrega 2 feitos (esperando o teste do usuário).*
+*Atualizado em 21/out/2026: a calculadora de precificação fica parada até nascer Custos do E-commerce, o próximo módulo.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -15,10 +15,15 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 
 **Gateways de Pagamento: as entregas 1 e 2 e os ajustes do teste, testados e aprovados pelo usuário em 21/out** (§14.92 a
 §14.94; o que foi feito está no HISTORICO.md). Ficaram três consertos pedidos no teste (comissão sem o vale-compra, a loja
-virtual com as taxas da Bronze, os feriados móveis) e a calculadora de precificação: estão no item 2 e 3 de "Próximo da fila".
-Os três consertos foram para a revisão geral (decisão dele em 21/out: a cota semanal está no fim e ele prefere construir agora).
+virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
+está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
 
-**Calculadora de precificação: barganha aprovada pelo usuário em 21/out** (as quatro recomendações):
+**Calculadora de precificação: parada, de propósito, até Custos do E-commerce existir** (decisão dele em 21/out). A
+embalagem completa vai vir de lá, e o módulo de custos também vai mexer em outros pontos (Margem de Contribuição, o
+imposto padrão); a calculadora é construída depois, já lendo esses custos. **Nada dela foi construído.** O que está pronto
+para quando ela voltar:
+
+*A barganha, aprovada em 21/out (as quatro recomendações):*
 - **Mora na aba Preços do produto:** o botão "Calcular preço" abre a calculadora com o custo do produto; aplicar preenche o
   Preço de venda e o markup, e o produto guarda os dados do cálculo (embalagem, frete, margem, parcelas, imposto) para refazer.
 - **Margem sobre o preço final**, com taxa e imposto por dentro: preço = custo total ÷ (1 − margem − taxa − imposto). Exemplo
@@ -26,11 +31,21 @@ Os três consertos foram para a revisão geral (decisão dele em 21/out: a cota 
 - **A taxa é a do parcelamento sem juros** escolhido (padrão 1x), lida do gateway habilitado (Bronze: 1x 3,15%, 3x 6,12%).
 - **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
 - Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
-- **Pedido dele em 21/out: no lugar de um preço, pelo menos três sugestões**, com base na psicologia dos preços. A pesquisa
-  e a proposta estão em `docs/pesquisa-psicologia-de-precos.md`: Varejo ,90 (marcada), Abaixo da faixa, Redondo e Exato,
-  cada uma com a margem e o lucro reais. **Esperando o ok dele no rascunho** (`telas/cadastros/_rascunho-calculadora.html`,
-  fora do git, apagado na construção), junto com três pontos: o markup (preço ÷ custo do produto), o arredondamento do
-  Exato e o imposto padrão em Parâmetros de Vendas.
+  **A embalagem vem preenchida de Custos do E-commerce** (decisão dele em 21/out), editável, como o custo do produto vem da
+  aba Custos. Hoje o cadastro de Embalagens não tem custo e só descreve a caixa, para o frete.
+
+*As sugestões de preço (pedido dele em 21/out, "está melhor"):* no lugar de um preço, quatro cartões, cada um com a margem
+e o lucro reais daquele número: **Varejo ,90** (marcada), **Abaixo da faixa**, **Redondo** e **Exato**. A pesquisa, as regras
+de cada um e o que ficou de fora estão em `docs/pesquisa-psicologia-de-precos.md`. O preço continua editável à mão depois.
+
+*O rascunho clicável* é o molde da construção: `docs/rascunhos/calculadora-trecho.html` (o painel, o estilo e a conta).
+Para ver, monte a cópia da página do produto, que fica fora do git:
+`python docs/rascunhos/montar_rascunho.py telas/cadastros/pagina-cadastros-produtos-detalhe.html docs/rascunhos/calculadora-trecho.html telas/cadastros/_rascunho-calculadora.html`
+e abra `http://localhost:3000/cadastros/_rascunho-calculadora.html`. Apague a cópia depois.
+
+*Esperando decisão dele, quando a calculadora voltar:* o markup (preço ÷ custo do produto, ou ÷ custo total); o
+arredondamento do Exato (centavo comum, como no exemplo dele, ou para cima); e onde fica o imposto padrão (proposta:
+Parâmetros de Vendas, ou Custos do E-commerce, se o módulo de custos guardar impostos).
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
@@ -67,17 +82,21 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## Próximo da fila
 
-Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês estão em "Prioridades dos próximos passos", no HISTORICO.md).
+Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
+"Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-2. **Gateways de Pagamento:** as entregas 1 e 2 e os ajustes do teste estão feitos e aprovados (21/out); falta o protótipo
-   da vitrine.
-   Os três consertos pedidos no teste dos ajustes foram para "Para a próxima revisão geral" (itens 9 a 11).
-3. **Calculadora de precificação** (pedido dele em 21/out, começa pela barganha): custo do produto, frete da compra,
-   embalagem completa (um item só, em vez de separar tag, caixa e saco), a taxa da maquininha e a margem desejada (20%,
-   30%, 50%), dando o custo total e o preço final para o cliente. Onde mora: no cadastro do produto ou como item próprio
-   (decidir na barganha; os itens Margem de Contribuição e Custos do E-commerce do menu são vizinhos).
-4. **Os 11 itens pós-MVP** (Margem, Custos, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Custos do E-commerce: o próximo módulo** (Vendas; menu sem tela). Começa pela barganha, numa conversa nova, com os
+   prints do Olist que ele vai mandar, e já nasce com o exemplo no padrão (§14.73). Perguntas que a barganha precisa
+   responder, porque a calculadora e a Margem de Contribuição vão ler este módulo:
+   - a **embalagem completa** (caixa, tag, saco) é por loja, por tipo de produto ou por produto?
+   - os **custos por canal** (comissão e frete de marketplace, taxa do gateway, que já mora em Gateways, imposto): entram
+     aqui ou ficam onde estão e o módulo só lê?
+   - **custo fixo rateado** (aluguel, folha) entra ou fica de fora, como a Margem de Contribuição costuma deixar?
+   - o que mais muda quando ele nascer (a lista desses pontos sai da barganha e entra na construção).
+2. **Calculadora de precificação**, logo depois dos custos: barganha, pesquisa e rascunho prontos (ver "Onde paramos").
+3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de

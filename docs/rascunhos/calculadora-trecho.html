@@ -1,0 +1,220 @@
+<!-- RASCUNHO: calculadora de precificação (não é a tela final) -->
+<style>
+  .calc-faixa { position:fixed; top:0; left:0; right:0; background:var(--warning); color:#101010; font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; text-align:center; padding:4px; z-index:60; }
+  .calc-linha { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text); padding:6px 0; }
+  .calc-linha b { color:var(--text-heading); font-weight:700; }
+  .calc-total { border-top:1px solid var(--border); margin-top:4px; padding-top:10px; }
+  .calc-total span, .calc-total b { font-weight:800; color:var(--text-heading); }
+  .calc-chips { display:flex; gap:6px; margin-top:8px; }
+  .calc-resultado { border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:6px; background:var(--panel-bg); }
+  .calc-preco-rot { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); }
+  .calc-preco { font-family:'Nunito',sans-serif; font-weight:800; font-size:28px; color:var(--text-heading); margin:2px 0 12px; }
+  .calc-lucro b { color:var(--success); }
+  .calc-erro { color:var(--danger); font-size:12.5px; font-weight:700; padding:6px 0; display:none; }
+  .calc-origem { font-size:11.5px; color:var(--text); margin-top:5px; }
+  .calc-btn-abrir { margin-top:4px; }
+  .calc-opcoes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+  .calc-opcao { border:1px solid var(--border); border-radius:12px; padding:10px 12px; cursor:pointer; background:var(--panel-bg); user-select:none; }
+  .calc-opcao.ativa { border-color:var(--brand-blue); box-shadow:0 0 0 1px var(--brand-blue); }
+  .calc-opcao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:11.5px; color:var(--text); }
+  .calc-opcao-preco { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); margin:2px 0; }
+  .calc-opcao-parcela { font-size:11.5px; color:var(--text); }
+  .calc-opcao-margem { font-size:11.5px; font-weight:700; color:var(--success); margin-top:2px; }
+  .calc-opcao-margem.abaixo { color:var(--warning); }
+  .calc-opcao-uso { font-size:11px; color:var(--text); margin-top:6px; line-height:1.35; }
+  .calc-sufixo { position:relative; }
+  .calc-sufixo span { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--text); pointer-events:none; }
+</style>
+
+<div class="calc-faixa">RASCUNHO da calculadora de precificação: só para ver, nada é gravado</div>
+
+<div class="drawer-backdrop" id="calcBackdrop"></div>
+<div class="event-drawer" id="calcDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Calcular preço</div>
+    <div class="drawer-close" id="calcFechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+
+  <div class="section-title" style="margin-top:0;padding-top:0;border-top:none;">Custo</div>
+  <div class="form-row">
+    <div class="form-field">
+      <label>Custo do produto</label>
+      <input type="text" id="calcCusto" value="50,00">
+      <div class="calc-origem">Último preço de custo, da aba Custos</div>
+    </div>
+    <div class="form-field">
+      <label>Frete da compra</label>
+      <input type="text" id="calcFrete" value="0,00">
+      <div class="calc-origem">Por unidade</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-field">
+      <label>Embalagem completa</label>
+      <input type="text" id="calcEmbalagem" value="5,00">
+      <div class="calc-origem">Tudo junto: caixa, tag, saco</div>
+    </div>
+    <div class="form-field"></div>
+  </div>
+  <div class="calc-linha calc-total"><span>Custo total</span><b id="calcCustoTotal">R$ 55,00</b></div>
+
+  <div class="section-title">Venda</div>
+  <div class="form-row">
+    <div class="form-field">
+      <label>Margem desejada</label>
+      <div class="calc-sufixo"><input type="text" id="calcMargem" value="30"><span>%</span></div>
+      <div class="calc-chips">
+        <div class="pill-btn-sm" data-m="20">20%</div>
+        <div class="pill-btn-sm active" data-m="30">30%</div>
+        <div class="pill-btn-sm" data-m="50">50%</div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Imposto sobre a venda</label>
+      <div class="calc-sufixo"><input type="text" id="calcImposto" value="6"><span>%</span></div>
+      <div class="calc-origem">Padrão de Configurações (Simples)</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-field">
+      <label>Parcelamento sem juros</label>
+      <div class="dropdown-select" id="calcParcelas" data-value="1">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">1x · taxa 3,15%</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="calcParcelasMenu"></div>
+      </div>
+      <div class="calc-origem">Taxa do gateway habilitado: InfinitePay, plano Bronze</div>
+    </div>
+  </div>
+
+  <div class="section-title">Sugestões de preço</div>
+  <div class="calc-erro" id="calcErro">Margem, taxa e imposto somam 100% ou mais: não existe preço que feche essa conta.</div>
+  <div class="calc-opcoes" id="calcOpcoes"></div>
+
+  <div class="calc-resultado" id="calcResultado">
+    <div class="calc-preco-rot" id="calcPrecoRot">Preço escolhido</div>
+    <div class="calc-preco" id="calcPreco">R$ 90,39</div>
+    <div id="calcAbertura">
+      <div class="calc-linha"><span>Custo total</span><b id="calcR1">R$ 55,00</b></div>
+      <div class="calc-linha"><span id="calcR2rot">Taxa do cartão (3,15%)</span><b id="calcR2">R$ 2,85</b></div>
+      <div class="calc-linha"><span id="calcR3rot">Imposto (6%)</span><b id="calcR3">R$ 5,42</b></div>
+      <div class="calc-linha calc-total calc-lucro"><span id="calcR4rot">Lucro (30%)</span><b id="calcR4">R$ 27,12</b></div>
+      <div class="calc-linha"><span>Markup (preço ÷ custo do produto)</span><b id="calcMarkup">1,80780</b></div>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn-primary" id="calcAplicar">Aplicar preço</button>
+    <div class="drawer-link" id="calcFechar2">Fechar</div>
+  </div>
+  <div class="section-hint" style="margin-top:12px;">Aplicar preenche o Preço de venda (aba Preços) e o Markup (aba Outros). Os números acima ficam guardados no produto para refazer a conta depois. O preço continua editável à mão na aba Preços.</div>
+</div>
+
+<script>
+(function rascunhoCalculadora() {
+  // Bronze: [débito, 1x .. 12x], a mesma lista das telas de Gateways
+  const bronze = [1.37, 3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40];
+  let parcelas = 1, escolhida = 'varejo';
+  const $ = id => document.getElementById(id);
+  const num = id => parseFloat(($(id).value || '0').replace(/\./g, '').replace(',', '.')) || 0;
+  const brl = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const pct = v => String(+v.toFixed(2)).replace('.', ',') + '%';
+
+  function calcular() {
+    const custo = num('calcCusto') + num('calcFrete') + num('calcEmbalagem');
+    const m = num('calcMargem') / 100, t = bronze[parcelas] / 100, i = num('calcImposto') / 100;
+    $('calcCustoTotal').textContent = brl(custo);
+    document.querySelectorAll('.calc-chips .pill-btn-sm').forEach(c => c.classList.toggle('active', +c.dataset.m === m * 100));
+    const sobra = 1 - m - t - i;
+    $('calcErro').style.display = sobra <= 0 ? 'block' : 'none';
+    $('calcOpcoes').style.display = $('calcResultado').style.display = sobra <= 0 ? 'none' : '';
+    if (sobra <= 0) return;
+
+    // tudo em centavos inteiros; o exato é o centavo comum, como no exemplo aprovado (R$ 55 a 30% e 3,15% dá R$ 82,27)
+    const exato = Math.round(custo / sobra * 100);
+    let varejo = Math.floor(exato / 100) * 100 + 90;
+    if (varejo < exato) varejo += 100;
+    const passo = varejo < 100000 ? 1000 : 10000;   // abaixo de R$ 1.000 troca a dezena; acima, a centena
+    const barreira = Math.floor((varejo - (passo - 10) - 1) / passo) * passo + (passo - 10);
+    const degrau = exato < 2000 ? 100 : exato < 10000 ? 500 : exato < 100000 ? 1000 : 5000;
+    const redondo = Math.ceil(exato / degrau) * degrau;
+    const opcoes = [
+      { id: 'varejo', nome: 'Varejo ,90', c: varejo, uso: 'O costume do varejo brasileiro. Margem igual ou acima da pedida.' },
+      { id: 'barreira', nome: 'Abaixo da faixa', c: barreira, uso: 'Troca o primeiro número. Bom para promoção e vitrine; a margem cai um pouco.' },
+      { id: 'redondo', nome: 'Redondo', c: redondo, uso: 'Para marca e presente: preço redondo passa qualidade. Margem maior.' },
+      { id: 'exato', nome: 'Exato', c: exato, uso: 'A margem pedida, sem arredondar.' }
+    ].filter(o => o.c > 0);
+    if (!opcoes.some(o => o.id === escolhida)) escolhida = 'varejo';
+
+    const conta = c => {
+      const preco = c / 100, taxa = Math.round(c * t) / 100, imposto = Math.round(c * i) / 100;
+      return { preco, taxa, imposto, lucro: preco - custo - taxa - imposto };
+    };
+    $('calcOpcoes').innerHTML = opcoes.map(o => {
+      const r = conta(o.c), mg = r.lucro / r.preco * 100;
+      return '<div class="calc-opcao' + (o.id === escolhida ? ' ativa' : '') + '" data-id="' + o.id + '">' +
+        '<div class="calc-opcao-nome">' + o.nome + '</div>' +
+        '<div class="calc-opcao-preco">' + brl(r.preco) + '</div>' +
+        (parcelas > 1 ? '<div class="calc-opcao-parcela">ou ' + parcelas + 'x de ' + brl(Math.ceil(o.c / parcelas) / 100) + '</div>' : '') +
+        '<div class="calc-opcao-margem' + (mg < m * 100 - 0.005 ? ' abaixo' : '') + '">margem ' + pct(mg) + '<br>lucro ' + brl(r.lucro) + '</div>' +
+        '<div class="calc-opcao-uso">' + o.uso + '</div></div>';
+    }).join('');
+    $('calcOpcoes').querySelectorAll('.calc-opcao').forEach(el => el.addEventListener('click', () => { escolhida = el.dataset.id; calcular(); }));
+
+    const sel = opcoes.find(o => o.id === escolhida);
+    const { preco, taxa, imposto, lucro } = conta(sel.c);
+    $('calcPrecoRot').textContent = 'Preço escolhido: ' + sel.nome;
+    $('calcPreco').textContent = brl(preco);
+    $('calcR1').textContent = brl(custo);
+    $('calcR2rot').textContent = 'Taxa do cartão ' + parcelas + 'x (' + pct(bronze[parcelas]) + ')'; $('calcR2').textContent = brl(taxa);
+    $('calcR3rot').textContent = 'Imposto (' + pct(i * 100) + ')'; $('calcR3').textContent = brl(imposto);
+    $('calcR4rot').textContent = 'Lucro (' + pct(lucro / preco * 100) + ')'; $('calcR4').textContent = brl(lucro);
+    const cp = num('calcCusto');
+    $('calcMarkup').textContent = cp ? (preco / cp).toFixed(5).replace('.', ',') : '—';
+  }
+
+  const menu = $('calcParcelasMenu');
+  for (let n = 1; n <= 12; n++) {
+    const it = document.createElement('div');
+    it.className = 'dropdown-select-item' + (n === 1 ? ' active' : '');
+    it.textContent = n + 'x · taxa ' + pct(bronze[n]);
+    it.addEventListener('click', e => {
+      e.stopPropagation(); parcelas = n; menu.classList.remove('open');
+      menu.querySelectorAll('.dropdown-select-item').forEach(x => x.classList.toggle('active', x === it));
+      $('calcParcelas').querySelector('.dropdown-select-label').textContent = it.textContent;
+      calcular();
+    });
+    menu.appendChild(it);
+  }
+  $('calcParcelas').querySelector('.dropdown-select-btn').addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
+  document.addEventListener('click', () => menu.classList.remove('open'));
+
+  ['calcCusto', 'calcFrete', 'calcEmbalagem', 'calcMargem', 'calcImposto'].forEach(id => $(id).addEventListener('input', calcular));
+  document.querySelectorAll('.calc-chips .pill-btn-sm').forEach(c => c.addEventListener('click', () => { $('calcMargem').value = c.dataset.m; calcular(); }));
+
+  function abrir() { $('calcDrawer').classList.add('open'); $('calcBackdrop').classList.add('open'); }
+  function fechar() { $('calcDrawer').classList.remove('open'); $('calcBackdrop').classList.remove('open'); }
+  ['calcFechar', 'calcFechar2', 'calcBackdrop'].forEach(id => $(id).addEventListener('click', fechar));
+  $('calcAplicar').addEventListener('click', () => {
+    $('inputPrecoVenda').value = $('calcPreco').textContent.replace('R$ ', '');
+    fechar();
+  });
+
+  // botão na aba Preços, ao lado do Preço de venda
+  const campo = $('inputPrecoVenda').closest('.form-field');
+  const b = document.createElement('div');
+  b.className = 'pill-btn-sm calc-btn-abrir';
+  b.style.display = 'inline-block'; b.style.marginTop = '8px';
+  b.textContent = 'Calcular preço';
+  b.addEventListener('click', abrir);
+  campo.appendChild(b);
+
+  document.body.classList.remove('modo-leitura');
+  const aba = document.querySelector('.tab-item[data-tab="precos"]');
+  if (aba) aba.click();
+  calcular();
+  abrir();
+})();
+</script>
