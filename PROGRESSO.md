@@ -27,10 +27,13 @@ Os três consertos foram para a revisão geral (decisão dele em 21/out: a cota 
 - **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
 - Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
 
-**Como trabalhamos desde 19/out** (combinado com o usuário, depois de ver que o tempo e o consumo não caíram com o
-executor): o mesmo executor é reaproveitado quando a tarefa continua a anterior; o plano manda os trechos exatos
-(arquivo e linhas); a prova com defeitos injetados fica em 5 a 8 defeitos, na lógica nova; e os retornos de teste vêm
-num pacote só. Medir nas próximas rodadas.
+**Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
+de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
+o contexto a cada 10 s): **executor novo a cada entrega** (reaproveitar só num ajuste pequeno logo em seguida); **selo uma
+vez, no fim, sem espera em laço**, e durante o trabalho só as suítes que a mudança toca; **defeitos injetados: 3 a 4, só
+onde há dinheiro ou regra nova**; o executor **lê por trecho** (grep e linhas), nunca a tela inteira; **uma conversa nova
+por módulo**, começando por este arquivo; e o principal **sugere esforço médio** ao executor quando a tarefa é mecânica e
+de baixo risco (o usuário decide). Os retornos de teste vêm num pacote só.
 
 ## Onde estamos
 
