@@ -57,9 +57,13 @@ Refeita em 19/out, depois da varredura da barra (a lista completa e os porquês 
    da vitrine. **Três consertos pedidos por ele no teste dos ajustes (21/out), a fazer:** (a) **a comissão não conta o
    vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com
    vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro
-   incluído); (b) **a loja virtual usa as taxas da Bronze da maquininha**, decisão dele (a página pública mostra o Link de
-   Pagamento mais caro; conferir na conta), e a vitrine dá o mesmo desconto Pix; (c) **os feriados nacionais móveis entram
-   no dia útil**: Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi.
+   incluído); (b) **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo
+   desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do
+   Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais; (c) **os feriados nacionais móveis entram
+   no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça,
+   banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
+   Sobre (a), ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original
+   já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
 3. **Calculadora de precificação** (pedido dele em 21/out, começa pela barganha): custo do produto, frete da compra,
    embalagem completa (um item só, em vez de separar tag, caixa e saco), a taxa da maquininha e a margem desejada (20%,
    30%, 50%), dando o custo total e o preço final para o cliente. Onde mora: no cadastro do produto ou como item próprio
