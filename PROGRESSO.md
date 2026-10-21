@@ -26,6 +26,11 @@ Os três consertos foram para a revisão geral (decisão dele em 21/out: a cota 
 - **A taxa é a do parcelamento sem juros** escolhido (padrão 1x), lida do gateway habilitado (Bronze: 1x 3,15%, 3x 6,12%).
 - **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
 - Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
+- **Pedido dele em 21/out: no lugar de um preço, pelo menos três sugestões**, com base na psicologia dos preços. A pesquisa
+  e a proposta estão em `docs/pesquisa-psicologia-de-precos.md`: Varejo ,90 (marcada), Abaixo da faixa, Redondo e Exato,
+  cada uma com a margem e o lucro reais. **Esperando o ok dele no rascunho** (`telas/cadastros/_rascunho-calculadora.html`,
+  fora do git, apagado na construção), junto com três pontos: o markup (preço ÷ custo do produto), o arredondamento do
+  Exato e o imposto padrão em Parâmetros de Vendas.
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
