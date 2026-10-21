@@ -240,8 +240,11 @@ with sync_playwright() as p:
     if secao(1, 'O bloco de leitura: copias identicas, a semente, as funcoes e o gateway padrao da forma'):
       try:
         a, b, c3 = fonte(PDV), fonte(FORMAS), fonte(CFG)
-        ok(a.count(INI) == 1 and b.count(INI) == 1 and c3.count(INI) == 1 and a[a.index(INI):a.index(FIM)] == b[b.index(INI):b.index(FIM)] == c3[c3.index(INI):c3.index(FIM)],
-           'o bloco GATEWAYS: LEITURA e identico no PDV, em Formas de recebimento e em Configuracoes > PDV, uma vez em cada')
+        # desde 22/out/2026 o bloco tambem esta nas telas da conta de Custos do E-commerce (a taxa do gateway sai dele)
+        outras = [fonte(n) for n in ('pagina-vendas-custos-ecommerce.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html')]
+        ok(a.count(INI) == 1 and b.count(INI) == 1 and c3.count(INI) == 1 and a[a.index(INI):a.index(FIM)] == b[b.index(INI):b.index(FIM)] == c3[c3.index(INI):c3.index(FIM)]
+           and all(t.count(INI) == 1 and t[t.index(INI):t.index(FIM)] == a[a.index(INI):a.index(FIM)] for t in outras),
+           'o bloco GATEWAYS: LEITURA e identico no PDV, em Formas de recebimento, em Configuracoes > PDV e nas cinco telas de Custos do E-commerce (a nova, a do pedido, as duas de Comissoes e o cadastro do cliente), uma vez em cada')
         bloco = a[a.index(INI):a.index(FIM)]
         ok(bloco.count('localStorage.setItem') == 3 and 'gwlSemear' in bloco, 'so grava a semente (a lista, a marca e o gateway padrao de Formas que sumiu): nenhuma outra escrita')
         ok(all(f in bloco for f in ('function gwlLer(', 'const gwlHabilitados', 'function gwlCondicao(', 'const gwlVezes', 'const gwlRepasse', 'function gwlPadraoDaForma(', 'const gwlConta')), 'e traz as funcoes de leitura')

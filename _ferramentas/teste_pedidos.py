@@ -370,7 +370,7 @@ with sync_playwright() as p:
     ok(pg.input_value('#inputCliente') == cliente_antes, 'o cliente veio junto')
     ok(pg.input_value('#inputDesconto') == '10%', 'o desconto do pedido veio junto')
     ok(pg.input_value('#inputNumero') == '', 'número em branco — é gerado ao salvar')
-    ok(pg.input_value('#inputDataVenda') == pg.evaluate("brDe(HOJE)"), 'a data é a de HOJE — copia a venda, não a data')
+    ok(pg.input_value('#inputDataVenda') == pg.evaluate("brData(HOJE)"), 'a data é a de HOJE — copia a venda, não a data')
     ok(pg.inner_text('#badgeSituacao').strip().upper() == 'EM ABERTO', 'nasce Em aberto')
     ok(not pg.evaluate("document.body.classList.contains('modo-leitura')"), 'abre em edição, pronto para ajustar')
     ok(not pg.eval_on_selector('#btnProximoPasso', 'e => e.offsetParent !== null'),

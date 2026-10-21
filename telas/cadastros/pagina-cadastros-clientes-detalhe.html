@@ -666,7 +666,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
       <div class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas e Performance</div>
       <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
-      <div class="flyout-item" data-label="Custos do E-commerce"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
+      <div class="flyout-item" data-label="Custos do E-commerce" data-href="../vendas/pagina-vendas-custos-ecommerce.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
       <div class="flyout-item" data-label="Relatórios de Vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Vendas</div>
     </div>
   </div>
@@ -1910,24 +1910,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SIT_PEDIDO_C = { aberto: 'Em aberto', aprovado: 'Aprovado', separacao: 'Em separação', conferenciasaida: 'Conferência de saída', faturado: 'Faturado',
                          prontoenvio: 'Pronto para envio', enviado: 'Enviado', entregue: 'Entregue', cancelado: 'Cancelado' };
   // ESPELHO de Vendas > Pedidos de Venda: `ind` = link de cliente afiliado; `custo` = custo dos produtos,
-  // congelado no faturamento. Base da comissao = total menos o frete.
+  // congelado no faturamento. Base da comissao = total menos o frete. Desde 22/out/2026 o pedido traz tambem os dados do lucro (Custos do
+  // E-commerce): `canal` ('loja_virtual' | 'manual'), `custoMedio` (custo medio congelado no faturamento, ao lado do `custo`, que e o da
+  // compra), `unidades` (so onde o exemplo tem itens; sem ele, 1) e, so nos pedidos online, `fretePagoLoja` e `pagamento` { forma, bandeira, vezes }.
   const PEDIDOS = [
-    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00 },
-    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00 },
-    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90 },
-    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20 },
-    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10 },
-    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00 },
-    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00 },
-    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00 },
-    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00 },
-    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00 },
-    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00 },
-    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00 },
-    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00 },
-    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00 },
-    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00 },
-    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00 }
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, unidades: 8 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00, canal: 'manual', custoMedio: 5200.00, unidades: 23 },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 } },
+    { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10, canal: 'manual', custoMedio: 168.10 },
+    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00, canal: 'manual', custoMedio: 8110.00, unidades: 14 },
+    { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00, canal: 'manual', custoMedio: 690.00 },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 } },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00, canal: 'manual', custoMedio: 2050.00, unidades: 32 },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 } },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 } },
+    { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00, canal: 'manual', custoMedio: 5800.00 },
+    { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00, canal: 'manual', custoMedio: 380.00 },
+    { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00, canal: 'manual', custoMedio: 110.00 },
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00, canal: 'loja_virtual', fretePagoLoja: 32.00, custoMedio: 1415.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 12 } }
   ];
   const VENDEDORES_DA_LISTA_C = ['Marina Costa', 'Rafael Andrade', ''];
   // ESPELHO de Cadastros > Vendedores: os que nao foram excluidos, com a regra de comissao de cada um.
@@ -2031,7 +2033,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Cada comissao e arredondada em centavos antes de somar: sem isso, o saldo da Marina saia R$ 352,99 num
   // mes cujas linhas somam R$ 353,00.
   const comissaoDoPedido = (p, b) => Math.round(Math.round(baseDe(p) * 100) * pctDoPedido(p, b) / 100) / 100;
-  const lucroDe = (p, b) => baseDe(p) - p.custo - comissaoDoPedido(p, b);
   function vendaDe(p) { return isoDe(diaMais(-p.dv)); }
 
   // Uma comissao por pedido (duas na regra de metade no faturamento). `libera` = o dia em que liberou;
@@ -2130,7 +2131,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const doPeriodo = pedidosDe(b).filter(p => noPeriodo(vendaDe(p)) && p.situacao !== 'cancelado');
     r.pedidos = doPeriodo.length;
     r.vendido = soma(doPeriodo, baseDe);
-    r.lucro = soma(doPeriodo, p => lucroDe(p, b));
+    r.lucro = soma(doPeriodo, p => resultadoDoPedido(p).lucro);   // a conta unica do bloco RESULTADO DO PEDIDO
     r.itens = itens; r.lancamentos = lanc.filter(lDentro); r.doMes = doPeriodo; r.pagamentosLista = pags.filter(x => noPeriodo(x.data));
     // O periodo e um mes inteiro: a conta chama a linha de "do mes". Qualquer outro, "do periodo".
     r.ehMes = ini.slice(8) === '01' && fim === isoDe(new Date(Number(ini.slice(0, 4)), Number(ini.slice(5, 7)), 0));
@@ -2258,6 +2259,229 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td>' + (e.efeito === null ? '—' : (e.efeito < 0 ? '− ' : '+ ') + moedaC(Math.abs(e.efeito))) + '</td><td>' + moedaC(e.saldo) + '</td></tr>';
     }).join('');
   }
+  // ===== GATEWAYS: LEITURA (bloco comum, 21/out/2026) =====
+  // Identico no PDV e em Configuracoes > Formas de recebimento; teste_gateway_uso.py compara as copias. So LE `deskGateways`: o dono do dado e
+  // Integracoes > Gateways de Pagamento, que grava. O gateway e dono das taxas e dos prazos dos CARTOES (debito e credito): a forma escolhe o
+  // gateway padrao, e o PDV, na venda, deixa o caixa escolher a maquininha (gateway do tipo Outro, habilitado, da loja do PDV) e a bandeira.
+  // A semeadura do exemplo e a mesma da pagina do gateway (mesma marca, `deskGatewaysExemplo`): sem ela o PDV de um navegador que nunca abriu
+  // Gateways ficaria sem maquininha. O gateway padrao de cada cartao mora em `deskParametros.formaGatewayPadrao` ({ debito: id, credito: id }),
+  // gravado em Formas de recebimento; sem escolha gravada vale o de fabrica (o primeiro habilitado do tipo Outro).
+  // ESPELHOS: GWL_LOJAS e de Cadastros > Lojas Desk; o formato do gateway e o descrito no bloco "GATEWAYS: DADOS E REGRAS" da pagina do gateway.
+  const GWL_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const GWL_TIPOS = { infinitepay: 'InfinitePay', outro: 'Outro' };
+  const GWL_BANDEIRAS = { visa: 'Visa', mastercard: 'Mastercard', amex: 'American Express', diners: 'Diners Club', elo: 'Elo', hipercard: 'Hipercard', bndes: 'BNDES', outro: 'Outro' };
+  const GWL_TARIFACOES = { especifico: 'Em dia específico', transacao: 'No dia da transação', seguinte: 'Dia seguinte após a transação', pagamento: 'No dia do pagamento (somada à taxa)' };
+  const GWL_REPASSES = { nao: 'Não', sim: 'Sim', opcional: 'Opcional', gerente: 'Opcional com liberação do gerente' };
+  const GWL_TAXAS_FABRICA = [3, 3.6, 4.25, 4.9, 5.5, 6.15, 6.8, 7.45, 8, 8.7, 9.35, 10];
+  function gwlLinhaFabrica(forma, bandeira, parcelas) {
+    if (forma === 'debito' && bandeira) return { forma: forma, bandeira: bandeira, parcelas: 0, prazo: 2, taxa: 0, tarifa: 2 };
+    if (forma === 'credito') return { forma: forma, bandeira: bandeira, parcelas: parcelas, prazo: parcelas === 12 ? 30 : 31, taxa: GWL_TAXAS_FABRICA[parcelas - 1], tarifa: 0 };
+    return { forma: forma, bandeira: '', parcelas: 0, prazo: forma === 'pix' ? 0 : 2, taxa: 0, tarifa: forma === 'pix' ? 0 : 2 };
+  }
+  const gwlOrdemLinha = (c) => (c.bandeira ? 1000000 : 0) + ['debito', 'boleto', 'pix', 'credito'].indexOf(c.forma) * 100000 + Math.max(0, Object.keys(GWL_BANDEIRAS).indexOf(c.bandeira)) * 100 + c.parcelas;
+  const gwlOrdenar = (linhas) => linhas.sort((a, b) => gwlOrdemLinha(a) - gwlOrdemLinha(b));
+  function gwlCondicoesFabrica(bandeiras) {
+    const linhas = ['debito', 'boleto', 'pix'].map(f => gwlLinhaFabrica(f, '', 0));
+    Object.keys(GWL_BANDEIRAS).filter(b => bandeiras.indexOf(b) >= 0).forEach(b => { linhas.push(gwlLinhaFabrica('debito', b, 0)); for (let p = 1; p <= 12; p++) linhas.push(gwlLinhaFabrica('credito', b, p)); });
+    return gwlOrdenar(linhas);
+  }
+  function gwlLer() {
+    try {
+      const d = JSON.parse(localStorage.getItem('deskGateways'));
+      const lista = d && Array.isArray(d.gateways) ? d.gateways : [];
+      lista.forEach(g => {
+        g.lojas = Array.isArray(g.lojas) ? g.lojas : []; g.bandeiras = Array.isArray(g.bandeiras) ? g.bandeiras : []; g.condicoes = Array.isArray(g.condicoes) ? g.condicoes : [];
+        if (g.tipo === 'infinitypay') g.tipo = 'infinitepay';   // o nome foi corrigido em 21/out/2026: gravado antigo le com o tipo novo
+        delete g.proximoDiaUtil;                                 // o toggle saiu: o prazo e sempre em dias uteis
+      });
+      return lista;
+    } catch (e) { return []; }
+  }
+  const gwlGravar = (lista) => { try { localStorage.setItem('deskGateways', JSON.stringify({ gateways: lista })); return true; } catch (e) { return false; } };   // so para a semente
+  // Exemplo de fabrica (21/out/2026, versao 2): a configuracao real da Desk. Taxas oficiais da InfinitePay (infinitepay.io/taxas, consultadas em 21/out/2026), maquininha,
+  // "Em 1 dia util", parcelas antecipadas, por nivel de faturamento mensal (os nomes da pagina de planos): Bronze = "Plano Inicial" (ate R$ 20 mil), Prata (acima de
+  // 20 mil), Ouro (acima de 40 mil) e Infinite (acima de 80 mil). Cada nivel e um gateway do tipo Outro; so o Bronze nasce habilitado. A pagina agrupa Hipercard com
+  // Elo e American Express. Cada lista e [debito, 1x, 2x, ... 12x], em %. Pix e gratis, sem tarifa fixa; prazo de 1 dia util em debito e em todas as parcelas do credito.
+  const GWL_TAXAS_INFINITEPAY = {
+    vm: {   // Visa e Mastercard
+      bronze:   [1.37, 3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40],
+      prata:    [0.85, 2.89, 4.22, 4.83, 5.44, 6.05, 6.64, 7.24, 7.82, 8.41, 8.98, 9.56, 10.12],
+      ouro:     [0.79, 2.79, 4.08, 4.65, 5.21, 5.77, 6.32, 6.87, 7.42, 7.96, 8.49, 9.03, 9.56],
+      infinite: [0.75, 2.69, 3.94, 4.46, 4.98, 5.49, 5.99, 6.51, 6.99, 7.51, 7.99, 8.49, 8.99]
+    },
+    ea: {   // Elo, American Express e Hipercard
+      bronze:   [2.58, 4.91, 6.47, 7.20, 7.92, 8.63, 9.33, 10.03, 10.72, 11.41, 12.08, 12.75, 13.41],
+      prata:    [2.08, 4.65, 6.09, 6.69, 7.28, 7.87, 8.46, 9.05, 9.63, 10.20, 10.76, 11.33, 11.88],
+      ouro:     [1.98, 4.56, 5.95, 6.50, 7.05, 7.60, 8.15, 8.69, 9.23, 9.76, 10.29, 10.81, 11.33],
+      infinite: [1.88, 4.46, 5.81, 6.32, 6.83, 7.33, 7.83, 8.34, 8.83, 9.32, 9.81, 10.29, 10.77]
+    }
+  };
+  // O Link de Pagamento (a loja virtual): tabela geral "Em 1 dia util", de 1x a 12x. Sem debito. A pagina nao da a do Plano Inicial por nivel: conferir na conta.
+  const GWL_TAXAS_LINK_INFINITEPAY = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
+  const GWL_GRUPO_INFINITEPAY = { visa: 'vm', mastercard: 'vm', elo: 'ea', amex: 'ea', hipercard: 'ea' };
+  const GWL_NIVEIS_INFINITEPAY = [['Bronze', 'bronze', 'habilitado'], ['Prata', 'prata', 'desabilitado'], ['Ouro', 'ouro', 'desabilitado'], ['Infinite', 'infinite', 'desabilitado']];
+  // A maquininha de um nivel: Pix (prazo 0) e, para cada bandeira, o debito da bandeira e o credito de 1x a 12x, todos em 1 dia util e sem tarifa.
+  function gwlCondicoesMaquininhaInfinitePay(nivel, bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => {
+      const t = GWL_TAXAS_INFINITEPAY[GWL_GRUPO_INFINITEPAY[b]][nivel];
+      linhas.push({ forma: 'debito', bandeira: b, parcelas: 0, prazo: 1, taxa: t[0], tarifa: 0 });
+      for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: t[p], tarifa: 0 });
+    });
+    return gwlOrdenar(linhas);
+  }
+  function gwlCondicoesLinkInfinitePay(bandeiras) {
+    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
+    bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: GWL_TAXAS_LINK_INFINITEPAY[p - 1], tarifa: 0 }); });
+    return gwlOrdenar(linhas);
+  }
+  const GWL_DESCRICAO_ONLINE = 'InfinitePay — loja virtual';
+  // Os cinco gateways do exemplo, sem id: o online (tipo InfinitePay, com a chave) e os quatro niveis da maquininha.
+  function gwlExemplosDeFabrica() {
+    const base = { cnpj: '', endereco: '', municipio: '', antecipacao: 'antecipado', repassar: 'opcional', repassarAPartir: 1 };
+    const online = Object.assign({}, base, { tipo: 'infinitepay', descricao: GWL_DESCRICAO_ONLINE, situacao: 'habilitado', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao',
+      juros: 1, multa: 2, diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
+      conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo', 'amex'], bandeiraPadrao: 'visa' });
+    online.condicoes = gwlCondicoesLinkInfinitePay(online.bandeiras);
+    const bandeiras = ['visa', 'mastercard', 'elo', 'amex', 'hipercard'];
+    const niveis = GWL_NIVEIS_INFINITEPAY.map(n => Object.assign({}, base, { tipo: 'outro', descricao: 'InfinitePay Maquininha — ' + n[0], situacao: n[2], lojas: [1, 2, 3], tarifacao: 'pagamento', diaDebito: null,
+      categoriaTarifaId: 17, bandeiras: bandeiras.slice(), bandeiraPadrao: 'visa', condicoes: gwlCondicoesMaquininhaInfinitePay(n[1], bandeiras) }));
+    return [online].concat(niveis);
+  }
+  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '2'). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
+  // exemplo de 20/out, com a Stone e a Cielo), o exemplo antigo e trocado: saem a Stone (id 2) e a Cielo (id 3), achadas pelo id E pela descricao de fabrica (e nao so pelo nome
+  // digitado), o online (id 1, com a descricao de fabrica) e atualizado mantendo a chave e o link, e acrescentam-se os quatro niveis. Gateway criado pelo usuario fica como esta.
+  // O gateway padrao de Formas que apontava para um dos que sairam e apagado (cai no de fabrica, o primeiro maquininha habilitado: o Bronze).
+  (function gwlSemear() {
+    try {
+      const marca = localStorage.getItem('deskGatewaysExemplo');
+      if (marca === '2') return;
+      let lista = gwlLer();
+      const novos = gwlExemplosDeFabrica();
+      let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
+      const comId = (g) => Object.assign({ id: ++n }, g);
+      const online = novos.shift();
+      if (marca === '1') {
+        const sairam = lista.filter(g => (g.id === 2 && g.descricao === 'Stone — maquininha da loja') || (g.id === 3 && g.descricao === 'Cielo (antiga)')).map(g => g.id);
+        lista = lista.filter(g => sairam.indexOf(g.id) < 0);
+        const antigo = lista.filter(g => g.id === 1 && g.descricao === 'InfinityPay — loja virtual')[0];   // grafia errada do exemplo de 20/out: so aqui, para achar o gravado antigo
+        if (antigo) lista[lista.indexOf(antigo)] = Object.assign({}, online, { id: 1, chave: antigo.chave, conciliacao: antigo.conciliacao || null });
+        else if (!lista.some(g => g.descricao === online.descricao)) lista.push(comId(online));
+        try {
+          const p = JSON.parse(localStorage.getItem('deskParametros') || '{}');
+          if (p.formaGatewayPadrao) {
+            Object.keys(p.formaGatewayPadrao).forEach(k => { if (sairam.indexOf(p.formaGatewayPadrao[k]) >= 0) delete p.formaGatewayPadrao[k]; });
+            localStorage.setItem('deskParametros', JSON.stringify(p));
+          }
+        } catch (e) { /* parametro estragado: fica como esta */ }
+      } else {
+        lista.push(comId(online));
+      }
+      novos.forEach(g => { if (!lista.some(x => x.descricao === g.descricao)) lista.push(comId(g)); });
+      gwlGravar(lista);
+      localStorage.setItem('deskGatewaysExemplo', '2');
+    } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
+  })();
+  const gwlPorId = (id) => gwlLer().filter(g => g.id === Number(id))[0] || null;
+  // Os gateways habilitados de uma loja, do tipo pedido (sem tipo, de qualquer um). Sem loja, de qualquer loja.
+  const gwlHabilitados = (lojaId, tipo) => gwlLer().filter(g => g.situacao === 'habilitado' && (!lojaId || g.lojas.indexOf(Number(lojaId)) >= 0) && (!tipo || g.tipo === tipo));
+  // O gateway padrao do cartao (chave 'debito' ou 'credito'): o gravado em Formas de recebimento, se ainda esta habilitado; senao o de fabrica,
+  // o primeiro habilitado do tipo Outro (e, sem nenhum, o primeiro habilitado). Sem gateway habilitado, nulo.
+  function gwlPadraoDaForma(chave) {
+    let id = null;
+    try { id = (JSON.parse(localStorage.getItem('deskParametros') || '{}').formaGatewayPadrao || {})[chave]; } catch (e) { id = null; }
+    const todos = gwlHabilitados(null, null);
+    return todos.filter(g => g.id === Number(id))[0] || todos.filter(g => g.tipo === 'outro')[0] || todos[0] || null;
+  }
+  // A condicao de uma forma no gateway: { prazo (dias UTEIS), taxa (%), tarifa (R$) }, ou nulo quando o gateway nao tem a linha.
+  // O credito e por bandeira e por numero de vezes. O debito e por bandeira quando o gateway separa (a InfinitePay cobra debito diferente por bandeira): vale a linha
+  // da bandeira; sem ela, vale a linha unica "Cartao de debito", sem bandeira, que e a dos gateways que nao separam.
+  function gwlCondicao(g, forma, bandeira, vezes) {
+    if (!g) return null;
+    let c;
+    if (forma === 'credito') c = g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira && x.parcelas === Number(vezes))[0];
+    else if (forma === 'debito') c = g.condicoes.filter(x => x.forma === 'debito' && !!bandeira && x.bandeira === bandeira)[0] || g.condicoes.filter(x => x.forma === 'debito' && !x.bandeira)[0];
+    else c = g.condicoes.filter(x => x.forma === forma)[0];
+    return c ? { prazo: Number(c.prazo), taxa: Number(c.taxa), tarifa: Number(c.tarifa) } : null;
+  }
+  // O gateway tem debito por bandeira (a bandeira escolhida muda a taxa do debito)?
+  const gwlDebitoPorBandeira = (g) => !!g && g.condicoes.some(x => x.forma === 'debito' && !!x.bandeira);
+  // As parcelas (de 1x a 12x) que o gateway tem para a bandeira.
+  const gwlVezes = (g, bandeira) => (g ? g.condicoes.filter(x => x.forma === 'credito' && x.bandeira === bandeira).map(x => x.parcelas).sort((a, b) => a - b) : []);
+  // As regras de repasse: 'nao' | 'sim' | 'opcional' | 'gerente', e a parcela a partir da qual valem.
+  const gwlRepasse = (g) => ({ modo: g.repassar || 'nao', aPartirDa: Number(g.repassarAPartir) || 1 });
+  // A conta financeira do gateway (nasce com ele, em Contas financeiras).
+  const gwlConta = (g) => ({ id: 'gw' + g.id, nome: g.descricao });
+  // A maquininha padrao de uma loja (a do desconto a vista do PDV): o gateway padrao do credito, se for do tipo Outro, habilitado e da loja; senao a primeira
+  // maquininha habilitada da loja; sem maquininha, nulo. A bandeira de referencia e a padrao dela.
+  function gwlMaquininhaDaLoja(lojaId) {
+    const maqs = gwlHabilitados(lojaId, 'outro');
+    const padrao = gwlPadraoDaForma('credito');
+    return maqs.filter(x => !!padrao && x.id === padrao.id)[0] || maqs[0] || null;
+  }
+  const gwlBandeiraPadrao = (g) => (g.bandeiras.indexOf(g.bandeiraPadrao) >= 0 ? g.bandeiraPadrao : (g.bandeiras[0] || null));
+  // O desconto a vista (Pix e dinheiro) de uma loja: a taxa do CREDITO A VISTA (1x) da bandeira padrao da maquininha padrao da loja, em %. Sobe o nivel do gateway, o
+  // desconto acompanha sozinho. Loja sem maquininha, ou maquininha sem a linha de 1x: 0. Devolve { pct, gateway, bandeira }.
+  function gwlDescontoAVista(lojaId) {
+    const g = gwlMaquininhaDaLoja(lojaId);
+    if (!g) return { pct: 0, gateway: null, bandeira: null };
+    const b = gwlBandeiraPadrao(g), c = b ? gwlCondicao(g, 'credito', b, 1) : null;
+    return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
+  }
+  // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
+  // ===== RESULTADO DO PEDIDO (bloco comum, 22/out/2026) =====
+  // A conta unica do lucro de um pedido. Identico em Custos do E-commerce, na pagina do pedido, nas duas telas de Comissoes e no cadastro
+  // do cliente; teste_custos_ecommerce.py compara as copias. Depende de tres blocos que a tela tem de trazer: PARAMETROS DO SISTEMA,
+  // COMISSOES: DADOS E REGRAS (a regra da comissao, que aqui so se APLICA) e GATEWAYS: LEITURA (a taxa). O dono do dado de cada parcela:
+  // frete cobrado e total sao do pedido; o frete que a loja pagou, o custo medio e a forma de pagamento tambem (campos do pedido);
+  // taxa e do gateway (Integracoes); comissao e de Comissoes; embalagem, custo base e situacoes sao de Custos do E-commerce, gravadas em
+  // `deskParametros.custosEcommerce` (so este bloco as le: o padrao de fabrica mora aqui, sem mexer nas outras telas).
+  //   venda      = total menos o frete cobrado (produtos menos desconto, mais despesas)
+  //   difFrete   = frete pago pela loja menos o frete cobrado (negativo = a loja ganhou no frete); sem o dado, 0
+  //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0
+  //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes
+  //   embalagem  = embalagem da loja x unidades do pedido (sem `unidades`, 1: coerente com o item de exemplo da pagina do pedido)
+  //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
+  //   lucro      = venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo;  margem = lucro / venda
+  // Cada parcela e arredondada no centavo antes de somar.
+  const CUSTOS_ECOM_PADRAO = {
+    situacoes: ['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue'],   // todas menos Cancelado
+    custoBase: 'compra',                                                                                                  // 'compra' | 'medio'
+    embalagemPorLoja: { 1: 5, 2: 8, 3: 0 }                                                                                // R$ por unidade
+  };
+  function custosEcomLer() {
+    let g = {};
+    try { g = JSON.parse(localStorage.getItem('deskParametros') || '{}').custosEcommerce || {}; } catch (e) { g = {}; }
+    return {
+      situacoes: Array.isArray(g.situacoes) ? g.situacoes.slice() : CUSTOS_ECOM_PADRAO.situacoes.slice(),
+      custoBase: g.custoBase === 'medio' ? 'medio' : 'compra',
+      embalagemPorLoja: Object.assign({}, CUSTOS_ECOM_PADRAO.embalagemPorLoja, g.embalagemPorLoja || {})
+    };
+  }
+  const resCent = (v) => Math.round(v * 100 + (v < 0 ? -1e-6 : 1e-6)) / 100 + 0;   // o + 0 tira o -0
+  const resPct = (valor, pct) => Math.round(Math.round(valor * 100) * pct / 100 + 1e-6) / 100;
+  function resultadoDoPedido(p) {
+    const cfg = custosEcomLer();
+    const total = resCent(p.total), freteCobrado = resCent(p.frete || 0), venda = resCent(total - freteCobrado);
+    const semFretePago = p.fretePagoLoja === undefined || p.fretePagoLoja === null;
+    const difFrete = semFretePago ? 0 : resCent(p.fretePagoLoja - freteCobrado);
+    let taxa = 0, semTaxa = true;
+    if (p.pagamento) {
+      const g = gwlHabilitados(p.loja, 'infinitepay')[0] || null, c = g ? gwlCondicao(g, p.pagamento.forma, p.pagamento.bandeira, p.pagamento.vezes) : null;
+      if (c) { taxa = resCent(resPct(total, c.taxa) + c.tarifa); semTaxa = false; }
+    }
+    // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
+    const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
+    const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
+    const unidades = p.unidades || 1;
+    const embalagem = resCent((Number(cfg.embalagemPorLoja[p.loja]) || 0) * unidades);
+    const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
+    const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo);
+    return { venda: venda, freteCobrado: freteCobrado, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
+             embalagem: embalagem, custo: custo, lucro: lucro, margem: venda ? lucro / venda : 0, unidades: unidades,
+             semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago };
+  }
+  // ===== FIM DO BLOCO RESULTADO DO PEDIDO =====
   // ===== PROGRAMA DE AFILIADOS (aba Afiliado do cliente, 15/out/2026) =====
   // O historico (15/out/2026, a pedido do usuario): o cadastro tambem conta o que aconteceu, inclusive o pagamento
   // excluido. E o mesmo historico da conta em Comissoes, lido de la; o filtro daqui e so mes e ano.

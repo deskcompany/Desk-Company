@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 21/out/2026: a calculadora de precificação fica parada até nascer Custos do E-commerce, o próximo módulo.*
+*Atualizado em 22/out/2026: Custos do E-commerce, entrega 1, pronta e esperando o teste do usuário; a calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,6 +10,21 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Custos do E-commerce, entrega 1: pronta, esperando o teste do usuário** (barganha aprovada em 21/out; o que nasceu e as
+decisões estão no §14.95). Relatório vivo do **lucro de cada pedido online** (canal Loja virtual: as vitrines da Desk Shope e da
+Desk Brands): venda, diferencial de frete, taxa do gateway, comissão, embalagem e custo, o lucro e a margem. Abra
+`http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html` (servidor: `node _ferramentas/servidor.js`). O que ele precisa
+conferir: os cards (os dois de alerta filtram), a barra dos R$ 100, agrupar por Loja, Vendedor/Afiliado e Forma de pagamento (e o
+clique que volta para o pedido), o painel do pedido, **Mais ações › Configurar** (situações, custo da compra ou médio, embalagem por
+loja), a página do pedido (o campo "Frete pago pela loja", o canal no cabeçalho e a caixa "Resultado do pedido", ao vivo) e o lucro
+de Comissões, que passou a ser esta mesma conta. O pedido 11 está no prejuízo de propósito (frete grátis para longe). As decisões que
+couberam ao executor estão no fim do §14.95, para ele confirmar. **Faltam duas entregas** (não começaram):
+
+- **Entrega 2:** a devolução (o frete da reversa e a perda do item avariado), a taxa de antecipação, o vale de cortesia como
+  desconto, e os itens nos pedidos online, com eles o agrupar e o filtrar por Produto, Categoria e Estado de destino.
+- **Entrega 3:** os anúncios (o lucro depois dos anúncios, lido de Contas a Pagar), o gráfico mês a mês, Parâmetros de Vendas (o imposto
+  padrão e a margem mínima, com o alerta da margem) e o módulo na lista de "módulos habilitados" do perfil.
+
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
 
@@ -18,7 +33,7 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
 está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
 
-**Calculadora de precificação: parada, de propósito, até Custos do E-commerce existir** (decisão dele em 21/out). A
+**Calculadora de precificação: parada, de propósito, até Custos do E-commerce terminar** (decisão dele em 21/out; a entrega 1 já guarda a embalagem). A
 embalagem completa vai vir de lá, e o módulo de custos também vai mexer em outros pontos (Margem de Contribuição, o
 imposto padrão); a calculadora é construída depois, já lendo esses custos. **Nada dela foi construído.** O que está pronto
 para quando ela voltar:
@@ -31,7 +46,8 @@ para quando ela voltar:
 - **A taxa é a do parcelamento sem juros** escolhido (padrão 1x), lida do gateway habilitado (Bronze: 1x 3,15%, 3x 6,12%).
 - **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
 - Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
-  **A embalagem vem preenchida de Custos do E-commerce** (decisão dele em 21/out), editável, como o custo do produto vem da
+  **A embalagem vem preenchida de Custos do E-commerce** (decisão dele em 21/out; a fonte exata é
+  `deskParametros.custosEcommerce.embalagemPorLoja`, R$ por unidade, por loja), editável, como o custo do produto vem da
   aba Custos. Hoje o cadastro de Embalagens não tem custo e só descreve a caixa, para o frete.
 
 *As sugestões de preço (pedido dele em 21/out, "está melhor"):* no lugar de um preço, quatro cartões, cada um com a margem
@@ -44,8 +60,8 @@ Para ver, monte a cópia da página do produto, que fica fora do git:
 e abra `http://localhost:3000/cadastros/_rascunho-calculadora.html`. Apague a cópia depois.
 
 *Esperando decisão dele, quando a calculadora voltar:* o markup (preço ÷ custo do produto, ou ÷ custo total); o
-arredondamento do Exato (centavo comum, como no exemplo dele, ou para cima); e onde fica o imposto padrão (proposta:
-Parâmetros de Vendas, ou Custos do E-commerce, se o módulo de custos guardar impostos).
+arredondamento do Exato (centavo comum, como no exemplo dele, ou para cima); e onde fica o imposto padrão (decidido na barganha de
+Custos do E-commerce, em 21/out: **Parâmetros de Vendas**, na entrega 3 do módulo; a calculadora lê dele).
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
@@ -59,7 +75,7 @@ de baixo risco (o usuário decide). Os retornos de teste vêm num pacote só.
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **44 de 55 (80%)**, em 88 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **45 de 55 (82%)**, em 89 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 80% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
@@ -72,7 +88,7 @@ Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
 | Início | 4 de 4 | nada |
 | Cadastros | 12 de 13 | Relatórios de Cadastros |
 | Estoque | 13 de 14 | Relatórios de Estoque |
-| Vendas | 4 de 8 | Notas Fiscais, Margem de Contribuição, Custos do E-commerce, Relatórios de Vendas |
+| Vendas | 5 de 8 | Notas Fiscais, Margem de Contribuição, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
 | Integrações | 1 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Relatórios de Integrações |
@@ -85,15 +101,11 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Custos do E-commerce: o próximo módulo** (Vendas; menu sem tela). Começa pela barganha, numa conversa nova, com os
-   prints do Olist que ele vai mandar, e já nasce com o exemplo no padrão (§14.73). Perguntas que a barganha precisa
-   responder, porque a calculadora e a Margem de Contribuição vão ler este módulo:
-   - a **embalagem completa** (caixa, tag, saco) é por loja, por tipo de produto ou por produto?
-   - os **custos por canal** (comissão e frete de marketplace, taxa do gateway, que já mora em Gateways, imposto): entram
-     aqui ou ficam onde estão e o módulo só lê?
-   - **custo fixo rateado** (aluguel, folha) entra ou fica de fora, como a Margem de Contribuição costuma deixar?
-   - o que mais muda quando ele nascer (a lista desses pontos sai da barganha e entra na construção).
-2. **Calculadora de precificação**, logo depois dos custos: barganha, pesquisa e rascunho prontos (ver "Onde paramos").
+1. **Custos do E-commerce, entregas 2 e 3** (a 1 espera o teste dele; ver "Onde paramos"). Entrega 2: devolução, taxa de
+   antecipação, vale de cortesia e os itens nos pedidos online (e o agrupar e filtrar por Produto, Categoria e Estado). Entrega 3:
+   anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem mínima) e o módulo no perfil. Cada uma começa por
+   um plano curto, numa conversa nova, e já nasce com o exemplo no padrão (§14.73).
+2. **Calculadora de precificação**, depois dos custos (o imposto padrão sai de Parâmetros de Vendas, entrega 3): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
 3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
 4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
 5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
