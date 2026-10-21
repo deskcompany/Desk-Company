@@ -22,7 +22,15 @@ cota** (22/out, 92% da semanal usados): retomar numa conversa nova, por aqui. Ao
    pela loja nem o pagamento do original; e a caixa "Resultado do pedido" mostra um aviso, em vez de números, no pedido novo,
    no copiado, no do PDV e na página aberta sem escolher um pedido, porque ainda não há pedido salvo para fazer a conta.
    Recomendação: manter. Esperando o ok dele.
-3. **Entregas 2 e 3**, abaixo.
+3. **O pedido no cartão faz nascer as contas a receber erradas** (achado dele em 22/out, no pedido nº 1: crédito 3x mostra
+   3 parcelas de R$ 630,00, a 30 dias uma da outra, e "Salvar faz nascer 3 contas a receber"). Com gateway **antecipado**,
+   como a InfinitePay, o certo é **uma conta só**: valor da venda, menos a taxa daquela parcela, vencendo no dia útil seguinte
+   (no nº 1: R$ 1.890,00 − 6,09% = R$ 1.774,90 líquido), na conta do gateway. A conta a receber já tem os campos de valor,
+   taxa e líquido (§11 da arquitetura). Parcelas mensais continuam valendo para o gateway **sem** antecipação (cada parcela cai
+   num mês) e para o que é a prazo da própria loja (boleto, crediário). Causa: a página do pedido ainda não lê o gateway (o
+   PDV já lê, §14.93). Barganhar e consertar antes das entregas 2 e 3, porque a taxa do Resultado do pedido e a conta a
+   receber precisam dizer o mesmo número.
+4. **Entregas 2 e 3**, abaixo.
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:**
 ele informou que a venda no cartão, mesmo parcelada, cai inteira no dia útil seguinte, já sem a taxa. Já estava assim: o
