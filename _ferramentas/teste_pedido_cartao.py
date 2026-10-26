@@ -122,6 +122,10 @@ with sync_playwright() as p:
         pg.evaluate("(function(){ var d = JSON.parse(localStorage.getItem('deskGateways')); " + js + " localStorage.setItem('deskGateways', JSON.stringify(d)); })()")
 
     def escolhe(idsel, valor):
+        if not pg.is_visible('#%s .dropdown-select-btn' % idsel):
+            # pedido da loja virtual: forma e condicao travadas (27/out/2026). Estas secoes simulam a troca por dentro, para provar a conta a receber em outras formas.
+            pg.evaluate("(a) => { document.getElementById(a[0]).setAttribute('data-value', a[1]); recalcularTotais(); }", [idsel, valor]); pg.wait_for_timeout(250)
+            return
         pg.click('#%s .dropdown-select-btn' % idsel); pg.wait_for_timeout(150)
         pg.click('#%s .dropdown-select-item[data-value="%s"]' % (idsel, valor)); pg.wait_for_timeout(250)
 
@@ -273,9 +277,9 @@ with sync_playwright() as p:
     # pedido manual: nenhum gateway habilitado
     gateways("d.gateways.forEach(function(g){ g.situacao = 'desabilitado'; });")
     abre('?id=2&editar=1'); escolhe('inputRecebimento', 'credito')
-    ok('Não há gateway habilitado para o cartão de crédito' in pg.inner_text('#previaParcelas') and pg.query_selector('#erroCartao a') is not None, 'sem nenhum gateway habilitado: aviso com o link: %s' % pg.inner_text('#previaParcelas')[:100])
+    ok('Não há gateway nem maquininha habilitados nesta loja para o cartão de crédito' in pg.inner_text('#previaParcelas') and pg.query_selector('#erroCartao a') is not None, 'sem nenhum gateway habilitado: aviso com o link: %s' % pg.inner_text('#previaParcelas')[:100])
     t = aviso_salvar()
-    ok('não pode ser salvo' in t and 'Não há gateway habilitado' in t, 'Salvar bloqueia')
+    ok('não pode ser salvo' in t and 'Não há gateway nem maquininha habilitados' in t, 'Salvar bloqueia')
     fecha_modal()
     # boleto no mesmo pedido: nada de gateway, salva
     escolhe('inputRecebimento', 'boleto')
@@ -346,6 +350,56 @@ with sync_playwright() as p:
     ok('3 contas a receber nasceram em aberto, de %s a %s' % (br(630), br(630)) in t and 'líquido total de %s' % br(1890 - tx) in t and 'vencendo de 03/11/2026 a 04/01/2027' in t and 'na conta InfinitePay — loja virtual' in t,
        'e a mensagem de salvar diz as 3, o líquido total, os vencimentos e a conta: %s' % t[:300])
     fecha_modal()
+
+    # =======================================================================
+    print('\n[7] Ajustes de 27/out: pedido online com forma e condição travadas; pedido manual com o gateway do PDV')
+    def travado():
+        return pg.evaluate("""(function(){ var v = function(s){ var e = document.querySelector(s); return !!e && e.offsetParent !== null; };
+          return { drops: [v('#inputRecebimento .dropdown-select-btn'), v('#inputCondicao .dropdown-select-btn')],
+                   leitura: [v('[data-leitura=inputRecebimento]') ? document.querySelector('[data-leitura=inputRecebimento]').textContent : null, v('[data-leitura=inputCondicao]') ? document.querySelector('[data-leitura=inputCondicao]').textContent : null],
+                   notas: Array.from(document.querySelectorAll('.ped-nota-pago')).filter(function(e){ return e.offsetParent !== null; }).map(function(e){ return e.textContent.trim(); }),
+                   classe: document.body.classList.contains('pedido-online') }; })()""")
+    abre('?id=1'); pg.evaluate("localStorage.clear()")
+    for qs, forma, cond in (('?id=12', 'Cartão de crédito', '10x'), ('?id=12&editar=1', 'Cartão de crédito', '10x'), ('?id=3&editar=1', 'Pix', 'À vista'), ('?id=1', 'Cartão de crédito', '3x')):
+        abre(qs); r = travado()
+        ok(r['drops'] == [False, False] and r['leitura'] == [forma, cond] and r['notas'] == ['pago na loja virtual'] * 2 and r['classe'],
+           'pedido online %s: forma e condição só de leitura (%s, %s), com a nota "pago na loja virtual": %s' % (qs, forma, cond, r))
+    abre('?id=2&editar=1'); r = travado()
+    ok(r['drops'] == [True, True] and r['notas'] == [] and not r['classe'], 'pedido manual segue editável, sem a nota: %s' % r)
+    escolhe('inputRecebimento', 'credito')
+    ok(pg.evaluate("document.getElementById('inputRecebimento').getAttribute('data-value')") == 'credito', 'e a forma do manual troca de verdade')
+    abre('?clonar=11&id=11'); r = travado()
+    ok(r['drops'] == [True, True] and r['notas'] == [] and not r['classe'], 'o clone de um pedido online vira venda manual e volta a ser editável: %s' % r)
+    abre('?novo=1'); r = travado()
+    ok(r['drops'] == [True, True] and r['notas'] == [], 'pedido novo: editável')
+
+    def gateway_do_manual():
+        return pg.evaluate("(function(){ var p = planoDoCartao(1000); return p ? [p.gateway ? p.gateway.descricao : null, p.motivo] : null; })()")
+    abre('?id=1'); pg.evaluate("localStorage.clear()"); abre('?id=2&editar=1'); escolhe('inputRecebimento', 'credito'); escolhe('inputCondicao', '3')
+    ok(gateway_do_manual() == ['InfinitePay Maquininha — Bronze', ''], 'o padrão da forma (Bronze) está habilitado na loja do pedido (Desk Tech): é ele: %s' % gateway_do_manual())
+    gateways("d.gateways.forEach(function(g){ if (g.id === 2) g.lojas = [1, 2]; if (g.id === 3) { g.situacao = 'habilitado'; g.lojas = [3]; } });")
+    abre('?id=2&editar=1'); escolhe('inputRecebimento', 'credito'); escolhe('inputCondicao', '3')
+    ok(gateway_do_manual() == ['InfinitePay Maquininha — Prata', ''] and 'InfinitePay Maquininha — Prata' in nota(), 'o padrão (Bronze) não está habilitado na Desk Tech: vale a primeira maquininha habilitada nela (Prata): %s' % gateway_do_manual())
+    escolhe('inputLoja', '1')
+    ok(gateway_do_manual() == ['InfinitePay Maquininha — Bronze', ''] and 'InfinitePay Maquininha — Bronze' in nota(), 'trocar a loja do pedido para a Desk Shope recalcula: volta o padrão (Bronze): %s' % gateway_do_manual())
+    escolhe('inputLoja', '3')
+    ok(gateway_do_manual()[0] == 'InfinitePay Maquininha — Prata', 'e de volta à Desk Tech, a Prata')
+    gateways("d.gateways.forEach(function(g){ if (g.id === 3) g.situacao = 'desabilitado'; });")
+    abre('?id=2&editar=1'); escolhe('inputRecebimento', 'credito')
+    r = gateway_do_manual()
+    ok(r[0] is None and 'Não há gateway nem maquininha habilitados nesta loja' in r[1] and pg.query_selector('#erroCartao a') is not None, 'sem maquininha habilitada na loja: aviso com o link para Gateways: %s' % r)
+    t = aviso_salvar()
+    ok('não pode ser salvo' in t, 'e o Salvar bloqueia no cartão')
+    fecha_modal()
+    escolhe('inputLoja', '1')
+    ok(pg.query_selector('#erroCartao') is None and len(chips()) == 1, 'trocar para a Desk Shope, onde o padrão está habilitado, tira o aviso')
+    abre('?id=1'); pg.evaluate("localStorage.clear(); localStorage.setItem('deskParametros', JSON.stringify({ formaGatewayPadrao: { credito: 1 } }))")
+    abre('?id=2&editar=1'); escolhe('inputRecebimento', 'credito'); escolhe('inputCondicao', '3')
+    ok(gateway_do_manual()[0] == 'InfinitePay Maquininha — Bronze', 'padrão da forma fora da loja do pedido (a InfinitePay da loja virtual não atende a Desk Tech): cai na maquininha')
+    escolhe('inputLoja', '1')
+    ok(gateway_do_manual()[0] == 'InfinitePay — loja virtual', 'padrão da forma habilitado na loja do pedido (Desk Shope): é ele')
+    pg.evaluate("localStorage.clear()")
+
     ok(not erros, 'sem erro de JS no caminho todo' + (' — ' + erros[0] if erros else ''))
 
     b.close()

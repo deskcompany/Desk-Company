@@ -18,7 +18,9 @@
 #   [8] Periodo por data inicial e final, historico com saldo corrente e filtro de mes e ano, historico no cadastro (2d);
 #   [7] Historico, saque pedido na vitrine, pago vindo da baixa, a aba Afiliado do cliente e o link do vendedor (2c);
 #   [6] Pagamento (entrega 2b): nao passa do saldo, pede senha, desce o saldo e nasce a conta em Contas a Pagar.
-#  [11] A barra de paginacao padrao na lista principal (ajuste do teste do usuario, 19/out/2026): so ela pagina, o saldo e o do filtro inteiro.
+#  [11] A barra de paginacao padrao na lista principal (ajuste do teste do usuario, 19/out/2026): so ela pagina, o saldo e o do filtro inteiro;
+#  [12] A devolucao na comissao (Custos do E-commerce, entrega 2, 27/out/2026): dentro do prazo cai na proporcao, fora do prazo nao, o prazo e o do parametro,
+#       a comissao ja liberada vira estorno (desconta do saldo e aparece no historico), e o afiliado libera pelo prazo do parametro.
 from playwright.sync_api import sync_playwright
 from datetime import date, timedelta
 import os as _os, glob as _g, math, re, sys
@@ -32,7 +34,7 @@ SO = (sys.argv[1:] or [''])[0]
 LISTA, CONTA = 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html'
 PV, PV_D, CFG = 'pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-configuracoes-cadastro-clientes.html'
 BV = 'pagina-inicio-boas-vindas.html'
-CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskComissoesExemplo', 'deskSaques', 'deskParametros', 'deskLog']
+CHAVES_LOCAIS = ['deskAfiliados', 'deskComissoesAjustes', 'deskComissoesLanc', 'deskComissoesPagas', 'deskComissoesExemplo', 'deskSaques', 'deskParametros', 'deskLog', 'deskDevolucoes']
 
 falhas = []
 total = [0]
@@ -63,6 +65,12 @@ comissao = lambda p, pct: redondo(redondo(base(p) * 100) * pct / 100) / 100
 no_mes = lambda d: d is not None and d.year == HOJE.year and d.month == HOJE.month
 
 
+def reduzida(p, v):
+    # a devolucao aceita dentro do prazo (7 dias de fabrica) reduz a comissao na proporcao do que voltou (27/out/2026)
+    no_p = [d for d in oraculo_custos.aceitas(p['id']) if oraculo_custos.no_prazo(d, p['id'])]
+    return float(oraculo_custos.comissao_reduzida(oraculo_custos.D(v), oraculo_custos.D(base(p)), sum((oraculo_custos.valor_itens(d) for d in no_p), oraculo_custos.D(0))))
+
+
 def oraculo(pedidos, b):
     vend = ['Marina Costa', 'Rafael Andrade', '']
     r = dict(pedidos=0, vendido=0.0, lucro=0.0, mes=0.0, anterior=0.0, pendente=0.0)
@@ -71,7 +79,7 @@ def oraculo(pedidos, b):
         if not meu or p['situacao'] == 'cancelado':
             continue
         pct = p['ind']['pct'] if p.get('ind') else b['aliquota']
-        v = comissao(p, pct)
+        v = reduzida(p, comissao(p, pct))
         if b['tipo'] == 'cliente':
             lib = dia(p['dp']) + timedelta(days=7)
             libera = lib if p['situacao'] == 'entregue' and lib <= HOJE else None
@@ -255,7 +263,7 @@ with sync_playwright() as p:
             valores[pid] = pg.inner_text('#resumoComissao').split('\n')[-1].strip()
         ir(CONTA, '?id=v1'); com3 = pg.evaluate("moedaC(contaAtual().itens.concat([]).filter(i => i.pedido.id === 3)[0].valor)")
         ir(CONTA, '?id=a1'); com4 = pg.evaluate("moedaC(comissoesDe(B).filter(i => i.pedido.id === 4)[0].valor)")
-        ok(valores[3] == com3 == 'R$ 17,50' and valores[4] == com4 == 'R$ 30,60', 'a página do pedido e Comissões dão o mesmo valor: %s %s / %s %s' % (valores[3], com3, valores[4], com4))
+        ok(valores[3] == com3 == 'R$ 0,00' and valores[4] == com4 == 'R$ 30,60', 'a página do pedido e Comissões dão o mesmo valor (o 3 voltou inteiro dentro do prazo: 5%% de 349,90 = 17,50 cai para zero): %s %s / %s %s' % (valores[3], com3, valores[4], com4))
         sem = [_os.path.basename(c) for c in localiza.caminhos() if 'data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"' not in open(c, encoding='utf-8').read()]
         ok(not sem, 'o item Comissões Afiliados do menu tem destino nas %d telas: %s' % (len(localiza.caminhos()), sem[:3]))
         com_cat = [c for c in localiza.caminhos() if "chave:'comissaoAjusta'" in open(c, encoding='utf-8').read()]
@@ -586,7 +594,7 @@ with sync_playwright() as p:
         pags = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos")
         ok([p['n'] for p in pags] == [1, 2, 3] and all(p['chave'] == 'v1' and p['nome'] == 'Marina Costa' and p['forma'] == 'Pix' for p in pags) and [p['valor'] for p in pags] == [50, 30, 40],
            'de fábrica há três pagamentos da Marina, de R$ 50, R$ 30 e R$ 40: %s' % [(p['n'], p['valor']) for p in pags])
-        ok([p['venc'] for p in pags] == [dia(-12).isoformat(), dia(-4).isoformat(), dia(5).isoformat()] and [p['data'] for p in pags] == [dia(-14).isoformat(), dia(-6).isoformat(), dia(-2).isoformat()],
+        ok([p['venc'] for p in pags] == [dia(-12).isoformat(), dia(-4).isoformat(), dia(5).isoformat()] and [p['data'] for p in pags] == [dia(-14).isoformat(), '2026-10-20', dia(-2).isoformat()],
            'contados a partir de hoje: dois vencidos (há 12 e há 4 dias) e um que vence em 5 dias')
         ok(perto(saldo_sem - pg.evaluate("saldoHoje(beneficiarioDe('v1'))"), 120), 'os três pagamentos descem R$ 120,00 do saldo da Marina')
         ok(not pg.evaluate("PARAM.afiliadoCancelaVencido") and pg.evaluate("PARAM.afiliadoCancelaVencidoDias") == 30, 'o cancelamento sozinho nasce desligado, com 30 dias')
@@ -916,6 +924,72 @@ with sync_playwright() as p:
         # o padrao de abertura vem de Configuracoes
         pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ registrosPorPagina: 25 }))"); ir(LISTA)
         ok(len(nomes()) == 25 and pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-label').textContent") == '25', 'a quantidade de abertura é a de Configurações → Interface do usuário (25)')
+        limpar()
+
+
+    if secao(12, 'A devolução na comissão: dentro do prazo cai, fora não, o prazo do parâmetro, o estorno da já liberada e o afiliado'):
+        D_ = oraculo_custos.D
+
+        def d_(id_, venda, aberta, itens, situacao='andamento'):
+            return {'id': id_, 'numero': 'DV-%04d' % (100 + id_), 'vendaId': venda, 'abertaEm': aberta, 'situacao': situacao, 'eventos': [], 'reversa': None,
+                    'itens': [{'sku': s, 'qtd': q, 'unit': u, 'estado': 'revendavel'} for s, q, u in itens]}
+
+        def grava(devs):
+            pg.evaluate("(g) => localStorage.setItem('deskDevolucoes', JSON.stringify({ devolucoes: g }))", {str(d['id']): d for d in devs})
+
+        def com(pid, chave='v1'):
+            return pg.evaluate("(a) => comissoesDe(beneficiarioDe(a[1])).filter(i => i.pedido.id === a[0]).map(i => i.valor)", [pid, chave])
+
+        def saldo(chave='v1'):
+            return pg.evaluate("(c) => contaDoPeriodo(beneficiarioDe(c), '2000-01-01', HOJE_ISO).saldo", chave)
+        ir(LISTA); limpar(); ir(LISTA)
+        ped1 = oraculo_custos.c2(D_(94) * (D_(1880) - D_(445)) / D_(1880))
+        ok(com(1) == [float(ped1)] == [71.75] and com(3) == [0.0], 'o exemplo: a devolução aceita dentro do prazo reduz a comissão da Marina na proporção do que voltou (pedido 1: 94,00 × (1 − 445,00 ÷ 1.880,00) = 71,75), e voltou tudo no pedido 3: zero')
+        ok(pg.evaluate("estornosDe(beneficiarioDe('v1'))") == [], 'no exemplo nada foi liberado antes da devolução: sem estorno')
+        # fora do prazo a comissao fica inteira
+        grava([d_(2, 1, '2026-10-20', [('FON-BT-200', 1, 249.90), ('CAR-33W-01', 2, 97.55)])]); ir(LISTA)
+        ok(com(1) == [94.0], 'devolução aberta 26 dias depois da entrega (30/09): fora do prazo, a comissão do pedido 1 fica inteira (94,00)')
+        grava([d_(2, 1, '2026-10-03', [('FON-BT-200', 1, 249.90), ('CAR-33W-01', 2, 97.55)], 'aberta')]); ir(LISTA)
+        ok(com(1) == [94.0], 'devolução ainda aberta (em análise) não reduz a comissão')
+        for sit in ('cancelada', 'recusada'):
+            grava([d_(2, 1, '2026-10-03', [('FON-BT-200', 1, 249.90)], sit)]); ir(LISTA)
+            ok(com(1) == [94.0], 'devolução %s não reduz a comissão' % sit)
+        # o prazo e o do parametro (a abertura do exemplo e 3 dias depois da entrega)
+        grava([]); pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 2 }))"); ir(LISTA)
+        ok(com(1) == [94.0] and pg.evaluate("prazoDevolucao()") == 2, 'prazo de devolução trocado para 2 dias em Parâmetros de Logística: a mesma devolução (3 dias depois da entrega) fica fora e a comissão volta a 94,00')
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 3 }))"); ir(LISTA)
+        ok(com(1) == [71.75], 'com 3 dias ela volta a estar dentro do prazo (o dia da conta conta): 71,75')
+        grava([d_(2, 1, '2026-10-20', [('FON-BT-200', 1, 249.90), ('CAR-33W-01', 2, 97.55)])])
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 30 }))"); ir(LISTA)
+        ok(com(1) == [71.75], 'e com 30 dias a devolução de 26 dias depois da entrega entra no prazo: 71,75')
+        pg.evaluate("localStorage.removeItem('deskParametros')"); grava([]); ir(LISTA)
+        # a comissao ja liberada: estorno (pedido 16, da Marina, pago e liberado ha 28 dias; devolucao aberta ha 20 dias, 4 dias depois da entrega)
+        antes = saldo()
+        grava([d_(20, 16, dia(-20).isoformat(), [('PAP-3001', 6, 18.50)])]); ir(LISTA)
+        e = pg.evaluate("estornosDe(beneficiarioDe('v1'))")
+        esperado = float(oraculo_custos.c2(D_(117) - oraculo_custos.comissao_reduzida(D_(117), D_(2340), D_(111))))
+        ok(len(e) == 1 and abs(e[0]['valor'] - esperado) < 0.001 and abs(esperado - 5.55) < 0.001 and e[0]['data'] == dia(-20).isoformat() and e[0]['pedido']['id'] == 16,
+           'comissão já liberada e reduzida depois: a diferença (117,00 − 111,45) vira um estorno de 5,55, no dia da abertura: %s' % [(x['valor'], x['data']) for x in e])
+        ok(com(16) == [117.0], 'a comissão que já estava no saldo segue inteira (117,00); o que cai é o estorno')
+        ok(abs(saldo() - (antes - 5.55)) < 0.005, 'o estorno desconta do saldo: %.2f → %.2f' % (antes, saldo()))
+        r = pg.evaluate("contaDoPeriodo(beneficiarioDe('v1'), '2000-01-01', HOJE_ISO)")
+        ok(abs(r['devolucoes'] - 5.55) < 0.005 and len(r['estornos']) == 1, 'e aparece na linha "(−) Débitos de devoluções" da conta: %s' % r['devolucoes'])
+        h = pg.evaluate("historicoDe(beneficiarioDe('v1')).filter(x => x.texto.indexOf('Estorno') === 0).map(x => [x.texto, x.valor, x.efeito, x.tipo])")
+        ok(len(h) == 1 and h[0][0].startswith('Estorno: devolução do pedido nº 16') and abs(h[0][1] - 5.55) < 0.005 and abs(h[0][2] + 5.55) < 0.005, 'e o histórico traz a linha "Estorno: devolução do pedido nº 16" que desconta 5,55: %s' % h)
+        grava([]); ir(LISTA)
+        # o afiliado libera pelo prazo do parametro (pedido 12, do Bruno: entregue ha 12 dias; libera na entrega + prazo)
+        def lib12():
+            return pg.evaluate("(function(){ var i = comissoesDe(beneficiarioDe('a1')).filter(function(x){ return x.pedido.id === 12; })[0]; return [i.libera, i.prevista]; })()")
+        l = lib12()
+        ok(l[0] == dia(-12 + 7).isoformat() and l[1] == dia(-12 + 7).isoformat(), 'o afiliado libera na entrega + 7 dias (o prazo de fábrica): %s' % l)
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 20 }))"); ir(LISTA)
+        l = lib12()
+        ok(l[0] == '' and l[1] == dia(-12 + 20).isoformat(), 'com o prazo de devolução em 20 dias ainda não liberou, e a previsão passa a ser entrega + 20: %s' % l)
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 5 }))"); ir(LISTA)
+        l = lib12()
+        ok(l[0] == dia(-12 + 5).isoformat(), 'com 5 dias libera mais cedo, na entrega + 5: %s' % l)
+        ir(PV_D, '?id=4&editar=1')
+        ok('5 dias sem devolução' in pg.inner_text('#hintComissao'), 'e a página do pedido dita o prazo do parâmetro: %s' % pg.inner_text('#hintComissao')[:90])
         limpar()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])

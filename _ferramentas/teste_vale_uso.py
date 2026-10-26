@@ -121,7 +121,7 @@ with sync_playwright() as p:
         return pg.evaluate("(n) => valeSituacao(valeLer().filter(v => v.n === n)[0])", n)
 
     def escolher(raiz, valor):
-        clic('#' + raiz + ' .dropdown-select-btn'); pg.wait_for_timeout(120)
+        if pg.is_visible('#' + raiz + ' .dropdown-select-btn'): clic('#' + raiz + ' .dropdown-select-btn'); pg.wait_for_timeout(120)   # pedido da loja virtual: forma e condicao travadas (27/out), o item e clicado por dentro
         pg.evaluate("([r, v]) => document.querySelector('#' + r + ' .dropdown-select-item[data-value=\"' + v + '\"]').click()", [raiz, str(valor)])
         pg.wait_for_timeout(250)
 
@@ -394,6 +394,11 @@ with sync_playwright() as p:
         # --- o vale paga o pedido inteiro
         pg.evaluate("ITENS.splice(1); ITENS[0].qtd = 1; ITENS[0].precoLista = 100; ITENS[0].desconto = 0; document.getElementById('inputFrete').value = '0,00'; document.getElementById('inputDesconto').value = '0'; renderItens(); recalcularTotais()")
         pg.fill('#inputValeUsar', '100'); pg.wait_for_timeout(200)
+        # o conserto de 27/out: com o vale pagando tudo e a condicao em 3x, nao nascem 3 chips de R$ 0,00 nem "Salvar faz nascer 3 contas": so a nota de que o vale pagou tudo
+        escolher('inputRecebimento', 'boleto'); escolher('inputCondicao', 3); pg.wait_for_timeout(200)
+        previa = pg.inner_text('#previaParcelas')
+        ok(pg.locator('#previaParcelas .parcela-chip').count() == 0 and 'Salvar faz nascer' not in previa and 'o pedido inteiro, sem conta a receber em aberto' in pg.inner_text('#notaVale'),
+           'vale pagando o pedido inteiro com a condição em 3x: nenhum chip e a nota de que o vale pagou tudo: %s' % previa.replace('\n', ' | ')[:160])
         confirma, aviso = salvar(); fecha()
         ok('nenhuma conta a receber ficou em aberto' in aviso and saldo_de(4) == 20, 'vale igual ao total: o pedido sai pago, sem conta a receber em aberto e o vale fica com R$ 20,00: %s' % aviso[:200])
         # --- cancelar devolve

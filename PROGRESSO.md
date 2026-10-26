@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 26/out/2026: Custos do E-commerce, entrega 1, aprovada; os dois ajustes do teste (a barra e o pedido no cartão) feitos, esperando o teste dele; o pedido copiado e as entregas 2 e 3 na fila. A calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 27/out/2026: Custos do E-commerce, entrega 2 (itens e destino nos pedidos online, devolução na conta e na comissão, vale de cortesia, produto/categoria/estado) feita, esperando o teste dele; a entrega 3 é o que falta. A calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,29 +10,24 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce: entrega 1 testada e aprovada pelo usuário em 22/out** (o que foi feito e a barganha estão no
-HISTORICO.md; o detalhe no §14.95). Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. **Pausa por
-cota** (22/out, 92% da semanal usados). **Feitos em 26/out, esperando o teste dele (§14.96):** a barra de custos ("Divisão do faturamento",
-com a legenda em grade) e o pedido no cartão (as contas a receber pelo gateway: com o gateway antecipado, uma conta só, líquida da
-taxa, no dia útil seguinte; sem antecipação, uma por parcela; sem condição no gateway, o Salvar bloqueia). Ao voltar, nesta ordem:
+**Custos do E-commerce: entrega 2 feita em 27/out, esperando o teste dele (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
+A entrega 1 e os ajustes do teste (§14.95, §14.96) seguem como estavam; o "pedido copiado" (o clone vira venda manual) ele aprovou em 26/out. O que a entrega 2 trouxe:
+os 8 pedidos online ganharam **itens** (de Cadastros › Produtos, com o custo de cada um; as unidades da embalagem são a soma das quantidades) e o **estado de
+destino**; a **devolução aceita** (em andamento ou finalizada) entra na conta (valor devolvido, custo que volta do item revendável, perda do avariado, frete da
+volta pago pela loja; a taxa do gateway não volta); a **comissão cai na proporção do que voltou quando a devolução abre dentro do prazo** (o prazo de devolução de
+Parâmetros de Logística, contado da entrega), e a já liberada vira **estorno** no saldo e no histórico; o **vale de cortesia** sai da venda; a tela ganhou as colunas
+Cortesia e Devolução (escondidas quando zero), o agrupar por Produto, Categoria e Estado de destino, os filtros de Produto e Categoria e a repartição dos custos por
+item; e a página do pedido, o conserto do vale que paga tudo. **Mais dois ajustes aprovados por ele em 26/out:** o pedido online fica com a forma de recebimento e a
+condição só de leitura ("pago na loja virtual"), e o pedido manual no cartão usa o gateway como o PDV (o padrão da forma se estiver habilitado na loja do pedido; senão
+a primeira maquininha da loja; sem nenhuma, o Salvar bloqueia). **Regra da comissão com devolução, decidida por ele em 26/out:** dentro do prazo reduz na proporção,
+fora do prazo a comissão fica inteira, a já liberada vira estorno, e o afiliado libera na entrega + o prazo de devolução.
 
-1. **Responder a ele sobre o "pedido copiado"** (decisão (3) do executor, §14.95). Explicação dada em 22/out: o pedido copiado
-   (o clone, na página do pedido) é um pedido novo digitado no ERP, por isso nasce como venda manual e não traz o frete pago
-   pela loja nem o pagamento do original; e a caixa "Resultado do pedido" mostra um aviso, em vez de números, no pedido novo,
-   no copiado, no do PDV e na página aberta sem escolher um pedido, porque ainda não há pedido salvo para fazer a conta.
-   Recomendação: manter. Esperando o ok dele.
-2. **Entregas 2 e 3**, abaixo.
+Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
+inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
+antecipação à parte, e na InfinitePay ela já está na taxa.
 
-Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:**
-ele informou que a venda no cartão, mesmo parcelada, cai inteira no dia útil seguinte, já sem a taxa. Já estava assim: o
-gateway da loja virtual é "Antecipado" e as taxas são as da tabela de 1 dia útil, com a antecipação dentro. Por isso, na
-entrega 2, **a antecipação não soma nada à InfinitePay**; ela só conta para um gateway que cobre antecipação à parte.
-
-- **Entrega 2:** a devolução (o frete da reversa e a perda do item avariado), a antecipação (só para gateway que a cobre à
-  parte; ver acima), o vale de cortesia como desconto, e os itens nos pedidos online, com eles o agrupar e o filtrar por
-  Produto, Categoria e Estado de destino.
-- **Entrega 3:** os anúncios (o lucro depois dos anúncios, lido de Contas a Pagar), o gráfico mês a mês, Parâmetros de Vendas (o imposto
-  padrão e a margem mínima, com o alerta da margem) e o módulo na lista de "módulos habilitados" do perfil.
+- **Entrega 3 (o que falta):** os anúncios (o lucro depois dos anúncios, lido de Contas a Pagar), o gráfico mês a mês, Parâmetros de Vendas (o imposto padrão e a
+  margem mínima, com o alerta da margem) e o módulo na lista de "módulos habilitados" do perfil (o acesso por perfil).
 
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
@@ -110,10 +105,8 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Custos do E-commerce, entregas 2 e 3** (a 1 espera o teste dele; ver "Onde paramos"). Entrega 2: devolução, taxa de
-   antecipação, vale de cortesia e os itens nos pedidos online (e o agrupar e filtrar por Produto, Categoria e Estado). Entrega 3:
-   anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem mínima) e o módulo no perfil. Cada uma começa por
-   um plano curto, numa conversa nova, e já nasce com o exemplo no padrão (§14.73).
+1. **Custos do E-commerce, entrega 3** (a 2 espera o teste dele; ver "Onde paramos"): anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem
+   mínima) e o módulo no perfil. Começa por um plano curto, numa conversa nova, e já nasce com o exemplo no padrão (§14.73).
 2. **Calculadora de precificação**, depois dos custos (o imposto padrão sai de Parâmetros de Vendas, entrega 3): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
 3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
 4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
@@ -188,6 +181,8 @@ revisão. Até lá, seguimos construindo. Cada item vira conserto de componente,
 9. **a comissão não conta o vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro incluído) Ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
 10. **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais
 11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
+
+*Custos do E-commerce, entrega 2 (27/out):* o vale de cortesia passou a sair da venda do resultado do pedido, mas a comissão **não** mudou por isso; o **item 9 continua aqui, sem mudar** (a base da comissão ainda é o total menos o frete).
 
 ## Esperando decisão do usuário
 

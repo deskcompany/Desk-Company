@@ -193,7 +193,7 @@ with sync_playwright() as p:
         # ---- 2a. a opcao pelos quatro motivos
         limpar(); ir(DEV_D, '?id=4')
         ok(pg.evaluate("motivoSemVale(DEV)") == '' and not pg.evaluate("document.querySelector('#menuForma .dropdown-select-item[data-value=\"valetroca\"]').classList.contains('item-indisponivel')"),
-           'DV-0009 (Bruno Carvalho, do cadastro, Desk Shope, R$ 414,80): a opção Vale-compra está habilitada')
+           'DV-0009 (Bruno Carvalho, do cadastro, Desk Shope, R$ 224,80): a opção Vale-compra está habilitada')
         ok(pg.evaluate("formaDe('valetroca').rotulo") == 'Vale-compra' and 'vale-compra para o cliente, na loja do pedido' in pg.evaluate("formaDe('valetroca').nota") and pg.evaluate("FORMAS.filter(f => f.reservado).length") == 0,
            'a forma chama Vale-compra, a nota diz "gera um vale-compra para o cliente, na loja do pedido" e nada é reservado')
         ok('vale-troca' not in pg.inner_text('body').lower() and 'vales-troca' not in pg.inner_text('body').lower() and 'submódulo' not in pg.inner_text('body').lower(), 'o nome Vale-troca e o aviso do submódulo que não existia saíram da tela')
@@ -235,20 +235,20 @@ with sync_playwright() as p:
         ok(pg.evaluate("DEV.forma") == 'valetroca' and len(gravados()) == 0 and pg.evaluate("DEV.situacao") == 'aberta', 'escolher e salvar a forma Vale-compra só anota: nenhum vale nasceu e a devolução segue aberta')
         pg.evaluate("finalizar()"); pg.wait_for_timeout(300)
         prazo = br(dia(180))
-        ok(modal().endswith('Gera o vale-compra de R$ 414,80 para Bruno Carvalho, na Desk Shope, válido até %s.' % prazo), 'a confirmação diz o valor, o cliente, a loja e a validade: %s' % modal())
+        ok(modal().endswith('Gera o vale-compra de R$ 224,80 para Bruno Carvalho, na Desk Shope, válido até %s.' % prazo), 'a confirmação diz o valor, o cliente, a loja e a validade: %s' % modal())
         ok(len(gravados()) == 0, 'e nada nasce antes de confirmar')
         confirmar()
         gr = gravados()
         ok(len(gr) == 1, 'ao confirmar nasce um vale só')
         v = gr[0]
-        ok(v['valor'] == 414.8 and v['loja'] == 1 and v['clienteId'] == 12 and v['cliente'] == 'Bruno Carvalho' and v['doc'] == '890.123.456-77' and v['origem'] == 'devolucao',
-           'o vale tem o total da devolução (R$ 414,80: itens e frete), a loja do pedido (Desk Shope), o cliente do cadastro e origem devolução: %s' % dict(valor=v['valor'], loja=v['loja'], cli=v['cliente']))
+        ok(v['valor'] == 224.8 and v['loja'] == 1 and v['clienteId'] == 12 and v['cliente'] == 'Bruno Carvalho' and v['doc'] == '890.123.456-77' and v['origem'] == 'devolucao',
+           'o vale tem o total da devolução (R$ 224,80: itens e frete), a loja do pedido (Desk Shope), o cliente do cadastro e origem devolução: %s' % dict(valor=v['valor'], loja=v['loja'], cli=v['cliente']))
         ok(v['emitido'] == iso(HOJE) and v['venc'] == iso(dia(180)) and v['usos'] == [] and v['cancelado'] is None, 'emitido hoje, vence em 180 dias, sem usos, não cancelado')
         ok(v['ref'] == dict(tipo='devolucao', id=4, texto='Devolução DV-0009', href='../logistica/pagina-logistica-devolucao-detalhe.html?id=4'), 'a ref é { tipo, id, texto, href } da devolução: %s' % v['ref'])
         ok(pg.evaluate("DEV.situacao") == 'finalizada' and pg.evaluate("document.getElementById('badgeSituacao').textContent.trim()").lower().startswith('finalizada'), 'a devolução fica finalizada')
         ev = pg.evaluate("DEV.eventos[DEV.eventos.length - 1]")
-        ok(ev['tipo'] == 'finalizou' and 'Finalizada. Vale-compra' in ev['nota'] and 'VC-1' in ev['nota'] and 'R$ 414,80' in ev['nota'], 'o histórico diz "Finalizada. Vale-compra VC-1 de R$ 414,80": %s' % ev['nota'])
-        ok(visivel('#notaVale') and pg.inner_text('#notaValeTexto').startswith('Vale-compra VC-1 · R$ 414,80 · saldo R$ 414,80'), 'o cartão de pagamento mostra a linha do vale com valor e saldo: %s' % pg.inner_text('#notaValeTexto'))
+        ok(ev['tipo'] == 'finalizou' and 'Finalizada. Vale-compra' in ev['nota'] and 'VC-1' in ev['nota'] and 'R$ 224,80' in ev['nota'], 'o histórico diz "Finalizada. Vale-compra VC-1 de R$ 224,80": %s' % ev['nota'])
+        ok(visivel('#notaVale') and pg.inner_text('#notaValeTexto').startswith('Vale-compra VC-1 · R$ 224,80 · saldo R$ 224,80'), 'o cartão de pagamento mostra a linha do vale com valor e saldo: %s' % pg.inner_text('#notaValeTexto'))
         ok(pg.get_attribute('#notaValeTexto a', 'href') == '../financas/pagina-financas-vale-compra-detalhe.html?id=1', 'e o VC-1 é link para a página do vale (?id=1)')
         ok(pg.evaluate("document.querySelector('#inputForma .dropdown-select-btn').disabled") is True, 'a forma não muda mais depois de finalizada com vale (o campo trava)')
         clic('#inputForma .dropdown-select-btn'); pg.wait_for_timeout(150)
@@ -293,7 +293,7 @@ with sync_playwright() as p:
         # trava de duplicidade de verdade: ja existe vale vivo da devolucao (outra aba) -> a segunda tentativa e barrada
         ir(DEV_D, '?id=4'); forma_vale_e_salva()
         pg.evaluate("localStorage.setItem('deskValesCompra', JSON.stringify({ vales: [{ n: 5, clienteId: 12, cliente: 'Bruno Carvalho', doc: '890.123.456-77', loja: 1, origem: 'devolucao', "
-                    "ref: { tipo: 'devolucao', id: 4, texto: 'Devolução DV-0009', href: 'x' }, valor: 414.8, emitido: '2026-10-19', venc: '2027-04-17', usos: [], reativacoes: [], cancelado: null }] }))")
+                    "ref: { tipo: 'devolucao', id: 4, texto: 'Devolução DV-0009', href: 'x' }, valor: 224.8, emitido: '2026-10-19', venc: '2027-04-17', usos: [], reativacoes: [], cancelado: null }] }))")
         pg.evaluate("finalizar()"); pg.wait_for_timeout(250)
         confirmar()
         ok(pg.evaluate("DEV.situacao") != 'finalizada' and len(gravados()) == 1 and 'não foi finalizada' in modal() and 'Já existe um vale-compra' in modal(),
@@ -303,11 +303,11 @@ with sync_playwright() as p:
         # ---- 2g. cancelar: vale intacto e cancelado junto
         finalizar_em_vale()
         pg.evaluate("cancelar()"); pg.wait_for_timeout(250)
-        ok('O vale-compra VC-1 (R$ 414,80) é cancelado junto.' in modal(), 'cancelar a devolução com vale intacto avisa: "O vale-compra VC-1 (R$ 414,80) é cancelado junto.": %s' % modal()[-80:])
+        ok('O vale-compra VC-1 (R$ 224,80) é cancelado junto.' in modal(), 'cancelar a devolução com vale intacto avisa: "O vale-compra VC-1 (R$ 224,80) é cancelado junto.": %s' % modal()[-80:])
         ok(gravados()[0]['cancelado'] is None, 'e nada muda antes de confirmar')
         confirmar()
         v = gravados()[0]
-        ok(v['cancelado'] == dict(em=iso(HOJE), motivo='devolução cancelada', saldo=414.8), 'confirmado, o vale é cancelado com o motivo "devolução cancelada": %s' % v['cancelado'])
+        ok(v['cancelado'] == dict(em=iso(HOJE), motivo='devolução cancelada', saldo=224.8), 'confirmado, o vale é cancelado com o motivo "devolução cancelada": %s' % v['cancelado'])
         ok(pg.evaluate("DEV.situacao") == 'cancelada', 'e a devolução fica cancelada')
         ir(DEV_D, '?id=4')
         ok(pg.evaluate("DEV.situacao") == 'cancelada' and 'cancelado junto' in pg.inner_text('#notaValeTexto'), 'recarregada, segue cancelada, e a linha do vale diz "cancelado junto com a devolução": %s' % pg.inner_text('#notaValeTexto'))
@@ -321,7 +321,7 @@ with sync_playwright() as p:
             ir(DEV_D, '?id=4')
             pg.evaluate("cancelar()"); pg.wait_for_timeout(250)
             m = modal()
-            esperado = 'O vale-compra VC-1 já foi usado (%s de R$ 414,80). O crédito foi gasto: cancelar a devolução agora deixaria o cliente com a compra e o ressarcimento. O caminho é um acerto.' % moeda(usado)
+            esperado = 'O vale-compra VC-1 já foi usado (%s de R$ 224,80). O crédito foi gasto: cancelar a devolução agora deixaria o cliente com a compra e o ressarcimento. O caminho é um acerto.' % moeda(usado)
             ok(m == esperado, 'vale usado (%s) bloqueia o cancelamento da devolução com a mensagem do acerto: %s' % (moeda(usado), m[:70]))
             fechar_modal()
             ok(pg.evaluate("DEV.situacao") == 'finalizada' and gravados()[0]['cancelado'] is None and len(gravados()[0]['usos']) == 1, 'nada mudou: a devolução segue finalizada e o vale intacto, com o uso')
@@ -360,7 +360,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.body.innerText").count('Pedro Antunes') == 0 and 'Bruno Carvalho' in pg.evaluate("document.body.innerText"), 'o cliente de exemplo da venda PV-4903 é o mesmo nas duas telas (Bruno Carvalho)')
 
         # ---- 2k. a devolucao e gravada (defeito do teste do usuario em 20/out): salvar a forma, sair e voltar nao desfaz; o proximo passo fica visivel
-        PROX = 'O vale-compra de R$ 414,80 nasce quando a devolução for finalizada (Mais ações → Finalizar).'
+        PROX = 'O vale-compra de R$ 224,80 nasce quando a devolução for finalizada (Mais ações → Finalizar).'
         gravadas = lambda: pg.evaluate("(JSON.parse(localStorage.getItem('deskDevolucoes') || '{}').devolucoes || {})")
         linha_lista = lambda num: pg.evaluate("(n) => Array.from(document.querySelectorAll('#corpoTabela tr')).filter(r => r.innerText.indexOf(n) >= 0)[0].innerText.toLowerCase()", num)
         limpar(); ir(DEV_D, '?id=4')

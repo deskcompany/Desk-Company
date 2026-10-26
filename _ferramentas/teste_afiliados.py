@@ -158,13 +158,13 @@ with sync_playwright() as p:
 
         ir(DET, '?id=3')
         resumo = aba_comissao()[0]
-        ok(pg.input_value('#inputIndicacao') == 'Sem indicação' and 'Vendedor' in resumo and 'pelo link' not in resumo and 'R$ 17,50' in resumo,
-           'o pedido da vendedora não tem link: a comissão é dela, como vendedora, e 5% de 349,90 dá R$ 17,50')
+        ok(pg.input_value('#inputIndicacao') == 'Sem indicação' and 'Vendedor' in resumo and 'pelo link' not in resumo and 'R$ 0,00' in resumo and 'devolução dentro do prazo' in resumo.lower(),
+           'o pedido da vendedora não tem link: a comissão é dela, como vendedora; 5% de 349,90 seria R$ 17,50, mas o kit voltou inteiro dentro do prazo e a comissão é R$ 0,00')
 
         ir(DET, '?id=1')
         ok(pg.input_value('#inputIndicacao') == 'Sem indicação', 'pedido de vendedor sem link: sem indicação')
         resumo, dica = aba_comissao()
-        ok('Marina Costa' in resumo and '5,00%' in resumo and 'R$ 94,00' in resumo, 'a comissão segue o cadastro dela: 5% de 1.880,00')
+        ok('Marina Costa' in resumo and '5,00%' in resumo and 'R$ 71,75' in resumo, 'a comissão segue o cadastro dela: 5% de 1.880,00 = 94,00, menos a devolução dentro do prazo (445,00) = 71,75')
         ok('parcelas pagas' in dica and 'faturamento' not in dica, 'a regra dita é a do cadastro dela (parcial, pelas parcelas pagas), e não mais "no faturamento"')
 
         ir(DET, '?id=2')

@@ -2080,6 +2080,72 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== DEVOLUCOES: LEITURA (bloco comum, 27/out/2026) =====
+  // Identico em Custos do E-commerce, na pagina do pedido, nas duas telas de Comissoes e no cadastro do cliente; teste_custos_ecommerce.py compara as copias.
+  // A devolucao ACEITA entra na conta do pedido online (o lucro, em RESULTADO DO PEDIDO) e reduz a comissao (em COMISSOES: DADOS E REGRAS). O dono do dado e Logistica > Devolucao:
+  // DEVOLUCOES_C e ESPELHO do exemplo dela (so os campos que a conta usa; a `reversa` leva `paga`, 'nos' ou 'cliente', e `valor`) e ENTREGA_DA_VENDA e o `entregaEm` das
+  // vendas dela que sao pedidos online. A devolucao gravada la, em `deskDevolucoes`, vence a de exemplo de mesmo id e a nova entra (a mesma regra da Devolucao).
+  // ITENS_ONLINE e ESPELHO de Vendas > Pedidos de Venda (ITENS_PEDIDO), so dos pedidos online: cada item traz o custo de uma unidade (o da compra e o medio),
+  // que e como o pedido congela o custo. A devolucao so vale para o pedido quando todos os itens dela existem nele: as vendas 2 e 5 da Devolucao nao sao pedidos de
+  // Pedidos de Venda, e ficam de fora. Conta a devolucao ACEITA: em andamento ou finalizada. Aberta (em analise) e cancelada nao contam.
+  const ITENS_ONLINE = {
+    1:  [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'FON-BT-200', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 249.90, custo: 150.00, custoMedio: 146.90 },
+         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', categoria: 'Eletrônicos', qtd: 4, un: 'UN', preco: 97.55, custo: 58.50, custoMedio: 57.30 },
+         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', categoria: 'Mobiliário e Decoração', qtd: 2, un: 'UN', preco: 495.00, custo: 297.00, custoMedio: 291.00 }],
+    3:  [{ nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 1, un: 'UN', preco: 349.90, custo: 199.90, custoMedio: 205.40 }],
+    4:  [{ nome: 'Camiseta Básica Algodão', sku: 'VES-2001', categoria: 'Vestuário e Acessórios', qtd: 3, un: 'UN', preco: 39.90, custo: 23.90, custoMedio: 23.50 },
+         { nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 5, un: 'UN', preco: 18.50, custo: 11.10, custoMedio: 10.90 },
+         { nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 2, un: 'UN', preco: 199.90, custo: 120.00, custoMedio: 117.50 }],
+    8:  [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 4, un: 'UN', preco: 18.50, custo: 11.30, custoMedio: 11.50 },
+         { nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 1, un: 'UN', preco: 349.90, custo: 213.30, custoMedio: 217.60 },
+         { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 59.90, custo: 36.50, custoMedio: 37.20 },
+         { nome: 'Kit Papelaria Volta às Aulas', sku: 'PAP-3002', categoria: 'Papelaria', qtd: 3, un: 'UN', preco: 64.90, custo: 39.50, custoMedio: 40.30 }],
+    9:  [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 3, un: 'UN', preco: 18.50, custo: 10.90, custoMedio: 10.70 },
+         { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', categoria: 'Mobiliário e Decoração', qtd: 5, un: 'UN', preco: 79.90, custo: 47.06, custoMedio: 46.08 }],
+    11: [{ nome: 'Camiseta Básica Algodão', sku: 'VES-2001', categoria: 'Vestuário e Acessórios', qtd: 1, un: 'UN', preco: 39.90, custo: 23.20, custoMedio: 23.80 },
+         { nome: 'Carregador USB-C 20W', sku: 'ELE-1004', categoria: 'Eletrônicos', qtd: 4, un: 'UN', preco: 45.00, custo: 26.20, custoMedio: 26.85 }],
+    12: [{ nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 3, un: 'UN', preco: 199.90, custo: 118.00, custoMedio: 116.70 },
+         { nome: 'Kit Papelaria Volta às Aulas', sku: 'PAP-3002', categoria: 'Papelaria', qtd: 4, un: 'UN', preco: 64.90, custo: 38.20, custoMedio: 37.90 },
+         { nome: 'Organizador de Mesa Bambu', sku: 'MOB-4003', categoria: 'Mobiliário e Decoração', qtd: 3, un: 'UN', preco: 54.90, custo: 32.40, custoMedio: 32.10 }],
+    16: [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 6, un: 'UN', preco: 18.50, custo: 11.30, custoMedio: 11.20 },
+         { nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 5, un: 'UN', preco: 349.90, custo: 213.80, custoMedio: 211.60 },
+         { nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 1, un: 'UN', preco: 199.90, custo: 122.30, custoMedio: 120.80 },
+         { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 59.90, custo: 36.60, custoMedio: 36.20 },
+         { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', categoria: 'Mobiliário e Decoração', qtd: 2, un: 'UN', preco: 79.90, custo: 48.85, custoMedio: 48.30 }]
+  };
+  const DEVOLUCOES_C = [
+    { id: 1, numero: 'DV-0012', vendaId: 2, abertaEm: '2026-10-06', situacao: 'aberta',     itens: [ { sku: 'FER-2201', qtd: 2, unit: 540.00, estado: 'avaria' } ], reversa: null },
+    { id: 2, numero: 'DV-0011', vendaId: 1, abertaEm: '2026-10-03', situacao: 'andamento',  itens: [ { sku: 'FON-BT-200', qtd: 1, unit: 249.90, estado: 'revendavel' }, { sku: 'CAR-33W-01', qtd: 2, unit: 97.55, estado: 'revendavel' } ], reversa: { paga: 'cliente', valor: 24.50 } },
+    { id: 3, numero: 'DV-0010', vendaId: 3, abertaEm: '2026-09-29', situacao: 'finalizada', itens: [ { sku: 'MOB-4001', qtd: 1, unit: 349.90, estado: 'avaria' } ], reversa: { paga: 'nos', valor: 38.90 } },
+    { id: 4, numero: 'DV-0009', vendaId: 4, abertaEm: '2026-10-06', situacao: 'aberta',     itens: [ { sku: 'VES-2002', qtd: 1, unit: 199.90, estado: 'nenhum' } ], reversa: null },
+    { id: 5, numero: 'DV-0008', vendaId: 5, abertaEm: '2026-08-12', situacao: 'finalizada', itens: [ { sku: 'FLA-0301', qtd: 4, unit: 1300.00, estado: 'revendavel' } ], reversa: { paga: 'nos', valor: 0 } },
+    { id: 6, numero: 'DV-0007', vendaId: 3, abertaEm: '2026-09-22', situacao: 'cancelada',  itens: [ { sku: 'MOB-4001', qtd: 1, unit: 349.90, estado: 'revendavel' } ], reversa: null }
+  ];
+  const ENTREGA_DA_VENDA = { 1: '2026-09-30', 3: '2026-09-28', 4: '2026-10-05' };
+  const DEV_ACEITAS = ['andamento', 'finalizada'];
+  // Todas as devolucoes que a Devolucao conhece: o exemplo, com a gravada no lugar da de mesmo id (e a nova no fim).
+  function devolucoesLidas() {
+    const lista = DEVOLUCOES_C.slice();
+    let gr = {};
+    try { const g = (JSON.parse(localStorage.getItem('deskDevolucoes') || '{}') || {}).devolucoes; gr = g && typeof g === 'object' ? g : {}; } catch (e) { gr = {}; }
+    Object.keys(gr).forEach(k => {
+      const g = gr[k];
+      if (!g || !Number.isInteger(g.id) || !Array.isArray(g.itens) || !Array.isArray(g.eventos)) return;   // gravacao estragada: ignora so essa
+      const i = lista.findIndex(d => d.id === g.id);
+      if (i >= 0) lista[i] = g; else lista.push(g);
+    });
+    return lista;
+  }
+  // O valor dos itens devolvidos: o mesmo corpo de totalItensDev da Devolucao (o teste compara), sem o frete nem o desconto.
+  function totalItensDev(d) { return d.itens.reduce((s, i) => s + i.qtd * i.unit, 0); }
+  // As devolucoes do pedido online na situacao pedida (de fabrica, as aceitas) cujos itens existem todos no pedido.
+  function devolucoesDoPedido(p, situacoes) {
+    const itens = ITENS_ONLINE[p.id];
+    if (!itens) return [];
+    return devolucoesLidas().filter(d => d.vendaId === p.id && (situacoes || DEV_ACEITAS).indexOf(d.situacao) >= 0 && d.itens.length > 0 &&
+      d.itens.every(i => itens.some(x => x.sku === i.sku)));
+  }
+  // ===== FIM DO BLOCO DEVOLUCOES: LEITURA =====
   // ===== COMISSOES: DADOS E REGRAS (bloco comum das duas telas, 14/out/2026) =====
   // Identico na lista de Comissoes Afiliados e na conta do afiliado; teste_comissoes.py compara. Esta
   // tela nao guarda venda propria: os pedidos sao ESPELHO de Vendas > Pedidos de Venda (PEDIDOS), a regra
@@ -2098,24 +2164,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ESPELHO de Vendas > Pedidos de Venda: `ind` = link de cliente afiliado; `custo` = custo dos produtos,
   // congelado no faturamento. Base da comissao = total menos o frete. Desde 22/out/2026 o pedido traz tambem os dados do lucro (Custos do
   // E-commerce): `canal` ('loja_virtual' | 'manual'), `custoMedio` (custo medio congelado no faturamento, ao lado do `custo`, que e o da
-  // compra), `unidades` (so onde o exemplo tem itens; sem ele, 1) e, so nos pedidos online, `fretePagoLoja` e `pagamento` { forma, bandeira, vezes }.
+  // compra), `unidades` (so nos manuais que tem itens na lista, 2, 6 e 10; nos online as unidades sao a soma das quantidades dos itens, ITENS_ONLINE; sem nada, 1) e, so nos pedidos online, `fretePagoLoja`, `pagamento` { forma, bandeira, vezes } e `ufEntrega` (o estado de destino).
   const PEDIDOS = [
-    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, unidades: 8 },
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, ufEntrega: 'SP' },
     { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00, canal: 'manual', custoMedio: 5200.00, unidades: 23 },
-    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
-    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 } },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'MG' },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 }, ufEntrega: 'RJ' },
     { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10, canal: 'manual', custoMedio: 168.10 },
     { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00, canal: 'manual', custoMedio: 8110.00, unidades: 14 },
     { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00, canal: 'manual', custoMedio: 690.00 },
-    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 } },
-    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 }, ufEntrega: 'PR' },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'BA' },
     { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00, canal: 'manual', custoMedio: 2050.00, unidades: 32 },
-    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 } },
-    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 } },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 }, ufEntrega: 'AM' },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 }, ufEntrega: 'PE' },
     { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00, canal: 'manual', custoMedio: 5800.00 },
     { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00, canal: 'manual', custoMedio: 380.00 },
     { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00, canal: 'manual', custoMedio: 110.00 },
-    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00, canal: 'loja_virtual', fretePagoLoja: 32.00, custoMedio: 1415.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 12 } }
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00, canal: 'loja_virtual', fretePagoLoja: 32.00, custoMedio: 1415.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 12 }, ufEntrega: 'SP' }
   ];
   const VENDEDORES_DA_LISTA_C = ['Marina Costa', 'Rafael Andrade', ''];
   // ESPELHO de Cadastros > Vendedores: os que nao foram excluidos, com a regra de comissao de cada um.
@@ -2218,31 +2284,64 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const pctDoPedido = (p, b) => p.ind ? p.ind.pct : b.aliquota;
   // Cada comissao e arredondada em centavos antes de somar: sem isso, o saldo da Marina saia R$ 352,99 num
   // mes cujas linhas somam R$ 353,00.
-  const comissaoDoPedido = (p, b) => Math.round(Math.round(baseDe(p) * 100) * pctDoPedido(p, b) / 100) / 100;
+  // A comissao de venda do pedido SEM a devolucao: a base (total menos o frete) vezes o percentual, em centavos.
+  const comissaoBrutaDoPedido = (p, b) => Math.round(Math.round(baseDe(p) * 100) * pctDoPedido(p, b) / 100) / 100;
+  // ----- A DEVOLUCAO NA COMISSAO (Custos do E-commerce, entrega 2, 27/out/2026) -----
+  // A devolucao ACEITA dentro do prazo reduz a comissao de cada beneficiario na proporcao do que voltou: comissao x (1 - valor devolvido / base da comissao);
+  // voltou tudo, comissao zero. Fora do prazo a comissao fica inteira. O prazo e o "prazo de devolucao" de Configuracoes > Parametros de Logistica
+  // (`devolucaoPrazoDias`; 7 dias de fabrica, o arrependimento do CDC), contado da ENTREGA do pedido (o `entregaEm` da venda na Devolucao; sem ele, a previsao de
+  // entrega do pedido) ate a abertura da devolucao. O valor devolvido e o dos itens (totalItensDev), lido do bloco DEVOLUCOES: LEITURA.
+  const prazoDevolucao = () => Number(PARAM.devolucaoPrazoDias || 7);   // o 7 e o valor de fabrica da tela de parametros
+  function diasEntreDatas(de, ate) { const a = de.split('-'), b = ate.split('-'); return Math.round((Date.UTC(+b[0], +b[1] - 1, +b[2]) - Date.UTC(+a[0], +a[1] - 1, +a[2])) / 86400000); }
+  function entregaDoPedido(p) { const q = PEDIDOS.filter(x => x.id === p.id)[0] || p; return ENTREGA_DA_VENDA[p.id] || isoDe(diaMais(q.dp || 0)); }
+  const devolucaoNoPrazo = (d, p) => diasEntreDatas(entregaDoPedido(p), d.abertaEm) <= prazoDevolucao();
+  // As devolucoes que reduzem a comissao do pedido, da mais velha para a mais nova: aceitas e abertas dentro do prazo.
+  const devolucoesQueReduzem = (p) => devolucoesDoPedido(p).filter(d => devolucaoNoPrazo(d, p))
+    .sort((x, y) => (x.abertaEm < y.abertaEm ? -1 : x.abertaEm > y.abertaEm ? 1 : x.id - y.id));
+  function comissaoAposDevolucoes(p, b, devs) {
+    const bruta = Math.round(comissaoBrutaDoPedido(p, b) * 100), base = Math.round(baseDe(p) * 100), dev = Math.round(devs.reduce((s, d) => s + totalItensDev(d), 0) * 100);
+    if (!dev || base <= 0) return bruta / 100;
+    return Math.round(bruta * Math.max(0, base - dev) / base) / 100;
+  }
+  const comissaoDoPedido = (p, b) => comissaoAposDevolucoes(p, b, devolucoesQueReduzem(p));
   function vendaDe(p) { return isoDe(diaMais(-p.dv)); }
 
   // Uma comissao por pedido (duas na regra de metade no faturamento). `libera` = o dia em que liberou;
-  // `prevista` = quando deve liberar, enquanto pendente. Cliente afiliado: com o pedido entregue e 7 dias
-  // sem devolucao. Vendedor: a regra do cadastro (no exemplo, cada pedido e pago de uma vez).
-  function comissoesDe(b) {
+  // `prevista` = quando deve liberar, enquanto pendente. Cliente afiliado: com o pedido entregue e o prazo de devolucao (prazoDevolucao) sem
+  // devolucao. Vendedor: a regra do cadastro (no exemplo, cada pedido e pago de uma vez).
+  // Devolucao aceita dentro do prazo reduz o valor (comissaoDoPedido). A comissao que ja tinha sido liberada ANTES da devolucao nao some do saldo: a diferenca
+  // vira um ESTORNO (estornosDe), uma linha por devolucao, que desconta do saldo, entra no proximo pagamento e aparece no historico.
+  function comissoesEEstornosDe(b) {
     const ajustes = lerLocal('deskComissoesAjustes', {});
-    const itens = [];
+    const itens = [], estornos = [];
     pedidosDe(b).forEach(p => {
       const venda = vendaDe(p), previsto = isoDe(diaMais(p.dp));
       const fat = ['faturado', 'prontoenvio', 'enviado', 'entregue'].indexOf(p.situacao) >= 0 ? isoDe(diaMais(-Math.max(0, p.dv - 2))) : '';
-      const total = comissaoDoPedido(p, b), meia = Math.round(total * 50) / 100;
-      const partes = [];
-      if (p.situacao === 'cancelado') partes.push({ parte: '', valor: total, cancelada: true, libera: '', prevista: '' });
-      else if (!b.regra) { const lib = somaDias(previsto, 7); partes.push({ parte: '', valor: total, libera: p.situacao === 'entregue' && lib <= HOJE_ISO ? lib : '', prevista: lib }); }
-      else if (b.regra === 'integral_faturamento') partes.push({ parte: '', valor: total, libera: fat, prevista: previsto });
-      else if (b.regra === 'cinquenta_faturamento') {
-        partes.push({ parte: ' (1/2)', valor: meia, libera: fat, prevista: previsto });
-        partes.push({ parte: ' (2/2)', valor: Math.round((total - meia) * 100) / 100, libera: p.pago ? venda : '', prevista: previsto });
-      } else partes.push({ parte: '', valor: total, libera: p.pago ? venda : '', prevista: previsto });
-      partes.forEach((x, i) => {
+      const devs = devolucoesQueReduzem(p);
+      // As partes da comissao depois das `k` primeiras devolucoes (k = 0: a comissao inteira).
+      const partesApos = (k) => {
+        const total = comissaoAposDevolucoes(p, b, devs.slice(0, k)), meia = Math.round(total * 50) / 100;
+        const partes = [];
+        if (p.situacao === 'cancelado') partes.push({ parte: '', valor: total, cancelada: true, libera: '', prevista: '' });
+        else if (!b.regra) { const lib = somaDias(previsto, prazoDevolucao()); partes.push({ parte: '', valor: total, libera: p.situacao === 'entregue' && lib <= HOJE_ISO ? lib : '', prevista: lib }); }
+        else if (b.regra === 'integral_faturamento') partes.push({ parte: '', valor: total, libera: fat, prevista: previsto });
+        else if (b.regra === 'cinquenta_faturamento') {
+          partes.push({ parte: ' (1/2)', valor: meia, libera: fat, prevista: previsto });
+          partes.push({ parte: ' (2/2)', valor: Math.round((total - meia) * 100) / 100, libera: p.pago ? venda : '', prevista: previsto });
+        } else partes.push({ parte: '', valor: total, libera: p.pago ? venda : '', prevista: previsto });
+        return partes;
+      };
+      partesApos(devs.length).forEach((x, i) => {
         const id = p.id + '-' + i, aj = ajustes[b.chave + ':' + id] || {};
         if (aj.excluida) return;
-        const item = Object.assign({ id: id, pedido: p, base: baseDe(p), pct: pctDoPedido(p, b), descricao: p.cliente + ' - Pedido ' + p.numero + x.parte }, x);
+        // Ja liberada antes de uma devolucao: vale o que valia ate o dia dela, e cada devolucao seguinte vira um estorno.
+        const antes = x.libera ? devs.filter(d => d.abertaEm <= x.libera).length : devs.length;
+        if (!x.cancelada) for (let k = antes + 1; k <= devs.length; k++) {
+          const dif = Math.round((partesApos(k - 1)[i].valor - partesApos(k)[i].valor) * 100) / 100;
+          if (dif > 0) estornos.push({ id: id + '-' + devs[k - 1].id, pedido: p, dev: devs[k - 1], data: devs[k - 1].abertaEm, valor: dif, parte: x.parte });
+        }
+        const valor = partesApos(antes)[i].valor, inteira = partesApos(0)[i].valor;
+        const item = Object.assign({ id: id, pedido: p, base: baseDe(p), pct: pctDoPedido(p, b), descricao: p.cliente + ' - Pedido ' + p.numero + x.parte + (valor < inteira ? ' (menos a devolução)' : '') }, x, { valor: valor });
         if (aj.valor !== undefined) { item.valor = aj.valor; item.ajustada = true; }
         if (aj.prevista) { item.prevista = aj.prevista; item.ajustada = true; }
         // Comissao ja liberada no faturamento cuja parcela venceu sem o cliente pagar sai do saldo
@@ -2251,8 +2350,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         itens.push(item);
       });
     });
-    return itens;
+    return { itens: itens, estornos: estornos };
   }
+  function comissoesDe(b) { return comissoesEEstornosDe(b).itens; }
+  function estornosDe(b) { return comissoesEEstornosDe(b).estornos; }
   function lancamentosDe(b) {
     const g = lerLocal('deskComissoesLanc', {});
     return LANCAMENTOS_C.map(l => {
@@ -2299,15 +2400,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const refIni = (l) => l.ano + '-' + String(l.mes).padStart(2, '0') + '-01', refFim = (l) => isoDe(new Date(l.ano, l.mes, 0));
     const lDentro = (l) => refFim(l) >= ini && refIni(l) <= fim, lAntes = (l) => refFim(l) < ini;
     const soma = (lista, f) => lista.reduce((s, x) => s + f(x), 0);
-    const itens = comissoesDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
+    const itens = comissoesDe(b), estornos = estornosDe(b), lanc = lancamentosDe(b), pags = pagamentosDe(b);
     const lib = itens.filter(i => !i.cancelada && i.libera);
     const sinal = (l) => l.tipo === 'credito' ? l.valor : -l.valor;
     const r = {
-      anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) +
+      anterior: soma(lib.filter(i => antes(i.libera)), i => i.valor) - soma(itens.filter(i => antes(i.vencidaDebito)), i => i.valor) - soma(estornos.filter(e => antes(e.data)), e => e.valor) +
                 soma(lanc.filter(lAntes), sinal) - soma(pags.filter(x => antes(x.data)), x => x.valor),
       mes: soma(lib.filter(i => noPeriodo(i.libera)), i => i.valor),
       vencidas: soma(itens.filter(i => noPeriodo(i.vencidaDebito)), i => i.valor),
-      devolucoes: 0,
+      devolucoes: soma(estornos.filter(e => noPeriodo(e.data)), e => e.valor),   // os estornos de comissao ja liberada, por devolucao aceita dentro do prazo
       creditos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'credito'), l => l.valor),
       debitos: soma(lanc.filter(l => lDentro(l) && l.tipo === 'debito'), l => l.valor),
       pagamentos: soma(pags.filter(x => noPeriodo(x.data)), x => x.valor),
@@ -2318,7 +2419,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     r.pedidos = doPeriodo.length;
     r.vendido = soma(doPeriodo, baseDe);
     r.lucro = soma(doPeriodo, p => resultadoDoPedido(p).lucro);   // a conta unica do bloco RESULTADO DO PEDIDO
-    r.itens = itens; r.lancamentos = lanc.filter(lDentro); r.doMes = doPeriodo; r.pagamentosLista = pags.filter(x => noPeriodo(x.data));
+    r.itens = itens; r.estornos = estornos.filter(e => noPeriodo(e.data)); r.lancamentos = lanc.filter(lDentro); r.doMes = doPeriodo; r.pagamentosLista = pags.filter(x => noPeriodo(x.data));
     // O periodo e um mes inteiro: a conta chama a linha de "do mes". Qualquer outro, "do periodo".
     r.ehMes = ini.slice(8) === '01' && fim === isoDe(new Date(Number(ini.slice(0, 4)), Number(ini.slice(5, 7)), 0));
     return r;
@@ -2395,6 +2496,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (i.libera) add(i.libera, 'comissao', 'Comissão liberada: ' + nome, i.valor, i.valor, ped(i.pedido));
       if (i.vencidaDebito) add(i.vencidaDebito, 'comissao', 'Comissão vencida, o cliente não pagou: ' + nome, i.valor, -i.valor, ped(i.pedido));
     });
+    estornosDe(b).forEach(e => add(e.data, 'comissao', 'Estorno: devolução do pedido nº ' + e.pedido.numero + e.parte + ' (' + e.dev.numero + ')', e.valor, -e.valor, ped(e.pedido)));
     const ajustes = lerLocal('deskComissoesAjustes', {});
     Object.keys(ajustes).filter(k => k.indexOf(b.chave + ':') === 0 && ajustes[k].quando).forEach(k => {
       const aj = ajustes[k], p = PEDIDOS.filter(x => String(x.id) === k.split(':')[1].split('-')[0])[0];
@@ -2615,20 +2717,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
   }
   // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
-  // ===== RESULTADO DO PEDIDO (bloco comum, 22/out/2026) =====
+  // ===== RESULTADO DO PEDIDO (bloco comum, 22/out/2026; devolucao e cortesia, 27/out/2026) =====
   // A conta unica do lucro de um pedido. Identico em Custos do E-commerce, na pagina do pedido, nas duas telas de Comissoes e no cadastro
-  // do cliente; teste_custos_ecommerce.py compara as copias. Depende de tres blocos que a tela tem de trazer: PARAMETROS DO SISTEMA,
-  // COMISSOES: DADOS E REGRAS (a regra da comissao, que aqui so se APLICA) e GATEWAYS: LEITURA (a taxa). O dono do dado de cada parcela:
-  // frete cobrado e total sao do pedido; o frete que a loja pagou, o custo medio e a forma de pagamento tambem (campos do pedido);
-  // taxa e do gateway (Integracoes); comissao e de Comissoes; embalagem, custo base e situacoes sao de Custos do E-commerce, gravadas em
-  // `deskParametros.custosEcommerce` (so este bloco as le: o padrao de fabrica mora aqui, sem mexer nas outras telas).
-  //   venda      = total menos o frete cobrado (produtos menos desconto, mais despesas)
+  // do cliente; teste_custos_ecommerce.py compara as copias. Depende de quatro blocos que a tela tem de trazer: PARAMETROS DO SISTEMA,
+  // DEVOLUCOES: LEITURA (a devolucao e os itens do pedido), COMISSOES: DADOS E REGRAS (a regra da comissao, que aqui so se APLICA) e GATEWAYS: LEITURA
+  // (a taxa). O dono do dado de cada parcela: frete cobrado e total sao do pedido; o frete que a loja pagou, o custo medio e a forma de pagamento tambem
+  // (campos do pedido); taxa e do gateway (Integracoes); comissao e de Comissoes; a devolucao e da Devolucao; o vale de cortesia e de Financas > Vale-compra;
+  // embalagem, custo base e situacoes sao de Custos do E-commerce, gravadas em `deskParametros.custosEcommerce` (so este bloco as le: o padrao de fabrica
+  // mora aqui, sem mexer nas outras telas).
+  //   cortesia   = o que o pedido pagou com vale-compra de origem CORTESIA (os usos nao estornados): presente da loja, nao e receita
+  //   venda      = total menos o frete cobrado menos a cortesia (produtos menos desconto, mais despesas, menos o presente)
   //   difFrete   = frete pago pela loja menos o frete cobrado (negativo = a loja ganhou no frete); sem o dado, 0
-  //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0
-  //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes
-  //   embalagem  = embalagem da loja x unidades do pedido (sem `unidades`, 1: coerente com o item de exemplo da pagina do pedido)
+  //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0.
+  //                A taxa NAO volta com a devolucao (nao ha regra da InfinitePay para isso: considerar que fica e o lado seguro)
+  //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes (ja menos a devolucao dentro do prazo)
+  //   embalagem  = embalagem da loja x unidades do pedido (a soma das quantidades dos itens; sem itens, `unidades`; sem nada, 1)
   //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
-  //   lucro      = venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo;  margem = lucro / venda
+  //   devolucao  = valor dos itens devolvidos (devolucao aceita) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
+  //                perda) mais o frete da volta pago pela loja (`reversa.paga` 'nos'; pago pelo cliente ou coleta da nossa frota, 0)
+  //   lucro      = venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - devolucao;  margem = lucro / venda
   // Cada parcela e arredondada no centavo antes de somar.
   const CUSTOS_ECOM_PADRAO = {
     situacoes: ['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue'],   // todas menos Cancelado
@@ -2646,9 +2753,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   const resCent = (v) => Math.round(v * 100 + (v < 0 ? -1e-6 : 1e-6)) / 100 + 0;   // o + 0 tira o -0
   const resPct = (valor, pct) => Math.round(Math.round(valor * 100) * pct / 100 + 1e-6) / 100;
+  // Vale-compra de origem CORTESIA usado no pedido: a mesma leitura da pagina do pedido (valeUsosDoDoc): uso nem estornado nem perdido. RES_VALES_EXEMPLO e ESPELHO
+  // do exemplo que Financas > Vale-compra grava (so a origem e os usos): vale a enquanto o navegador nao o gravou (a marca `deskValesCompraExemplo` ainda nao existe).
+  const RES_VALES_EXEMPLO = [
+    { origem: 'cortesia', usos: [{ valor: 25, doc: { tipo: 'pedido', id: 16 } }, { valor: 15, doc: { tipo: 'pedido', id: 3 } }] },
+    { origem: 'cortesia', usos: [{ valor: 30, doc: { tipo: 'pedido', id: 10 } }] }
+  ];
+  function resCortesia(p) {
+    let vales = [], semeado = false;
+    try {
+      const g = JSON.parse(localStorage.getItem('deskValesCompra'));
+      vales = g && Array.isArray(g.vales) ? g.vales : [];
+      semeado = !!localStorage.getItem('deskValesCompraExemplo');
+    } catch (e) { vales = []; }
+    if (!semeado) vales = vales.concat(RES_VALES_EXEMPLO);
+    let soma = 0;
+    vales.filter(v => v.origem === 'cortesia').forEach(v => (v.usos || []).forEach(u => {
+      if (!u.estornado && !u.perdido && u.doc && u.doc.tipo === 'pedido' && String(u.doc.id) === String(p.id)) soma += Number(u.valor) || 0;
+    }));
+    return resCent(soma);
+  }
+  // A devolucao aceita do pedido: o valor dos itens, o custo que voltou (item revendavel), a perda (avariado ou perdido) e o frete da volta pago pela loja.
+  // O custo do item e o do pedido (o da compra ou o medio, conforme a configuracao). A devolucao ainda em analise (aberta) nao conta: so aparece como aviso.
+  function devolucaoDoPedido(p, cfg) {
+    const devs = devolucoesDoPedido(p), itens = ITENS_ONLINE[p.id] || [];
+    let devolvido = 0, recuperado = 0, perda = 0, freteVolta = 0;
+    devs.forEach(d => {
+      devolvido += totalItensDev(d);
+      d.itens.forEach(i => {
+        const x = itens.filter(y => y.sku === i.sku)[0], parte = i.qtd * (x ? (cfg.custoBase === 'medio' ? x.custoMedio : x.custo) : 0);
+        if (i.estado === 'revendavel') recuperado += parte; else perda += parte;
+      });
+      if (d.reversa && d.reversa.paga === 'nos') freteVolta += Number(d.reversa.real != null ? d.reversa.real : d.reversa.valor) || 0;
+    });
+    devolvido = resCent(devolvido); recuperado = resCent(recuperado); perda = resCent(perda); freteVolta = resCent(freteVolta);
+    const analise = devolucoesDoPedido(p, ['aberta']);
+    return { devolvido: devolvido, recuperado: recuperado, perda: perda, freteVolta: freteVolta, devolucao: resCent(devolvido - recuperado + freteVolta),
+             quantas: devs.length, emAnalise: analise.length, valorEmAnalise: resCent(analise.reduce((s, d) => s + totalItensDev(d), 0)) };
+  }
   function resultadoDoPedido(p) {
     const cfg = custosEcomLer();
-    const total = resCent(p.total), freteCobrado = resCent(p.frete || 0), venda = resCent(total - freteCobrado);
+    const total = resCent(p.total), freteCobrado = resCent(p.frete || 0), cortesia = resCortesia(p), venda = resCent(total - freteCobrado - cortesia);
     const semFretePago = p.fretePagoLoja === undefined || p.fretePagoLoja === null;
     const difFrete = semFretePago ? 0 : resCent(p.fretePagoLoja - freteCobrado);
     let taxa = 0, semTaxa = true;
@@ -2659,12 +2804,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
     const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
     const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
-    const unidades = p.unidades || 1;
+    const unidades = p.unidades || (ITENS_ONLINE[p.id] ? ITENS_ONLINE[p.id].reduce((s, i) => s + i.qtd, 0) : 1);
     const embalagem = resCent((Number(cfg.embalagemPorLoja[p.loja]) || 0) * unidades);
     const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
-    const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo);
-    return { venda: venda, freteCobrado: freteCobrado, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
-             embalagem: embalagem, custo: custo, lucro: lucro, margem: venda ? lucro / venda : 0, unidades: unidades,
+    const dv = devolucaoDoPedido(p, cfg);
+    const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - dv.devolucao);
+    return { venda: venda, freteCobrado: freteCobrado, cortesia: cortesia, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
+             embalagem: embalagem, custo: custo, devolucao: dv.devolucao, devolvido: dv.devolvido, custoRecuperado: dv.recuperado, perdaAvaria: dv.perda, freteVolta: dv.freteVolta,
+             devolucoesAceitas: dv.quantas, devolucaoEmAnalise: dv.emAnalise, valorEmAnalise: dv.valorEmAnalise, lucro: lucro, margem: venda ? lucro / venda : 0, unidades: unidades,
              semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago };
   }
   // ===== FIM DO BLOCO RESULTADO DO PEDIDO =====

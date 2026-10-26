@@ -1694,25 +1694,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `custo` = custo dos produtos, congelado no faturamento. Financas > Comissoes Afiliados calcula o lucro
   // com ele; a base da comissao e o total menos o frete.
   // Desde 22/out/2026 (Custos do E-commerce): `canal` = 'loja_virtual' (as vitrines; 1, 3, 4, 8, 9, 11, 12 e 16) ou 'manual'; `custoMedio` = custo medio
-  // congelado no faturamento (ao lado do `custo`, que e o da compra); `unidades` so onde o exemplo tem itens (sem ele, 1); e, so nos online,
+  // congelado no faturamento (ao lado do `custo`, que e o da compra); `unidades` so nos manuais que tem itens (2, 6 e 10; nos online as unidades sao a soma das quantidades dos itens; sem nada, 1); e, so nos online, `ufEntrega` (o estado de destino),
   // `fretePagoLoja` (o frete que a loja pagou) e `pagamento` { forma, bandeira, vezes }. O pedido 11 fica no prejuizo de proposito (frete gratis para longe).
   const PEDIDOS = [
-    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, unidades: 8 },
+    { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, ufEntrega: 'SP' },
     { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00, canal: 'manual', custoMedio: 5200.00, unidades: 23 },
-    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
-    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 } },
+    { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'MG' },
+    { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 }, ufEntrega: 'RJ' },
     { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10, canal: 'manual', custoMedio: 168.10 },
     { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00, canal: 'manual', custoMedio: 8110.00, unidades: 14 },
     { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00, canal: 'manual', custoMedio: 690.00 },
-    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 } },
-    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 } },
+    { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 }, ufEntrega: 'PR' },
+    { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'BA' },
     { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00, canal: 'manual', custoMedio: 2050.00, unidades: 32 },
-    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 } },
-    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 } },
+    { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 }, ufEntrega: 'AM' },
+    { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 }, ufEntrega: 'PE' },
     { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00, canal: 'manual', custoMedio: 5800.00 },
     { id: 14, numero: 14, dv: 25, dp: -20, cliente: 'Papelaria Central Ltda',       doc: '56.789.012/0001-34', loja: 2, vend: 2, total: 640.00, situacao: 'entregue',  pago: true, custo: 380.00, canal: 'manual', custoMedio: 380.00 },
     { id: 15, numero: 15, dv: 5,  dp: 2,  cliente: 'Marina Duarte',                 doc: '123.456.789-00',  loja: 3, vend: 0, total: 189.90,  situacao: 'cancelado',   pago: false, custo: 110.00, canal: 'manual', custoMedio: 110.00 },
-    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00, canal: 'loja_virtual', fretePagoLoja: 32.00, custoMedio: 1415.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 12 } }
+    { id: 16, numero: 16, dv: 28, dp: -24, cliente: 'Rafael Nogueira',              doc: '234.567.890-11',  loja: 1, vend: 0, total: 2340.00, situacao: 'entregue',    pago: true, custo: 1430.00, canal: 'loja_virtual', fretePagoLoja: 32.00, custoMedio: 1415.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 12 }, ufEntrega: 'SP' }
   ];
   PEDIDOS.forEach(p => {
     p.data = iso(dAtras(p.dv));
@@ -1724,17 +1724,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   const ITENS_PEDIDO = {
-    1:  [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'FON-BT-200', qtd: 2, un: 'UN', preco: 249.90 },
-         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', qtd: 4, un: 'UN', preco: 97.55 },
-         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 2, un: 'UN', preco: 495.00 }],
+    1:  [{ nome: 'Fone de Ouvido Bluetooth X200', sku: 'FON-BT-200', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 249.90, custo: 150.00, custoMedio: 146.90 },
+         { nome: 'Carregador Turbo 33W', sku: 'CAR-33W-01', categoria: 'Eletrônicos', qtd: 4, un: 'UN', preco: 97.55, custo: 58.50, custoMedio: 57.30 },
+         { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', categoria: 'Mobiliário e Decoração', qtd: 2, un: 'UN', preco: 495.00, custo: 297.00, custoMedio: 291.00 }],
     2:  [{ nome: 'Notebook Desk Pro 14', sku: 'NTB-PRO-14', qtd: 1, un: 'UN', preco: 5890.00 },
          { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 6, un: 'UN', preco: 231.10 },
          { nome: 'Cabo HDMI 2.1 2m', sku: 'CAB-HDM-009', qtd: 16, un: 'UN', preco: 9.50 }],
+    3:  [{ nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 1, un: 'UN', preco: 349.90, custo: 199.90, custoMedio: 205.40 }],
+    4:  [{ nome: 'Camiseta Básica Algodão', sku: 'VES-2001', categoria: 'Vestuário e Acessórios', qtd: 3, un: 'UN', preco: 39.90, custo: 23.90, custoMedio: 23.50 },
+         { nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 5, un: 'UN', preco: 18.50, custo: 11.10, custoMedio: 10.90 },
+         { nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 2, un: 'UN', preco: 199.90, custo: 120.00, custoMedio: 117.50 }],
     6:  [{ nome: 'Mesa de escritório 1,40m', sku: 'MES-140-CZ', qtd: 6, un: 'UN', preco: 1420.00 },
          { nome: 'Cadeira giratória executiva', sku: 'CAD-EXE-PT', qtd: 8, un: 'UN', preco: 495.00 }],
+    8:  [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 4, un: 'UN', preco: 18.50, custo: 11.30, custoMedio: 11.50 },
+         { nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 1, un: 'UN', preco: 349.90, custo: 213.30, custoMedio: 217.60 },
+         { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 59.90, custo: 36.50, custoMedio: 37.20 },
+         { nome: 'Kit Papelaria Volta às Aulas', sku: 'PAP-3002', categoria: 'Papelaria', qtd: 3, un: 'UN', preco: 64.90, custo: 39.50, custoMedio: 40.30 }],
+    9:  [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 3, un: 'UN', preco: 18.50, custo: 10.90, custoMedio: 10.70 },
+         { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', categoria: 'Mobiliário e Decoração', qtd: 5, un: 'UN', preco: 79.90, custo: 47.06, custoMedio: 46.08 }],
     10: [{ nome: 'Kit Manutenção Desk Tech', sku: 'KIT-MAN-01', qtd: 5, un: 'UN', preco: 289.90 },
          { nome: 'Cabo HDMI 2.1 2m', sku: 'CAB-HDM-009', qtd: 20, un: 'UN', preco: 9.50 },
-         { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 7, un: 'UN', preco: 231.10 }]
+         { nome: 'Teclado Mecânico Compacto', sku: 'TEC-MEC-006', qtd: 7, un: 'UN', preco: 231.10 }],
+    11: [{ nome: 'Camiseta Básica Algodão', sku: 'VES-2001', categoria: 'Vestuário e Acessórios', qtd: 1, un: 'UN', preco: 39.90, custo: 23.20, custoMedio: 23.80 },
+         { nome: 'Carregador USB-C 20W', sku: 'ELE-1004', categoria: 'Eletrônicos', qtd: 4, un: 'UN', preco: 45.00, custo: 26.20, custoMedio: 26.85 }],
+    12: [{ nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 3, un: 'UN', preco: 199.90, custo: 118.00, custoMedio: 116.70 },
+         { nome: 'Kit Papelaria Volta às Aulas', sku: 'PAP-3002', categoria: 'Papelaria', qtd: 4, un: 'UN', preco: 64.90, custo: 38.20, custoMedio: 37.90 },
+         { nome: 'Organizador de Mesa Bambu', sku: 'MOB-4003', categoria: 'Mobiliário e Decoração', qtd: 3, un: 'UN', preco: 54.90, custo: 32.40, custoMedio: 32.10 }],
+    16: [{ nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', categoria: 'Papelaria', qtd: 6, un: 'UN', preco: 18.50, custo: 11.30, custoMedio: 11.20 },
+         { nome: 'Kit Escritório Completo', sku: 'MOB-4001', categoria: 'Mobiliário e Decoração', qtd: 5, un: 'UN', preco: 349.90, custo: 213.80, custoMedio: 211.60 },
+         { nome: 'Tênis Esportivo Runner', sku: 'VES-2002', categoria: 'Vestuário e Acessórios', qtd: 1, un: 'UN', preco: 199.90, custo: 122.30, custoMedio: 120.80 },
+         { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', categoria: 'Eletrônicos', qtd: 2, un: 'UN', preco: 59.90, custo: 36.60, custoMedio: 36.20 },
+         { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', categoria: 'Mobiliário e Decoração', qtd: 2, un: 'UN', preco: 79.90, custo: 48.85, custoMedio: 48.30 }]
   };
   const ITENS_PADRAO = [{ nome: 'Item de exemplo', sku: '—', qtd: 1, un: 'UN', preco: 0 }];
 
