@@ -431,6 +431,8 @@
   .parcela-chip span { font-size:11.5px; color:var(--text); }
   .parcela-chip b { font-size:13.5px; font-weight:800; color:var(--text-heading); }
   .parcelas-nota { font-family:'Nunito',sans-serif; font-size:11.5px; color:var(--text); margin-top:9px; width:100%; }
+  .parcelas-erro { font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; color:var(--danger); width:100%; }
+  .parcelas-erro a { color:var(--active-text); font-weight:700; }
   /* Vale-compra do cliente (entrega 2, 19/out/2026): o saldo na loja do pedido e o campo "Usar do vale". Em leitura vira so o texto. */
   .vale-pago { font-size:13.5px; color:var(--text-heading); margin-bottom:6px; }
   .vale-pago a { color:var(--active-text); font-weight:700; text-decoration:none; }
@@ -3522,6 +3524,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function planoDeParcelas(total) {
     const n = Number(document.getElementById('inputCondicao').getAttribute('data-value')) || 1;
     const bruto = (total === undefined) ? recalcularTotais() : total;
+    const cartao = planoDoCartao(bruto);
+    if (cartao) return cartao.itens;   // no cartao quem manda e o gateway; sem condicao no gateway a lista vem vazia e o Salvar fica bloqueado
     const centavos = Math.round(bruto * 100);
     const base = Math.floor(centavos / n);
     const sobra = centavos - base * n;
@@ -3533,6 +3537,72 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return lista;
   }
 
+  // ===== O CARTAO NO PEDIDO: as contas a receber pelo gateway (ajuste do teste, 23/out/2026) =====
+  // So no cartao de credito e no de debito. O gateway do pedido da loja virtual e a InfinitePay habilitada na loja (a mesma conta do Resultado do pedido, para a taxa
+  // ser o mesmo numero); nos outros pedidos e o gateway padrao da forma, como no PDV. A bandeira e a do pagamento do pedido, ou a padrao do gateway. A condicao
+  // (taxa, tarifa e prazo em dias UTEIS) vem de gwlCondicao. Gateway ANTECIPADO: uma conta so, o valor inteiro menos a taxa, no prazo do gateway. Sem antecipacao: uma
+  // conta por parcela, cada uma com a sua parte da taxa, a primeira no prazo do gateway e as outras um mes depois (passadas pelo dia util). Sem gateway ou sem a linha
+  // da condicao: o aviso fica a vista e o Salvar bloqueia (a mesma regra do PDV, 14.93). Boleto, Pix, dinheiro e crediario seguem o plano de sempre, mais abaixo.
+  // shortcut: so feriado nacional de data fixa (a mesma lista do PDV); Carnaval, Sexta-feira Santa, Corpus Christi e feriado local entram com o calendario de feriados.
+  const FERIADOS_FIXOS = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '20/11', '25/12'];
+  function diaUtil(d) { return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(brData(d).slice(0, 5)) === -1; }
+  // Soma `n` dias UTEIS (sabado, domingo e feriado nao contam). Zero e o mesmo dia.
+  function maisDiasUteis(d, n) { const x = new Date(d.getTime()); while (n > 0) { x.setDate(x.getDate() + 1); if (diaUtil(x)) n -= 1; } return x; }
+  // O proprio dia, se for util; senao o primeiro dia util depois.
+  function paraDiaUtil(d) { const x = new Date(d.getTime()); while (!diaUtil(x)) x.setDate(x.getDate() + 1); return x; }
+  // Soma `n` meses; dia 31 num mes de 30 cai no ultimo dia do mes (setMonth puro pularia para o mes seguinte).
+  function maisMeses(d, n) { const x = new Date(d.getFullYear(), d.getMonth() + n, 1); x.setDate(Math.min(d.getDate(), new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; }
+  // Divide em centavos: a sobra vai toda para a primeira (a mesma regra das parcelas de sempre).
+  function dividirCentavos(valor, n) {
+    const c = Math.round(valor * 100), base = Math.floor(c / n), sobra = c - base * n;
+    return Array.from({ length: n }, (_, i) => (base + (i === 0 ? sobra : 0)) / 100);
+  }
+  const LINK_GATEWAYS = '<a href="../integracoes/pagina-integracoes-gateways.html">Ver os gateways</a>';
+  // O plano do cartao para o que falta receber (`total`), ou nulo quando a forma nao e cartao (ou nao ha nada a receber). Com `motivo`, o cartao nao tem condicao.
+  function planoDoCartao(total) {
+    const forma = document.getElementById('inputRecebimento').getAttribute('data-value');
+    if ((forma !== 'credito' && forma !== 'debito') || !(total > 0.004)) return null;
+    const online = PEDIDO.canal === 'loja_virtual';
+    const g = online ? (gwlHabilitados(lojaAtual(), 'infinitepay')[0] || null) : gwlPadraoDaForma(forma);
+    const vezes = forma === 'credito' ? (Number(document.getElementById('inputCondicao').getAttribute('data-value')) || 1) : 1;
+    const bandeira = (PEDIDO.pagamento && PEDIDO.pagamento.bandeira) || (g ? gwlBandeiraPadrao(g) : '') || '';
+    const plano = { forma: forma, vezes: vezes, gateway: g, bandeira: bandeira, itens: [], motivo: '' };
+    const nomeForma = forma === 'credito' ? 'cartão de crédito' : 'cartão de débito';
+    if (!g) {
+      plano.motivo = online ? 'A loja do pedido não tem gateway InfinitePay habilitado para a loja virtual' : 'Não há gateway habilitado para o ' + nomeForma;
+      return plano;
+    }
+    const c = gwlCondicao(g, forma, bandeira, vezes);
+    if (!c) {
+      plano.motivo = g.descricao + ' não tem a condição do ' + nomeForma + (bandeira ? ' ' + (GWL_BANDEIRAS[bandeira] || bandeira) : '') + (forma === 'credito' ? ' em ' + vezes + 'x' : '');
+      return plano;
+    }
+    const taxa = resCent(resPct(total, c.taxa) + c.tarifa);   // a mesma conta do Resultado do pedido: sobre o total, mais a tarifa
+    const antecipado = g.antecipacao === 'antecipado', n = antecipado ? 1 : vezes;
+    const valores = dividirCentavos(total, n), taxas = dividirCentavos(taxa, n), primeiro = maisDiasUteis(HOJE, c.prazo);
+    plano.itens = valores.map((v, i) => ({ n: i + 1, de: n, valor: v, taxa: taxas[i], liquido: resCent(v - taxas[i]),
+      venc: brData(i === 0 ? primeiro : paraDiaUtil(maisMeses(primeiro, i))), conta: gwlConta(g) }));
+    plano.antecipado = antecipado; plano.bruto = resCent(total); plano.taxa = taxa; plano.liquido = resCent(total - taxa); plano.prazo = c.prazo;
+    return plano;
+  }
+  function notaDoCartao(pl) {
+    const conta = esc(pl.itens[0].conta.nome), quando = pl.forma === 'debito' ? 'No <b>débito</b> do cliente' : pl.vezes === 1 ? 'No cartão <b>à vista</b> do cliente' : 'No cartão em <b>' + pl.vezes + 'x</b> do cliente';
+    if (pl.antecipado) {
+      const it = pl.itens[0];
+      return quando + ', o gateway antecipado deposita tudo de uma vez: nasce <b>1 conta a receber</b> de ' + fmtMoeda(pl.bruto) + ', com ' + fmtMoeda(pl.taxa) +
+        ' de taxa, <b>' + fmtMoeda(pl.liquido) + '</b> em ' + it.venc.slice(0, 5) + ', na conta ' + conta + '.';
+    }
+    return quando + ', o gateway sem antecipação paga cada parcela no mês dela: nascem <b>' + pl.itens.length + ' contas a receber</b>, uma por parcela, todas ligadas a este pedido e na conta ' +
+      conta + '. Líquido total <b>' + fmtMoeda(pl.liquido) + '</b> (' + fmtMoeda(pl.bruto) + ' menos ' + fmtMoeda(pl.taxa) + ' de taxa). A diferença de centavos da divisão fica na <b>primeira</b> parcela.';
+  }
+  // O que o Salvar anuncia que vai nascer: no cartao, o plano do gateway; nas outras formas, a frase de sempre.
+  function fraseNascer(receber) {
+    const pl = planoDoCartao(receber);
+    if (!pl || pl.motivo) return 'a conta a receber de ' + fmtMoeda(receber);
+    return pl.antecipado ? 'a conta a receber de ' + fmtMoeda(pl.bruto) + ' (líquido de ' + fmtMoeda(pl.liquido) + ' em ' + pl.itens[0].venc + ', já sem a taxa de ' + fmtMoeda(pl.taxa) + ')'
+                         : pl.itens.length + ' contas a receber, uma por parcela (líquido total de ' + fmtMoeda(pl.liquido) + ', já sem a taxa de ' + fmtMoeda(pl.taxa) + ')';
+  }
+
   function renderParcelas(total, vale) {
     const linha = document.getElementById('linhaParcelas');
     const alvo = document.getElementById('previaParcelas');
@@ -3540,6 +3610,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // O que o vale-compra pagou: a previa diz quanto, e as parcelas abaixo valem so para o que falta.
     const doVale = vale > 0 ? '<div class="parcelas-nota" id="notaVale"><b>' + fmtMoeda(vale) + '</b> pagos com vale-compra' +
       (total > 0 ? '; as parcelas valem para os <b>' + fmtMoeda(total) + '</b> que faltam receber.' : ': o pedido inteiro, sem conta a receber em aberto.') + '</div>' : '';
+    const cartao = planoDoCartao(total);
+    if (cartao) {
+      linha.style.display = '';
+      alvo.innerHTML = cartao.motivo
+        ? '<div class="parcelas-erro" id="erroCartao">' + esc(cartao.motivo) + '. O pedido não pode ser salvo assim: ajuste o gateway ou troque a forma de recebimento. ' + LINK_GATEWAYS + '</div>' + doVale
+        : cartao.itens.map(x => '<div class="parcela-chip" title="Bruto ' + fmtMoeda(x.valor) + ' · taxa ' + fmtMoeda(x.taxa) + ' · líquido ' + fmtMoeda(x.liquido) + '"><span>' + x.n + '/' + x.de +
+            '</span><b>' + fmtMoeda(x.liquido) + '</b><span>' + x.venc + '</span></div>').join('') + '<div class="parcelas-nota" id="notaCartao">' + notaDoCartao(cartao) + '</div>' + doVale;
+      return;
+    }
     if (plano.length <= 1 && !doVale) { linha.style.display = 'none'; alvo.innerHTML = ''; return; }
     linha.style.display = '';
     alvo.innerHTML = (plano.length <= 1 ? '' : plano.map(x =>
@@ -3761,6 +3840,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.getElementById('erroVale').textContent = msgVale.charAt(0).toUpperCase() + msgVale.slice(1);
       motivos.push(msgVale);
     }
+    // A trava do cartao: sem gateway ou sem a condicao dele para a bandeira e as vezes, o pedido nao nasce (a regra do PDV).
+    const semCondicao = planoDoCartao(aReceber);
+    if (semCondicao && semCondicao.motivo) {
+      erro = true;
+      motivos.push(semCondicao.motivo + '. Ajuste o gateway em Integrações → Gateways de Pagamento ou troque a forma de recebimento.');
+    }
     document.getElementById('erroCredito').classList.toggle('show', estouro);
     if (estouro) {
       erro = true;
@@ -3795,8 +3880,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     confirmarAcao('pedidosCria',
       valePedido > 0
         ? 'Salvar este pedido reserva o estoque dos itens, tira ' + fmtMoeda(valePedido) + ' do vale-compra do cliente e ' +
-          (receber > 0 ? 'faz nascer a conta a receber de ' + fmtMoeda(receber) : 'paga o pedido inteiro, sem conta a receber em aberto') + '. Confirma?'
-        : 'Salvar este pedido reserva o estoque dos itens e faz nascer a conta a receber de ' + fmtMoeda(total) + '. Confirma?',
+          (receber > 0 ? 'faz nascer ' + fraseNascer(receber) : 'paga o pedido inteiro, sem conta a receber em aberto') + '. Confirma?'
+        : 'Salvar este pedido reserva o estoque dos itens e faz nascer ' + fraseNascer(total) + '. Confirma?',
       () => {
         // Vale-compra: o que o pedido ja usava e estornado e o valor novo e gravado; se nao der, volta tudo como estava.
         let valeMsg = '';
@@ -3825,8 +3910,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         }
         if (ehNovo) { PEDIDO.numero = numeroPedido; document.getElementById('inputNumero').value = String(numeroPedido); }
         const plano = planoDeParcelas(receber);
+        const cartaoSalvo = planoDoCartao(receber);
         const contas = receber <= 0.004
           ? 'nenhuma conta a receber ficou em aberto: o vale-compra pagou o pedido inteiro'
+          : cartaoSalvo && cartaoSalvo.antecipado
+          ? 'a conta a receber de ' + fmtMoeda(cartaoSalvo.bruto) + ' nasceu em aberto, com ' + fmtMoeda(cartaoSalvo.taxa) + ' de taxa: líquido de ' + fmtMoeda(cartaoSalvo.liquido) +
+            ' em ' + plano[0].venc + ', na conta ' + cartaoSalvo.itens[0].conta.nome
+          : cartaoSalvo
+          ? plano.length + ' contas a receber nasceram em aberto, de ' + fmtMoeda(plano[0].valor) + ' a ' + fmtMoeda(plano[plano.length - 1].valor) + ' (líquido total de ' +
+            fmtMoeda(cartaoSalvo.liquido) + ', já sem ' + fmtMoeda(cartaoSalvo.taxa) + ' de taxa), vencendo de ' + plano[0].venc + ' a ' + plano[plano.length - 1].venc +
+            ', na conta ' + cartaoSalvo.itens[0].conta.nome
           : plano.length === 1
           ? 'a conta a receber de ' + fmtMoeda(receber) + ' nasceu em aberto'
           : plano.length + ' contas a receber nasceram em aberto, de ' + fmtMoeda(plano[0].valor) +
@@ -4104,7 +4197,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   inicializarDropdownSelect(document.getElementById('inputVendedor'), () => recalcularTotais());
   inicializarDropdownSelect(document.getElementById('inputTipoPessoa'));
-  inicializarDropdownSelect(document.getElementById('inputRecebimento'));
+  inicializarDropdownSelect(document.getElementById('inputRecebimento'), () => recalcularTotais());   // no cartao as contas a receber dependem da forma
   inicializarDropdownSelect(document.getElementById('inputCondicao'), () => recalcularTotais());
   inicializarDropdownSelect(document.getElementById('inputEnvio'));
   inicializarDropdownSelect(document.getElementById('inputExpedicao'));
@@ -4114,6 +4207,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     trocarDeposito(DEPOSITO_PADRAO_DA_LOJA[Number(v)] || 1);
     renderItens();
     pintarQuadroVale(true);   // o vale so vale na loja que emitiu: outra loja, outro saldo
+    recalcularTotais();       // o gateway do cartao e o da loja
   });
 
   // ===== MODAL =====

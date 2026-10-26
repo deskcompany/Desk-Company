@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 22/out/2026: Custos do E-commerce, entrega 1, aprovada; pausa por cota, com o ajuste da barra e as entregas 2 e 3 na fila. A calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 26/out/2026: Custos do E-commerce, entrega 1, aprovada; os dois ajustes do teste (a barra e o pedido no cartão) feitos, esperando o teste dele; o pedido copiado e as entregas 2 e 3 na fila. A calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -12,25 +12,16 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 **Custos do E-commerce: entrega 1 testada e aprovada pelo usuário em 22/out** (o que foi feito e a barganha estão no
 HISTORICO.md; o detalhe no §14.95). Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. **Pausa por
-cota** (22/out, 92% da semanal usados): retomar numa conversa nova, por aqui. Ao voltar, nesta ordem:
+cota** (22/out, 92% da semanal usados). **Feitos em 26/out, esperando o teste dele (§14.96):** a barra de custos ("Divisão do faturamento",
+com a legenda em grade) e o pedido no cartão (as contas a receber pelo gateway: com o gateway antecipado, uma conta só, líquida da
+taxa, no dia útil seguinte; sem antecipação, uma por parcela; sem condição no gateway, o Salvar bloqueia). Ao voltar, nesta ordem:
 
-1. **Ajuste da barra, pedido no teste:** o título "Para onde vai cada R$ 100 vendidos" não ficou claro; trocar por um nome
-   direto (proposta a barganhar: "Composição da venda" ou "Do que se vende, quanto fica com cada custo"). A legenda fica
-   desarrumada: cada nome junto da sua cor, alinhados, e o conjunto mais centralizado.
-2. **Responder a ele sobre o "pedido copiado"** (decisão (3) do executor, §14.95). Explicação dada em 22/out: o pedido copiado
+1. **Responder a ele sobre o "pedido copiado"** (decisão (3) do executor, §14.95). Explicação dada em 22/out: o pedido copiado
    (o clone, na página do pedido) é um pedido novo digitado no ERP, por isso nasce como venda manual e não traz o frete pago
    pela loja nem o pagamento do original; e a caixa "Resultado do pedido" mostra um aviso, em vez de números, no pedido novo,
    no copiado, no do PDV e na página aberta sem escolher um pedido, porque ainda não há pedido salvo para fazer a conta.
    Recomendação: manter. Esperando o ok dele.
-3. **O pedido no cartão faz nascer as contas a receber erradas** (achado dele em 22/out, no pedido nº 1: crédito 3x mostra
-   3 parcelas de R$ 630,00, a 30 dias uma da outra, e "Salvar faz nascer 3 contas a receber"). Com gateway **antecipado**,
-   como a InfinitePay, o certo é **uma conta só**: valor da venda, menos a taxa daquela parcela, vencendo no dia útil seguinte
-   (no nº 1: R$ 1.890,00 − 6,09% = R$ 1.774,90 líquido), na conta do gateway. A conta a receber já tem os campos de valor,
-   taxa e líquido (§11 da arquitetura). Parcelas mensais continuam valendo para o gateway **sem** antecipação (cada parcela cai
-   num mês) e para o que é a prazo da própria loja (boleto, crediário). Causa: a página do pedido ainda não lê o gateway (o
-   PDV já lê, §14.93). Barganhar e consertar antes das entregas 2 e 3, porque a taxa do Resultado do pedido e a conta a
-   receber precisam dizer o mesmo número.
-4. **Entregas 2 e 3**, abaixo.
+2. **Entregas 2 e 3**, abaixo.
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:**
 ele informou que a venda no cartão, mesmo parcelada, cai inteira no dia útil seguinte, já sem a taxa. Já estava assim: o

@@ -349,6 +349,7 @@ with sync_playwright() as p:
         pg.evaluate("PARAM.bloquearPedidoAtrasoDias = 0")
         total_ped = pg.evaluate("recalcularTotais()")
         ok('R$ 120,00' in pg.inner_text('#quadroValePedido') and pg.input_value('#inputValeUsar') == '', 'pedido nº 1 (Marina, loja 1): o quadro mostra o saldo de R$ 120,00 e o campo começa vazio')
+        escolher('inputRecebimento', 'boleto')   # o pedido nº 1 e no cartao (uma conta so, pelo gateway: teste_pedido_cartao.py); a divisao em parcelas e a das outras formas
         escolher('inputCondicao', 3)
         pg.fill('#inputValeUsar', '100'); pg.wait_for_timeout(250)
         chips = pg.evaluate("[...document.querySelectorAll('#previaParcelas .parcela-chip b')].map(b => paraNumero(b.textContent))")
@@ -357,6 +358,7 @@ with sync_playwright() as p:
         pg.fill('#inputValeUsar', ''); pg.wait_for_timeout(200)
         chips = pg.evaluate("[...document.querySelectorAll('#previaParcelas .parcela-chip b')].map(b => paraNumero(b.textContent))")
         ok(pg.locator('#notaVale').count() == 0 and abs(sum(chips) - total_ped) < 0.005, 'sem vale, as parcelas voltam a somar o total')
+        escolher('inputRecebimento', 'credito')
         # --- validacoes
         escolher('inputCondicao', 1)
         for txt, trecho in (('120,01', 'R$ 120,00 de vale-compra nesta loja'), ('99999', 'R$ 120,00 de vale-compra nesta loja')):

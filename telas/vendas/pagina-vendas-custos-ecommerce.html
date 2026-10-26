@@ -947,13 +947,18 @@
   .ce-kpis .kpi-card.filtra.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
   .ce-kpis .kpi-card.filtra:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
   .ce-barra-card { padding:16px 18px; margin-bottom:14px; }
-  .ce-barra-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); margin-bottom:12px; }
+  .ce-barra-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); }
+  .ce-barra-apoio { font-size:11.5px; color:var(--text); opacity:0.85; margin:2px 0 12px; }
   .ce-barra-escopo { font-weight:600; color:var(--text); }
   .ce-barra { display:flex; height:22px; border-radius:11px; overflow:hidden; background:var(--border); }
   .ce-barra > span { display:block; height:100%; min-width:2px; }
-  .ce-legenda { display:flex; flex-wrap:wrap; gap:8px 24px; margin-top:12px; }
-  .ce-leg { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text); }
-  .ce-leg i { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  /* Legenda em grade de 3 colunas iguais (2 em tela estreita), centralizada sob a barra: cada nome fica colado a sua cor e as colunas alinham. */
+  .ce-legenda { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px 24px; max-width:720px; margin:14px auto 0; }
+  .ce-leg { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--text); min-width:0; }
+  .ce-leg-vazio { grid-column:1 / -1; justify-content:center; }
+  .ce-leg-t { display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .ce-leg i { width:10px; height:10px; border-radius:3px; flex-shrink:0; margin-top:3px; }
+  @media (max-width:900px) { .ce-legenda { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   .ce-leg b { color:var(--text-heading); font-weight:800; }
   .ce-leg em { font-style:normal; font-size:11px; color:var(--text); opacity:0.85; }
   .ce-filtro-grupo { display:flex; align-items:center; gap:12px; margin-bottom:14px; font-size:13px; font-weight:700; color:var(--text-heading); }
@@ -1249,7 +1254,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="card ce-barra-card">
-    <div class="ce-barra-titulo">Para onde vai cada R$ 100 vendidos <span class="ce-barra-escopo" id="escopoBarra"></span></div>
+    <div class="ce-barra-titulo">Divisão do faturamento <span class="ce-barra-escopo" id="escopoBarra"></span></div>
+    <div class="ce-barra-apoio">De tudo o que foi vendido, quanto foi para cada custo e quanto ficou de lucro.</div>
     <div class="ce-barra" id="barraDivisao" role="img" aria-label="Divisão do faturamento"></div>
     <div class="ce-legenda" id="legendaDivisao"></div>
   </div>
@@ -2980,7 +2986,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       c.classList.toggle('on', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
   }
-  // ---------- a barra: para onde vai cada R$ 100 ----------
+  // ---------- a barra: a divisão do faturamento ----------
   const PARTES_BARRA = [
     { k: 'custo',     t: 'Custo dos produtos', cor: 'var(--chart-1)' },
     { k: 'frete',     t: 'Frete',              cor: 'var(--warning)' },
@@ -2995,12 +3001,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                 embalagem: soma(base, 'embalagem'), lucro: soma(base, 'lucro') };
     const barra = document.getElementById('barraDivisao'), leg = document.getElementById('legendaDivisao');
     texto('escopoBarra', fCard === 'prejuizo' ? '· só os pedidos no prejuízo' : fCard === 'semcusto' ? '· só os pedidos sem custo' : '');
-    if (!fat) { barra.innerHTML = ''; leg.innerHTML = '<span class="ce-leg">Sem venda no filtro.</span>'; return; }
+    if (!fat) { barra.innerHTML = ''; leg.innerHTML = '<span class="ce-leg ce-leg-vazio">Sem venda no filtro.</span>'; return; }
     // Parte negativa (lucro no prejuizo, ou o frete que a loja ganhou) nao cabe numa barra: fica so na legenda.
     const naBarra = PARTES_BARRA.filter(p => v[p.k] > 0), total = naBarra.reduce((s, p) => s + v[p.k], 0);
     barra.innerHTML = naBarra.map(p => '<span data-parte="' + p.k + '" style="width:' + (v[p.k] / total * 100).toFixed(3) + '%; background:' + p.cor + ';" title="' + p.t + ': ' + moedaC(v[p.k]) + '"></span>').join('');
-    leg.innerHTML = PARTES_BARRA.map(p => '<span class="ce-leg' + (v[p.k] > 0 ? '' : ' fora') + '" data-parte="' + p.k + '"><i style="background:' + p.cor + ';"></i>' + p.t + ' <b>' + sinalC(v[p.k]) + '</b> · ' + pctF(v[p.k] / fat) +
-      (v[p.k] > 0 ? '' : ' <em>fora da barra</em>') + '</span>').join('');
+    leg.innerHTML = PARTES_BARRA.map(p => '<span class="ce-leg' + (v[p.k] > 0 ? '' : ' fora') + '" data-parte="' + p.k + '"><i style="background:' + p.cor + ';"></i><span class="ce-leg-t"><span>' + p.t + '</span><span><b>' + sinalC(v[p.k]) + '</b> · ' + pctF(v[p.k] / fat) +
+      (v[p.k] > 0 ? '' : ' <em>fora da barra</em>') + '</span></span></span>').join('');
   }
 
   // ---------- a tabela ----------

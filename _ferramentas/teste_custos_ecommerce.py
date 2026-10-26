@@ -204,7 +204,30 @@ with sync_playwright() as p:
         leg = texto('#legendaDivisao')
         ok(all(t in leg for t in ('Custo dos produtos', 'Frete', 'Taxa do gateway', 'Comissão', 'Embalagem', 'Lucro')) and br(luc) in leg and pct(luc / fat) in leg,
            'a legenda traz o nome, o valor em R$ e o % de cada parte')
-        ok(texto('.ce-barra-titulo') == 'Para onde vai cada R$ 100 vendidos', 'o título da barra')
+        ok(texto('.ce-barra-titulo') == 'Divisão do faturamento', 'o título da barra: %s' % texto('.ce-barra-titulo'))
+        ok(texto('.ce-barra-apoio') == 'De tudo o que foi vendido, quanto foi para cada custo e quanto ficou de lucro.', 'a linha de apoio embaixo do título')
+        ok(pg.evaluate("parseFloat(getComputedStyle(document.querySelector('.ce-barra-apoio')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ce-barra-titulo')).fontSize)"), 'a linha de apoio é menor que o título')
+        # a legenda: grade de 3 colunas iguais, cada valor colado ao seu nome, centralizada sob a barra
+        itens = pg.evaluate("""Array.from(document.querySelectorAll('#legendaDivisao > .ce-leg')).map(e => {
+            const r = e.getBoundingClientRect(), t = e.querySelector('.ce-leg-t').children, i = e.querySelector('i').getBoundingClientRect();
+            return { k: e.getAttribute('data-parte'), nome: t[0].textContent.trim(), valor: t[1].textContent.replace(/\\s+/g, ' ').trim(), x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width),
+                     cor: getComputedStyle(e.querySelector('i')).backgroundColor, dotY: Math.round(i.top), nomeY: Math.round(t[0].getBoundingClientRect().top), valY: Math.round(t[1].getBoundingClientRect().top) } })""")
+        esperado = [('custo', 'Custo dos produtos', sum(o['custo'] for o in ors)), ('frete', 'Frete', sum(o['dif'] for o in ors)), ('taxa', 'Taxa do gateway', sum(o['taxa'] for o in ors)),
+                    ('comissao', 'Comissão', sum(o['comissao'] for o in ors)), ('embalagem', 'Embalagem', sum(o['embalagem'] for o in ors)), ('lucro', 'Lucro', luc)]
+        ok([(i['k'], i['nome']) for i in itens] == [(k, n) for k, n, _ in esperado], 'a legenda: os 6 itens na ordem, cada um com o seu nome: %s' % [i['nome'] for i in itens])
+        ok(all(i['valor'].startswith(br(v)) and (pct(v / fat) in i['valor']) for i, (_, _, v) in zip(itens, esperado)), 'cada valor em R$ e o %% estão junto do nome certo: %s' % [i['valor'] for i in itens])
+        ok(all(i['valY'] > i['nomeY'] for i in itens), 'o valor fica embaixo do nome')
+        ok(len({i['cor'] for i in itens}) == 6 and all(abs(i['dotY'] - i['nomeY']) <= 6 for i in itens), 'cada nome tem a bolinha da sua cor, ao lado, e as 6 cores são diferentes')
+        ok(len({i['x'] for i in itens}) == 3 and itens[0]['x'] == itens[3]['x'] and itens[1]['x'] == itens[4]['x'] and itens[2]['x'] == itens[5]['x'], 'a grade tem 3 colunas alinhadas: x = %s' % [i['x'] for i in itens])
+        ok(len({i['y'] for i in itens}) == 2 and itens[0]['y'] == itens[1]['y'] == itens[2]['y'] and itens[3]['y'] > itens[0]['y'], 'e 2 linhas: y = %s' % [i['y'] for i in itens])
+        ok(len({i['w'] for i in itens}) == 1, 'as 3 colunas têm a mesma largura: %s' % sorted({i['w'] for i in itens}))
+        cen = pg.evaluate("""(() => { const l = document.getElementById('legendaDivisao').getBoundingClientRect(), c = document.querySelector('.ce-barra-card').getBoundingClientRect(),
+            cs = getComputedStyle(document.getElementById('legendaDivisao')); return [l.left - c.left, c.right - l.right, l.width, cs.maxWidth]; })()""")
+        ok(abs(cen[0] - cen[1]) <= 1 and cen[2] <= 720.5, 'o bloco da legenda está centralizado sob a barra (sobra %.0f / %.0f) e tem largura máxima (%.0f)' % (cen[0], cen[1], cen[2]))
+        pg.set_viewport_size({'width': 860, 'height': 900}); pg.wait_for_timeout(150)
+        x860 = pg.evaluate("Array.from(document.querySelectorAll('#legendaDivisao > .ce-leg')).map(e => Math.round(e.getBoundingClientRect().left))")
+        ok(len(set(x860)) == 2, 'em tela estreita cai para 2 colunas: x = %s' % x860)
+        pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(150)
         pg.click('[data-kpi="prejuizo"]'); pg.wait_for_timeout(150)
         partes = pg.evaluate("Array.from(document.querySelectorAll('#barraDivisao > span')).map(s => s.getAttribute('data-parte'))")
         ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 32,49' in texto('#legendaDivisao'), 'lucro negativo fica na legenda, fora da barra: %s' % partes)
