@@ -9,7 +9,7 @@ c2 = lambda x: x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 TAXAS_LINK = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66]   # InfinitePay, Link de pagamento, 1x a 12x
 PADRAO_EMB = {1: 5, 2: 8, 3: 0}
 # Os itens dos pedidos de venda que tem itens no exemplo (ITENS_PEDIDO): sku, nome, categoria, qtd, preco, custo e custo medio de UMA unidade.
-# Os online (1, 3, 4, 8, 9, 11, 12, 16) fecham no total (itens mais frete), na soma do custo e na do custo medio; 2, 6 e 10 sao manuais e so entram nas unidades.
+# Os online (1, 3, 4, 8, 9, 11, 12, 16) fecham no total (itens mais frete), na soma do custo e na do custo medio.
 ITENS = {
     1:  [('FON-BT-200', 'Fone de Ouvido Bluetooth X200', 'Eletrônicos', 2, 249.90, 150.00, 146.90),
          ('CAR-33W-01', 'Carregador Turbo 33W', 'Eletrônicos', 4, 97.55, 58.50, 57.30),
@@ -36,7 +36,6 @@ ITENS = {
          ('MOB-4002', 'Luminária de Mesa LED', 'Mobiliário e Decoração', 2, 79.90, 48.85, 48.30)],
 }
 ONLINE = (1, 3, 4, 8, 9, 11, 12, 16)
-UNIDADES = {1: 8, 2: 23, 3: 1, 4: 10, 6: 14, 8: 10, 9: 8, 10: 32, 11: 5, 12: 10, 16: 16}   # soma das quantidades dos itens (os manuais 2, 6 e 10 trazem `unidades`; sem itens, 1)
 VENDEDORA = {0: 5, 1: 0}                   # indice do vendedor -> aliquota (Marina Costa 5%, Rafael Andrade 0%); 2 = sem vendedor
 CORTESIA_EXEMPLO = {3: 15, 10: 30, 16: 25}   # os usos de vale de origem cortesia no exemplo de Vale-compra (o 10 e manual: a conta online nao o olha)
 # As devolucoes do exemplo da Logistica > Devolucao que a conta le (so os campos que ela usa). A vendaId e o pedido de venda de mesmo numero.
@@ -76,8 +75,9 @@ def no_prazo(d, pid, prazo=7, entrega=None):
     return ent is not None and (iso(d['abertaEm']) - iso(ent)).days <= prazo
 
 
-def conta_devolucao(pid, devs, base='compra'):
-    """valor devolvido, custo que voltou (revendavel), perda (avariado ou perdido) e frete da volta pago pela loja."""
+def conta_devolucao(pid, devs, base='compra', fator=None):
+    """valor devolvido, custo que voltou (revendavel), perda (avariado ou perdido) e frete da volta pago pela loja. `fator` = (total - frete - cortesia) / (total - frete):
+    a parte paga com vale de cortesia nao volta em dinheiro, entao o valor devolvido e a soma dos itens x fator (sem cortesia, fator None = a soma dos itens)."""
     custos = {i[0]: i for i in ITENS.get(pid, [])}
     dev = rec = perda = frete = D(0)
     for d in devs:
@@ -91,7 +91,7 @@ def conta_devolucao(pid, devs, base='compra'):
         r = d.get('reversa')
         if r and r.get('paga') == 'nos':
             frete += D(r['real'] if r.get('real') is not None else r['valor'])
-    dev, rec, perda, frete = c2(dev), c2(rec), c2(perda), c2(frete)
+    dev, rec, perda, frete = c2(dev * fator if fator is not None else dev), c2(rec), c2(perda), c2(frete)
     return dict(devolvido=dev, recuperado=rec, perda=perda, frete_volta=frete, devolucao=c2(dev - rec + frete))
 
 
@@ -120,13 +120,12 @@ def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, co
         bruta = c2(c2(total_ - frete) * D(pct) / 100)
         no_p = [d for d in devs if no_prazo(d, p['id'], prazo, entrega)]
         comissao = comissao_reduzida(bruta, total_ - frete, sum((valor_itens(d) for d in no_p), D(0)))
-    unidades = sum(i[3] for i in ITENS[p['id']]) if p['id'] in ONLINE else UNIDADES.get(p['id'], 1)
-    embalagem = c2(D(emb.get(p['loja'], 0)) * unidades)
+    embalagem = c2(D(emb.get(p['loja'], 0)))   # uma por pedido
     custo = D(p['custoMedio'] if base == 'medio' else p['custo'])
-    dv = conta_devolucao(p['id'], devs, base)
+    dv = conta_devolucao(p['id'], devs, base, (total_ - frete - cort) / (total_ - frete) if cort and total_ - frete > 0 else None)
     lucro = venda - dif - taxa - comissao - embalagem - custo - dv['devolucao']
     return dict(venda=venda, frete=frete, cortesia=cort, dif=dif, taxa=taxa, comissao=comissao, embalagem=embalagem, custo=custo, devolucao=dv['devolucao'], devolvido=dv['devolvido'],
-                recuperado=dv['recuperado'], perda=dv['perda'], frete_volta=dv['frete_volta'], lucro=lucro, margem=(lucro / venda if venda else D(0)), unidades=unidades)
+                recuperado=dv['recuperado'], perda=dv['perda'], frete_volta=dv['frete_volta'], lucro=lucro, margem=(lucro / venda if venda else D(0)))
 
 
 def repartir(valor, pesos):
@@ -142,11 +141,10 @@ def itens_do_pedido(p, r, base='compra'):
     """A repartição do pedido entre os itens (a tela de Custos agrupada por produto ou categoria): lista de (sku, categoria, parcelas)."""
     itens = ITENS[p['id']]
     val = [int((D(i[3]) * D(i[4]) * 100).to_integral_value(rounding=ROUND_HALF_UP)) for i in itens]
-    qtd = [i[3] for i in itens]
     cus = [int((D(i[3]) * D(i[6] if base == 'medio' else i[5]) * 100).to_integral_value(rounding=ROUND_HALF_UP)) for i in itens]
     por = dict(venda=repartir(r['venda'], val), freteCobrado=repartir(r['frete'], val), cortesia=repartir(r['cortesia'], val), difFrete=repartir(r['dif'], val),
                taxa=repartir(r['taxa'], val), comissao=repartir(r['comissao'], val), devolucao=repartir(r['devolucao'], val),
-               embalagem=repartir(r['embalagem'], qtd), custo=repartir(r['custo'], cus))
+               embalagem=repartir(r['embalagem'], val), custo=repartir(r['custo'], cus))
     saida = []
     for n, i in enumerate(itens):
         x = {k: por[k][n] for k in por}

@@ -2145,6 +2145,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return devolucoesLidas().filter(d => d.vendaId === p.id && (situacoes || DEV_ACEITAS).indexOf(d.situacao) >= 0 && d.itens.length > 0 &&
       d.itens.every(i => itens.some(x => x.sku === i.sku)));
   }
+  // As devolucoes aceitas do pedido com os itens por extenso, para a linha abaixo do Valor devolvido: [{ id, numero, texto }], texto = '1 Fone X e 2 Carregador Y' (nome do item do
+  // pedido, pelo SKU; quantidade da devolucao). O `id` leva ao detalhe da devolucao em Logistica (?id=, como a lista dela abre).
+  function devolucoesNomeadas(p) {
+    const itens = ITENS_ONLINE[p.id] || [];
+    return devolucoesDoPedido(p).map(d => {
+      const partes = d.itens.map(i => i.qtd + ' ' + itens.filter(x => x.sku === i.sku)[0].nome);
+      return { id: d.id, numero: d.numero, texto: partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0] };
+    });
+  }
   // ===== FIM DO BLOCO DEVOLUCOES: LEITURA =====
   // ===== COMISSOES: DADOS E REGRAS (bloco comum das duas telas, 14/out/2026) =====
   // Identico na lista de Comissoes Afiliados e na conta do afiliado; teste_comissoes.py compara. Esta
@@ -2164,18 +2173,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ESPELHO de Vendas > Pedidos de Venda: `ind` = link de cliente afiliado; `custo` = custo dos produtos,
   // congelado no faturamento. Base da comissao = total menos o frete. Desde 22/out/2026 o pedido traz tambem os dados do lucro (Custos do
   // E-commerce): `canal` ('loja_virtual' | 'manual'), `custoMedio` (custo medio congelado no faturamento, ao lado do `custo`, que e o da
-  // compra), `unidades` (so nos manuais que tem itens na lista, 2, 6 e 10; nos online as unidades sao a soma das quantidades dos itens, ITENS_ONLINE; sem nada, 1) e, so nos pedidos online, `fretePagoLoja`, `pagamento` { forma, bandeira, vezes } e `ufEntrega` (o estado de destino).
+  // compra) e, so nos pedidos online, `fretePagoLoja`, `pagamento` { forma, bandeira, vezes } e `ufEntrega` (o estado de destino).
   const PEDIDOS = [
     { id: 1,  numero: 1,  dv: 0,  dp: 5,  cliente: 'Marina Duarte',                doc: '123.456.789-00',  loja: 1, vend: 0, total: 1890.00, situacao: 'aberto',      pago: false, frete: 10.00, custo: 1128.00, canal: 'loja_virtual', fretePagoLoja: 18.50, custoMedio: 1105.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 3 }, ufEntrega: 'SP' },
-    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00, canal: 'manual', custoMedio: 5200.00, unidades: 23 },
+    { id: 2,  numero: 2,  dv: 1,  dp: 4,  cliente: 'Tech Solutions Imperatriz Ltda', doc: '12.345.678/0001-90', loja: 3, vend: 1, total: 7430.50, situacao: 'aberto',   pago: false, frete: 1.90, custo: 5200.00, canal: 'manual', custoMedio: 5200.00 },
     { id: 3,  numero: 3,  dv: 2,  dp: 6,  cliente: 'Rafael Nogueira',               doc: '234.567.890-11',  loja: 1, vend: 0, total: 349.90,  situacao: 'aprovado',    pago: true, custo: 199.90, canal: 'loja_virtual', fretePagoLoja: 22.00, custoMedio: 205.40, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'MG' },
     { id: 4,  numero: 4,  dv: 3,  dp: 3,  cliente: 'Juliana Prado',                 doc: '345.678.901-22',  loja: 2, vend: 2, total: 612.00,  situacao: 'aprovado',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 367.20, canal: 'loja_virtual', fretePagoLoja: 19.90, custoMedio: 360.00, pagamento: { forma: 'credito', bandeira: 'mastercard', vezes: 1 }, ufEntrega: 'RJ' },
     { id: 5,  numero: 5,  dv: 4,  dp: 2,  cliente: 'Camila Rêgo',                   doc: '456.789.012-33',  loja: 2, vend: 1, total: 289.90,  situacao: 'separacao',   pago: true, custo: 168.10, canal: 'manual', custoMedio: 168.10 },
-    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00, canal: 'manual', custoMedio: 8110.00, unidades: 14 },
+    { id: 6,  numero: 6,  dv: 5,  dp: 1,  cliente: 'Móveis Bom Preço Ltda',         doc: '23.456.789/0001-01', loja: 1, vend: 1, total: 12480.00, situacao: 'separacao', pago: true, custo: 8110.00, canal: 'manual', custoMedio: 8110.00 },
     { id: 7,  numero: 7,  dv: 6,  dp: 0,  cliente: 'Pedro Henrique Alves',          doc: '567.890.123-44',  loja: 3, vend: 0, total: 1150.00, situacao: 'conferenciasaida', pago: true, custo: 690.00, canal: 'manual', custoMedio: 690.00 },
     { id: 8,  numero: 8,  dv: 7,  dp: -1, cliente: 'Thiago Almeida',                doc: '678.901.234-55',  loja: 1, vend: 2, total: 738.40,  situacao: 'faturado',    pago: true, ind: { nome: 'Larissa Monteiro', tipo: 'cliente', pct: 4 }, custo: 450.00, canal: 'loja_virtual', fretePagoLoja: 24.00, custoMedio: 458.90, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 6 }, ufEntrega: 'PR' },
     { id: 9,  numero: 9,  dv: 9,  dp: -2, cliente: 'Larissa Monteiro',              doc: '789.012.345-66',  loja: 2, vend: 1, total: 455.00,  situacao: 'prontoenvio', pago: true, custo: 268.00, canal: 'loja_virtual', fretePagoLoja: 21.00, custoMedio: 262.50, pagamento: { forma: 'pix', bandeira: '', vezes: 0 }, ufEntrega: 'BA' },
-    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00, canal: 'manual', custoMedio: 2050.00, unidades: 32 },
+    { id: 10, numero: 10, dv: 11, dp: -4, cliente: 'Auto Peças Imperatriz Ltda',    doc: '34.567.890/0001-12', loja: 3, vend: 1, total: 3260.75, situacao: 'enviado',  pago: true, frete: 3.55, custo: 2050.00, canal: 'manual', custoMedio: 2050.00 },
     { id: 11, numero: 11, dv: 14, dp: -7, cliente: 'Bruno Carvalho',                doc: '890.123.456-77',  loja: 1, vend: 0, total: 219.90,  situacao: 'enviado',     pago: true, custo: 128.00, canal: 'loja_virtual', fretePagoLoja: 95.00, custoMedio: 131.20, pagamento: { forma: 'credito', bandeira: 'elo', vezes: 2 }, ufEntrega: 'AM' },
     { id: 12, numero: 12, dv: 18, dp: -12, cliente: 'Patrícia Farias',              doc: '901.234.567-88',  loja: 2, vend: 2, total: 1024.00, situacao: 'entregue',    pago: true, ind: { nome: 'Bruno Carvalho', tipo: 'cliente', pct: 5 }, custo: 604.00, canal: 'loja_virtual', fretePagoLoja: 26.50, custoMedio: 598.00, pagamento: { forma: 'credito', bandeira: 'visa', vezes: 10 }, ufEntrega: 'PE' },
     { id: 13, numero: 13, dv: 22, dp: -16, cliente: 'Distribuidora Nordeste Ltda',  doc: '45.678.901/0001-23', loja: 1, vend: 1, total: 8975.30, situacao: 'entregue', pago: true, custo: 5800.00, canal: 'manual', custoMedio: 5800.00 },
@@ -2731,16 +2740,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0.
   //                A taxa NAO volta com a devolucao (nao ha regra da InfinitePay para isso: considerar que fica e o lado seguro)
   //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes (ja menos a devolucao dentro do prazo)
-  //   embalagem  = embalagem da loja x unidades do pedido (a soma das quantidades dos itens; sem itens, `unidades`; sem nada, 1)
+  //   embalagem  = a embalagem da loja, UMA vez por pedido (nao depende das unidades; desde 28/out/2026)
   //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
-  //   devolucao  = valor dos itens devolvidos (devolucao aceita) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
+  //   devolucao  = valor devolvido (a soma dos itens da devolucao aceita x (total - frete - cortesia) / (total - frete): a parte paga com vale de cortesia nao volta em dinheiro) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
   //                perda) mais o frete da volta pago pela loja (`reversa.paga` 'nos'; pago pelo cliente ou coleta da nossa frota, 0)
   //   lucro      = venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - devolucao;  margem = lucro / venda
   // Cada parcela e arredondada no centavo antes de somar.
   const CUSTOS_ECOM_PADRAO = {
     situacoes: ['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue'],   // todas menos Cancelado
     custoBase: 'compra',                                                                                                  // 'compra' | 'medio'
-    embalagemPorLoja: { 1: 5, 2: 8, 3: 0 }                                                                                // R$ por unidade
+    embalagemPorLoja: { 1: 5, 2: 8, 3: 0 }                                                                                // R$ por pedido
   };
   function custosEcomLer() {
     let g = {};
@@ -2774,8 +2783,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return resCent(soma);
   }
   // A devolucao aceita do pedido: o valor dos itens, o custo que voltou (item revendavel), a perda (avariado ou perdido) e o frete da volta pago pela loja.
+  // O valor devolvido sai sem a parte paga com vale de cortesia (`base` = total - frete, `cortesia` = o vale): a comissao NAO usa isso, ela segue a soma dos itens.
   // O custo do item e o do pedido (o da compra ou o medio, conforme a configuracao). A devolucao ainda em analise (aberta) nao conta: so aparece como aviso.
-  function devolucaoDoPedido(p, cfg) {
+  function devolucaoDoPedido(p, cfg, base, cortesia) {
     const devs = devolucoesDoPedido(p), itens = ITENS_ONLINE[p.id] || [];
     let devolvido = 0, recuperado = 0, perda = 0, freteVolta = 0;
     devs.forEach(d => {
@@ -2786,7 +2796,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
       if (d.reversa && d.reversa.paga === 'nos') freteVolta += Number(d.reversa.real != null ? d.reversa.real : d.reversa.valor) || 0;
     });
-    devolvido = resCent(devolvido); recuperado = resCent(recuperado); perda = resCent(perda); freteVolta = resCent(freteVolta);
+    devolvido = resCent(base > 0 && cortesia > 0 ? devolvido * (base - cortesia) / base : devolvido); recuperado = resCent(recuperado); perda = resCent(perda); freteVolta = resCent(freteVolta);
     const analise = devolucoesDoPedido(p, ['aberta']);
     return { devolvido: devolvido, recuperado: recuperado, perda: perda, freteVolta: freteVolta, devolucao: resCent(devolvido - recuperado + freteVolta),
              quantas: devs.length, emAnalise: analise.length, valorEmAnalise: resCent(analise.reduce((s, d) => s + totalItensDev(d), 0)) };
@@ -2804,14 +2814,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
     const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
     const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
-    const unidades = p.unidades || (ITENS_ONLINE[p.id] ? ITENS_ONLINE[p.id].reduce((s, i) => s + i.qtd, 0) : 1);
-    const embalagem = resCent((Number(cfg.embalagemPorLoja[p.loja]) || 0) * unidades);
+    const embalagem = resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0);
     const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
-    const dv = devolucaoDoPedido(p, cfg);
+    const dv = devolucaoDoPedido(p, cfg, resCent(total - freteCobrado), cortesia);
     const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - dv.devolucao);
     return { venda: venda, freteCobrado: freteCobrado, cortesia: cortesia, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
              embalagem: embalagem, custo: custo, devolucao: dv.devolucao, devolvido: dv.devolvido, custoRecuperado: dv.recuperado, perdaAvaria: dv.perda, freteVolta: dv.freteVolta,
-             devolucoesAceitas: dv.quantas, devolucaoEmAnalise: dv.emAnalise, valorEmAnalise: dv.valorEmAnalise, lucro: lucro, margem: venda ? lucro / venda : 0, unidades: unidades,
+             devolucoesAceitas: dv.quantas, devolucaoEmAnalise: dv.emAnalise, valorEmAnalise: dv.valorEmAnalise, lucro: lucro, margem: venda ? lucro / venda : 0,
              semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago };
   }
   // ===== FIM DO BLOCO RESULTADO DO PEDIDO =====

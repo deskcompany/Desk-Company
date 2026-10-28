@@ -594,7 +594,7 @@ with sync_playwright() as p:
         pags = pg.evaluate("JSON.parse(localStorage.getItem('deskComissoesPagas')).pagamentos")
         ok([p['n'] for p in pags] == [1, 2, 3] and all(p['chave'] == 'v1' and p['nome'] == 'Marina Costa' and p['forma'] == 'Pix' for p in pags) and [p['valor'] for p in pags] == [50, 30, 40],
            'de fábrica há três pagamentos da Marina, de R$ 50, R$ 30 e R$ 40: %s' % [(p['n'], p['valor']) for p in pags])
-        ok([p['venc'] for p in pags] == [dia(-12).isoformat(), dia(-4).isoformat(), dia(5).isoformat()] and [p['data'] for p in pags] == [dia(-14).isoformat(), '2026-10-20', dia(-2).isoformat()],
+        ok([p['venc'] for p in pags] == [dia(-12).isoformat(), dia(-4).isoformat(), dia(5).isoformat()] and [p['data'] for p in pags] == [dia(-14).isoformat(), dia(-6).isoformat(), dia(-2).isoformat()],
            'contados a partir de hoje: dois vencidos (há 12 e há 4 dias) e um que vence em 5 dias')
         ok(perto(saldo_sem - pg.evaluate("saldoHoje(beneficiarioDe('v1'))"), 120), 'os três pagamentos descem R$ 120,00 do saldo da Marina')
         ok(not pg.evaluate("PARAM.afiliadoCancelaVencido") and pg.evaluate("PARAM.afiliadoCancelaVencidoDias") == 30, 'o cancelamento sozinho nasce desligado, com 30 dias')
