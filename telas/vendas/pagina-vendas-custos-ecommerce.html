@@ -938,15 +938,46 @@
   #periodoMenu .date-pop { bottom:auto; top:calc(100% + 6px); right:auto; left:0; }
 
   /* ===== Custos do E-commerce (22/out/2026) ===== */
-  .ce-kpis { display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:12px; margin-bottom:14px; }
-  .ce-kpis .kpi-value { font-size:19px; }
-  @media (max-width:1280px) { .ce-kpis { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
+  /* Oito cards, 2 linhas de 4 (entrega 3, 30/out/2026); em tela estreita, 2 por linha (o mesmo ponto de quebra da legenda da barra). */
+  .ce-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-bottom:14px; }
+  .ce-kpis .kpi-value { font-size:19px; white-space:nowrap; }
+  .ce-kpis .kpi-value.neg { color:var(--danger); }
+  @media (max-width:900px) { .ce-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   /* Os dois cards de alerta filtram a lista: borda azul quando ativos, como em Contas a Pagar */
   .ce-kpis .kpi-card.filtra { cursor:pointer; user-select:none; }
   .ce-kpis .kpi-card.filtra:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
   .ce-kpis .kpi-card.filtra.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
   .ce-kpis .kpi-card.filtra:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
   .ce-barra-card { padding:16px 18px; margin-bottom:14px; }
+  /* Abas do card (o componente de abas da casa: .tabs-row / .tab-item): Divisao do faturamento e Mes a mes */
+  .tabs-row { display:flex; gap:26px; border-bottom:1px solid var(--border); margin:20px 0 22px; flex-wrap:wrap; }
+  .tab-item { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text); padding:0 0 12px;
+              cursor:pointer; user-select:none; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab-item:hover { color: var(--text-heading); }
+  .tab-item.active { color: var(--active-text); border-bottom-color: var(--active-text); }
+  .tab-item:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  .ce-barra-card .tabs-row { margin:0 0 14px; }
+  .ce-aba-painel { display:none; }
+  .ce-aba-painel.active { display:block; }
+  .ce-barra-apoio.ce-barra-escopo { margin:-8px 0 12px; }
+  .ce-barra-apoio.ce-barra-escopo:empty { display:none; }
+  /* Mes a mes: duas barras por mes (faturamento e lucro) em HTML/CSS com as variaveis do tema; lucro negativo desce abaixo da linha do zero */
+  .ce-mes-comp { font-size:13px; font-weight:700; color:var(--text-heading); margin-bottom:10px; }
+  .ce-mes-leg { display:flex; gap:18px; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .ce-mes-leg span { display:flex; align-items:center; gap:6px; }
+  .ce-mes-leg i { width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .ce-mes-grafico { display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:0; }
+  .ce-mes-col { min-width:0; text-align:center; }
+  .ce-mes-plot { position:relative; }
+  .ce-mes-zero { position:absolute; left:0; right:0; height:1px; background:var(--border); }
+  .ce-mes-barra { position:absolute; width:34%; border-radius:4px; }
+  .ce-mes-barra.fat { left:12%; background:var(--chart-1); }
+  .ce-mes-barra.luc { left:54%; background:var(--success); }
+  .ce-mes-val { position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:10.5px; font-weight:700; color:var(--text-heading); }
+  .ce-mes-val.cima { bottom:100%; margin-bottom:2px; }
+  .ce-mes-val.baixo { top:100%; margin-top:2px; }
+  .ce-mes-nome { font-size:12px; font-weight:700; color:var(--text-heading); margin-top:6px; }
+  .ce-mes-marg { font-size:11px; color:var(--text); }
   .ce-barra-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); }
   .ce-barra-apoio { font-size:11.5px; color:var(--text); opacity:0.85; margin:2px 0 12px; }
   .ce-barra-escopo { font-weight:600; color:var(--text); }
@@ -964,6 +995,12 @@
   .ce-filtro-grupo { display:flex; align-items:center; gap:12px; margin-bottom:14px; font-size:13px; font-weight:700; color:var(--text-heading); }
   .ce-lucro { font-weight:800; }
   .ce-lucro.neg, .estoque-table td.ce-neg { color:var(--danger); }
+  /* margem entre 0 e a minima de Parametros de Vendas: o amarelo do tema no escuro; no claro um ambar mais fechado, que passa de 4,5:1 sobre o branco */
+  .estoque-table td.ce-atencao, .ce-margem-nota { color:#B45309; }
+  body.dark .estoque-table td.ce-atencao, body.dark .ce-margem-nota { color:var(--warning); }
+  .ce-margem-nota { text-align:right; font-size:10.5px; font-weight:600; margin-top:-4px; }
+  .ce-cfg-margem { font-size:13px; font-weight:600; color:var(--text-heading); }
+  .ce-cfg-margem a { color:var(--active-text); text-decoration:underline; }
   .ce-aviso { font-size:11px; font-weight:700; color:var(--warning); }
   .ce-dica { display:block; margin-top:2px; font-size:10.5px; font-weight:600; letter-spacing:0; text-transform:none; }
   .ce-cfg-sit, .ce-cfg-emb { display:flex; flex-direction:column; gap:8px; }
@@ -1243,10 +1280,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="kpi-value" id="kpiMargem">0,0%</div>
       <div class="kpi-delta neutral">lucro sobre o faturamento</div>
     </div>
-    <div class="card kpi-card filtra" data-kpi="prejuizo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
-      <div class="kpi-label">No prejuízo</div>
-      <div class="kpi-value" id="kpiPrejuizo">0</div>
-      <div class="kpi-delta neutral" id="subPrejuizo">nenhum pedido</div>
+    <div class="card kpi-card" style="border-left-color:var(--chart-2)">
+      <div class="kpi-label">Anúncios</div>
+      <div class="kpi-value" id="kpiAnuncios">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="subAnuncios">de Contas a Pagar, no período</div>
+    </div>
+    <div class="card kpi-card" style="border-left-color:var(--success)">
+      <div class="kpi-label">Lucro depois dos anúncios</div>
+      <div class="kpi-value" id="kpiLucroAnuncios">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="subLucroAnuncios">o lucro menos os anúncios</div>
+    </div>
+    <div class="card kpi-card filtra" data-kpi="abaixo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
+      <div class="kpi-label">Abaixo da margem</div>
+      <div class="kpi-value" id="kpiAbaixo">0</div>
+      <div class="kpi-delta neutral" id="subAbaixo">0 no prejuízo · mínima de 15%</div>
     </div>
     <div class="card kpi-card filtra" data-kpi="semcusto" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
       <div class="kpi-label">Produto sem custo</div>
@@ -1256,10 +1303,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="card ce-barra-card">
-    <div class="ce-barra-titulo">Divisão do faturamento <span class="ce-barra-escopo" id="escopoBarra"></span></div>
-    <div class="ce-barra-apoio">De tudo o que foi vendido, quanto foi para cada custo e quanto ficou de lucro.</div>
-    <div class="ce-barra" id="barraDivisao" role="img" aria-label="Divisão do faturamento"></div>
-    <div class="ce-legenda" id="legendaDivisao"></div>
+    <div class="tabs-row" role="tablist">
+      <div class="tab-item active" role="tab" tabindex="0" aria-selected="true" data-aba="divisao" id="abaDivisao">Divisão do faturamento</div>
+      <div class="tab-item" role="tab" tabindex="0" aria-selected="false" data-aba="mes" id="abaMes">Mês a mês</div>
+    </div>
+    <div class="ce-aba-painel active" data-painel="divisao" id="painelDivisao" role="tabpanel">
+      <div class="ce-barra-apoio">De tudo o que foi vendido, quanto foi para cada custo e quanto ficou de lucro.</div>
+      <div class="ce-barra-apoio ce-barra-escopo" id="escopoBarra"></div>
+      <div class="ce-barra" id="barraDivisao" role="img" aria-label="Divisão do faturamento"></div>
+      <div class="ce-legenda" id="legendaDivisao"></div>
+    </div>
+    <div class="ce-aba-painel" data-painel="mes" id="painelMes" role="tabpanel">
+      <div class="ce-mes-comp" id="mesComparacao"></div>
+      <div class="ce-mes-leg"><span><i style="background:var(--chart-1);"></i>Faturamento</span><span><i style="background:var(--success);"></i>Lucro</span></div>
+      <div class="ce-mes-grafico" id="mesGrafico" role="img" aria-label="Gráfico de barras mês a mês"></div>
+      <div class="ce-barra-apoio" style="margin:12px 0 0;">Os meses anteriores são dados de exemplo; o mês atual vem dos pedidos.</div>
+    </div>
   </div>
 
   <div class="estoque-toolbar">
@@ -1439,6 +1498,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="ce-cfg-emb" id="cfgEmbalagem"></div>
     <div class="field-hint">Caixa, tag e saco juntos, uma vez por pedido, qualquer que seja o número de itens. A calculadora de preço vai ler este valor.</div>
     <div class="field-error-msg" id="erroCfgEmbalagem">Informe um valor de zero em diante, como 5,00.</div>
+  </div>
+  <div class="form-field" id="campoCfgMargem">
+    <div class="ce-cfg-margem" id="cfgMargem"></div>
   </div>
   <div class="drawer-footer">
     <button type="button" class="btn-primary" id="btnAplicarCfg">Aplicar</button>
@@ -1741,6 +1803,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'gatewayChave',        nome:'Guardar, trocar ou apagar a chave da API de um gateway', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
     { chave:'gatewayExcluir',      nome:'Excluir gateway de pagamento e a conta financeira dele', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
     { chave:'custosEcomConfig',    nome:'Alterar as configurações de Custos do E-commerce',       onde:'Vendas → Custos do E-commerce',       grupo:'Vendas',       pronto:true,  exigePadrao:false },
+    { chave:'parametrosVendas',    nome:'Alterar os parâmetros de vendas',                   onde:'Configurações → Parâmetros de vendas', grupo:'Vendas',       pronto:true,  exigePadrao:false },
     { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                      onde:'Logística \u2192 Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
     { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
@@ -3210,14 +3273,117 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   }
 
+  // ---------- anuncios (Contas a Pagar, categoria 14) ----------
+  // ANUNCIOS_C e ESPELHO das contas da categoria 14 "Anuncios e midia paga" de Financas > Contas a Pagar (TITULOS; teste_custos_ecommerce.py compara):
+  // `venc` em dias a partir de hoje (positivo = passado, como la), `lojaId` 0 = empresa toda. Contas a Pagar nao grava conta nova em localStorage, entao nao ha o que ler alem do espelho.
+  // Regra: anuncios do periodo = soma do valor das contas da categoria 14 NAO canceladas, com vencimento dentro do periodo escolhido, pagas ou nao. Com filtro de loja, so as daquela
+  // loja; a conta sem loja entra so em "Todas as lojas". Anuncio nao se divide por pedido ou produto: com pesquisa, categoria, grupo ou card ligado, os dois cards mostram "—".
+  const ANUNCIOS_C = [
+    { id: 14, lojaId: 1, valor: 180.00, venc: 2,  cancelado: false },
+    { id: 15, lojaId: 1, valor: 120.00, venc: 4,  cancelado: false },
+    { id: 16, lojaId: 2, valor: 90.00,  venc: 3,  cancelado: false },
+    { id: 17, lojaId: 0, valor: 60.00,  venc: 1,  cancelado: false },
+    { id: 18, lojaId: 1, valor: 500.00, venc: 5,  cancelado: true },
+    { id: 19, lojaId: 1, valor: 150.00, venc: 40, cancelado: false }
+  ];
+  function anunciosDoPeriodo() {
+    return resCent(ANUNCIOS_C.filter(a => !a.cancelado)
+      .filter(a => { const d = isoDe(diaMais(-a.venc)); return d >= per.de && d <= per.ate; })
+      .filter(a => fLoja === 'todos' || String(a.lojaId || 0) === fLoja)
+      .reduce((s, a) => s + a.valor, 0));
+  }
+  const NOTA_SEM_ANUNCIO = 'anúncio não se divide por pedido ou produto';
+  // ---------- a margem minima (Configuracoes > Parametros de Vendas) ----------
+  // Lida direto de `deskParametros.margemMinimaPct` (como custosEcomLer): sem a chave, vale o 15 de fabrica da tela de parametros. Zero e valido.
+  const MARGEM_MINIMA_PADRAO = 15;
+  function margemMinima() {
+    try {
+      const v = JSON.parse(localStorage.getItem('deskParametros') || '{}').margemMinimaPct, n = Number(v);
+      return (v === undefined || v === null || v === '' || isNaN(n) || n < 0 || n > 100) ? MARGEM_MINIMA_PADRAO : n;
+    } catch (e) { return MARGEM_MINIMA_PADRAO; }
+  }
+  let margemMin = MARGEM_MINIMA_PADRAO;   // refeita a cada render
+  const pctMin = (n) => Number(n).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
+  // Abaixo da margem: lucro negativo, ou margem menor que a minima. A "atencao" e so a faixa entre 0 e a minima (negativo ja e vermelho).
+  const abaixoDaMargem = (r) => r.lucro < 0 || (r.venda > 0 && r.lucro * 100 < r.venda * margemMin);
+  const naFaixaDeAtencao = (r) => r.lucro >= 0 && r.venda > 0 && r.lucro * 100 < r.venda * margemMin;
+  // ---------- os 6 ultimos meses ----------
+  // shortcut: na producao os 6 meses saem todos dos pedidos. Aqui so o mes atual vem deles; os 5 anteriores sao EXEMPLO, por deslocamento em meses a partir de hoje e por
+  // loja (Desk Shope e Desk Brands), somado aos pedidos reais cuja venda caia naquele mes. Trocar quando houver banco.
+  const MESES_EXEMPLO = {
+    '-1': { 1: { fat: 6120.00, lucro: 735.00 }, 2: { fat: 2310.00, lucro: 392.70 } },
+    '-2': { 1: { fat: 5240.00, lucro: 576.40 }, 2: { fat: 1980.00, lucro: 316.80 } },
+    '-3': { 1: { fat: 4710.00, lucro: 518.10 }, 2: { fat: 1750.00, lucro: 245.00 } },
+    '-4': { 1: { fat: 5560.00, lucro: 667.20 }, 2: { fat: 2240.00, lucro: 336.00 } },
+    '-5': { 1: { fat: 3980.00, lucro: 358.20 }, 2: { fat: 1420.00, lucro: 184.60 } }
+  };
+  function mesesDoGrafico() {
+    const cfg = custosEcomLer(), lista = [];
+    for (let k = 5; k >= 0; k--) {
+      const d = new Date(HOJE_C.getFullYear(), HOJE_C.getMonth() - k, 1);
+      lista.push({ chave: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'), mes: d.getMonth(), ano: d.getFullYear(), desloc: -k, fat: 0, lucro: 0 });
+    }
+    lista.forEach(m => {
+      const ex = MESES_EXEMPLO[String(m.desloc)] || {};
+      Object.keys(ex).forEach(l => { if (fLoja === 'todos' || fLoja === l) { m.fat += ex[l].fat; m.lucro += ex[l].lucro; } });
+    });
+    PEDIDOS.filter(p => p.canal === 'loja_virtual' && cfg.situacoes.indexOf(p.situacao) >= 0 && (fLoja === 'todos' || String(p.loja) === fLoja)).forEach(p => {
+      const m = lista.filter(x => x.chave === vendaDe(p).slice(0, 7))[0];
+      if (!m) return;
+      const r = resultadoDoPedido(p);
+      m.fat += r.venda; m.lucro += r.lucro;
+    });
+    lista.forEach(m => { m.fat = resCent(m.fat); m.lucro = resCent(m.lucro); m.margem = m.fat ? m.lucro / m.fat : null; });
+    return lista;
+  }
+  const inteiroC = (v) => (v < 0 ? '− ' : '') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+  const sinalPct = (v) => (v < 0 ? '−' : '+') + Math.abs(v * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+  function textoComparacao(lista) {
+    const a = lista[5], b = lista[4];
+    const varia = (atual, ant) => ant ? sinalPct((atual - ant) / Math.abs(ant)) : 'sem comparação';   // mes anterior zerado: sem %
+    return a.mes === b.mes ? '' : NOMES_MES_C[a.mes] + ' (até hoje) contra ' + NOMES_MES_C[b.mes].toLowerCase() + ': faturamento ' + varia(a.fat, b.fat) + ' · lucro ' + varia(a.lucro, b.lucro);
+  }
+  function renderMesAMes() {
+    const lista = mesesDoGrafico(), valores = [];
+    lista.forEach(m => valores.push(m.fat, m.lucro));
+    const topo = Math.max(0, Math.max.apply(null, valores)), fundo = Math.min(0, Math.min.apply(null, valores)), escala = (topo - fundo) || 1;
+    const ALTURA = 160, FOLGA = 18, zero = FOLGA + Math.round(topo / escala * ALTURA);   // y da linha do zero, contado do topo do desenho
+    const barra = (m, k, valor, rotulo) => {
+      const h = valor ? Math.max(2, Math.round(Math.abs(valor) / escala * ALTURA)) : 1, y = valor >= 0 ? zero - h : zero;
+      return '<div class="ce-mes-barra ' + k + '" data-mes="' + m.chave + '" data-serie="' + (k === 'fat' ? 'faturamento' : 'lucro') + '" data-valor="' + valor + '" style="top:' + y + 'px; height:' + h + 'px;" title="' +
+        NOMES_MES_C[m.mes] + ' de ' + m.ano + ' · ' + rotulo + ': ' + sinalC(valor) + '"><span class="ce-mes-val ' + (valor >= 0 ? 'cima' : 'baixo') + '">' + inteiroC(valor) + '</span></div>';
+    };
+    html('mesGrafico', lista.map(m =>
+      '<div class="ce-mes-col" data-mes="' + m.chave + '"><div class="ce-mes-plot" style="height:' + (FOLGA * 2 + ALTURA) + 'px;"><i class="ce-mes-zero" style="top:' + zero + 'px;"></i>' +
+      barra(m, 'fat', m.fat, 'Faturamento') + barra(m, 'luc', m.lucro, 'Lucro') + '</div>' +
+      '<div class="ce-mes-nome">' + NOMES_MES_C[m.mes] + (m.desloc === 0 ? ' (até hoje)' : '') + '</div><div class="ce-mes-marg">margem ' + (m.margem === null ? '—' : pctF(m.margem)) + '</div></div>').join(''));
+    texto('mesComparacao', textoComparacao(lista));
+    document.getElementById('mesGrafico').setAttribute('aria-label', 'Gráfico de barras, mês a mês, de faturamento e lucro: ' + lista.map(m =>
+      NOMES_MES_C[m.mes] + ' de ' + m.ano + ', faturamento ' + sinalC(m.fat) + ', lucro ' + sinalC(m.lucro) + ', margem ' + (m.margem === null ? 'sem vendas' : pctF(m.margem))).join('; '));
+  }
+  function escolherAba(aba) {
+    document.querySelectorAll('.ce-barra-card .tab-item').forEach(t => { const on = t.getAttribute('data-aba') === aba; t.classList.toggle('active', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    document.querySelectorAll('.ce-aba-painel').forEach(p => p.classList.toggle('active', p.getAttribute('data-painel') === aba));
+  }
+  document.querySelectorAll('.ce-barra-card .tab-item').forEach(t => {
+    t.addEventListener('click', () => escolherAba(t.getAttribute('data-aba')));
+    t.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherAba(t.getAttribute('data-aba')); } });
+  });
+
   // ---------- os cards ----------
   function renderCards(base) {
     const fat = soma(base, 'venda'), lucro = soma(base, 'lucro'), custos = base.reduce((s, l) => s + custosDe(l.r), 0);
     texto('kpiFaturamento', moedaC(fat)); texto('subFaturamento', base.length + (base.length === 1 ? ' pedido, sem o frete cobrado' : ' pedidos, sem o frete cobrado'));
     texto('kpiCustos', moedaC(custos)); texto('kpiLucro', sinalC(lucro));
     texto('kpiMargem', fat ? pctF(lucro / fat) : '—');
-    const prej = base.filter(l => l.r.lucro < 0), sem = base.filter(l => l.r.semCusto);
-    texto('kpiPrejuizo', String(prej.length)); texto('subPrejuizo', prej.length ? 'perda de ' + moedaC(Math.abs(soma(prej, 'lucro'))) : 'nenhum pedido');
+    const abaixo = base.filter(l => abaixoDaMargem(l.r)), prej = base.filter(l => l.r.lucro < 0), sem = base.filter(l => l.r.semCusto);
+    texto('kpiAbaixo', String(abaixo.length)); texto('subAbaixo', prej.length + ' no prejuízo · mínima de ' + pctMin(margemMin) + '%');
+    // Anuncio nao se divide por pedido ou produto: com pesquisa, categoria, grupo ou card ligado, os dois cards ficam em "—".
+    const semAnuncio = busca.trim() !== '' || fCategoria !== 'todos' || !!fGrupo || !!fCard;
+    const anuncios = anunciosDoPeriodo(), depois = resCent(lucro - anuncios);
+    texto('kpiAnuncios', semAnuncio ? '—' : moedaC(anuncios)); texto('subAnuncios', semAnuncio ? NOTA_SEM_ANUNCIO : 'de Contas a Pagar, no período');
+    texto('kpiLucroAnuncios', semAnuncio ? '—' : sinalC(depois)); texto('subLucroAnuncios', semAnuncio ? NOTA_SEM_ANUNCIO : 'o lucro menos os anúncios');
+    document.getElementById('kpiLucroAnuncios').classList.toggle('neg', !semAnuncio && depois < 0);
     texto('kpiSemCusto', String(sem.length)); texto('subSemCusto', sem.length ? (sem.length === 1 ? 'pedido com custo zerado' : 'pedidos com custo zerado') : 'nenhum pedido');
     document.querySelectorAll('#indicadores [data-kpi]').forEach(c => {
       const on = fCard === c.getAttribute('data-kpi');
@@ -3238,7 +3404,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O que a barra (e os cards) somam, dito no titulo: o card de alerta ligado e, com filtro de produto ou categoria, so a parte desses itens.
   function escopoDaBarra(lista) {
     const partes = [];
-    if (fCard === 'prejuizo') partes.push('só os pedidos no prejuízo'); else if (fCard === 'semcusto') partes.push('só os pedidos sem custo');
+    if (fCard === 'abaixo') partes.push('só os pedidos abaixo da margem mínima'); else if (fCard === 'semcusto') partes.push('só os pedidos sem custo');
     const itens = [];
     if (busca.trim() && lista.some(l => l.porBusca)) itens.push('o item "' + busca.trim() + '"');
     if (fCategoria !== 'todos') itens.push('a categoria ' + fCategoria);
@@ -3265,15 +3431,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return '<td>' + moedaC(r.venda) + '</td><td>' + moedaC(r.freteCobrado) + '</td><td class="col-cort">' + moedaC(r.cortesia) + '</td>' + (ehPedido ? celulaDif(r) : '<td>' + sinalC(r.difFrete) + '</td>') +
       '<td>' + (ehPedido && r.semTaxa ? '—' : moedaC(r.taxa)) + '</td><td>' + moedaC(r.comissao) + '</td><td class="col-mkt">' + moedaC(r.comissaoMarketplace) + '</td>' +
       '<td>' + moedaC(r.embalagem) + '</td><td>' + (ehPedido && r.semCusto ? '<span class="ce-aviso">sem custo</span>' : moedaC(r.custo)) + '</td><td class="col-dev">' + moedaC(r.devolucao) + '</td>' +
-      '<td class="ce-lucro' + (r.lucro < 0 ? ' neg' : '') + '">' + sinalC(r.lucro) + '</td><td class="' + (r.lucro < 0 ? 'ce-neg' : '') + '">' + (r.venda ? pctF(r.margem) : '—') + '</td>';
+      '<td class="ce-lucro' + (r.lucro < 0 ? ' neg' : '') + '">' + sinalC(r.lucro) + '</td>' +
+      (naFaixaDeAtencao(r) ? '<td class="ce-atencao" title="abaixo da mínima de ' + pctMin(margemMin) + '%">' : '<td class="' + (r.lucro < 0 ? 'ce-neg' : '') + '">') + (r.venda ? pctF(r.margem) : '—') + '</td>';
   }
   function render() {
+    margemMin = margemMinima();
     const base = baseLinhas();
     let visiveis = base;
-    if (fCard === 'prejuizo') visiveis = base.filter(l => l.r.lucro < 0);
+    if (fCard === 'abaixo') visiveis = base.filter(l => abaixoDaMargem(l.r));
     if (fCard === 'semcusto') visiveis = base.filter(l => l.r.semCusto);
     renderCards(base);
     renderBarra(visiveis);   // a barra explica a lista que a tabela mostra (com o card de alerta que estiver ligado)
+    renderMesAMes();
     const porPedido = agrupar === 'pedido';
     const itens = ordenar(porPedido ? visiveis : agrupadas(visiveis));
     const totalPaginas = Math.max(1, Math.ceil(itens.length / itensPorPaginaAtual));
@@ -3336,6 +3505,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function abrirPainel(id) {
     const p = PEDIDOS.filter(x => x.id === id)[0];
     if (!p) return;
+    margemMin = margemMinima();
     const r = resultadoDoPedido(p), cfg = custosEcomLer(), q = quemRecebe(p);
     texto('drawerTitulo', 'Pedido nº ' + p.numero);
     const linha = (rot, v, dica, cls) => '<div class="rt-linha' + (cls ? ' ' + cls : '') + '"><span class="chave-rotulo">' + rot + (dica ? '<small class="ce-dica">' + dica + '</small>' : '') + '</span><span class="chave-valor">' + v + '</span></div>';
@@ -3358,6 +3528,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         linha('Perda do avariado', moedaC(r.perdaAvaria), 'o custo do item avariado ou perdido: não volta', 'sub') + linha('Frete da volta', moedaC(r.freteVolta), 'só o que a loja pagou', 'sub') : '') +
       (r.devolucaoEmAnalise ? linha('Devolução em análise', moedaC(r.valorEmAnalise), 'ainda não conta: só entra na conta depois de aceita') : '') +
       '<div class="rt-linha"><span class="chave-rotulo">(=) Lucro</span><span class="chave-valor ce-lucro' + (r.lucro < 0 ? ' neg' : '') + '">' + sinalC(r.lucro) + ' · ' + pctF(r.margem) + '</span></div>' +
+      (naFaixaDeAtencao(r) ? '<div class="ce-margem-nota" id="notaMargemPainel">abaixo da mínima de ' + pctMin(margemMin) + '%</div>' : '') +
       '<div class="drawer-footer"><button class="btn-primary" id="btnAbrirPedido">Abrir o pedido</button><div class="drawer-link" id="btnAbrirGateways">Taxas do gateway</div>' +
       '<div class="drawer-link" id="btnAbrirComissoes">Comissões</div></div>';
     html('drawerCorpo', corpo);
@@ -3383,6 +3554,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     html('cfgEmbalagem', Object.keys(LOJAS_C).map(l => '<label class="ce-cfg-linha"><span>' + esc(LOJAS_C[l]) + '</span><input type="text" data-loja="' + l + '" value="' +
       (Number(cfg.embalagemPorLoja[l]) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '" inputmode="decimal" autocomplete="off"></label>').join(''));
     ['erroCfgSituacoes', 'erroCfgEmbalagem'].forEach(i => document.getElementById(i).classList.remove('show'));
+    html('cfgMargem', 'Margem mínima: ' + pctMin(margemMinima()) + '%. Muda em <a href="../configuracoes/pagina-configuracoes-parametros-vendas.html">Parâmetros de Vendas</a>');
     document.getElementById('cfgBackdrop').classList.add('open');
     cfgDrawer.classList.add('open');
   }

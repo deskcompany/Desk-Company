@@ -734,7 +734,7 @@ with sync_playwright() as p:
                 if not achados or any(('data-href="%s"' % DESTINO) not in a for a in achados):
                     sem_destino.append(_os.path.basename(c))
             ok(not sem_destino, 'o item "Gateways de Pagamento" tem destino em todas as telas: %s' % sem_destino[:4])
-            ok(len([c for c in localiza.caminhos() if 'data-label="Gateways de Pagamento"' in open(c, encoding='utf-8').read()]) == len(localiza.caminhos()) == 89, 'e o item existe nas 89 telas, as duas novas inclusive')
+            ok(len([c for c in localiza.caminhos() if 'data-label="Gateways de Pagamento"' in open(c, encoding='utf-8').read()]) == len(localiza.caminhos()) == 90, 'e o item existe nas 90 telas, as duas novas inclusive')
             limpar(); ir(VALE)
             pg.evaluate("document.querySelector('.nav-item[data-id=integracoes]').click()"); pg.wait_for_timeout(200)
             pg.evaluate("document.querySelector('#flyout-integracoes .flyout-item[data-label=\"Gateways de Pagamento\"]').click()"); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)

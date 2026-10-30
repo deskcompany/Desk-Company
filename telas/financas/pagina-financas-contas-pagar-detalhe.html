@@ -1096,6 +1096,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="field-hint" id="hintCategoria">É ela que leva o valor para a linha certa do DRE e define de que mês ele é.</div>
     </div>
 
+    <div class="form-field" id="campoLoja" style="max-width:420px;">
+      <label>Loja</label>
+      <div class="dropdown-select" id="ddLoja" data-value="">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Sem loja (empresa toda)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu" id="menuLoja"></div>
+      </div>
+      <div class="campo-leitura" id="roLoja">—</div>
+      <div class="field-hint">Opcional. A loja a que a despesa pertence; sem loja, ela é da empresa toda. Os anúncios por loja entram nos custos da loja em Custos do E-commerce.</div>
+    </div>
+
     <div class="form-row">
       <div class="form-field" id="campoEmissao">
         <label>Data de emissão</label>
@@ -2377,6 +2390,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:14, nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
@@ -2445,7 +2459,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Fornecedores das notas de entrada que viraram conta (12/out/2026): os mesmos nomes do Estoque.
     { id:8,  nome:'Luminárias Brasil',       fantasia:'' },
     { id:9,  nome:'Papelaria Central',       fantasia:'' },
-    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' }
+    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' },
+    // Anuncios (Custos do E-commerce, entrega 3, 30/out/2026): quem cobra a midia paga.
+    { id:11, nome:'Meta Platforms Brasil', fantasia:'Meta Ads' },
+    { id:12, nome:'Google Brasil Internet Ltda', fantasia:'Google Ads' }
   ];
   // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
   // valem para pagar. Mudou la, muda aqui; teste_formas_recebimento.py compara.
@@ -2469,7 +2486,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // e o que deixa a conta levar ao documento que a gerou. teste_fin_melhorias.py compara.
     { id:11, fornId:8,  doc:'NF 6614', nota:6614, oc:10,   venc:2,   emis:43, catId:4, valor:5380.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 6614', ocorrencia:'Única', cancelado:false },
     { id:12, fornId:9,  doc:'NF 736',  nota:736,  oc:13,   venc:-6,  emis:51, catId:4, valor:320.00,  pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 736',  ocorrencia:'Única', cancelado:false },
-    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false }
+    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false },
+    // Anuncios e midia paga (categoria 14). `lojaId` = a loja da despesa (1 Desk Shope, 2 Desk Brands, 3 Desk Tech); ausente = empresa toda. Custos do E-commerce
+    // espelha estas contas em ANUNCIOS_C (teste_custos_ecommerce.py compara). O 18 esta cancelado e o 19 venceu ha 40 dias: provam que cancelada e fora do periodo nao contam.
+    { id:14, fornId:11, lojaId:1, doc:'FAT 5521', venc:2,  emis:32, catId:14, valor:180.00, pago:180.00, forma:'Pix',    hist:'Meta Ads — campanha de conversão da Desk Shope',   ocorrencia:'Única', cancelado:false },
+    { id:15, fornId:12, lojaId:1, doc:'FAT 7730', venc:4,  emis:34, catId:14, valor:120.00, pago:120.00, forma:'Pix',    hist:'Google Ads — pesquisa e Shopping da Desk Shope',   ocorrencia:'Única', cancelado:false },
+    { id:16, fornId:11, lojaId:2, doc:'FAT 5534', venc:3,  emis:33, catId:14, valor:90.00,  pago:0,      forma:'Boleto', hist:'Meta Ads — campanha da Desk Brands',               ocorrencia:'Única', cancelado:false },
+    { id:17, fornId:11,           doc:'',         venc:1,  emis:31, catId:14, valor:60.00,  pago:0,      forma:'Boleto', hist:'Impulsionamento de publicações — empresa toda',    ocorrencia:'Única', cancelado:false },
+    { id:18, fornId:12, lojaId:1, doc:'FAT 7741', venc:5,  emis:35, catId:14, valor:500.00, pago:0,      forma:'Boleto', hist:'Google Ads — campanha cancelada da Desk Shope',    ocorrencia:'Única', cancelado:true },
+    { id:19, fornId:11, lojaId:1, doc:'FAT 5410', venc:40, emis:70, catId:14, valor:150.00, pago:150.00, forma:'Pix',    hist:'Meta Ads — campanha do mês anterior da Desk Shope', ocorrencia:'Única', cancelado:false }
   ];
 
   // A recorrencia mensal do aluguel, gerada como a tela gera: HORIZONTE, nao
@@ -2758,6 +2783,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const el = document.getElementById('hintCategoria');
     if (!c || !c.id) { el.innerHTML = 'É ela que leva o valor para a linha certa do DRE e define de que mês ele é.'; return; }
     el.innerHTML = 'Regra de competência desta categoria: <b>' + COMP_LABEL[c.comp || ''] + '</b>.';
+  }
+  // Loja da despesa (opcional): ESPELHO das lojas do sistema (Cadastros > Lojas Desk). Vazio = a empresa toda.
+  const LOJAS_CONTA = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
+  const lojaTxt = (id) => LOJAS_CONTA[id] || 'Sem loja (empresa toda)';
+  function menuLojas() {
+    document.getElementById('menuLoja').innerHTML = '<div class="dropdown-select-item active" data-value="">Sem loja (empresa toda)</div>' +
+      Object.keys(LOJAS_CONTA).map(k => '<div class="dropdown-select-item" data-value="' + k + '">' + LOJAS_CONTA[k] + '</div>').join('');
+    inicializarDropdownSelect(document.getElementById('ddLoja'), (v) => {
+      document.getElementById('roLoja').textContent = lojaTxt(Number(v));
+    });
   }
   function menuFormas() {
     document.getElementById('menuForma').innerHTML =
@@ -3317,7 +3352,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // categoria, forma, historico, valor); NAO propaga o que e da PARCELA
   // (vencimento, emissao, competencia) — senao as doze contas do aluguel
   // venceriam todas no mesmo dia.
-  const CAMPOS_DA_DESPESA = ['fornId', 'doc', 'catId', 'forma', 'hist', 'valor'];
+  const CAMPOS_DA_DESPESA = ['fornId', 'doc', 'catId', 'lojaId', 'forma', 'hist', 'valor'];
 
   function irmas(t0) {
     if (!t0 || !t0.grupo) return [t0];
@@ -3371,7 +3406,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('escopoNota').innerHTML = verbo === 'excluir'
       ? 'Conta com pagamento não é excluída — se houver alguma no grupo, ela fica.' +
         (naoMexiveis ? ' <b>' + naoMexiveis + '</b> já ' + (naoMexiveis === 1 ? 'está' : 'estão') + ' fora por isso.' : '')
-      : 'Propaga <b>fornecedor, documento, categoria, forma, histórico e valor</b>. ' +
+      : 'Propaga <b>fornecedor, documento, categoria, loja, forma, histórico e valor</b>. ' +
         'Vencimento, emissão e competência são de cada conta e não propagam.' +
         (naoMexiveis ? ' <b>' + naoMexiveis + '</b> paga' + (naoMexiveis === 1 ? '' : 's') + ' ou cancelada' + (naoMexiveis === 1 ? '' : 's') + ' ' + (naoMexiveis === 1 ? 'fica' : 'ficam') + ' de fora.' : '');
 
@@ -3457,7 +3492,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     const dados = {
       fornId: fornEscolhido, doc: document.getElementById('inputDoc').value.trim(),
-      catId: Number(catV), forma: document.getElementById('ddForma').getAttribute('data-value'),
+      catId: Number(catV), lojaId: Number(document.getElementById('ddLoja').getAttribute('data-value')) || 0,
+      forma: document.getElementById('ddForma').getAttribute('data-value'),
       hist: hist, valor: valor, ocorrencia: o
     };
 
@@ -3653,6 +3689,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== ABERTURA =====
   menuCategorias();
+  menuLojas();
   menuFormas();
   menuOcorrencias();
   menuDiasMes();
@@ -3693,6 +3730,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputFornecedor').value = f.nome;
     rotuloDropdown('ddCategoria', cat.nome, clonadaDe.catId);
     document.getElementById('inputValor').value = fmtDin(clonadaDe.valor);
+    rotuloDropdown('ddLoja', lojaTxt(clonadaDe.lojaId), clonadaDe.lojaId || '');
     rotuloDropdown('ddForma', clonadaDe.forma, clonadaDe.forma);
     document.getElementById('inputHistorico').value = clonadaDe.hist;
     document.getElementById('tituloConta').textContent = 'Nova conta a pagar';
@@ -3726,6 +3764,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Conta de comissao: o valor e de Comissoes Afiliados, entao aqui ele so se le (15/out/2026).
     document.getElementById('inputValor').readOnly = !!conta.comissao;
     document.getElementById('hintValorComissao').style.display = conta.comissao ? '' : 'none';
+    rotuloDropdown('ddLoja', lojaTxt(conta.lojaId), conta.lojaId || '');
+    document.getElementById('roLoja').textContent = lojaTxt(conta.lojaId);
     rotuloDropdown('ddForma', conta.forma, conta.forma);
     document.getElementById('roForma').textContent = conta.forma;
     document.getElementById('inputHistorico').value = conta.hist;

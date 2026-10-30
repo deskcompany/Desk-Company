@@ -1940,6 +1940,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:14, nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
@@ -2023,7 +2024,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Fornecedores das notas de entrada que viraram conta (12/out/2026): os mesmos nomes do Estoque.
     { id:8,  nome:'Luminárias Brasil',       fantasia:'' },
     { id:9,  nome:'Papelaria Central',       fantasia:'' },
-    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' }
+    { id:10, nome:'TechParts Distribuidora', fantasia:'TechParts' },
+    // Anuncios (Custos do E-commerce, entrega 3, 30/out/2026): quem cobra a midia paga.
+    { id:11, nome:'Meta Platforms Brasil', fantasia:'Meta Ads' },
+    { id:12, nome:'Google Brasil Internet Ltda', fantasia:'Google Ads' }
   ];
   // ESPELHO de Configuracoes > Formas de recebimento: as formas do sistema que
   // valem para pagar. Mudou la, muda aqui; teste_formas_recebimento.py compara.
@@ -2047,7 +2051,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // e o que deixa a conta levar ao documento que a gerou. teste_fin_melhorias.py compara.
     { id:11, fornId:8,  doc:'NF 6614', nota:6614, oc:10,   venc:2,   emis:43, catId:4, valor:5380.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 6614', ocorrencia:'Única', cancelado:false },
     { id:12, fornId:9,  doc:'NF 736',  nota:736,  oc:13,   venc:-6,  emis:51, catId:4, valor:320.00,  pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 736',  ocorrencia:'Única', cancelado:false },
-    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false }
+    { id:13, fornId:10, doc:'NF 4482', nota:4482, oc:null, venc:-15, emis:54, catId:4, valor:2460.00, pago:0, forma:'Boleto', hist:'Compra de mercadoria — nota de entrada nº 4482', ocorrencia:'Única', cancelado:false },
+    // Anuncios e midia paga (categoria 14). `lojaId` = a loja da despesa (1 Desk Shope, 2 Desk Brands, 3 Desk Tech); ausente = empresa toda. Custos do E-commerce
+    // espelha estas contas em ANUNCIOS_C (teste_custos_ecommerce.py compara). O 18 esta cancelado e o 19 venceu ha 40 dias: provam que cancelada e fora do periodo nao contam.
+    { id:14, fornId:11, lojaId:1, doc:'FAT 5521', venc:2,  emis:32, catId:14, valor:180.00, pago:180.00, forma:'Pix',    hist:'Meta Ads — campanha de conversão da Desk Shope',   ocorrencia:'Única', cancelado:false },
+    { id:15, fornId:12, lojaId:1, doc:'FAT 7730', venc:4,  emis:34, catId:14, valor:120.00, pago:120.00, forma:'Pix',    hist:'Google Ads — pesquisa e Shopping da Desk Shope',   ocorrencia:'Única', cancelado:false },
+    { id:16, fornId:11, lojaId:2, doc:'FAT 5534', venc:3,  emis:33, catId:14, valor:90.00,  pago:0,      forma:'Boleto', hist:'Meta Ads — campanha da Desk Brands',               ocorrencia:'Única', cancelado:false },
+    { id:17, fornId:11,           doc:'',         venc:1,  emis:31, catId:14, valor:60.00,  pago:0,      forma:'Boleto', hist:'Impulsionamento de publicações — empresa toda',    ocorrencia:'Única', cancelado:false },
+    { id:18, fornId:12, lojaId:1, doc:'FAT 7741', venc:5,  emis:35, catId:14, valor:500.00, pago:0,      forma:'Boleto', hist:'Google Ads — campanha cancelada da Desk Shope',    ocorrencia:'Única', cancelado:true },
+    { id:19, fornId:11, lojaId:1, doc:'FAT 5410', venc:40, emis:70, catId:14, valor:150.00, pago:150.00, forma:'Pix',    hist:'Meta Ads — campanha do mês anterior da Desk Shope', ocorrencia:'Única', cancelado:false }
   ];
 
   // A recorrencia mensal do aluguel, gerada como a tela gera: HORIZONTE, nao

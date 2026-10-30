@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Custos do E-commerce, entrega 1 (barganha de 21/out/2026) e entrega 2 (27/out/2026: itens, destino, devolucao, cortesia, produto/categoria/estado).
+# Custos do E-commerce, entrega 1 (barganha de 21/out/2026), entrega 2 (27/out/2026: itens, destino, devolucao, cortesia, produto/categoria/estado) e entrega 3 (30/out/2026: anuncios, oito cards, mes a mes, Parametros de Vendas, o modulo no perfil).
 #
 # Relatorio vivo do lucro de cada pedido ONLINE (canal 'loja_virtual'): venda, o que saiu do bolso (diferencial de frete, taxa do
 # gateway, comissao, embalagem, custo) e o lucro. A conta mora num bloco comum, RESULTADO DO PEDIDO, igual na tela nova, na
@@ -18,7 +18,13 @@
 #   [10] A devolucao entra na conta: revendavel, avariado, frete da loja e do cliente, aberta/recusada/cancelada nao contam, a gravada vence;
 #   [11] O vale de cortesia e desconto: a venda diminui, a coluna Cortesia, o espelho do exemplo;
 #   [12] Produto, categoria e estado: agrupar, filtrar, a repartição por item que fecha no pedido, a barra que diz o escopo;
-#   [13] O bloco das devoluções idêntico, os espelhos da Devolução e de Cadastros › Produtos.
+#   [13] O bloco das devoluções idêntico, os espelhos da Devolução e de Cadastros › Produtos;
+#   [14] Anúncios (Contas a Pagar, categoria 14): período, loja, sem loja, cancelada, paga e aberta, e o "—" com filtro;
+#   [15] Os oito cards em 2 linhas de 4 (1280, 1440, 860), Abaixo da margem e a margem mínima (15: 3, 11 e 16; 0: 3 e 11; 20: 1, 3, 11, 12 e 16);
+#   [16] As abas do card e o gráfico mês a mês (relógio fixo em 30/10/2026 e em 10/02/2026, a virada do ano);
+#   [17] Parâmetros de Vendas: padrão, gravação, limites, registro, leitura em Custos, hub e catálogo;
+#   [18] O módulo na lista do perfil do vendedor;
+#   [19] Contas a Pagar: o campo Loja (leitura, edição, conta nova, a lista sem coluna nem filtro).
 #
 # Contas a mao (loja 1 = Desk Shope, embalagem R$ 5,00 POR PEDIDO; loja 2 = Desk Brands, R$ 8,00; taxas do Link de pagamento
 # da InfinitePay: 1x 4,20% · 2x 6,09% · 3x 7,01% · 10x 15,06% · 12x 16,66%, pix 0). Desde a entrega 2 (27/out/2026) a devolucao aceita entra na conta e o vale de cortesia sai da venda;
@@ -217,8 +223,8 @@ with sync_playwright() as p:
         ok(all(('/' in l[0] and re.search(r'nº \d+', l[0])) for l in ls), 'a primeira coluna traz o número, e a data e o cliente embaixo')
         ors = [oraculo(x) for x in online(todos)]
         fat = sum(o['venda'] for o in ors); luc = sum(o['lucro'] for o in ors); cus = fat - luc; prej = sum(1 for o in ors if o['lucro'] < 0)
-        cards = pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiPrejuizo, kpiSemCusto].map(e => e.textContent)")
-        ok(cards == [br(fat), br(cus), br(luc), pct(luc / fat), str(prej), '0'] and prej == 2, 'os seis cards: faturamento, custos, lucro, margem, no prejuízo (2: o 3 e o 11) e sem custo (0): %s' % cards)
+        cards = pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiAbaixo, kpiSemCusto].map(e => e.textContent)")
+        ok(cards == [br(fat), br(cus), br(luc), pct(luc / fat), '3', '0'] and prej == 2, 'os cards: faturamento, custos, lucro, margem, abaixo da margem (3: o 3, o 11 e o 16; 2 deles no prejuízo) e sem custo (0): %s' % cards)
         ok(perto(cus, sum(o['dif'] + o['taxa'] + o['comissao'] + o['embalagem'] + o['custo'] + o['devolucao'] for o in ors)), 'custos é tudo o que saiu: diferencial, taxa, comissão, embalagem, custo e devolução')
         ok(texto('#somaFiltro') == br(luc) and '8 pedidos' in texto('#contagemLinhas'), 'o rodapé soma o lucro do filtro: %s' % texto('#somaFiltro'))
         # a barra
@@ -227,9 +233,9 @@ with sync_playwright() as p:
         leg = texto('#legendaDivisao')
         ok(all(t in leg for t in ('Custo dos produtos', 'Frete', 'Taxa do gateway', 'Comissão', 'Embalagem', 'Devolução', 'Lucro')) and br(luc) in leg and pct(luc / fat) in leg,
            'a legenda traz o nome, o valor em R$ e o % de cada parte')
-        ok(texto('.ce-barra-titulo') == 'Divisão do faturamento', 'o título da barra: %s' % texto('.ce-barra-titulo'))
+        ok(texto('#abaDivisao') == 'Divisão do faturamento', 'a aba da barra: %s' % texto('#abaDivisao'))
         ok(texto('.ce-barra-apoio') == 'De tudo o que foi vendido, quanto foi para cada custo e quanto ficou de lucro.', 'a linha de apoio embaixo do título')
-        ok(pg.evaluate("parseFloat(getComputedStyle(document.querySelector('.ce-barra-apoio')).fontSize) < parseFloat(getComputedStyle(document.querySelector('.ce-barra-titulo')).fontSize)"), 'a linha de apoio é menor que o título')
+        ok(pg.evaluate("parseFloat(getComputedStyle(document.querySelector('.ce-barra-apoio')).fontSize) < parseFloat(getComputedStyle(document.querySelector('#abaDivisao')).fontSize)"), 'a linha de apoio é menor que o título da aba')
         # a legenda: grade de 4 colunas iguais, cada valor colado ao seu nome, centralizada sob a barra
         itens = pg.evaluate("""Array.from(document.querySelectorAll('#legendaDivisao > .ce-leg')).map(e => {
             const r = e.getBoundingClientRect(), t = e.querySelector('.ce-leg-t').children, i = e.querySelector('i').getBoundingClientRect();
@@ -252,10 +258,13 @@ with sync_playwright() as p:
         x860 = pg.evaluate("Array.from(document.querySelectorAll('#legendaDivisao > .ce-leg')).map(e => Math.round(e.getBoundingClientRect().left))")
         ok(len(set(x860)) == 2, 'em tela estreita cai para 2 colunas: x = %s' % x860)
         pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(150)
-        pg.click('[data-kpi="prejuizo"]'); pg.wait_for_timeout(150)
+        # com a margem minima em 0 o card "Abaixo da margem" traz so os dois no prejuizo (3 e 11), o caso do lucro negativo na legenda
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
+        pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
         partes = pg.evaluate("Array.from(document.querySelectorAll('#barraDivisao > span')).map(s => s.getAttribute('data-parte'))")
         ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 298,29' in texto('#legendaDivisao'), 'lucro negativo (− 265,80 e − 32,49 dos dois pedidos no prejuízo) fica na legenda, fora da barra: %s' % partes)
-        ok('só os pedidos no prejuízo' in texto('.ce-barra-titulo') and texto('#kpiLucro') == br(luc), 'a barra diz que explica só os pedidos no prejuízo; os quatro primeiros cards seguem somando a lista inteira')
+        ok('só os pedidos abaixo da margem mínima' in texto('#escopoBarra') and texto('#kpiLucro') == br(luc), 'a barra diz que explica só os pedidos abaixo da margem; os quatro primeiros cards seguem somando a lista inteira')
+        pg.click('[data-kpi="abaixo"]'); pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
 
     # ================================================================ 3. configurar
     if secao(3, 'Configurar: situações, custo médio, embalagem por loja, Cancelar descarta, validação e registro'):
@@ -324,16 +333,16 @@ with sync_playwright() as p:
     # ================================================================ 4. cards, agrupar, busca, periodo, loja
     if secao(4, 'Cards que filtram, agrupar por, busca, período e loja'):
         abrir(); todo_periodo(); todos = dados()
-        ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => c.hasAttribute('aria-pressed'))") == [False] * 4 + [True] * 2, 'só os dois cards de alerta filtram (No prejuízo e Produto sem custo)')
-        pg.click('[data-kpi="prejuizo"]'); pg.wait_for_timeout(150)
-        ok(sorted(numeros()) == [3, 11] and pg.evaluate("document.querySelector('[data-kpi=prejuizo]').getAttribute('aria-pressed')") == 'true' and pg.evaluate("document.querySelector('[data-kpi=prejuizo]').classList.contains('on')"),
-           'No prejuízo filtra: o pedido 3 (devolvido inteiro) e o 11 (frete caro), e o card fica marcado')
-        borda = pg.evaluate("(() => { const c = document.querySelector('[data-kpi=prejuizo]'); const s = getComputedStyle(c); return [s.borderTopColor, getComputedStyle(document.body).getPropertyValue('--active-text').trim()]; })()")
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => c.hasAttribute('aria-pressed'))") == [False] * 6 + [True] * 2, 'só os dois cards de alerta filtram (Abaixo da margem e Produto sem custo)')
+        pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
+        ok(sorted(numeros()) == [3, 11, 16] and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'true' and pg.evaluate("document.querySelector('[data-kpi=abaixo]').classList.contains('on')"),
+           'Abaixo da margem filtra: o 3 (devolvido inteiro), o 11 (frete caro) e o 16 (14,7%, abaixo dos 15%), e o card fica marcado')
+        borda = pg.evaluate("(() => { const c = document.querySelector('[data-kpi=abaixo]'); const s = getComputedStyle(c); return [s.borderTopColor, getComputedStyle(document.body).getPropertyValue('--active-text').trim()]; })()")
         ok(borda[0] != 'rgb(38, 38, 38)' and borda[0] != 'rgb(233, 231, 224)', 'a borda do card ativo é azul, não a de repouso: %s' % borda[0])
-        cards_depois = pg.evaluate("[kpiFaturamento, kpiPrejuizo].map(e => e.textContent)")
-        ok(cards_depois[0] == br(sum(oraculo(x)['venda'] for x in online(todos))) and cards_depois[1] == '2', 'os cards continuam somando a lista inteira, não a que o card filtrou')
-        pg.click('[data-kpi="prejuizo"]'); pg.wait_for_timeout(150)
-        ok(len(numeros()) == 8 and pg.evaluate("document.querySelector('[data-kpi=prejuizo]').getAttribute('aria-pressed')") == 'false', 'clicar de novo desfaz o filtro')
+        cards_depois = pg.evaluate("[kpiFaturamento, kpiAbaixo].map(e => e.textContent)")
+        ok(cards_depois[0] == br(sum(oraculo(x)['venda'] for x in online(todos))) and cards_depois[1] == '3', 'os cards continuam somando a lista inteira, não a que o card filtrou')
+        pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
+        ok(len(numeros()) == 8 and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'false', 'clicar de novo desfaz o filtro')
         pg.evaluate("PEDIDOS.filter(p => p.id === 9)[0].custo = 0; render();"); pg.wait_for_timeout(150)
         ok(texto('#kpiSemCusto') == '1' and 'custo zerado' in texto('#subSemCusto'), 'um pedido com custo zero acende o card Produto sem custo')
         pg.click('[data-kpi="semcusto"]'); pg.wait_for_timeout(150)
@@ -820,7 +829,7 @@ with sync_playwright() as p:
         parte = [(pid, py) for pid in com for sku, cat, py in partes_py[pid] if sku == 'VES-2001']
         cards = pg.evaluate("[kpiFaturamento, kpiLucro].map(e => e.textContent)")
         ok(cards == [br(sum(py['venda'] for _, py in parte)), br(sum(py['lucro'] for _, py in parte))], 'os cards somam só a parte da camiseta em cada pedido: %s' % cards)
-        ok('só a parte do item "camiseta"' in texto('.ce-barra-titulo'), 'e o título da barra diz isso: %s' % texto('.ce-barra-titulo'))
+        ok('só a parte do item "camiseta"' in texto('#escopoBarra'), 'e o título da barra diz isso: %s' % texto('#escopoBarra'))
         l4 = [l for l in linhas() if 'nº 4 ' in l[0] + ' '][0]
         py4 = [py for sku, cat, py in partes_py[4] if sku == 'VES-2001'][0]
         ok(l4[2] == br(py4['venda']) and num(l4[-2]) == float(py4['lucro']), 'a linha do pedido 4 mostra a parte da camiseta (venda %s), não o pedido inteiro' % l4[2])
@@ -832,10 +841,10 @@ with sync_playwright() as p:
         pg.click('#filtroCategoria .dropdown-select-btn'); pg.click('#filtroCategoria .dropdown-select-item[data-value="Papelaria"]'); pg.wait_for_timeout(200)
         parte = [py for pid in ONLINE for sku, cat, py in partes_py[pid] if cat == 'Papelaria']
         cards = pg.evaluate("[kpiFaturamento, kpiLucro].map(e => e.textContent)")
-        ok(cards == [br(sum(py['venda'] for py in parte)), br(sum(py['lucro'] for py in parte))] and 'só a parte da categoria Papelaria' in texto('.ce-barra-titulo'), 'a categoria Papelaria soma só a parte dos itens dela, e o título diz: %s' % cards)
+        ok(cards == [br(sum(py['venda'] for py in parte)), br(sum(py['lucro'] for py in parte))] and 'só a parte da categoria Papelaria' in texto('#escopoBarra'), 'a categoria Papelaria soma só a parte dos itens dela, e o título diz: %s' % cards)
         pg.fill('#campoBusca', 'caderno'); pg.wait_for_timeout(150)
         parte = [py for pid in ONLINE for sku, cat, py in partes_py[pid] if sku == 'PAP-3001']
-        ok(pg.evaluate("kpiFaturamento.textContent") == br(sum(py['venda'] for py in parte)) and 'e da categoria' in texto('.ce-barra-titulo'), 'produto e categoria juntos: só o caderno, e o título cita os dois')
+        ok(pg.evaluate("kpiFaturamento.textContent") == br(sum(py['venda'] for py in parte)) and 'e da categoria' in texto('#escopoBarra'), 'produto e categoria juntos: só o caderno, e o título cita os dois')
         agrupa('produto')
         ok(len(linhas()) == 1, 'agrupar por produto com o filtro ligado mostra só o produto do filtro')
         pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(200)
@@ -892,6 +901,429 @@ with sync_playwright() as p:
         fora = [(pid, i[0]) for pid in ONLINE for i in ITENS[pid] if pid != 1 and prod.get(i[0]) != (i[1], i[2])]
         ok(not fora, 'os itens dos pedidos online 3, 4, 8, 9, 11, 12 e 16 são produtos de Cadastros › Produtos, com o mesmo SKU, nome e categoria: %s' % fora)
         ok(all(i[0] not in prod for i in ITENS[1]), 'o pedido 1 segue com os SKUs do catálogo do pedido (FON-BT-200 e outros), que Cadastros › Produtos não tem: a categoria deles é a mais próxima')
+
+    # ================================================================ entrega 3 (30/out/2026)
+    # Daqui para baixo o relogio do navegador fica fixo (sexta 30/10/2026, como em teste_pedido_cartao.py): os pedidos andam em dias para tras de hoje,
+    # e o mes, o periodo e o grafico dependem da data. A suite nao muda de resultado no dia 1 nem na virada do ano.
+    from oraculo_custos import ANUNCIOS, anuncios_do_periodo, abaixo_da_margem, meses_do_grafico, MESES_EXEMPLO, SITUACOES_FABRICA
+    PAGAR, PAGAR_D, PARAM_V, VEND_D, HUB = 'pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html', 'pagina-configuracoes-parametros-vendas.html', 'pagina-cadastros-vendedores-detalhe.html', 'pagina-configuracoes.html'
+    FIXO = datetime.datetime(2026, 10, 30, 10, 0, 0)
+    HOJE_F = FIXO.date()
+    NOMES_MES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+
+    def fonte(tela):
+        return open(localiza.onde(tela), encoding='utf-8').read()
+
+    def escolher_loja(v):
+        pg.click('#filtroLoja .dropdown-select-btn'); pg.wait_for_timeout(100)
+        pg.click('#filtroLoja .dropdown-select-item[data-value="%s"]' % v); pg.wait_for_timeout(200)
+
+    def periodo(de, ate):
+        pg.evaluate("(a) => { per = { de: a[0], ate: a[1] }; paginaAtual = 1; render(); }", [de.isoformat(), ate.isoformat()]); pg.wait_for_timeout(150)
+
+    def cards_anuncio():
+        return pg.evaluate("['kpiAnuncios', 'subAnuncios', 'kpiLucroAnuncios', 'subLucroAnuncios'].map(i => document.getElementById(i).textContent)")
+
+    def lucro_esperado(todos, de=None, ate=None, loja=None, base='compra'):
+        s = D(0)
+        for x in online(todos):
+            d = HOJE_F - datetime.timedelta(days=x['dv'])
+            if (de is None or d >= de) and (ate is None or d <= ate) and (loja is None or x['loja'] == loja):
+                s += oraculo(x, base)['lucro']
+        return s
+
+    def vis(s):
+        return pg.evaluate("(s) => { const e = document.querySelector(s); return !!e && e.offsetParent !== null; }", s)
+
+    def param_lido():
+        return pg.evaluate("JSON.parse(localStorage.getItem('deskParametros') || '{}')")
+
+    def pr(v):
+        return D(v)
+
+    # ---------------------------------------------------------------- 14. anuncios
+    if secao(14, 'Anúncios: a regra (período, loja, sem loja, cancelada, paga e aberta) e o "—" com filtro'):
+        pg.clock.set_fixed_time(FIXO)
+        ir(PAGAR)
+        cp = pg.evaluate("TITULOS.filter(t => t.catId === 14).map(t => [t.id, t.lojaId || 0, t.valor, t.venc, !!t.cancelado, t.pago])")
+        ir(PAGAR_D, '?id=1')
+        cpd = pg.evaluate("TITULOS.filter(t => t.catId === 14).map(t => [t.id, t.lojaId || 0, t.valor, t.venc, !!t.cancelado, t.pago])")
+        ok(cp == cpd and len(cp) == 6, 'as 6 contas da categoria 14 são as mesmas na lista e na página da conta: %s' % cp)
+        ok([(c[0], c[1], c[2], c[3], c[4], c[5]) for c in cp] == [(14, 1, 180, 2, False, 180), (15, 1, 120, 4, False, 120), (16, 2, 90, 3, False, 0), (17, 0, 60, 1, False, 0), (18, 1, 500, 5, True, 0), (19, 1, 150, 40, False, 150)],
+           'Meta Ads 180 pago (Shope, há 2 dias), Google Ads 120 pago (Shope, há 4), Meta Ads 90 em aberto (Brands, há 3), impulsionamento 60 em aberto sem loja (há 1), um cancelado de 500 (Shope) e um de 150 de 40 dias atrás')
+        ir(TELA)
+        esp = pg.evaluate("ANUNCIOS_C.map(a => [a.id, a.lojaId, a.valor, a.venc, a.cancelado])")
+        ok(esp == [[c[0], c[1], c[2], c[3], c[4]] for c in cp], 'ANUNCIOS_C repete as contas da categoria 14 de Contas a Pagar (id, loja, valor, vencimento, cancelada): %s' % esp)
+        ok(esp == [[a['id'], a['loja'], a['valor'], a['venc'], a['cancelado']] for a in ANUNCIOS], 'e o oráculo conhece as mesmas seis')
+        cats = {}
+        for t in (PAGAR, PAGAR_D):
+            ir(t); cats[t] = pg.evaluate("[CATS_FIN.filter(c => c.id === 14).map(c => [c.nome, c.grupo, c.comp]), FORNECEDORES.filter(f => f.id > 10 && f.id < 100).map(f => [f.id, f.nome, f.fantasia])]")
+        ok(cats[PAGAR] == cats[PAGAR_D] and cats[PAGAR][0] == [['Anúncios e mídia paga', 'Despesas variáveis', 'vencimento']] and [f[2] for f in cats[PAGAR][1]] == ['Meta Ads', 'Google Ads'],
+           'a categoria 14 e os fornecedores Meta Ads e Google Ads existem iguais nas duas telas de Contas a Pagar: %s' % cats[PAGAR])
+        # Contas a Pagar nao grava conta nova em localStorage (so a conta de comissao, de outra categoria, nasce de la)
+        chaves = set()
+        for t in (PAGAR, PAGAR_D):
+            chaves |= set(re.findall(r"localStorage\.setItem\('(desk[A-Za-z]+)'", fonte(t)))
+        ok(chaves <= {'deskParametros', 'deskLog', 'deskComissoesPagas', 'deskComissoesExemplo'}, 'Contas a Pagar só grava no navegador %s: nenhuma conta nova de anúncio fica lá para Custos ler' % sorted(chaves))
+        # a regra
+        abrir(); todos = dados()
+        luc = lucro_esperado(todos)
+        mes_ini = HOJE_F.replace(day=1)
+        e_todas = anuncios_do_periodo(HOJE_F, mes_ini, HOJE_F)
+        ok(e_todas == 450, 'do mês, todas as lojas: 180 + 120 + 90 + 60 = 450 (o cancelado de 500 e o de 40 dias atrás ficam de fora): %s' % e_todas)
+        c = cards_anuncio()
+        ok(c == [br(e_todas), 'de Contas a Pagar, no período', br(luc - e_todas), 'o lucro menos os anúncios'], 'os dois cards: Anúncios %s e Lucro depois dos anúncios %s (lucro %s − anúncios), com as legendas: %s' % (br(e_todas), br(luc - e_todas), br(luc), c))
+        ok(pg.evaluate("document.getElementById('kpiLucroAnuncios').classList.contains('neg')") is False, 'lucro depois dos anúncios positivo não fica vermelho')
+        pg.evaluate("ANUNCIOS_C.filter(a => a.id === 18)[0].cancelado = false; render();"); pg.wait_for_timeout(120)
+        ok(cards_anuncio()[0] == br(e_todas + 500), 'a conta cancelada é que fica de fora: descancelada, os 500 entram (950)')
+        pg.evaluate("ANUNCIOS_C.filter(a => a.id === 18)[0].cancelado = true; render();"); pg.wait_for_timeout(120)
+        # a loja
+        escolher_loja(1)
+        e1 = anuncios_do_periodo(HOJE_F, mes_ini, HOJE_F, loja=1)
+        c = cards_anuncio()
+        ok(e1 == 300 and c[0] == br(e1) and c[2] == br(lucro_esperado(todos, loja=1) - e1), 'Desk Shope: só as contas dela, 180 + 120 = 300 (a sem loja e a da Brands não entram); lucro depois = %s' % c[2])
+        escolher_loja(2)
+        e2 = anuncios_do_periodo(HOJE_F, mes_ini, HOJE_F, loja=2)
+        c = cards_anuncio()
+        ok(e2 == 90 and c[0] == br(e2) and c[2] == br(lucro_esperado(todos, loja=2) - e2), 'Desk Brands: 90 (a conta em aberto conta, a paga também); lucro depois = %s' % c[2])
+        escolher_loja(3)
+        c = cards_anuncio()
+        ok(c[0] == br(0) and c[2] == br(0), 'Desk Tech: nenhuma conta, anúncios zerados (a conta sem loja não vai para uma loja)')
+        escolher_loja('todos')
+        ok(cards_anuncio()[0] == br(e_todas), 'a conta sem loja (60) só entra em "Todas as lojas"')
+        # o periodo
+        periodo(HOJE_F - datetime.timedelta(days=45), HOJE_F)
+        e45 = anuncios_do_periodo(HOJE_F, HOJE_F - datetime.timedelta(days=45), HOJE_F)
+        ok(e45 == 600 and cards_anuncio()[0] == br(e45), 'com 45 dias de período, a conta de 150 de 40 dias atrás entra: 600')
+        periodo(HOJE_F - datetime.timedelta(days=2), HOJE_F)
+        e3 = anuncios_do_periodo(HOJE_F, HOJE_F - datetime.timedelta(days=2), HOJE_F)
+        c = cards_anuncio()
+        ok(e3 == 240 and c[0] == br(e3) and c[2] == br(lucro_esperado(todos, HOJE_F - datetime.timedelta(days=2), HOJE_F) - e3), 'de 28/10 a 30/10: 180 (venceu 28/10) + 60 (29/10) = 240, e o lucro é o dos pedidos desses dias menos isso')
+        periodo(HOJE_F - datetime.timedelta(days=60), HOJE_F - datetime.timedelta(days=50))
+        ok(cards_anuncio()[0] == br(0), 'período sem nenhuma conta: zero')
+        # com filtro: "—"
+        NOTA = 'anúncio não se divide por pedido ou produto'
+        abrir()
+        pg.fill('#campoBusca', 'camiseta'); pg.wait_for_timeout(200)
+        ok(cards_anuncio() == ['—', NOTA, '—', NOTA], 'com pesquisa, os dois cards mostram "—" e a nota: %s' % cards_anuncio())
+        pg.fill('#campoBusca', ''); pg.wait_for_timeout(200)
+        ok(cards_anuncio()[0] == br(450), 'tirada a pesquisa, os anúncios voltam')
+        pg.click('#filtroCategoria .dropdown-select-btn'); pg.wait_for_timeout(100)
+        pg.click('#filtroCategoria .dropdown-select-item[data-value="Papelaria"]'); pg.wait_for_timeout(200)
+        ok(cards_anuncio() == ['—', NOTA, '—', NOTA], 'com filtro de categoria: "—"')
+        pg.click('#filtroCategoria .dropdown-select-btn'); pg.wait_for_timeout(100)
+        pg.click('#filtroCategoria .dropdown-select-item[data-value="todos"]'); pg.wait_for_timeout(200)
+        pg.evaluate("fGrupo = { por: 'vend', chave: 'Bruno Carvalho', rotulo: 'Bruno Carvalho' }; render();"); pg.wait_for_timeout(150)
+        ok(cards_anuncio() == ['—', NOTA, '—', NOTA], 'com filtro de grupo (vendedor ou afiliado): "—"')
+        pg.evaluate("fGrupo = null; render();"); pg.wait_for_timeout(150)
+        pg.click('[data-kpi="semcusto"]'); pg.wait_for_timeout(150)
+        ok(cards_anuncio() == ['—', NOTA, '—', NOTA], 'com filtro de card ligado: "—"')
+        pg.click('[data-kpi="semcusto"]'); pg.wait_for_timeout(150)
+        ok(cards_anuncio()[0] == br(450), 'e volta ao desligar o card')
+        # a barra e a conta de cada pedido nao mudam com os anuncios
+        luc_cards = pg.evaluate("kpiLucro.textContent")
+        ok(luc_cards == br(luc) and 'Lucro' in texto('#legendaDivisao') and br(luc) in texto('#legendaDivisao'), 'a barra "Divisão do faturamento" segue com o lucro dos pedidos (%s), sem descontar os anúncios' % br(luc))
+        ok(not pg.evaluate("Array.from(document.querySelectorAll('#legendaDivisao .ce-leg-t > span:first-child')).some(s => /anúncio/i.test(s.textContent))"), 'e a barra não ganhou uma parte de anúncios')
+        # lucro depois dos anuncios negativo fica vermelho
+        pg.evaluate("ANUNCIOS_C.push({ id: 99, lojaId: 0, valor: 5000, venc: 1, cancelado: false }); render();"); pg.wait_for_timeout(150)
+        c = cards_anuncio()
+        ok(c[2] == br(luc - 450 - 5000).replace('R$ -', '− R$ ') or c[2].startswith('− R$'), 'estourando o lucro, o card mostra o valor negativo: %s' % c[2])
+        ok(pg.evaluate("(() => { const el = document.getElementById('kpiLucroAnuncios'), t = document.createElement('i'); t.style.color = 'var(--danger)'; document.body.appendChild(t); const r = getComputedStyle(el).color === getComputedStyle(t).color; t.remove(); return r && el.classList.contains('neg'); })()"),
+           'e fica vermelho')
+
+    # ---------------------------------------------------------------- 15. os oito cards e a margem minima
+    if secao(15, 'Oito cards em 2 linhas de 4, Abaixo da margem e a margem mínima'):
+        pg.clock.set_fixed_time(FIXO)
+        abrir(); todos = dados()
+        rot = pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card .kpi-label')).map(e => e.textContent.trim())")
+        ok(rot == ['Faturamento', 'Custos', 'Lucro', 'Margem', 'Anúncios', 'Lucro depois dos anúncios', 'Abaixo da margem', 'Produto sem custo'], 'os 8 cards, na ordem: %s' % rot)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => c.hasAttribute('aria-pressed'))") == [False] * 6 + [True] * 2, 'só os dois últimos filtram')
+        ok(pg.evaluate("document.querySelector('[data-kpi=prejuizo]')") is None, 'o card "No prejuízo" não existe mais')
+        for larg in (1280, 1440):
+            pg.set_viewport_size({'width': larg, 'height': 900}); pg.wait_for_timeout(250)
+            g = pg.evaluate("""Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => { const r = c.getBoundingClientRect(), v = c.querySelector('.kpi-value').getBoundingClientRect(), d = c.querySelector('.kpi-value');
+                return [Math.round(r.left), Math.round(r.top), Math.round(r.width), v.right <= r.right + 0.5 && d.scrollWidth <= d.clientWidth + 1, d.textContent]; })""")
+            ok(len({x[1] for x in g}) == 2 and [x[1] for x in g[:4]] == [g[0][1]] * 4 and [x[1] for x in g[4:]] == [g[4][1]] * 4 and [x[0] for x in g[:4]] == [x[0] for x in g[4:]],
+               'a %dpx: 2 linhas de 4, colunas alinhadas: lefts %s' % (larg, [x[0] for x in g]))
+            ok(all(x[3] for x in g) and all(x[4].startswith('R$') or x[4] in ('3', '0', '13,9%') or x[4][0].isdigit() for x in g), 'a %dpx: nenhum valor cortado, o "R$" inteiro à vista: %s' % (larg, [x[4] for x in g]))
+            ok(not pg.evaluate("document.documentElement.scrollWidth > window.innerWidth"), 'a %dpx a página não tem barra horizontal' % larg)
+        pg.set_viewport_size({'width': 1280, 'height': 900}); pg.wait_for_timeout(150)
+        pg.evaluate("document.getElementById('kpiFaturamento').textContent = 'R$ 999.999,99'; document.getElementById('kpiLucroAnuncios').textContent = '− R$ 999.999,99';")
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-value')).every(d => d.scrollWidth <= d.clientWidth + 1)"), 'a 1280px até R$ 999.999,99 cabe no card')
+        pg.set_viewport_size({'width': 860, 'height': 900}); pg.wait_for_timeout(250)
+        x860 = pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => Math.round(c.getBoundingClientRect().left))")
+        ok(len(set(x860)) == 2, 'em tela estreita são 2 por linha: %s' % x860)
+        pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(150)
+        # a margem: 15 -> 3, 11, 16
+        abrir(); todo_periodo(); todos = dados()
+        ors = {x['id']: oraculo(x) for x in online(todos)}
+        o16 = ors[16]
+        ok(perto(o16['lucro'], 341.16) and perto(o16['venda'], 2315) and perto(o16['lucro'] / o16['venda'], 0.14736), 'o 16: 341,16 ÷ 2.315,00 = %s (abaixo de 15%%)' % pct(o16['lucro'] / o16['venda']))
+        for minima, quer in ((15, [3, 11, 16]), (0, [3, 11]), (20, [1, 3, 11, 12, 16])):
+            pg.evaluate("(m) => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = m; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); }", minima); pg.wait_for_timeout(150)
+            esp = sorted(i for i, o in ors.items() if abaixo_da_margem(o, minima))
+            pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
+            got = sorted(numeros())
+            sub = texto('#subAbaixo')
+            pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(100)
+            ok(got == quer == esp and texto('#kpiAbaixo') == str(len(quer)) and sub == '2 no prejuízo · mínima de %s%%' % minima, 'mínima %s%%: Abaixo da margem filtra %s (o oráculo diz %s) e a legenda diz "%s"' % (minima, got, esp, sub))
+        ok(perto(ors[1]['lucro'] / ors[1]['venda'], 0.18949) and perto(ors[12]['lucro'] / ors[12]['venda'], 0.17587), 'a 20%%, além do 12 (%s) entra o 1 (%s): é a margem dele que está entre 15%% e 20%%' % (pct(ors[12]['lucro'] / ors[12]['venda']), pct(ors[1]['lucro'] / ors[1]['venda'])))
+        pg.evaluate("(m) => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = m; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); }", 12.5); pg.wait_for_timeout(150)
+        ok(texto('#subAbaixo').endswith('mínima de 12,5%') and sorted(i for i, o in ors.items() if abaixo_da_margem(o, 12.5)) == [3, 11], 'mínima fracionada: "12,5%"')
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
+        ok(texto('#subAbaixo').endswith('mínima de 15%'), 'sem a chave gravada vale o 15 de fábrica')
+        # a coluna Margem
+        pg.evaluate("itensPorPaginaAtual = 100; render();"); pg.wait_for_timeout(150)
+        cel = lambda i: pg.evaluate("(i) => { const td = document.querySelector('#corpoTabela tr[data-id=\"' + i + '\"] td:last-child'); return [td.className, td.getAttribute('title'), getComputedStyle(td).color]; }", i)
+        c16, c3, c1 = cel(16), cel(3), cel(1)
+        cor = lambda v: pg.evaluate("(v) => { const t = document.createElement('i'); t.style.color = v; document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove(); return c; }", v)
+        ok(c16[0] == 'ce-atencao' and c16[1] == 'abaixo da mínima de 15%' and c16[2] == cor('var(--warning)'), 'margem de 14,7%% (pedido 16): na cor de atenção, com o title "abaixo da mínima de 15%%": %s' % c16)
+        ok(c3[0] == 'ce-neg' and c3[1] is None and c3[2] == cor('var(--danger)'), 'lucro negativo (pedido 3) continua vermelho, sem aquele title: %s' % c3)
+        ok(c1[0] == '' and c1[1] is None, 'margem acima da mínima (pedido 1, 19,0%) sem destaque')
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
+        ok(cel(16)[0] == '', 'com a mínima em 0 o pedido 16 não tem destaque')
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
+        # o painel lateral
+        pg.click('#corpoTabela tr[data-id="16"]'); pg.wait_for_timeout(250)
+        ok(pg.evaluate("document.getElementById('notaMargemPainel') ? document.getElementById('notaMargemPainel').textContent : null") == 'abaixo da mínima de 15%', 'o painel do pedido 16 diz embaixo da margem: "abaixo da mínima de 15%"')
+        pg.click('#drawerClose'); pg.wait_for_timeout(150)
+        pg.click('#corpoTabela tr[data-id="1"]'); pg.wait_for_timeout(250)
+        ok(pg.evaluate("document.getElementById('notaMargemPainel')") is None, 'o do pedido 1 (19,0%) não diz nada')
+        pg.click('#drawerClose'); pg.wait_for_timeout(150)
+        pg.click('#corpoTabela tr[data-id="3"]'); pg.wait_for_timeout(250)
+        ok(pg.evaluate("document.getElementById('notaMargemPainel')") is None, 'o do pedido 3 (lucro negativo) também não: ele já é vermelho')
+        pg.click('#drawerClose'); pg.wait_for_timeout(150)
+        # Configurar: a linha da margem
+        abrir_config()
+        ok(texto('#cfgMargem') == 'Margem mínima: 15%. Muda em Parâmetros de Vendas' and pg.evaluate("document.querySelector('#cfgMargem a').getAttribute('href')") == '../configuracoes/pagina-configuracoes-parametros-vendas.html',
+           'em Configurar: "Margem mínima: 15%%. Muda em Parâmetros de Vendas", com o link: %s' % texto('#cfgMargem'))
+        pg.click('#cfgMargem a'); pg.wait_for_load_state('load'); pg.wait_for_timeout(300)
+        ok(pg.url.split('/')[-1].split('?')[0] == PARAM_V, 'e o link abre Parâmetros de Vendas')
+
+    # ---------------------------------------------------------------- 16. as abas e o mes a mes
+    if secao(16, 'As abas do card e o gráfico mês a mês'):
+        pg.clock.set_fixed_time(FIXO)
+        abrir(); todos = dados()
+        ok(texto('#abaDivisao') == 'Divisão do faturamento' and texto('#abaMes') == 'Mês a mês', 'duas abas: %s e %s' % (texto('#abaDivisao'), texto('#abaMes')))
+        ok(pg.evaluate("document.getElementById('abaDivisao').classList.contains('active') && document.getElementById('abaDivisao').getAttribute('aria-selected') === 'true'"), 'abre em "Divisão do faturamento"')
+        ok(vis('#barraDivisao') and not vis('#mesGrafico') and vis('#tabelaCustos'), 'a barra aparece, o gráfico não, e a tabela segue embaixo')
+        pg.click('#abaMes'); pg.wait_for_timeout(200)
+        ok(vis('#mesGrafico') and not vis('#barraDivisao') and vis('#tabelaCustos') and pg.evaluate("document.getElementById('abaMes').classList.contains('active')"), 'em "Mês a mês" o gráfico aparece, a barra some e a tabela não desce')
+        ok(pg.inner_text('#painelMes').count('Os meses anteriores são dados de exemplo; o mês atual vem dos pedidos.') == 1, 'a tela diz que os meses anteriores são exemplo')
+        ok(any('MESES_EXEMPLO' in s[:700] for s in fonte(TELA).split('shortcut:')[1:]), 'o código marca com "shortcut:" que na produção tudo vem dos pedidos')
+        pg.click('#abaDivisao'); pg.wait_for_timeout(150)
+        ok(vis('#barraDivisao') and not vis('#mesGrafico'), 'voltar à primeira aba mostra a barra')
+        pg.focus('#abaMes'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)
+        ok(vis('#mesGrafico'), 'a aba também abre pelo teclado')
+
+        def barras():
+            return {(b[0], b[1]): b[2] for b in pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-barra')).map(b => [b.getAttribute('data-mes'), b.getAttribute('data-serie'), Number(b.getAttribute('data-valor'))])")}
+
+        def confere(rot, loja=None, base='compra', situacoes=SITUACOES_FABRICA, dia=HOJE_F, pedidos=None):
+            esp = meses_do_grafico(dia, pedidos if pedidos is not None else todos, loja, base, situacoes)
+            b = barras()
+            quer = {}
+            for (a, m), f, l in esp:
+                quer[('%d-%02d' % (a, m), 'faturamento')] = float(f); quer[('%d-%02d' % (a, m), 'lucro')] = float(l)
+            errados = [(k, b.get(k), quer[k]) for k in quer if k not in b or not perto(b[k], quer[k])]
+            ok(len(b) == 12 and not errados, '%s: os 6 meses (%s a %s), faturamento e lucro de cada um batem com o oráculo: %s' % (rot, esp[0][0], esp[-1][0], errados[:2]))
+            return esp
+        esp = confere('todas as lojas')
+        atual = esp[-1]
+        pedidos_mes = [x for x in online(todos) if (HOJE_F - datetime.timedelta(days=x['dv'])).month == HOJE_F.month]
+        ok(len(pedidos_mes) == 8 and perto(atual[1], sum(oraculo(x)['venda'] for x in pedidos_mes)) and perto(atual[2], sum(oraculo(x)['lucro'] for x in pedidos_mes)),
+           'o mês atual (outubro) é a soma dos 8 pedidos online: faturamento %s, lucro %s' % (br(atual[1]), br(atual[2])))
+        ok([k for k, _ in sorted(set((m, 0) for m, _ in barras()))] == ['2026-05', '2026-06', '2026-07', '2026-08', '2026-09', '2026-10'], 'os 6 últimos meses, terminando no atual: maio a outubro de 2026')
+        ex_set = MESES_EXEMPLO[-1]
+        ok(perto(barras()[('2026-09', 'faturamento')], sum(v[0] for v in ex_set.values())) and perto(barras()[('2026-09', 'lucro')], sum(v[1] for v in ex_set.values())), 'setembro é o exemplo (nenhum pedido real cai nele): 6.120,00 + 2.310,00')
+        rot = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-nome')).map(e => e.textContent.trim())")
+        ok(rot == ['Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro (até hoje)'], 'os nomes dos meses: %s' % rot)
+        marg = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-marg')).map(e => e.textContent.trim())")
+        ok(marg == ['margem ' + pct(l / f) for (_, f, l) in esp], 'a margem em %% embaixo de cada mês: %s' % marg)
+        vals = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-val')).map(e => e.textContent.trim())")
+        ok(len(vals) == 12 and all(v.startswith('R$') or v.startswith('− R$') for v in vals) and 'R$ 7.579' in vals and 'R$ 1.056' in vals, 'os valores aparecem sobre as barras, legíveis: %s' % vals[-4:])
+
+        def pct_sinal(v):
+            x = (abs(v) * 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+            return ('−' if v < 0 else '+') + str(x).replace('.', ',') + '%'
+        f_at, l_at, f_an, l_an = atual[1], atual[2], esp[-2][1], esp[-2][2]
+        texto_quer = 'Outubro (até hoje) contra setembro: faturamento %s · lucro %s' % (pct_sinal((f_at - f_an) / abs(f_an)), pct_sinal((l_at - l_an) / abs(l_an)))
+        ok(texto('#mesComparacao') == texto_quer == 'Outubro (até hoje) contra setembro: faturamento −10,1% · lucro −6,3%', 'a comparação em texto: "%s"' % texto('#mesComparacao'))
+        ok(pg.evaluate("document.getElementById('mesComparacao').compareDocumentPosition(document.getElementById('mesGrafico')) & Node.DOCUMENT_POSITION_FOLLOWING") != 0, 'e ela fica acima do gráfico')
+        al = pg.evaluate("document.getElementById('mesGrafico').getAttribute('aria-label')")
+        ok(pg.evaluate("document.getElementById('mesGrafico').getAttribute('role')") == 'img' and al.startswith('Gráfico de barras, mês a mês') and 'Outubro de 2026, faturamento R$ 7.579,20' in al and 'Maio de 2026' in al, 'o aria-label descreve o gráfico: %s' % al[:150])
+        # a loja
+        for l in (1, 2):
+            escolher_loja(l); confere('Desk %s' % ('Shope' if l == 1 else 'Brands'), loja=l)
+        escolher_loja(1)
+        sh = [x for x in online(todos) if x['loja'] == 1]
+        ok(perto(barras()[('2026-10', 'faturamento')], sum(oraculo(x)['venda'] for x in sh)) and perto(barras()[('2026-09', 'faturamento')], 6120), 'com a Desk Shope: o mês atual é a soma dos pedidos dela e o exemplo é o dela (6.120,00)')
+        escolher_loja('todos')
+        # nao respeita periodo, busca, categoria nem card
+        periodo(HOJE_F - datetime.timedelta(days=2), HOJE_F); pg.fill('#campoBusca', 'camiseta'); pg.wait_for_timeout(200)
+        confere('com período curto e pesquisa (o gráfico não olha nenhum dos dois)')
+        pg.fill('#campoBusca', ''); pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(200)
+        confere('com o card Abaixo da margem ligado'); pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(100)
+        # situacoes e custo base (Configurar)
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.custosEcommerce = { situacoes: ['aberto', 'aprovado', 'faturado'], custoBase: 'medio', embalagemPorLoja: { 1: 5, 2: 8, 3: 0 } }; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(200)
+        confere('só 3 situações e custo médio', base='medio', situacoes=('aberto', 'aprovado', 'faturado'))
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.custosEcommerce; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(200)
+        # pedido real num mes anterior soma ao exemplo
+        pg.evaluate("PEDIDOS.filter(p => p.id === 16)[0].dv = 40; render();"); pg.wait_for_timeout(200)
+        mod = [dict(x, dv=40) if x['id'] == 16 else x for x in todos]
+        esp2 = confere('o pedido 16 vendido há 40 dias (20/09)', pedidos=mod)
+        ok(perto(barras()[('2026-09', 'faturamento')], 8430 + float(oraculo(next(x for x in todos if x['id'] == 16))['venda'])) and perto(barras()[('2026-10', 'faturamento')], float(atual[1]) - 2315), 'setembro = exemplo (8.430,00) + a venda real do pedido 16 (2.315,00); outubro perde esse pedido')
+        pg.evaluate("PEDIDOS.filter(p => p.id === 16)[0].dv = 28; render();"); pg.wait_for_timeout(150)
+        # lucro negativo abaixo do zero
+        pg.evaluate("MESES_EXEMPLO['-2'][1].lucro = -2000; render();"); pg.wait_for_timeout(200)
+        g = pg.evaluate("""(() => { const z = document.querySelector('#mesGrafico .ce-mes-col[data-mes="2026-08"] .ce-mes-zero').getBoundingClientRect(),
+            l = document.querySelector('#mesGrafico .ce-mes-barra[data-mes="2026-08"][data-serie="lucro"]'), f = document.querySelector('#mesGrafico .ce-mes-barra[data-mes="2026-08"][data-serie="faturamento"]');
+            return [l.getBoundingClientRect().top >= z.top - 0.6, f.getBoundingClientRect().bottom <= z.top + 0.6, l.querySelector('.ce-mes-val').className, l.getBoundingClientRect().height > 5, l.querySelector('.ce-mes-val').textContent]; })()""")
+        ok(g[0] and g[1] and 'baixo' in g[2] and g[3], 'lucro negativo desce abaixo da linha do zero (o faturamento fica em cima) e o valor vai embaixo da barra: %s' % g)
+        ok(g[4].startswith('− R$'), 'com o sinal de menos: %s' % g[4])
+        pg.evaluate("MESES_EXEMPLO['-2'][1].lucro = 576.40; render();"); pg.wait_for_timeout(150)
+        # mes anterior zerado: sem porcentagem
+        pg.evaluate("MESES_EXEMPLO['-1'] = {}; render();"); pg.wait_for_timeout(200)
+        ok(texto('#mesComparacao') == 'Outubro (até hoje) contra setembro: faturamento sem comparação · lucro sem comparação', 'mês anterior zerado: sem %%: "%s"' % texto('#mesComparacao'))
+        # largura
+        for larg in (1280, 1440):
+            pg.set_viewport_size({'width': larg, 'height': 900}); pg.wait_for_timeout(250)
+            m = pg.evaluate("(() => { const c = document.querySelector('.ce-barra-card'), g = document.getElementById('mesGrafico'); return [c.scrollWidth <= c.clientWidth + 1, g.scrollWidth <= g.clientWidth + 1, document.documentElement.scrollWidth <= window.innerWidth]; })()")
+            ok(all(m), 'a %dpx o gráfico não estoura a largura do card nem da página: %s' % (larg, m))
+        # tema claro e escuro
+        cores = {}
+        for tema in ('dark', 'claro'):
+            pg.evaluate("(t) => document.body.classList.toggle('dark', t === 'dark')", tema); pg.wait_for_timeout(150)
+            cores[tema] = pg.evaluate("['faturamento', 'lucro'].map(s => getComputedStyle(document.querySelector('#mesGrafico .ce-mes-barra[data-serie=\"' + s + '\"]')).backgroundColor)")
+        ok(all(c != 'rgba(0, 0, 0, 0)' for t in cores.values() for c in t) and cores['dark'] != cores['claro'] and cores['dark'][0] != cores['dark'][1], 'as barras têm cor nos dois temas (as variáveis do tema), e faturamento e lucro são diferentes: %s' % cores)
+        # a virada do ano: 10/02/2026 -> set/2025 a fev/2026, pedidos de janeiro caem no mes -1
+        pg.clock.set_fixed_time(datetime.datetime(2026, 2, 10, 10, 0, 0))
+        abrir(); todos = dados(); pg.click('#abaMes'); pg.wait_for_timeout(200)
+        esp = confere('virada do ano (10/02/2026)', dia=datetime.date(2026, 2, 10))
+        ok([e[0] for e in esp] == [(2025, 9), (2025, 10), (2025, 11), (2025, 12), (2026, 1), (2026, 2)] and 'Fevereiro (até hoje) contra janeiro' in texto('#mesComparacao'), 'seis meses de setembro de 2025 a fevereiro de 2026, e a comparação diz fevereiro contra janeiro: %s' % texto('#mesComparacao'))
+        ok(any(perto(x[1], 0) is False for x in esp[:-2]) and perto(esp[-1][1], sum(oraculo(x)['venda'] for x in online(todos) if x['dv'] <= 9)), 'os pedidos de janeiro (vendidos há mais de 9 dias) caem em janeiro, e fevereiro só tem os dos últimos 9 dias')
+
+    # ---------------------------------------------------------------- 17. Parametros de Vendas
+    if secao(17, 'Parâmetros de Vendas: padrão, gravação, limites, registro e a leitura em Custos'):
+        pg.clock.set_fixed_time(FIXO)
+        ir(PARAM_V); limpar(); ir(PARAM_V)
+        ok(pg.evaluate("document.querySelector('.main h1').textContent") == 'Parâmetros de vendas' and 'Configurações ERP' in texto('#breadcrumb') and 'Parâmetros de vendas' in texto('#breadcrumb'), 'título e caminho: Configurações › Configurações ERP › Parâmetros de vendas')
+        ok(pg.input_value('#impostoPadrao') == '4,00' and pg.input_value('#margemMinima') == '15,00', 'de fábrica: imposto 4,00 e margem mínima 15,00: %s / %s' % (pg.input_value('#impostoPadrao'), pg.input_value('#margemMinima')))
+        corpo = pg.inner_text('.main')
+        ok('Imposto padrão' in corpo and 'Margem mínima' in corpo and 'Lido pela calculadora de preços e pela Margem de Contribuição. Não entra em Custos do E-commerce.' in corpo
+           and 'Pedido online abaixo disto entra no alerta de Custos do E-commerce. Essa margem é antes do imposto e do custo fixo.' in corpo, 'os dois campos e as duas ajudas, com o texto combinado')
+        ok(pg.inner_text('#notaBarra') == 'Nenhuma alteração pendente.', 'a barra de salvar diz que nada mudou')
+        pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ devolucaoPrazoDias: 9, custosEcommerce: { situacoes: ['aberto'], custoBase: 'medio', embalagemPorLoja: { 1: 6 } } }))")
+        ir(PARAM_V)
+
+        def salvar_pv():
+            pg.click('#btnSalvarParam'); pg.wait_for_timeout(250)
+            pg.evaluate("document.getElementById('btnAvisoOk').click()"); pg.wait_for_timeout(100)
+        pg.fill('#impostoPadrao', '4,5'); pg.fill('#margemMinima', '12,5')
+        ok('2 parâmetros alterados' in pg.inner_text('#notaBarra'), 'digitar conta as alterações: %s' % pg.inner_text('#notaBarra'))
+        salvar_pv()
+        p = param_lido()
+        ok(p.get('impostoPadraoPct') == 4.5 and p.get('margemMinimaPct') == 12.5, 'Salvar grava em deskParametros: impostoPadraoPct 4,5 e margemMinimaPct 12,5: %s' % {k: p.get(k) for k in ('impostoPadraoPct', 'margemMinimaPct')})
+        ok(p.get('devolucaoPrazoDias') == 9 and p.get('custosEcommerce', {}).get('custoBase') == 'medio', 'e não apaga o que outras telas gravaram (prazo de devolução, Configurar de Custos)')
+        ir(PARAM_V)
+        ok(pg.input_value('#impostoPadrao') == '4,50' and pg.input_value('#margemMinima') == '12,50', 'ao reabrir a tela mostra o gravado: %s / %s' % (pg.input_value('#impostoPadrao'), pg.input_value('#margemMinima')))
+        log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(e => e.chave === 'parametrosVendas')")
+        ok(len(log) == 1 and log[0]['acao'] == 'Alterar os parâmetros de vendas' and log[0]['modulo'] == 'Vendas' and log[0]['senha'] is False and '4,50%' in log[0]['detalhe'] and '12,50%' in log[0]['detalhe'], 'a mudança vira uma linha no Registro de atividades: %s' % (log[0] if log else None))
+        salvar_pv()
+        ok(len(pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(e => e.chave === 'parametrosVendas')")) == 1, 'salvar sem mudar nada não registra de novo')
+        ir(REGISTRO)
+        ok('Alterar os parâmetros de vendas' in pg.evaluate("document.body.textContent"), 'o Registro de atividades mostra a ação pelo nome')
+        # limites
+        ir(PARAM_V)
+        invalidos = ['', 'abc', '-1', '100,01', '101', '15,555', '1e1', '12,']
+        falhou = []
+        for v in invalidos:
+            pg.fill('#margemMinima', v); pg.click('#btnSalvarParam'); pg.wait_for_timeout(200)
+            pg.evaluate("document.getElementById('btnAvisoOk').click()"); pg.wait_for_timeout(80)
+            if not (pg.evaluate("document.getElementById('campoMargem').classList.contains('has-error')") and param_lido().get('margemMinimaPct') == 12.5):
+                falhou.append(v)
+        ok(not falhou, 'valor fora de 0 a 100, com mais de duas casas ou que não é número avisa e não grava: %s' % falhou)
+        pg.fill('#margemMinima', '15'); pg.fill('#impostoPadrao', '100,01'); pg.click('#btnSalvarParam'); pg.wait_for_timeout(200); pg.evaluate("document.getElementById('btnAvisoOk').click()")
+        ok(pg.evaluate("document.getElementById('campoImposto').classList.contains('has-error')") and param_lido().get('impostoPadraoPct') == 4.5, 'o imposto também: 100,01 avisa e não grava')
+        gravados = []
+        for v, esperado in (('0', 0), ('100', 100), ('0,01', 0.01), ('7.25', 7.25)):
+            pg.fill('#impostoPadrao', v); pg.fill('#margemMinima', v); salvar_pv(); pp = param_lido(); gravados.append((v, pp.get('impostoPadraoPct'), pp.get('margemMinimaPct')))
+            if not (pp.get('impostoPadraoPct') == esperado and pp.get('margemMinimaPct') == esperado):
+                falhou.append(v)
+        ok(not falhou, 'os limites 0, 100 e as duas casas são aceitos e gravados (também com ponto): %s' % gravados)
+        pg.fill('#impostoPadrao', '1'); pg.fill('#margemMinima', '2'); pg.click('#btnRestaurarParam'); pg.wait_for_timeout(200); pg.evaluate("document.getElementById('btnAvisoOk').click()")
+        ok(pg.input_value('#impostoPadrao') == '4,00' and pg.input_value('#margemMinima') == '15,00' and param_lido().get('margemMinimaPct') == 7.25, 'Restaurar padrão põe 4,00 e 15,00 na tela, e só vale quando salvar')
+        # a leitura em Custos
+        pg.fill('#impostoPadrao', '4'); pg.fill('#margemMinima', '12,5'); salvar_pv()
+        ir(TELA)
+        ok(texto('#subAbaixo').endswith('mínima de 12,5%'), 'Custos lê a margem mínima daqui: "%s"' % texto('#subAbaixo'))
+        abrir_config()
+        ok(texto('#cfgMargem') == 'Margem mínima: 12,5%. Muda em Parâmetros de Vendas', 'e Configurar diz o valor lido: "%s"' % texto('#cfgMargem'))
+        abrir(); abrir_config()
+        ok(texto('#cfgMargem') == 'Margem mínima: 15%. Muda em Parâmetros de Vendas' and texto('#subAbaixo') == texto('#subAbaixo').split('·')[0] + '· mínima de 15%', 'sem nada gravado vale o 15 de fábrica: "%s"' % texto('#cfgMargem'))
+        # o hub e o catalogo
+        hub = fonte(HUB)
+        ok(re.search(r"nome:'Parâmetros de vendas', href:'\.\./configuracoes/pagina-configuracoes-parametros-vendas\.html', ajuda:'[^']{20,}'", hub) is not None, 'o hub de Configurações, na seção Vendas, tem o item com link e ajuda')
+        ok(hub.index("nome:'Parâmetros de vendas'") > hub.index("id:'vendas'") and hub.index("nome:'Parâmetros de vendas'") < hub.index("id:'logistica'"), 'e ele está na seção Vendas')
+        com_custos = [c for c in localiza.caminhos() if "chave:'custosEcomConfig'" in open(c, encoding='utf-8').read()]
+        com_param = [c for c in localiza.caminhos() if "chave:'parametrosVendas'" in open(c, encoding='utf-8').read()]
+        ok(len(com_custos) >= 20 and set(com_custos) <= set(com_param) and any(PARAM_V in c for c in com_param), 'a ação parametrosVendas está no catálogo das %d telas que já tinham a custosEcomConfig, e na tela nova' % len(com_custos))
+        ir(TELA)
+        ac = pg.evaluate("ACOES_SENHA.filter(a => a.chave === 'parametrosVendas').map(a => [a.grupo, a.exigePadrao, a.onde])")
+        ok(ac == [['Vendas', False, 'Configurações → Parâmetros de vendas']], 'no catálogo: grupo Vendas, sem senha de fábrica: %s' % ac)
+
+    # ---------------------------------------------------------------- 18. o modulo no perfil do vendedor
+    if secao(18, 'Custos do E-commerce na lista de módulos do perfil do vendedor'):
+        ir(VEND_D, '?id=1')
+        mods = pg.evaluate("Array.from(document.querySelectorAll('#listaModulosAcesso .checklist-row')).map(r => [r.querySelector('label').textContent.trim(), r.querySelector('input').checked])")
+        nomes = [m[0] for m in mods]
+        ok('Custos do E-commerce' in nomes and nomes.index('Custos do E-commerce') == nomes.index('Metas e Performance') + 1, 'a lista de módulos tem "Custos do E-commerce", logo depois de Metas e Performance: %s' % nomes)
+        ok([m[0] for m in mods if m[1]] == ['Clientes', 'CRM', 'Pedidos de Venda', 'Metas e Performance'] and not dict(mods)['Custos do E-commerce'], 'e ele vem desmarcado: os marcados de fábrica seguem os mesmos quatro')
+
+    # ---------------------------------------------------------------- 19. a loja na conta a pagar
+    if secao(19, 'Contas a Pagar: o campo Loja'):
+        pg.clock.set_fixed_time(FIXO)
+        ir(PAGAR_D, '?id=14')
+        ok(pg.inner_text('#roLoja') == 'Desk Shope' and pg.evaluate("document.body.classList.contains('modo-leitura')") and not vis('#ddLoja'), 'conta com loja: em leitura mostra "Desk Shope"')
+        ir(PAGAR_D, '?id=17')
+        ok(pg.inner_text('#roLoja') == 'Sem loja (empresa toda)', 'a de impulsionamento mostra "Sem loja (empresa toda)"')
+        ir(PAGAR_D, '?id=6')
+        ok(pg.inner_text('#roLoja') == 'Sem loja (empresa toda)', 'conta antiga fica sem loja')
+        pg.click('#btnEditar'); pg.wait_for_timeout(250)
+        ok(vis('#ddLoja') and not vis('#roLoja') and pg.inner_text('#ddLoja .dropdown-select-label') == 'Sem loja (empresa toda)', 'em edição o campo é o dropdown da casa, com "Sem loja (empresa toda)"')
+        pg.click('#ddLoja .dropdown-select-btn'); pg.wait_for_timeout(200)
+        itens = pg.evaluate("Array.from(document.querySelectorAll('#menuLoja .dropdown-select-item')).map(i => [i.getAttribute('data-value'), i.textContent.trim()])")
+        ok(itens == [['', 'Sem loja (empresa toda)'], ['1', 'Desk Shope'], ['2', 'Desk Brands'], ['3', 'Desk Tech']], 'as opções: sem loja e as lojas do sistema: %s' % itens)
+        geo = pg.evaluate("(() => { const b = document.querySelector('#ddLoja .dropdown-select-btn').getBoundingClientRect(), m = document.getElementById('menuLoja').getBoundingClientRect(); return [m.top >= b.bottom - 1]; })()")
+        ok(geo[0], 'o menu abre para baixo')
+        pg.click('#menuLoja .dropdown-select-item[data-value="2"]'); pg.wait_for_timeout(150)
+        pg.evaluate("(function(){var p=JSON.parse(localStorage.getItem('deskParametros')||'{}');p.aoSalvar='ficar';localStorage.setItem('deskParametros',JSON.stringify(p));PARAM.aoSalvar='ficar'})()")
+        pg.click('#btnSalvarConta'); pg.wait_for_timeout(500)
+        ok(pg.evaluate("TITULOS.filter(t => t.id === 6)[0].lojaId") == 2 and pg.inner_text('#roLoja') == 'Desk Brands', 'escolher Desk Brands e salvar grava a loja na conta e a leitura mostra o valor: %s' % pg.inner_text('#roLoja'))
+        pg.evaluate("modoLeitura = false; aplicarModo();"); pg.wait_for_timeout(250)
+        pg.click('#ddLoja .dropdown-select-btn'); pg.wait_for_timeout(150); pg.click('#menuLoja .dropdown-select-item[data-value=""]'); pg.wait_for_timeout(150)
+        pg.click('#btnSalvarConta'); pg.wait_for_timeout(500)
+        ok(not pg.evaluate("TITULOS.filter(t => t.id === 6)[0].lojaId") and pg.inner_text('#roLoja') == 'Sem loja (empresa toda)', 'e dá para voltar a "Sem loja"')
+        # conta nova
+        ir(PAGAR_D)
+        ok(pg.inner_text('#ddLoja .dropdown-select-label') == 'Sem loja (empresa toda)' and pg.evaluate("document.getElementById('ddLoja').getAttribute('data-value')") == '', 'conta nova nasce sem loja')
+        pg.fill('#inputFornecedor', 'Meta'); pg.wait_for_timeout(350); pg.click('#menuFornecedor .auto-item'); pg.wait_for_timeout(200)
+        pg.click('#ddCategoria .dropdown-select-btn'); pg.wait_for_timeout(150); pg.click('#menuCategoria .dropdown-select-item[data-value="14"]'); pg.wait_for_timeout(150)
+        pg.click('#ddLoja .dropdown-select-btn'); pg.wait_for_timeout(150); pg.click('#menuLoja .dropdown-select-item[data-value="3"]'); pg.wait_for_timeout(150)
+        pg.fill('#inputValor', '75,00'); pg.fill('#inputHistorico', 'Meta Ads da Desk Tech')
+        pg.evaluate("(function(){var p=JSON.parse(localStorage.getItem('deskParametros')||'{}');p.aoSalvar='ficar';localStorage.setItem('deskParametros',JSON.stringify(p));PARAM.aoSalvar='ficar'})()")
+        n0 = pg.evaluate("TITULOS.length"); pg.click('#btnSalvarConta'); pg.wait_for_timeout(500)
+        nova = pg.evaluate("TITULOS.slice(-1)[0]")
+        ok(pg.evaluate("TITULOS.length") == n0 + 1 and nova['lojaId'] == 3 and nova['catId'] == 14 and nova['valor'] == 75, 'conta nova na categoria 14 com a Desk Tech: grava lojaId 3: %s' % {k: nova.get(k) for k in ('lojaId', 'catId', 'valor')})
+        ok(pg.evaluate("localStorage.getItem('deskContasPagar')") is None, 'e nada foi para o localStorage')
+        # a lista nao ganhou coluna nem filtro
+        ir(PAGAR)
+        cab = pg.evaluate("Array.from(document.querySelectorAll('.main thead th')).map(t => t.textContent.trim().toLowerCase())")
+        barra = pg.evaluate("Array.from(document.querySelectorAll('.main .dropdown-select-btn, .main .search-wrap input')).map(e => (e.textContent + (e.placeholder || '')).trim().toLowerCase())")
+        ok(not any('loja' in c for c in cab) and not any('loja' in b for b in barra), 'a lista de Contas a Pagar não tem coluna nem filtro de loja: %s · %s' % (cab, barra))
+        # o painel de clone leva a loja
+        ir(PAGAR_D, '?id=14&clonar=1')
+        ok(pg.evaluate("document.getElementById('ddLoja').getAttribute('data-value')") in ('1', '') and pg.inner_text('#ddLoja .dropdown-select-label') in ('Desk Shope', 'Sem loja (empresa toda)'), 'o clone abre sem erro com o campo Loja')
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
     nav.close()

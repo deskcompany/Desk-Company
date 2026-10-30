@@ -151,3 +151,74 @@ def itens_do_pedido(p, r, base='compra'):
         x['lucro'] = x['venda'] - x['difFrete'] - x['taxa'] - x['comissao'] - x['embalagem'] - x['custo'] - x['devolucao']
         saida.append((i[0], i[2], x))
     return saida
+
+
+# ---------------------------------------------------------------- entrega 3 (30/out/2026): anuncios, margem minima e mes a mes
+# As contas da categoria 14 "Anuncios e midia paga" de Contas a Pagar, como a regra as le (venc = dias para tras a partir de hoje; loja 0 = empresa toda).
+ANUNCIOS = [
+    {'id': 14, 'loja': 1, 'valor': 180.00, 'venc': 2, 'cancelado': False},
+    {'id': 15, 'loja': 1, 'valor': 120.00, 'venc': 4, 'cancelado': False},
+    {'id': 16, 'loja': 2, 'valor': 90.00, 'venc': 3, 'cancelado': False},
+    {'id': 17, 'loja': 0, 'valor': 60.00, 'venc': 1, 'cancelado': False},
+    {'id': 18, 'loja': 1, 'valor': 500.00, 'venc': 5, 'cancelado': True},
+    {'id': 19, 'loja': 1, 'valor': 150.00, 'venc': 40, 'cancelado': False},
+]
+
+
+def anuncios_do_periodo(hoje, de, ate, loja=None, contas=None):
+    """Soma do valor das contas da categoria 14 nao canceladas, com vencimento entre `de` e `ate` (datas), pagas ou nao. `loja` (1, 2, 3) so as daquela loja;
+    sem `loja` (Todas as lojas) entram tambem as contas sem loja."""
+    from datetime import timedelta
+    soma = D(0)
+    for c in (ANUNCIOS if contas is None else contas):
+        if c['cancelado']:
+            continue
+        v = hoje - timedelta(days=c['venc'])
+        if not (de <= v <= ate):
+            continue
+        if loja is not None and c['loja'] != loja:
+            continue
+        soma += D(c['valor'])
+    return soma
+
+
+def abaixo_da_margem(o, minima):
+    """Pedido abaixo da margem: lucro negativo, ou lucro/venda menor que a minima (em %)."""
+    return o['lucro'] < 0 or (o['venda'] > 0 and o['lucro'] * 100 < o['venda'] * D(minima))
+
+
+# Os 5 meses anteriores do grafico (exemplo): deslocamento em meses -> loja -> (faturamento, lucro).
+MESES_EXEMPLO = {
+    -1: {1: (6120.00, 735.00), 2: (2310.00, 392.70)},
+    -2: {1: (5240.00, 576.40), 2: (1980.00, 316.80)},
+    -3: {1: (4710.00, 518.10), 2: (1750.00, 245.00)},
+    -4: {1: (5560.00, 667.20), 2: (2240.00, 336.00)},
+    -5: {1: (3980.00, 358.20), 2: (1420.00, 184.60)},
+}
+SITUACOES_FABRICA = ('aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue')
+
+
+def meses_do_grafico(hoje, pedidos, loja=None, base='compra', situacoes=SITUACOES_FABRICA, exemplo=None):
+    """Os 6 ultimos meses terminando no mes de `hoje`: [((ano, mes), faturamento, lucro)]. O exemplo (so os 5 anteriores) por loja, mais os pedidos online das
+    situacoes escolhidas cuja venda (hoje menos `dv` dias) cai no mes. Respeita so a loja, as situacoes e a base de custo."""
+    from datetime import timedelta
+    ex = MESES_EXEMPLO if exemplo is None else exemplo
+    meses = []
+    for k in range(5, -1, -1):
+        m0 = hoje.year * 12 + hoje.month - 1 - k
+        meses.append((m0 // 12, m0 % 12 + 1, -k))
+    saida = []
+    for ano, mes, desloc in meses:
+        fat = lucro = D(0)
+        for l, (f, lu) in ex.get(desloc, {}).items():
+            if loja is None or l == loja:
+                fat += D(f); lucro += D(lu)
+        for p in pedidos:
+            if p.get('canal') != 'loja_virtual' or p['situacao'] not in situacoes or (loja is not None and p['loja'] != loja):
+                continue
+            d = hoje - timedelta(days=p['dv'])
+            if (d.year, d.month) == (ano, mes):
+                o = oraculo(p, base)
+                fat += o['venda']; lucro += o['lucro']
+        saida.append(((ano, mes), fat, lucro))
+    return saida

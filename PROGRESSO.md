@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 29/out/2026: Custos do E-commerce, entrega 2 (itens e destino nos pedidos online, devolução na conta e na comissão, vale de cortesia, produto/categoria/estado) feita, com os quatro ajustes do teste de 28/out, testada e aprovada por ele em 29/out; a entrega 3 é o que falta. A calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 30/out/2026: Custos do E-commerce, entrega 3 (anúncios e lucro depois dos anúncios, oito cards com "Abaixo da margem", gráfico mês a mês, Parâmetros de Vendas e o módulo no perfil) feita e esperando o teste dele; a entrega 2 foi aprovada em 29/out e foi para o HISTORICO.md. A entrega 4 (embalagem automática) está decidida e começa depois do teste. A calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,31 +10,27 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce: entrega 2 feita em 27/out, com os ajustes do teste de 28/out, testada e aprovada por ele em 29/out (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
-A entrega 1 e os ajustes do teste (§14.95, §14.96) seguem como estavam; o "pedido copiado" (o clone vira venda manual) ele aprovou em 26/out. O que a entrega 2 trouxe:
-os 8 pedidos online ganharam **itens** (de Cadastros › Produtos, com o custo de cada um) e o **estado de
-destino**; a **devolução aceita** (em andamento ou finalizada) entra na conta (valor devolvido, custo que volta do item revendável, perda do avariado, frete da
-volta pago pela loja; a taxa do gateway não volta); a **comissão cai na proporção do que voltou quando a devolução abre dentro do prazo** (o prazo de devolução de
-Parâmetros de Logística, contado da entrega), e a já liberada vira **estorno** no saldo e no histórico; o **vale de cortesia** sai da venda; a tela ganhou as colunas
-Cortesia e Devolução (escondidas quando zero), o agrupar por Produto, Categoria e Estado de destino, os filtros de Produto e Categoria e a repartição dos custos por
-item; e a página do pedido, o conserto do vale que paga tudo. **Mais dois ajustes aprovados por ele em 26/out:** o pedido online fica com a forma de recebimento e a
-condição só de leitura ("pago na loja virtual"), e o pedido manual no cartão usa o gateway como o PDV (o padrão da forma se estiver habilitado na loja do pedido; senão
-a primeira maquininha da loja; sem nenhuma, o Salvar bloqueia). **Regra da comissão com devolução, decidida por ele em 26/out:** dentro do prazo reduz na proporção,
-fora do prazo a comissão fica inteira, a já liberada vira estorno, e o afiliado libera na entrega + o prazo de devolução.
+**Custos do E-commerce: entrega 3 feita em 30/out/2026 (§14.98), esperando o teste dele.** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`; a nova: `http://localhost:3000/configuracoes/pagina-configuracoes-parametros-vendas.html`.
+A entrega 2 (itens, destino, devolução, vale de cortesia, produto/categoria/estado, com os quatro ajustes do teste de 28/out) ele testou e aprovou em 29/out: o texto dela está no começo do HISTORICO.md. O que a entrega 3 trouxe:
 
-**Os quatro ajustes de 28/out (§14.97, "Ajustes do teste"):** a **embalagem é por pedido**, não por unidade (5,00 / 8,00 / 0,00 uma vez por pedido; o pedido 1 foi de 321,26 para 356,26 e o 16 de 266,16 para 341,16; o campo `unidades` dos pedidos manuais saiu); a **devolução não traz de volta a parte paga com o vale de cortesia** (valor devolvido × (total − frete − cortesia) ÷ (total − frete); pedido 3: 334,90 e lucro −265,80; a comissão não muda); a caixa do pedido e o painel de Custos mostram, abaixo do "Valor devolvido", **uma linha por devolução com os nomes dos itens** (DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W), com o número em link para o detalhe da devolução; e **uma caixa de pesquisa só** em Custos ("Pesquise por nº do pedido ou SKU": pedido, cliente, produto e SKU). O "Agrupar por" volta para a linha dos filtros a 1440 px; a 1280 px desce para a segunda linha, e **ele decidiu em 29/out deixar assim**, junto dos filtros. **Testados e aprovados por ele em 29/out.** No mesmo dia, a pedido dele: **número sozinho na pesquisa é só o nº do pedido** ("1" não traz mais os itens de SKU com 1).
+- **Anúncios, lidos de Contas a Pagar.** A conta a pagar ganhou o campo **Loja** (opcional: "Sem loja (empresa toda)" ou uma loja; a lista não ganhou coluna nem filtro) e seis contas de exemplo na categoria 14. Custos soma as contas da categoria 14 **não canceladas, com vencimento no período, pagas ou não**; com filtro de loja, só as da loja; a conta sem loja só entra em "Todas as lojas". Dois cards novos: **Anúncios** e **Lucro depois dos anúncios** (o lucro dos pedidos menos os anúncios, vermelho se negativo); com pesquisa, categoria, grupo ou card ligado mostram "—" ("anúncio não se divide por pedido ou produto"). No mês atual, em todas as lojas: anúncios R$ 450,00 e lucro depois R$ 606,28; só na Desk Shope: R$ 300,00 e R$ 257,59. A barra e a conta de cada pedido não mudaram.
+- **Oito cards, em duas linhas de quatro**, e o "No prejuízo" virou **"Abaixo da margem"** (pedido com margem menor que a mínima, os de lucro negativo incluídos; legenda "2 no prejuízo · mínima de 15%"; continua filtrando). Com 15%: os pedidos 3, 11 e 16. Na coluna Margem, a faixa entre 0 e a mínima fica na cor de atenção, com o title "abaixo da mínima de 15%"; o painel do pedido repete a nota.
+- **Gráfico "Mês a mês"**, em abas no card da barra (a barra é a aba "Divisão do faturamento"): os 6 últimos meses terminando no atual, faturamento e lucro com a margem embaixo, e a comparação em texto com o mês anterior. **Só o mês atual vem dos pedidos; os 5 anteriores são dado de exemplo** (por mês e por loja, com um `shortcut:` no código; a tela diz isso).
+- **Parâmetros de Vendas** (Configurações › Vendas): imposto padrão (4,00% de fábrica) e margem mínima (15,00%), de 0 a 100, gravados em `deskParametros` (`impostoPadraoPct`, `margemMinimaPct`); a mudança vai para o Registro de atividades ("Alterar os parâmetros de vendas"). Custos lê a margem mínima dali, e Configurar mostra "Margem mínima: 15%. Muda em Parâmetros de Vendas". O imposto ainda não é lido por ninguém: é para a calculadora de preços e a Margem de Contribuição.
+- **"Custos do E-commerce" na lista de módulos do perfil do vendedor**, desmarcado de fábrica. Ainda não bloqueia nada: não há tela de permissões.
 
-**Embalagem automática (pedido dele em 29/out, "futuramente"):** o valor por loja em Configurar é só o exemplo; o custo da embalagem tem de vir sozinho dos pedidos
-fechados e faturados, como faturamento, custo e lucro. O que já existe: a **Conferência de Saída** registra, em cada volume do pedido, a embalagem usada, escolhida de
-**Cadastros › Embalagens** (nunca texto solto). O que falta: o cadastro de embalagens **não tem custo**. O caminho: dar o campo custo à embalagem, e Custos do
-E-commerce somar o custo das embalagens que a conferência registrou no pedido; o valor por loja fica só para o pedido que ainda não passou pela conferência.
+**Custos do E-commerce, entrega 4: embalagem automática (decidida por ele em 30/out; começa depois de ele testar a entrega 3).**
+- **Cadastro de Embalagens:** ganha o campo custo e o tipo "Insumo" (tag, fita, saco), sem medidas e sem virar volume. O insumo pode entrar sozinho nos pedidos de todas as lojas ou de uma loja.
+- **Separação:** antes de concluir, o separador escolhe as embalagens do pedido. A sugestão da menor caixa que cabe, que hoje é da Conferência, passa para cá, e os insumos automáticos já vêm preenchidos. O separador vê só os nomes, nunca o custo.
+- **Conferência de Saída:** recebe tudo preenchido e confirma. Pode trocar se a caixa não servir, e a troca fica registrada. Vale o que a Conferência confirmou.
+- **O pedido guarda o custo do dia:** mudar o preço da caixa depois não altera o lucro de pedido antigo.
+- **Custos e página do pedido:** a embalagem vem do que foi confirmado, com os nomes (ex.: "1 Caixa M + 1 Tag Desk Shope + 1 Fita = R$ 5,40"). Pedido que ainda não passou pela Separação usa o valor por loja de Configurar, marcado como "estimada".
+- **Fora por enquanto:** baixar as embalagens do estoque.
+- **Atenção:** hoje a Separação e a Conferência não gravam nada no protótipo, e a calculadora de precificação lê a embalagem por loja.
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
 inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
 antecipação à parte, e na InfinitePay ela já está na taxa.
-
-- **Entrega 3 (o que falta):** os anúncios (o lucro depois dos anúncios, lido de Contas a Pagar), o gráfico mês a mês, Parâmetros de Vendas (o imposto padrão e a
-  margem mínima, com o alerta da margem) e o módulo na lista de "módulos habilitados" do perfil (o acesso por perfil).
 
 **Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
 que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
@@ -72,7 +68,7 @@ e abra `http://localhost:3000/cadastros/_rascunho-calculadora.html`. Apague a c�
 
 *Esperando decisão dele, quando a calculadora voltar:* o markup (preço ÷ custo do produto, ou ÷ custo total); o
 arredondamento do Exato (centavo comum, como no exemplo dele, ou para cima); e onde fica o imposto padrão (decidido na barganha de
-Custos do E-commerce, em 21/out: **Parâmetros de Vendas**, na entrega 3 do módulo; a calculadora lê dele).
+Custos do E-commerce, em 21/out: **Parâmetros de Vendas**, tela feita na entrega 3 do módulo, em `deskParametros.impostoPadraoPct`; a calculadora lê dele).
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
@@ -86,7 +82,7 @@ de baixo risco (o usuário decide). Os retornos de teste vêm num pacote só.
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **45 de 55 (82%)**, em 89 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **45 de 55 (82%)**, em 90 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 80% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
@@ -103,7 +99,7 @@ Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
 | Integrações | 1 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Relatórios de Integrações |
-| Configurações | hub com 19 telas | Formas de pagamento (a lista fiscal da NF-e) |
+| Configurações | hub com 20 telas | Formas de pagamento (a lista fiscal da NF-e) |
 
 O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
@@ -112,12 +108,14 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Custos do E-commerce, entrega 3** (a 2 espera o teste dele; ver "Onde paramos"): anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem
-   mínima) e o módulo no perfil. Começa por um plano curto, numa conversa nova, e já nasce com o exemplo no padrão (§14.73).
-2. **Calculadora de precificação**, depois dos custos (o imposto padrão sai de Parâmetros de Vendas, entrega 3): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
-3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
-4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Custos do E-commerce, entrega 3** (feita em 30/out, espera o teste dele; ver "Onde paramos"): anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem
+   mínima) e o módulo no perfil.
+2. **Custos do E-commerce, entrega 4: embalagem automática** (decidida por ele em 30/out; começa depois do teste da 3; ver "Onde paramos"). Começa por um plano curto, numa
+   conversa nova, e já nasce com o exemplo no padrão (§14.73).
+3. **Calculadora de precificação**, depois dos custos (o imposto padrão sai de Parâmetros de Vendas, entrega 3): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
+4. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de

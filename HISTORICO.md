@@ -10,6 +10,22 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Custos do E-commerce, entrega 2 (27/out/2026), com os ajustes do teste de 28/out — testada e aprovada pelo usuário em 29/out
+
+**Custos do E-commerce: entrega 2 feita em 27/out, com os ajustes do teste de 28/out, testada e aprovada por ele em 29/out (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
+A entrega 1 e os ajustes do teste (§14.95, §14.96) seguem como estavam; o "pedido copiado" (o clone vira venda manual) ele aprovou em 26/out. O que a entrega 2 trouxe:
+os 8 pedidos online ganharam **itens** (de Cadastros › Produtos, com o custo de cada um) e o **estado de
+destino**; a **devolução aceita** (em andamento ou finalizada) entra na conta (valor devolvido, custo que volta do item revendável, perda do avariado, frete da
+volta pago pela loja; a taxa do gateway não volta); a **comissão cai na proporção do que voltou quando a devolução abre dentro do prazo** (o prazo de devolução de
+Parâmetros de Logística, contado da entrega), e a já liberada vira **estorno** no saldo e no histórico; o **vale de cortesia** sai da venda; a tela ganhou as colunas
+Cortesia e Devolução (escondidas quando zero), o agrupar por Produto, Categoria e Estado de destino, os filtros de Produto e Categoria e a repartição dos custos por
+item; e a página do pedido, o conserto do vale que paga tudo. **Mais dois ajustes aprovados por ele em 26/out:** o pedido online fica com a forma de recebimento e a
+condição só de leitura ("pago na loja virtual"), e o pedido manual no cartão usa o gateway como o PDV (o padrão da forma se estiver habilitado na loja do pedido; senão
+a primeira maquininha da loja; sem nenhuma, o Salvar bloqueia). **Regra da comissão com devolução, decidida por ele em 26/out:** dentro do prazo reduz na proporção,
+fora do prazo a comissão fica inteira, a já liberada vira estorno, e o afiliado libera na entrega + o prazo de devolução.
+
+**Os quatro ajustes de 28/out (§14.97, "Ajustes do teste"):** a **embalagem é por pedido**, não por unidade (5,00 / 8,00 / 0,00 uma vez por pedido; o pedido 1 foi de 321,26 para 356,26 e o 16 de 266,16 para 341,16; o campo `unidades` dos pedidos manuais saiu); a **devolução não traz de volta a parte paga com o vale de cortesia** (valor devolvido × (total − frete − cortesia) ÷ (total − frete); pedido 3: 334,90 e lucro −265,80; a comissão não muda); a caixa do pedido e o painel de Custos mostram, abaixo do "Valor devolvido", **uma linha por devolução com os nomes dos itens** (DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W), com o número em link para o detalhe da devolução; e **uma caixa de pesquisa só** em Custos ("Pesquise por nº do pedido ou SKU": pedido, cliente, produto e SKU). O "Agrupar por" volta para a linha dos filtros a 1440 px; a 1280 px desce para a segunda linha, e **ele decidiu em 29/out deixar assim**, junto dos filtros. **Testados e aprovados por ele em 29/out.** No mesmo dia, a pedido dele: **número sozinho na pesquisa é só o nº do pedido** ("1" não traz mais os itens de SKU com 1).
+
 ### Custos do E-commerce, entrega 1 (21 e 22/out/2026) — testada e aprovada pelo usuário em 22/out
 
 **A barganha (21/out).** Os prints e a ajuda do Olist mostraram que o módulo de lá não é cadastro de custos: é um relatório
