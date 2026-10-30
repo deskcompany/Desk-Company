@@ -386,6 +386,8 @@ with sync_playwright() as p:
         todo_periodo(); pg.evaluate("itensPorPaginaAtual = 100; render();")
         pg.fill('#campoBusca', '12'); pg.wait_for_timeout(200)
         ok(numeros() == [12], 'a busca pelo número é exata: 12 não traz o 1')
+        pg.fill('#campoBusca', '1'); pg.wait_for_timeout(200)
+        ok(numeros() == [1], 'número sozinho é só o nº do pedido: "1" não traz os itens de SKU com 1 (MOB-4001, CAR-33W-01): %s' % numeros())
         pg.fill('#campoBusca', 'larissa'); pg.wait_for_timeout(200)
         ok(numeros() == [9], 'a busca pelo cliente: Larissa Monteiro é o pedido 9')
         ok(pg.locator('.estoque-toolbar .search-wrap').count() == 1 and pg.locator('#campoProduto').count() == 0 and pg.get_attribute('#campoBusca', 'placeholder') == 'Pesquise por nº do pedido ou SKU',

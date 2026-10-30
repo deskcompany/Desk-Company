@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 28/out/2026: Custos do E-commerce, entrega 2 (itens e destino nos pedidos online, devolução na conta e na comissão, vale de cortesia, produto/categoria/estado) feita, com os quatro ajustes que ele pediu ao testar (28/out), esperando o novo teste; a entrega 3 é o que falta. A calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 29/out/2026: Custos do E-commerce, entrega 2 (itens e destino nos pedidos online, devolução na conta e na comissão, vale de cortesia, produto/categoria/estado) feita, com os quatro ajustes do teste de 28/out, testada e aprovada por ele em 29/out; a entrega 3 é o que falta. A calculadora de precificação segue parada até o módulo terminar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,7 +10,7 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce: entrega 2 feita em 27/out, com os ajustes do teste de 28/out, esperando o novo teste dele (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
+**Custos do E-commerce: entrega 2 feita em 27/out, com os ajustes do teste de 28/out, testada e aprovada por ele em 29/out (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
 A entrega 1 e os ajustes do teste (§14.95, §14.96) seguem como estavam; o "pedido copiado" (o clone vira venda manual) ele aprovou em 26/out. O que a entrega 2 trouxe:
 os 8 pedidos online ganharam **itens** (de Cadastros › Produtos, com o custo de cada um) e o **estado de
 destino**; a **devolução aceita** (em andamento ou finalizada) entra na conta (valor devolvido, custo que volta do item revendável, perda do avariado, frete da
@@ -22,7 +22,12 @@ condição só de leitura ("pago na loja virtual"), e o pedido manual no cartão
 a primeira maquininha da loja; sem nenhuma, o Salvar bloqueia). **Regra da comissão com devolução, decidida por ele em 26/out:** dentro do prazo reduz na proporção,
 fora do prazo a comissão fica inteira, a já liberada vira estorno, e o afiliado libera na entrega + o prazo de devolução.
 
-**Os quatro ajustes de 28/out (§14.97, "Ajustes do teste"):** a **embalagem é por pedido**, não por unidade (5,00 / 8,00 / 0,00 uma vez por pedido; o pedido 1 foi de 321,26 para 356,26 e o 16 de 266,16 para 341,16; o campo `unidades` dos pedidos manuais saiu); a **devolução não traz de volta a parte paga com o vale de cortesia** (valor devolvido × (total − frete − cortesia) ÷ (total − frete); pedido 3: 334,90 e lucro −265,80; a comissão não muda); a caixa do pedido e o painel de Custos mostram, abaixo do "Valor devolvido", **uma linha por devolução com os nomes dos itens** (DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W), com o número em link para o detalhe da devolução; e **uma caixa de pesquisa só** em Custos ("Pesquise por nº do pedido ou SKU": pedido, cliente, produto e SKU). O "Agrupar por" volta para a linha dos filtros a 1440 px, mas **a 1280 px não cabe** (faltam 138 px; 18 px se a pesquisa encolher até o mínimo): esperando ele decidir se encolhe a pesquisa ou aceita a segunda linha.
+**Os quatro ajustes de 28/out (§14.97, "Ajustes do teste"):** a **embalagem é por pedido**, não por unidade (5,00 / 8,00 / 0,00 uma vez por pedido; o pedido 1 foi de 321,26 para 356,26 e o 16 de 266,16 para 341,16; o campo `unidades` dos pedidos manuais saiu); a **devolução não traz de volta a parte paga com o vale de cortesia** (valor devolvido × (total − frete − cortesia) ÷ (total − frete); pedido 3: 334,90 e lucro −265,80; a comissão não muda); a caixa do pedido e o painel de Custos mostram, abaixo do "Valor devolvido", **uma linha por devolução com os nomes dos itens** (DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W), com o número em link para o detalhe da devolução; e **uma caixa de pesquisa só** em Custos ("Pesquise por nº do pedido ou SKU": pedido, cliente, produto e SKU). O "Agrupar por" volta para a linha dos filtros a 1440 px; a 1280 px desce para a segunda linha, e **ele decidiu em 29/out deixar assim**, junto dos filtros. **Testados e aprovados por ele em 29/out.** No mesmo dia, a pedido dele: **número sozinho na pesquisa é só o nº do pedido** ("1" não traz mais os itens de SKU com 1).
+
+**Embalagem automática (pedido dele em 29/out, "futuramente"):** o valor por loja em Configurar é só o exemplo; o custo da embalagem tem de vir sozinho dos pedidos
+fechados e faturados, como faturamento, custo e lucro. O que já existe: a **Conferência de Saída** registra, em cada volume do pedido, a embalagem usada, escolhida de
+**Cadastros › Embalagens** (nunca texto solto). O que falta: o cadastro de embalagens **não tem custo**. O caminho: dar o campo custo à embalagem, e Custos do
+E-commerce somar o custo das embalagens que a conferência registrou no pedido; o valor por loja fica só para o pedido que ainda não passou pela conferência.
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
 inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de

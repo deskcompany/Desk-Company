@@ -3152,7 +3152,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A pesquisa unica procura no nº do pedido (exato: o 1 nao traz o 12), no cliente, no nome do produto e no SKU. Casou pelo nº ou pelo cliente: o pedido entra inteiro;
   // casou so por um item: entra so a parte desse item (o clique numa linha de Produto cai aqui, com o SKU). A categoria filtra os itens do mesmo jeito.
   const casaPedido = (p, t) => String(p.numero) === t || p.cliente.toLowerCase().indexOf(t) >= 0;
-  const casaItem = (x, t) => semAcento(x.nome + ' ' + x.sku).indexOf(semAcento(t)) >= 0;
+  // So numero e o nº do pedido: "1" nao traz os itens de SKU MOB-4001 (decisao do usuario em 29/out/2026).
+  const casaItem = (x, t) => !/^\d+$/.test(t) && semAcento(x.nome + ' ' + x.sku).indexOf(semAcento(t)) >= 0;
   const categoriasDosItens = () => Array.from(new Set([].concat.apply([], Object.keys(ITENS_ONLINE).map(k => ITENS_ONLINE[k].map(i => i.categoria))))).sort((x, y) => x.localeCompare(y, 'pt-BR'));
 
   // Os pedidos que a lista olha: online, nas situacoes escolhidas em Configurar, vendidos no periodo, da loja e da busca. O filtro dos cards vem depois.
