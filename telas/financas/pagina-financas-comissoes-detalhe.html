@@ -2776,14 +2776,81 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
   }
   // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 8 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma) e as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado; teste_embalagem_pedido.py compara as copias.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 0.3, auto: 'todas', status: 'ativo' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo' }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) return g;
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
   // ===== RESULTADO DO PEDIDO (bloco comum, 22/out/2026; devolucao e cortesia, 27/out/2026) =====
   // A conta unica do lucro de um pedido. Identico em Custos do E-commerce, na pagina do pedido, nas duas telas de Comissoes e no cadastro
   // do cliente; teste_custos_ecommerce.py compara as copias. Depende de quatro blocos que a tela tem de trazer: PARAMETROS DO SISTEMA,
   // DEVOLUCOES: LEITURA (a devolucao e os itens do pedido), COMISSOES: DADOS E REGRAS (a regra da comissao, que aqui so se APLICA) e GATEWAYS: LEITURA
   // (a taxa). O dono do dado de cada parcela: frete cobrado e total sao do pedido; o frete que a loja pagou, o custo medio e a forma de pagamento tambem
   // (campos do pedido); taxa e do gateway (Integracoes); comissao e de Comissoes; a devolucao e da Devolucao; o vale de cortesia e de Financas > Vale-compra;
-  // embalagem, custo base e situacoes sao de Custos do E-commerce, gravadas em `deskParametros.custosEcommerce` (so este bloco as le: o padrao de fabrica
-  // mora aqui, sem mexer nas outras telas).
+  // custo base e situacoes sao de Custos do E-commerce, gravadas em `deskParametros.custosEcommerce` (so este bloco as le: o padrao de fabrica
+  // mora aqui, sem mexer nas outras telas); a embalagem e de Cadastros > Embalagens e da Conferencia de Saida (bloco EMBALAGENS: LEITURA, logo acima).
   //   cortesia   = o que o pedido pagou com vale-compra de origem CORTESIA (os usos nao estornados): presente da loja, nao e receita
   //   venda      = total menos o frete cobrado menos a cortesia (produtos menos desconto, mais despesas, menos o presente)
   //   difFrete   = frete pago pela loja menos o frete cobrado (negativo = a loja ganhou no frete); sem o dado, 0
@@ -2791,7 +2858,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //                A taxa NAO volta com a devolucao (nao ha regra da InfinitePay para isso: considerar que fica e o lado seguro)
   //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes (ja menos a devolucao dentro do prazo)
   //   embalagem  = a embalagem que a Conferencia de Saida CONFIRMOU (cada item do registro x o custo guardado no dia, tag e fita juntas; Cadastros > Embalagens muda o preco
-  //                e o pedido antigo nao mexe); ate la, a da loja, UMA vez por pedido, marcada como ESTIMADA (embalagemEstimada). Um valor por pedido, nao por unidade (desde 28/out/2026)
+  //                e o pedido antigo nao mexe); ate la, a ESTIMATIVA pelo cadastro (a menor caixa em que cabem as pecas + os insumos automaticos da loja, a preco de hoje), marcada como
+  //                ESTIMADA (embalagemEstimada). O que a Separacao escolheu nao entra: quem decide e a Conferencia. Um valor por pedido, nao por unidade (desde 28/out/2026)
   //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
   //   devolucao  = valor devolvido (a soma dos itens da devolucao aceita x (total - frete - cortesia) / (total - frete): a parte paga com vale de cortesia nao volta em dinheiro) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
   //                perda) mais o frete da volta pago pela loja (`reversa.paga` 'nos'; pago pelo cliente ou coleta da nossa frota, 0)
@@ -2799,16 +2867,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Cada parcela e arredondada no centavo antes de somar.
   const CUSTOS_ECOM_PADRAO = {
     situacoes: ['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue'],   // todas menos Cancelado
-    custoBase: 'compra',                                                                                                  // 'compra' | 'medio'
-    embalagemPorLoja: { 1: 5, 2: 8, 3: 0 }                                                                                // R$ por pedido
+    custoBase: 'compra'                                                                                                   // 'compra' | 'medio'
   };
   function custosEcomLer() {
     let g = {};
     try { g = JSON.parse(localStorage.getItem('deskParametros') || '{}').custosEcommerce || {}; } catch (e) { g = {}; }
     return {
       situacoes: Array.isArray(g.situacoes) ? g.situacoes.slice() : CUSTOS_ECOM_PADRAO.situacoes.slice(),
-      custoBase: g.custoBase === 'medio' ? 'medio' : 'compra',
-      embalagemPorLoja: Object.assign({}, CUSTOS_ECOM_PADRAO.embalagemPorLoja, g.embalagemPorLoja || {})
+      custoBase: g.custoBase === 'medio' ? 'medio' : 'compra'
     };
   }
   const resCent = (v) => Math.round(v * 100 + (v < 0 ? -1e-6 : 1e-6)) / 100 + 0;   // o + 0 tira o -0
@@ -2861,11 +2927,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     12: [{ id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', qtd: 1, custo: 6.30 }, { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', qtd: 1, custo: 0.60 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
     16: [{ id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', qtd: 1, custo: 11.90 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }]
   };
-  function resEmbalagem(p, cfg) {
+  function resEmbalagem(p) {
     let g = {};
     try { g = JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { g = {}; }
     const reg = g[p.id] && g[p.id].situacao === 'confirmada' ? g[p.id] : (RES_EMBALAGENS_EXEMPLO[p.id] ? { itens: RES_EMBALAGENS_EXEMPLO[p.id], trocas: [] } : null);
-    if (!reg) return { valor: resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0), estimada: true, texto: '', trocas: [] };
+    if (!reg) {
+      // Ate a Conferencia fechar: a estimativa pelo cadastro, a mesma conta da sugestao da Separacao (a caixa que cabe + os insumos que entram sozinhos), a preco de hoje.
+      // O que a Separacao escolheu nao entra aqui de proposito: quem decide e a Conferencia.
+      const lista = embalagensLer(), custoDe = (id) => Number((lista.filter(e => e.id === id)[0] || {}).custo) || 0;
+      const sug = sugerirEmbalagem(lista, (ITENS_ONLINE[p.id] || []).reduce((s, i) => s + i.qtd, 0));
+      const itens = (sug ? [{ id: sug.id, qtd: sug.qtd, nome: lista.filter(e => e.id === sug.id)[0].nome }] : []).concat(insumosAutomaticos(lista, p.loja));
+      return { valor: resCent(itens.reduce((s, i) => s + i.qtd * custoDe(i.id), 0)), estimada: true, texto: embResumo(itens), trocas: [] };
+    }
     return { valor: resCent(reg.itens.reduce((s, i) => s + i.qtd * i.custo, 0)), estimada: false, texto: reg.itens.map(i => i.qtd + ' ' + i.nome).join(' + '), trocas: reg.trocas || [] };
   }
   function resultadoDoPedido(p) {
@@ -2881,7 +2954,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
     const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
     const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
-    const emb = resEmbalagem(p, cfg), embalagem = emb.valor;
+    const emb = resEmbalagem(p), embalagem = emb.valor;
     const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
     const dv = devolucaoDoPedido(p, cfg, resCent(total - freteCobrado), cortesia);
     const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - dv.devolucao);

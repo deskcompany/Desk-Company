@@ -744,6 +744,9 @@
   .vol-remover { font-size:18px; font-weight:800; color:var(--text); background:transparent; border:none; cursor:pointer; padding:0 0 7px; font-family:'Nunito',sans-serif; }
   .vol-remover:hover { color:var(--danger); }
   .vol-remover:disabled { opacity:0.3; cursor:default; }
+  .vol-total { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .vol-total input { width:68px; box-sizing:border-box; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; height:32px; padding:0 9px; outline:none; }
+  .vol-total input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
   .vol-sugerida { font-size:11px; font-weight:700; color:var(--active-text); margin-top:5px; }
   .vol-trocada { color:#B45309; }
   body.dark .vol-trocada { color:#F5A623; }
@@ -1117,6 +1120,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Adicionar volume
       </div>
+      <label class="vol-total" id="campoTotalVolumes">Total de volumes <input type="text" inputmode="numeric" id="inputTotalVolumes" value="1" autocomplete="off" title="Quantos volumes tem este pedido, de 1 a 999"></label>
     </div>
 
     <div class="emb-bloco" id="blocoInsumos">
@@ -1703,9 +1707,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
-  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em Cadastros > Embalagens (que grava o cadastro), na ficha da Separacao (que
-  // escolhe a embalagem) e na bancada da Conferencia de Saida (que confirma); teste_embalagem_pedido.py compara as copias. Custos do E-commerce e a pagina do
-  // pedido leem `deskEmbalagensPedido` no bloco RESULTADO DO PEDIDO.
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 8 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma) e as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado; teste_embalagem_pedido.py compara as copias.
   //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
   //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
   //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
@@ -2162,6 +2166,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const raiz = document.getElementById('listaVolumes');
     raiz.innerHTML = '';
     document.getElementById('btnAddVolume').style.display = fechada ? 'none' : '';
+    document.getElementById('campoTotalVolumes').style.display = fechada ? 'none' : '';
+    document.getElementById('inputTotalVolumes').value = VOLUMES.length;
     VOLUMES.forEach((v, i) => {
       const e = embCad(v.emb);
       const div = document.createElement('div');
@@ -2217,6 +2223,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     VOLUMES.push(novoVolume());
     pintarVolumes();
   });
+  // Total de volumes: ao sair do campo, a lista passa a ter este numero de linhas (1 a 999). Menos corta as ultimas; mais repete a embalagem da ultima. Vazio ou zero volta ao atual.
+  const inpTotalVol = document.getElementById('inputTotalVolumes');
+  inpTotalVol.addEventListener('input', () => { inpTotalVol.value = inpTotalVol.value.replace(/\D/g, ''); });
+  inpTotalVol.addEventListener('change', () => {
+    if (fechada) return;
+    const n = Math.min(999, Math.floor(Number(inpTotalVol.value)) || 0);
+    if (n >= 1 && n < VOLUMES.length) VOLUMES.length = n;
+    if (n > VOLUMES.length) { const ult = VOLUMES[VOLUMES.length - 1]; while (VOLUMES.length < n) VOLUMES.push({ emb: ult.emb, nome: ult.nome, peso: '', sugerida: '', origem: null }); }
+    pintarVolumes();
+  });
 
   // Acima da lista: o que a Separacao escolheu (ou, fechada, o que foi confirmado). So nomes: nesta tela de embalagem nao ha valor em R$.
   const dataBr = (iso) => (iso || '').split('-').reverse().join('/');
@@ -2227,7 +2243,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       txt = 'Embalagem confirmada por <b>' + embEsc(REG_FIM.conferidoPor || '—') + '</b> em ' + dataBr(REG_FIM.em) + ': ' + embEsc(embResumo(REG_FIM.itens)) + '.' +
         ((REG_FIM.trocas || []).length ? '<small>Trocada na conferência: ' + embEsc(REG_FIM.trocas.join('; ')) + '.</small>' : '');
     } else if (REG_SEP) {
-      txt = 'Veio da Separação: <b>' + embEsc(embResumo(REG_SEP.itens)) + '</b>. Confira e troque só se não servir.';
+      txt = 'Veio da Separação: <b>' + embEsc(embResumo(REG_SEP.itens)) + '</b>. Confira: acerte a quantidade, troque, adicione ou tire o que precisar. Vale o que você confirmar.';
     }
     el.innerHTML = txt;
     el.style.display = txt ? '' : 'none';
@@ -2263,8 +2279,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('[data-ins-qtd]').forEach(inp => {
       const i = Number(inp.getAttribute('data-ins-qtd'));
       inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D/g, ''); INS_LINHAS[i].qtd = Number(inp.value) || 0; });
-      // Ao sair do campo, vazio ou zero volta para 1: remover e o botao, nao a quantidade zero.
-      inp.addEventListener('change', () => { if (!(INS_LINHAS[i].qtd >= 1)) INS_LINHAS[i].qtd = 1; pintarInsumos(); });
+      // Ao sair do campo, vazio ou zero volta para 1: remover e o botao, nao a quantidade zero. Teto de 999, o mesmo da Separacao.
+      inp.addEventListener('change', () => { if (!(INS_LINHAS[i].qtd >= 1)) INS_LINHAS[i].qtd = 1; if (INS_LINHAS[i].qtd > 999) INS_LINHAS[i].qtd = 999; pintarInsumos(); });
     });
     document.querySelectorAll('[data-ins-rem]').forEach(b => b.addEventListener('click', () => {
       INS_LINHAS.splice(Number(b.getAttribute('data-ins-rem')), 1);
@@ -2293,7 +2309,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const conta = (lista) => { const m = {}; lista.forEach(i => { m[i.id] = { nome: i.nome, qtd: (m[i.id] ? m[i.id].qtd : 0) + i.qtd }; }); return m; };
     const a = conta(antes), d = conta(depois), ids = Array.from(new Set(Object.keys(a).concat(Object.keys(d)))).map(Number).sort((x, y) => x - y);
     const tipoDe = (id) => ((depois.concat(antes)).filter(i => i.id === id)[0] || {}).tipo;
-    const saiu = [], entrou = [], mais = [], menos = [], maisCx = [], menosCx = [];
+    const saiu = [], entrou = [], mais = [], menos = [];
+    // As caixas que sobram (sem par) ficam numa entrada so por nome, com a quantidade certa: 300 caixas tiradas viram "− 299 Nome", nao 299 entradas.
+    const agrupa = (nomes, sinal) => { const q = {}, ordem = []; nomes.forEach(n => { if (!q[n]) { q[n] = 0; ordem.push(n); } q[n]++; }); return ordem.map(n => sinal + ' ' + q[n] + ' ' + n); };
     ids.forEach(id => {
       const dif = (d[id] ? d[id].qtd : 0) - (a[id] ? a[id].qtd : 0), nome = (d[id] || a[id]).nome;
       if (tipoDe(id) === 'insumo') { if (dif > 0) mais.push('+ ' + dif + ' ' + nome); if (dif < 0) menos.push('− ' + (-dif) + ' ' + nome); return; }
@@ -2301,8 +2319,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     const pares = Math.min(saiu.length, entrou.length), trocas = [];
     for (let k = 0; k < pares; k++) trocas.push(saiu[k] + ' → ' + entrou[k]);
-    entrou.slice(pares).forEach(n => maisCx.push('+ 1 ' + n));
-    saiu.slice(pares).forEach(n => menosCx.push('− 1 ' + n));
+    const maisCx = agrupa(entrou.slice(pares), '+'), menosCx = agrupa(saiu.slice(pares), '−');
     return trocas.concat(maisCx, mais, menosCx, menos);   // primeiro as caixas trocadas, depois o que entrou (caixas e insumos), depois o que saiu
   }
 

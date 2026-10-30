@@ -7,7 +7,9 @@
 #              ele ve so os NOMES, nunca o custo (nem um "R$" no bloco)
 #   Conferencia de Saida: recebe preenchido e confirma; pode trocar, com registro (a troca vai para o Registro de atividades); VALE O QUE ELA CONFIRMOU
 #   O pedido guarda o CUSTO DO DIA: mudar o preco no cadastro depois nao mexe no pedido antigo
-#   Custos e a pagina do pedido mostram a embalagem confirmada com os nomes; o pedido ainda nao confirmado usa o valor da loja e diz "estimada"
+#   Custos e a pagina do pedido mostram a embalagem confirmada com os nomes; o pedido ainda nao confirmado mostra uma ESTIMATIVA pelo cadastro (a menor caixa em que cabem as pecas +
+#   os insumos automaticos da loja, a preco de hoje) e diz "estimada". O que a Separacao escolheu NAO mexe no custo: quem decide e a Conferencia (decisao de 30/out/2026, depois da entrega)
+#   "Cabe ate" e so sugestao: nada trava por capacidade, e o conferente acerta a quantidade pelo campo Total de volumes (1 a 999)
 #   Sugestao de pedido grande: se nenhuma embalagem couber, a de maior capacidade, em quantas unidades forem precisas (e nunca um envelope)
 #
 #   [1]  Cadastro: custo, tipo Insumo (esconde medidas e peso, mostra "Entra sozinho"), erro em custo invalido, persiste ao recarregar;
@@ -16,10 +18,11 @@
 #   [4]  Com troca: o registro tem as trocas, o modal cita, e cai no Registro de atividades;
 #   [5]  Custos: o pedido 4 confirmado (7,20, sem "estimada", com os nomes; lucro 161,40) e os numeros do mes antes e depois;
 #   [6]  O custo do dia: mudar o cadastro nao mexe no 4; o 16 usa 11,90 com o cadastro em 12,50; um pedido confirmado depois usa o preco novo;
-#   [7]  Configurar muda so os estimados;
+#   [7]  Configurar nao tem o campo de embalagem; o valor antigo por loja e ignorado e some ao salvar; o log nao cita embalagem;
 #   [8]  A pagina do pedido: o 11 com os nomes, o 1 "estimada", o 4 com a troca;
-#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 3 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
-#   [10] O layout do bloco a 1280 e 860 px, sem barra horizontal.
+#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 8 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
+#   [10] O layout do bloco a 1280 e 860 px, sem barra horizontal;
+#   [11] A estimativa pelo cadastro (custo, "cabe ate", cadastro vazio), a Separacao que nao mexe no custo, sem trava de capacidade, Total de volumes e o teto de 999.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys, datetime
 import localiza
@@ -55,7 +58,7 @@ def secao(n, titulo):
     return True
 
 
-from oraculo_custos import D, c2, oraculo, EMB_CONFIRMADA, embalagem_do_pedido
+from oraculo_custos import D, c2, oraculo, EMB_CONFIRMADA, embalagem_do_pedido, CADASTRO_EMB
 
 br = lambda v: ('− ' if float(v) < 0 else '') + 'R$ ' + '{:,.2f}'.format(abs(float(v))).replace(',', 'X').replace('.', ',').replace('X', '.')
 perto = lambda a, b: abs(float(a) - float(b)) < 0.005
@@ -183,6 +186,7 @@ with sync_playwright() as p:
         vis = lambda i: pg.evaluate("(i) => document.getElementById(i).getClientRects().length > 0", i)
         ok(vis('blocoMedidas') and vis('campoPeso') and vis('campoCap') and not vis('campoAuto') and vis('campoCusto'), 'caixa: medidas, peso, "cabe até" e custo aparecem; "entra sozinho" não')
         ok([x.strip() for x in pg.locator('#inputTipoEmbalagem .dropdown-select-item').all_inner_texts()] == ['Pacote / Caixa', 'Envelope', 'Rolo / Cilindro', 'Insumo'], 'o tipo do formulário ganhou "Insumo"')
+        ok('Só serve para sugerir a caixa. Quem decide o que vai no pedido é a Conferência de Saída.' in pg.inner_text('#campoCap'), 'o "Cabe até" diz que só serve para sugerir: %s' % pg.inner_text('#campoCap')[:140])
         escolher(pg, '#inputTipoEmbalagem', 'insumo')
         ok(not vis('blocoMedidas') and not vis('campoPeso') and not vis('campoCap') and vis('campoAuto') and vis('campoCusto'), 'insumo: sem medidas, sem diagrama, sem peso e sem "cabe até"; mostra "Entra sozinho no pedido" e o custo')
         ok([x.strip() for x in pg.locator('#inputAuto .dropdown-select-item').all_inner_texts()] == ['Não, o separador adiciona', 'Em todas as lojas', 'Desk Shope', 'Desk Brands', 'Desk Tech'], 'as opções de "Entra sozinho no pedido"')
@@ -380,7 +384,7 @@ with sync_playwright() as p:
         ir(pg, CONF_F, '?id=4')
         ok(pg.evaluate("[PEDIDO.id, PEDIDO.cliente, PEDIDO.pago, PEDIDO.transp, PEDIDO.separador]") == [4, 'Juliana Prado', True, 'Correios · SEDEX', 3], 'a ficha abre o 4, pago, por Correios · SEDEX, separado pelo operador 3')
         veio = pg.inner_text('#embVeio')
-        ok(veio == 'Veio da Separação: 1 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva. Confira e troque só se não servir.', 'acima da lista: "Veio da Separação: ..." com os nomes: %s' % veio)
+        ok(veio == 'Veio da Separação: 1 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva. Confira: acerte a quantidade, troque, adicione ou tire o que precisar. Vale o que você confirmar.', 'acima da lista: "Veio da Separação: ..." com os nomes: %s' % veio)
         ok(volumes_conf(pg) == [['Caixa de Encomenda CE-02', 'escolhida na separação']], 'um volume já preenchido, com a marca "escolhida na separação": %s' % volumes_conf(pg))
         ins = pg.evaluate("Array.from(document.querySelectorAll('#listaInsumos .emb-linha')).map(x => [x.querySelector('.dropdown-select-label').textContent.trim(), x.querySelector('input').value])")
         ok(ins == [['Tag Desk Brands', '1'], ['Fita adesiva', '1']], 'o bloco Insumos vem preenchido: %s' % ins)
@@ -460,16 +464,16 @@ with sync_playwright() as p:
         ors = {x['id']: oraculo(x) for x in online}
         cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => th.textContent.replace(/[▲▼]/g, '').trim())")
         l = {n: linha_pedido(pg, n) for n in (1, 3, 4, 8, 9, 11, 12, 16)}
-        quer_emb = {1: ('R$ 5,00', True), 3: ('R$ 5,00', True), 4: ('R$ 8,00', True), 8: ('R$ 7,00', False), 9: ('R$ 6,80', False), 11: ('R$ 5,40', False), 12: ('R$ 7,20', False), 16: ('R$ 12,60', False)}
+        quer_emb = {1: ('R$ 6,60', True), 3: ('R$ 1,80', True), 4: ('R$ 7,20', True), 8: ('R$ 7,00', False), 9: ('R$ 6,80', False), 11: ('R$ 5,40', False), 12: ('R$ 7,20', False), 16: ('R$ 12,60', False)}
         ok(all(l[n]['Embalagem'] == v + (' estimada' if est else '') for n, (v, est) in quer_emb.items()), 'a coluna Embalagem: 1, 3 e 4 estimados (a marca "estimada"), 8, 9, 11, 12 e 16 confirmados: %s' % {n: l[n]['Embalagem'] for n in l})
-        ok(pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title").startswith('A embalagem que a Conferência de Saída confirmou') and 'até lá, o valor da loja' in pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title"),
-           'o título do cabeçalho explica: a que a Conferência confirmou; até lá, o valor da loja')
-        ok(perto(sum(o['embalagem'] for o in ors.values()), 57), 'o oráculo diz 57,00 de embalagem no mês')
-        ok(pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiAnuncios, kpiLucroAnuncios].map(e => e.textContent)")[2:] == ['R$ 1.048,28', '13,8%', 'R$ 450,00', 'R$ 598,28'], 'lucro 1.048,28 (margem 13,8%%), anúncios 450,00, lucro depois dos anúncios 598,28: %s' % kpis(pg))
+        ok(pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title").startswith('A embalagem que a Conferência de Saída confirmou') and 'até lá, uma estimativa pelo cadastro de Embalagens (a caixa que cabe e os insumos automáticos), uma por pedido' in pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title"),
+           'o título do cabeçalho explica: a que a Conferência confirmou; até lá, uma estimativa pelo cadastro')
+        ok(perto(sum(o['embalagem'] for o in ors.values()), 54.60), 'o oráculo diz 54,60 de embalagem no mês')
+        ok(pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiAnuncios, kpiLucroAnuncios].map(e => e.textContent)")[2:] == ['R$ 1.050,68', '13,9%', 'R$ 450,00', 'R$ 600,68'], 'lucro 1.050,68 (margem 13,9%%), anúncios 450,00, lucro depois dos anúncios 600,68: %s' % kpis(pg))
         luc = {n: pg.evaluate("(n) => resultadoDoPedido(PEDIDOS.filter(p => p.id === n)[0]).lucro", n) for n in (1, 3, 4, 8, 9, 11, 12, 16)}
-        ok(all(perto(luc[n], v) for n, v in {1: 356.26, 3: -265.80, 4: 160.60, 8: 156.46, 9: 159.20, 11: -32.89, 12: 180.89, 16: 333.56}.items()), 'o lucro de cada pedido: %s' % luc)
+        ok(all(perto(luc[n], v) for n, v in {1: 354.66, 3: -262.60, 4: 161.40, 8: 156.46, 9: 159.20, 11: -32.89, 12: 180.89, 16: 333.56}.items()), 'o lucro de cada pedido: %s' % luc)
         ok(all(perto(luc[n], ors[n]['lucro']) for n in luc), 'e bate com o oráculo, pedido a pedido')
-        for loja, lucro, depois in (('1', 'R$ 547,59', 'R$ 247,59'), ('2', 'R$ 500,69', 'R$ 410,69')):
+        for loja, lucro, depois in (('1', 'R$ 549,19', 'R$ 249,19'), ('2', 'R$ 501,49', 'R$ 411,49')):
             pg.evaluate("(l) => { fLoja = l; render(); }", loja)
             k = kpis(pg)
             ok(k[2] == lucro and k[5] == depois, 'loja %s: lucro %s, depois dos anúncios %s: %s' % (loja, lucro, depois, k))
@@ -487,7 +491,8 @@ with sync_playwright() as p:
         ok('1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' in painel and 'estimada' not in painel, 'o painel do 11 mostra a embalagem pelos nomes, sem "estimada"')
         pg.click('#drawerClose'); pg.wait_for_timeout(200)
         pg.click('#corpoTabela tr[data-id="1"]'); pg.wait_for_timeout(300)
-        ok('estimada pelo valor da loja, até a Conferência de Saída confirmar' in pg.inner_text('#eventDrawer').replace('\n', ' '), 'o painel do 1 diz "estimada pelo valor da loja, até a Conferência de Saída confirmar"')
+        ok('estimada pelo cadastro: 1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva. O custo final entra quando a Conferência de Saída fechar' in pg.inner_text('#eventDrawer').replace('\n', ' '),
+           'o painel do 1 diz "estimada pelo cadastro: 1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva. O custo final entra quando a Conferência de Saída fechar"')
         # agrupar e dividir por item seguem fechando
         pg.evaluate("agrupar = 'produto'; render();"); pg.wait_for_timeout(200)
         gr = pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr')).map(tr => Array.from(tr.children).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
@@ -504,11 +509,22 @@ with sync_playwright() as p:
         conf4 = dict(EMB_CONFIRMADA); conf4[4] = [(1, '6.30'), (1, '0.60'), (1, '0.30')]
         todos = todos_custos(pg)
         ok(perto(oraculo(next(x for x in todos if x['id'] == 4), confirmadas=conf4)['lucro'], 161.40), 'o oráculo (embalagem confirmada, com Decimal) também dá 161,40')
-        ok(kpis(pg)[2] == 'R$ 1.049,08' and kpis(pg)[5] == 'R$ 599,08', 'lucro do mês 1.049,08 (depois dos anúncios 599,08): %s' % kpis(pg))
-        ok(sum(oraculo(x, confirmadas=conf4)['embalagem'] for x in todos if x.get('canal') == 'loja_virtual') == D('56.20'), 'a embalagem do mês cai para 56,20 (o 4 saiu dos 8,00 estimados e foi para 7,20)')
+        ok(kpis(pg)[2] == 'R$ 1.050,68' and kpis(pg)[5] == 'R$ 600,68', 'o lucro do mês não muda (1.050,68; depois dos anúncios 600,68): o 4 estimado e o confirmado dão 7,20 porque a Conferência confirmou o que o cadastro sugeria: %s' % kpis(pg))
+        ok(sum(oraculo(x, confirmadas=conf4)['embalagem'] for x in todos if x.get('canal') == 'loja_virtual') == D('54.60'), 'a embalagem do mês segue 54,60 (o 4 estimado em 7,20 virou confirmado em 7,20)')
         pg.click('#corpoTabela tr[data-id="4"]'); pg.wait_for_timeout(300)
         painel = pg.inner_text('#eventDrawer').replace('\n', ' ')
         ok('1 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva' in painel and 'estimada' not in painel and 'Trocada na conferência' not in painel, 'o painel do 4 tem os nomes que a Conferência confirmou, sem troca')
+        pg.context.close()
+        # trocando a CE-02 pela Flex M e tirando a fita: o 4 vai a 5,30 e o total a 1.052,58
+        pg = nova()
+        separar4(pg)
+        def trocar():
+            escolher(pg, '#emb-0', 2)
+            pg.click('[data-ins-rem="1"]'); pg.wait_for_timeout(200)
+        conferir4(pg, trocar)
+        abrir_custos(pg)
+        l4 = linha_pedido(pg, 4)
+        ok(l4['Embalagem'] == 'R$ 5,30' and l4['Lucro'] == 'R$ 163,30' and kpis(pg)[2] == 'R$ 1.052,58', 'trocando a CE-02 pela Flex M e tirando a fita: o 4 vai a 5,30, lucro 163,30, e o total a 1.052,58: %s %s %s' % (l4['Embalagem'], l4['Lucro'], kpis(pg)[2]))
         pg.context.close()
 
     # ================================================================ 6. custo do dia
@@ -548,17 +564,25 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 7. configurar
-    if secao(7, 'Configurar muda só os estimados'):
+    if secao(7, 'Configurar não tem o campo de embalagem; o valor antigo por loja é ignorado e some ao salvar; o log não cita embalagem'):
         pg = nova()
         abrir_custos(pg)
+        SIT = "['aberto', 'aprovado', 'separacao', 'conferenciasaida', 'faturado', 'prontoenvio', 'enviado', 'entregue']"
+        pg.evaluate("() => localStorage.setItem('deskParametros', JSON.stringify({ custosEcommerce: { situacoes: " + SIT + ", custoBase: 'compra', embalagemPorLoja: { 1: 99, 2: 88, 3: 77 } } }))")
+        abrir_custos(pg)
+        e = {n: linha_pedido(pg, n)['Embalagem'] for n in (1, 3, 4, 8, 9, 11, 12, 16)}
+        ok(e[1] == 'R$ 6,60 estimada' and e[3] == 'R$ 1,80 estimada' and e[4] == 'R$ 7,20 estimada', 'o valor antigo por loja (99 / 88 / 77) gravado no navegador é ignorado: a estimada é a do cadastro: %s' % e)
+        ok(e[8] == 'R$ 7,00' and e[11] == 'R$ 5,40' and e[16] == 'R$ 12,60' and e[9] == 'R$ 6,80' and e[12] == 'R$ 7,20', 'e os confirmados seguem os mesmos: %s' % e)
         pg.click('#menuMaisAcoes .dropdown-select-btn'); pg.wait_for_timeout(150)
         pg.click('#menuMaisAcoes [data-acao="configurar"]'); pg.wait_for_timeout(250)
         rot = pg.inner_text('#cfgDrawer')
-        ok('Embalagem estimada por loja (R$ por pedido)' in rot and 'Vale só para o pedido que a Conferência de Saída ainda não confirmou' in rot, 'o rótulo e a dica de Configurar dizem "estimada" e "ainda não confirmou"')
-        pg.fill('#cfgEmbalagem input[data-loja="1"]', '6,00'); pg.click('#btnAplicarCfg'); pg.wait_for_timeout(300)
-        e = {n: linha_pedido(pg, n)['Embalagem'] for n in (1, 3, 4, 8, 9, 11, 12, 16)}
-        ok(e[1] == 'R$ 6,00 estimada' and e[3] == 'R$ 6,00 estimada' and e[4] == 'R$ 8,00 estimada', 'Shope a 6,00 mexe no 1 e no 3 (estimados), não no 4 (Brands): %s' % e)
-        ok(e[8] == 'R$ 7,00' and e[11] == 'R$ 5,40' and e[16] == 'R$ 12,60' and e[9] == 'R$ 6,80' and e[12] == 'R$ 7,20', 'e não mexe no 8, no 11, no 16 (confirmados): %s' % e)
+        ok('mbalagem' not in rot and 'Por loja' not in rot and pg.evaluate("!document.getElementById('campoCfgEmbalagem') && !document.getElementById('cfgEmbalagem') && !document.getElementById('erroCfgEmbalagem')"),
+           'Configurar não tem o campo "Embalagem estimada por loja", nem a dica, nem o erro')
+        pg.click('#btnAplicarCfg'); pg.wait_for_timeout(300)
+        g = ls(pg, 'deskParametros')['custosEcommerce']
+        ok(sorted(g.keys()) == ['custoBase', 'situacoes'], 'ao Aplicar, só ficam situações e custo base: o valor antigo por loja sai: %s' % g)
+        det = pg.evaluate("JSON.parse(localStorage.getItem('deskLog'))[0].detalhe")
+        ok('mbalagem' not in det and det.startswith('Situações: 8 de 9'), 'o texto do registro de atividades não cita embalagem: %s' % det)
         pg.context.close()
 
     # ================================================================ 8. pagina do pedido
@@ -569,10 +593,19 @@ with sync_playwright() as p:
         ok('1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' in cx and 'R$ 5,40' in cx and 'estimada' not in cx, 'o pedido 11 mostra a embalagem pelos nomes: %s' % cx[cx.index('Embalagem'):cx.index('Embalagem') + 100])
         ir(pg, PV_D, '?id=1')
         cx = pg.inner_text('#caixaResultado').replace('\n', ' ')
-        ok('estimada pelo valor da loja, até a Conferência de Saída confirmar' in cx and 'R$ 5,00' in cx, 'o pedido 1 diz "estimada pelo valor da loja, até a Conferência de Saída confirmar"')
+        ok('estimada pelo cadastro: 1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva. O custo final entra quando a Conferência de Saída fechar' in cx and 'R$ 6,60' in cx,
+           'o pedido 1 diz "estimada pelo cadastro: 1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva. O custo final entra quando a Conferência de Saída fechar"')
         ir(pg, PV_D, '?id=4')
         ok('estimada' in pg.inner_text('#caixaResultado'), 'o pedido 4 ainda não confirmado também é estimado')
         ok('a embalagem escolhida na Separação é confirmada antes de a nota sair' in pg.evaluate("PROXIMO_PASSO.separacao.texto"), 'o texto do passo diz que a embalagem escolhida na Separação é confirmada na Conferência de Saída: %s' % pg.evaluate("PROXIMO_PASSO.separacao.texto")[:150])
+        # Nome do cadastro com "<" nao vira HTML na pagina do pedido: nem estimado, nem confirmado com troca.
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].nome = 'Caixa <img src=x>'; embalagensGravar(L); }")
+        ir(pg, PV_D, '?id=1')
+        ok(pg.locator('#caixaResultado img').count() == 0 and 'Caixa <img src=x>' in pg.inner_text('#caixaResultado'), 'nome com "<" aparece como texto na estimativa, sem virar HTML')
+        pg.evaluate("() => localStorage.setItem('deskEmbalagensPedido', JSON.stringify({ 1: { situacao: 'confirmada', itens: [{ id: 3, nome: 'Caixa <img src=x>', tipo: 'pacote', qtd: 1, custo: 5.9 }], trocas: ['Flex M → Caixa <img src=x>'] } }))")
+        ir(pg, PV_D, '?id=1')
+        cx = pg.inner_text('#caixaResultado')
+        ok(pg.locator('#caixaResultado img').count() == 0 and 'Trocada na conferência: Flex M → Caixa <img src=x>' in cx, 'nome com "<" aparece como texto na embalagem confirmada e na troca, sem virar HTML')
         pg.context.close()
         pg = nova()
         separar4(pg)
@@ -594,10 +627,13 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 9. copias
-    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 3 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
+    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 8 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
         IN, FIM = '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='
-        tres = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F)]
-        ok(all(x == tres[0] for x in tres) and 'function sugerirEmbalagem(lista, pecas)' in tres[0] and 'function embResumo' in tres[0], 'o bloco EMBALAGENS: LEITURA é idêntico no Cadastro, na ficha da Separação e na bancada da Conferência')
+        n5 = ['pagina-vendas-custos-ecommerce.html', PV_D, 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html']
+        oito = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F) + tuple(n5)]
+        ok(len(oito) == 8 and all(x == oito[0] for x in oito) and 'function sugerirEmbalagem(lista, pecas)' in oito[0] and 'function embResumo' in oito[0],
+           'o bloco EMBALAGENS: LEITURA é idêntico nas 8 telas: Cadastro, Separação, Conferência e as 5 do RESULTADO DO PEDIDO')
+        ok(all(fonte(n).index(IN) < fonte(n).index('  // ===== RESULTADO DO PEDIDO (bloco comum') for n in n5), 'e nas 5 do RESULTADO DO PEDIDO ele vem ANTES do bloco da conta (o const já está inicializado)')
         ok(fonte(CONF_F).count('function sugerirEmbalagem') == 1 and fonte(SEP_F).count('function sugerirEmbalagem') == 1, 'a sugerirEmbalagem local da bancada saiu: uma só em cada ficha')
         ok('const EMBALAGENS = [' not in fonte(CONF_F), 'a bancada não carrega mais a lista fixa de embalagens: lê o cadastro')
         def aplica(n):
@@ -609,8 +645,7 @@ with sync_playwright() as p:
         ok(entrada4(CONF) == entrada4(CONF_F) and 'daSeparacao: true' in entrada4(CONF) and "preco: 199.90" in entrada4(CONF), 'o pedido 4 é igual nas duas FILAs da Conferência (daSeparacao, pago, preço de cada item)')
         css = lambda n: bloco(fonte(n), '  /* ===== EMBALAGENS DO PEDIDO (30/out/2026) =====', '@media (max-width:760px) { .emb-linha { grid-template-columns:minmax(0,1fr) 84px 32px; gap:8px; } }')
         ok(css(SEP_F) == css(CONF_F), 'o CSS do bloco de embalagens é idêntico na Separação e na Conferência')
-        n5 = ['pagina-vendas-custos-ecommerce.html', PV_D, 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html']
-        ok(all('RES_EMBALAGENS_EXEMPLO' in fonte(n) and 'function resEmbalagem(p, cfg)' in fonte(n) for n in n5), 'as 5 telas do RESULTADO DO PEDIDO trazem o exemplo confirmado e resEmbalagem (o bloco inteiro é comparado em teste_custos_ecommerce.py)')
+        ok(all('RES_EMBALAGENS_EXEMPLO' in fonte(n) and 'function resEmbalagem(p)' in fonte(n) and 'embalagemPorLoja' not in fonte(n) for n in n5), 'as 5 telas do RESULTADO DO PEDIDO trazem o exemplo confirmado e resEmbalagem (o bloco inteiro é comparado em teste_custos_ecommerce.py)')
         # a Separacao e a Conferencia nao se contradizem: o 4 tem os mesmos itens, transportadora e endereco
         pg = nova()
         ir(pg, SEP_F, '?id=4'); a = pg.evaluate("[PEDIDO.transp, PEDIDO.entrega, PEDIDO.itens.map(i => [i.sku, i.qtd])]")
@@ -643,7 +678,200 @@ with sync_playwright() as p:
                 return { pagina: document.documentElement.scrollWidth - window.innerWidth, bloco: b.scrollWidth - b.clientWidth, fora: fora, vol: v.scrollWidth - v.clientWidth }; }""")
             # A 860 px a linha de volumes da bancada ja rolava na lateral antes desta entrega (a grade tem colunas fixas: 118 px a mais no HEAD); o bloco novo dos insumos nao.
             ok(r['bloco'] <= 0 and r['fora'] == 0 and (w == 860 or (r['pagina'] <= 0 and r['vol'] <= 0)), 'Conferência a %d px: os insumos cabem no bloco%s: %s' % (w, '' if w == 860 else ' e a página e os volumes não rolam na lateral', r))
+            al = pg.evaluate("""() => { const i = document.getElementById('inputTotalVolumes').getBoundingClientRect(), b = document.getElementById('btnAddVolume').getBoundingClientRect();
+                return { visivel: i.width > 0, dentro: i.right <= window.innerWidth, dy: Math.abs((i.top + i.bottom) / 2 - (b.top + b.bottom) / 2) }; }""")
+            ok(al['visivel'] and al['dentro'] and al['dy'] <= 3, 'Conferência a %d px: o campo Total de volumes aparece, cabe na tela e fica alinhado com o botão Adicionar volume: %s' % (w, al))
             pg.context.close()
+
+    # ================================================================ 11. estimativa pelo cadastro, sem trava, total de volumes, teto
+    def emb_custos(pg, ns=(1, 3, 4, 8, 9, 11, 12, 16)):
+        return {n: linha_pedido(pg, n)['Embalagem'] for n in ns}
+
+    def cadastro_com(*mud, todos=None):
+        """O CADASTRO_EMB do oraculo com `mud` = (id, posicao, valor) trocados (posicao 3 = status, 4 = cap, 5 = custo); `todos` = (posicao, valor) em todas as linhas."""
+        lista = [list(e) for e in CADASTRO_EMB]
+        for e in lista:
+            if todos:
+                e[todos[0]] = todos[1]
+        for i, k, v in mud:
+            [e for e in lista if e[0] == i][0][k] = v
+        return [tuple(e) for e in lista]
+
+    def painel_custos(pg, n):
+        pg.click('#corpoTabela tr[data-id="%d"]' % n); pg.wait_for_timeout(300)
+        t_ = pg.inner_text('#eventDrawer').replace('\n', ' ')
+        pg.click('#drawerClose'); pg.wait_for_timeout(200)
+        return t_
+
+    def editar_cad(pg, busca, **campos):
+        pg.fill('#campoBusca', busca); pg.wait_for_timeout(150)
+        pg.click('#listaEmbalagens .embalagens-card'); pg.wait_for_timeout(300)
+        for k, v in campos.items():
+            pg.fill('#input' + k, v)
+        pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(250)
+
+    if secao(11, 'A estimativa pelo cadastro: custo, "cabe até", cadastro vazio; a Separação não mexe no custo; sem trava de capacidade; Total de volumes; teto de 999'):
+        # a. mudar o custo no cadastro mexe nos estimados (1, 3, 4) e nao nos confirmados (8, 11, 16)
+        pg = nova()
+        ir(pg, CAD)
+        pg.evaluate("itensPorPaginaAtual = 25; renderEmbalagens();"); pg.wait_for_timeout(150)
+        editar_cad(pg, 'Flex G', Custo='7,00'); editar_cad(pg, 'Pequeno', Custo='2,00'); editar_cad(pg, 'CE-02', Custo='9,00')
+        abrir_custos(pg)
+        e = emb_custos(pg)
+        ok(e[1] == 'R$ 7,70 estimada' and e[3] == 'R$ 2,70 estimada' and e[4] == 'R$ 9,90 estimada', 'custo novo no cadastro (Flex G 7,00, Envelope Pequeno 2,00, CE-02 9,00) mexe nos estimados: 1 = 7,70, 3 = 2,70, 4 = 9,90: %s' % e)
+        ok(e[8] == 'R$ 7,00' and e[11] == 'R$ 5,40' and e[16] == 'R$ 12,60', 'e não mexe nos confirmados: 8 = 7,00, 11 = 5,40, 16 = 12,60: %s' % e)
+        todos = {x['id']: x for x in todos_custos(pg)}
+        mod = cadastro_com((3, 5, '7.00'), (7, 5, '2.00'), (5, 5, '9.00'))
+        ok(all(perto(oraculo(todos[n], cadastro=mod)['embalagem'], v) for n, v in ((1, 7.70), (3, 2.70), (4, 9.90), (8, 7), (11, 5.40), (16, 12.60))), 'e o oráculo, refeito com Decimal sobre o cadastro novo, concorda')
+        pg.context.close()
+        # b. mudar o "cabe ate" muda a caixa da estimativa
+        pg = nova()
+        ir(pg, CAD)
+        pg.evaluate("itensPorPaginaAtual = 25; renderEmbalagens();"); pg.wait_for_timeout(150)
+        editar_cad(pg, 'Flex G', Cap='7')
+        abrir_custos(pg)
+        e = emb_custos(pg, (1, 3, 4))
+        ok(e[1] == 'R$ 7,00 estimada' and e[3] == 'R$ 1,80 estimada' and e[4] == 'R$ 7,20 estimada', 'Flex G passa a caber 7: o 1 (8 peças) deixa de caber nela e vai para a CE-02 (6,30 + 0,40 + 0,30 = 7,00); 3 e 4 seguem: %s' % e)
+        ok('estimada pelo cadastro: 1 Caixa de Encomenda CE-02 + 1 Tag Desk Shope + 1 Fita adesiva.' in painel_custos(pg, 1), 'e o painel do 1 diz a caixa nova')
+        todos = {x['id']: x for x in todos_custos(pg)}
+        ok(perto(oraculo(todos[1], cadastro=cadastro_com((3, 4, 7)))['embalagem'], 7.00), 'o oráculo concorda (7,00)')
+        pg.context.close()
+        # c. sem nenhum "cabe ate": so os insumos, com a marca, sem erro de JS; sem caixa nem insumo: zero, com a marca
+        pg = nova()
+        abrir_custos(pg)
+        n_erros = len(erros)
+        pg.evaluate("() => { const l = embalagensLer(); l.forEach(e => { delete e.cap; }); embalagensGravar(l); }")
+        abrir_custos(pg)
+        e = emb_custos(pg, (1, 3, 4, 8))
+        ok(e[1] == 'R$ 0,70 estimada' and e[3] == 'R$ 0,70 estimada' and e[4] == 'R$ 0,90 estimada' and e[8] == 'R$ 7,00', 'sem nenhum "cabe até" no cadastro a estimativa é só dos insumos (Shope 0,70, Brands 0,90), com a marca: %s' % e)
+        ok('estimada pelo cadastro: 1 Tag Desk Shope + 1 Fita adesiva.' in painel_custos(pg, 1), 'e o painel diz só os insumos')
+        todos = {x['id']: x for x in todos_custos(pg)}
+        sem_cap = cadastro_com(todos=None)
+        sem_cap = [(x[0], x[1], x[2], x[3], None, x[5], x[6]) for x in sem_cap]
+        ok(perto(oraculo(todos[1], cadastro=sem_cap)['embalagem'], 0.70) and perto(oraculo(todos[4], cadastro=sem_cap)['embalagem'], 0.90), 'o oráculo concorda (0,70 e 0,90)')
+        pg.evaluate("() => { const l = embalagensLer(); l.forEach(e => { e.status = 'inativo'; }); embalagensGravar(l); }")
+        abrir_custos(pg)
+        e = emb_custos(pg, (1, 3, 4, 8))
+        ok(e[1] == 'R$ 0,00 estimada' and e[3] == 'R$ 0,00 estimada' and e[4] == 'R$ 0,00 estimada' and e[8] == 'R$ 7,00', 'sem caixa nem insumo ativo o valor é 0,00, a marca fica e a tela abre: %s' % e)
+        ok('estimada: nada no cadastro para sugerir' in painel_custos(pg, 1), 'e o painel diz "estimada: nada no cadastro para sugerir"')
+        ir(pg, PV_D, '?id=1')
+        ok('estimada: nada no cadastro para sugerir' in pg.inner_text('#caixaResultado').replace('\n', ' '), 'a página do pedido também')
+        ok(len(erros) == n_erros, 'nenhum erro de JavaScript com o cadastro sem "cabe até" e vazio: %s' % erros[n_erros:])
+        pg.context.close()
+
+        # e. a Separacao escolheu 3 caixas CE-02: o custo segue a estimativa; a Conferencia fecha com as 3
+        pg = nova()
+        separar4(pg, antes=lambda: (pg.fill('[data-emb-qtd="0"]', '3'), pg.press('[data-emb-qtd="0"]', 'Tab'), pg.wait_for_timeout(200)))
+        r = reg(pg)
+        ok(r and r['situacao'] == 'separada' and [(i['id'], i['qtd']) for i in r['itens']] == [(5, 3), (12, 1), (13, 1)], 'a Separação guardou 3 caixas CE-02: %s' % (r and [(i['id'], i['qtd']) for i in r['itens']]))
+        abrir_custos(pg)
+        l4 = linha_pedido(pg, 4)
+        ok(l4['Embalagem'] == 'R$ 7,20 estimada' and l4['Lucro'] == 'R$ 161,40', 'o 4 "separado" com 3 caixas segue na estimativa do cadastro (7,20, com a marca): quem decide é a Conferência: %s' % l4['Embalagem'])
+        ir(pg, PV_D, '?id=4')
+        ok('estimada pelo cadastro: 1 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva.' in pg.inner_text('#caixaResultado').replace('\n', ' '), 'a página do pedido também (uma caixa, não as 3 da Separação)')
+        ir(pg, CONF_F, '?id=4')
+        ok(len(volumes_conf(pg)) == 3, 'a Conferência abre com os 3 volumes da Separação')
+        t = conferir4(pg)
+        ok('Embalagem confirmada: 3 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva.' in t and 'trocada' not in t, 'e fecha com as 3, sem troca: %s' % t[-110:])
+        abrir_custos(pg)
+        l4 = linha_pedido(pg, 4)
+        conf4 = dict(EMB_CONFIRMADA); conf4[4] = [(3, '6.30'), (1, '0.60'), (1, '0.30')]
+        todos = {x['id']: x for x in todos_custos(pg)}
+        ok(l4['Embalagem'] == 'R$ 19,80' and perto(oraculo(todos[4], confirmadas=conf4)['embalagem'], 19.80) and l4['Lucro'] == br(oraculo(todos[4], confirmadas=conf4)['lucro']), 'confirmado, o 4 custa 3 × 6,30 + 0,60 + 0,30 = 19,80, sem a marca "estimada": %s' % l4['Embalagem'])
+        pg.context.close()
+
+        # f. sem trava de capacidade: o Envelope Pequeno (cabe 1) para as 10 pecas passa na Separacao e na Conferencia
+        pg = nova()
+        t = separar4(pg, antes=lambda: escolher(pg, '#emb-sel-0', 7))
+        r = reg(pg)
+        ok(r and r['situacao'] == 'separada' and r['itens'][0]['id'] == 7 and 'Embalagem: 1 Envelope de Segurança Pequeno + 1 Tag Desk Brands + 1 Fita adesiva.' in t, 'a Separação aceita o Envelope Pequeno para 10 peças, sem aviso de capacidade: %s' % t[-110:])
+        ir(pg, CONF_F, '?id=4')
+        ok(volumes_conf(pg) == [['Envelope de Segurança Pequeno', 'escolhida na separação']], 'a Conferência abre com o envelope: %s' % volumes_conf(pg))
+        t = conferir4(pg)
+        r = reg(pg)
+        ok(r and r['situacao'] == 'confirmada' and [(i['id'], i['qtd'], i['custo']) for i in r['itens']] == [(7, 1, 1.1), (12, 1, 0.6), (13, 1, 0.3)] and 'trocada' not in t, 'e fecha com ele, sem travar: %s' % (r and [(i['id'], i['qtd']) for i in r['itens']]))
+        abrir_custos(pg)
+        ok(linha_pedido(pg, 4)['Embalagem'] == 'R$ 2,00', 'o custo é 1,10 + 0,60 + 0,30 = 2,00: %s' % linha_pedido(pg, 4)['Embalagem'])
+        pg.context.close()
+
+        # g. Separacao com 300 caixas: a Conferencia abre 300 linhas; o Total de volumes acerta; a troca vira UMA entrada
+        def sep300():
+            p_ = nova()
+            separar4(p_, antes=lambda: (p_.fill('[data-emb-qtd="0"]', '300'), p_.press('[data-emb-qtd="0"]', 'Tab'), p_.wait_for_timeout(250)))
+            return p_
+        pg = sep300()
+        ok(reg(pg)['itens'][0]['qtd'] == 300, 'a Separação guardou 300 caixas')
+        ir(pg, CONF_F, '?id=4')
+        ok(pg.locator('#listaVolumes .vol-linha').count() == 300 and pg.input_value('#inputTotalVolumes') == '300' and pg.locator('#campoTotalVolumes').is_visible(), 'a Conferência abre 300 linhas e o campo Total de volumes mostra 300')
+        pg.click('#btnConferirTudo'); pg.wait_for_timeout(300); confirmar(pg)
+        pg.fill('#inputTotalVolumes', '1'); pg.press('#inputTotalVolumes', 'Tab'); pg.wait_for_timeout(300)
+        ok(pg.locator('#listaVolumes .vol-linha').count() == 1 and pg.input_value('#inputTotalVolumes') == '1' and volumes_conf(pg) == [['Caixa de Encomenda CE-02', 'escolhida na separação']], 'Total de volumes em 1 deixa 1 linha (as últimas saem)')
+        pg.click('#btnFechar'); pg.wait_for_timeout(320)
+        t = modal(pg)
+        ok('Embalagem trocada: − 299 Caixa de Encomenda CE-02.' in t, 'o modal diz "− 299 Caixa de Encomenda CE-02", numa entrada só: %s' % t[:200])
+        confirmar(pg); confirmar(pg)
+        r = reg(pg)
+        ok(r and r['situacao'] == 'confirmada' and r['trocas'] == ['− 299 Caixa de Encomenda CE-02'] and [(i['id'], i['qtd'], i['custo']) for i in r['itens']] == [(5, 1, 6.3), (12, 1, 0.6), (13, 1, 0.3)],
+           'o registro grava uma troca só e 1 caixa: %s' % (r and r['trocas']))
+        log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(x => x.chave === 'confSaidaFecha')")
+        ok(len(log) == 1 and '− 299 Caixa de Encomenda CE-02' in log[0]['detalhe'] and len(log[0]['detalhe']) <= 180, 'e a troca cabe inteira nos 180 caracteres do Registro de atividades (%d): %s' % (len(log[0]['detalhe']), log[0]['detalhe']))
+        ir(pg, CONF_F, '?id=4')
+        ok(not pg.locator('#campoTotalVolumes').is_visible() and not pg.locator('#inputTotalVolumes').is_visible() and not pg.locator('#btnAddVolume').is_visible(), 'com a conferência fechada o campo Total de volumes não aparece (nem o Adicionar volume)')
+        pg.context.close()
+        # ... 300 -> 1 -> 3, mais os limites do campo
+        pg = sep300()
+        ir(pg, CONF_F, '?id=4')
+        pg.click('#btnConferirTudo'); pg.wait_for_timeout(300); confirmar(pg)
+        for digitado, esperado in (('0', 300), ('', 300), ('abc', 300), ('5000', 999)):
+            pg.fill('#inputTotalVolumes', digitado); pg.press('#inputTotalVolumes', 'Tab'); pg.wait_for_timeout(300)
+            if digitado == '5000':
+                ok(pg.evaluate("VOLUMES.length") == 999 and pg.input_value('#inputTotalVolumes') == '999', 'digitar 5000 limita a 999 linhas')
+            else:
+                ok(pg.evaluate("VOLUMES.length") == esperado and pg.input_value('#inputTotalVolumes') == str(esperado), 'Total de volumes "%s" volta ao atual (%d)' % (digitado, esperado))
+        pg.fill('#inputTotalVolumes', '1'); pg.press('#inputTotalVolumes', 'Tab'); pg.wait_for_timeout(300)
+        pg.fill('#inputTotalVolumes', '3'); pg.press('#inputTotalVolumes', 'Tab'); pg.wait_for_timeout(300)
+        v3 = pg.evaluate("VOLUMES.map(v => [v.emb, v.nome, v.peso, v.sugerida, v.origem])")
+        ok(len(v3) == 3 and v3[0][0] == 5 and v3[1:] == [[5, 'Caixa de Encomenda CE-02', '', '', None]] * 2 and pg.locator('#listaVolumes .vol-linha').count() == 3, 'de 1 para 3 as três linhas têm a mesma caixa (a da última), sem peso: %s' % v3[:2])
+        pg.click('#btnFechar'); pg.wait_for_timeout(320)
+        confirmar(pg); confirmar(pg)
+        r = reg(pg)
+        ok(r and r['trocas'] == ['− 297 Caixa de Encomenda CE-02'] and [(i['id'], i['qtd']) for i in r['itens']] == [(5, 3), (12, 1), (13, 1)], 'e fechar com 3 grava 3 caixas e a troca "− 297 Caixa de Encomenda CE-02": %s' % (r and r['trocas']))
+        pg.context.close()
+        # ... outra caixa na ultima linha e depois 3 volumes: as 3 com a nova; a troca agrupa o que sobra ("+ 2 ...")
+        pg = nova()
+        separar4(pg)
+        ir(pg, CONF_F, '?id=4')
+        pg.click('#btnConferirTudo'); pg.wait_for_timeout(300); confirmar(pg)
+        ok(pg.locator('#campoTotalVolumes').is_visible() and pg.input_value('#inputTotalVolumes') == '1', 'com 1 volume o campo mostra 1')
+        escolher(pg, '#emb-0', 2)
+        pg.fill('#inputTotalVolumes', '3'); pg.press('#inputTotalVolumes', 'Tab'); pg.wait_for_timeout(300)
+        ok(pg.evaluate("VOLUMES.map(v => v.emb)") == [2, 2, 2] and pg.evaluate("Array.from(document.querySelectorAll('#listaVolumes .vol-numero')).map(x => x.textContent)") == ['1 de 3', '2 de 3', '3 de 3'], 'trocada a caixa do único volume, subir para 3 repete a Flex M nas três e renumera "1 de 3"')
+        pg.click('#btnFechar'); pg.wait_for_timeout(320)
+        confirmar(pg); confirmar(pg)
+        r = reg(pg)
+        ok(r and r['trocas'] == ['Caixa de Encomenda CE-02 → Caixa de Encomenda Flex M', '+ 2 Caixa de Encomenda Flex M'] and [(i['id'], i['qtd']) for i in r['itens']] == [(2, 3), (12, 1), (13, 1)],
+           'a troca é "CE-02 → Flex M" e as que sobraram vêm numa entrada só, "+ 2 Caixa de Encomenda Flex M": %s' % (r and r['trocas']))
+        un = pg.evaluate("""() => { const c = (id, nome, qtd) => ({ id: id, nome: nome, tipo: 'pacote', qtd: qtd });
+            return [embTrocas([c(5, 'A', 300), c(2, 'B', 2)], [c(5, 'A', 1), c(2, 'B', 5)]), embTrocas([c(5, 'A', 4)], [c(2, 'B', 1)]), embTrocas([c(5, 'A', 2)], [c(5, 'A', 2)])]; }""")
+        ok(un[0] == ['A → B', 'A → B', 'A → B', '− 296 A'] and un[1] == ['A → B', '− 3 A'] and un[2] == [], 'embTrocas: as sobras agrupadas por nome com a quantidade certa e nada quando não mudou: %s' % un)
+        pg.context.close()
+
+        # h. teto de 999 nas quantidades da Separacao e da Conferencia
+        pg = nova()
+        def teto_sep():
+            pg.fill('[data-emb-qtd="0"]', '5000'); pg.press('[data-emb-qtd="0"]', 'Tab'); pg.wait_for_timeout(200)
+            a1 = pg.input_value('[data-emb-qtd="0"]')
+            pg.fill('[data-ins-qtd="0"]', '5000'); pg.press('[data-ins-qtd="0"]', 'Tab'); pg.wait_for_timeout(200)
+            a2 = pg.input_value('[data-ins-qtd="0"]')
+            ok(a1 == '999' and a2 == '999', 'Separação: 5000 na quantidade da embalagem e do insumo vira 999 ao sair do campo: %s %s' % (a1, a2))
+            pg.fill('[data-emb-qtd="0"]', '1'); pg.press('[data-emb-qtd="0"]', 'Tab'); pg.fill('[data-ins-qtd="0"]', '1'); pg.press('[data-ins-qtd="0"]', 'Tab'); pg.wait_for_timeout(200)
+        separar4(pg, antes=teto_sep)
+        ir(pg, CONF_F, '?id=4')
+        pg.fill('[data-ins-qtd="0"]', '5000'); pg.press('[data-ins-qtd="0"]', 'Tab'); pg.wait_for_timeout(200)
+        ok(pg.input_value('[data-ins-qtd="0"]') == '999' and pg.evaluate("INS_LINHAS[0].qtd") == 999, 'Conferência: 5000 na quantidade do insumo vira 999')
+        pg.fill('[data-ins-qtd="0"]', '0'); pg.press('[data-ins-qtd="0"]', 'Tab'); pg.wait_for_timeout(200)
+        ok(pg.input_value('[data-ins-qtd="0"]') == '1', 'e zero segue voltando para 1')
+        pg.context.close()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
     nav.close()

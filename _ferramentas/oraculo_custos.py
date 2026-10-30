@@ -7,7 +7,24 @@ from decimal import Decimal, ROUND_HALF_UP
 D = lambda x: Decimal(str(x))
 c2 = lambda x: x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 TAXAS_LINK = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66]   # InfinitePay, Link de pagamento, 1x a 12x
-PADRAO_EMB = {1: 5, 2: 8, 3: 0}   # a embalagem ESTIMADA por loja (so vale para o pedido que a Conferencia de Saida ainda nao confirmou)
+# O cadastro de Embalagens de fabrica, so o que a estimativa le (30/out/2026): (id, nome, tipo, status, cap, custo, auto). A estimativa de um pedido que a Conferencia de Saida ainda
+# nao confirmou e a menor caixa ativa com `cap` em que cabem as pecas (se nenhuma couber, a de maior `cap`, em quantas forem precisas) mais os insumos ativos da loja, a preco de hoje.
+CADASTRO_EMB = [
+    (1, 'Caixa de Encomenda Flex P', 'pacote', 'ativo', 2, '3.50', None),
+    (2, 'Caixa de Encomenda Flex M', 'pacote', 'ativo', 5, '4.70', None),
+    (3, 'Caixa de Encomenda Flex G', 'pacote', 'ativo', 9, '5.90', None),
+    (4, 'Caixa de Encomenda CE-01', 'pacote', 'ativo', 4, '4.20', None),
+    (5, 'Caixa de Encomenda CE-02', 'pacote', 'ativo', 12, '6.30', None),
+    (6, 'Caixa para Eletrônicos', 'pacote', 'ativo', 25, '12.50', None),
+    (7, 'Envelope de Segurança Pequeno', 'envelope', 'ativo', 1, '1.10', None),
+    (8, 'Envelope de Segurança Grande', 'envelope', 'ativo', 3, '1.80', None),
+    (9, 'Rolo para Pôster', 'rolo', 'ativo', None, '4.50', None),
+    (10, 'Rolo para Tecido', 'rolo', 'inativo', None, '7.00', None),
+    (11, 'Tag Desk Shope', 'insumo', 'ativo', None, '0.40', '1'),
+    (12, 'Tag Desk Brands', 'insumo', 'ativo', None, '0.60', '2'),
+    (13, 'Fita adesiva', 'insumo', 'ativo', None, '0.30', 'todas'),
+    (14, 'Saco plástico', 'insumo', 'ativo', None, '0.25', ''),
+]
 # A embalagem que a Conferencia de Saida confirmou (entrega 4, 30/out/2026), pedido a pedido: (quantidade, custo do dia) de cada item do registro (caixa, tag, fita).
 # Os pedidos que ja passaram da Conferencia (faturado, pronto para envio, enviado, entregue) tem exemplo; os pedidos 1, 3 e 4 ficam estimados. O 16 foi confirmado a 11,90,
 # com o cadastro hoje a 12,50, de proposito: prova o custo do dia.
@@ -112,19 +129,37 @@ def comissao_reduzida(bruta, base_comissao, devolvido):
     return c2(bruta * max(D(0), base_comissao - devolvido) / base_comissao)
 
 
-def embalagem_do_pedido(pid, loja, emb=PADRAO_EMB, confirmadas=None):
-    """(valor, estimada): o registro confirmado (soma de qtd x custo do dia) ou, sem ele, a embalagem estimada da loja, uma vez por pedido."""
+def estimativa_embalagem(pid, loja, cadastro=None):
+    """O valor da embalagem estimada pelo cadastro: a menor caixa ativa com `cap` em que cabem as pecas do pedido (menor cap >= pecas; se nenhuma couber, a de maior cap, em
+    quantas forem precisas) mais os insumos ativos da loja (auto 'todas' ou o id da loja), a preco de hoje. Sem caixa nem insumo, zero."""
+    cad = CADASTRO_EMB if cadastro is None else cadastro
+    pecas = max(1, sum(i[3] for i in ITENS.get(pid, [])))
+    caixas = sorted([e for e in cad if e[3] == 'ativo' and e[2] != 'insumo' and e[4]], key=lambda e: e[4])
+    total = D(0)
+    if caixas:
+        cabe = [e for e in caixas if e[4] >= pecas]
+        if cabe:
+            total += D(cabe[0][5])
+        else:
+            maior = caixas[-1]
+            total += D(maior[5]) * -(-pecas // maior[4])   # teto da divisao inteira
+    total += sum((D(e[5]) for e in cad if e[3] == 'ativo' and e[2] == 'insumo' and (e[6] == 'todas' or e[6] == str(loja))), D(0))
+    return c2(total)
+
+
+def embalagem_do_pedido(pid, loja, cadastro=None, confirmadas=None):
+    """(valor, estimada): o registro confirmado (soma de qtd x custo do dia) ou, sem ele, a estimativa pelo cadastro (estimativa_embalagem), uma vez por pedido."""
     conf = EMB_CONFIRMADA if confirmadas is None else confirmadas
     if pid in conf:
         return c2(sum((D(q) * D(c) for q, c in conf[pid]), D(0))), False
-    return c2(D(emb.get(loja, 0))), True
+    return estimativa_embalagem(pid, loja, cadastro), True
 
 
-def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None, confirmadas=None):
+def oraculo(p, base='compra', cadastro=None, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None, confirmadas=None):
     """`comissao` (Decimal) troca a comissao do cadastro: as suites de Comissoes mudam o percentual e passam o valor que a tela deve usar.
     `devolucoes`: a lista de devolucoes (de fabrica, a do exemplo); `cortesia`: R$ do vale de cortesia usado no pedido (de fabrica, o do exemplo); `prazo` e `entrega`: o prazo
-    de devolucao e a data de entrega de cada pedido (de fabrica, 7 dias e a ENTREGA do exemplo). `emb`: a embalagem estimada por loja; `confirmadas`: a embalagem confirmada por pedido
-    (de fabrica, EMB_CONFIRMADA); o pedido que esta nela usa o registro, os outros usam `emb`."""
+    de devolucao e a data de entrega de cada pedido (de fabrica, 7 dias e a ENTREGA do exemplo). `cadastro`: o cadastro de Embalagens (de fabrica, CADASTRO_EMB); `confirmadas`: a embalagem confirmada por pedido
+    (de fabrica, EMB_CONFIRMADA); o pedido que esta nela usa o registro, os outros usam a estimativa pelo `cadastro`."""
     total_, frete = D(p['total']), D(p.get('frete', 0))
     cort = D(CORTESIA_EXEMPLO.get(p['id'], 0) if cortesia is None else cortesia)
     venda = total_ - frete - cort
@@ -139,7 +174,7 @@ def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, co
         bruta = c2(c2(total_ - frete) * D(pct) / 100)
         no_p = [d for d in devs if no_prazo(d, p['id'], prazo, entrega)]
         comissao = comissao_reduzida(bruta, total_ - frete, sum((valor_itens(d) for d in no_p), D(0)))
-    embalagem, estimada = embalagem_do_pedido(p['id'], p['loja'], emb, confirmadas)   # uma por pedido
+    embalagem, estimada = embalagem_do_pedido(p['id'], p['loja'], cadastro, confirmadas)   # uma por pedido
     custo = D(p['custoMedio'] if base == 'medio' else p['custo'])
     dv = conta_devolucao(p['id'], devs, base, (total_ - frete - cort) / (total_ - frete) if cort and total_ - frete > 0 else None)
     lucro = venda - dif - taxa - comissao - embalagem - custo - dv['devolucao']

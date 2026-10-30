@@ -778,6 +778,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="form-field" id="campoCap">
         <label>Cabe até (peças)</label>
         <input type="text" id="inputCap" inputmode="numeric" placeholder="opcional">
+        <div class="field-hint">Só serve para sugerir a caixa. Quem decide o que vai no pedido é a Conferência de Saída.</div>
         <div class="field-error-msg" id="erroCap">Informe um número inteiro maior que zero, ou deixe em branco.</div>
       </div>
     </div>
@@ -1323,9 +1324,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
 
   // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
-  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em Cadastros > Embalagens (que grava o cadastro), na ficha da Separacao (que
-  // escolhe a embalagem) e na bancada da Conferencia de Saida (que confirma); teste_embalagem_pedido.py compara as copias. Custos do E-commerce e a pagina do
-  // pedido leem `deskEmbalagensPedido` no bloco RESULTADO DO PEDIDO.
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 8 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma) e as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado; teste_embalagem_pedido.py compara as copias.
   //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
   //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
   //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
