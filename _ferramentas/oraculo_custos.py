@@ -7,7 +7,17 @@ from decimal import Decimal, ROUND_HALF_UP
 D = lambda x: Decimal(str(x))
 c2 = lambda x: x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 TAXAS_LINK = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66]   # InfinitePay, Link de pagamento, 1x a 12x
-PADRAO_EMB = {1: 5, 2: 8, 3: 0}
+PADRAO_EMB = {1: 5, 2: 8, 3: 0}   # a embalagem ESTIMADA por loja (so vale para o pedido que a Conferencia de Saida ainda nao confirmou)
+# A embalagem que a Conferencia de Saida confirmou (entrega 4, 30/out/2026), pedido a pedido: (quantidade, custo do dia) de cada item do registro (caixa, tag, fita).
+# Os pedidos que ja passaram da Conferencia (faturado, pronto para envio, enviado, entregue) tem exemplo; os pedidos 1, 3 e 4 ficam estimados. O 16 foi confirmado a 11,90,
+# com o cadastro hoje a 12,50, de proposito: prova o custo do dia.
+EMB_CONFIRMADA = {
+    8:  [(1, '6.30'), (1, '0.40'), (1, '0.30')],
+    9:  [(1, '5.90'), (1, '0.60'), (1, '0.30')],
+    11: [(1, '4.70'), (1, '0.40'), (1, '0.30')],
+    12: [(1, '6.30'), (1, '0.60'), (1, '0.30')],
+    16: [(1, '11.90'), (1, '0.40'), (1, '0.30')],
+}
 # Os itens dos pedidos de venda que tem itens no exemplo (ITENS_PEDIDO): sku, nome, categoria, qtd, preco, custo e custo medio de UMA unidade.
 # Os online (1, 3, 4, 8, 9, 11, 12, 16) fecham no total (itens mais frete), na soma do custo e na do custo medio.
 ITENS = {
@@ -102,10 +112,19 @@ def comissao_reduzida(bruta, base_comissao, devolvido):
     return c2(bruta * max(D(0), base_comissao - devolvido) / base_comissao)
 
 
-def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None):
+def embalagem_do_pedido(pid, loja, emb=PADRAO_EMB, confirmadas=None):
+    """(valor, estimada): o registro confirmado (soma de qtd x custo do dia) ou, sem ele, a embalagem estimada da loja, uma vez por pedido."""
+    conf = EMB_CONFIRMADA if confirmadas is None else confirmadas
+    if pid in conf:
+        return c2(sum((D(q) * D(c) for q, c in conf[pid]), D(0))), False
+    return c2(D(emb.get(loja, 0))), True
+
+
+def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None, confirmadas=None):
     """`comissao` (Decimal) troca a comissao do cadastro: as suites de Comissoes mudam o percentual e passam o valor que a tela deve usar.
     `devolucoes`: a lista de devolucoes (de fabrica, a do exemplo); `cortesia`: R$ do vale de cortesia usado no pedido (de fabrica, o do exemplo); `prazo` e `entrega`: o prazo
-    de devolucao e a data de entrega de cada pedido (de fabrica, 7 dias e a ENTREGA do exemplo)."""
+    de devolucao e a data de entrega de cada pedido (de fabrica, 7 dias e a ENTREGA do exemplo). `emb`: a embalagem estimada por loja; `confirmadas`: a embalagem confirmada por pedido
+    (de fabrica, EMB_CONFIRMADA); o pedido que esta nela usa o registro, os outros usam `emb`."""
     total_, frete = D(p['total']), D(p.get('frete', 0))
     cort = D(CORTESIA_EXEMPLO.get(p['id'], 0) if cortesia is None else cortesia)
     venda = total_ - frete - cort
@@ -120,11 +139,11 @@ def oraculo(p, base='compra', emb=PADRAO_EMB, comissao=None, devolucoes=None, co
         bruta = c2(c2(total_ - frete) * D(pct) / 100)
         no_p = [d for d in devs if no_prazo(d, p['id'], prazo, entrega)]
         comissao = comissao_reduzida(bruta, total_ - frete, sum((valor_itens(d) for d in no_p), D(0)))
-    embalagem = c2(D(emb.get(p['loja'], 0)))   # uma por pedido
+    embalagem, estimada = embalagem_do_pedido(p['id'], p['loja'], emb, confirmadas)   # uma por pedido
     custo = D(p['custoMedio'] if base == 'medio' else p['custo'])
     dv = conta_devolucao(p['id'], devs, base, (total_ - frete - cort) / (total_ - frete) if cort and total_ - frete > 0 else None)
     lucro = venda - dif - taxa - comissao - embalagem - custo - dv['devolucao']
-    return dict(venda=venda, frete=frete, cortesia=cort, dif=dif, taxa=taxa, comissao=comissao, embalagem=embalagem, custo=custo, devolucao=dv['devolucao'], devolvido=dv['devolvido'],
+    return dict(venda=venda, frete=frete, cortesia=cort, dif=dif, taxa=taxa, comissao=comissao, embalagem=embalagem, embalagem_estimada=estimada, custo=custo, devolucao=dv['devolucao'], devolvido=dv['devolvido'],
                 recuperado=dv['recuperado'], perda=dv['perda'], frete_volta=dv['frete_volta'], lucro=lucro, margem=(lucro / venda if venda else D(0)))
 
 

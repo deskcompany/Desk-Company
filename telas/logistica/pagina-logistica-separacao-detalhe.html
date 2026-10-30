@@ -719,6 +719,29 @@
   .sep-rodape-info { font-size:12.5px; font-weight:700; color:var(--text); }
   .sep-rodape-info b { color:var(--text-heading); }
 
+  /* ===== EMBALAGENS DO PEDIDO (30/out/2026) =====
+     O mesmo visual dos volumes da Conferencia de Saida. Na tela do galpao nao ha valor em R$: so os nomes. Bloco identico na Separacao e na Conferencia de Saida. */
+  .emb-bloco { margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
+  .emb-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); margin-bottom:6px; }
+  .emb-bloco-nota { font-size:12px; font-weight:600; color:var(--text); line-height:1.5; }
+  .emb-parte { margin-top:14px; }
+  .emb-parte-titulo { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
+  .emb-linha { display:grid; grid-template-columns:minmax(0,1fr) 110px 40px; gap:12px; align-items:start; padding:10px 0; border-bottom:1px solid var(--border); }
+  .emb-linha:last-child { border-bottom:none; }
+  .emb-campo { min-width:0; }
+  .emb-campo label { display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:5px; }
+  .emb-campo input { width:100%; box-sizing:border-box; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; height:39px; padding:0 9px; outline:none; }
+  .emb-campo input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .emb-campo input:disabled { opacity:0.55; }
+  .emb-sugerida { font-size:11px; font-weight:700; color:var(--active-text); margin-top:5px; }
+  .emb-vazio { font-size:12px; font-weight:600; color:var(--text); padding:10px 0 4px; }
+  .emb-remover { font-size:18px; font-weight:800; color:var(--text); background:transparent; border:none; cursor:pointer; height:39px; margin-top:19px; padding:0; font-family:'Nunito',sans-serif; }
+  .emb-remover:hover { color:var(--danger); }
+  .emb-remover:disabled { opacity:0.3; cursor:default; }
+  .emb-add { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:0; background:none; border:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .emb-add:hover { text-decoration:underline; }
+  @media (max-width:760px) { .emb-linha { grid-template-columns:minmax(0,1fr) 84px 32px; gap:8px; } }
+
   /* A folha que o separador leva na mao. Sem valores, numa coluna so, com o
      endereco em primeiro lugar — e com quadradinho para marcar a lapis, porque
      o galpao risca o papel e so depois volta ao sistema. */
@@ -1004,6 +1027,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     <div class="sep-itens" id="listaItens"></div>
 
+    <div class="emb-bloco" id="blocoEmbalagens">
+      <div class="emb-bloco-titulo">Embalagens do pedido</div>
+      <div class="emb-bloco-nota" id="embNota">Escolha em que o pedido vai. A caixa que cabe as peças já vem sugerida e os insumos que entram sozinhos (tag, fita) já vêm preenchidos; troque o que não servir. A Conferência de Saída recebe isto preenchido e confirma.</div>
+      <div class="emb-parte">
+        <div class="emb-parte-titulo">Embalagens</div>
+        <div id="listaEmbalagens"></div>
+        <button type="button" class="emb-add" id="btnAddEmbalagem">+ Adicionar embalagem</button>
+      </div>
+      <div class="emb-parte">
+        <div class="emb-parte-titulo">Insumos</div>
+        <div id="listaInsumos"></div>
+        <button type="button" class="emb-add" id="btnAddInsumo">+ Adicionar insumo</button>
+      </div>
+    </div>
+
     <div class="sep-rodape">
       <span class="sep-rodape-info" id="rodapeInfo">—</span>
       <div class="sep-rodape-acoes">
@@ -1069,6 +1107,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     separacaoAlertaHoras: 4,
     separacaoCriticoHoras: 12,
     separacaoOrdemPorEndereco: true,
+    sugerirEmbalagem: true,
     enderecamentoAlerta: 2,
     enderecamentoCritico: 7,
     estoqueZeroLimite: 7,
@@ -1509,6 +1548,74 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em Cadastros > Embalagens (que grava o cadastro), na ficha da Separacao (que
+  // escolhe a embalagem) e na bancada da Conferencia de Saida (que confirma); teste_embalagem_pedido.py compara as copias. Custos do E-commerce e a pagina do
+  // pedido leem `deskEmbalagensPedido` no bloco RESULTADO DO PEDIDO.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 0.3, auto: 'todas', status: 'ativo' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo' }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) return g;
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
+
   // ===== DADOS (mock) =====
   // Mesma observacao da fila: no prototipo cada arquivo carrega o proprio mock.
   // No sistema de producao esta tela le UM pedido e os itens dele, mais a coluna de
@@ -1561,6 +1668,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id: 22, numero: 22, loja: 2, dep: 1, origem: 'manual',  cliente: 'Clínica Vida Plena', entrega: 'Av. Dorgival Pinheiro de Sousa, 1200 — Centro, Imperatriz/MA · 65901-430',
       transp: 'Motoboy · entrega local', obs: '', situacao: 'fila', operador: null, liberadoHa: 1, itens: [
       { sku: 'CAD-FIX-110', nome: 'Cadeira fixa de espera', variacao: 'Azul', qtd: 8, end: 'R02-P07-N1' } ] },
+
+    // shortcut: o pedido 4 e o pedido online real de Vendas (Juliana Prado). Na lista de Pedidos ele segue 'aprovado': separar e conferir nao muda os espelhos (Pedidos, Custos, Comissoes); na producao a situacao e uma so.
+    { id: 4,  numero: 4,  loja: 2, dep: 2, origem: 'vitrine', cliente: 'Juliana Prado', entrega: 'Rua Visconde de Pirajá, 540 — Ipanema, Rio de Janeiro/RJ · 22410-002',
+      transp: 'Correios · SEDEX', obs: '', situacao: 'fila', operador: null, liberadoHa: 6, itens: [
+      { sku: 'VES-2001', nome: 'Camiseta Básica Algodão', variacao: '—', qtd: 3, end: 'R09-P01-N2' },
+      { sku: 'PAP-3001', nome: 'Caderno Universitário 200 folhas', variacao: '—', qtd: 5, end: 'R07-P02-N1' },
+      { sku: 'VES-2002', nome: 'Tênis Esportivo Runner', variacao: '—', qtd: 2, end: 'R09-P03-N1' } ] },
 
     { id: 7,  numero: 7,  loja: 3, dep: 4, origem: 'manual',  cliente: 'Pedro Henrique Alves', entrega: 'Rua Ceará, 640 — Juçara, Imperatriz/MA · 65900-520',
       transp: 'Correios · SEDEX', obs: '', situacao: 'separado', operador: 2, liberadoHa: 50, itens: [
@@ -1733,6 +1847,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     ligarItens();
     pintarProgresso();
+    embAtualizar();
   }
 
   function ligarItens() {
@@ -1959,6 +2074,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         ': ' + faltando.map(i => i.sku).join(', ') + '. Todo item precisa de uma resposta — coletado por inteiro, ou a quantidade que você achou.');
       return;
     }
+    const itensEmb = embItensDoPedido();
+    if (!itensEmb.some(i => i.tipo !== 'insumo')) {
+      // Sem embalagem a Conferencia de Saida recebe um pedido sem caixa e o custo dele fica sem conta: o separador escolhe aqui, com o produto na mao.
+      avisar('Escolha a embalagem do pedido antes de concluir: a caixa ou o envelope em que ele vai. A Conferência de Saída recebe a escolha preenchida e confirma.');
+      return;
+    }
     const faltas = comFalta();
     const texto = faltas.length === 0
       ? 'Concluir a separação do pedido #' + PEDIDO.numero + ' com as ' + PEDIDO.pecas + ' peças coletadas. Ele sai da sua mão e entra na fila da Conferência de Saída, que vai contar a caixa de novo antes de emitir a nota.'
@@ -1966,7 +2087,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         faltas.map(i => i.sku + ' (' + i.separado + ' de ' + i.qtd + ')').join(', ') + '. ' +
         'O pedido continua, e o que faltou fica bloqueado para venda em Estoque → Tratamento de Perdas, aguardando auditoria. Nenhum saldo é baixado agora.';
     armarSenhaModal('separacaoConclui');
-    abrirModalConfirmacao(texto, 1, 'primary', () => {
+    abrirModalConfirmacao(texto + ' Embalagem: ' + embResumo(itensEmb) + '.', 1, 'primary', () => {
       PEDIDO.situacao = 'separado';
       if (!PEDIDO.operador) PEDIDO.operador = EU;
       // A falta bloqueia a unidade no proprio endereco, que e onde a auditoria vai procurar.
@@ -1975,6 +2096,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         endereco: i.end || null, tipoEnd: i.end ? 'picking' : null, base: i.end || null, qtd: i.qtd - i.separado,
         motivo: 'falta', origem: 'separacao', doc: 'Pedido #' + PEDIDO.numero, quem: OPERADORES[PEDIDO.operador], obs: i.motivo }));
       gravarSeparacao(PEDIDO, COLETA.map(i => ({ sku: i.sku, separado: i.separado, motivo: i.motivo })));
+      embGravarRegistro('separada');
       // Concluiu: volta para a fila do galpao, que diz o que aconteceu e deixa pegar o proximo
       // (pedido do usuario em 10/out/2026). Ate esta data a ficha ficava aberta no pedido concluido.
       window.location.href = '../logistica/pagina-logistica-separacao.html?feita=' + PEDIDO.numero + (faltas.length ? '&falta=' + faltas.length : '');
@@ -2007,11 +2129,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     armarSenhaModal('separacaoParcial');
     abrirModalConfirmacao('Guardar a separação do pedido #' + PEDIDO.numero + ' com ' + feitos + ' de ' + COLETA.length +
-      (COLETA.length === 1 ? ' item respondido' : ' itens respondidos') + '. O pedido continua em separação e no seu nome: ele não volta para a fila dos outros separadores, e o que você já marcou fica como está. Para liberar o pedido para outra pessoa, use "Devolver este pedido para a fila". No protótipo nada persiste ao recarregar a página.',
+      (COLETA.length === 1 ? ' item respondido' : ' itens respondidos') + '. O pedido continua em separação e no seu nome: ele não volta para a fila dos outros separadores, e o que você já marcou fica como está. Para liberar o pedido para outra pessoa, use "Devolver este pedido para a fila".',
       1, 'primary', () => {
         PEDIDO.situacao = 'separando';
         if (!PEDIDO.operador) PEDIDO.operador = EU;
         gravarSeparacao(PEDIDO, COLETA.map(i => ({ sku: i.sku, separado: i.separado, motivo: i.motivo })));
+        embGravarRegistro('rascunho');
         window.location.href = '../logistica/pagina-logistica-separacao.html';
       });
   }
@@ -2076,11 +2199,136 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           PEDIDO.situacao = 'fila';
           PEDIDO.operador = null;
           gravarSeparacao(PEDIDO, null);
+          embPedidoApagar(PEDIDO.id);
           window.location.href = '../logistica/pagina-logistica-separacao.html?devolvido=' + PEDIDO.numero;
         });
       });
     });
   })();
+
+  // ===== EMBALAGENS DO PEDIDO (30/out/2026) =====
+  // O separador escolhe a embalagem antes de concluir. A sugestao (a menor caixa em que cabem as pecas) e os insumos automaticos da loja ja vem preenchidos; a
+  // Conferencia de Saida recebe isto e confirma. Aqui ninguem ve custo: so os nomes. O registro mora em `deskEmbalagensPedido` (bloco EMBALAGENS: LEITURA).
+  // Enquanto o separador nao mexer na embalagem, a sugestao acompanha as faltas declaradas; mexeu, fica a dele. Os insumos nao seguem a sugestao.
+  const CADASTRO_EMB = embalagensLer();
+  const EMB_ATIVAS = CADASTRO_EMB.filter(e => e.status === 'ativo' && e.tipo !== 'insumo');
+  const INS_ATIVOS = CADASTRO_EMB.filter(e => e.status === 'ativo' && e.tipo === 'insumo');
+  const REG_EMB = embPedidoLer(PEDIDO.id);
+  let EMB_LINHAS = [], INS_LINHAS = [], embMexeu = false;
+  const embEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const embCadastro = (id) => CADASTRO_EMB.filter(e => e.id === id)[0] || null;
+  const embNome = (l) => { const e = embCadastro(l.id); return e ? e.nome : (l.nome || ('Embalagem ' + l.id)); };
+  const pecasParaEmbalar = () => Math.max(1, COLETA.reduce((s, i) => s + (i.separado === null ? i.qtd : i.separado), 0));
+  const embSugestao = () => PARAM.sugerirEmbalagem ? sugerirEmbalagem(CADASTRO_EMB, pecasParaEmbalar()) : null;
+
+  (function embIniciar() {
+    if (REG_EMB) {
+      EMB_LINHAS = REG_EMB.itens.filter(i => i.tipo !== 'insumo').map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd }));
+      INS_LINHAS = REG_EMB.itens.filter(i => i.tipo === 'insumo').map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd }));
+      // Rascunho que ainda e exatamente a sugestao de agora continua acompanhando as faltas; qualquer outra coisa e escolha do separador.
+      const s = embSugestao();
+      embMexeu = !(REG_EMB.situacao === 'rascunho' && s && EMB_LINHAS.length === 1 && EMB_LINHAS[0].id === s.id && EMB_LINHAS[0].qtd === s.qtd);
+    } else {
+      INS_LINHAS = insumosAutomaticos(CADASTRO_EMB, PEDIDO.loja).map(i => ({ id: i.id, nome: i.nome, qtd: i.qtd }));
+    }
+  })();
+
+  // Chamada a cada vez que a lista de itens se repinta: a falta declarada muda as pecas, e a sugestao acompanha enquanto o separador nao mexeu.
+  function embAtualizar() {
+    if (!embMexeu && !fechado()) {
+      const s = embSugestao();
+      EMB_LINHAS = s ? [{ id: s.id, nome: embNome(s), qtd: s.qtd }] : [];
+    }
+    pintarEmbalagens();
+  }
+
+  function embLinhaHtml(pref, i, l, lista, sugerida) {
+    const ro = fechado();
+    return '<div class="emb-linha">' +
+      '<div class="emb-campo"><label>' + (pref === 'emb' ? 'Embalagem' : 'Insumo') + '</label>' +
+        '<div class="dropdown-select" id="' + pref + '-sel-' + i + '" data-value="' + l.id + '">' +
+          '<button type="button" class="dropdown-select-btn form-style"' + (ro ? ' disabled' : '') + '>' +
+            '<span class="dropdown-select-label">' + embEsc(embNome(l)) + '</span>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>' +
+          '</button>' +
+          '<div class="dropdown-select-menu">' +
+            lista.map(x => '<div class="dropdown-select-item' + (x.id === l.id ? ' active' : '') + '" data-value="' + x.id + '">' + embEsc(x.nome) + '</div>').join('') +
+          '</div>' +
+        '</div>' +
+        (sugerida ? '<div class="emb-sugerida">sugerida pelo volume dos itens</div>' : '') +
+      '</div>' +
+      '<div class="emb-campo"><label>Quantidade</label><input type="text" inputmode="numeric" data-' + pref + '-qtd="' + i + '" value="' + l.qtd + '"' + (ro ? ' disabled' : '') + '></div>' +
+      '<button type="button" class="emb-remover" data-' + pref + '-rem="' + i + '"' + (ro ? ' disabled' : '') + ' title="Remover">×</button>' +
+    '</div>';
+  }
+
+  function pintarEmbalagens() {
+    const ro = fechado();
+    // Pedido ja separado antes desta entrega (os exemplos) nao tem registro: o bloco nao aparece.
+    document.getElementById('blocoEmbalagens').style.display = ro && !REG_EMB ? 'none' : '';
+    const s = embSugestao();
+    document.getElementById('listaEmbalagens').innerHTML = EMB_LINHAS.length
+      ? EMB_LINHAS.map((l, i) => embLinhaHtml('emb', i, l, EMB_ATIVAS, !ro && !!s && l.id === s.id)).join('')
+      : '<div class="emb-vazio">Nenhuma embalagem escolhida.</div>';
+    document.getElementById('listaInsumos').innerHTML = INS_LINHAS.length
+      ? INS_LINHAS.map((l, i) => embLinhaHtml('ins', i, l, INS_ATIVOS, false)).join('')
+      : '<div class="emb-vazio">Nenhum insumo neste pedido.</div>';
+    ['btnAddEmbalagem', 'btnAddInsumo'].forEach(id => { document.getElementById(id).style.display = ro ? 'none' : ''; });
+    EMB_LINHAS.forEach((l, i) => inicializarDropdownSelect(document.getElementById('emb-sel-' + i), (v) => {
+      EMB_LINHAS[i].id = Number(v); EMB_LINHAS[i].nome = embNome(EMB_LINHAS[i]); embMexeu = true; pintarEmbalagens();
+    }));
+    INS_LINHAS.forEach((l, i) => inicializarDropdownSelect(document.getElementById('ins-sel-' + i), (v) => {
+      INS_LINHAS[i].id = Number(v); INS_LINHAS[i].nome = embNome(INS_LINHAS[i]); pintarEmbalagens();
+    }));
+    [['emb', EMB_LINHAS], ['ins', INS_LINHAS]].forEach(([pref, linhas]) => {
+      document.querySelectorAll('[data-' + pref + '-qtd]').forEach(inp => {
+        const i = Number(inp.getAttribute('data-' + pref + '-qtd'));
+        inp.addEventListener('input', () => {
+          inp.value = inp.value.replace(/\D/g, '');
+          linhas[i].qtd = Number(inp.value) || 0;
+          if (pref === 'emb') embMexeu = true;
+        });
+        // Ao sair do campo, vazio ou zero volta para 1: remover e o botao, nao a quantidade zero.
+        inp.addEventListener('change', () => { if (!(linhas[i].qtd >= 1)) linhas[i].qtd = 1; pintarEmbalagens(); });
+      });
+      document.querySelectorAll('[data-' + pref + '-rem]').forEach(b => b.addEventListener('click', () => {
+        linhas.splice(Number(b.getAttribute('data-' + pref + '-rem')), 1);
+        if (pref === 'emb') embMexeu = true;
+        pintarEmbalagens();
+      }));
+    });
+  }
+  function embAdicionar(pref) {
+    if (fechado()) return;
+    const lista = pref === 'emb' ? EMB_ATIVAS : INS_ATIVOS, linhas = pref === 'emb' ? EMB_LINHAS : INS_LINHAS;
+    if (!lista.length) { avisar('Não há ' + (pref === 'emb' ? 'embalagem ativa' : 'insumo ativo') + ' no cadastro. Cadastre em Cadastros → Embalagens.'); return; }
+    const livre = lista.filter(x => !linhas.some(l => l.id === x.id))[0] || lista[0];
+    linhas.push({ id: livre.id, nome: livre.nome, qtd: 1 });
+    if (pref === 'emb') embMexeu = true;
+    pintarEmbalagens();
+  }
+  document.getElementById('btnAddEmbalagem').addEventListener('click', () => embAdicionar('emb'));
+  document.getElementById('btnAddInsumo').addEventListener('click', () => embAdicionar('ins'));
+
+  // As linhas viram os itens do registro: o mesmo item em duas linhas soma, quantidade zero sai, e o custo NAO entra (so a Conferencia de Saida o grava).
+  function embItensDoPedido() {
+    const juntar = (linhas, tipoPadrao) => {
+      const qtd = {}, ordem = [];
+      linhas.forEach(l => {
+        const q = Math.max(0, Math.floor(Number(l.qtd)) || 0);
+        if (!q) return;
+        if (!qtd[l.id]) { qtd[l.id] = 0; ordem.push(l); }
+        qtd[l.id] += q;
+      });
+      return ordem.map(l => { const e = embCadastro(l.id); return { id: l.id, nome: embNome(l), tipo: e ? e.tipo : tipoPadrao, qtd: qtd[l.id] }; });
+    };
+    return juntar(EMB_LINHAS, 'pacote').concat(juntar(INS_LINHAS, 'insumo'));
+  }
+  function embGravarRegistro(situacao) {
+    const d = new Date();
+    embPedidoGravar(PEDIDO.id, { situacao: situacao, itens: embItensDoPedido(), separadoPor: OPERADORES[PEDIDO.operador] || null, conferidoPor: null,
+      em: d.getFullYear() + '-' + z2(d.getMonth() + 1) + '-' + z2(d.getDate()), trocas: [] });
+  }
 
   pintarCabecalho();
   pintarItens();

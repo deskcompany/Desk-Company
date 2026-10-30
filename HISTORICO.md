@@ -10,6 +10,17 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Custos do E-commerce, entrega 3 (30/out/2026) — testada e aprovada pelo usuário no mesmo dia
+
+**Custos do E-commerce: entrega 3 feita em 30/out/2026 (§14.98), testada e aprovada por ele no mesmo dia.** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`; a nova: `http://localhost:3000/configuracoes/pagina-configuracoes-parametros-vendas.html`.
+A entrega 2 (itens, destino, devolução, vale de cortesia, produto/categoria/estado, com os quatro ajustes do teste de 28/out) ele testou e aprovou em 29/out: o texto dela está logo abaixo. O que a entrega 3 trouxe:
+
+- **Anúncios, lidos de Contas a Pagar.** A conta a pagar ganhou o campo **Loja** (opcional: "Sem loja (empresa toda)" ou uma loja; a lista não ganhou coluna nem filtro) e seis contas de exemplo na categoria 14. Custos soma as contas da categoria 14 **não canceladas, com vencimento no período, pagas ou não**; com filtro de loja, só as da loja; a conta sem loja só entra em "Todas as lojas". Dois cards novos: **Anúncios** e **Lucro depois dos anúncios** (o lucro dos pedidos menos os anúncios, vermelho se negativo); com pesquisa, categoria, grupo ou card ligado mostram "—" ("anúncio não se divide por pedido ou produto"). No mês atual, em todas as lojas: anúncios R$ 450,00 e lucro depois R$ 606,28; só na Desk Shope: R$ 300,00 e R$ 257,59. A barra e a conta de cada pedido não mudaram.
+- **Oito cards, em duas linhas de quatro**, e o "No prejuízo" virou **"Abaixo da margem"** (pedido com margem menor que a mínima, os de lucro negativo incluídos; legenda "2 no prejuízo · mínima de 15%"; continua filtrando). Com 15%: os pedidos 3, 11 e 16. Na coluna Margem, a faixa entre 0 e a mínima fica na cor de atenção, com o title "abaixo da mínima de 15%"; o painel do pedido repete a nota.
+- **Gráfico "Mês a mês"**, em abas no card da barra (a barra é a aba "Divisão do faturamento"): os 6 últimos meses terminando no atual, faturamento e lucro com a margem embaixo, e a comparação em texto com o mês anterior. **Só o mês atual vem dos pedidos; os 5 anteriores são dado de exemplo** (por mês e por loja, com um `shortcut:` no código; a tela diz isso).
+- **Parâmetros de Vendas** (Configurações › Vendas): imposto padrão (4,00% de fábrica) e margem mínima (15,00%), de 0 a 100, gravados em `deskParametros` (`impostoPadraoPct`, `margemMinimaPct`); a mudança vai para o Registro de atividades ("Alterar os parâmetros de vendas"). Custos lê a margem mínima dali, e Configurar mostra "Margem mínima: 15%. Muda em Parâmetros de Vendas". O imposto ainda não é lido por ninguém: é para a calculadora de preços e a Margem de Contribuição.
+- **"Custos do E-commerce" na lista de módulos do perfil do vendedor**, desmarcado de fábrica. Ainda não bloqueia nada: não há tela de permissões.
+
 ### Custos do E-commerce, entrega 2 (27/out/2026), com os ajustes do teste de 28/out — testada e aprovada pelo usuário em 29/out
 
 **Custos do E-commerce: entrega 2 feita em 27/out, com os ajustes do teste de 28/out, testada e aprovada por ele em 29/out (§14.97).** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.

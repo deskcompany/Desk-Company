@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Custos do E-commerce, entrega 1 (barganha de 21/out/2026), entrega 2 (27/out/2026: itens, destino, devolucao, cortesia, produto/categoria/estado) e entrega 3 (30/out/2026: anuncios, oito cards, mes a mes, Parametros de Vendas, o modulo no perfil).
+# Custos do E-commerce, entrega 1 (barganha de 21/out/2026), entrega 2 (27/out/2026: itens, destino, devolucao, cortesia, produto/categoria/estado) e entrega 3 (30/out/2026: anuncios, oito cards, mes a mes, Parametros de Vendas, o modulo no perfil) e entrega 4 (30/out/2026: a embalagem confirmada pela Conferencia de Saida, com o custo do dia; a estimada da loja ate la).
+# A parte nova da entrega 4 (cadastro, Separacao, Conferencia, o custo do dia) mora em teste_embalagem_pedido.py; aqui ficam as contas.
 #
 # Relatorio vivo do lucro de cada pedido ONLINE (canal 'loja_virtual'): venda, o que saiu do bolso (diferencial de frete, taxa do
 # gateway, comissao, embalagem, custo) e o lucro. A conta mora num bloco comum, RESULTADO DO PEDIDO, igual na tela nova, na
@@ -28,16 +29,17 @@
 #
 # Contas a mao (loja 1 = Desk Shope, embalagem R$ 5,00 POR PEDIDO; loja 2 = Desk Brands, R$ 8,00; taxas do Link de pagamento
 # da InfinitePay: 1x 4,20% · 2x 6,09% · 3x 7,01% · 10x 15,06% · 12x 16,66%, pix 0). Desde a entrega 2 (27/out/2026) a devolucao aceita entra na conta e o vale de cortesia sai da venda;
-# desde 28/out a embalagem e a da loja UMA vez por pedido (nao mais por unidade) e a devolucao nao traz de volta a parte paga com o vale de cortesia:
+# desde 28/out a embalagem e a da loja UMA vez por pedido (nao mais por unidade) e a devolucao nao traz de volta a parte paga com o vale de cortesia;
+# desde 30/out a embalagem dos pedidos que a Conferencia de Saida ja confirmou (8, 9, 11, 12 e 16) e a real, com os nomes e o custo do dia (caixa + tag + fita); 1, 3 e 4 seguem estimados pela loja:
 #   pedido 3  (pix, vendedora Marina 5%, 1 kit; vale de cortesia de 15,00; DV-0010 finalizada: o kit inteiro voltou AVARIADO, frete da volta de 38,90 pago pela loja):
 #             venda 349,90 − 15,00 de cortesia = 334,90 · dif. frete 22,00 − 0 = 22,00 · taxa 0 · comissao 5% de 349,90 = 17,50, mas voltou tudo dentro do prazo -> 0
 #             · embalagem 5,00 · custo 199,90 · valor devolvido 349,90 x (349,90 − 15,00) / 349,90 = 334,90 (o vale de 15,00 nao volta em dinheiro)
 #             · devolucao 334,90 − 0 (avariado nao devolve o custo) + 38,90 = 373,80
 #             ->  lucro 334,90 − 22,00 − 0 − 5,00 − 199,90 − 373,80 = −265,80
 #   pedido 12 (credito Visa 10x, afiliado Bruno 5%, Brands):  venda 1.024,00 · dif. 26,50 · taxa 15,06% de 1.024,00 = 154,2144 -> 154,21
-#             · comissao 5% de 1.024,00 = 51,20 · embalagem 8,00 · custo 604,00  ->  lucro 1.024,00 − 26,50 − 154,21 − 51,20 − 8,00 − 604,00 = 180,09
+#             · comissao 5% de 1.024,00 = 51,20 · embalagem 7,20 (CE-02 6,30 + tag Brands 0,60 + fita 0,30) · custo 604,00  ->  lucro 1.024,00 − 26,50 − 154,21 − 51,20 − 7,20 − 604,00 = 180,89
 #   pedido 11 (credito Elo 2x, Marina 5%, frete gratis para longe: a loja pagou 95,00):  venda 219,90 · dif. 95,00 · taxa 6,09% de 219,90 = 13,3919 -> 13,39
-#             · comissao 5% de 219,90 = 10,995 -> 11,00 · embalagem 5,00 · custo 128,00  ->  lucro 219,90 − 95,00 − 13,39 − 11,00 − 5,00 − 128,00 = −32,49
+#             · comissao 5% de 219,90 = 10,995 -> 11,00 · embalagem 5,40 (Flex M 4,70 + tag Shope 0,40 + fita 0,30) · custo 128,00  ->  lucro 219,90 − 95,00 − 13,39 − 11,00 − 5,40 − 128,00 = −32,89
 #   pedido 1  (credito Visa 3x, o cliente pagou 10,00 de frete e a loja 18,50; DV-0011 em andamento: 1 fone e 2 carregadores revendaveis, 445,00, frete pago pelo cliente):
 #             venda 1.890,00 − 10,00 = 1.880,00 · dif. 18,50 − 10,00 = 8,50 · taxa 7,01% de 1.890,00 (sobre o TOTAL, nao sobre a venda) = 132,489 -> 132,49
 #             · comissao 5% de 1.880,00 = 94,00 x (1 − 445,00 / 1.880,00) = 71,75 · embalagem 5,00 · custo 1.128,00
@@ -59,7 +61,7 @@ PDV, CFG_PDV, FORMAS = 'pagina-vendas-pdv.html', 'pagina-configuracoes-pdv.html'
 REGISTRO, SENHAS = 'pagina-configuracoes-registro-atividades.html', 'pagina-configuracoes-confirmacoes-senha.html'
 RASTREIO = ['pagina-logistica-rastreamento.html', 'pagina-logistica-rastreamento-detalhe.html']
 ROTA = '../vendas/pagina-vendas-custos-ecommerce.html'
-CHAVES_LOCAIS = ['deskParametros', 'deskLog', 'deskComissoesPagas', 'deskComissoesExemplo', 'deskAfiliados', 'deskDevolucoes', 'deskValesCompra', 'deskValesCompraExemplo']
+CHAVES_LOCAIS = ['deskEmbalagens', 'deskEmbalagensPedido', 'deskParametros', 'deskLog', 'deskComissoesPagas', 'deskComissoesExemplo', 'deskAfiliados', 'deskDevolucoes', 'deskValesCompra', 'deskValesCompraExemplo']
 DEVOL, DEVOL_D, PRODUTOS = 'pagina-logistica-devolucao.html', 'pagina-logistica-devolucao-detalhe.html', 'pagina-cadastros-produtos.html'
 HOJE_PY = datetime.date.today()
 
@@ -167,20 +169,22 @@ with sync_playwright() as p:
            and perto(a['devolvido'], 334.90) and perto(a['custoRecuperado'], 0) and perto(a['perdaAvaria'], 199.90) and perto(a['freteVolta'], 38.90) and perto(a['devolucao'], 373.80) and perto(a['lucro'], -265.80),
            'pedido 3 (pix, cortesia de 15,00, kit devolvido inteiro e avariado): venda 334,90, comissão 0, valor devolvido 334,90 (o vale de 15,00 não volta em dinheiro), devolução 373,80 (334,90 − 0 + 38,90), lucro −265,80 · %s' % {k: a[k] for k in ('venda', 'difFrete', 'taxa', 'comissao', 'embalagem', 'custo', 'devolucao', 'lucro')})
         a = r(12)
-        ok(perto(a['taxa'], 154.21) and perto(a['comissao'], 51.20) and perto(a['embalagem'], 8) and perto(a['difFrete'], 26.50) and perto(a['devolucao'], 0) and perto(a['lucro'], 180.09),
-           'pedido 12 (crédito 10x, afiliado, 10 unidades): taxa 154,21 sobre o total, comissão 51,20, embalagem 8,00 (uma por pedido, não 10 × 8,00), lucro 180,09')
+        ok(perto(a['taxa'], 154.21) and perto(a['comissao'], 51.20) and perto(a['embalagem'], 7.20) and a['embalagemEstimada'] is False and perto(a['difFrete'], 26.50) and perto(a['devolucao'], 0) and perto(a['lucro'], 180.89),
+           'pedido 12 (crédito 10x, afiliado, 10 unidades): taxa 154,21 sobre o total, comissão 51,20, embalagem confirmada 7,20 (CE-02 + tag Brands + fita, uma por pedido, não 10 ×), lucro 180,89')
         a = r(11)
-        ok(perto(a['taxa'], 13.39) and perto(a['comissao'], 11.00) and perto(a['difFrete'], 95.00) and perto(a['embalagem'], 5) and perto(a['lucro'], -32.49) and a['lucro'] < 0,
-           'pedido 11 (o do frete caro): taxa 13,39, comissão 11,00 (10,995 sobe), dif. de frete 95,00, embalagem 5,00 (5 unidades, uma só embalagem), lucro −32,49')
+        ok(perto(a['taxa'], 13.39) and perto(a['comissao'], 11.00) and perto(a['difFrete'], 95.00) and perto(a['embalagem'], 5.40) and a['embalagemTexto'] == '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' and perto(a['lucro'], -32.89) and a['lucro'] < 0,
+           'pedido 11 (o do frete caro): taxa 13,39, comissão 11,00 (10,995 sobe), dif. de frete 95,00, embalagem confirmada 5,40 (Flex M + tag Shope + fita, 5 unidades, uma só embalagem), lucro −32,89')
         a = r(1)
-        ok(perto(a['venda'], 1880) and perto(a['freteCobrado'], 10) and perto(a['difFrete'], 8.50) and perto(a['taxa'], 132.49) and perto(a['comissao'], 71.75) and perto(a['embalagem'], 5)
+        ok(perto(a['venda'], 1880) and perto(a['freteCobrado'], 10) and perto(a['difFrete'], 8.50) and perto(a['taxa'], 132.49) and perto(a['comissao'], 71.75) and perto(a['embalagem'], 5) and a['embalagemEstimada'] is True and a['embalagemTexto'] == ''
            and perto(a['devolvido'], 445) and perto(a['custoRecuperado'], 267) and perto(a['perdaAvaria'], 0) and perto(a['freteVolta'], 0) and perto(a['devolucao'], 178) and perto(a['lucro'], 356.26),
            'pedido 1: a taxa é sobre o total (1.890,00); a comissão de 94,00 cai para 71,75 (445,00 devolvidos de 1.880,00); embalagem 5,00 (8 unidades, uma embalagem); devolução 445,00 − 267,00 de custo que voltou = 178,00; lucro 356,26')
         ok(perto(a['margem'], 356.26 / 1880), 'a margem é o lucro sobre a venda: %.4f' % a['margem'])
         # a embalagem e uma por pedido: nao muda com as unidades (o 16 tem 16 unidades, o 11 tem 5, o 3 tem 1)
         emb = {i: r(i)['embalagem'] for i in (1, 3, 4, 8, 9, 11, 12, 16)}
-        ok(emb == {1: 5, 3: 5, 4: 8, 8: 5, 9: 8, 11: 5, 12: 8, 16: 5} and perto(sum(emb.values()), 49), 'a embalagem é a da loja uma vez por pedido (Shope 5,00, Brands 8,00), sem olhar as unidades: %s, total %s' % (emb, sum(emb.values())))
-        ok(perto(r(16)['lucro'], 341.16) and perto(r(1)['lucro'], 356.26), 'pedido 16 (16 unidades): lucro 341,16; pedido 1 (8 unidades): lucro 356,26')
+        ok(all(perto(emb[i], v) for i, v in {1: 5, 3: 5, 4: 8, 8: 7, 9: 6.80, 11: 5.40, 12: 7.20, 16: 12.60}.items()) and perto(sum(emb.values()), 57),
+           'a embalagem: 1, 3 e 4 estimados pela loja (Shope 5,00, Brands 8,00); 8, 9, 11, 12 e 16 confirmados (7,00, 6,80, 5,40, 7,20 e 12,60); uma por pedido, sem olhar as unidades: %s, total %s' % (emb, sum(emb.values())))
+        ok({i: r(i)['embalagemEstimada'] for i in emb} == {1: True, 3: True, 4: True, 8: False, 9: False, 11: False, 12: False, 16: False}, 'só o 1, o 3 e o 4 são estimados')
+        ok(perto(r(16)['lucro'], 333.56) and perto(r(1)['lucro'], 356.26), 'pedido 16 (16 unidades, caixa confirmada a 11,90 com o cadastro em 12,50): lucro 333,56; pedido 1 (8 unidades): lucro 356,26')
         errados = []
         for i, x in por_id.items():
             o, a = oraculo(x), r(i)
@@ -216,7 +220,7 @@ with sync_playwright() as p:
         errados = []
         for l in ls:
             i = int(re.search(r'nº (\d+)', l[0]).group(1)); o = oraculo(next(x for x in todos if x['id'] == i))
-            esperado = [br(o['venda']), br(o['frete']), br(o['cortesia']), br(o['dif']), br(o['taxa']), br(o['comissao']), br(o['embalagem']), br(o['custo']), br(o['devolucao']), br(o['lucro']), pct(o['margem'])]
+            esperado = [br(o['venda']), br(o['frete']), br(o['cortesia']), br(o['dif']), br(o['taxa']), br(o['comissao']), br(o['embalagem']) + (' estimada' if o['embalagem_estimada'] else ''), br(o['custo']), br(o['devolucao']), br(o['lucro']), pct(o['margem'])]
             if l[2:] != esperado:
                 errados.append((i, l[2:], esperado))
         ok(not errados, 'cada linha mostra venda, frete, cortesia, dif., taxa, comissão, embalagem, custo, devolução, lucro e margem da conta: %s' % errados[:1])
@@ -262,7 +266,7 @@ with sync_playwright() as p:
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
         partes = pg.evaluate("Array.from(document.querySelectorAll('#barraDivisao > span')).map(s => s.getAttribute('data-parte'))")
-        ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 298,29' in texto('#legendaDivisao'), 'lucro negativo (− 265,80 e − 32,49 dos dois pedidos no prejuízo) fica na legenda, fora da barra: %s' % partes)
+        ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 298,69' in texto('#legendaDivisao'), 'lucro negativo (− 265,80 e − 32,89 dos dois pedidos no prejuízo) fica na legenda, fora da barra: %s' % partes)
         ok('só os pedidos abaixo da margem mínima' in texto('#escopoBarra') and texto('#kpiLucro') == br(luc), 'a barra diz que explica só os pedidos abaixo da margem; os quatro primeiros cards seguem somando a lista inteira')
         pg.click('[data-kpi="abaixo"]'); pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
 
@@ -276,8 +280,9 @@ with sync_playwright() as p:
         abrir_config()
         ok(pg.evaluate("cfgDrawer.classList.contains('open')") and 'Configurações' in texto('#cfgDrawer .drawer-title'), 'Mais ações › Configurar abre o painel Configurações')
         rot = texto('#cfgDrawer')
-        ok('Situações dos pedidos' in rot and 'Custo baseado em' in rot and 'Embalagem por loja' in rot and 'Desk Shope' in rot and 'Desk Brands' in rot and 'Desk Tech' in rot, 'as três configurações, com uma linha de embalagem por loja')
+        ok('Situações dos pedidos' in rot and 'Custo baseado em' in rot and 'Embalagem estimada por loja' in rot and 'Desk Shope' in rot and 'Desk Brands' in rot and 'Desk Tech' in rot, 'as três configurações, com uma linha de embalagem por loja')
         ok('R$ por pedido' in rot and 'por unidade' not in rot, 'o campo da embalagem em Configurar diz "por pedido", não "por unidade"')
+        ok('Vale só para o pedido que a Conferência de Saída ainda não confirmou' in rot, 'e a dica diz que a estimada só vale para o pedido que a Conferência ainda não confirmou')
         marcadas = pg.evaluate("Array.from(document.querySelectorAll('#cfgSituacoes input')).map(i => [i.value, i.checked])")
         ok(len(marcadas) == 9 and [m[0] for m in marcadas if not m[1]] == ['cancelado'], 'as nove situações, todas marcadas menos Cancelado')
         ok([pg.input_value('#cfgEmbalagem input[data-loja="%d"]' % i) for i in (1, 2, 3)] == ['5,00', '8,00', '0,00'], 'a embalagem de fábrica: Shope 5,00, Brands 8,00, Tech 0,00')
@@ -299,12 +304,14 @@ with sync_playwright() as p:
         ok('custo médio' in (pg.evaluate("JSON.parse(localStorage.getItem('deskLog'))[0].detalhe")), 'o registro de atividades guarda o que mudou')
         # embalagem por loja
         abrir_config()
-        pg.fill('#cfgEmbalagem input[data-loja="1"]', '7,00'); aplicar_config()
-        ok(param()['embalagemPorLoja']['1'] == 7 and param()['embalagemPorLoja']['2'] == 8, 'a embalagem da Shope grava 7,00 e a da Brands segue 8,00: %s' % param()['embalagemPorLoja'])
+        pg.fill('#cfgEmbalagem input[data-loja="1"]', '6,00'); aplicar_config()
+        ok(param()['embalagemPorLoja']['1'] == 6 and param()['embalagemPorLoja']['2'] == 8, 'a embalagem estimada da Shope grava 6,00 e a da Brands segue 8,00: %s' % param()['embalagemPorLoja'])
         ls = {int(re.search(r'nº (\d+)', l[0]).group(1)): l for l in linhas()}
-        ok(ls[3][8] == br(7) and ls[1][8] == br(7) and ls[16][8] == br(7) and ls[4][8] == br(8), 'a embalagem do pedido é a da loja, uma por pedido: pedidos 3 (1 un), 1 (8 un) e 16 (16 un) = 7,00; pedido 4 (Brands) segue 8,00')
-        o3 = oraculo(next(x for x in todos if x['id'] == 3), 'medio', {1: 7, 2: 8, 3: 0})
-        ok(ls[3][11] == br(o3['lucro']) and perto(o3['lucro'], 334.90 - 22 - 0 - 7 - 205.40 - 373.80), 'e muda o lucro: pedido 3 em custo médio (205,40) e embalagem 7,00 = %s' % ls[3][11])
+        ok(ls[3][8] == br(6) + ' estimada' and ls[1][8] == br(6) + ' estimada' and ls[4][8] == br(8) + ' estimada', 'a estimada é a da loja, uma por pedido: pedidos 3 (1 un) e 1 (8 un) = 6,00; pedido 4 (Brands) segue 8,00')
+        ok(ls[8][8] == br(7) and ls[11][8] == br(5.40) and ls[16][8] == br(12.60) and ls[9][8] == br(6.80) and ls[12][8] == br(7.20),
+           'e os confirmados não mexem: 8 = 7,00, 11 = 5,40, 16 = 12,60 (o valor da loja só vale para quem a Conferência ainda não confirmou): %s' % [ls[i][8] for i in (8, 11, 16)])
+        o3 = oraculo(next(x for x in todos if x['id'] == 3), 'medio', {1: 6, 2: 8, 3: 0})
+        ok(ls[3][11] == br(o3['lucro']) and perto(o3['lucro'], 334.90 - 22 - 0 - 6 - 205.40 - 373.80), 'e muda o lucro: pedido 3 em custo médio (205,40) e embalagem estimada 6,00 = %s' % ls[3][11])
         # o cancelado sai de fabrica e volta
         abrir(); todo_periodo()
         pg.evaluate("PEDIDOS.filter(p => p.id === 9)[0].situacao = 'cancelado'; render();"); pg.wait_for_timeout(150)
@@ -336,7 +343,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => c.hasAttribute('aria-pressed'))") == [False] * 6 + [True] * 2, 'só os dois cards de alerta filtram (Abaixo da margem e Produto sem custo)')
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
         ok(sorted(numeros()) == [3, 11, 16] and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'true' and pg.evaluate("document.querySelector('[data-kpi=abaixo]').classList.contains('on')"),
-           'Abaixo da margem filtra: o 3 (devolvido inteiro), o 11 (frete caro) e o 16 (14,7%, abaixo dos 15%), e o card fica marcado')
+           'Abaixo da margem filtra: o 3 (devolvido inteiro), o 11 (frete caro) e o 16 (14,4%, abaixo dos 15%), e o card fica marcado')
         borda = pg.evaluate("(() => { const c = document.querySelector('[data-kpi=abaixo]'); const s = getComputedStyle(c); return [s.borderTopColor, getComputedStyle(document.body).getPropertyValue('--active-text').trim()]; })()")
         ok(borda[0] != 'rgb(38, 38, 38)' and borda[0] != 'rgb(233, 231, 224)', 'a borda do card ativo é azul, não a de repouso: %s' % borda[0])
         cards_depois = pg.evaluate("[kpiFaturamento, kpiAbaixo].map(e => e.textContent)")
@@ -427,9 +434,11 @@ with sync_playwright() as p:
         pg.click('#corpoTabela tr[data-id="11"]'); pg.wait_for_timeout(300)
         corpo = texto('#eventDrawer')
         ok(pg.evaluate("eventDrawer.classList.contains('open')") and 'Pedido nº 11' in corpo, 'clicar no pedido abre o painel lateral')
-        ok('− R$ 32,49' in corpo and 'Cartão de crédito Elo 2x' in corpo and 'Marina Costa' in corpo and 'R$ 95,00' in corpo and 'R$ 13,39' in corpo and 'R$ 11,00' in corpo and 'Amazonas (AM)' in corpo
+        ok('− R$ 32,89' in corpo and 'Cartão de crédito Elo 2x' in corpo and 'Marina Costa' in corpo and 'R$ 95,00' in corpo and 'R$ 13,39' in corpo and 'R$ 11,00' in corpo and 'Amazonas (AM)' in corpo
            and 'camiseta básica algodão' in corpo.lower() and 'carregador usb-c 20w' in corpo.lower(),
            'com o detalhamento: estado de destino, itens, dif. de frete, taxa, comissão, embalagem, custo, lucro e o pagamento')
+        ok('R$ 5,40' in corpo and '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' in corpo and 'estimada' not in corpo and 'Trocada na conferência' not in corpo,
+           'a linha da embalagem do pedido 11 traz o valor confirmado e os nomes (caixa, tag e fita), sem "estimada" e sem troca')
         ok(pg.evaluate("document.querySelector('#btnAbrirGateways') !== null && document.querySelector('#btnAbrirComissoes') !== null"), 'e os links para Gateways (a taxa) e Comissões (a regra)')
         pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
         ok(not pg.evaluate("eventDrawer.classList.contains('open')"), 'Esc fecha o painel')
@@ -441,8 +450,8 @@ with sync_playwright() as p:
         abrir(); todo_periodo()
         pg.click('#corpoTabela tr[data-id="1"]'); pg.wait_for_timeout(300)
         corpo = texto('#eventDrawer')
-        ok('DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W' in corpo and 'uma por pedido, pela embalagem da loja' in corpo and 'unidades, pela' not in corpo and '8 × R$ 5,00' not in corpo,
-           'o painel do pedido 1 tem a linha "DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W" e a embalagem diz "uma por pedido"')
+        ok('DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W' in corpo and 'estimada pelo valor da loja, até a Conferência de Saída confirmar' in corpo and 'unidades, pela' not in corpo and '8 × R$ 5,00' not in corpo,
+           'o painel do pedido 1 tem a linha "DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W" e a embalagem diz "estimada pelo valor da loja"')
         cl = corpo.lower(); ok(cl.index('valor devolvido') < cl.index('dv-0011:') < cl.index('custo recuperado'), 'e a linha fica logo abaixo do Valor devolvido')
         href = pg.get_attribute('#eventDrawer a:has-text("DV-0011")', 'href')
         ok(href == '../logistica/pagina-logistica-devolucao-detalhe.html?id=2', 'DV-0011 é link para o detalhe da devolução, como a lista da Devolução abre (?id=): %s' % href)
@@ -501,7 +510,7 @@ with sync_playwright() as p:
            'o canal aparece no cabeçalho do pedido, com o estado de destino: Loja virtual · Entrega em UF nos 8 online, Venda manual nos 8 outros')
         ir(PV_D, '?id=11')
         cx = texto('#caixaResultado')
-        ok(all(t in cx for t in ('Venda', 'R$ 219,90', 'Frete cobrado do cliente', 'Diferencial de frete', 'R$ 95,00', 'Taxa do gateway', 'R$ 13,39', 'Comissão de venda', 'R$ 11,00', 'Embalagem', 'uma por pedido, pela embalagem da loja', 'R$ 5,00', 'Custo dos produtos', 'R$ 128,00', 'Lucro', '− R$ 32,49', 'margem de − 14,8%', 'ver em Custos do E-commerce')),
+        ok(all(t in cx for t in ('Venda', 'R$ 219,90', 'Frete cobrado do cliente', 'Diferencial de frete', 'R$ 95,00', 'Taxa do gateway', 'R$ 13,39', 'Comissão de venda', 'R$ 11,00', 'Embalagem', '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva', 'R$ 5,40', 'Custo dos produtos', 'R$ 128,00', 'Lucro', '− R$ 32,89', 'margem de − 15,0%', 'ver em Custos do E-commerce')),
            'a caixa traz venda, frete cobrado, dif. de frete, taxa, comissão, embalagem, custo, lucro e margem, com o link para Custos do E-commerce')
         ok(pg.evaluate("document.getElementById('resLink').getAttribute('href')") == '../vendas/pagina-vendas-custos-ecommerce.html?busca=11', 'o link da caixa abre a tela nova já no pedido')
         ok(pg.input_value('#inputFretePagoLoja') == '95,00' and 'frete pago pela loja' in texto('.totais-grid').lower(), 'o campo "Frete pago pela loja" fica ao lado do frete do cliente: 95,00')
@@ -719,8 +728,8 @@ with sync_playwright() as p:
         ok('DV-0010: 1 Kit Escritório Completo' in cx and 'DV-0007' not in cx, 'a caixa do pedido 3 traz a linha da DV-0010 (a DV-0007, cancelada, não)')
         ok(pg.get_attribute('#caixaResultado a:has-text("DV-0010")', 'href') == '../logistica/pagina-logistica-devolucao-detalhe.html?id=3', 'e DV-0010 é link para o detalhe da devolução')
         ir(PV_D, '?id=1'); cx = texto('#caixaResultado')
-        ok('DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W' in cx and 'uma por pedido, pela embalagem da loja' in cx and 'já sem a parte paga' not in cx and cx.index('Valor devolvido') < cx.index('DV-0011:') < cx.index('Custo recuperado'),
-           'a caixa do pedido 1: a linha "DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W" logo abaixo do Valor devolvido, sem a nota de cortesia (não há vale), e a embalagem "uma por pedido"')
+        ok('DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W' in cx and 'estimada pelo valor da loja, até a Conferência de Saída confirmar' in cx and 'já sem a parte paga' not in cx and cx.index('Valor devolvido') < cx.index('DV-0011:') < cx.index('Custo recuperado'),
+           'a caixa do pedido 1: a linha "DV-0011: 1 Fone de Ouvido Bluetooth X200 e 2 Carregador Turbo 33W" logo abaixo do Valor devolvido, sem a nota de cortesia (não há vale), e a embalagem "estimada pelo valor da loja"')
         ir(PV_D, '?id=3'); cx = texto('#caixaResultado')
         # varios itens: separados por virgula, o ultimo por "e"; a gravada com o mesmo id vence
         ir(TELA); limpar(); ir(TELA)
@@ -1058,7 +1067,7 @@ with sync_playwright() as p:
         abrir(); todo_periodo(); todos = dados()
         ors = {x['id']: oraculo(x) for x in online(todos)}
         o16 = ors[16]
-        ok(perto(o16['lucro'], 341.16) and perto(o16['venda'], 2315) and perto(o16['lucro'] / o16['venda'], 0.14736), 'o 16: 341,16 ÷ 2.315,00 = %s (abaixo de 15%%)' % pct(o16['lucro'] / o16['venda']))
+        ok(perto(o16['lucro'], 333.56) and perto(o16['venda'], 2315) and perto(o16['lucro'] / o16['venda'], 0.14408), 'o 16: 333,56 ÷ 2.315,00 = %s (abaixo de 15%%)' % pct(o16['lucro'] / o16['venda']))
         for minima, quer in ((15, [3, 11, 16]), (0, [3, 11]), (20, [1, 3, 11, 12, 16])):
             pg.evaluate("(m) => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = m; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); }", minima); pg.wait_for_timeout(150)
             esp = sorted(i for i, o in ors.items() if abaixo_da_margem(o, minima))
@@ -1077,7 +1086,7 @@ with sync_playwright() as p:
         cel = lambda i: pg.evaluate("(i) => { const td = document.querySelector('#corpoTabela tr[data-id=\"' + i + '\"] td:last-child'); return [td.className, td.getAttribute('title'), getComputedStyle(td).color]; }", i)
         c16, c3, c1 = cel(16), cel(3), cel(1)
         cor = lambda v: pg.evaluate("(v) => { const t = document.createElement('i'); t.style.color = v; document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove(); return c; }", v)
-        ok(c16[0] == 'ce-atencao' and c16[1] == 'abaixo da mínima de 15%' and c16[2] == cor('var(--warning)'), 'margem de 14,7%% (pedido 16): na cor de atenção, com o title "abaixo da mínima de 15%%": %s' % c16)
+        ok(c16[0] == 'ce-atencao' and c16[1] == 'abaixo da mínima de 15%' and c16[2] == cor('var(--warning)'), 'margem de 14,4%% (pedido 16): na cor de atenção, com o title "abaixo da mínima de 15%%": %s' % c16)
         ok(c3[0] == 'ce-neg' and c3[1] is None and c3[2] == cor('var(--danger)'), 'lucro negativo (pedido 3) continua vermelho, sem aquele title: %s' % c3)
         ok(c1[0] == '' and c1[1] is None, 'margem acima da mínima (pedido 1, 19,0%) sem destaque')
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
@@ -1141,14 +1150,14 @@ with sync_playwright() as p:
         marg = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-marg')).map(e => e.textContent.trim())")
         ok(marg == ['margem ' + pct(l / f) for (_, f, l) in esp], 'a margem em %% embaixo de cada mês: %s' % marg)
         vals = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-val')).map(e => e.textContent.trim())")
-        ok(len(vals) == 12 and all(v.startswith('R$') or v.startswith('− R$') for v in vals) and 'R$ 7.579' in vals and 'R$ 1.056' in vals, 'os valores aparecem sobre as barras, legíveis: %s' % vals[-4:])
+        ok(len(vals) == 12 and all(v.startswith('R$') or v.startswith('− R$') for v in vals) and 'R$ 7.579' in vals and 'R$ 1.048' in vals, 'os valores aparecem sobre as barras, legíveis: %s' % vals[-4:])
 
         def pct_sinal(v):
             x = (abs(v) * 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
             return ('−' if v < 0 else '+') + str(x).replace('.', ',') + '%'
         f_at, l_at, f_an, l_an = atual[1], atual[2], esp[-2][1], esp[-2][2]
         texto_quer = 'Outubro (até hoje) contra setembro: faturamento %s · lucro %s' % (pct_sinal((f_at - f_an) / abs(f_an)), pct_sinal((l_at - l_an) / abs(l_an)))
-        ok(texto('#mesComparacao') == texto_quer == 'Outubro (até hoje) contra setembro: faturamento −10,1% · lucro −6,3%', 'a comparação em texto: "%s"' % texto('#mesComparacao'))
+        ok(texto('#mesComparacao') == texto_quer == 'Outubro (até hoje) contra setembro: faturamento −10,1% · lucro −7,0%', 'a comparação em texto: "%s"' % texto('#mesComparacao'))
         ok(pg.evaluate("document.getElementById('mesComparacao').compareDocumentPosition(document.getElementById('mesGrafico')) & Node.DOCUMENT_POSITION_FOLLOWING") != 0, 'e ela fica acima do gráfico')
         al = pg.evaluate("document.getElementById('mesGrafico').getAttribute('aria-label')")
         ok(pg.evaluate("document.getElementById('mesGrafico').getAttribute('role')") == 'img' and al.startswith('Gráfico de barras, mês a mês') and 'Outubro de 2026, faturamento R$ 7.579,20' in al and 'Maio de 2026' in al, 'o aria-label descreve o gráfico: %s' % al[:150])

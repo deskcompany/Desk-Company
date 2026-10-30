@@ -1684,8 +1684,39 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     { id: 10, numero: 10, loja: 3, dep: 4, cliente: 'Auto Peças Imperatriz Ltda', transp: 'Transportadora Nordeste',
       situacao: 'conferido', separador: 3, conferente: 4, fechouSepHa: 96, falta: false, diverg: false, itens: [
-      { sku: 'CAB-SAT-050', nome: 'Cabo SATA 50 cm', variacao: '—', pedido: 10, separado: 10, end: 'B02-G01-N2' } ] }
+      { sku: 'CAB-SAT-050', nome: 'Cabo SATA 50 cm', variacao: '—', pedido: 10, separado: 10, end: 'B02-G01-N2' } ] },
+
+    // shortcut: o pedido 4 e o pedido online real de Vendas (Juliana Prado). Na lista de Pedidos ele segue 'aprovado' e o Inicio nao conta este movimento; na producao a situacao e uma so.
+    { id: 4, numero: 4, loja: 2, dep: 2, cliente: 'Juliana Prado', entrega: 'Rua Visconde de Pirajá, 540 — Ipanema, Rio de Janeiro/RJ · 22410-002',
+      transp: 'Correios · SEDEX', daSeparacao: true, pago: true, situacao: 'aguardando', separador: 3, conferente: null, fechouSepHa: 1, falta: false, diverg: false, itens: [
+      { sku: 'VES-2001', nome: 'Camiseta Básica Algodão', variacao: '—', pedido: 3, separado: 3, end: 'R09-P01-N2', preco: 39.90 },
+      { sku: 'PAP-3001', nome: 'Caderno Universitário 200 folhas', variacao: '—', pedido: 5, separado: 5, end: 'R07-P02-N1', preco: 18.50 },
+      { sku: 'VES-2002', nome: 'Tênis Esportivo Runner', variacao: '—', pedido: 2, separado: 2, end: 'R09-P03-N1', preco: 199.90 } ] }
   ];
+
+  // ===== O QUE A SEPARACAO E A EMBALAGEM JA FIZERAM COM O PEDIDO (bloco compartilhado, 30/out/2026) =====
+  // Pedido que vem da Separacao (`daSeparacao`) so entra na fila depois que a ficha de la o concluiu (`deskSeparacao`), e as quantidades dele sao as que o separador
+  // achou. Pedido cuja embalagem a bancada ja confirmou (`deskEmbalagensPedido`) nasce conferido. Fila e ficha sao arquivos soltos: o que mudou fica numa chave do navegador
+  // e as duas telas aplicam por cima do exemplo ao abrir. No sistema em producao e a tabela de pedidos. O bloco e identico nas duas telas.
+  // shortcut: o Inicio e a lista de Pedidos de Venda ainda nao enxergam este movimento (o numero de "aguardando separacao" do Inicio e fixo); na producao a situacao e uma so.
+  (function aplicarSeparacaoEEmbalagem() {
+    let sep = {}, emb = {};
+    try { sep = JSON.parse(localStorage.getItem('deskSeparacao') || '{}') || {}; } catch (e) { sep = {}; }
+    try { emb = JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { emb = {}; }
+    for (let k = FILA.length - 1; k >= 0; k--) {
+      const p = FILA[k];
+      if (p.daSeparacao) {
+        const s = sep[p.id];
+        if (!s || s.situacao !== 'separado') { FILA.splice(k, 1); continue; }
+        p.itens.forEach(i => {
+          const feito = (s.itens || []).filter(x => x.sku === i.sku)[0];
+          if (feito && feito.separado !== null && feito.separado !== undefined) i.separado = feito.separado;
+        });
+        p.falta = p.itens.some(i => i.separado < i.pedido);
+      }
+      if (emb[p.id] && emb[p.id].situacao === 'confirmada') p.situacao = 'conferido';
+    }
+  })();
 
   let buscaAtual = '';
   let situacaoAtual = 'todos';

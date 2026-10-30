@@ -1002,6 +1002,7 @@
   .ce-cfg-margem { font-size:13px; font-weight:600; color:var(--text-heading); }
   .ce-cfg-margem a { color:var(--active-text); text-decoration:underline; }
   .ce-aviso { font-size:11px; font-weight:700; color:var(--warning); }
+  .ce-est { display:block; font-size:10.5px; font-weight:600; color:var(--text); opacity:0.85; letter-spacing:0; text-transform:none; }
   .ce-dica { display:block; margin-top:2px; font-size:10.5px; font-weight:600; letter-spacing:0; text-transform:none; }
   .ce-cfg-sit, .ce-cfg-emb { display:flex; flex-direction:column; gap:8px; }
   .form-field .ce-cfg-linha { display:flex; align-items:center; gap:10px; margin-bottom:0; font-size:13px; font-weight:600; color:var(--text-heading); cursor:pointer; }
@@ -1408,7 +1409,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th class="ordenavel" data-ordem="taxa" title="A taxa do gateway da loja virtual sobre o total do pedido, na condição do pagamento">Taxa <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="comissao" title="A comissão de venda do pedido (vendedor e afiliado), pela regra de Comissões Afiliados">Comissão <span class="seta">▲</span></th>
             <th class="ordenavel col-mkt" data-ordem="mkt" title="Comissão do marketplace. Só aparece quando algum pedido tiver valor">Com. marketplace <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="embalagem" title="A embalagem da loja (Mais ações, Configurar), uma por pedido">Embalagem <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="embalagem" title="A embalagem que a Conferência de Saída confirmou, com o custo do dia; até lá, o valor da loja (Mais ações, Configurar), uma por pedido">Embalagem <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="custo" title="O custo dos produtos, da compra ou o custo médio, conforme a configuração">Custo <span class="seta">▲</span></th>
             <th class="ordenavel col-dev" data-ordem="dev" title="A devolução aceita: o valor devolvido, menos o custo do item que voltou revendável, mais o frete da volta pago pela loja. Só aparece quando algum pedido tiver valor">Devolução <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="lucro" title="Venda menos o diferencial de frete, a taxa, a comissão, a embalagem, o custo e a devolução">Lucro <span class="seta">▲</span></th>
@@ -1494,9 +1495,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="field-hint">O custo da compra é o dos produtos na compra; o custo médio é o congelado no faturamento do pedido.</div>
   </div>
   <div class="form-field" id="campoCfgEmbalagem">
-    <label>Embalagem por loja (R$ por pedido)</label>
+    <label>Embalagem estimada por loja (R$ por pedido)</label>
     <div class="ce-cfg-emb" id="cfgEmbalagem"></div>
-    <div class="field-hint">Caixa, tag e saco juntos, uma vez por pedido, qualquer que seja o número de itens. A calculadora de preço vai ler este valor.</div>
+    <div class="field-hint">Vale só para o pedido que a Conferência de Saída ainda não confirmou; o confirmado usa a embalagem real, com o custo do dia. Caixa, tag e fita juntas, uma vez por pedido, qualquer que seja o número de itens. A calculadora de preço vai ler este valor.</div>
     <div class="field-error-msg" id="erroCfgEmbalagem">Informe um valor de zero em diante, como 5,00.</div>
   </div>
   <div class="form-field" id="campoCfgMargem">
@@ -2818,7 +2819,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0.
   //                A taxa NAO volta com a devolucao (nao ha regra da InfinitePay para isso: considerar que fica e o lado seguro)
   //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes (ja menos a devolucao dentro do prazo)
-  //   embalagem  = a embalagem da loja, UMA vez por pedido (nao depende das unidades; desde 28/out/2026)
+  //   embalagem  = a embalagem que a Conferencia de Saida CONFIRMOU (cada item do registro x o custo guardado no dia, tag e fita juntas; Cadastros > Embalagens muda o preco
+  //                e o pedido antigo nao mexe); ate la, a da loja, UMA vez por pedido, marcada como ESTIMADA (embalagemEstimada). Um valor por pedido, nao por unidade (desde 28/out/2026)
   //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
   //   devolucao  = valor devolvido (a soma dos itens da devolucao aceita x (total - frete - cortesia) / (total - frete): a parte paga com vale de cortesia nao volta em dinheiro) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
   //                perda) mais o frete da volta pago pela loja (`reversa.paga` 'nos'; pago pelo cliente ou coleta da nossa frota, 0)
@@ -2879,6 +2881,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { devolvido: devolvido, recuperado: recuperado, perda: perda, freteVolta: freteVolta, devolucao: resCent(devolvido - recuperado + freteVolta),
              quantas: devs.length, emAnalise: analise.length, valorEmAnalise: resCent(analise.reduce((s, d) => s + totalItensDev(d), 0)) };
   }
+  // O espelho do que a Conferencia de Saida confirmou (pedidos que ja passaram dela: faturado, pronto para envio, enviado, entregue), com o custo do dia. O 16 foi confirmado a 11,90
+  // de proposito: o cadastro hoje diz 12,50, e isso prova o custo do dia. shortcut: na producao o registro vem do pedido; aqui o do navegador (`deskEmbalagensPedido`) vale primeiro.
+  const RES_EMBALAGENS_EXEMPLO = {
+    8:  [{ id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', qtd: 1, custo: 6.30 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    9:  [{ id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', qtd: 1, custo: 5.90 }, { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', qtd: 1, custo: 0.60 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    11: [{ id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', qtd: 1, custo: 4.70 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    12: [{ id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', qtd: 1, custo: 6.30 }, { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', qtd: 1, custo: 0.60 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    16: [{ id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', qtd: 1, custo: 11.90 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }]
+  };
+  function resEmbalagem(p, cfg) {
+    let g = {};
+    try { g = JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { g = {}; }
+    const reg = g[p.id] && g[p.id].situacao === 'confirmada' ? g[p.id] : (RES_EMBALAGENS_EXEMPLO[p.id] ? { itens: RES_EMBALAGENS_EXEMPLO[p.id], trocas: [] } : null);
+    if (!reg) return { valor: resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0), estimada: true, texto: '', trocas: [] };
+    return { valor: resCent(reg.itens.reduce((s, i) => s + i.qtd * i.custo, 0)), estimada: false, texto: reg.itens.map(i => i.qtd + ' ' + i.nome).join(' + '), trocas: reg.trocas || [] };
+  }
   function resultadoDoPedido(p) {
     const cfg = custosEcomLer();
     const total = resCent(p.total), freteCobrado = resCent(p.frete || 0), cortesia = resCortesia(p), venda = resCent(total - freteCobrado - cortesia);
@@ -2892,14 +2910,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
     const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
     const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
-    const embalagem = resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0);
+    const emb = resEmbalagem(p, cfg), embalagem = emb.valor;
     const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
     const dv = devolucaoDoPedido(p, cfg, resCent(total - freteCobrado), cortesia);
     const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - dv.devolucao);
     return { venda: venda, freteCobrado: freteCobrado, cortesia: cortesia, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
              embalagem: embalagem, custo: custo, devolucao: dv.devolucao, devolvido: dv.devolvido, custoRecuperado: dv.recuperado, perdaAvaria: dv.perda, freteVolta: dv.freteVolta,
              devolucoesAceitas: dv.quantas, devolucaoEmAnalise: dv.emAnalise, valorEmAnalise: dv.valorEmAnalise, lucro: lucro, margem: venda ? lucro / venda : 0,
-             semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago };
+             semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago,
+             embalagemEstimada: emb.estimada, embalagemTexto: emb.texto, embalagemTrocas: emb.trocas };
   }
   // ===== FIM DO BLOCO RESULTADO DO PEDIDO =====
   // ===== COMPONENTE: campo de data com calendario (copia da Agenda) =====
@@ -3210,7 +3229,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const s = {};
     CHAVES_R.forEach(k => { s[k] = arred(partes.reduce((a, x) => a + x.r[k], 0) * 100) / 100; });
     s.margem = s.venda ? s.lucro / s.venda : 0;
-    return Object.assign(s, { unidades: partes.reduce((a, x) => a + x.qtd, 0), semCusto: !s.custo, semTaxa: r.semTaxa, semFretePago: r.semFretePago });
+    return Object.assign(s, { unidades: partes.reduce((a, x) => a + x.qtd, 0), semCusto: !s.custo, semTaxa: r.semTaxa, semFretePago: r.semFretePago, embalagemEstimada: r.embalagemEstimada });
   }
   // A pesquisa unica procura no nº do pedido (exato: o 1 nao traz o 12), no cliente, no nome do produto e no SKU. Casou pelo nº ou pelo cliente: o pedido entra inteiro;
   // casou so por um item: entra so a parte desse item (o clique numa linha de Produto cai aqui, com o SKU). A categoria filtra os itens do mesmo jeito.
@@ -3430,7 +3449,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function celulasNumeros(r, ehPedido) {
     return '<td>' + moedaC(r.venda) + '</td><td>' + moedaC(r.freteCobrado) + '</td><td class="col-cort">' + moedaC(r.cortesia) + '</td>' + (ehPedido ? celulaDif(r) : '<td>' + sinalC(r.difFrete) + '</td>') +
       '<td>' + (ehPedido && r.semTaxa ? '—' : moedaC(r.taxa)) + '</td><td>' + moedaC(r.comissao) + '</td><td class="col-mkt">' + moedaC(r.comissaoMarketplace) + '</td>' +
-      '<td>' + moedaC(r.embalagem) + '</td><td>' + (ehPedido && r.semCusto ? '<span class="ce-aviso">sem custo</span>' : moedaC(r.custo)) + '</td><td class="col-dev">' + moedaC(r.devolucao) + '</td>' +
+      '<td>' + moedaC(r.embalagem) + (ehPedido && r.embalagemEstimada ? '<span class="ce-est">estimada</span>' : '') + '</td><td>' + (ehPedido && r.semCusto ? '<span class="ce-aviso">sem custo</span>' : moedaC(r.custo)) + '</td><td class="col-dev">' + moedaC(r.devolucao) + '</td>' +
       '<td class="ce-lucro' + (r.lucro < 0 ? ' neg' : '') + '">' + sinalC(r.lucro) + '</td>' +
       (naFaixaDeAtencao(r) ? '<td class="ce-atencao" title="abaixo da mínima de ' + pctMin(margemMin) + '%">' : '<td class="' + (r.lucro < 0 ? 'ce-neg' : '') + '">') + (r.venda ? pctF(r.margem) : '—') + '</td>';
   }
@@ -3520,7 +3539,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       linha('(−) Diferencial de frete', sinalC(r.difFrete), 'o que a loja pagou menos o que cobrou') +
       linha('(−) Taxa do gateway', moedaC(r.taxa), 'sobre o total, na condição do pagamento') +
       linha('(−) Comissão de venda', moedaC(r.comissao), 'pela regra de Comissões Afiliados') +
-      linha('(−) Embalagem', moedaC(r.embalagem), 'uma por pedido, pela embalagem da loja') +
+      linha('(−) Embalagem', moedaC(r.embalagem), r.embalagemEstimada ? 'estimada pelo valor da loja, até a Conferência de Saída confirmar' : esc(r.embalagemTexto)) +
+      (!r.embalagemEstimada && r.embalagemTrocas.length ? linha('', '', 'Trocada na conferência: ' + esc(r.embalagemTrocas.join('; ')), 'sub') : '') +
       linha('(−) Custo dos produtos', r.semCusto ? '<span class="ce-aviso">sem custo</span>' : moedaC(r.custo), cfg.custoBase === 'medio' ? 'custo médio congelado no faturamento' : 'custo da compra') +
       (r.devolucoesAceitas ? linha('(−) Devolução', sinalC(r.devolucao), 'o valor devolvido menos o custo que voltou, mais o frete da volta') +
         linha('Valor devolvido', moedaC(r.devolvido), 'os itens da devolução aceita' + (r.cortesia ? ', já sem a parte paga com vale de cortesia' : ''), 'sub') +

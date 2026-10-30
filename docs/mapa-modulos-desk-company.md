@@ -3,6 +3,8 @@
 
 *Em 15/out/2026: Comissões Afiliados (lista e conta do afiliado) e a venda por link como filtro de Pedidos de Venda; 43 de 55 itens de menu com tela.*
 
+*Em 30/out/2026 (depois da entrega 3): Custos do E-commerce, entrega 4, a embalagem automática: Cadastros › Embalagens ganhou custo e o tipo Insumo; a Separação escolhe a embalagem do pedido, a Conferência de Saída confirma, e Custos e a página do pedido leem o que foi confirmado, com o custo do dia. Nenhuma tela nova: 45 de 55 itens de menu com tela, em 90 telas (§14.99).*
+
 *Em 30/out/2026: Custos do E-commerce, entrega 3 (os anúncios lidos de Contas a Pagar, o gráfico mês a mês, oito cards com "Abaixo da margem" e o módulo no perfil do vendedor) e a tela nova **Parâmetros de vendas**, em Configurações: 45 de 55 itens de menu com tela, em 90 telas (§14.98).*
 
 *Em 22/out/2026: Custos do E-commerce, entrega 1 (a tela nova, a caixa "Resultado do pedido" na página do pedido e a conta única do lucro, que Comissões Afiliados passou a usar), em Vendas: 45 de 55 itens de menu com tela, em 89 telas (§14.95).*
@@ -38,7 +40,7 @@
 | ✅ | Departamento de Produtos |
 | ✅ | Seção de Produtos |
 | ✅ | Marcas de Produtos |
-| ✅ | Embalagens |
+| ✅ | Embalagens *(com custo, "cabe até" e o tipo Insumo, a tag, a fita e o saco, que entram sozinhos no pedido de uma loja ou de todas, desde 30/out)* |
 | ✅ | Lojas Desk *(+ detalhe)* |
 | ✅ | Depósitos |
 | ✅ | Endereços de Estoque |
@@ -77,7 +79,7 @@
 | ❌ | Notas Fiscais |
 | ✅ | Metas e Performance *(12/out: uma página só. A lista junta meta, realizado, atingimento, ritmo, vendas com ticket médio e devolução; o painel lateral traz a meta, como vendeu, a comparação com o mês e o ano anteriores e o botão de definir ou editar a meta. A tela de Performance de Vendas deixou de existir)* |
 | ❌ | Margem de Contribuição |
-| ✅ | Custos do E-commerce *(as 3 entregas: **entrega 1, 22/out**: relatório vivo do lucro de cada pedido online, canal Loja virtual: venda, diferencial de frete, taxa do gateway, comissão, embalagem e custo, o lucro e a margem; cards, a barra de divisão do faturamento, agrupar por loja, vendedor ou forma de pagamento, painel do pedido e Configurar. **Entrega 2, 27/out (ajustes de 28/out, aprovada em 29/out)**: itens e estado de destino nos pedidos, a devolução na conta e na comissão, o vale de cortesia, agrupar e filtrar por produto, categoria e estado, pesquisa única. **Entrega 3, 30/out**: o campo Loja em Contas a Pagar e os anúncios (categoria 14) em Custos, com o lucro depois dos anúncios; oito cards, com "Abaixo da margem" no lugar de "No prejuízo" (a margem mínima vem de Parâmetros de vendas); o gráfico "Mês a mês" em abas no card da barra (os 5 meses anteriores são exemplo); e o módulo na lista de módulos do perfil do vendedor. Na mesma entrega nasceu a tela Parâmetros de vendas, em Configurações)* |
+| ✅ | Custos do E-commerce *(as 3 entregas: **entrega 1, 22/out**: relatório vivo do lucro de cada pedido online, canal Loja virtual: venda, diferencial de frete, taxa do gateway, comissão, embalagem e custo, o lucro e a margem; cards, a barra de divisão do faturamento, agrupar por loja, vendedor ou forma de pagamento, painel do pedido e Configurar. **Entrega 2, 27/out (ajustes de 28/out, aprovada em 29/out)**: itens e estado de destino nos pedidos, a devolução na conta e na comissão, o vale de cortesia, agrupar e filtrar por produto, categoria e estado, pesquisa única. **Entrega 3, 30/out**: o campo Loja em Contas a Pagar e os anúncios (categoria 14) em Custos, com o lucro depois dos anúncios; oito cards, com "Abaixo da margem" no lugar de "No prejuízo" (a margem mínima vem de Parâmetros de vendas); o gráfico "Mês a mês" em abas no card da barra (os 5 meses anteriores são exemplo); e o módulo na lista de módulos do perfil do vendedor. Na mesma entrega nasceu a tela Parâmetros de vendas, em Configurações. **Entrega 4, 30/out**: a embalagem do pedido nasce na Separação, é confirmada na Conferência de Saída e entra na conta com os nomes e o custo do dia; o pedido ainda não confirmado usa o valor da loja, marcado "estimada")* |
 | ❌ | Relatórios de Vendas |
 
 > ~~**Metas** existe e funciona, mas **não tem item no menu**.~~ **Resolvido em 08/out:** o item existia em **6 telas** e faltava em **64** — quem estivesse em qualquer outra não chegava lá pelo menu. Agora são 70 de 70.
@@ -98,8 +100,8 @@
 ## 🚚 Logística — 5 de 6
 | | Submódulo |
 |---|---|
-| ✅ | Separação *(+ ficha do pedido e folha de impressão)* |
-| ✅ | Conferência de Saída *(+ bancada, volumes e etiquetas; era "Etiquetagem")* |
+| ✅ | Separação *(+ ficha do pedido e folha de impressão; desde 30/out a ficha escolhe as embalagens do pedido, sem mostrar custo)* |
+| ✅ | Conferência de Saída *(+ bancada, volumes e etiquetas; era "Etiquetagem"; desde 30/out recebe a embalagem da Separação, mostra os insumos e confirma, com a troca registrada)* |
 | ✅ | Expedição *(+ o romaneio, com conferência de volumes e impressão em duas vias)* |
 | ✅ | Rastreamento de Pedidos *(o que acontece depois da doca: situação, pagamento, códigos por volume, previsão congelada e o histórico que a vitrine consome; **+ detalhe do pedido**, a única tela que escreve código — a listagem só lê)* |
 | ✅ | Devolução *(+ detalhe; documento próprio que aponta para o pedido, estado por item, estoque lançado à mão e código da reversa próprio)* |

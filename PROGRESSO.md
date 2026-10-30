@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 30/out/2026: Custos do E-commerce, entrega 3 (anúncios e lucro depois dos anúncios, oito cards com "Abaixo da margem", gráfico mês a mês, Parâmetros de Vendas e o módulo no perfil) feita e esperando o teste dele; a entrega 2 foi aprovada em 29/out e foi para o HISTORICO.md. A entrega 4 (embalagem automática) está decidida e começa depois do teste. A calculadora de precificação segue parada até o módulo terminar.*
+*Atualizado em 30/out/2026: Custos do E-commerce, entrega 4 (a embalagem automática: custo e insumo no cadastro, a escolha na Separação, a confirmação na Conferência de Saída e o custo do dia) feita e esperando o teste dele; a entrega 3 foi testada e aprovada por ele em 30/out e foi para o HISTORICO.md. A calculadora de precificação vem depois que ele aprovar a 4.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,23 +10,16 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce: entrega 3 feita em 30/out/2026 (§14.98), esperando o teste dele.** Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`; a nova: `http://localhost:3000/configuracoes/pagina-configuracoes-parametros-vendas.html`.
-A entrega 2 (itens, destino, devolução, vale de cortesia, produto/categoria/estado, com os quatro ajustes do teste de 28/out) ele testou e aprovou em 29/out: o texto dela está no começo do HISTORICO.md. O que a entrega 3 trouxe:
+**Custos do E-commerce: entrega 4 feita em 30/out/2026 (§14.99), esperando o teste dele.** Telas: `http://localhost:3000/cadastros/pagina-cadastros-embalagens.html`, `http://localhost:3000/logistica/pagina-logistica-separacao-detalhe.html?id=4`, `http://localhost:3000/logistica/pagina-logistica-conferencia-saida-detalhe.html?id=4` (o 4 só aparece lá depois de separado) e `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
+A entrega 3 (anúncios, oito cards, mês a mês, Parâmetros de Vendas, o módulo no perfil) ele testou e aprovou em 30/out: o texto dela está no começo do HISTORICO.md. O que a entrega 4 trouxe:
 
-- **Anúncios, lidos de Contas a Pagar.** A conta a pagar ganhou o campo **Loja** (opcional: "Sem loja (empresa toda)" ou uma loja; a lista não ganhou coluna nem filtro) e seis contas de exemplo na categoria 14. Custos soma as contas da categoria 14 **não canceladas, com vencimento no período, pagas ou não**; com filtro de loja, só as da loja; a conta sem loja só entra em "Todas as lojas". Dois cards novos: **Anúncios** e **Lucro depois dos anúncios** (o lucro dos pedidos menos os anúncios, vermelho se negativo); com pesquisa, categoria, grupo ou card ligado mostram "—" ("anúncio não se divide por pedido ou produto"). No mês atual, em todas as lojas: anúncios R$ 450,00 e lucro depois R$ 606,28; só na Desk Shope: R$ 300,00 e R$ 257,59. A barra e a conta de cada pedido não mudaram.
-- **Oito cards, em duas linhas de quatro**, e o "No prejuízo" virou **"Abaixo da margem"** (pedido com margem menor que a mínima, os de lucro negativo incluídos; legenda "2 no prejuízo · mínima de 15%"; continua filtrando). Com 15%: os pedidos 3, 11 e 16. Na coluna Margem, a faixa entre 0 e a mínima fica na cor de atenção, com o title "abaixo da mínima de 15%"; o painel do pedido repete a nota.
-- **Gráfico "Mês a mês"**, em abas no card da barra (a barra é a aba "Divisão do faturamento"): os 6 últimos meses terminando no atual, faturamento e lucro com a margem embaixo, e a comparação em texto com o mês anterior. **Só o mês atual vem dos pedidos; os 5 anteriores são dado de exemplo** (por mês e por loja, com um `shortcut:` no código; a tela diz isso).
-- **Parâmetros de Vendas** (Configurações › Vendas): imposto padrão (4,00% de fábrica) e margem mínima (15,00%), de 0 a 100, gravados em `deskParametros` (`impostoPadraoPct`, `margemMinimaPct`); a mudança vai para o Registro de atividades ("Alterar os parâmetros de vendas"). Custos lê a margem mínima dali, e Configurar mostra "Margem mínima: 15%. Muda em Parâmetros de Vendas". O imposto ainda não é lido por ninguém: é para a calculadora de preços e a Margem de Contribuição.
-- **"Custos do E-commerce" na lista de módulos do perfil do vendedor**, desmarcado de fábrica. Ainda não bloqueia nada: não há tela de permissões.
-
-**Custos do E-commerce, entrega 4: embalagem automática (decidida por ele em 30/out; começa depois de ele testar a entrega 3).**
-- **Cadastro de Embalagens:** ganha o campo custo e o tipo "Insumo" (tag, fita, saco), sem medidas e sem virar volume. O insumo pode entrar sozinho nos pedidos de todas as lojas ou de uma loja.
-- **Separação:** antes de concluir, o separador escolhe as embalagens do pedido. A sugestão da menor caixa que cabe, que hoje é da Conferência, passa para cá, e os insumos automáticos já vêm preenchidos. O separador vê só os nomes, nunca o custo.
-- **Conferência de Saída:** recebe tudo preenchido e confirma. Pode trocar se a caixa não servir, e a troca fica registrada. Vale o que a Conferência confirmou.
-- **O pedido guarda o custo do dia:** mudar o preço da caixa depois não altera o lucro de pedido antigo.
-- **Custos e página do pedido:** a embalagem vem do que foi confirmado, com os nomes (ex.: "1 Caixa M + 1 Tag Desk Shope + 1 Fita = R$ 5,40"). Pedido que ainda não passou pela Separação usa o valor por loja de Configurar, marcado como "estimada".
-- **Fora por enquanto:** baixar as embalagens do estoque.
-- **Atenção:** hoje a Separação e a Conferência não gravam nada no protótipo, e a calculadora de precificação lê a embalagem por loja.
+- **Cadastro de Embalagens:** campo **Custo** em toda embalagem, **"Cabe até (peças)"** em caixa e envelope (opcional) e o tipo **Insumo** (tag, fita, saco): sem medidas, sem peso, sem virar volume, e com a escolha de **entrar sozinho** no pedido de todas as lojas ou de uma só. De fábrica: as 10 de antes, com custo, mais a Tag Desk Shope, a Tag Desk Brands, a Fita adesiva (todas as lojas) e o Saco plástico (o separador adiciona). A lista agora fica gravada no navegador.
+- **Separação:** o pedido online real **4** (Juliana Prado, Desk Brands, 10 peças) entrou na fila. Antes de concluir o separador escolhe as embalagens: a **menor caixa que cabe vem sugerida** (CE-02 para as 10 peças) e os **insumos automáticos já vêm preenchidos** (tag da Desk Brands e fita). Ele vê só os nomes, **nunca o custo**. Falta declarada muda a sugestão enquanto ele não mexe na caixa; "Salvar e continuar depois" guarda, "Devolver para a fila" apaga. A sugestão de pedido grande agora usa várias caixas grandes (46 peças: 2 × Caixa para Eletrônicos), e nunca um envelope.
+- **Conferência de Saída:** o 4 só chega depois de separado, já **preenchido** ("Veio da Separação: ..."), com a marca "escolhida na separação" e um bloco novo de **Insumos** (que não viram volume, nem etiqueta, nem romaneio). Pode trocar, e a troca fica no pedido e no Registro de atividades; **vale o que ela confirmou**. Aberto de novo, o pedido aparece conferido e só leitura.
+- **O pedido guarda o custo do dia:** mudar o preço no cadastro depois não mexe no pedido antigo (o pedido 16 foi confirmado a 11,90, com o cadastro em 12,50, de propósito).
+- **Custos e página do pedido:** a embalagem confirmada aparece com os nomes ("1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva = R$ 5,40") e a troca, se houve; o pedido ainda não confirmado usa o valor da loja de Configurar e diz **"estimada"**. Mês atual: embalagem 57,00 no total, lucro **R$ 1.048,28** (13,8%), depois dos anúncios **R$ 598,28**. Fazendo o fluxo no 4 sem trocar nada: embalagem 7,20, lucro do 4 em 161,40 e o total em 1.049,08.
+- **Fora por enquanto:** baixar a embalagem do estoque. **A calculadora de precificação não foi mexida:** ela vem depois que ele aprovar a entrega 4.
+- **O que conferir:** criar um insumo no cadastro; separar o pedido 4 (sem R$ na tela), conferir, trocar uma caixa e fechar; ver o painel do 4 e do 11 em Custos, e Configurar mudando só os estimados; tudo nos temas claro e escuro.
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
 inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
@@ -40,7 +33,7 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
 está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
 
-**Calculadora de precificação: parada, de propósito, até Custos do E-commerce terminar** (decisão dele em 21/out; a entrega 1 já guarda a embalagem). A
+**Calculadora de precificação: parada, de propósito, até ele aprovar a entrega 4 de Custos do E-commerce** (decisão dele em 21/out; a entrega 4 trouxe o custo da embalagem no cadastro). A
 embalagem completa vai vir de lá, e o módulo de custos também vai mexer em outros pontos (Margem de Contribuição, o
 imposto padrão); a calculadora é construída depois, já lendo esses custos. **Nada dela foi construído.** O que está pronto
 para quando ela voltar:
@@ -55,7 +48,7 @@ para quando ela voltar:
 - Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
   **A embalagem vem preenchida de Custos do E-commerce** (decisão dele em 21/out; a fonte exata é
   `deskParametros.custosEcommerce.embalagemPorLoja`, por loja; **desde 28/out o número é por pedido, não por unidade: a calculadora precisa decidir como ratear a embalagem de um pedido entre os produtos**), editável, como o custo do produto vem da
-  aba Custos. Hoje o cadastro de Embalagens não tem custo e só descreve a caixa, para o frete.
+  aba Custos. Desde a entrega 4 o cadastro de Embalagens tem custo e o tipo Insumo: a calculadora pode ler a embalagem completa dali (caixa + tag + fita) ou o valor estimado por loja de Configurar; a decidir quando ela voltar.
 
 *As sugestões de preço (pedido dele em 21/out, "está melhor"):* no lugar de um preço, quatro cartões, cada um com a margem
 e o lucro reais daquele número: **Varejo ,90** (marcada), **Abaixo da faixa**, **Redondo** e **Exato**. A pesquisa, as regras
@@ -108,14 +101,11 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Custos do E-commerce, entrega 3** (feita em 30/out, espera o teste dele; ver "Onde paramos"): anúncios, gráfico mês a mês, Parâmetros de Vendas (imposto padrão e margem
-   mínima) e o módulo no perfil.
-2. **Custos do E-commerce, entrega 4: embalagem automática** (decidida por ele em 30/out; começa depois do teste da 3; ver "Onde paramos"). Começa por um plano curto, numa
-   conversa nova, e já nasce com o exemplo no padrão (§14.73).
-3. **Calculadora de precificação**, depois dos custos (o imposto padrão sai de Parâmetros de Vendas, entrega 3): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
-4. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
-5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Custos do E-commerce, entrega 4: embalagem automática** (feita em 30/out, espera o teste dele; ver "Onde paramos"). A entrega 3 ele aprovou em 30/out.
+2. **Calculadora de precificação**, **depois que ele aprovar a 4** (o imposto padrão sai de Parâmetros de Vendas, entrega 3; a embalagem, do cadastro com custo, entrega 4): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
+3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -188,6 +178,8 @@ revisão. Até lá, seguimos construindo. Cada item vira conserto de componente,
 11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
 12. **O "Por página" da paginação abre sempre para cima** (26/out, com print de Pedidos de Venda). Hoje a lista de 10 / 25 / 50 / 100 abre para baixo, sai do rodapé do card e fica desproporcional. Deve abrir para cima sempre, em qualquer posição da página. É o rodapé de paginação comum: mapear todas as telas que o têm e corrigir de uma vez.
 13. **O campo SKU do item desalinhado** (27/out, com print de Pedido de Venda). O aviso de saldo embaixo do campo ("só 0 disponível") empurra a caixa do SKU para cima, e ela fica fora da linha das outras caixas (descrição, quantidade, preço). O aviso não pode mexer na altura da caixa. Ver onde mais a tabela de itens tem o mesmo aviso (PDV, Orçamento). Junto: a linha nova e vazia ("Adicionar outro item") já nasce vermelha, com "só 0 disponível" e o aviso de item sem saldo. Linha sem produto escolhido não deve acusar falta de saldo.
+14. **No Início, o "em aberto, ainda no prazo" das contas a pagar é um número fixo de exemplo que está um abaixo de Contas a Pagar** (30/out): mostra 8 em navegador limpo, e Contas a Pagar tem 9 (total em aberto 17 menos 8 vencidas). Já vinha de antes da entrega 3; não foi consertado, de propósito.
+15. **A lista de volumes da Conferência de Saída rola na lateral em janela estreita** (30/out): a 860 px passa 118 px da largura, porque a grade tem colunas fixas. Já era assim antes da entrega 4 (medido na versão anterior); não foi consertado, de propósito.
 
 *Custos do E-commerce, entrega 2 (27/out):* o vale de cortesia passou a sair da venda do resultado do pedido, mas a comissão **não** mudou por isso; o **item 9 continua aqui, sem mudar** (a base da comissão ainda é o total menos o frete).
 

@@ -2790,7 +2790,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //   taxa       = taxa do gateway da loja virtual (habilitado na loja do pedido) sobre o TOTAL, na condicao do pagamento, mais a tarifa; sem pagamento, 0.
   //                A taxa NAO volta com a devolucao (nao ha regra da InfinitePay para isso: considerar que fica e o lado seguro)
   //   comissao   = a soma da comissao de venda de quem recebe no pedido (vendedor ou afiliado), pela regra de Comissoes (ja menos a devolucao dentro do prazo)
-  //   embalagem  = a embalagem da loja, UMA vez por pedido (nao depende das unidades; desde 28/out/2026)
+  //   embalagem  = a embalagem que a Conferencia de Saida CONFIRMOU (cada item do registro x o custo guardado no dia, tag e fita juntas; Cadastros > Embalagens muda o preco
+  //                e o pedido antigo nao mexe); ate la, a da loja, UMA vez por pedido, marcada como ESTIMADA (embalagemEstimada). Um valor por pedido, nao por unidade (desde 28/out/2026)
   //   custo      = custo da compra ou custo medio congelado no faturamento, conforme "Custo baseado em"
   //   devolucao  = valor devolvido (a soma dos itens da devolucao aceita x (total - frete - cortesia) / (total - frete): a parte paga com vale de cortesia nao volta em dinheiro) menos o custo que voltou (item revendavel devolve o custo dele; avariado ou perdido nao: fica como
   //                perda) mais o frete da volta pago pela loja (`reversa.paga` 'nos'; pago pelo cliente ou coleta da nossa frota, 0)
@@ -2851,6 +2852,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { devolvido: devolvido, recuperado: recuperado, perda: perda, freteVolta: freteVolta, devolucao: resCent(devolvido - recuperado + freteVolta),
              quantas: devs.length, emAnalise: analise.length, valorEmAnalise: resCent(analise.reduce((s, d) => s + totalItensDev(d), 0)) };
   }
+  // O espelho do que a Conferencia de Saida confirmou (pedidos que ja passaram dela: faturado, pronto para envio, enviado, entregue), com o custo do dia. O 16 foi confirmado a 11,90
+  // de proposito: o cadastro hoje diz 12,50, e isso prova o custo do dia. shortcut: na producao o registro vem do pedido; aqui o do navegador (`deskEmbalagensPedido`) vale primeiro.
+  const RES_EMBALAGENS_EXEMPLO = {
+    8:  [{ id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', qtd: 1, custo: 6.30 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    9:  [{ id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', qtd: 1, custo: 5.90 }, { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', qtd: 1, custo: 0.60 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    11: [{ id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', qtd: 1, custo: 4.70 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    12: [{ id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', qtd: 1, custo: 6.30 }, { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', qtd: 1, custo: 0.60 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }],
+    16: [{ id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', qtd: 1, custo: 11.90 }, { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', qtd: 1, custo: 0.40 }, { id: 13, nome: 'Fita adesiva', tipo: 'insumo', qtd: 1, custo: 0.30 }]
+  };
+  function resEmbalagem(p, cfg) {
+    let g = {};
+    try { g = JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { g = {}; }
+    const reg = g[p.id] && g[p.id].situacao === 'confirmada' ? g[p.id] : (RES_EMBALAGENS_EXEMPLO[p.id] ? { itens: RES_EMBALAGENS_EXEMPLO[p.id], trocas: [] } : null);
+    if (!reg) return { valor: resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0), estimada: true, texto: '', trocas: [] };
+    return { valor: resCent(reg.itens.reduce((s, i) => s + i.qtd * i.custo, 0)), estimada: false, texto: reg.itens.map(i => i.qtd + ' ' + i.nome).join(' + '), trocas: reg.trocas || [] };
+  }
   function resultadoDoPedido(p) {
     const cfg = custosEcomLer();
     const total = resCent(p.total), freteCobrado = resCent(p.frete || 0), cortesia = resCortesia(p), venda = resCent(total - freteCobrado - cortesia);
@@ -2864,14 +2881,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Quem recebe no pedido: cada beneficiario cujo pedidosDe(b) tem este pedido. Soma, porque a regra pode juntar vendedor e afiliado.
     const comissao = resCent(beneficiarios().filter(b => pedidosDe(b).some(x => x.id === p.id)).reduce((s, b) => s + comissaoDoPedido(p, b), 0));
     const comissaoMarketplace = 0;   // shortcut: o marketplace so existe no futuro; o campo ja existe e a coluna so aparece quando algum pedido tiver valor
-    const embalagem = resCent(Number(cfg.embalagemPorLoja[p.loja]) || 0);
+    const emb = resEmbalagem(p, cfg), embalagem = emb.valor;
     const custo = resCent((cfg.custoBase === 'medio' ? p.custoMedio : p.custo) || 0);
     const dv = devolucaoDoPedido(p, cfg, resCent(total - freteCobrado), cortesia);
     const lucro = resCent(venda - difFrete - taxa - comissao - comissaoMarketplace - embalagem - custo - dv.devolucao);
     return { venda: venda, freteCobrado: freteCobrado, cortesia: cortesia, difFrete: difFrete, taxa: taxa, comissao: comissao, comissaoMarketplace: comissaoMarketplace,
              embalagem: embalagem, custo: custo, devolucao: dv.devolucao, devolvido: dv.devolvido, custoRecuperado: dv.recuperado, perdaAvaria: dv.perda, freteVolta: dv.freteVolta,
              devolucoesAceitas: dv.quantas, devolucaoEmAnalise: dv.emAnalise, valorEmAnalise: dv.valorEmAnalise, lucro: lucro, margem: venda ? lucro / venda : 0,
-             semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago };
+             semCusto: !custo, semTaxa: semTaxa, semFretePago: semFretePago,
+             embalagemEstimada: emb.estimada, embalagemTexto: emb.texto, embalagemTrocas: emb.trocas };
   }
   // ===== FIM DO BLOCO RESULTADO DO PEDIDO =====
   // ===== VALE-COMPRA: DADOS E REGRAS (bloco comum a dez telas, 19/out/2026) =====

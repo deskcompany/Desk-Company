@@ -674,6 +674,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="dropdown-select-item" data-value="pacote">Pacote / Caixa</div>
         <div class="dropdown-select-item" data-value="envelope">Envelope</div>
         <div class="dropdown-select-item" data-value="rolo">Rolo / Cilindro</div>
+        <div class="dropdown-select-item" data-value="insumo">Insumo</div>
       </div>
     </div>
     <div class="dropdown-select pill" id="filtroSituacao" data-value="todos">
@@ -759,18 +760,51 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="dropdown-select-item active" data-value="pacote">Pacote / Caixa</div>
           <div class="dropdown-select-item" data-value="envelope">Envelope</div>
           <div class="dropdown-select-item" data-value="rolo">Rolo / Cilindro</div>
+          <div class="dropdown-select-item" data-value="insumo">Insumo</div>
         </div>
       </div>
     </div>
 
-    <div class="dimensoes-diagrama-row">
+    <div class="dimensoes-diagrama-row" id="blocoMedidas">
       <div class="dimensoes-campos" id="camposDimensoes"></div>
       <div class="dimensoes-svg-wrap" id="diagramaDimensoes"></div>
     </div>
 
-    <div class="form-field">
-      <label>Peso (kg)</label>
-      <input type="text" id="inputPeso" placeholder="0,00">
+    <div class="form-row" id="linhaPesoCap">
+      <div class="form-field" id="campoPeso">
+        <label>Peso (kg)</label>
+        <input type="text" id="inputPeso" placeholder="0,00">
+      </div>
+      <div class="form-field" id="campoCap">
+        <label>Cabe até (peças)</label>
+        <input type="text" id="inputCap" inputmode="numeric" placeholder="opcional">
+        <div class="field-error-msg" id="erroCap">Informe um número inteiro maior que zero, ou deixe em branco.</div>
+      </div>
+    </div>
+    <div class="field-hint" id="dicaCap" style="margin:-8px 0 18px;">Sem "cabe até", a embalagem não entra na sugestão da Separação e da Conferência de Saída.</div>
+
+    <div class="form-field" id="campoCusto">
+      <label>Custo (R$)</label>
+      <input type="text" id="inputCusto" inputmode="decimal" placeholder="0,00">
+      <div class="field-error-msg" id="erroCusto">Informe um valor de zero em diante, como 4,70.</div>
+    </div>
+
+    <div class="form-field" id="campoAuto">
+      <label>Entra sozinho no pedido</label>
+      <div class="dropdown-select" id="inputAuto" data-value="">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Não, o separador adiciona</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="">Não, o separador adiciona</div>
+          <div class="dropdown-select-item" data-value="todas">Em todas as lojas</div>
+          <div class="dropdown-select-item" data-value="1">Desk Shope</div>
+          <div class="dropdown-select-item" data-value="2">Desk Brands</div>
+          <div class="dropdown-select-item" data-value="3">Desk Tech</div>
+        </div>
+      </div>
+      <div class="field-hint">Entra já preenchido na Separação de todos os pedidos da loja escolhida.</div>
     </div>
 
     <div class="form-field">
@@ -1288,33 +1322,103 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
 
-  // ===== MOCK: tabela `embalagens` =====
-  let EMBALAGENS = [
-    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, status: 'ativo' },
-    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, status: 'ativo' },
-    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, status: 'ativo' },
-    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, status: 'ativo' },
-    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, status: 'ativo' },
-    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, status: 'ativo' },
-    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, status: 'ativo' },
-    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, status: 'ativo' },
-    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, status: 'ativo' },
-    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, status: 'inativo' }
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em Cadastros > Embalagens (que grava o cadastro), na ficha da Separacao (que
+  // escolhe a embalagem) e na bancada da Conferencia de Saida (que confirma); teste_embalagem_pedido.py compara as copias. Custos do E-commerce e a pagina do
+  // pedido leem `deskEmbalagensPedido` no bloco RESULTADO DO PEDIDO.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 0.3, auto: 'todas', status: 'ativo' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo' }
   ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) return g;
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
 
-  const TIPO_LABEL = { pacote: 'PACOTE / CAIXA', envelope: 'ENVELOPE', rolo: 'ROLO / CILINDRO' };
-  const TIPO_COR = { pacote: 'var(--chart-1)', envelope: 'var(--warning)', rolo: 'var(--chart-2)' };
+  // ===== MOCK: tabela `embalagens` (a lista mora em `deskEmbalagens`; vazia, vale o padrao de fabrica do bloco acima) =====
+  let EMBALAGENS = embalagensLer();
+
+  const TIPO_LABEL = { pacote: 'PACOTE / CAIXA', envelope: 'ENVELOPE', rolo: 'ROLO / CILINDRO', insumo: 'INSUMO' };
+  const TIPO_COR = { pacote: 'var(--chart-1)', envelope: 'var(--warning)', rolo: 'var(--chart-2)', insumo: 'var(--success)' };
+  const LOJAS_AUTO = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };
 
   function formatarNum(n) {
-    return n.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   }
   function formatarDimensoes(e) {
+    if (e.tipo === 'insumo') return '';   // insumo nao tem medidas
     if (e.tipo === 'pacote') return formatarNum(e.largura) + '×' + formatarNum(e.altura) + '×' + formatarNum(e.comprimento) + 'cm';
     if (e.tipo === 'envelope') return formatarNum(e.largura) + '×' + formatarNum(e.comprimento) + 'cm';
     return 'Ø' + formatarNum(e.diametro) + '×' + formatarNum(e.comprimento) + 'cm';
   }
   function formatarPeso(e) {
-    return e.peso.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kg';
+    return (Number(e.peso) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kg';
+  }
+  function formatarCusto(e) {
+    return 'R$ ' + (Number(e.custo) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  // A linha de baixo do cartao: medidas, peso e custo; o insumo so tem custo e, se entrar sozinho no pedido, em quais lojas.
+  function formatarMeta(e) {
+    if (e.tipo === 'insumo') {
+      const auto = e.auto === 'todas' ? 'todas as lojas' : LOJAS_AUTO[e.auto];
+      return formatarCusto(e) + (auto ? ' · entra sozinho: ' + auto : '');
+    }
+    return formatarDimensoes(e) + ' · ' + formatarPeso(e) + ' · ' + formatarCusto(e);
   }
 
   let filtroTipoAtual = 'todos';
@@ -1358,7 +1462,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="embalagens-info">' +
             '<div class="embalagens-nome-row"><span class="status-dot" style="background:' + corStatus + ';"></span><span class="embalagens-nome">' + e.nome + '</span>' +
             '<span class="tipo-badge" style="background:' + TIPO_COR[e.tipo] + ';">' + TIPO_LABEL[e.tipo] + '</span></div>' +
-            '<div class="embalagens-meta">' + formatarDimensoes(e) + ' · ' + formatarPeso(e) + '</div>' +
+            '<div class="embalagens-meta">' + formatarMeta(e) + '</div>' +
           '</div>' +
           '<svg class="embalagens-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>' +
         '</div>';
@@ -1408,6 +1512,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     armarSenhaModal('embalagensExclui');
     abrirModalConfirmacao('Excluir ' + n + ' embalagem' + (n > 1 ? 's' : '') + ' selecionada' + (n > 1 ? 's' : '') + '? Essa ação não pode ser desfeita.', n, () => {
       EMBALAGENS = EMBALAGENS.filter(e => !itensSelecionados.has(e.id));
+      embalagensGravar(EMBALAGENS);   // shortcut: a lista vazia volta ao padrao de fabrica na proxima leitura; na producao e a tabela
       itensSelecionados.clear(); renderEmbalagens(); atualizarBarraSelecao();
     });
   });
@@ -1415,6 +1520,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const n = itensSelecionados.size;
     abrirModalConfirmacao('Inativar ' + n + ' embalagem' + (n > 1 ? 's' : '') + ' selecionada' + (n > 1 ? 's' : '') + '?', n, () => {
       EMBALAGENS.forEach(e => { if (itensSelecionados.has(e.id)) e.status = 'inativo'; });
+      embalagensGravar(EMBALAGENS);
       itensSelecionados.clear(); renderEmbalagens(); atualizarBarraSelecao();
     });
   });
@@ -1532,7 +1638,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('diagramaDimensoes').innerHTML = config.svg;
   }
 
-  inicializarDropdownSelect(document.getElementById('inputTipoEmbalagem'), (valor) => { renderDimensoes(valor); });
+  // Insumo (tag, fita, saco) nao tem medidas, peso nem "cabe ate": so custo e se entra sozinho no pedido. Rolo tem medidas, mas nao tem "cabe ate".
+  function aplicarTipoNoForm(tipo) {
+    const insumo = tipo === 'insumo';
+    document.getElementById('blocoMedidas').style.display = insumo ? 'none' : '';
+    document.getElementById('linhaPesoCap').style.display = insumo ? 'none' : '';
+    document.getElementById('campoCap').style.display = tipo === 'rolo' ? 'none' : '';
+    document.getElementById('dicaCap').style.display = (insumo || tipo === 'rolo') ? 'none' : '';
+    document.getElementById('campoAuto').style.display = insumo ? '' : 'none';
+  }
+  inicializarDropdownSelect(document.getElementById('inputTipoEmbalagem'), (valor) => { renderDimensoes(valor); aplicarTipoNoForm(valor); });
 
   // ===== DRAWER: nova/editar embalagem =====
   function abrirDrawer() {
@@ -1548,6 +1663,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoNomeEmbalagem').classList.remove('has-error');
     document.getElementById('erroNomeEmbalagem').classList.remove('show');
     document.getElementById('inputPeso').value = '';
+    document.getElementById('inputCap').value = '';
+    document.getElementById('inputCusto').value = '';
+    ['campoCusto', 'campoCap'].forEach(id => document.getElementById(id).classList.remove('has-error'));
+    ['erroCusto', 'erroCap'].forEach(id => document.getElementById(id).classList.remove('show'));
+    setAutoDropdown('');
   }
   function setSituacaoDropdown(valor) {
     const raiz = document.getElementById('inputSituacao');
@@ -1567,7 +1687,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (ativo) raiz.querySelector('.dropdown-select-label').textContent = it.textContent;
     });
   }
+  function setAutoDropdown(valor) {
+    const raiz = document.getElementById('inputAuto');
+    raiz.setAttribute('data-value', valor);
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === valor;
+      it.classList.toggle('active', ativo);
+      if (ativo) raiz.querySelector('.dropdown-select-label').textContent = it.textContent;
+    });
+  }
   inicializarDropdownSelect(document.getElementById('inputSituacao'), setSituacaoDropdown);
+  inicializarDropdownSelect(document.getElementById('inputAuto'), setAutoDropdown);
 
   document.getElementById('btnNovaEmbalagem').addEventListener('click', () => {
     embalagemEmEdicaoId = null;
@@ -1575,6 +1705,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     limparFormulario();
     setTipoDropdown('pacote');
     renderDimensoes('pacote');
+    aplicarTipoNoForm('pacote');
     setSituacaoDropdown('ativo');
     document.getElementById('linkExcluirEmbalagem').style.display = 'none';
     abrirDrawer();
@@ -1589,7 +1720,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputNomeEmbalagem').value = e.nome;
     setTipoDropdown(e.tipo);
     renderDimensoes(e.tipo, { inputLargura: e.largura, inputAltura: e.altura, inputComprimento: e.comprimento, inputDiametro: e.diametro });
-    document.getElementById('inputPeso').value = e.peso.toString().replace('.', ',');
+    aplicarTipoNoForm(e.tipo);
+    document.getElementById('inputPeso').value = e.tipo === 'insumo' ? '' : (Number(e.peso) || 0).toString().replace('.', ',');
+    document.getElementById('inputCap').value = e.cap > 0 ? String(e.cap) : '';
+    document.getElementById('inputCusto').value = (Number(e.custo) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    setAutoDropdown(e.tipo === 'insumo' ? (e.auto || '') : '');
     setSituacaoDropdown(e.status);
     document.getElementById('linkExcluirEmbalagem').style.display = 'flex';
     abrirDrawer();
@@ -1606,6 +1741,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
   });
 
+  [['inputCusto', 'campoCusto', 'erroCusto'], ['inputCap', 'campoCap', 'erroCap']].forEach(([i, c, e]) => {
+    document.getElementById(i).addEventListener('input', () => {
+      document.getElementById(c).classList.remove('has-error');
+      document.getElementById(e).classList.remove('show');
+    });
+  });
+
   document.getElementById('btnSalvarEmbalagem').addEventListener('click', () => {
     const nome = document.getElementById('inputNomeEmbalagem').value.trim();
     if (nome === '') {
@@ -1614,21 +1756,37 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       return;
     }
     const tipo = document.getElementById('inputTipoEmbalagem').getAttribute('data-value');
+    // Custo: vazio vale zero; texto, ou negativo, ou mais de duas casas, avisa e nao salva. "1.234,56" e "4.70" valem.
+    let custoTxt = document.getElementById('inputCusto').value.trim();
+    if (custoTxt.indexOf(',') >= 0) custoTxt = custoTxt.replace(/\./g, '').replace(',', '.');
+    const custoOk = custoTxt === '' || /^\d+(\.\d{1,2})?$/.test(custoTxt);
+    document.getElementById('campoCusto').classList.toggle('has-error', !custoOk);
+    document.getElementById('erroCusto').classList.toggle('show', !custoOk);
+    // "Cabe ate": opcional, inteiro maior que zero (so caixa e envelope).
+    const capTxt = tipo === 'pacote' || tipo === 'envelope' ? document.getElementById('inputCap').value.trim() : '';
+    const capOk = capTxt === '' || /^[1-9]\d{0,3}$/.test(capTxt);
+    document.getElementById('campoCap').classList.toggle('has-error', !capOk);
+    document.getElementById('erroCap').classList.toggle('show', !capOk);
+    if (!custoOk || !capOk) return;
+    const custo = custoTxt === '' ? 0 : Number(custoTxt);
     const peso = parseFloat((document.getElementById('inputPeso').value || '0').replace(',', '.')) || 0;
     const status = document.getElementById('inputSituacao').getAttribute('data-value');
     const ler = (id) => parseFloat((document.getElementById(id) ? document.getElementById(id).value : '').replace(',', '.')) || 0;
-    const dados = { nome, tipo, peso, status };
+    const dados = { nome, tipo, peso: tipo === 'insumo' ? 0 : peso, custo, status };
     if (tipo === 'pacote') { dados.largura = ler('inputLargura'); dados.altura = ler('inputAltura'); dados.comprimento = ler('inputComprimento'); }
     if (tipo === 'envelope') { dados.largura = ler('inputLargura'); dados.comprimento = ler('inputComprimento'); }
     if (tipo === 'rolo') { dados.comprimento = ler('inputComprimento'); dados.diametro = ler('inputDiametro'); }
+    if (capTxt !== '') dados.cap = Number(capTxt);
+    if (tipo === 'insumo') dados.auto = document.getElementById('inputAuto').getAttribute('data-value');
 
     if (embalagemEmEdicaoId === null) {
       const novoId = Math.max(0, ...EMBALAGENS.map(e => e.id)) + 1;
       EMBALAGENS.push(Object.assign({ id: novoId }, dados));
     } else {
-      const e = EMBALAGENS.find(x => x.id === embalagemEmEdicaoId);
-      Object.assign(e, dados);
+      // Troca o registro inteiro: mudar o tipo nao deixa medida, "cabe ate" nem "entra sozinho" do tipo antigo para tras.
+      EMBALAGENS[EMBALAGENS.findIndex(x => x.id === embalagemEmEdicaoId)] = Object.assign({ id: embalagemEmEdicaoId }, dados);
     }
+    embalagensGravar(EMBALAGENS);
     fecharDrawer(); renderEmbalagens();
   });
 
@@ -1636,6 +1794,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     armarSenhaModal('embalagensExclui');
     abrirModalConfirmacao('Excluir a embalagem "' + EMBALAGENS.find(e => e.id === embalagemEmEdicaoId).nome + '"? Essa ação não pode ser desfeita.', 1, () => {
       EMBALAGENS = EMBALAGENS.filter(e => e.id !== embalagemEmEdicaoId);
+      embalagensGravar(EMBALAGENS);
       fecharDrawer(); renderEmbalagens();
     });
   });

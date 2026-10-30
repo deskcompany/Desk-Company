@@ -2374,7 +2374,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // Em que fichas do galpao o exemplo tem cada pedido: espelho das filas de Separacao e de Conferencia
   // de Saida (teste_retorno.py compara). Pedido fora daqui cai na fila da etapa, filtrada no cliente.
-  const NO_GALPAO = { separacao: [5, 6, 7], conferencia: [7] };
+  const NO_GALPAO = { separacao: [4, 5, 6, 7], conferencia: [7] };
   function abrirPreview(id) {
     const p = pedidoDe(id);
     if (!p) return;

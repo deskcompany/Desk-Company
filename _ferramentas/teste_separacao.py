@@ -90,6 +90,8 @@ with sync_playwright() as pw:
     print('\n3. FALTA E MARCA, NAO SITUACAO')
     abas = pg.locator('#abasSituacao .aba-sit').all_inner_texts()
     ok(not any('falta' in a.lower() for a in abas), 'nenhuma aba de situacao chamada falta: %s' % abas)
+    # 30/out/2026: o pedido 4 entrou na fila (11 pedidos); o pedido separado com falta (23) passa para a segunda pagina de 10, entao a pagina aumenta antes de olhar.
+    pg.evaluate("() => { itensPorPaginaAtual = 25; renderTabela(); }")
     comFalta = pg.evaluate("""() => {
         const tr = Array.from(document.querySelectorAll('#corpoTabela tr'))
           .filter(x => x.querySelector('.marca-falta'))[0];

@@ -116,7 +116,8 @@ with sync_playwright() as p:
         ps = passos()
         ok([x[1] for x in ps if x[0] != 'Contas a Receber'] == ['pedido cancelado'] * 5 and not any(x[2] for x in ps if x[0] != 'Contas a Receber'), 'pedido cancelado: nenhuma etapa do galpao vira link')
         f_lista, f_pag = fonte(PED), fonte(PEDD)
-        ok('const NO_GALPAO = { separacao: [5, 6, 7], conferencia: [7] };' in f_lista and 'const NO_GALPAO = { separacao: [5, 6, 7], conferencia: [7] };' in f_pag,
+        # 30/out/2026: o pedido 4 entrou na fila da Separacao (entrega 4 de Custos), entao o espelho da separacao ganhou o 4
+        ok('const NO_GALPAO = { separacao: [4, 5, 6, 7], conferencia: [7] };' in f_lista and 'const NO_GALPAO = { separacao: [4, 5, 6, 7], conferencia: [7] };' in f_pag,
            'a pagina e a lista usam o mesmo espelho de em que fichas do galpao cada pedido existe')
         ir(PEDD, '?novo=1')
         ok(pg.evaluate("getComputedStyle(document.getElementById('trilhaPedido')).display") == 'none', 'pedido novo ainda nao tem acompanhamento')

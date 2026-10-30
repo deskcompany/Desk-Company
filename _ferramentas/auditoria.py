@@ -226,6 +226,8 @@ def audita(caminho):
              'deskGateways',   # 20/out: Gateways de Pagamento. Os gateways (tipo, lojas, condicoes comerciais dos cartoes, chave da API): a pagina grava, a lista le, e Contas financeiras le para mostrar a conta de cada um
              'deskGatewaysExemplo',   # 20/out: marca de que os tres gateways de exemplo ja nasceram neste navegador
              'deskDevolucoes',   # 20/out: a devolucao inteira, por id, gravada pelo detalhe a cada acao; a lista le (a gravada vence a de exemplo)
+             'deskEmbalagens',   # 30/out: o cadastro de Embalagens (com custo e insumo): a tela de Embalagens grava; a Separacao e a Conferencia de Saida leem
+             'deskEmbalagensPedido',   # 30/out: a embalagem de cada pedido (rascunho, separada, confirmada, com o custo do dia): a Separacao e a Conferencia gravam; Custos e a pagina do pedido leem
              'deskSaques'}   # 15/out: a decisao sobre o saque que o cliente afiliado pede na vitrine (aprovado ou recusado)
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a

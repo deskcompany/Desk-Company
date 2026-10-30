@@ -1701,6 +1701,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       transp: 'Motoboy · entrega local', situacao: 'fila', operador: null, liberadoHa: 1, itens: [
       { sku: 'CAD-FIX-110', nome: 'Cadeira fixa de espera', variacao: 'Azul', qtd: 8, end: 'R02-P07-N1' } ] },
 
+    // shortcut: o pedido 4 e o pedido online real de Vendas (Juliana Prado). Na lista de Pedidos ele segue 'aprovado': separar e conferir nao muda os espelhos (Pedidos, Custos, Comissoes); na producao a situacao e uma so.
+    { id: 4,  numero: 4,  loja: 2, dep: 2, origem: 'vitrine', cliente: 'Juliana Prado', entrega: 'Rua Visconde de Pirajá, 540 — Ipanema, Rio de Janeiro/RJ · 22410-002',
+      transp: 'Correios · SEDEX', obs: '', situacao: 'fila', operador: null, liberadoHa: 6, itens: [
+      { sku: 'VES-2001', nome: 'Camiseta Básica Algodão', variacao: '—', qtd: 3, end: 'R09-P01-N2' },
+      { sku: 'PAP-3001', nome: 'Caderno Universitário 200 folhas', variacao: '—', qtd: 5, end: 'R07-P02-N1' },
+      { sku: 'VES-2002', nome: 'Tênis Esportivo Runner', variacao: '—', qtd: 2, end: 'R09-P03-N1' } ] },
+
     { id: 7,  numero: 7,  loja: 3, dep: 4, origem: 'manual',  cliente: 'Pedro Henrique Alves', entrega: 'Rua Ceará, 640 — Juçara, Imperatriz/MA · 65900-520',
       transp: 'Correios · SEDEX', situacao: 'separado', operador: 2, liberadoHa: 50, itens: [
       { sku: 'NOT-ACE-015', nome: 'Notebook 15 polegadas i5', variacao: '8 GB / 512 GB', qtd: 1, end: 'B04-G01-N1' } ] },
