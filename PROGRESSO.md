@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 30/out/2026: Custos do E-commerce, entrega 4 (a embalagem automática: custo e insumo no cadastro, a escolha na Separação, a confirmação na Conferência de Saída e o custo do dia) feita, com o ajuste de 30/out (a estimativa vem do cadastro, o campo de Configurar saiu, a Conferência acerta o total de volumes), esperando o teste dele; a entrega 3 foi testada e aprovada por ele em 30/out e foi para o HISTORICO.md. A calculadora de precificação vem depois que ele aprovar a 4.*
+*Atualizado em 30/out/2026: Custos do E-commerce concluído (as quatro entregas; os últimos testes ele delegou ao principal, e passaram). O próximo da fila é a calculadora de precificação, que espera ele mandar começar.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,17 +10,7 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Custos do E-commerce: entrega 4 feita em 30/out/2026 (§14.99). Ele testou em 30/out: 1, 2, 3, 4 e 6 ok; o 5 (a troca na Conferência) ele não rodou, e foi conferido na revisão do principal. Ele respondeu a pergunta que estava em aberto: o campo "Embalagem estimada por loja" saiu de Configurar, e o pedido ainda não confirmado mostra uma estimativa pelo próprio cadastro (a caixa que cabe e os insumos automáticos), marcada "estimada" (§14.100). A entrega segue esperando o teste desse ajuste.** Telas: `http://localhost:3000/cadastros/pagina-cadastros-embalagens.html`, `http://localhost:3000/logistica/pagina-logistica-separacao-detalhe.html?id=4`, `http://localhost:3000/logistica/pagina-logistica-conferencia-saida-detalhe.html?id=4` (o 4 só aparece lá depois de separado) e `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`.
-A entrega 3 (anúncios, oito cards, mês a mês, Parâmetros de Vendas, o módulo no perfil) ele testou e aprovou em 30/out: o texto dela está no começo do HISTORICO.md. O que a entrega 4 trouxe:
-
-- **Cadastro de Embalagens:** campo **Custo** em toda embalagem, **"Cabe até (peças)"** em caixa e envelope (opcional) e o tipo **Insumo** (tag, fita, saco): sem medidas, sem peso, sem virar volume, e com a escolha de **entrar sozinho** no pedido de todas as lojas ou de uma só. De fábrica: as 10 de antes, com custo, mais a Tag Desk Shope, a Tag Desk Brands, a Fita adesiva (todas as lojas) e o Saco plástico (o separador adiciona). A lista agora fica gravada no navegador.
-- **Separação:** o pedido online real **4** (Juliana Prado, Desk Brands, 10 peças) entrou na fila. Antes de concluir o separador escolhe as embalagens: a **menor caixa que cabe vem sugerida** (CE-02 para as 10 peças) e os **insumos automáticos já vêm preenchidos** (tag da Desk Brands e fita). Ele vê só os nomes, **nunca o custo**. Falta declarada muda a sugestão enquanto ele não mexe na caixa; "Salvar e continuar depois" guarda, "Devolver para a fila" apaga. A sugestão de pedido grande agora usa várias caixas grandes (46 peças: 2 × Caixa para Eletrônicos), e nunca um envelope.
-- **Conferência de Saída:** o 4 só chega depois de separado, já **preenchido** ("Veio da Separação: ..."), com a marca "escolhida na separação" e um bloco novo de **Insumos** (que não viram volume, nem etiqueta, nem romaneio). Pode trocar, e a troca fica no pedido e no Registro de atividades; **vale o que ela confirmou**. Aberto de novo, o pedido aparece conferido e só leitura.
-- **O pedido guarda o custo do dia:** mudar o preço no cadastro depois não mexe no pedido antigo (o pedido 16 foi confirmado a 11,90, com o cadastro em 12,50, de propósito).
-- **Custos e página do pedido:** a embalagem confirmada aparece com os nomes ("1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva = R$ 5,40") e a troca, se houve; o pedido ainda não confirmado mostra a **estimativa pelo cadastro** (a menor caixa em que cabem as peças mais os insumos automáticos da loja, a preço de hoje) e diz **"estimada"**; o que a Separação escolheu não mexe no custo, só a Conferência. Mês atual: embalagem 54,60 no total, lucro **R$ 1.050,68** (13,9%), depois dos anúncios **R$ 600,68**. Fazendo o fluxo no 4 sem trocar nada: embalagem 7,20, lucro do 4 em 161,40 e o total não muda.
-- **Conferência de Saída:** campo novo **"Total de volumes"** ao lado de "Adicionar volume" (acerta o número de linhas, de 1 a 999; mais repete a caixa da última, menos corta as últimas); as caixas que sobram na troca saem numa entrada só ("− 299 Caixa de Encomenda CE-02"). "Cabe até" é só sugestão: nada trava por capacidade. Quantidade de embalagem e de insumo tem teto de 999.
-- **Fora por enquanto:** baixar a embalagem do estoque. **A calculadora de precificação não foi mexida:** ela vem depois que ele aprovar a entrega 4.
-- **O que conferir:** criar um insumo no cadastro; separar o pedido 4 (sem R$ na tela), conferir, trocar uma caixa e fechar, e acertar o "Total de volumes"; ver o painel do 4 e do 11 em Custos, e Configurar sem o campo de embalagem; tudo nos temas claro e escuro.
+**Custos do E-commerce: concluído em 30/out/2026.** As quatro entregas e os ajustes estão no HISTORICO.md, e o detalhe no §14.95 a §14.100. Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. As entregas 1 a 3 e a primeira rodada da 4 ele testou e aprovou; os testes finais do ajuste da 4 (a estimativa pelo cadastro, a Separação que não mexe no custo, o "Total de volumes", a troca) ele delegou ao principal, que os rodou no navegador em 30/out: 61 itens, nenhuma falha. O que ficou de fora de propósito está em "Decidido, e ainda não feito de propósito" (a baixa da embalagem no estoque) e na lista da revisão geral (os itens 6, 9, 10, 12, 16 e 17 mexem nesta área; o 9 e o 10 mudam números do lucro).
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
 inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
@@ -34,7 +24,7 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
 está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
 
-**Calculadora de precificação: parada, de propósito, até ele aprovar a entrega 4 de Custos do E-commerce** (decisão dele em 21/out; a entrega 4 trouxe o custo da embalagem no cadastro). A
+**Calculadora de precificação: é a próxima da fila, desde que Custos do E-commerce fechou em 30/out, e espera ele mandar começar** (ele decidiu em 21/out fazê-la depois dos custos; a entrega 4 trouxe o custo da embalagem no cadastro). A
 embalagem completa vai vir de lá, e o módulo de custos também vai mexer em outros pontos (Margem de Contribuição, o
 imposto padrão); a calculadora é construída depois, já lendo esses custos. **Nada dela foi construído.** O que está pronto
 para quando ela voltar:
@@ -101,11 +91,10 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Custos do E-commerce, entrega 4: embalagem automática** (feita em 30/out, espera o teste dele; ver "Onde paramos"). A entrega 3 ele aprovou em 30/out.
-2. **Calculadora de precificação**, **depois que ele aprovar a 4** (o imposto padrão sai de Parâmetros de Vendas, entrega 3; a embalagem, do cadastro com custo, entrega 4): barganha, pesquisa e rascunho prontos (ver "Onde paramos").
-3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
-4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Calculadora de precificação** (o imposto padrão sai de Parâmetros de Vendas; a embalagem, do cadastro com custo): barganha, pesquisa e rascunho prontos (ver "Onde paramos"). Falta decidir como ratear a embalagem do pedido entre os produtos.
+2. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+3. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+4. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -134,6 +123,8 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
   exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
+- **A embalagem ainda não sai do estoque** (30/out/2026): a Conferência de Saída confirma caixa, tag e fita, e o custo entra em Custos do E-commerce, mas nenhum saldo baixa,
+  porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo.
 - **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
   barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
   (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem
