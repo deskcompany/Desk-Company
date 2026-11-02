@@ -55,6 +55,7 @@
   .breadcrumb .crumb:hover { color: var(--active-text); text-decoration: underline; }
   .breadcrumb .crumb.current { color: var(--text-heading); font-weight:700; cursor:default; }
   .breadcrumb .crumb.current:hover { text-decoration:none; }
+  .breadcrumb .crumb[role="link"]:focus-visible { outline:2px solid var(--active-text); outline-offset:2px; border-radius:3px; }
   .breadcrumb .sep { color: var(--text); }
 
   .main h1 { font-family:'Nunito',sans-serif; font-weight:800; font-size: 22px; color:var(--text-heading); margin-bottom:2px; }
@@ -1200,22 +1201,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     path.forEach((label, i) => {
       const span = document.createElement('span');
       span.textContent = label;
-      span.className = 'crumb' + (i === path.length - 1 ? ' current' : '');
-      span.addEventListener('click', () => {
-        if (i === path.length - 1) return;
-        // O primeiro crumb e "Inicio" e agora LEVA ao Inicio. Antes ele so abria o
-        // flyout e trocava o titulo: um caminho que nao chega em lugar nenhum e um
-        // caminho que mente. Na propria tela de Inicio ele nao recarrega a pagina.
-        if (i === 0) {
-          const destino = '../inicio/pagina-inicio-boas-vindas.html';
-          if (!window.location.pathname.endsWith(destino.split('/').pop())) { window.location.href = destino; return; }
-        }
-        path = path.slice(0, i + 1);
-        renderBreadcrumb();
-        setMainTitle(path[path.length - 1]);
-        if (path.length === 1) { setActiveById('inicio'); openFlyout('inicio'); }
-        else { setActiveById(idFromLabel(path[1])); openFlyout(idFromLabel(path[1])); }
-      });
+      const ultimo = i === path.length - 1;
+      span.className = 'crumb' + (ultimo ? ' current' : '');
+      // O caminho navega (02/nov/2026). O ultimo nome e a tela em que se esta: fica parado.
+      // Os outros levam a algum lugar e NUNCA cortam `path` nem trocam o titulo da pagina.
+      if (!ultimo) {
+        span.setAttribute('role', 'link');
+        span.tabIndex = 0;
+        span.addEventListener('click', () => irParaCrumb(i));
+        span.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); irParaCrumb(i); } });
+      }
       bc.appendChild(span);
       if (i < path.length - 1) {
         const sep = document.createElement('span');
@@ -1223,6 +1218,38 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         bc.appendChild(sep);
       }
     });
+  }
+
+  // Inicio leva ao Inicio (na propria tela, so abre o menu); Configuracoes leva ao hub; os outros
+  // modulos abrem o menu lateral deles. Nome do meio que e tela do menu leva a ela (com os filtros do
+  // botao "Voltar" do cabecalho, quando ele aponta para a mesma lista); sem destino, abre o menu do modulo.
+  function irParaCrumb(i) {
+    const label = path[i];
+    if (i === 0 && label === 'Início') {
+      const destino = '../inicio/pagina-inicio-boas-vindas.html';
+      if (!window.location.pathname.endsWith(destino.split('/').pop())) { window.location.href = destino; return; }
+    }
+    if (i === 0 && label === 'Configurações') {
+      const hub = '../configuracoes/pagina-configuracoes.html';
+      if (!window.location.pathname.endsWith(hub.split('/').pop())) { window.location.href = hub; return; }
+    }
+    if (i > 0) {
+      const item = document.querySelector('.flyout-item[data-label="' + label + '"][data-href]');
+      if (item) {
+        const destino = item.getAttribute('data-href');
+        const volta = document.getElementById('btnVoltarLista');
+        const arquivo = (u) => new URL(u, window.location.href).pathname;
+        const href = volta && volta.getAttribute('href');
+        window.location.href = href && arquivo(href) === arquivo(destino) ? href : destino;
+        return;
+      }
+    }
+    const nav = document.querySelector('.nav-item[data-label="' + path[0] + '"], .bottom-item[data-label="' + path[0] + '"]');
+    const id = nav ? nav.getAttribute('data-id') : null;
+    if (typeof moduloDoFlyout !== 'undefined') moduloDoFlyout = path[0];
+    setActiveById(id);
+    // depois do clique subir: o "clicar fora" do document fecharia o menu recem-aberto
+    setTimeout(() => openFlyout(id), 0);
   }
 
   function idFromLabel(label) {

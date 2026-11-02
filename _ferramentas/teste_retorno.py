@@ -278,11 +278,11 @@ with sync_playwright() as p:
         ok('cancelado' in e15[0][0].lower() and not e15[0][1], 'pedido cancelado (nº 15): nao passa pelo galpao')
         for tela, rotulo in [(FICHA, 'Separacao'), (CONFD, 'Conferencia de Saida')]:
             ir(tela, '?id=7&de=pedido')
-            volta = pg.evaluate("(() => { const b = document.getElementById('btnVoltarPedido'); return b ? [b.textContent, b.getAttribute('href'), b.offsetParent !== null] : null; })()")
+            volta = pg.evaluate("(() => { const b = document.getElementById('btnVoltarLista'); return b ? [b.textContent.trim(), b.getAttribute('href'), b.offsetParent !== null] : null; })()")
             ok(volta is not None and volta[0] == 'Voltar para o pedido de venda' and 'pagina-vendas-pedidos.html?busca=Pedro' in volta[1] and volta[2] and pg.evaluate("PEDIDO.numero") == 7,
                'a ficha da %s abre no pedido 7 e tem "Voltar para o pedido de venda"' % rotulo)
             ir(tela, '?id=7')
-            ok(pg.evaluate("!document.getElementById('btnVoltarPedido')"), '  e quem chega pela fila do galpao nao ve esse botao')
+            ok(pg.evaluate("document.getElementById('btnVoltarLista').textContent.trim().startsWith('Voltar para ') && !document.getElementById('btnVoltarLista').getAttribute('href').includes('pagina-vendas-pedidos')"), '  e quem chega pela fila do galpao ve o Voltar da propria fila, nao o do pedido')
 
     if secao(7, 'Metas e Performance e uma pagina so'):
         # O detalhe (colunas, indicadores, painel) esta em teste_metas.py; aqui fica o que o usuario pediu.

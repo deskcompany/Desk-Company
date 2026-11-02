@@ -55,6 +55,7 @@
   .breadcrumb .crumb:hover { color: var(--active-text); text-decoration: underline; }
   .breadcrumb .crumb.current { color: var(--text-heading); font-weight:700; cursor:default; }
   .breadcrumb .crumb.current:hover { text-decoration:none; }
+  .breadcrumb .crumb[role="link"]:focus-visible { outline:2px solid var(--active-text); outline-offset:2px; border-radius:3px; }
   .breadcrumb .sep { color: var(--text); }
 
   .main h1 { font-family:'Nunito',sans-serif; font-weight:800; font-size: 22px; color:var(--text-heading); margin-bottom:2px; }
@@ -546,9 +547,9 @@
   .cat-dre.nao { color:var(--text); }
 
   /* ===== Caixa e Bancos ===== */
-  .btn-secundario-topo { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700;
-                         font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border);
-                         background:var(--card-bg); color:var(--text-heading); cursor:pointer; user-select:none; }
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; max-width:100%; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
   .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo svg { width:14px; height:14px; }
   .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); cursor:pointer; user-select:none; }
@@ -599,10 +600,6 @@
                     text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
 
   /* ===== Lançamento no caixa ===== */
-  .voltar-link { display:inline-flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700;
-                 font-size:12.5px; color:var(--text); text-decoration:none; margin-bottom:10px; }
-  .voltar-link:hover { color:var(--text-heading); }
-  .voltar-link svg { width:14px; height:14px; }
 
   .tabs-row { display:flex; gap:26px; border-bottom:1px solid var(--border); margin:20px 0 22px; flex-wrap:wrap; }
   .tab-item { font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text); padding:0 0 12px;
@@ -1012,17 +1009,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 <div class="main">
   <div class="breadcrumb" id="breadcrumb"></div>
 
-  <a class="voltar-link" href="../financas/pagina-financas-contas-receber.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-    voltar para contas a receber
-  </a>
-
   <div class="page-header">
     <div>
       <h1 id="tituloConta">Nova conta a receber</h1>
       <div class="subtitle" id="subtituloConta">Um compromisso com um cliente: quanto, para quem e quando vence.</div>
     </div>
-    <div style="display:flex; align-items:center; gap:10px;">
+    <div class="header-acoes">
+      <a class="btn-secundario-topo" href="../financas/pagina-financas-contas-receber.html" id="btnVoltarLista" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar para Contas a Receber
+      </a>
     <div class="cx-acoes-topo" id="acoesLeitura" style="display:none;">
         <button class="btn-primary" id="btnDarBaixa">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2047,22 +2043,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     path.forEach((label, i) => {
       const span = document.createElement('span');
       span.textContent = label;
-      span.className = 'crumb' + (i === path.length - 1 ? ' current' : '');
-      span.addEventListener('click', () => {
-        if (i === path.length - 1) return;
-        // O primeiro crumb e "Inicio" e agora LEVA ao Inicio. Antes ele so abria o
-        // flyout e trocava o titulo: um caminho que nao chega em lugar nenhum e um
-        // caminho que mente. Na propria tela de Inicio ele nao recarrega a pagina.
-        if (i === 0) {
-          const destino = '../inicio/pagina-inicio-boas-vindas.html';
-          if (!window.location.pathname.endsWith(destino.split('/').pop())) { window.location.href = destino; return; }
-        }
-        path = path.slice(0, i + 1);
-        renderBreadcrumb();
-        setMainTitle(path[path.length - 1]);
-        if (path.length === 1) { setActiveById('inicio'); openFlyout('inicio'); }
-        else { setActiveById(idFromLabel(path[1])); openFlyout(idFromLabel(path[1])); }
-      });
+      const ultimo = i === path.length - 1;
+      span.className = 'crumb' + (ultimo ? ' current' : '');
+      // O caminho navega (02/nov/2026). O ultimo nome e a tela em que se esta: fica parado.
+      // Os outros levam a algum lugar e NUNCA cortam `path` nem trocam o titulo da pagina.
+      if (!ultimo) {
+        span.setAttribute('role', 'link');
+        span.tabIndex = 0;
+        span.addEventListener('click', () => irParaCrumb(i));
+        span.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); irParaCrumb(i); } });
+      }
       bc.appendChild(span);
       if (i < path.length - 1) {
         const sep = document.createElement('span');
@@ -2070,6 +2060,38 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         bc.appendChild(sep);
       }
     });
+  }
+
+  // Inicio leva ao Inicio (na propria tela, so abre o menu); Configuracoes leva ao hub; os outros
+  // modulos abrem o menu lateral deles. Nome do meio que e tela do menu leva a ela (com os filtros do
+  // botao "Voltar" do cabecalho, quando ele aponta para a mesma lista); sem destino, abre o menu do modulo.
+  function irParaCrumb(i) {
+    const label = path[i];
+    if (i === 0 && label === 'Início') {
+      const destino = '../inicio/pagina-inicio-boas-vindas.html';
+      if (!window.location.pathname.endsWith(destino.split('/').pop())) { window.location.href = destino; return; }
+    }
+    if (i === 0 && label === 'Configurações') {
+      const hub = '../configuracoes/pagina-configuracoes.html';
+      if (!window.location.pathname.endsWith(hub.split('/').pop())) { window.location.href = hub; return; }
+    }
+    if (i > 0) {
+      const item = document.querySelector('.flyout-item[data-label="' + label + '"][data-href]');
+      if (item) {
+        const destino = item.getAttribute('data-href');
+        const volta = document.getElementById('btnVoltarLista');
+        const arquivo = (u) => new URL(u, window.location.href).pathname;
+        const href = volta && volta.getAttribute('href');
+        window.location.href = href && arquivo(href) === arquivo(destino) ? href : destino;
+        return;
+      }
+    }
+    const nav = document.querySelector('.nav-item[data-label="' + path[0] + '"], .bottom-item[data-label="' + path[0] + '"]');
+    const id = nav ? nav.getAttribute('data-id') : null;
+    if (typeof moduloDoFlyout !== 'undefined') moduloDoFlyout = path[0];
+    setActiveById(id);
+    // depois do clique subir: o "clicar fora" do document fecharia o menu recem-aberto
+    setTimeout(() => openFlyout(id), 0);
   }
 
   function idFromLabel(label) {
@@ -4293,9 +4315,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       1, 'danger', ir);
   }
   document.getElementById('btnVoltarRodape').addEventListener('click', sairDaTela);
-  document.querySelectorAll('a.voltar-link').forEach(a => {
-    a.addEventListener('click', (e) => { e.preventDefault(); sairDaTela(); });
-  });
+  document.getElementById('btnVoltarLista').addEventListener('click', (e) => { e.preventDefault(); sairDaTela(); });
 
   // A nota so mente se parar de ouvir. Dropdown e caixa de marcar nao disparam
   // `input`, entao o clique tambem reavalia — depois de o componente ter

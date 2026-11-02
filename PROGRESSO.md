@@ -116,20 +116,11 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Revisão em andamento desde 02/nov/2026: pacote 1 (visual) feito; faltam navegação (itens 1 e 2), cards (3 a 5), digitação (6 e 17) e regras de dinheiro (9 a 11).
+Revisão em andamento desde 02/nov/2026: pacotes 1 (visual) e 2 (navegação) feitos; faltam cards (3 a 5), digitação (6 e 17) e regras de dinheiro (9 a 11).
 
 Pedidos do usuário de 19 a 26/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
 revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
 
-1. **A barra do caminho navega.** Hoje cada nome é texto: clicar num nome do meio só corta o caminho e troca o título, e o
-   primeiro nome sempre leva ao Início, mesmo quando é o módulo ("Finanças" em "Finanças › Vale-compra › VC-6" abre o
-   Início). É o bloco comum `renderBreadcrumb`, em 87 telas. Proposta: o módulo abre o menu daquele módulo, a tela de
-   lista leva à lista com os filtros, e o último nome fica parado.
-2. **O "voltar" vira botão no cabeçalho, como em Vale-compra.** Hoje as páginas de detalhe têm um link pequeno embaixo
-   da barra do caminho ("voltar para o extrato", "Voltar pra listagem"). O usuário prefere o botão "Voltar para <lista>"
-   à direita do título, o primeiro da fila dos botões, como "Voltar para Vale-compra". Opinião registrada: concordo; o
-   botão é o caminho óbvio de volta (com os filtros) e a barra do caminho fica para pular de nível ou de módulo. Os dois
-   convivem, e o link de baixo sai.
 3. **Cards que filtram também nas filas de Logística.** Devolução e Rastreamento têm cards no topo que filtram a tabela;
    Separação, Conferência de Saída e Expedição não têm cards. **Não há critério registrado:** as três filas nasceram antes
    do padrão de indicadores, e a proposta G4 (`docs/melhorias-modulos-prontos.md`, 13/out) também as deixou de fora. Na
