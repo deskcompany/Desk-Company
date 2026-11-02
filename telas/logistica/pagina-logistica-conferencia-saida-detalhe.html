@@ -736,6 +736,17 @@
      disso ("1 de 2"). A embalagem vem do cadastro Embalagens — nunca texto solto. */
   .vol-linha { display:grid; grid-template-columns:62px 1fr 160px 120px 40px; gap:12px; align-items:end; padding:12px 0; border-bottom:1px solid var(--border); }
   .vol-linha:last-of-type { border-bottom:none; }
+  .vol-campo { min-width:0; }
+  /* Janela estreita (02/nov/2026): o cartao dos volumes tem a janela menos ~454px, e as cinco colunas fixas (430px) passavam dele a 860px.
+     Abaixo de 1100px a linha vira duas: numero, embalagem e remover em cima; medidas e peso embaixo. */
+  @media (max-width:1100px) {
+    .vol-linha { grid-template-columns:62px minmax(0,1fr) 120px 40px; grid-template-areas:"n e e r" ". m p ."; row-gap:6px; }
+    .vol-linha > :nth-child(1) { grid-area:n; }
+    .vol-linha > :nth-child(2) { grid-area:e; }
+    .vol-linha > :nth-child(3) { grid-area:m; padding-bottom:9px; }
+    .vol-linha > :nth-child(4) { grid-area:p; }
+    .vol-linha > :nth-child(5) { grid-area:r; }
+  }
   .vol-numero { font-size:13px; font-weight:800; color:var(--text-heading); padding-bottom:8px; }
   .vol-campo label { display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:5px; }
   .vol-campo input { width:100%; box-sizing:border-box; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:7px 9px; outline:none; }

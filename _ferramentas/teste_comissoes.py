@@ -22,7 +22,7 @@
 #  [12] A devolucao na comissao (Custos do E-commerce, entrega 2, 27/out/2026): dentro do prazo cai na proporcao, fora do prazo nao, o prazo e o do parametro,
 #       a comissao ja liberada vira estorno (desconta do saldo e aparece no historico), e o afiliado libera pelo prazo do parametro.
 from playwright.sync_api import sync_playwright
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import os as _os, glob as _g, math, re, sys
 import localiza
 import oraculo_custos
@@ -56,7 +56,9 @@ def secao(n, titulo):
 
 
 # ---------------------------------------------------------------- a conta refeita em Python (o oraculo)
-HOJE = date.today()
+# O dia e fixo (02/nov/2026): o exemplo e datado a partir de hoje e a conta e do mes, entao a suite so valia no fim do mes (em dia 1 a 12 as
+# comissoes e os pagamentos de exemplo caem no mes anterior). O relogio da pagina e o desta conta andam juntos; DESK_HOJE=AAAA-MM-DD troca o dia.
+HOJE = date.fromisoformat(_os.environ.get('DESK_HOJE') or '2026-10-30')
 INI = date(HOJE.year, HOJE.month, 1)
 redondo = lambda x: math.floor(x + 0.5)
 dia = lambda n: HOJE + timedelta(days=n)
@@ -99,7 +101,9 @@ perto = lambda a, b: abs(a - b) < 0.005
 
 with sync_playwright() as p:
     nav = p.chromium.launch(executable_path=CHROME)
-    pg = nav.new_page(viewport={'width': 1440, 'height': 900})
+    ctx = nav.new_context(viewport={'width': 1440, 'height': 900})
+    ctx.clock.install(time=datetime(HOJE.year, HOJE.month, HOJE.day, 12, 0))
+    pg = ctx.new_page()
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)[:160]))
 

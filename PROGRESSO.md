@@ -116,6 +116,8 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
+Revisão em andamento desde 02/nov/2026: pacote 1 (visual) feito; faltam navegação (itens 1 e 2), cards (3 a 5), digitação (6 e 17) e regras de dinheiro (9 a 11).
+
 Pedidos do usuário de 19 a 26/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
 revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
 
@@ -141,20 +143,9 @@ revisão. Até lá, seguimos construindo. Cada item vira conserto de componente,
    0 dá 20,00. Digitar 250 dá 2,50; digitar 1589 dá 15,89. Vale para **todo campo de valor em reais**: mapear todos na
    revisão e fazer um componente só. Atenção ao campo que aceita valor ou percentual ("Ex: 3,00 ou 10%", o desconto do
    PDV), que precisa de regra própria. **Reforçado em 30/out** no cadastro de Embalagens (campo Custo): vale em todas as telas.
-7. **O seletor Pessoa Física / Pessoa Jurídica justo.** O fundo cinza é bem mais largo que as duas opções, em Clientes,
-   Fornecedores e Vendedores (cadastro novo e página). Deve ter a largura só das duas opções.
-8. **O campo de número com sufixo ("dias") desnivelado nos cards de Configurações** (21/out, com print de Parâmetros de
-   Estoque: Conferência de compra e Endereçamento). A caixa do número fica cerca de 1 px mais alta em cima e embaixo
-   que a do "dias", e o card fica com um degrau. Ele viu em Estoque, em todos os cards; mapear na revisão todos os
-   campos número + sufixo das telas de Configurações (e onde mais houver) e deixar número e sufixo com a mesma altura.
 9. **a comissão não conta o vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro incluído) Ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
 10. **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais
 11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
-12. **O "Por página" da paginação abre sempre para cima** (26/out, com print de Pedidos de Venda). Hoje a lista de 10 / 25 / 50 / 100 abre para baixo, sai do rodapé do card e fica desproporcional. Deve abrir para cima sempre, em qualquer posição da página. É o rodapé de paginação comum: mapear todas as telas que o têm e corrigir de uma vez. **Reforçado em 30/out**, com print do cadastro de Embalagens: em todas as páginas.
-13. **O campo SKU do item desalinhado** (27/out, com print de Pedido de Venda). O aviso de saldo embaixo do campo ("só 0 disponível") empurra a caixa do SKU para cima, e ela fica fora da linha das outras caixas (descrição, quantidade, preço). O aviso não pode mexer na altura da caixa. Ver onde mais a tabela de itens tem o mesmo aviso (PDV, Orçamento). Junto: a linha nova e vazia ("Adicionar outro item") já nasce vermelha, com "só 0 disponível" e o aviso de item sem saldo. Linha sem produto escolhido não deve acusar falta de saldo.
-14. **No Início, o "em aberto, ainda no prazo" das contas a pagar é um número fixo de exemplo que está um abaixo de Contas a Pagar** (30/out): mostra 8 em navegador limpo, e Contas a Pagar tem 9 (total em aberto 17 menos 8 vencidas). Já vinha de antes da entrega 3; não foi consertado, de propósito.
-15. **A lista de volumes da Conferência de Saída rola na lateral em janela estreita** (30/out): a 860 px passa 118 px da largura, porque a grade tem colunas fixas. Já era assim antes da entrega 4 (medido na versão anterior); não foi consertado, de propósito.
-16. **Os campos de tamanho do cadastro de Embalagens desalinhados** (30/out, com print): "Comprimento (cm)" quebra em duas linhas e joga o campo para baixo dos de Largura e Altura. Pode aumentar a largura do painel lateral para caberem na mesma altura.
 17. **Campo de peso digitado a partir das gramas** (30/out): começa em gramas e cresce conforme se digita, no mesmo jeito do campo de dinheiro (item 6): 1 dá 0,001 kg; 15 dá 0,015; 150 dá 0,150; 1500 dá 1,500. Vale para **todo campo de peso**: mapear todos na revisão e fazer junto com o item 6. Mostrado no cadastro de Embalagens.
 
 *Custos do E-commerce, entrega 2 (27/out):* o vale de cortesia passou a sair da venda do resultado do pedido, mas a comissão **não** mudou por isso; o **item 9 continua aqui, sem mudar** (a base da comissão ainda é o total menos o frete).

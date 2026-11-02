@@ -874,6 +874,23 @@ with sync_playwright() as p:
         ok(pg.input_value('[data-ins-qtd="0"]') == '1', 'e zero segue voltando para 1')
         pg.context.close()
 
+    if secao(12, 'O painel do cadastro de Embalagens: Largura, Altura e Comprimento na mesma linha (02/nov/2026)'):
+        # O painel tinha 400 px e "Comprimento (cm)" quebrava em duas linhas, jogando o campo para baixo dos outros. Agora tem 540 px.
+        for w in (1280, 1440):
+            pg = nova(w, 900, fixo=False)
+            ir(pg, CAD); pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(500)
+            for tipo, quantos in (('pacote', 3), ('envelope', 2), ('rolo', 2)):
+                if tipo != 'pacote':
+                    pg.evaluate("(t) => document.querySelector('#inputTipoEmbalagem .dropdown-select-item[data-value=\"' + t + '\"]').click()", tipo); pg.wait_for_timeout(200)
+                m = pg.evaluate("""() => { const d = document.getElementById('eventDrawer').getBoundingClientRect();
+                  const c = Array.from(document.querySelectorAll('#camposDimensoes .form-field')).map(f => ({ rot: f.querySelector('label').getBoundingClientRect(), cx: f.querySelector('input').getBoundingClientRect() }));
+                  const fora = Array.from(document.querySelectorAll('#eventDrawer input, #eventDrawer .dropdown-select-btn')).filter(e => e.getBoundingClientRect().width > 0 && e.getBoundingClientRect().right > d.right - 20).length;
+                  return { n: c.length, linhas: c.map(x => Math.round(x.rot.height)), topos: c.map(x => Math.round(x.cx.top * 10) / 10), fora: fora, direita: Math.round(d.right), janela: innerWidth,
+                           rolagem: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
+                ok(m['n'] == quantos and max(m['linhas']) < 20 and max(m['topos']) - min(m['topos']) < 0.5 and m['fora'] == 0 and m['rolagem'] <= 0 and m['direita'] == m['janela'],
+                   'a %d px, tipo %s: %d campos de medida, rótulos numa linha só, caixas no mesmo topo, nenhum campo do painel passa da borda: %s' % (w, tipo, quantos, m))
+            pg.context.close()
+
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
     nav.close()
 

@@ -451,6 +451,30 @@ with sync_playwright() as p:
                '%s no tema %s: sem rolagem horizontal' % (arq[7:-5], tema))
             ok(not erros, '%s no tema %s: sem erro de JS' % (arq[7:-5], tema))
 
+    print('\n[23] Itens do pedido: a caixa do SKU fica no topo das outras, com aviso ou sem, e a linha vazia nao acusa falta (02/nov/2026)')
+    TOPOS = """() => Array.from(document.querySelectorAll('#corpoItens tr')).map(tr => {
+      const t = (c) => tr.querySelector('input[data-campo="' + c + '"]').getBoundingClientRect().top;
+      const h = (c) => tr.querySelector('input[data-campo="' + c + '"]').getBoundingClientRect().height;
+      const av = tr.querySelector('[data-saldo]');
+      return {topos: ['nome', 'sku', 'qtd', 'un', 'precoLista'].map(t), alturas: ['nome', 'sku', 'qtd', 'un', 'precoLista'].map(h), vermelha: tr.classList.contains('linha-sem-saldo'),
+              aviso: av.textContent, falta: av.classList.contains('falta')}; })"""
+    alinhadas = lambda l: max(l['topos']) - min(l['topos']) < 0.01 and max(l['alturas']) - min(l['alturas']) < 0.01
+    abre(DET + '?id=1&editar=1', 700)
+    linhas = pg.evaluate(TOPOS)
+    ok(len(linhas) >= 2 and all(alinhadas(l) for l in linhas) and all(l['aviso'].startswith('disponível') for l in linhas),
+       'com o aviso "disponível: N" embaixo do SKU, nome, SKU, quantidade, unidade e preço têm o mesmo topo e a mesma altura (%d linhas)' % len(linhas))
+    avisos = pg.evaluate("document.getElementById('erroSaldo').classList.contains('show')")
+    pg.evaluate("document.getElementById('btnAdicionarItem').click()"); pg.wait_for_timeout(200)
+    nova = pg.evaluate(TOPOS)[-1]
+    ok(nova['aviso'] == '' and not nova['vermelha'] and not nova['falta'] and alinhadas(nova), 'a linha nova e vazia nasce sem "só 0 disponível", sem fundo vermelho e com as caixas no mesmo topo: %s' % nova)
+    ok(pg.evaluate("document.getElementById('erroSaldo').classList.contains('show')") == avisos and not pg.evaluate("semSaldo().some(i => i.sku === '')"),
+       'e o aviso geral de item sem saldo não conta a linha vazia')
+    sem_saldo = pg.evaluate("(() => { const d = depositoAtual(); return CATALOGO.filter(x => (x.saldo[d] || 0) === 0)[0].sku; })()")
+    pg.fill('#corpoItens tr:last-child input[data-campo="sku"]', sem_saldo); pg.wait_for_timeout(200)
+    com = pg.evaluate(TOPOS)[-1]
+    ok(com['vermelha'] and com['falta'] and com['aviso'] == 'só 0 disponível' and alinhadas(com) and pg.evaluate("document.getElementById('erroSaldo').classList.contains('show')"),
+       'escolhido um produto sem saldo, o aviso "só 0 disponível" e o aviso geral voltam, e a caixa do SKU continua no topo das outras: %s' % com)
+
     b.close()
 
 print('\nFALHAS: ' + str(len(falhas)))

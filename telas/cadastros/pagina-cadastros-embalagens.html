@@ -314,6 +314,8 @@
   .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
+  /* Excecao a regra "dropdown abre para baixo" (usuario, 02/nov/2026): o "Por pagina" do rodape abre SEMPRE para cima, em qualquer posicao da pagina. */
+  .paginacao-info .dropdown-select-menu { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
   .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
   .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
@@ -378,7 +380,7 @@
   /* ===== PAINEL LATERAL: nova/editar ===== */
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
-  .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
+  .event-drawer { position:fixed; top:0; right:-560px; width:540px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
   .event-drawer.open { right:0; }
   .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
   .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }

@@ -53,6 +53,9 @@ fontes = {n: open(localiza.onde(n), encoding='utf-8').read() for n in TODAS}
 with sync_playwright() as p:
     nav = p.chromium.launch(executable_path=CHROME)
     ctx = nav.new_context(viewport={'width': 1440, 'height': 950})
+    if _os.environ.get('DESK_HOJE'):   # so para provar a suite em outro dia: DESK_HOJE=AAAA-MM-DD fixa o relogio das paginas
+        from datetime import datetime as _dt
+        ctx.clock.install(time=_dt.fromisoformat(_os.environ['DESK_HOJE'] + 'T12:00:00'))
     pg = ctx.new_page()
     erros = []
     pg.on('pageerror', lambda e: erros.append(str(e)[:160]))
@@ -349,12 +352,16 @@ with sync_playwright() as p:
                             ('sep', 'pagina-logistica-separacao.html'), ('conf', 'pagina-logistica-conferencia-saida.html'), ('exp', 'pagina-logistica-expedicao.html'),
                             ('pagar', 'pagina-financas-contas-pagar.html'), ('receber', 'pagina-financas-contas-receber.html')]:
             ir(tela)
+            if chave in ('pagar', 'receber'):   # o quadro do Inicio conta a casa inteira; a aba, so o periodo da lista. O indicador "total em aberto" tira o periodo (02/nov/2026)
+                pg.evaluate("document.querySelector('.cp-kpis [data-kpi=\"total\"]').click()"); pg.wait_for_timeout(200)
             filas[chave] = pg.evaluate("Object.fromEntries(Array.from(document.querySelectorAll('.main .aba-sit, .main [data-aba]')).map(a => [a.getAttribute('data-sit') || a.getAttribute('data-aba'), Number((a.querySelector('.sit-contador, .aba-contador, span:last-child') || a).textContent.replace(/[^0-9]/g, ''))]))")
         esperado = {'doca': filas['doca']['pronto'], 'ender': filas['ender']['a_enderecar'], 'compra': filas['compra']['comprar'], 'bloq': filas['bloq']['todos'], 'sep': filas['sep']['fila'],
                     'conf': filas['conf']['aguardando'], 'exp': filas['exp']['montagem'] + filas['exp']['conferindo'], 'pagar': filas['pagar']['atrasada'], 'receber': filas['receber']['atrasada']}
         ir(BV)
         mostrado = pg.evaluate("Object.fromEntries(Array.from(document.querySelectorAll('#quadroDoDia .dia-fila')).map(a => [a.getAttribute('data-fila'), Number(a.querySelector('.dia-numero').textContent)]))")
         ok(mostrado == esperado, 'cada numero de "Pendencias do Dia" e o da aba da fila dona: %s' % mostrado)
+        sub = pg.evaluate("Object.fromEntries(['pagar', 'receber'].map(k => [k, Number(document.querySelector('.dia-fila[data-fila=' + k + '] .dia-sub').textContent.match(/^\\d+/)[0])]))")
+        ok(sub == {'pagar': filas['pagar']['aberta'], 'receber': filas['receber']['aberta']}, 'e o "em aberto, ainda no prazo" de pagar e de receber e o da aba em aberto, sem o periodo da lista: %s' % sub)
         ok(pg.evaluate("document.querySelector('#quadroDoDia .card-title').textContent") == 'Pendências do Dia', 'o quadro tem o nome formal que o usuario pediu, "Pendencias do Dia"')
         destinos = pg.evaluate("Array.from(document.querySelectorAll('#quadroDoDia .dia-fila')).map(a => a.getAttribute('href').split('/').pop())")
         ok(len(destinos) == 9 and all(d in TODAS for d in destinos), 'e cada fila leva a tela dela')

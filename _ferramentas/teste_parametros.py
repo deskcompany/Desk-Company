@@ -10,7 +10,8 @@
 #   [3] Parametros de logistica: as quatro secoes, o MDF-e, a devolucao, salvar e restaurar;
 #   [4] o bloqueio por atraso no cadastro de clientes: zero desliga, invalido nao salva, e o
 #       Pedido de Venda le o que foi salvo;
-#   [5] os caminhos: Configuracoes leva as tres telas, e a Devolucao leva a de logistica.
+#   [5] os caminhos: Configuracoes leva as tres telas, e a Devolucao leva a de logistica;
+#   [6] campo de numero com sufixo ("dias", "horas", "%"): a caixa do numero e a do sufixo tem a mesma altura e o mesmo topo, em toda tela que o tem (02/nov/2026).
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, sys
 import localiza
@@ -170,6 +171,17 @@ with sync_playwright() as p:
         velhos = [n for n, c in ((_os.path.basename(c), c) for c in localiza.caminhos()) if n not in (EST, HUB)
                   and "pagina-configuracoes-parametros-estoque.html'" in open(c, encoding='utf-8').read() and 'pagina-logistica' in n]
         ok(not velhos, 'nenhuma tela de logística ainda manda para Parâmetros de estoque: %s' % velhos)
+
+    if secao(6, 'Número com sufixo: mesma altura e mesmo topo'):
+        MEDE = """() => Array.from(document.querySelectorAll('.par-num')).filter(c => c.getBoundingClientRect().width > 0).map(c => {
+            const a = c.querySelector('input').getBoundingClientRect(), b = c.querySelector('.par-num-sufixo').getBoundingClientRect();
+            return Math.abs(a.height - b.height) < 0.01 && Math.abs(a.top - b.top) < 0.01; })"""
+        pares = 0
+        for tela in [n for n in localiza.nomes() if n.startswith('pagina-configuracoes-')]:
+            ir(tela); r = pg.evaluate(MEDE); pares += len(r)
+            if r:
+                ok(all(r), '%s: %d campo(s) com sufixo, todos com a caixa do número e a do sufixo na mesma altura e no mesmo topo' % (tela, len(r)))
+        ok(pares >= 30, 'ao todo, %d campos número + sufixo medidos nas telas de Configurações' % pares)
 
     limpar()
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])

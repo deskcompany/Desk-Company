@@ -628,8 +628,11 @@
   .main .itens-table input[type="text"] { min-width:0; }
   .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
   .itens-table th.col-texto { text-align:left; }
-  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
+  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:top; }
   .itens-table td.col-texto { text-align:left; }
+  /* 02/nov/2026: o aviso de saldo embaixo do SKU alonga a celula e, com a linha centralizada, empurrava a caixa do SKU para cima das outras. Agora tudo cola no topo;
+     o texto sem caixa (numero, total, acoes) desce 7px para ficar no meio das caixas. */
+  .itens-table td:nth-child(1), .itens-table td:nth-child(7), .itens-table td:nth-child(8) { padding-top:16px; }
   .itens-table tbody tr:last-child td { border-bottom:none; }
   .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
   .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
@@ -3307,6 +3310,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // dois sobre a mesma base (barganha de 30/set, ponto 5).
   function precoUnit(it) { return it.precoLista * (1 - (it.desconto || 0) / 100); }
   function totalItem(it) { return precoUnit(it) * it.qtd; }
+  // Linha sem produto escolhido (SKU vazio, como a que nasce em "Adicionar outro item") nao acusa falta de saldo (02/nov/2026).
+  const faltaSaldo = (it, dep) => !it.foraDoSaldo && it.sku !== '' && it.qtd > saldoDe(it.sku, dep);
+  const textoSaldo = (it, disp, falta) => (it.foraDoSaldo || it.sku === '') ? '' : (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un));
   function depositoAtual() { return Number(document.getElementById('inputDeposito').getAttribute('data-value')); }
   function lojaAtual() { return Number(document.getElementById('inputLoja').getAttribute('data-value')); }
 
@@ -3321,7 +3327,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ITENS.forEach((it, idx) => {
       const disp = saldoDe(it.sku, dep);
       // `foraDoSaldo`: item de exemplo de pedido sem itens e venda de balcao, que ja saiu do estoque.
-      const falta = !it.foraDoSaldo && it.qtd > disp;
+      const falta = faltaSaldo(it, dep);
       const tr = document.createElement('tr');
       if (falta) tr.className = 'linha-sem-saldo';
       tr.innerHTML =
@@ -3329,7 +3335,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição, código ou SKU"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="sku" data-i="' + idx + '" value="' + it.sku + '" placeholder="SKU">' +
           '<div class="item-saldo' + (falta ? ' falta' : '') + '" data-saldo="' + idx + '">' +
-          (it.foraDoSaldo ? '' : (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un))) + '</div></td>' +
+          textoSaldo(it, disp, falta) + '</div></td>' +
         '<td><input type="text" data-campo="qtd" data-i="' + idx + '" value="' + fmtQtd(it.qtd, it.un) + '"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="un" data-i="' + idx + '" value="' + it.un + '" style="max-width:64px;"></td>' +
         '<td><input type="text" data-campo="precoLista" data-i="' + idx + '" value="' + fmtNum(precoUnit(it)) + '"></td>' +
@@ -3376,17 +3382,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!tr) return;
     const it = ITENS[i];
     const disp = saldoDe(it.sku, depositoAtual());
-    const falta = !it.foraDoSaldo && it.qtd > disp;
+    const falta = faltaSaldo(it, depositoAtual());
     tr.classList.toggle('linha-sem-saldo', falta);
     const elSaldo = tr.querySelector('[data-saldo]');
     elSaldo.classList.toggle('falta', falta);
-    elSaldo.textContent = it.foraDoSaldo ? '' : (falta ? 'só ' + fmtQtd(disp, it.un) + ' disponível' : 'disponível: ' + fmtQtd(disp, it.un));
+    elSaldo.textContent = textoSaldo(it, disp, falta);
     tr.querySelector('td:nth-child(7) b').textContent = fmtMoeda(totalItem(it));
   }
 
   function semSaldo() {
     const dep = depositoAtual();
-    return ITENS.filter(it => !it.foraDoSaldo && it.qtd > saldoDe(it.sku, dep));
+    return ITENS.filter(it => faltaSaldo(it, dep));
   }
 
   function recalcularTotais() {

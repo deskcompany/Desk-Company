@@ -339,6 +339,20 @@ with sync_playwright() as pw:
     ok(pgc.evaluate("() => exigeSenha('confSaidaReabre')"), 'reabrir conferencia ja faturada pede senha')
     ok(not pgc.evaluate("() => exigeSenha('confSaidaFecha')"), 'fechar nao pede senha — trabalho normal de bancada')
 
+    # ---------------------------------------------------------------- 18
+    print('\n18. A LISTA DE VOLUMES NAO ROLA PARA O LADO EM JANELA ESTREITA (02/nov/2026)')
+    # As cinco colunas fixas (430 px) passavam do cartao a 860 px: 118 px de rolagem lateral na pagina. Abaixo de 1100 px a linha vira duas.
+    pgv = nova(pw, BANCADA + '?id=24', erros)
+    for largura in (860, 900, 1000, 1100, 1101, 1280, 1440):
+        pgv.set_viewport_size({'width': largura, 'height': 950}); pgv.wait_for_timeout(300)
+        m = pgv.evaluate("""() => { const l = document.querySelector('.vol-linha'), d = document.documentElement;
+          const r = Array.from(l.children).map(k => k.getBoundingClientRect()).filter(x => x.width > 0);
+          const cruza = r.some((a, i) => r.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5));
+          return {pagina: d.scrollWidth - d.clientWidth, linha: l.scrollWidth - l.clientWidth, cruza: cruza,
+                  cortado: Array.from(l.querySelectorAll('.vol-medidas, .dropdown-select-btn, input')).some(x => x.scrollWidth > x.clientWidth + 1 && x.tagName !== 'INPUT')}; }""")
+        ok(m['pagina'] <= 0 and m['linha'] <= 0 and not m['cruza'] and not m['cortado'],
+           'a %d px: sem rolagem lateral na pagina nem na linha do volume, sem coluna por cima da outra e sem texto cortado: %s' % (largura, m))
+
     print('\nERROS DE CONSOLE: ' + (str(erros) if erros else 'nenhum'))
     if erros: falhas.append('erro de console: %s' % erros)
 

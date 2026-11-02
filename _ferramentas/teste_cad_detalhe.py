@@ -13,7 +13,8 @@
 #   [6] o subtitulo acompanha o dropdown (antes: "undefined" ou em branco);
 #   [7] abrir um registro nao deixa alteracao pendente no rodape;
 #   [8] Contas a Pagar e Contas a Receber chegam no cadastro pelo nome;
-#   [9] o documento duplicado poupa o cliente que esta aberto, e acusa o dos outros.
+#   [9] o documento duplicado poupa o cliente que esta aberto, e acusa o dos outros;
+#  [10] o seletor Pessoa Fisica / Pessoa Juridica (e os irmaos Tipo da loja e Tipo da categoria) tem a largura so das opcoes (02/nov/2026).
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, sys
 import localiza
@@ -266,6 +267,19 @@ with sync_playwright() as p:
            'com o CPF de outro cliente, o erro diz de quem é: %s' % pg.evaluate("document.getElementById('erroDocumento').textContent")[:60])
         pg.fill('#inputDocumento', LISTAS['clientes'][-1]['documento']); pg.click('#btnSalvarCliente'); pg.wait_for_timeout(250)
         ok(LISTAS['clientes'][-1]['nome'] in pg.evaluate("document.getElementById('erroDocumento').textContent"), 'e vale para o último cliente da lista, que a relação antiga (seis nomes) não tinha')
+
+    if secao(10, 'O seletor de tipo tem a largura só das opções'):
+        MEDE = """() => Array.from(document.querySelectorAll('.filtro-tipo, .tipo-pessoa-toggle, .tipo-loja-toggle, .tipo-categoria-toggle')).filter(c => c.getBoundingClientRect().width > 0).map(c => {
+            const cs = getComputedStyle(c), soma = Array.from(c.children).reduce((t, k) => t + k.getBoundingClientRect().width, 0) + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+            return [c.id, Math.round(c.getBoundingClientRect().width * 100) / 100, Math.round(soma * 100) / 100]; })"""
+        medidos = 0
+        for tela, query in [('pagina-cadastros-clientes-detalhe.html', '?novo=1'), ('pagina-cadastros-clientes-detalhe.html', '?id=1&editar=1'), ('pagina-cadastros-fornecedores-detalhe.html', '?novo=1'),
+                            ('pagina-cadastros-fornecedores-detalhe.html', '?id=1&editar=1'), ('pagina-cadastros-vendedores-detalhe.html', '?novo=1'), ('pagina-cadastros-vendedores-detalhe.html', '?id=1&editar=1'),
+                            ('pagina-cadastros-lojas-desk-detalhe.html', '?novo=1'), ('pagina-cadastros-lojas-desk-detalhe.html', '?id=1&editar=1'), ('pagina-cadastros-categorias.html', ''),
+                            ('pagina-cadastros-clientes.html', ''), ('pagina-cadastros-fornecedores.html', ''), ('pagina-molde-referencia.html', '')]:
+            ir(tela, query); r = pg.evaluate(MEDE); medidos += len(r)
+            ok(r and all(abs(a - b) < 0.5 for _, a, b in r), '%s%s: o fundo cinza do seletor mede o mesmo que as opções somadas: %s' % (tela, query, r))
+        ok(medidos == 15, 'ao todo, 15 seletores medidos (Pessoa nos quatro cadastros, Tipo da loja, Tipo da categoria e o filtro Todos / Física / Jurídica de quatro listas): %d' % medidos)
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()

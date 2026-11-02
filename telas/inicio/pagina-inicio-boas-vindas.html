@@ -727,7 +727,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="dia-coluna">
         <div class="dia-grupo">Financeiro</div>
-        <a class="dia-fila" data-fila="pagar" href="../financas/pagina-financas-contas-pagar.html"><span class="dia-numero">6</span><span class="dia-texto"><span class="dia-rotulo">contas a pagar atrasadas</span><span class="dia-sub">7 em aberto, ainda no prazo</span></span></a>
+        <a class="dia-fila" data-fila="pagar" href="../financas/pagina-financas-contas-pagar.html"><span class="dia-numero">6</span><span class="dia-texto"><span class="dia-rotulo">contas a pagar atrasadas</span><span class="dia-sub">9 em aberto, ainda no prazo</span></span></a>
         <a class="dia-fila" data-fila="receber" href="../financas/pagina-financas-contas-receber.html"><span class="dia-numero">3</span><span class="dia-texto"><span class="dia-rotulo">contas a receber atrasadas</span><span class="dia-sub">7 em aberto, ainda no prazo</span></span></a>
       </div>
     </div>
@@ -1317,25 +1317,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
   })();
 
-  // ===== CONTAS DE COMISSAO NAS CONTAS A PAGAR (entrega 2f, 15/out/2026) =====
-  // A conta que nasce de um pagamento de Comissoes Afiliados e conta a pagar como as outras: entra no numero de atrasadas e no de
-  // "em aberto, ainda no prazo". Este numero e espelho da fila dona (Contas a Pagar), que a suite compara; aqui se soma ao exemplo
-  // da tela o que esta nos pagamentos. Cancelada, excluida ou paga por inteiro nao conta.
-  (function contasDeComissaoNoDia() {
+  // ===== CONTAS A PAGAR NO DIA (entrega 2f, 15/out/2026; refeito em 02/nov/2026) =====
+  // O numero de atrasadas e o "em aberto, ainda no prazo" saem das contas de Contas a Pagar, contadas a partir de hoje. Eram numeros fixos
+  // e discordavam de Contas a Pagar quando o dia virava (o aluguel vence todo dia 15) ou um pagamento de comissao vencia. Tres partes:
+  // as contas de exemplo, o aluguel e as contas de comissao. Cancelada, excluida ou paga por inteiro nao conta. teste_retorno.py compara
+  // os dois numeros com os indicadores de Contas a Pagar; mudou a lista de la, muda a daqui.
+  (function contasAPagarNoDia() {
     const linha = document.querySelector('.dia-fila[data-fila="pagar"]');
     if (!linha) return;
-    let g = null;
-    try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { return; }
-    const hoje = (() => { const x = new Date(); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); })();
+    const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const hoje = iso(new Date());
     let atrasadas = 0, noPrazo = 0;
+    // ESPELHO do exemplo de Contas a Pagar (ids 3 a 9, 11 a 13, 16 e 17, as que estao em aberto): dias a partir de hoje, positivo = ja venceu
+    [5, 3, 1, -4, -8, -11, -19, 2, -6, -15, 3, 1].forEach(d => { if (d > 0) atrasadas++; else noPrazo++; });
+    // o aluguel (dia 15, de janeiro a dezembro do ano): o que ja venceu esta pago, o resto esta em aberto
+    for (let m = 0; m < 12; m++) if (iso(new Date(new Date().getFullYear(), m, 15)) >= hoje) noPrazo++;
+    let g = null;
+    try { g = JSON.parse(localStorage.getItem('deskComissoesPagas') || 'null'); } catch (e) { g = null; }
     ((g && g.pagamentos) || []).forEach(p => {
       if (p.cancelado || p.excluido) return;
       if ((p.baixas || []).reduce((s, x) => s + x.valor, 0) >= p.valor - 0.005) return;
       if (p.venc < hoje) atrasadas++; else noPrazo++;
     });
-    const numero = linha.querySelector('.dia-numero'), sub = linha.querySelector('.dia-sub');
-    numero.textContent = String(Number(numero.textContent) + atrasadas);
-    sub.textContent = sub.textContent.replace(/^\d+/, (n) => String(Number(n) + noPrazo));
+    linha.querySelector('.dia-numero').textContent = String(atrasadas);
+    linha.querySelector('.dia-sub').textContent = noPrazo + ' em aberto, ainda no prazo';
   })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====

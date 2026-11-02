@@ -233,6 +233,36 @@ with sync_playwright() as p:
            '%s: clicar no link do rodape com pendencia nao perguntou nem desfez '
            '(url mudou: %s)' % (nome, pg.url != antes_url))
 
+    # --- [6] o "Por pagina" da paginacao abre SEMPRE para cima (excecao pedida pelo usuario em 02/nov/2026 a regra "dropdown abre para baixo"):
+    # a lista de 10 / 25 / 50 / 100 fica acima do botao e as quatro opcoes aparecem inteiras, com o rodape no meio, no topo ou no fim da janela.
+    print('[6] O "Por pagina" abre para cima e aparece inteiro, em qualquer posicao da pagina')
+    MEDE_PAG = """() => {
+      const raiz = document.getElementById('itensPorPagina'), btn = raiz.querySelector('.dropdown-select-btn'), menu = raiz.querySelector('.dropdown-select-menu');
+      const b = btn.getBoundingClientRect(), m = menu.getBoundingClientRect(), itens = Array.from(menu.querySelectorAll('.dropdown-select-item'));
+      const vis = (it) => { const r = it.getBoundingClientRect(), e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !!e && it.contains(e); };
+      return [menu.classList.contains('open'), m.bottom <= b.top + 0.5, m.top >= 0 && m.bottom <= innerHeight, itens.length === 4 && vis(itens[0]) && vis(itens[3])]; }"""
+    com_pager, medidas_pager = 0, 0
+    for arq in arquivos:
+        nome = os.path.basename(arq)
+        with io.open(arq, encoding='utf-8') as fh:
+            if 'id="itensPorPagina"' not in fh.read():
+                continue
+        pg.goto(localiza.uri(arq)); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
+        if not pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-btn').getBoundingClientRect().width > 0"):
+            continue   # rodape escondido ate haver registro (Movimentacao de Estoque abre vazia)
+        com_pager += 1
+        for pos, ajuste in (('meio', 0), ('topo', -30), ('fim', 30)):
+            pg.evaluate("(a) => { document.querySelector('#itensPorPagina .dropdown-select-btn').scrollIntoView({ block: a[0] }); window.scrollBy(0, a[1]); }", ['center' if pos == 'meio' else ('start' if pos == 'topo' else 'end'), ajuste])
+            pg.wait_for_timeout(100)
+            pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-btn').click()"); pg.wait_for_timeout(250)
+            aberto, acima, cabe, inteiro = pg.evaluate(MEDE_PAG)
+            medidas_pager += 1
+            ok(aberto and acima and cabe and inteiro, '%s (rodape %s da janela): a lista do "Por pagina" tem de abrir acima do botao, caber na janela e mostrar as 4 opcoes '
+               '(aberta=%s, acima=%s, cabe=%s, inteira=%s)' % (nome, pos, aberto, acima, cabe, inteiro))
+            pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-btn').click()"); pg.wait_for_timeout(80)
+    print('    %d tela(s) com "Por pagina" medidas, %d medidas' % (com_pager, medidas_pager))
+    ok(com_pager >= 46, 'o "Por pagina" foi medido em pelo menos 46 telas: %d' % com_pager)
+
     b.close()
 
 print('')
