@@ -1549,9 +1549,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
-  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 8 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
-  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma) e as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
-  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado; teste_embalagem_pedido.py compara as copias.
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 9 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma), as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado, e a ficha do produto (a calculadora
+  // de preco le o custo da caixa e dos insumos); teste_embalagem_pedido.py compara as copias.
   //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
   //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
   //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo

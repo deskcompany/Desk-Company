@@ -35,7 +35,7 @@
 | ✅ | Clientes *(+ detalhe)* |
 | ✅ | Fornecedores *(+ detalhe)* |
 | ✅ | Vendedores *(+ detalhe)* |
-| ✅ | Produtos *(+ detalhe)* |
+| ✅ | Produtos *(+ detalhe; 30/out: a aba Preços ganhou a calculadora de preço, com as sugestões, a margem por forma de pagamento e o Aplicar, que preenche o Preço de venda, a lista Padrão e o Markup; o campo Embalagem lista o cadastro de Embalagens)* |
 | ✅ | Categorias |
 | ✅ | Departamento de Produtos |
 | ✅ | Seção de Produtos |

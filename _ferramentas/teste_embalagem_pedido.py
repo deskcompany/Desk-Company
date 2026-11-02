@@ -20,7 +20,7 @@
 #   [6]  O custo do dia: mudar o cadastro nao mexe no 4; o 16 usa 11,90 com o cadastro em 12,50; um pedido confirmado depois usa o preco novo;
 #   [7]  Configurar nao tem o campo de embalagem; o valor antigo por loja e ignorado e some ao salvar; o log nao cita embalagem;
 #   [8]  A pagina do pedido: o 11 com os nomes, o 1 "estimada", o 4 com a troca;
-#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 8 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
+#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 9 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
 #   [10] O layout do bloco a 1280 e 860 px, sem barra horizontal;
 #   [11] A estimativa pelo cadastro (custo, "cabe ate", cadastro vazio), a Separacao que nao mexe no custo, sem trava de capacidade, Total de volumes e o teto de 999.
 from playwright.sync_api import sync_playwright
@@ -37,6 +37,7 @@ SEP, SEP_F = 'pagina-logistica-separacao.html', 'pagina-logistica-separacao-deta
 CONF, CONF_F = 'pagina-logistica-conferencia-saida.html', 'pagina-logistica-conferencia-saida-detalhe.html'
 CUSTOS = 'pagina-vendas-custos-ecommerce.html'
 PV_D = 'pagina-vendas-pedidos-detalhe.html'
+PROD_D = 'pagina-cadastros-produtos-detalhe.html'
 FIXO = datetime.datetime(2026, 10, 30, 10, 0, 0)   # sexta: o mes, o periodo e os anuncios nao dependem do dia em que a suite roda
 
 falhas = []
@@ -627,12 +628,12 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 9. copias
-    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 8 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
+    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 9 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
         IN, FIM = '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='
         n5 = ['pagina-vendas-custos-ecommerce.html', PV_D, 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html']
-        oito = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F) + tuple(n5)]
-        ok(len(oito) == 8 and all(x == oito[0] for x in oito) and 'function sugerirEmbalagem(lista, pecas)' in oito[0] and 'function embResumo' in oito[0],
-           'o bloco EMBALAGENS: LEITURA é idêntico nas 8 telas: Cadastro, Separação, Conferência e as 5 do RESULTADO DO PEDIDO')
+        nove = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F, PROD_D) + tuple(n5)]
+        ok(len(nove) == 9 and all(x == nove[0] for x in nove) and 'function sugerirEmbalagem(lista, pecas)' in nove[0] and 'function embResumo' in nove[0] and 'Identico em 9 telas' in nove[0],
+           'o bloco EMBALAGENS: LEITURA é idêntico nas 9 telas: Cadastro, Separação, Conferência, a ficha do produto e as 5 do RESULTADO DO PEDIDO')
         ok(all(fonte(n).index(IN) < fonte(n).index('  // ===== RESULTADO DO PEDIDO (bloco comum') for n in n5), 'e nas 5 do RESULTADO DO PEDIDO ele vem ANTES do bloco da conta (o const já está inicializado)')
         ok(fonte(CONF_F).count('function sugerirEmbalagem') == 1 and fonte(SEP_F).count('function sugerirEmbalagem') == 1, 'a sugerirEmbalagem local da bancada saiu: uma só em cada ficha')
         ok('const EMBALAGENS = [' not in fonte(CONF_F), 'a bancada não carrega mais a lista fixa de embalagens: lê o cadastro')

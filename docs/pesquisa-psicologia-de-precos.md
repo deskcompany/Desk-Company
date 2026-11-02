@@ -39,10 +39,16 @@ verdade daquele número, já com a taxa e o imposto refeitos sobre ele, para voc
 | **Redondo** | sobe ao próximo redondo: de R$ 1 até R$ 20, de R$ 5 até R$ 100, de R$ 10 até R$ 1.000, de R$ 50 acima | **R$ 95,00**: margem 33,0% | marca própria, presente, roupa e acessório de marca (Desk Brands): passa qualidade e a margem sobe |
 | **Exato** | o centavo da conta | **R$ 90,39**: margem 30,0% | produto técnico e de valor alto (Desk Tech): número exato parece menor e passa "preço calculado" |
 
-Com o parcelamento acima de 1x, cada cartão também mostra a parcela (com 3x, o Varejo ,90 do exemplo vira R$ 95,90, "ou 3x de R$ 31,97"), porque é o número que o
-cliente olha. Até 1x a linha não aparece.
+Com o parcelamento acima de 1x, cada cartão também mostra a parcela, porque é o número que o cliente olha. Até 1x a linha não aparece. O exemplo da calculadora como ela
+ficou (R$ 50 de custo e R$ 5,40 de embalagem, margem 30%, 3x com taxa de 7,01%, imposto 4%, comissão 5%): **Varejo ,90 R$ 102,90** (margem 30,1%, "ou 3x de R$ 34,30"),
+**Abaixo da faixa R$ 99,90** (28,5%, em laranja por cair abaixo da pedida), **Redondo R$ 110,00** (33,6%) e **Exato R$ 102,62** (30,0%).
 
-Quando uma sugestão não faz sentido, ela some: abaixo de R$ 10 não existe "Abaixo da faixa", e o cartão fica com três.
+Quando uma sugestão não faz sentido, ela some: o **"Abaixo da faixa"** não aparece quando o Varejo já está na beira da faixa (R$ 99,90, R$ 9,90: não há o que baixar) nem
+quando o preço dele ficaria abaixo da **margem mínima** de Parâmetros de Vendas (15% de fábrica), e o resultado fica com três cartões.
+
+> **Nota de 30/out/2026.** A tabela acima é a da pesquisa (R$ 55 de custo, 30%, 1x, 6%, sem comissão) e fica como estava: é o que sustenta a escolha das quatro regras. O
+> exemplo e a regra do "Abaixo da faixa" no texto logo acima são os da calculadora construída. A regra mudou em relação ao rascunho: antes ele sumia só "abaixo de R$ 10";
+> agora some também quando cairia abaixo da margem mínima. O **Exato** sobe ao centavo (nunca arredonda para baixo), e o **Markup** é o preço dividido pelo custo do produto.
 
 ---
 

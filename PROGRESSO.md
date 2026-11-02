@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 30/out/2026: Custos do E-commerce concluído (as quatro entregas; os últimos testes ele delegou ao principal, e passaram). O próximo da fila é a calculadora de precificação, que espera ele mandar começar.*
+*Atualizado em 30/out/2026: a calculadora de precificação está feita (na aba Preços do produto) e espera a revisão dele. Custos do E-commerce está concluído. O próximo da fila é o estoque das embalagens, já aprovado por ele.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -9,6 +9,11 @@ aprovada, o texto dela sai daqui e vai para o começo do [HISTORICO.md](HISTORIC
 As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do design system.
 
 ## Onde paramos
+
+**Calculadora de precificação: feita em 30/out/2026, esperando a revisão dele.** Mora na aba Preços do produto, no botão "Calcular preço" (abra `http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1`). Tem o custo do produto (o da aba Custos, de compra ou médio, como Custos do E-commerce lê), a embalagem completa (a caixa do cadastro do produto mais os insumos que entram sozinhos na loja), o frete, a margem desejada, as parcelas, e o imposto e a comissão de Parâmetros de Vendas. Mostra quatro sugestões (Varejo ,90, Abaixo da faixa, Redondo e Exato), a conta aberta, a margem por forma de pagamento, a "venda nossa" sem comissão e o preço mínimo. A taxa e a tarifa vêm do gateway da loja virtual da loja do produto, a mesma fonte de Custos do E-commerce (hoje a tabela do Link), e por isso acompanha sozinha o item 10 da revisão geral. Parâmetros de Vendas ganhou a comissão padrão (5%) e as parcelas da vitrine (3).
+- **Só preenche campos:** o preço continua editável à mão, e só o botão "Aplicar preço" mexe no Preço de venda, na lista Padrão e no Markup, guarda o cálculo (`deskCalculoPreco`, por produto) e escreve no Registro de atividades ("Aplicar o preço calculado").
+- **Decidido:** o markup é preço ÷ custo do produto; o Exato sobe ao centavo (a margem nunca fica abaixo da pedida); a embalagem é a de um pedido de uma peça (o produto indo sozinho: junto com outro, a margem só melhora). A pesquisa por trás das quatro sugestões está em `docs/pesquisa-psicologia-de-precos.md`.
+- **Limite, de propósito:** a lista de produtos, o PDV e os pedidos seguem com o preço do exemplo; o cadastro novo (`?novo=1`) calcula mas não grava o cálculo, até haver banco. A suíte é `teste_calculadora.py`; o detalhe técnico, o §14.101.
 
 **Custos do E-commerce: concluído em 30/out/2026.** As quatro entregas e os ajustes estão no HISTORICO.md, e o detalhe no §14.95 a §14.100. Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. As entregas 1 a 3 e a primeira rodada da 4 ele testou e aprovou; os testes finais do ajuste da 4 (a estimativa pelo cadastro, a Separação que não mexe no custo, o "Total de volumes", a troca) ele delegou ao principal, que os rodou no navegador em 30/out: 61 itens, nenhuma falha. O que ficou de fora de propósito está em "Decidido, e ainda não feito de propósito" (a baixa da embalagem no estoque) e na lista da revisão geral (os itens 6, 9, 10, 12, 16 e 17 mexem nesta área; o 9 e o 10 mudam números do lucro).
 
@@ -23,35 +28,6 @@ que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o 
 §14.94; o que foi feito está no HISTORICO.md). Ficaram três consertos pedidos no teste (comissão sem o vale-compra, a loja
 virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
 está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
-
-**Calculadora de precificação: é a próxima da fila, desde que Custos do E-commerce fechou em 30/out, e espera ele mandar começar** (ele decidiu em 21/out fazê-la depois dos custos; a entrega 4 trouxe o custo da embalagem no cadastro). A
-embalagem completa vai vir de lá, e o módulo de custos também vai mexer em outros pontos (Margem de Contribuição, o
-imposto padrão); a calculadora é construída depois, já lendo esses custos. **Nada dela foi construído.** O que está pronto
-para quando ela voltar:
-
-*A barganha, aprovada em 21/out (as quatro recomendações):*
-- **Mora na aba Preços do produto:** o botão "Calcular preço" abre a calculadora com o custo do produto; aplicar preenche o
-  Preço de venda e o markup, e o produto guarda os dados do cálculo (embalagem, frete, margem, parcelas, imposto) para refazer.
-- **Margem sobre o preço final**, com taxa e imposto por dentro: preço = custo total ÷ (1 − margem − taxa − imposto). Exemplo
-  dele: R$ 50 + R$ 5 de embalagem, margem 30%, taxa 3,15% → R$ 82,27, lucro de R$ 24,68 (30%).
-- **A taxa é a do parcelamento sem juros** escolhido (padrão 1x), lida do gateway habilitado (Bronze: 1x 3,15%, 3x 6,12%).
-- **Imposto sobre a venda (%)**, com o valor de fábrica em Configurações (ex.: 6% do Simples).
-- Embalagem completa (um item só, ex.: caixa + tag + saco = R$ 5) e o frete da compra por unidade entram no custo total.
-  **A embalagem vem preenchida de Custos do E-commerce** (decisão dele em 21/out), editável, como o custo do produto vem da
-  aba Custos. **A fonte agora é o cadastro de Embalagens** (caixa + tag + fita, com custo): o campo "Embalagem estimada por loja" de Configurar não existe mais (30/out). **O custo da embalagem é por pedido, não por unidade: a calculadora ainda precisa decidir como ratear a embalagem de um pedido entre os produtos** (pergunta em aberto, para quando ela voltar).
-
-*As sugestões de preço (pedido dele em 21/out, "está melhor"):* no lugar de um preço, quatro cartões, cada um com a margem
-e o lucro reais daquele número: **Varejo ,90** (marcada), **Abaixo da faixa**, **Redondo** e **Exato**. A pesquisa, as regras
-de cada um e o que ficou de fora estão em `docs/pesquisa-psicologia-de-precos.md`. O preço continua editável à mão depois.
-
-*O rascunho clicável* é o molde da construção: `docs/rascunhos/calculadora-trecho.html` (o painel, o estilo e a conta).
-Para ver, monte a cópia da página do produto, que fica fora do git:
-`python docs/rascunhos/montar_rascunho.py telas/cadastros/pagina-cadastros-produtos-detalhe.html docs/rascunhos/calculadora-trecho.html telas/cadastros/_rascunho-calculadora.html`
-e abra `http://localhost:3000/cadastros/_rascunho-calculadora.html`. Apague a cópia depois.
-
-*Esperando decisão dele, quando a calculadora voltar:* o markup (preço ÷ custo do produto, ou ÷ custo total); o
-arredondamento do Exato (centavo comum, como no exemplo dele, ou para cima); e onde fica o imposto padrão (decidido na barganha de
-Custos do E-commerce, em 21/out: **Parâmetros de Vendas**, tela feita na entrega 3 do módulo, em `deskParametros.impostoPadraoPct`; a calculadora lê dele).
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
@@ -88,13 +64,20 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## Próximo da fila
 
-Refeita em 21/out, com a decisão de fazer os custos antes da calculadora (a lista de 19/out e os porquês estão em
+Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Calculadora de precificação** (o imposto padrão sai de Parâmetros de Vendas; a embalagem, do cadastro com custo): barganha, pesquisa e rascunho prontos (ver "Onde paramos"). Falta decidir como ratear a embalagem do pedido entre os produtos.
-2. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
-3. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-4. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Estoque das embalagens** (aprovado por ele em 30/out, opção A). As regras:
+   - O estoque mora na própria tela de Embalagens, com o botão "Dar entrada" (quantidade, custo, fornecedor e nota; os dois últimos são opcionais). A lista mostra o saldo e o mínimo, avisa quando está abaixo do mínimo, e Necessidades de Compra ganha um bloco para elas.
+   - A baixa é automática quando a Conferência de Saída fecha, nunca na Separação. Falta de saldo não trava a expedição: o saldo fica negativo e avisa. Pedido cancelado depois de fechar não devolve.
+   - O saldo é único por empresa, sem depósito. Cada entrada recalcula o custo médio, que passa a ser o custo do cadastro, e o pedido guarda o custo do dia.
+   - O insumo ganha o campo "Rende": 1 rolo de fita que rende 50 pedidos, com R$ 15, vira R$ 0,30 por pedido (de fábrica 1).
+   - O saldo pode ser acertado à mão, com motivo.
+   - Na produção a entrada vem pela nota, como qualquer item.
+2. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -124,7 +107,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
 - **A embalagem ainda não sai do estoque** (30/out/2026): a Conferência de Saída confirma caixa, tag e fita, e o custo entra em Custos do E-commerce, mas nenhum saldo baixa,
-  porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo.
+  porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo. **Saiu desta lista no mesmo dia:** ele aprovou fazer, e virou o item 1 do "Próximo da fila".
 - **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
   barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
   (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem

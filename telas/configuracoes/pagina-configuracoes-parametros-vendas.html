@@ -1327,7 +1327,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Parâmetros de vendas</h1>
-      <div class="subtitle">Os dois números de venda que mais de uma tela lê: o imposto padrão e a margem mínima dos pedidos online.</div>
+      <div class="subtitle">Os números de venda que mais de uma tela lê: o imposto padrão e a margem mínima dos pedidos online, e o ponto de partida da calculadora de preço.</div>
     </div>
   </div>
 
@@ -1376,6 +1376,49 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="par-exp">
         Pedido online abaixo disto entra no alerta de Custos do E-commerce. Essa margem é antes do imposto e do custo fixo.
         <span class="par-onde">Aparece em <b>Vendas → Custos do E-commerce</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="par-secao">
+    <div class="par-secao-titulo">Calculadora de preço</div>
+    <div class="par-secao-sub">Os dois valores com que a calculadora de preço do produto abre. Em cada cálculo dá para trocá-los; o que ficou guardado num produto vale mais que estes.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoComissao">
+            <label>Comissão padrão na calculadora</label>
+            <div class="par-num">
+              <input type="text" id="comissaoPadrao" data-param="comissaoPadraoPct" value="5,00" inputmode="decimal" autocomplete="off">
+              <span class="par-num-sufixo">%</span>
+            </div>
+            <span class="par-erro" id="erroComissao">Informe uma porcentagem de 0 a 100, com até duas casas (como 5,00).</span>
+          </div>
+        </div>
+      </div>
+      <div class="par-exp">
+        A comissão de vendedor ou afiliado que a calculadora de preço desconta de início. Com 0, ela esconde a conta da venda sem comissão.
+        <span class="par-onde">Aparece na <b>calculadora de preços do produto</b></span>
+      </div>
+    </div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoParcelas">
+            <label>Parcelas sem juros na vitrine</label>
+            <div class="par-num">
+              <input type="text" id="parcelasVitrine" data-param="parcelasVitrine" value="3" inputmode="numeric" autocomplete="off">
+              <span class="par-num-sufixo">x</span>
+            </div>
+            <span class="par-erro" id="erroParcelas">Informe um número inteiro de 1 a 12 (como 3).</span>
+          </div>
+        </div>
+      </div>
+      <div class="par-exp">
+        Em quantas vezes a vitrine mostra o preço parcelado. É com essa parcela que a calculadora de preço desconta a taxa do cartão de início; se o gateway da loja não tiver tantas parcelas, vale a maior que ele tem.
+        <span class="par-onde">Aparece na <b>calculadora de preços do produto</b></span>
       </div>
     </div>
   </div>
@@ -1473,6 +1516,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // vendas (Parametros de vendas, 30/out/2026)
     impostoPadraoPct: 4,
     margemMinimaPct: 15,
+    comissaoPadraoPct: 5,
+    parcelasVitrine: 3,
     separacaoOrdemPorEndereco: true,
     conferenciaSaidaCega: true,
     sugerirEmbalagem: true,
@@ -1556,7 +1601,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Nasce com senha desligada e log ligado — prova de que o registro grava as
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
-    { chave:'parametrosVendas',    nome:'Alterar os parâmetros de vendas',           onde:'Configurações → Parâmetros de vendas', grupo:'Vendas',       pronto:true,  exigePadrao:false }
+    { chave:'parametrosVendas',    nome:'Alterar os parâmetros de vendas',           onde:'Configurações → Parâmetros de vendas', grupo:'Vendas',       pronto:true,  exigePadrao:false },
+    { chave:'calculadoraPreco',     nome:'Aplicar o preço calculado',                    onde:'Cadastros → Produtos', grupo:'Cadastros',     pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -2053,17 +2099,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== PARÂMETROS DE VENDAS =====
   // Os valores moram no bloco compartilhado do topo (PARAM / PARAM_PADRAO): esta tela GRAVA em `deskParametros` (como Parametros de logistica grava
-  // `devolucaoPrazoDias`), e as outras LEEM: Custos do E-commerce le a margem minima; a calculadora de precos e a Margem de Contribuicao vao ler o imposto padrao.
-  // De fabrica: imposto 4,00% e margem minima 15,00%. Aceita de 0 a 100, com ate duas casas.
-  const CHAVES = ['impostoPadraoPct', 'margemMinimaPct'];
+  // `devolucaoPrazoDias`), e as outras LEEM: Custos do E-commerce le a margem minima; a calculadora de precos (Cadastros > Produtos) le o imposto padrao, a margem minima,
+  // a comissao padrao e as parcelas da vitrine; a Margem de Contribuicao vai ler o imposto padrao.
+  // De fabrica: imposto 4,00%, margem minima 15,00% e comissao 5,00% (de 0 a 100, com ate duas casas); parcelas 3 (inteiro, de 1 a 12).
+  const CHAVES = ['impostoPadraoPct', 'margemMinimaPct', 'comissaoPadraoPct', 'parcelasVitrine'];
+  const INTEIROS = { parcelasVitrine: [1, 12] };
   const fmtPct = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtParam = (k, n) => (INTEIROS[k] ? String(n) : fmtPct(n));
   // O que esta gravado, ou o de fabrica se a gravacao estiver estragada.
-  const lido = (k) => { const n = Number(PARAM[k]); return (PARAM[k] === null || PARAM[k] === '' || isNaN(n) || n < 0 || n > 100) ? PARAM_PADRAO[k] : n; };
+  const lido = (k) => {
+    const n = Number(PARAM[k]), lim = INTEIROS[k] || [0, 100];
+    return (PARAM[k] === null || PARAM[k] === '' || isNaN(n) || n < lim[0] || n > lim[1] || (INTEIROS[k] && n % 1 !== 0)) ? PARAM_PADRAO[k] : n;
+  };
 
   // Campo nasce com o valor salvo, nao com o `value` do HTML.
   CHAVES.forEach(k => {
     const inp = document.querySelector('[data-param="' + k + '"]');
-    if (inp) inp.value = fmtPct(lido(k));
+    if (inp) inp.value = fmtParam(k, lido(k));
   });
 
   const elNota = document.getElementById('notaBarra');
@@ -2076,6 +2128,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const n = Number(bruto);
     return (n < 0 || n > 100) ? null : n;
   }
+  // Inteiro de 1 a 12, so digitos.
+  function lerParcelas(id) {
+    const bruto = document.getElementById(id).value.trim();
+    if (!/^\d{1,2}$/.test(bruto)) return null;
+    const n = Number(bruto);
+    return (n < 1 || n > 12) ? null : n;
+  }
   function atualizarPrevias() {
     const m = lerCampo('margemMinima'), prev = document.getElementById('previaMargem');
     if (m === null) { prev.classList.add('alerta'); prev.innerHTML = 'Informe uma porcentagem de 0 a 100 para ver o efeito.'; return; }
@@ -2085,9 +2144,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : 'Com <b>' + fmtPct(m) + '%</b>, o pedido online que sobra menos de R$ ' + fmtPct(m) + ' em cada R$ 100 vendidos entra no alerta de Custos do E-commerce, o de prejuízo inclusive.';
   }
   function validar() {
-    const i = lerCampo('impostoPadrao'), m = lerCampo('margemMinima');
-    marcarErro('campoImposto', i === null); marcarErro('campoMargem', m === null);
-    return (i !== null && m !== null) ? { impostoPadraoPct: i, margemMinimaPct: m } : null;
+    const i = lerCampo('impostoPadrao'), m = lerCampo('margemMinima'), c = lerCampo('comissaoPadrao'), pv = lerParcelas('parcelasVitrine');
+    marcarErro('campoImposto', i === null); marcarErro('campoMargem', m === null); marcarErro('campoComissao', c === null); marcarErro('campoParcelas', pv === null);
+    return (i !== null && m !== null && c !== null && pv !== null) ? { impostoPadraoPct: i, margemMinimaPct: m, comissaoPadraoPct: c, parcelasVitrine: pv } : null;
   }
   function mudou() {
     const v = validar();
@@ -2103,11 +2162,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     const v = validar();
-    if (!v) { avisar('Há campos inválidos, destacados em vermelho. O imposto e a margem mínima vão de 0 a 100, com até duas casas.'); return; }
+    if (!v) { avisar('Há campos inválidos, destacados em vermelho. O imposto, a margem mínima e a comissão vão de 0 a 100, com até duas casas; as parcelas, de 1 a 12.'); return; }
     const mudancas = CHAVES.filter(k => v[k] !== lido(k)).length;
     CHAVES.forEach(k => { PARAM[k] = v[k]; });
     const gravou = gravarParametros(PARAM);
-    if (mudancas) registrarLog('parametrosVendas', 'Imposto padrão ' + fmtPct(v.impostoPadraoPct) + '% · margem mínima ' + fmtPct(v.margemMinimaPct) + '%', false);
+    if (mudancas) registrarLog('parametrosVendas', 'Imposto padrão ' + fmtPct(v.impostoPadraoPct) + '% · margem mínima ' + fmtPct(v.margemMinimaPct) + '% · comissão padrão na calculadora ' + fmtPct(v.comissaoPadraoPct) + '% · parcelas na vitrine ' + v.parcelasVitrine + 'x', false);
     mudou();
     avisar(mudancas === 0
       ? 'Nenhum parâmetro mudou.'
@@ -2118,7 +2177,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnRestaurarParam').addEventListener('click', () => {
     CHAVES.forEach(k => {
       const inp = document.querySelector('[data-param="' + k + '"]');
-      if (inp) inp.value = fmtPct(PARAM_PADRAO[k]);
+      if (inp) inp.value = fmtParam(k, PARAM_PADRAO[k]);
     });
     aoDigitar();
     avisar('Valores de fábrica restaurados na tela. Clique em "Salvar parâmetros" para valer.');
