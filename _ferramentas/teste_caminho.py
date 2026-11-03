@@ -10,6 +10,8 @@
 #   toda pagina de detalhe tem um unico "Voltar para ..." como PRIMEIRO item de .header-acoes
 #   o link pequeno de baixo da barra do caminho (.voltar-link) sumiu
 #   o botao tem a mesma aparencia nos dois temas
+#   a coluna do titulo mede ao menos 360 px a 1280 px nas 22 paginas (os botoes descem em vez de espremer o titulo)
+#   "Voltar" (botao ou nome do meio do caminho) devolve a lista com os filtros que o usuario deixou; menu, link e F5 abrem limpo
 from playwright.sync_api import sync_playwright
 import os, glob
 import pathlib as _pathlib
@@ -196,15 +198,18 @@ with sync_playwright() as p:
 
     # =======================================================================
     print('\n[6] O cabecalho nao quebra a 1280 px e o botao tem a mesma aparencia nos dois temas')
-    ruins = []
+    ruins, ruins_larg = [], []
     for n in DETALHES:
         abre(n)
         r = pg.evaluate("""() => { const h = [...document.querySelectorAll('.page-header .header-acoes')].filter(x => x.offsetParent !== null)[0];
           const t = document.querySelector('.page-header h1'); const hb = h.getBoundingClientRect(), tb = t.getBoundingClientRect(), pb = document.querySelector('.page-header').getBoundingClientRect();
-          return { semSobrepor: !(hb.top < tb.bottom && hb.left < tb.right), dentro: hb.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth, altura: Math.round(pb.height) } }""")
+          return { semSobrepor: !(hb.top < tb.bottom && hb.left < tb.right), dentro: hb.right <= innerWidth && document.documentElement.scrollWidth <= innerWidth, altura: Math.round(pb.height),
+                   coluna: Math.round(h.closest('.page-header').firstElementChild.getBoundingClientRect().width) } }""")
         if not r['semSobrepor'] or not r['dentro']:
             ruins.append('%s %s' % (n, r))
+        if r['coluna'] < 360: ruins_larg.append('%s (%dpx)' % (n, r['coluna']))
     ok(not ruins, 'a 1280 px os botoes nao cobrem o titulo (quando nao cabem na linha, descem para uma segunda, com o Voltar primeiro) e a pagina nao ganha barra horizontal: %s' % ruins[:3])
+    ok(not ruins_larg, 'a 1280 px a coluna do titulo mede ao menos 360 px nas %d paginas (o titulo nao e espremido pelos botoes): %s' % (len(DETALHES), ruins_larg[:3]))
 
     def aparencia():
         return pg.evaluate("""() => { const e = document.getElementById('btnVoltarLista'); const c = getComputedStyle(e);
@@ -223,6 +228,78 @@ with sync_playwright() as p:
         if tema == 'escuro':
             fundo = modelo.split('|')[1]
             ok(fundo != 'rgb(255, 255, 255)', 'tema escuro: o fundo do botao nao e branco (%s)' % fundo)
+
+    # =======================================================================
+    print('\n[7] Voltar devolve a lista como o usuario a deixou (busca, dropdowns, aba/periodo, card, pagina); menu, link e F5 abrem limpo')
+    ABAS = '.aba-sit, .sit-tab, .periodo-aba, .periodo-op, #filtroTipo > button, #filtroEstado > button, #filtroTipoProduto > button'
+    CASOS = [  # lista, detalhe, busca, [(dropdown, valor)], rotulo da aba/periodo
+        ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-pagar-detalhe.html', 'a', [('filtroCategoria', '4')], 'em aberto'),
+        ('pagina-cadastros-clientes.html', 'pagina-cadastros-clientes-detalhe.html', 'a', [('filtroSituacao', 'ativo')], 'Pessoa Jurídica'),
+        ('pagina-vendas-pedidos.html', 'pagina-vendas-pedidos-detalhe.html?id=2', '', [('filtroSituacao', 'entregue')], 'Sem filtro'),
+        ('pagina-logistica-separacao.html', 'pagina-logistica-separacao-detalhe.html?id=7', 'a', [('filtroLoja', '1')], 'Aguardando separação'),
+    ]
+    def foto_lista(dds):
+        return pg.evaluate("""(dds) => ({ q: (document.getElementById('campoBusca') || {}).value,
+          resumo: (document.getElementById('paginacaoResumo') || {}).textContent,
+          dd: dds.map(i => document.getElementById(i).getAttribute('data-value')),
+          abas: [...document.querySelectorAll(%r)].filter(e => e.classList.contains('active') || e.classList.contains('on')).map(e => e.textContent.trim()) })""" % ABAS, dds)
+    def aplica_filtros(busca, dds, rotulo):
+        pg.fill('#campoBusca', busca)
+        for i, v in dds:
+            pg.click('#%s .dropdown-select-btn' % i); pg.click('#%s .dropdown-select-item[data-value="%s"]' % (i, v))
+        pg.evaluate("""([sel, rot]) => [...document.querySelectorAll(sel)].find(e => e.textContent.trim().toLowerCase().startsWith(rot.toLowerCase())).click()""", [ABAS, rotulo])
+        pg.wait_for_timeout(200)
+    def vai_ao_detalhe(lista, detalhe, busca, dds, rotulo):
+        abre(lista); pg.evaluate('sessionStorage.clear()'); abre(lista)
+        limpa = foto_lista([i for i, v in dds])
+        aplica_filtros(busca, dds, rotulo)
+        filtrada = foto_lista([i for i, v in dds])
+        abre(detalhe)
+        return limpa, filtrada
+    for lista, detalhe, busca, dds, rotulo in CASOS:
+        ids = [i for i, v in dds]
+        limpa, filtrada = vai_ao_detalhe(lista, detalhe, busca, dds, rotulo)
+        ok(filtrada != limpa and filtrada['resumo'] != limpa['resumo'],
+           '%s: o filtro aplicado muda a lista (%s -> %s)' % (lista, limpa['resumo'], filtrada['resumo']))
+        pg.click('#btnVoltarLista'); pg.wait_for_timeout(700)
+        volta = foto_lista(ids)
+        ok(localiza.nome(pg.url) == lista and volta == filtrada, '%s: pelo botao Voltar a lista volta como estava: %s' % (lista, volta if volta != filtrada else filtrada['resumo']))
+        # pelo nome do meio do caminho
+        abre(lista); pg.evaluate('sessionStorage.clear()'); abre(lista)
+        aplica_filtros(busca, dds, rotulo)
+        abre(detalhe)
+        pg.evaluate("if (path.length < 3) { path = path.concat(['Registro']); renderBreadcrumb(); }")
+        pg.locator('#breadcrumb .crumb').nth(1).click(); pg.wait_for_timeout(700)
+        volta = foto_lista(ids)
+        ok(localiza.nome(pg.url) == lista and volta == filtrada, '%s: pelo nome do meio do caminho a lista volta filtrada: %s' % (lista, volta if volta != filtrada else filtrada['resumo']))
+        # pelo menu: abre limpa (o estado do pagehide ficou guardado, e mesmo assim nao e usado)
+        abre(lista); pg.evaluate('sessionStorage.clear()'); abre(lista)
+        aplica_filtros(busca, dds, rotulo)
+        abre(detalhe)
+        mod_label, item_label = pg.evaluate("[path[0], path[1]]")
+        pg.evaluate("document.querySelector('.nav-item[data-label=\"%s\"]').click()" % mod_label); pg.wait_for_timeout(200)
+        pg.evaluate("document.querySelector('.flyout-item[data-label=\"%s\"][data-href]').click()" % item_label); pg.wait_for_timeout(700)
+        ok(localiza.nome(pg.url) == lista and foto_lista(ids) == limpa, '%s: pelo menu a lista abre limpa: %s' % (lista, foto_lista(ids)['resumo']))
+        # por link / F5 (endereco direto) e com query string: tambem limpa, mesmo com a marca de volta
+        abre(lista); pg.evaluate('sessionStorage.clear()'); abre(lista)
+        aplica_filtros(busca, dds, rotulo)
+        abre(detalhe)
+        abre(lista)
+        ok(foto_lista(ids) == limpa, '%s: por link direto (ou F5) a lista abre limpa' % lista)
+        abre(lista); aplica_filtros(busca, dds, rotulo)
+        abre(detalhe)
+        pg.evaluate("sessionStorage.setItem('deskVoltandoPara', '%s|' + Date.now())" % lista)
+        abre(lista + '?zz=1')
+        ok(foto_lista(ids) == limpa, '%s: com ? no endereco a lista abre limpa, mesmo com a marca de volta' % lista)
+        # a marca velha (pergunta de saida respondida "nao", usuario voltou horas depois pelo menu) nao vale
+        abre(lista); aplica_filtros(busca, dds, rotulo)
+        abre(detalhe)
+        pg.evaluate("sessionStorage.setItem('deskVoltandoPara', '%s|' + (Date.now() - 600000))" % lista)
+        abre(lista)
+        ok(foto_lista(ids) == limpa, '%s: a marca com mais de 2 minutos nao vale' % lista)
+        ok(not erros, '%s: sem erro de JS %s' % (lista, erros[:2]))
+    pg.evaluate('sessionStorage.clear()')
+
 
     b.close()
 

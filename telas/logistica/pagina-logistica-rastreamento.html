@@ -2867,6 +2867,41 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
 
+  // Voltar com os filtros (03/nov/2026): bloco igual em todas as listas que o "Voltar para ..." do detalhe alcanca.
+  // Guarda a lista como o usuario a deixou e a refaz SO quando ele volta pelo "Voltar" ou pelo nome do meio do caminho
+  // (o detalhe grava sessionStorage.deskVoltandoPara). Menu, link e F5 abrem limpo; endereco com ? manda e nada se refaz.
+  // Refaz simulando o uso (clique, valor + input), para reaproveitar o codigo de cada lista; o que nao existe mais e ignorado.
+  // shortcut: período com datas digitadas não volta; ligar quando houver preferência por usuário
+  (function () {
+    const arq = location.pathname.split('/').pop(), CHAVE = 'deskFiltros:' + arq;
+    const ABAS = '.aba-sit, .sit-tab, .periodo-aba, .periodo-op, #filtroTipo > button, #filtroEstado > button, #filtroTipoProduto > button';
+    const CARDS = '.kpi-card[aria-pressed]';
+    const busca = document.querySelector('#campoBusca, #buscaCrm');
+    const dds = () => [...document.querySelectorAll('.main .dropdown-select[id]')].filter(d => d.id !== 'menuMaisAcoes' && d.id !== 'itensPorPagina' && !d.closest('[class*="modal"], [class*="overlay"]'));
+    const ligada = (e) => e.classList.contains('active') || e.classList.contains('on');
+    const apertado = (e) => e.getAttribute('aria-pressed') === 'true';
+    const indices = (sel, ligado) => [...document.querySelectorAll(sel)].map((e, i) => ligado(e) ? i : -1).filter(i => i >= 0);
+    const clica = (sel, i, ligado) => { const e = document.querySelectorAll(sel)[i]; if (e && !ligado(e)) e.click(); };
+    const pagina = () => { const m = /Página (\d+)/.exec((document.getElementById('paginacaoPaginas') || {}).textContent || ''); return m ? +m[1] : 1; };
+    window.addEventListener('pagehide', () => {
+      try {
+        sessionStorage.setItem(CHAVE, JSON.stringify({ q: busca ? busca.value : '', dd: dds().map(d => [d.id, d.getAttribute('data-value')]),
+          abas: indices(ABAS, ligada), cards: indices(CARDS, apertado), pg: pagina() }));
+      } catch (e) {}
+    });
+    let marca = '', s = null;
+    try { marca = sessionStorage.getItem('deskVoltandoPara') || ''; sessionStorage.removeItem('deskVoltandoPara'); s = JSON.parse(sessionStorage.getItem(CHAVE)); } catch (e) {}
+    const [alvo, quando] = marca.split('|');
+    if (alvo !== arq || Date.now() - (+quando || 0) > 120000 || location.search || !s) return;
+    s.dd.forEach(([id, val]) => {
+      const d = document.getElementById(id), item = d && [...d.querySelectorAll('.dropdown-select-item')].find(x => x.getAttribute('data-value') === val);
+      if (item && d.getAttribute('data-value') !== val) item.click();
+    });
+    s.abas.forEach(i => clica(ABAS, i, ligada));
+    s.cards.forEach(i => clica(CARDS, i, apertado));
+    if (busca && s.q) { busca.value = s.q; busca.dispatchEvent(new Event('input', { bubbles: true })); }
+    for (let n = pagina(); n < s.pg; n++) { const b = document.getElementById('btnPaginaProxima'); if (b) b.click(); }
+  })();
 </script>
 
 </body>

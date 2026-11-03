@@ -166,6 +166,44 @@ with sync_playwright() as p:
     ir(CE)
     clic('#linkOQueComprar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
     ok(pg.url.endswith(NEC), '"ver o que comprar" leva a Necessidades de Compra')
+    print('\n[4b] Controle de Estoques: os quatro cards no modelo de Contas a Pagar (03/nov/2026)')
+    ir(CE)
+    ok(pg.evaluate("[...document.querySelectorAll('.ce-kpis .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.getAttribute('aria-pressed') === 'false')"),
+       'os quatro cards sao botoes (role, tabindex) e nascem desligados')
+    def estado_ce():
+        return pg.evaluate("Object.fromEntries([...document.querySelectorAll('.ce-kpis .kpi-card')].map(c => [c.getAttribute('data-kpi'), c.classList.contains('on') && c.getAttribute('aria-pressed') === 'true']))")
+    esperado_ce = pg.evaluate("""(() => { const l = PRODUTOS.filter(existeNoDeposito);
+        return { abaixo: l.filter(p => p.minimo > 0 && (disponivelDe(p) + aEnderecarDe(p)) < p.minimo).length, enderecar: l.filter(p => aEnderecarDe(p) > 0).length, bloqueado: l.filter(p => bloqueadoDe(p) > 0).length }; })()""")
+    for k, kpi_id in (('abaixo', 'kpiAbaixoMinimo'), ('enderecar', 'kpiAEnderecar'), ('bloqueado', 'kpiBloqueado')):
+        clic('.ce-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(250)
+        est = estado_ce()
+        ok(est == {'total': False, 'abaixo': k == 'abaixo', 'enderecar': k == 'enderecar', 'bloqueado': k == 'bloqueado'}
+           and pg.evaluate(LINHAS) == esperado_ce[k] == int(pg.inner_text('#' + kpi_id)),
+           'clicar em "%s" liga so ele (aria-pressed e .on) e a lista tem %d linhas, as do card' % (k, esperado_ce[k]))
+        clic('.ce-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(250)
+        ok(not any(estado_ce().values()) and pg.evaluate(LINHAS) > esperado_ce[k] - 1, 'clicar de novo desliga "%s"' % k)
+    # o primeiro card (valor em estoque) desliga o filtro do card aceso
+    clic('.ce-kpis [data-kpi="bloqueado"]'); pg.wait_for_timeout(200)
+    clic('.ce-kpis [data-kpi="total"]'); pg.wait_for_timeout(250)
+    ok(not any(estado_ce().values()) and pg.get_attribute('#filtroSituacao', 'data-value') == 'todos', 'o primeiro card desliga o filtro do card aceso')
+    # teclado
+    pg.focus('.ce-kpis [data-kpi="enderecar"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(250)
+    ok(estado_ce()['enderecar'], 'Enter no card (com o foco) liga')
+    pg.keyboard.press('Space'); pg.wait_for_timeout(250)
+    ok(not estado_ce()['enderecar'], 'Espaco no card desliga')
+    # o card acende quando o MESMO filtro vem do dropdown da barra, e apaga quando o dropdown muda
+    pg.evaluate("document.querySelector('#filtroSaldo .dropdown-select-item[data-value=\"abaixo_minimo\"]').click()"); pg.wait_for_timeout(200)
+    ok(estado_ce()['abaixo'], 'escolher "abaixo do minimo" no dropdown da barra acende o card')
+    pg.evaluate("document.querySelector('#filtroSaldo .dropdown-select-item[data-value=\"todos\"]').click()"); pg.wait_for_timeout(200)
+    ok(not estado_ce()['abaixo'], 'e voltar o dropdown para "qualquer nivel" apaga o card')
+    # (esta lista nao tem "Limpar filtros": o primeiro card e o dropdown da barra e que desligam)
+    # o link pequeno dentro do card navega e nao dispara o filtro
+    clic('.ce-kpis [data-kpi="bloqueado"] a'); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
+    ok(pg.url.endswith('pagina-estoque-itens-bloqueados.html'), 'o link "tratar em Tratamento de Perdas" navega para la')
+    ir(CE)
+    pg.focus('.ce-kpis [data-kpi="abaixo"] a'); pg.keyboard.press('Enter'); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
+    ok(pg.url.endswith(NEC), 'Enter no link de dentro do card navega (e nao liga o filtro)')
+    ir(CE)
     for acao, destino in [('compra', NEC), ('giro', 'pagina-estoque-giro-estoque.html'), ('movimentacao', 'pagina-estoque-movimentacao.html'), ('bloqueados', 'pagina-estoque-itens-bloqueados.html'), ('acerto', 'pagina-estoque-acerto.html'), ('transferencia', 'pagina-estoque-transferencia.html')]:
         ir(CE)
         pg.evaluate("(a) => { document.querySelector('#menuMaisAcoes .dropdown-select-btn').click(); document.querySelector('#menuMaisAcoes [data-acao=\"' + a + '\"]').click(); }", acao)

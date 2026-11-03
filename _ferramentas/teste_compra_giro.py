@@ -698,6 +698,67 @@ with sync_playwright() as p:
     pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
     ok(pg.evaluate("['faixaEncalhe', 'faixaBaixo'].every(i => document.getElementById(i).getAttribute('aria-label') && document.getElementById(i).getAttribute('aria-valuetext'))"),
        'os dois pinos da regua tem nome e valor para leitor de tela, e andam pelo teclado')
+    print('\n[cards] Os quatro cards de Necessidades de Compra filtram a lista (03/nov/2026)')
+    zerar(pg)
+    def k_estado():
+        return pg.evaluate("Object.fromEntries([...document.querySelectorAll('.cg-kpis .kpi-card')].map(c => [c.getAttribute('data-kpi'), c.classList.contains('on') && c.getAttribute('aria-pressed') === 'true']))")
+    def k_aba(): return pg.evaluate("document.querySelector('#abasSituacao .aba-sit.active').getAttribute('data-sit')")
+    def k_linhas(): return pg.evaluate("linhasFiltradas().length")
+    def k_valor(): return pg.evaluate("linhasFiltradas().reduce((s, r) => s + r.valor, 0)")
+    def k_clic(k): clic(pg, '.cg-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(200)
+    ok(pg.evaluate("[...document.querySelectorAll('.cg-kpis .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.getAttribute('aria-pressed') === 'false')"),
+       'os quatro cards sao botoes para o teclado e nascem desligados')
+    ok(k_aba() == 'todos', 'o teste parte da aba "Todos"')
+    # cada card: liga so ele, e a lista tem as linhas que o numero conta; de novo desliga e a aba fica onde esta
+    esperado_k = {'comprar': 4, 'sugerida': 4, 'falta': 2, 'segurados': 1}
+    for k, n in esperado_k.items():
+        k_clic(k)
+        est = k_estado()
+        ok(est == {x: x == k for x in esperado_k} and k_linhas() == n, 'clicar em "%s" liga so ele e a lista tem %d linhas' % (k, n))
+        k_clic(k)
+        ok(not any(k_estado().values()) and k_linhas() == 15 and k_aba() == 'todos', 'clicar de novo desliga "%s" e a aba continua onde estava' % k)
+    k_clic('comprar')
+    ok(k_linhas() == int(pg.inner_text('#kpiComprar')), '"A comprar": as linhas batem com o numero do card (%s)' % pg.inner_text('#kpiComprar'))
+    k_clic('comprar'); k_clic('sugerida')
+    ok(pg.inner_text('#kpiValor') == pg.evaluate("moeda(%s)" % k_valor()) and k_linhas() == pg.evaluate("linhasFiltradas().filter(r => r.valor > 0).length"),
+       '"Compra sugerida": as linhas somam o valor do card (%s) e todas tem valor sugerido maior que zero' % pg.inner_text('#kpiValor'))
+    k_clic('sugerida')
+    k_clic('falta')
+    ok(k_linhas() == int(pg.inner_text('#kpiFalta')) and pg.evaluate("linhasFiltradas().every(r => r.vendavel <= 0)"), '"Em falta": as linhas batem com o numero do card e todas tem vendavel zerado ou negativo')
+    k_clic('falta'); k_clic('segurados')
+    ok(k_linhas() == int(pg.inner_text('#kpiSegurados')) and pg.evaluate("linhasFiltradas().every(r => r.segurado)"), '"Segurados pelo giro": as linhas batem com o numero do card')
+    k_clic('segurados')
+    # a aba que esconde o que o card mostra: o clique passa para a aba certa; ao desligar, a aba fica
+    aba(pg, 'comprar')
+    k_clic('falta')
+    ok(k_aba() == 'falta' and k_estado()['falta'] and k_linhas() == 2, 'na aba "A comprar", ligar "Em falta" passa para a aba "Em falta" (que tem essas linhas)')
+    k_clic('falta')
+    ok(k_aba() == 'falta' and not any(k_estado().values()), 'e ao desligar, a aba fica onde esta')
+    aba(pg, 'minimo'); k_clic('segurados')
+    ok(k_aba() == 'segurados' and k_linhas() == 1, 'da aba "Abaixo do minimo", "Segurados" passa para a aba "Segurados pelo giro"')
+    k_clic('segurados')
+    aba(pg, 'comprar'); k_clic('sugerida')
+    ok(k_aba() == 'comprar' and k_estado()['sugerida'], '"Compra sugerida" fica na aba "A comprar", que ja contem as linhas')
+    # clicar numa aba desliga o card
+    aba(pg, 'todos')
+    ok(not any(k_estado().values()), 'clicar numa aba desliga o card')
+    # teclado
+    pg.focus('.cg-kpis [data-kpi="falta"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
+    ok(k_estado()['falta'], 'Enter no card (com o foco) liga')
+    pg.keyboard.press('Space'); pg.wait_for_timeout(200)
+    ok(not k_estado()['falta'], 'Espaco no card desliga')
+    # o numero respeita os filtros da barra, e a lista clicada tem o mesmo tanto de linhas
+    escolher(pg, 'filtroLoja', 3)
+    n_falta = int(pg.inner_text('#kpiFalta')); n_comprar = int(pg.inner_text('#kpiComprar'))
+    k_clic('comprar')
+    ok(k_linhas() == n_comprar == 2, 'com a loja Desk Tech, "A comprar" tem %d linhas, as do card' % n_comprar)
+    k_clic('comprar'); k_clic('falta')
+    ok(k_linhas() == n_falta, 'e "Em falta" tem %d linhas, as do card' % n_falta)
+    # limpar filtros desliga o card
+    pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(250)
+    ok(not any(k_estado().values()) and k_aba() == 'todos' and k_linhas() == 15, '"Limpar filtros" desliga o card e a lista volta inteira')
+    ok(not erros, 'sem erro de JS nos cards: %s' % erros[:2])
+
     ok(not erros, 'sem erro de JS em nenhuma das telas: %s' % erros[:2])
 
     nav.close()

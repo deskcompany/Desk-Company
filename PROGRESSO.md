@@ -116,19 +116,11 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Revisão em andamento desde 02/nov/2026: pacotes 1 (visual) e 2 (navegação) feitos; faltam cards (3 a 5), digitação (6 e 17) e regras de dinheiro (9 a 11).
+Revisão em andamento desde 02/nov/2026: pacotes 1 (visual), 2 (navegação) e 3 (cards que filtram, Voltar com os filtros, título do cabeçalho) feitos; faltam digitação (6 e 17) e regras de dinheiro (9 a 11).
 
 Pedidos do usuário de 19 a 26/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
 revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
 
-3. **Cards que filtram também nas filas de Logística.** Devolução e Rastreamento têm cards no topo que filtram a tabela;
-   Separação, Conferência de Saída e Expedição não têm cards. **Não há critério registrado:** as três filas nasceram antes
-   do padrão de indicadores, e a proposta G4 (`docs/melhorias-modulos-prontos.md`, 13/out) também as deixou de fora. Na
-   revisão: dar às três os cards que filtram, no padrão de Contas a Pagar.
-4. **Controle de Estoques: os cards no padrão de Contas a Pagar.** Só "Abaixo do mínimo" reage, e escurece em vez de
-   ficar com a borda azul; "A endereçar" e "Bloqueado" não mostram efeito nenhum (hoje são links para outras telas).
-   Todos devem mostrar que filtram, com a borda azul quando ativos.
-5. **Necessidades de Compra: os cards não filtram.** Mesmo padrão.
 6. **Campo de dinheiro digitado a partir dos centavos.** Hoje o campo mostra "0,00" e o que se digita entra como texto.
    O usuário quer a digitação da direita para a esquerda: com "0,00" na tela, digitar 2 dá 0,02; 0 dá 0,20; 0 dá 2,00;
    0 dá 20,00. Digitar 250 dá 2,50; digitar 1589 dá 15,89. Vale para **todo campo de valor em reais**: mapear todos na

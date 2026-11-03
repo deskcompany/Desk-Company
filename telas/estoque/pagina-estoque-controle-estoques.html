@@ -608,7 +608,8 @@
   .ce-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:18px; }
   .ce-kpis .kpi-value { font-variant-numeric:tabular-nums; }
   .ce-kpis .kpi-card.clicavel { cursor:pointer; }
-  .ce-kpis .kpi-card.clicavel:hover { background:rgba(120,120,140,0.06); }
+  .ce-kpis .kpi-card.clicavel:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .ce-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
   .ce-kpis .kpi-card.clicavel:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
   .ce-kpis a { color:var(--active-text); font-weight:700; text-decoration:none; }
   /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
@@ -861,22 +862,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="ce-kpis" id="indicadoresEstoque">
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+    <div class="card kpi-card clicavel" style="border-left-color:var(--active-text)" data-kpi="total" role="button" tabindex="0" aria-pressed="false" title="Desligar os filtros dos cards">
       <div class="kpi-label">Valor em estoque</div>
       <div class="kpi-value" id="kpiValorEstoque">R$ 0,00</div>
       <div class="kpi-delta neutral" id="kpiValorEstoqueSub">—</div>
     </div>
-    <div class="card kpi-card clicavel" style="border-left-color:var(--danger)" id="cardAbaixoMinimo" role="button" tabindex="0" title="Filtrar a lista nos produtos abaixo do mínimo">
+    <div class="card kpi-card clicavel" style="border-left-color:var(--danger)" id="cardAbaixoMinimo" data-kpi="abaixo" role="button" tabindex="0" aria-pressed="false" title="Filtrar a lista nos produtos abaixo do mínimo">
       <div class="kpi-label">Abaixo do mínimo</div>
       <div class="kpi-value" id="kpiAbaixoMinimo">0</div>
       <div class="kpi-delta neutral"><a href="../estoque/pagina-estoque-necessidades-compra.html" id="linkOQueComprar">ver o que comprar</a></div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
+    <div class="card kpi-card clicavel" style="border-left-color:var(--warning)" data-kpi="enderecar" role="button" tabindex="0" aria-pressed="false" title="Filtrar a lista nos produtos com saldo a endereçar">
       <div class="kpi-label">A endereçar</div>
       <div class="kpi-value" id="kpiAEnderecar">0</div>
       <div class="kpi-delta neutral"><a href="../estoque/pagina-estoque-enderecamento.html">abrir o Endereçamento</a></div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--text)">
+    <div class="card kpi-card clicavel" style="border-left-color:var(--text)" data-kpi="bloqueado" role="button" tabindex="0" aria-pressed="false" title="Filtrar a lista nos produtos com saldo bloqueado">
       <div class="kpi-label">Bloqueado</div>
       <div class="kpi-value" id="kpiBloqueado">0</div>
       <div class="kpi-delta neutral"><a href="../estoque/pagina-estoque-itens-bloqueados.html">tratar em Tratamento de Perdas</a></div>
@@ -1838,6 +1839,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('kpiAbaixoMinimo').textContent = lista.filter(abaixoDoMinimo).length;
     document.getElementById('kpiAEnderecar').textContent = comAEnderecar;
     document.getElementById('kpiBloqueado').textContent = comBloqueado;
+    // o card aceso e o que o filtro da barra esta aplicando; o primeiro (valor em estoque) so desliga os outros
+    const ligado = { abaixo: filtroSaldoAtual === 'abaixo_minimo', enderecar: filtroSituacaoAtual === 'a_enderecar', bloqueado: filtroSituacaoAtual === 'bloqueado' };
+    document.querySelectorAll('.ce-kpis [data-kpi]').forEach(c => {
+      const on = !!ligado[c.getAttribute('data-kpi')];
+      c.classList.toggle('on', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
 
   function renderTabela() {
@@ -2067,15 +2074,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('filtroDeposito'), (valor) => {
     depositoAtual = valor; paginaAtual = 1; renderTabela();
   });
-  // O quadro "Abaixo do minimo" filtra a lista; o link dentro dele leva a compra.
-  (function ligarQuadroAbaixoDoMinimo() {
-    const card = document.getElementById('cardAbaixoMinimo');
-    const filtrar = (e) => {
-      if (e.target.closest('a')) return;
-      document.querySelector('#filtroSaldo .dropdown-select-item[data-value="abaixo_minimo"]').click();
-    };
-    card.addEventListener('click', filtrar);
-    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); filtrar(e); } });
+  // Indicadores que filtram (03/nov/2026), no modelo de Contas a Pagar: cada card liga o dropdown da barra que ja faz o
+  // filtro (Abaixo do minimo = Nivel; A enderecar e Bloqueado = Situacao); clicar de novo desliga; o primeiro card desliga
+  // todos. O link pequeno dentro do card navega e nao dispara o filtro.
+  (function ligarIndicadores() {
+    const marcar = (dd, v) => document.querySelector('#' + dd + ' .dropdown-select-item[data-value="' + v + '"]').click();
+    const FILTROS = { abaixo: ['filtroSaldo', 'abaixo_minimo'], enderecar: ['filtroSituacao', 'a_enderecar'], bloqueado: ['filtroSituacao', 'bloqueado'] };
+    const atual = (dd) => dd === 'filtroSaldo' ? filtroSaldoAtual : filtroSituacaoAtual;
+    function escolher(id) {
+      if (id === 'total') {
+        if (filtroSaldoAtual === 'abaixo_minimo') marcar('filtroSaldo', 'todos');
+        if (filtroSituacaoAtual === 'a_enderecar' || filtroSituacaoAtual === 'bloqueado') marcar('filtroSituacao', 'todos');
+        return;
+      }
+      const [dd, v] = FILTROS[id];
+      marcar(dd, atual(dd) === v ? 'todos' : v);
+    }
+    document.querySelectorAll('.ce-kpis [data-kpi]').forEach(card => {
+      const id = card.getAttribute('data-kpi');
+      card.addEventListener('click', (e) => { if (!e.target.closest('a')) escolher(id); });
+      card.addEventListener('keydown', (e) => {
+        if (e.target.closest('a') || (e.key !== 'Enter' && e.key !== ' ')) return;
+        e.preventDefault(); escolher(id);
+      });
+    });
   })();
   inicializarDropdownSelect(document.getElementById('filtroSaldo'), (valor) => {
     filtroSaldoAtual = valor; paginaAtual = 1; renderTabela();
@@ -2318,6 +2340,41 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   })();
 
+  // Voltar com os filtros (03/nov/2026): bloco igual em todas as listas que o "Voltar para ..." do detalhe alcanca.
+  // Guarda a lista como o usuario a deixou e a refaz SO quando ele volta pelo "Voltar" ou pelo nome do meio do caminho
+  // (o detalhe grava sessionStorage.deskVoltandoPara). Menu, link e F5 abrem limpo; endereco com ? manda e nada se refaz.
+  // Refaz simulando o uso (clique, valor + input), para reaproveitar o codigo de cada lista; o que nao existe mais e ignorado.
+  // shortcut: período com datas digitadas não volta; ligar quando houver preferência por usuário
+  (function () {
+    const arq = location.pathname.split('/').pop(), CHAVE = 'deskFiltros:' + arq;
+    const ABAS = '.aba-sit, .sit-tab, .periodo-aba, .periodo-op, #filtroTipo > button, #filtroEstado > button, #filtroTipoProduto > button';
+    const CARDS = '.kpi-card[aria-pressed]';
+    const busca = document.querySelector('#campoBusca, #buscaCrm');
+    const dds = () => [...document.querySelectorAll('.main .dropdown-select[id]')].filter(d => d.id !== 'menuMaisAcoes' && d.id !== 'itensPorPagina' && !d.closest('[class*="modal"], [class*="overlay"]'));
+    const ligada = (e) => e.classList.contains('active') || e.classList.contains('on');
+    const apertado = (e) => e.getAttribute('aria-pressed') === 'true';
+    const indices = (sel, ligado) => [...document.querySelectorAll(sel)].map((e, i) => ligado(e) ? i : -1).filter(i => i >= 0);
+    const clica = (sel, i, ligado) => { const e = document.querySelectorAll(sel)[i]; if (e && !ligado(e)) e.click(); };
+    const pagina = () => { const m = /Página (\d+)/.exec((document.getElementById('paginacaoPaginas') || {}).textContent || ''); return m ? +m[1] : 1; };
+    window.addEventListener('pagehide', () => {
+      try {
+        sessionStorage.setItem(CHAVE, JSON.stringify({ q: busca ? busca.value : '', dd: dds().map(d => [d.id, d.getAttribute('data-value')]),
+          abas: indices(ABAS, ligada), cards: indices(CARDS, apertado), pg: pagina() }));
+      } catch (e) {}
+    });
+    let marca = '', s = null;
+    try { marca = sessionStorage.getItem('deskVoltandoPara') || ''; sessionStorage.removeItem('deskVoltandoPara'); s = JSON.parse(sessionStorage.getItem(CHAVE)); } catch (e) {}
+    const [alvo, quando] = marca.split('|');
+    if (alvo !== arq || Date.now() - (+quando || 0) > 120000 || location.search || !s) return;
+    s.dd.forEach(([id, val]) => {
+      const d = document.getElementById(id), item = d && [...d.querySelectorAll('.dropdown-select-item')].find(x => x.getAttribute('data-value') === val);
+      if (item && d.getAttribute('data-value') !== val) item.click();
+    });
+    s.abas.forEach(i => clica(ABAS, i, ligada));
+    s.cards.forEach(i => clica(CARDS, i, apertado));
+    if (busca && s.q) { busca.value = s.q; busca.dispatchEvent(new Event('input', { bubbles: true })); }
+    for (let n = pagina(); n < s.pg; n++) { const b = document.getElementById('btnPaginaProxima'); if (b) b.click(); }
+  })();
 </script>
 
 </body>

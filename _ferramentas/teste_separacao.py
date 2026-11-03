@@ -383,6 +383,77 @@ with sync_playwright() as pw:
         faltando = [k for k in CHAVES if k not in achadas]
         ok(not faltando, '%s conhece as acoes da separacao%s' % (tela.replace('pagina-', ''), '' if not faltando else ' — falta ' + ', '.join(faltando)))
 
+    # ---------------------------------------------------------------- 18
+    print('\n18. OS QUATRO CARDS DO TOPO FILTRAM A FILA (03/nov/2026)')
+    pg = nova(pw, FILA, erros)
+    IDS = ['aguardando', 'alerta', 'critico', 'separados']
+    def esperado(extra=''):
+        # conta direto nos dados e nos parametros, sem passar pelo codigo da tela
+        return pg.evaluate("""(drop) => { const b = FILA.filter(x => drop === 'todos' || String(x.loja) === drop);
+          const h = (x) => x.situacao === 'separado' ? -1 : x.liberadoHa; const A = PARAM.separacaoAlertaHoras, C = PARAM.separacaoCriticoHoras;
+          return { aguardando: b.filter(x => x.situacao === 'fila').length, alerta: b.filter(x => h(x) >= A && h(x) < C).length, critico: b.filter(x => h(x) >= C).length, separados: b.filter(x => x.situacao === 'separado').length }; }""", pg.get_attribute('#filtroLoja', 'data-value'))
+    def valores(): return pg.evaluate("Object.fromEntries([...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => [c.getAttribute('data-kpi'), Number(c.querySelector('.kpi-value').textContent)]))")
+    def linhas(): return pg.evaluate("pedidosFiltrados().length")
+    def acesos(): return pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.classList.contains('on') && c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    def apertados(): return pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    def escolhe_drop(i, v):
+        pg.click('#%s .dropdown-select-btn' % i); pg.click('#%s .dropdown-select-item[data-value="%s"]' % (i, v)); pg.wait_for_timeout(120)
+
+    ok(pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => c.getAttribute('data-kpi'))") == IDS,
+       'quatro cards em linha acima das abas, na ordem ' + ', '.join(IDS))
+    ok(pg.evaluate("(() => { const k = document.querySelector('.fila-kpis'), a = document.getElementById('abasSituacao'); return k.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING; })()") > 0,
+       'os cards ficam acima das abas')
+    ok(pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.hasAttribute('aria-pressed'))"),
+       'cada card e botao para o teclado: role, tabindex e aria-pressed')
+    ok(valores() == esperado(), 'sem filtro, o numero de cada card bate com a conta direta nos dados: %s' % valores())
+    total = linhas()
+    for k in IDS:
+        n = valores()[k]
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(100)
+        ok(acesos() == [k] and linhas() == n,
+           'clicar em "%s" liga so ele (aria-pressed e .on) e a lista tem %d linhas, as do card' % (k, n))
+        ok(pg.evaluate("document.querySelectorAll('#corpoTabela tr').length") == min(n, 10), '  e a tabela desenha %d linha(s)' % min(n, 10))
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(100)
+        ok(apertados() == [] and linhas() == total, 'clicar de novo desliga e a lista volta a %d linhas' % total)
+    pg.focus('.fila-kpis [data-kpi="%s"]' % IDS[1]); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+    ok(acesos() == [IDS[1]], 'Enter no card (com o foco) liga')
+    pg.keyboard.press('Space'); pg.wait_for_timeout(100)
+    ok(apertados() == [], 'Espaco no card desliga')
+    # card e aba: o card acende a aba equivalente; clicar numa aba desliga o card (como em Contas a Pagar)
+    pg.click('.fila-kpis [data-kpi="%s"]' % IDS[0]); pg.wait_for_timeout(100)
+    ok(pg.evaluate("document.querySelector('.aba-sit.active').getAttribute('data-sit')") == 'fila', 'o primeiro card acende a aba "fila"')
+    pg.click('#abasSituacao .aba-sit[data-sit="todos"]'); pg.wait_for_timeout(100)
+    ok(apertados() == [] and linhas() == total, 'clicar numa aba desliga o card')
+    # filtros da barra: o numero do card os respeita, e a lista clicada tem o mesmo tanto de linhas
+    escolhe_drop('filtroLoja', '1')
+    esp = esperado()
+    ok(valores() == esp and sum(esp.values()) > 0, 'com o filtro "filtroLoja" = 1, os cards contam so o que passa por ele: %s' % valores())
+    for k in IDS:
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(80)
+        ok(linhas() == esp[k], '  filtro ligado, card "%s": %d linhas = o numero do card' % (k, esp[k]))
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(80)
+    # limpar filtros desliga o card
+    pg.click('.fila-kpis [data-kpi="%s"]' % IDS[2]); pg.wait_for_timeout(80)
+    pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(120)
+    ok(apertados() == [] and pg.get_attribute('#filtroLoja', 'data-value') == 'todos' and linhas() == total, '"Limpar filtros" desliga o card e a lista volta inteira')
+    # imprimir: o resumo dos filtros cita o card aceso
+    pg.click('.fila-kpis [data-kpi="%s"]' % IDS[0]); pg.wait_for_timeout(80)
+    ok(pg.evaluate("[...document.querySelectorAll('.main .kpi-card[aria-pressed=\"true\"] .kpi-label')].length") == 1, 'o card aceso e o que o bloco de impressao le (aria-pressed)')
+    pg.click('.fila-kpis [data-kpi="%s"]' % IDS[0])
+    # alerta e critico vem do PARAM: mudar o parametro muda o card e o texto, e nenhuma linha conta duas vezes
+    antes_param = valores()
+    pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({ separacaoAlertaHoras: 6, separacaoCriticoHoras: 10 }))")
+    pg.reload(); pg.wait_for_timeout(500)
+    ok(pg.evaluate("[PARAM.separacaoAlertaHoras, PARAM.separacaoCriticoHoras]") == [6, 10], 'a tela leu os parametros novos (6 e 10 horas)')
+    esp2 = esperado()
+    ok(valores() == esp2, 'com os limites 6 h e 10 h os cards mudam para: %s' % valores())
+    ok(antes_param != esp2, 'e o numero mudou de verdade em relacao ao do padrao (o limite nao e fixo): %s -> %s' % (antes_param, esp2))
+    txt = pg.inner_text('.fila-kpis [data-kpi="alerta"] .kpi-delta') + ' | ' + pg.inner_text('.fila-kpis [data-kpi="critico"] .kpi-delta')
+    ok('6 h' in txt, 'o subtitulo diz o critério com o numero do parametro: %s' % txt)
+    ok(pg.evaluate("FILA.filter(x => KPIS.filter(k => k.id === 'alerta')[0].quais(x) && KPIS.filter(k => k.id === 'critico')[0].quais(x)).length") == 0 if True else True,
+       'nenhuma linha conta em alerta e em critico ao mesmo tempo')
+    ok(not erros, 'sem erro de JS nos cards: %s' % erros[:2])
+
     print('\nERROS DE CONSOLE: ' + (str(erros) if erros else 'nenhum'))
     if erros: falhas.append('erro de console: %s' % erros)
 

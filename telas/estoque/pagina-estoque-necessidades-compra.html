@@ -786,6 +786,11 @@
   .cg-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:18px; }
   .cg-kpis .kpi-value { font-variant-numeric:tabular-nums; }
   .cg-kpis .kpi-delta { line-height:1.35; }
+  /* Cards que filtram (03/nov/2026): mesmo componente de Contas a Pagar */
+  .cg-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .cg-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .cg-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .cg-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
   .cg-sub { display:block; font-size:11.5px; font-weight:600; color:var(--text); margin-top:2px; }
   .cg-etq { display:inline-block; margin-left:7px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; border:1px solid currentColor; border-radius:5px; padding:0 5px; vertical-align:1px; }
   .cg-resultado { margin:6px 0 4px; padding:12px 14px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--active-text); border-radius:10px; font-size:13px; line-height:1.5; color:var(--text-heading); }
@@ -1077,22 +1082,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="cg-kpis">
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+    <div class="card kpi-card" data-kpi="comprar" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
       <div class="kpi-label">A comprar</div>
       <div class="kpi-value" id="kpiComprar">0</div>
       <div class="kpi-delta neutral" id="kpiComprarSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--success)">
+    <div class="card kpi-card" data-kpi="sugerida" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
       <div class="kpi-label">Compra sugerida</div>
       <div class="kpi-value" id="kpiValor">R$ 0,00</div>
       <div class="kpi-delta neutral" id="kpiValorSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
+    <div class="card kpi-card" data-kpi="falta" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
       <div class="kpi-label">Em falta</div>
       <div class="kpi-value" id="kpiFalta">0</div>
       <div class="kpi-delta neutral" id="kpiFaltaSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
+    <div class="card kpi-card" data-kpi="segurados" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
       <div class="kpi-label">Segurados pelo giro</div>
       <div class="kpi-value" id="kpiSegurados">0</div>
       <div class="kpi-delta neutral" id="kpiSeguradosSub">—</div>
@@ -2305,6 +2310,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A tela abre no que falta comprar (10/out/2026): gerada a ordem, o produto sai da lista. Quem chega
   // por link com ?busca= ve todos, para o produto procurado aparecer mesmo sem compra a fazer.
   let buscaAtual = '', abaAtual = new URLSearchParams(window.location.search).get('busca') ? 'todos' : 'comprar';
+  let kpiAtivo = null;     // card aceso (um so): filtra a lista por cima da aba; desligado pelo clique de novo e por clicar numa aba
   let filtroLoja = 'todos', filtroDep = 'todos', filtroForn = 'todos', filtroMarca = 'todos', filtroTipo = 'todos';
   function opcoesPadrao() {
     return { modo: 'minmax', coberturaDias: PARAM.compraCoberturaDias, saidas: true, situacoes: SITUACOES_PADRAO.slice(), transferencias: true, codForn: false };
@@ -2391,6 +2397,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     falta: (r) => r.emFalta,
     segurados: (r) => r.segurado && !r.digitado
   };
+  // Cards que filtram (03/nov/2026). Cada um usa a MESMA condicao do numero que mostra; "Compra sugerida" e o valor sugerido maior que zero.
+  const KPIS = {
+    comprar:   { aba: 'comprar',   quais: NA_ABA.comprar },
+    sugerida:  { aba: 'comprar',   quais: (r) => r.valor > 0 },
+    falta:     { aba: 'falta',     quais: NA_ABA.falta },
+    segurados: { aba: 'segurados', quais: NA_ABA.segurados }
+  };
   function linhasFiltradas(base) {
     const valorDe = (r) => ({
       nome: r.p.nome.toLowerCase(), fornecedor: (FORNECEDORES[r.f.fornecedor] || '￿').toLowerCase(), custo: r.p.custoMedio,
@@ -2398,7 +2411,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       colA: OPC.modo === 'cobertura' ? r.vendaDia : r.min,
       colB: OPC.modo === 'cobertura' ? (r.cobertura === null ? Infinity : r.cobertura) : r.max
     })[ordemCampo];
-    return (base || baseFiltrada()).filter(NA_ABA[abaAtual]).sort((a, b) => {
+    return (base || baseFiltrada()).filter(NA_ABA[abaAtual]).filter(r => !kpiAtivo || KPIS[kpiAtivo].quais(r)).sort((a, b) => {
       const va = valorDe(a), vb = valorDe(b);
       if (va < vb) return ordemAsc ? -1 : 1;
       if (va > vb) return ordemAsc ? 1 : -1;
@@ -2433,6 +2446,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('kpiSeguradosSub').textContent = seg.length ? 'sem venda em ' + PARAM.giroJanelaDias + ' dias: sem sugestão' : 'nenhuma sugestão segurada';
     const cont = { todos: base.length, comprar: comprar.length, minimo: abaixo.length, falta: falta.length, segurados: seg.length };
     document.querySelectorAll('#abasSituacao .sit-contador').forEach(el => { el.textContent = cont[el.getAttribute('data-cont')]; });
+    document.querySelectorAll('.cg-kpis [data-kpi]').forEach(c => {
+      const on = kpiAtivo === c.getAttribute('data-kpi');
+      c.classList.toggle('on', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
   function atualizarAviso() {
     const situacoes = SITUACOES_VENDA.filter(s => OPC.situacoes.includes(s.id)).map(s => s.rotulo);
@@ -3009,9 +3026,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.remove('active'));
     aba.classList.add('active');
     abaAtual = aba.getAttribute('data-sit');
+    kpiAtivo = null;
     paginaAtual = 1;
     renderTabela();
   }));
+  // Clicar num card liga o filtro; se a aba de agora esconde o que o card mostra, o clique passa para a aba que contem essas
+  // linhas ("Todos" nao esconde nada, fica). Clicar de novo desliga e a aba fica onde esta.
+  function escolherIndicador(id) {
+    if (kpiAtivo === id) kpiAtivo = null;
+    else {
+      kpiAtivo = id;
+      if (abaAtual !== 'todos' && abaAtual !== KPIS[id].aba) {
+        abaAtual = KPIS[id].aba;
+        document.querySelectorAll('#abasSituacao .aba-sit').forEach(a => a.classList.toggle('active', a.getAttribute('data-sit') === abaAtual));
+      }
+    }
+    paginaAtual = 1;
+    renderTabela();
+  }
+  document.querySelectorAll('.cg-kpis [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
   document.getElementById('btnLimparFiltros').addEventListener('click', () => {
     document.getElementById('campoBusca').value = ''; buscaAtual = '';
     filtroMarca = 'todos'; filtroTipo = 'todos';

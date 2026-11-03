@@ -539,7 +539,9 @@
   /* botao secundario do cabecalho — mesma regra das telas de Financas. Faltava
      nestas cinco, e sem `display:flex` o rotulo caia embaixo do icone. */
   /* acoes do cabecalho da pagina */
-  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; max-width:100%; }
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; max-width:100%; margin-left:auto; }
+  /* a coluna do titulo nunca e espremida pelos botoes: se nao couber, os botoes descem, alinhados a direita */
+  .page-header > :first-child { flex:1 1 380px; min-width:0; }
   .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
   .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo svg { width:14px; height:14px; }
@@ -1936,6 +1938,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   }
 
+  // Voltar com os filtros (03/nov/2026): bloco igual em toda pagina com "Voltar para <lista>". So o botao "Voltar" e o
+  // nome do meio do caminho marcam a volta; a lista, ao abrir, le a marca, apaga e refaz os filtros que o usuario deixou.
+  function marcaVoltando(url) {
+    try { sessionStorage.setItem('deskVoltandoPara', new URL(url, location.href).pathname.split('/').pop() + '|' + Date.now()); } catch (e) {}
+  }
+  (function () {
+    const v = document.getElementById('btnVoltarLista');
+    if (v) v.addEventListener('click', () => marcaVoltando(v.getAttribute('href')), true);
+  })();
+
   // Inicio leva ao Inicio (na propria tela, so abre o menu); Configuracoes leva ao hub; os outros
   // modulos abrem o menu lateral deles. Nome do meio que e tela do menu leva a ela (com os filtros do
   // botao "Voltar" do cabecalho, quando ele aponta para a mesma lista); sem destino, abre o menu do modulo.
@@ -1956,7 +1968,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const volta = document.getElementById('btnVoltarLista');
         const arquivo = (u) => new URL(u, window.location.href).pathname;
         const href = volta && volta.getAttribute('href');
-        window.location.href = href && arquivo(href) === arquivo(destino) ? href : destino;
+        const alvo = href && arquivo(href) === arquivo(destino) ? href : destino;
+        marcaVoltando(alvo);
+        window.location.href = alvo;
         return;
       }
     }
