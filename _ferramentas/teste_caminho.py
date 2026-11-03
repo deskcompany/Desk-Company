@@ -303,5 +303,5 @@ with sync_playwright() as p:
 
     b.close()
 
-print('\n%s' % ('TUDO VERDE' if not falhas else '%d FALHA(S)' % len(falhas)))
+print('\n%s · FALHAS: %d' % ('TUDO VERDE' if not falhas else '%d FALHA(S)' % len(falhas), len(falhas)))
 raise SystemExit(1 if falhas else 0)

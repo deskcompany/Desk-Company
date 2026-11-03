@@ -282,10 +282,12 @@ with sync_playwright() as p:
     ok(pg.locator('#corpoResolvidos tr').count() == 1 and 'Mesa Escritório Slim' in pg.inner_text('#corpoResolvidos') and pg.inner_text('#totalBaixado') == '—', 'no historico o intervalo vale para a data da resolucao')
     clic(pg, '#abasSituacao [data-sit="todos"]'); pg.wait_for_timeout(250)
     clic(pg, '#btnPeriodo'); pg.wait_for_timeout(200)
+    # o calendario abre no mes da data inicial: com o intervalo no mes passado (dia 1 a 10) sempre ha dias riscados depois da final, em qualquer dia em que a suite rode
+    pg.fill('#periodoDe', '01/%02d/%d' % (passado.month, passado.year)); pg.fill('#periodoAte', '10/%02d/%d' % (passado.month, passado.year))
     pg.click('#dfPeriodoDe .date-btn'); pg.wait_for_timeout(300)
     caixa_cal = pg.evaluate("(() => { const c = document.querySelector('#dfPeriodoDe .date-pop').getBoundingClientRect(), f = document.getElementById('dfPeriodoDe').getBoundingClientRect(); return [Math.round(c.left - f.left), c.top >= f.bottom]; })()")
     ok(pg.locator('#dfPeriodoDe .date-pop.open').count() == 1 and pg.locator('#periodoMenu.open').count() == 1 and caixa_cal == [0, True]
-       and pg.locator('#dfPeriodoDe .date-dia.off').count() > 0, 'o calendario da data inicial abre embaixo do campo, com o popover aberto, e risca os dias depois da data final')
+       and pg.locator('#dfPeriodoDe .date-dia.off').count() == passado.day - 10, 'o calendario da data inicial abre embaixo do campo, com o popover aberto, e risca os dias depois da data final')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
     ok(pg.locator('#dfPeriodoDe .date-pop.open').count() == 0 and pg.locator('#periodoMenu.open').count() == 1, 'Esc fecha primeiro o calendario, e o popover fica')
     pg.click('#filtroDeposito .dropdown-select-btn'); pg.wait_for_timeout(250)

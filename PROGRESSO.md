@@ -121,7 +121,14 @@ Revisão geral de 02-03/nov/2026 feita: os 17 itens, em cinco pacotes (§14.102 
 
 ## Esperando decisão do usuário
 
-Uma pendência, que é dele:
+Três pendências, que são dele:
+
+2. **Contas a Pagar: a aba "atrasadas" mostra só as do mês** (achado na revisão de 02/nov). A lista abre no período
+   "mês" (decisão de 23/set), então em 02/11 o card "Vencidas" dizia 8 e a aba "atrasadas" dizia 2. Proposta: a aba
+   "atrasadas" ignora o período, porque conta vencida de outubro continua atrasada em novembro.
+3. **Preço com mais de 2 casas** (achado na revisão de 03/nov). Configurações aceita até 10 casas no preço
+   (`casasPreco`, hoje 2), mas a digitação a partir dos centavos fixa 2 casas. Proposta: deixar 2 enquanto ninguém
+   usar mais; se um dia usar, o campo lê o parâmetro.
 
 1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são

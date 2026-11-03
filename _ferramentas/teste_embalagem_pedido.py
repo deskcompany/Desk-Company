@@ -16,7 +16,7 @@
 #   [2]  Separacao do pedido 4: sugestao, insumos automaticos, nenhum R$, trocar/adicionar/remover, sem embalagem trava, falta muda a sugestao, rascunho, devolver, pedido grande;
 #   [3]  O pedido 4 so aparece na Conferencia depois de concluido; vem preenchido; confirmar sem troca grava 'confirmada' com o custo do cadastro; reabrir mostra conferido;
 #   [4]  Com troca: o registro tem as trocas, o modal cita, e cai no Registro de atividades;
-#   [5]  Custos: o pedido 4 confirmado (7,20, sem "estimada", com os nomes; lucro 161,40) e os numeros do mes antes e depois;
+#   [5]  Custos: o pedido 4 confirmado (7,20, sem "estimada", com os nomes; lucro 167,82, pela taxa Bronze da loja virtual) e os numeros do mes antes e depois, todos do oraculo;
 #   [6]  O custo do dia: mudar o cadastro nao mexe no 4; o 16 usa 11,90 com o cadastro em 12,50; um pedido confirmado depois usa o preco novo;
 #   [7]  Configurar nao tem o campo de embalagem; o valor antigo por loja e ignorado e some ao salvar; o log nao cita embalagem;
 #   [8]  A pagina do pedido: o 11 com os nomes, o 1 "estimada", o 4 com a troca;
@@ -59,10 +59,12 @@ def secao(n, titulo):
     return True
 
 
-from oraculo_custos import D, c2, oraculo, EMB_CONFIRMADA, embalagem_do_pedido, CADASTRO_EMB
+from oraculo_custos import D, c2, oraculo, EMB_CONFIRMADA, embalagem_do_pedido, CADASTRO_EMB, anuncios_do_periodo, abaixo_da_margem
+from decimal import ROUND_HALF_UP
 
 br = lambda v: ('− ' if float(v) < 0 else '') + 'R$ ' + '{:,.2f}'.format(abs(float(v))).replace(',', 'X').replace('.', ',').replace('X', '.')
 perto = lambda a, b: abs(float(a) - float(b)) < 0.005
+pct1 = lambda v: str(D(v).quantize(D('0.1'), rounding=ROUND_HALF_UP)).replace('.', ',') + '%'
 erros = []
 
 
@@ -458,12 +460,25 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 5. custos
-    if secao(5, 'Custos: o 4 confirmado (7,20, sem "estimada", nomes; lucro 161,40) e os números do mês antes e depois'):
+    if secao(5, 'Custos: o 4 confirmado (7,20, sem "estimada", nomes; lucro 167,82) e os números do mês antes e depois'):
         pg = nova()
         abrir_custos(pg)
         todos = todos_custos(pg)
         online = [x for x in todos if x.get('canal') == 'loja_virtual']
         ors = {x['id']: oraculo(x) for x in online}
+        HOJE_F = FIXO.date()
+        ini_mes = HOJE_F.replace(day=1)
+
+        def do_mes(loja=None, orx=None):
+            """(venda, lucro, anuncios) do mes pelo oraculo: os pedidos online do mes (e da loja) e as contas de anuncio dele."""
+            sel = [x['id'] for x in online if HOJE_F - datetime.timedelta(days=x['dv']) >= ini_mes and (loja is None or x['loja'] == loja)]
+            return (sum(((orx or ors)[i]['venda'] for i in sel), D(0)), sum(((orx or ors)[i]['lucro'] for i in sel), D(0)), anuncios_do_periodo(HOJE_F, ini_mes, HOJE_F, loja=loja))
+
+        def ors_com(conf4):
+            """O oraculo de todos os pedidos online com a embalagem do 4 confirmada em `conf4` (a lista (qtd, custo do dia) do registro)."""
+            r = dict(ors)
+            r[4] = oraculo(next(x for x in online if x['id'] == 4), confirmadas={**EMB_CONFIRMADA, 4: conf4})
+            return r
         cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => th.textContent.replace(/[▲▼]/g, '').trim())")
         l = {n: linha_pedido(pg, n) for n in (1, 3, 4, 8, 9, 11, 12, 16)}
         quer_emb = {1: ('R$ 6,60', True), 3: ('R$ 1,80', True), 4: ('R$ 7,20', True), 8: ('R$ 7,00', False), 9: ('R$ 6,80', False), 11: ('R$ 5,40', False), 12: ('R$ 7,20', False), 16: ('R$ 12,60', False)}
@@ -471,21 +486,24 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title").startswith('A embalagem que a Conferência de Saída confirmou') and 'até lá, uma estimativa pelo cadastro de Embalagens (a caixa que cabe e os insumos automáticos), uma por pedido' in pg.evaluate("document.querySelector('#tabelaCustos th[data-ordem=embalagem]').title"),
            'o título do cabeçalho explica: a que a Conferência confirmou; até lá, uma estimativa pelo cadastro')
         ok(perto(sum(o['embalagem'] for o in ors.values()), 54.60), 'o oráculo diz 54,60 de embalagem no mês')
-        ok(pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiAnuncios, kpiLucroAnuncios].map(e => e.textContent)")[2:] == ['R$ 1.050,68', '13,9%', 'R$ 450,00', 'R$ 600,68'], 'lucro 1.050,68 (margem 13,9%%), anúncios 450,00, lucro depois dos anúncios 600,68: %s' % kpis(pg))
+        v_mes, l_mes, a_mes = do_mes()
+        ok(l_mes == D('1225.23') and a_mes == 450, 'o oráculo (Decimal, taxa Bronze) dá o lucro do mês em 1.225,23 e os anúncios em 450,00: %s %s' % (l_mes, a_mes))
+        ok(kpis(pg)[2:] == [br(l_mes), pct1(l_mes / v_mes * 100), br(a_mes), br(l_mes - a_mes)], 'lucro %s (margem %s), anúncios %s, lucro depois dos anúncios %s, tudo do oráculo: %s' % (br(l_mes), pct1(l_mes / v_mes * 100), br(a_mes), br(l_mes - a_mes), kpis(pg)))
         luc = {n: pg.evaluate("(n) => resultadoDoPedido(PEDIDOS.filter(p => p.id === n)[0]).lucro", n) for n in (1, 3, 4, 8, 9, 11, 12, 16)}
-        ok(all(perto(luc[n], v) for n, v in {1: 354.66, 3: -262.60, 4: 161.40, 8: 156.46, 9: 159.20, 11: -32.89, 12: 180.89, 16: 333.56}.items()), 'o lucro de cada pedido: %s' % luc)
+        ok(all(perto(luc[n], v) for n, v in {1: 371.48, 3: -262.60, 4: 167.82, 8: 166.72, 9: 159.20, 11: -33.73, 12: 221.85, 16: 434.49}.items()), 'o lucro de cada pedido: %s' % luc)
         ok(all(perto(luc[n], ors[n]['lucro']) for n in luc), 'e bate com o oráculo, pedido a pedido')
-        for loja, lucro, depois in (('1', 'R$ 549,19', 'R$ 249,19'), ('2', 'R$ 501,49', 'R$ 411,49')):
-            pg.evaluate("(l) => { fLoja = l; render(); }", loja)
+        for loja in (1, 2):
+            v_l, l_l, a_l = do_mes(loja)
+            pg.evaluate("(l) => { fLoja = l; render(); }", str(loja))
             k = kpis(pg)
-            ok(k[2] == lucro and k[5] == depois, 'loja %s: lucro %s, depois dos anúncios %s: %s' % (loja, lucro, depois, k))
+            ok(k[2] == br(l_l) and k[5] == br(l_l - a_l), 'loja %s: lucro %s, depois dos anúncios %s (do oráculo): %s' % (loja, br(l_l), br(l_l - a_l), k))
         pg.evaluate("fLoja = 'todos'; render();")
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
-        ok(sorted(int(re.search(r'nº (\d+)', x).group(1)) for x in pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr td:first-child')).map(t => t.innerText)")) == [3, 11, 16], '"Abaixo da margem" segue 3 a 15%: o 3, o 11 e o 16')
+        ok(sorted(int(re.search(r'nº (\d+)', x).group(1)) for x in pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr td:first-child')).map(t => t.innerText)")) == sorted(i for i, o in ors.items() if abaixo_da_margem(o, 15)) == [3, 11], '"Abaixo da margem" a 15%: o 3 e o 11 (o 16 saiu: com a taxa Bronze a margem dele é 18,8%)')
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(100)
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 20; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
-        ok(sorted(int(re.search(r'nº (\d+)', x).group(1)) for x in pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr td:first-child')).map(t => t.innerText)")) == [1, 3, 11, 12, 16], 'e a 20% são o 1, o 3, o 11, o 12 e o 16')
+        ok(sorted(int(re.search(r'nº (\d+)', x).group(1)) for x in pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr td:first-child')).map(t => t.innerText)")) == sorted(i for i, o in ors.items() if abaixo_da_margem(o, 20)) == [1, 3, 11, 16], 'e a 20% são o 1, o 3, o 11 e o 16 (o 12 saiu: a margem dele é 21,7%)')
         # o painel do 11: os nomes
         abrir_custos(pg)
         pg.click('#corpoTabela tr[data-id="11"]'); pg.wait_for_timeout(300)
@@ -507,11 +525,13 @@ with sync_playwright() as p:
         abrir_custos(pg)
         l4 = linha_pedido(pg, 4)
         ok(l4['Embalagem'] == 'R$ 7,20' and 'estimada' not in l4['Embalagem'], 'depois do fluxo (10 peças, CE-02, tag Brands e fita), a embalagem do 4 é 7,20 e não é mais estimada: %s' % l4['Embalagem'])
-        ok(l4['Lucro'] == 'R$ 161,40', 'lucro do 4 = 161,40: %s' % l4['Lucro'])
         conf4 = dict(EMB_CONFIRMADA); conf4[4] = [(1, '6.30'), (1, '0.60'), (1, '0.30')]
         todos = todos_custos(pg)
-        ok(perto(oraculo(next(x for x in todos if x['id'] == 4), confirmadas=conf4)['lucro'], 161.40), 'o oráculo (embalagem confirmada, com Decimal) também dá 161,40')
-        ok(kpis(pg)[2] == 'R$ 1.050,68' and kpis(pg)[5] == 'R$ 600,68', 'o lucro do mês não muda (1.050,68; depois dos anúncios 600,68): o 4 estimado e o confirmado dão 7,20 porque a Conferência confirmou o que o cadastro sugeria: %s' % kpis(pg))
+        l4_or = oraculo(next(x for x in todos if x['id'] == 4), confirmadas=conf4)['lucro']
+        ok(perto(l4_or, 167.82), 'o oráculo (embalagem confirmada, com Decimal) dá 167,82')
+        ok(l4['Lucro'] == br(l4_or), 'lucro do 4 = 167,82: %s' % l4['Lucro'])
+        _, l_c, a_c = do_mes(orx=ors_com(conf4[4]))
+        ok(kpis(pg)[2] == br(l_c) and kpis(pg)[5] == br(l_c - a_c) and l_c == l_mes, 'o lucro do mês não muda (1.225,23; depois dos anúncios 775,23): o 4 estimado e o confirmado dão 7,20 porque a Conferência confirmou o que o cadastro sugeria: %s' % kpis(pg))
         ok(sum(oraculo(x, confirmadas=conf4)['embalagem'] for x in todos if x.get('canal') == 'loja_virtual') == D('54.60'), 'a embalagem do mês segue 54,60 (o 4 estimado em 7,20 virou confirmado em 7,20)')
         pg.click('#corpoTabela tr[data-id="4"]'); pg.wait_for_timeout(300)
         painel = pg.inner_text('#eventDrawer').replace('\n', ' ')
@@ -526,7 +546,10 @@ with sync_playwright() as p:
         conferir4(pg, trocar)
         abrir_custos(pg)
         l4 = linha_pedido(pg, 4)
-        ok(l4['Embalagem'] == 'R$ 5,30' and l4['Lucro'] == 'R$ 163,30' and kpis(pg)[2] == 'R$ 1.052,58', 'trocando a CE-02 pela Flex M e tirando a fita: o 4 vai a 5,30, lucro 163,30, e o total a 1.052,58: %s %s %s' % (l4['Embalagem'], l4['Lucro'], kpis(pg)[2]))
+        ors_t = ors_com([(1, '4.70'), (1, '0.60')])
+        _, l_t, _ = do_mes(orx=ors_t)
+        ok(ors_t[4]['embalagem'] == D('5.30') and ors_t[4]['lucro'] == D('169.72') and l_t == D('1227.13'), 'o oráculo: Flex M 4,70 + tag Brands 0,60 = 5,30, lucro do 4 em 169,72 e o total do mês em 1.227,13: %s %s %s' % (ors_t[4]['embalagem'], ors_t[4]['lucro'], l_t))
+        ok(l4['Embalagem'] == br(ors_t[4]['embalagem']) and l4['Lucro'] == br(ors_t[4]['lucro']) and kpis(pg)[2] == br(l_t), 'trocando a CE-02 pela Flex M e tirando a fita: o 4 vai a 5,30, lucro 169,72, e o total a 1.227,13: %s %s %s' % (l4['Embalagem'], l4['Lucro'], kpis(pg)[2]))
         pg.context.close()
 
     # ================================================================ 6. custo do dia
@@ -545,7 +568,9 @@ with sync_playwright() as p:
         ok(perto(cad['Caixa de Encomenda CE-02'], 9) and perto(cad['Tag Desk Brands'], 1) and perto(cad['Caixa para Eletrônicos'], 12.5), 'o cadastro mudou: CE-02 9,00, tag Brands 1,00; a caixa de eletrônicos segue em 12,50')
         abrir_custos(pg)
         l4, l16 = linha_pedido(pg, 4), linha_pedido(pg, 16)
-        ok(l4['Embalagem'] == 'R$ 7,20' and l4['Lucro'] == 'R$ 161,40', 'o 4, confirmado antes, segue em 7,20 (lucro 161,40): o pedido guardou o custo do dia: %s' % l4['Embalagem'])
+        conf4 = dict(EMB_CONFIRMADA); conf4[4] = [(1, '6.30'), (1, '0.60'), (1, '0.30')]   # o registro guardou os preços de antes da mudança
+        l4_or = oraculo(next(x for x in todos_custos(pg) if x['id'] == 4), confirmadas=conf4)['lucro']
+        ok(l4['Embalagem'] == 'R$ 7,20' and l4['Lucro'] == br(l4_or) and perto(l4_or, 167.82), 'o 4, confirmado antes, segue em 7,20 (lucro 167,82, do oráculo): o pedido guardou o custo do dia: %s %s' % (l4['Embalagem'], l4['Lucro']))
         ok(l16['Embalagem'] == 'R$ 12,60' and pg.evaluate("JSON.parse(localStorage.getItem('deskEmbalagens')).filter(e => e.id === 6)[0].custo") == 12.5, 'o 16 usa 11,90 + tag + fita = 12,60 com o cadastro em 12,50')
         ok(reg(pg)['itens'][0]['custo'] == 6.3, 'o registro do 4 guarda 6,30 da CE-02')
         pg.context.close()
@@ -768,7 +793,8 @@ with sync_playwright() as p:
         ok(r and r['situacao'] == 'separada' and [(i['id'], i['qtd']) for i in r['itens']] == [(5, 3), (12, 1), (13, 1)], 'a Separação guardou 3 caixas CE-02: %s' % (r and [(i['id'], i['qtd']) for i in r['itens']]))
         abrir_custos(pg)
         l4 = linha_pedido(pg, 4)
-        ok(l4['Embalagem'] == 'R$ 7,20 estimada' and l4['Lucro'] == 'R$ 161,40', 'o 4 "separado" com 3 caixas segue na estimativa do cadastro (7,20, com a marca): quem decide é a Conferência: %s' % l4['Embalagem'])
+        l4_or = oraculo(next(x for x in todos_custos(pg) if x['id'] == 4))['lucro']   # sem registro confirmado: a estimativa do cadastro (7,20)
+        ok(l4['Embalagem'] == 'R$ 7,20 estimada' and l4['Lucro'] == br(l4_or) and perto(l4_or, 167.82), 'o 4 "separado" com 3 caixas segue na estimativa do cadastro (7,20, com a marca): quem decide é a Conferência: %s' % l4['Embalagem'])
         ir(pg, PV_D, '?id=4')
         ok('estimada pelo cadastro: 1 Caixa de Encomenda CE-02 + 1 Tag Desk Brands + 1 Fita adesiva.' in pg.inner_text('#caixaResultado').replace('\n', ' '), 'a página do pedido também (uma caixa, não as 3 da Separação)')
         ir(pg, CONF_F, '?id=4')
