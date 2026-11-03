@@ -776,7 +776,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row" id="linhaPesoCap">
       <div class="form-field" id="campoPeso">
         <label>Peso (kg)</label>
-        <input type="text" id="inputPeso" placeholder="0,00">
+        <input data-mascara="peso" inputmode="decimal" type="text" id="inputPeso" placeholder="0,00">
       </div>
       <div class="form-field" id="campoCap">
         <label>Cabe até (peças)</label>
@@ -789,7 +789,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     <div class="form-field" id="campoCusto">
       <label>Custo (R$)</label>
-      <input type="text" id="inputCusto" inputmode="decimal" placeholder="0,00">
+      <input data-mascara="dinheiro" type="text" id="inputCusto" inputmode="decimal" placeholder="0,00">
       <div class="field-error-msg" id="erroCusto">Informe um valor de zero em diante, como 4,70.</div>
     </div>
 
@@ -1752,7 +1752,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     setTipoDropdown(e.tipo);
     renderDimensoes(e.tipo, { inputLargura: e.largura, inputAltura: e.altura, inputComprimento: e.comprimento, inputDiametro: e.diametro });
     aplicarTipoNoForm(e.tipo);
-    document.getElementById('inputPeso').value = e.tipo === 'insumo' ? '' : (Number(e.peso) || 0).toString().replace('.', ',');
+    document.getElementById('inputPeso').value = e.tipo === 'insumo' || !Number(e.peso) ? '' : Number(e.peso).toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
     document.getElementById('inputCap').value = e.cap > 0 ? String(e.cap) : '';
     document.getElementById('inputCusto').value = (Number(e.custo) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     setAutoDropdown(e.tipo === 'insumo' ? (e.auto || '') : '');
@@ -1800,7 +1800,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('erroCap').classList.toggle('show', !capOk);
     if (!custoOk || !capOk) return;
     const custo = custoTxt === '' ? 0 : Number(custoTxt);
-    const peso = parseFloat((document.getElementById('inputPeso').value || '0').replace(',', '.')) || 0;
+    const peso = parseFloat((document.getElementById('inputPeso').value || '0').replace(/\./g, '').replace(',', '.')) || 0;
     const status = document.getElementById('inputSituacao').getAttribute('data-value');
     const ler = (id) => parseFloat((document.getElementById(id) ? document.getElementById(id).value : '').replace(',', '.')) || 0;
     const dados = { nome, tipo, peso: tipo === 'insumo' ? 0 : peso, custo, status };
@@ -1944,6 +1944,95 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
 
 </script>
+
+<!-- MASCARA DE DIGITACAO (bloco comum, igual em todas as telas com campo de reais ou de peso; design system 14.105) -->
+<script>
+(function () {
+  var CASAS = { dinheiro: 2, peso: 3, 'valor-ou-pct': 2 }, TETO = 13;
+  var soDig = function (s) { return String(s).replace(/\D/g, ''); };
+  var semZeros = function (d) { return d.replace(/^0+/, ''); };
+  // Texto literal ("1.234,56", "1234.56", "150,5") vira os digitos em centavos ou gramas, sem zeros a esquerda; null se nao ha digito.
+  function literal(txt, c) {
+    var t = String(txt).replace(/[^\d.,]/g, '');
+    if (!/\d/.test(t)) return null;
+    var iv = Math.max(t.lastIndexOf(','), t.lastIndexOf('.')), ent = t, dec = '';
+    if (iv >= 0) {
+      var sep = t.charAt(iv), depois = t.slice(iv + 1), n = t.split(sep).length - 1;
+      if (n === 1 && depois.length > 0 && (sep === ',' || depois.length <= c)) { ent = t.slice(0, iv); dec = depois.slice(0, c); }
+    }
+    while (dec.length < c) dec += '0';
+    return semZeros(soDig(ent) + dec);
+  }
+  function fmt(d, c) {
+    while (d.length <= c) d = '0' + d;
+    return d.slice(0, d.length - c).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + d.slice(d.length - c);
+  }
+  function grava(t, txt) {
+    t.value = txt; t.__alt = true;
+    try { t.setSelectionRange(txt.length, txt.length); } catch (x) {}
+    t.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  // O navegador so dispara "change" para digitacao dele; como aqui o valor e posto por codigo, o "change" (ao sair do campo ou no Enter) e dado a mao.
+  function emMascara(e) { var t = e.target; return t && t.getAttribute && CASAS[t.getAttribute('data-mascara')] ? t : null; }
+  function confirma(t) { if (t.__alt) { t.__alt = false; if (t.value !== t.__v0) t.dispatchEvent(new Event('change', { bubbles: true })); } }
+  document.addEventListener('focus', function (e) { var t = emMascara(e); if (t) { t.__v0 = t.value; t.__alt = false; } }, true);
+  document.addEventListener('blur', function (e) { var t = emMascara(e); if (t) confirma(t); }, true);
+  document.addEventListener('keydown', function (e) { var t = e.key === 'Enter' && emMascara(e); if (t) confirma(t); }, true);
+  function mostra(t, d, c) { d = semZeros(d); grava(t, d === '' ? fmt('', c) : fmt(d, c)); }
+  function limpa(t) { t.dataset.bruto = ''; grava(t, ''); }
+  // valor-ou-pct: dataset.bruto guarda o que foi digitado (com a virgula); se a tela mudou o campo por codigo, reconstroi.
+  function sincroniza(t, d) {
+    var v = t.value;
+    if (/%\s*$/.test(v)) { t.dataset.bruto = v.replace(/[^\d,]/g, ''); return; }
+    if (semZeros(soDig(t.dataset.bruto || '')) !== d) t.dataset.bruto = d;
+  }
+  document.addEventListener('beforeinput', function (e) {
+    var t = e.target, tipo = t && t.getAttribute ? t.getAttribute('data-mascara') : null;
+    if (!tipo || !CASAS[tipo] || t.readOnly || t.disabled || e.isComposing) return;
+    var c = CASAS[tipo], vop = tipo === 'valor-ou-pct', it = e.inputType || '', v = t.value;
+    var todo = v.length > 0 && t.selectionStart === 0 && t.selectionEnd === v.length;
+    var pct = vop && /%\s*$/.test(v);
+    var d = pct ? '' : (literal(v, c) || '');
+    if (vop) sincroniza(t, d);
+    var bruto = vop ? (t.dataset.bruto || '') : '';
+    if (/^(insertText|insertFromPaste|insertFromDrop|insertReplacementText)$/.test(it)) {
+      var s = e.data != null ? e.data : (e.dataTransfer ? e.dataTransfer.getData('text') : '');
+      e.preventDefault();
+      if (s.length === 1 && it === 'insertText') {
+        if (/\d/.test(s)) {
+          if (pct && !todo) return;
+          var base = (todo || pct) ? '' : d;
+          if (semZeros(base + s).length > TETO) return;
+          if (vop) t.dataset.bruto = ((todo || pct) ? '' : bruto) + s;
+          mostra(t, base + s, c);
+        } else if (vop && (s === ',' || s === '.') && !pct && !todo && bruto.indexOf(',') < 0) {
+          t.dataset.bruto = (bruto === '' ? '0' : bruto) + ',';
+        } else if (vop && s === '%' && !pct && /\d/.test(bruto)) {
+          grava(t, bruto.replace(/,$/, '') + '%');
+        }
+        return;
+      }
+      var lit = literal(s, c);
+      if (lit === null || lit.length > TETO) return;
+      if (vop && s.indexOf('%') >= 0) { var b = s.replace(/[^\d.,]/g, '').replace(/\./g, ','); t.dataset.bruto = b; grava(t, b + '%'); return; }
+      if (vop) t.dataset.bruto = lit;
+      mostra(t, lit, c);
+      return;
+    }
+    if (it.indexOf('delete') === 0) {
+      e.preventDefault();
+      if (v === '') return;
+      var umDigito = it === 'deleteContentBackward' || it === 'deleteContentForward';
+      if (todo || !umDigito) { limpa(t); return; }
+      if (pct) { var dg = semZeros(soDig(bruto)); if (dg === '') limpa(t); else mostra(t, dg, c); return; }
+      var nd = d.slice(0, -1);
+      if (vop) t.dataset.bruto = bruto.replace(/\d\D*$/, '');
+      if (nd === '') limpa(t); else mostra(t, nd, c);
+    }
+  }, true);
+})();
+</script>
+<!-- /MASCARA DE DIGITACAO -->
 
 </body>
 </html>

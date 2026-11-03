@@ -144,6 +144,14 @@
   .kpi-delta.up { color: var(--success); }
   .kpi-delta.down { color: var(--danger); }
   .kpi-delta.neutral { color: var(--text); font-weight:500; }
+  /* Indicadores da fila (03/nov/2026): clicar filtra a lista, clicar de novo desfaz. Mesmo componente de Contas a Pagar. */
+  .fila-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
+  .fila-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .fila-kpis .kpi-value { font-size:20px; }
+  .fila-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .fila-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .fila-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  @media (max-width:1100px) { .fila-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
 
   /* ===== INSIGHT CARDS (Meta / Devolução / Giro) ===== */
   .insight-card { border:1px solid var(--border); border-left:3px solid var(--border); }
@@ -1060,23 +1068,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
+  <!-- Indicadores: clicar filtra a lista, clicar de novo desfaz. Mesmo componente da Separacao. -->
+  <div class="fila-kpis" id="indicadoresFila">
+    <div class="card kpi-card" data-kpi="aberto" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
       <div class="kpi-label">Em aberto</div>
       <div class="kpi-value" id="kpiAberto">0</div>
       <div class="kpi-delta neutral" id="kpiAbertoSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+    <div class="card kpi-card" data-kpi="andamento" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
       <div class="kpi-label">Aguardando a mercadoria</div>
       <div class="kpi-value" id="kpiAndamento">0</div>
       <div class="kpi-delta neutral" id="kpiAndamentoSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
+    <div class="card kpi-card" data-kpi="valor" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
       <div class="kpi-label">Valor a devolver</div>
       <div class="kpi-value" id="kpiValor">R$ 0,00</div>
       <div class="kpi-delta neutral" id="kpiValorSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--success)">
+    <div class="card kpi-card" data-kpi="estoque" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
       <div class="kpi-label">Estoque já lançado</div>
       <div class="kpi-value" id="kpiEstoque">0</div>
       <div class="kpi-delta neutral" id="kpiEstoqueSub">—</div>
@@ -2252,6 +2261,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== FILTROS, ORDEM E PAGINACAO =====
   let busca = '', abaSit = 'todas', fResp = 'todos', fMotivo = 'todos', fForma = 'todos';
+  let kpiAtivo = null;     // indicador aceso (um so); desligado por aba, por "Limpar filtros" e pelo clique de novo
+  // Cada card filtra pela MESMA condicao que conta o numero dele (pintarKpis); clicar acende a aba equivalente.
+  const KPIS = [
+    { id:'aberto', aba:'aberta', quais: d => d.situacao === 'aberta' },
+    { id:'andamento', aba:'andamento', quais: d => d.situacao === 'andamento' },
+    { id:'valor', aba:'todas', quais: d => d.situacao !== 'cancelada' && d.situacao !== 'finalizada' },
+    { id:'estoque', aba:'todas', quais: d => !!d.estoque }
+  ];
+  const passaIndicador = (d) => !kpiAtivo || KPIS.filter(k => k.id === kpiAtivo)[0].quais(d);
   let periodo = 'todos';
   let ordem = 'numero', asc = false;
   let pagina = 1, porPagina = PARAM.registrosPorPagina;
@@ -2280,7 +2298,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function filtradas() {
-    const base = semAba().filter(d => abaSit === 'todas' || d.situacao === abaSit);
+    const base = semAba().filter(d => abaSit === 'todas' || d.situacao === abaSit).filter(passaIndicador);
     const dir = asc ? 1 : -1;
     return base.slice().sort((x, y) => {
       if (ordem === 'valor') return (totalDevolver(x) - totalDevolver(y)) * dir;
@@ -2371,11 +2389,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // o filtro e numero que contradiz a tela embaixo dele.
   function pintarKpis() {
     const base = semAba();
-    const abertas = base.filter(d => d.situacao === 'aberta');
-    const andamento = base.filter(d => d.situacao === 'andamento');
-    const vivas = base.filter(d => d.situacao !== 'cancelada' && d.situacao !== 'finalizada');
+    const q = (id) => KPIS.filter(k => k.id === id)[0].quais;
+    const abertas = base.filter(q('aberto'));
+    const andamento = base.filter(q('andamento'));
+    const vivas = base.filter(q('valor'));
     const aLancar = base.filter(d => podeLancarEstoque(d));
-    const lancadas = base.filter(d => d.estoque);
+    const lancadas = base.filter(q('estoque'));
 
     document.getElementById('kpiAberto').textContent = abertas.length;
     document.getElementById('kpiAbertoSub').textContent = abertas.length
@@ -2396,7 +2415,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('kpiEstoqueSub').textContent = aLancar.length
       ? aLancar.length + (aLancar.length === 1 ? ' ainda esperando lançamento' : ' ainda esperando lançamento')
       : 'nada pendente de lançamento';
+    KPIS.forEach(k => {
+      const card = document.querySelector('.fila-kpis [data-kpi="' + k.id + '"]');
+      card.classList.toggle('on', kpiAtivo === k.id);
+      card.setAttribute('aria-pressed', kpiAtivo === k.id ? 'true' : 'false');
+    });
   }
+  function escolherIndicador(id) {
+    const k = KPIS.filter(x => x.id === id)[0], desfaz = kpiAtivo === id;
+    kpiAtivo = desfaz ? null : id;
+    abaSit = desfaz ? 'todas' : k.aba;
+    document.querySelectorAll('.aba-sit').forEach(o => o.classList.toggle('active', o.getAttribute('data-sit') === abaSit));
+    pagina = 1; render();
+  }
+  document.querySelectorAll('.fila-kpis [data-kpi]').forEach(c => {
+    c.addEventListener('click', () => escolherIndicador(c.getAttribute('data-kpi')));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolherIndicador(c.getAttribute('data-kpi')); } });
+  });
 
   // ===== PAINEL: a devolucao por dentro, sem sair da lista =====
   // Mesma regra do Rastreamento (07/out): A LISTAGEM LE, O DETALHE ESCREVE.
@@ -2567,6 +2602,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.querySelectorAll('.aba-sit').forEach(o => o.classList.remove('active'));
       ab.classList.add('active');
       abaSit = ab.getAttribute('data-sit');
+      kpiAtivo = null;
       pagina = 1; render();
     });
   });
@@ -2592,7 +2628,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   document.getElementById('btnLimparFiltros').addEventListener('click', () => {
     busca = ''; document.getElementById('campoBusca').value = '';
-    abaSit = 'todas';
+    abaSit = 'todas'; kpiAtivo = null;
     document.querySelectorAll('.aba-sit').forEach(o => o.classList.toggle('active', o.getAttribute('data-sit') === 'todas'));
     fResp = fMotivo = fForma = 'todos';
     setDropdownValor('filtroResponsavel', 'todos');

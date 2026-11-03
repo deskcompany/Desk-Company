@@ -252,6 +252,29 @@ def audita(caminho):
     proibida = len(re.findall('lov' + 'able', txt, re.I))
     if proibida: probs.append('12 a tela cita a ferramenta que saiu do projeto: %d vez(es)' % proibida)
 
+    # 13 campo em reais ou de peso sem a mascara de digitacao (02/nov/2026, itens 6 e 17 da revisao geral). Tela nova copia o
+    # campo que estiver mais perto: se ele nasce sem data-mascara, o usuario digita "2" e ve "2" onde as outras telas dao 0,02.
+    # Reprova <input> com placeholder="0,00", ou "(R$)" / "(kg)" no placeholder ou no rotulo logo acima, sem data-mascara.
+    # Porcentagem com placeholder 0,00 declara data-sem-mascara; campo readonly/disabled nao e digitado e fica fora.
+    sem_mascara = []
+    for m in re.finditer(r'<input\b', txt):
+        tag = txt[m.start():txt.find('>', m.start())]
+        if re.search(r'type="(checkbox|radio|date|file|hidden|time|password|email|number|color|range)"', tag): continue
+        if 'data-mascara=' in tag or 'data-sem-mascara=' in tag: continue
+        if re.search(r'\s(readonly|disabled)\b', tag): continue
+        ph = re.search(r'placeholder="([^"]*)"', tag)
+        dica = ph is not None and (ph.group(1) == '0,00' or '(R$)' in ph.group(1) or '(kg)' in ph.group(1))
+        if not dica:
+            ant = txt[max(0, m.start() - 300):m.start()]
+            i = ant.rfind('</label>')
+            if i >= 0 and '<input' not in ant[i:]:
+                rot = re.sub(r'<[^>]+>', '', ant[ant.rfind('<label', 0, i):i])
+                dica = '(R$)' in rot or '(kg)' in rot
+        if dica:
+            ide = re.search(r'\s(?:id|data-[a-z-]+)="([^"]+)"', tag)
+            sem_mascara.append(ide.group(1) if ide else tag[:40])
+    if sem_mascara: probs.append('13 campo de reais ou de peso sem data-mascara: ' + ', '.join(sem_mascara[:6]))
+
     # 9 botoes/links com id e sem listener
     with_id = set(re.findall(r'<(?:button|div|a)[^>]*\sid="(btn[^"]+|link[^"]+)"', limpo))
     # Link com destino real NAVEGA: nao precisa de listener nenhum. Antes o

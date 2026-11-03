@@ -107,6 +107,14 @@
   .kpi-delta.up { color: var(--success); }
   .kpi-delta.down { color: var(--danger); }
   .kpi-delta.neutral { color: var(--text); font-weight:500; }
+  /* Indicadores da fila (03/nov/2026): clicar filtra a lista, clicar de novo desfaz. Mesmo componente de Contas a Pagar. */
+  .fila-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-bottom:14px; }
+  .fila-kpis .kpi-card { cursor:pointer; user-select:none; }
+  .fila-kpis .kpi-value { font-size:20px; }
+  .fila-kpis .kpi-card:hover { border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .fila-kpis .kpi-card.on { background:var(--active-bg); border-top-color:var(--active-text); border-right-color:var(--active-text); border-bottom-color:var(--active-text); }
+  .fila-kpis .kpi-card:focus-visible { outline:2px solid var(--chart-2); outline-offset:2px; }
+  @media (max-width:1100px) { .fila-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
 
   /* ===== INSIGHT CARDS (Meta / Devolução / Giro) ===== */
   .insight-card { border:1px solid var(--border); border-left:3px solid var(--border); }
@@ -1019,23 +1027,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:14px;">
-    <div class="card kpi-card" style="border-left-color:var(--active-text)">
+  <!-- Indicadores: clicar filtra a lista, clicar de novo desfaz. Mesmo componente da Separacao. -->
+  <div class="fila-kpis" id="indicadoresFila">
+    <div class="card kpi-card" data-kpi="transito" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--active-text)">
       <div class="kpi-label">Em trânsito</div>
       <div class="kpi-value" id="kpiTransito">0</div>
       <div class="kpi-delta neutral" id="kpiTransitoSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--danger)">
+    <div class="card kpi-card" data-kpi="atrasados" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--danger)">
       <div class="kpi-label">Atrasados</div>
       <div class="kpi-value" id="kpiAtrasados">0</div>
       <div class="kpi-delta neutral" id="kpiAtrasadosSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--success)">
+    <div class="card kpi-card" data-kpi="noprazo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--success)">
       <div class="kpi-label">Entregues no prazo</div>
       <div class="kpi-value" id="kpiNoPrazo">0</div>
       <div class="kpi-delta neutral" id="kpiNoPrazoSub">—</div>
     </div>
-    <div class="card kpi-card" style="border-left-color:var(--warning)">
+    <div class="card kpi-card" data-kpi="semcodigo" role="button" tabindex="0" aria-pressed="false" style="border-left-color:var(--warning)">
       <div class="kpi-label">Sem código de rastreio</div>
       <div class="kpi-value" id="kpiSemCodigo">0</div>
       <div class="kpi-delta neutral" id="kpiSemCodigoSub">—</div>
@@ -2155,6 +2164,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ===== FILTROS, ORDEM E PAGINACAO =====
   const estado = { busca: '', periodo: 'todos', situacao: 'todos', transp: 'todos',
                    pagamento: 'todos', ordem: 'previsao', asc: true, pagina: 1, porPagina: 10 };
+  let kpiAtivo = null;     // indicador aceso (um so); desligado por "Limpar filtros" e pelo clique de novo
+  // Cada card filtra pela MESMA condicao que conta o numero dele (desenharKpis); soma com a situacao e os demais filtros.
+  const KPIS = [
+    { id:'transito', quais: p => p.situacao === 'enviado' },
+    { id:'atrasados', quais: p => estadoPrazo(p) === 'atrasado' && !p.entregaEm },
+    { id:'noprazo', quais: p => p.situacao === 'entregue' && diasDeAtraso(p) === 0 },
+    { id:'semcodigo', quais: p => faltaCodigo(p) > 0 }
+  ];
 
   const corpoTabela = document.getElementById('corpoTabela');
   const emptyState = document.getElementById('emptyState');
@@ -2180,9 +2197,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   }
 
-  function filtrados() {
+  // A lista que os cards contam: todos os filtros, menos o proprio card.
+  function semIndicador() {
     let lista = semSituacao();
     if (estado.situacao !== 'todos') lista = lista.filter(p => p.situacao === estado.situacao);
+    return lista;
+  }
+
+  function filtrados() {
+    let lista = semIndicador();
+    if (kpiAtivo) lista = lista.filter(KPIS.filter(k => k.id === kpiAtivo)[0].quais);
 
     const dir = estado.asc ? 1 : -1;
     const chave = {
@@ -2335,12 +2359,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // filtro aberto embaixo e numero que mente com cara de verdade — e o rodape do
   // Caixa ja ensinou isso (§14 do design system).
   function desenharKpis() {
-    const lista = filtrados();
-    const transito = lista.filter(p => p.situacao === 'enviado');
-    const atrasados = lista.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm);
+    const lista = semIndicador(), q = (id) => KPIS.filter(k => k.id === id)[0].quais;
+    const transito = lista.filter(q('transito'));
+    const atrasados = lista.filter(q('atrasados'));
     const entregues = lista.filter(p => p.situacao === 'entregue');
-    const noPrazo = entregues.filter(p => diasDeAtraso(p) === 0);
-    const semCod = lista.filter(p => faltaCodigo(p) > 0);
+    const noPrazo = lista.filter(q('noprazo'));
+    const semCod = lista.filter(q('semcodigo'));
 
     const por = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     por('kpiTransito', transito.length);
@@ -2351,7 +2375,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     por('kpiNoPrazoSub', entregues.length ? noPrazo.length + ' de ' + entregues.length + ' entregas' : 'sem entrega no filtro');
     por('kpiSemCodigo', semCod.length);
     por('kpiSemCodigoSub', semCod.length ? 'a vitrine não responde por eles' : 'todos com código');
+    KPIS.forEach(k => {
+      const card = document.querySelector('.fila-kpis [data-kpi="' + k.id + '"]');
+      if (!card) return;
+      card.classList.toggle('on', kpiAtivo === k.id);
+      card.setAttribute('aria-pressed', kpiAtivo === k.id ? 'true' : 'false');
+    });
   }
+  document.querySelectorAll('.fila-kpis [data-kpi]').forEach(c => {
+    const escolher = () => { const id = c.getAttribute('data-kpi'); kpiAtivo = kpiAtivo === id ? null : id; estado.pagina = 1; render(); };
+    c.addEventListener('click', escolher);
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); escolher(); } });
+  });
 
   function desenharAviso() {
     const aviso = document.getElementById('avisoCodigos');
@@ -2544,7 +2579,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const btnLimpar = document.getElementById('btnLimparFiltros');
   if (btnLimpar) btnLimpar.addEventListener('click', function () {
     estado.busca = ''; estado.periodo = 'todos'; estado.situacao = 'todos';
-    estado.transp = 'todos'; estado.pagamento = 'todos'; estado.pagina = 1;
+    estado.transp = 'todos'; estado.pagamento = 'todos'; estado.pagina = 1; kpiAtivo = null;
     if (campoBusca) campoBusca.value = '';
     const rot = document.getElementById('rotuloPeriodo');
     if (rot) rot.textContent = 'Sem filtro de período';

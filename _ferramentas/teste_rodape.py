@@ -155,7 +155,7 @@ with sync_playwright() as p:
         if tem_rodape:
             campo = pg.evaluate("""() => {
               const livres = [...document.querySelectorAll('.main input[type=text]')]
-                .filter(e => e.offsetParent !== null && !e.disabled && !e.readOnly);
+                .filter(e => e.offsetParent !== null && !e.disabled && !e.readOnly && !e.hasAttribute('data-mascara'));   // campo com mascara nao aceita texto livre
               const el = livres.find(e => e.value.trim() !== '') || livres[0];
               if (!el) return null;
               if (el.id) return '#' + el.id;
@@ -204,7 +204,7 @@ with sync_playwright() as p:
             continue
         campo = pg.evaluate("""() => {
           const livres = [...document.querySelectorAll('.main input[type=text]')]
-            .filter(e => e.offsetParent !== null && !e.disabled && !e.readOnly);
+            .filter(e => e.offsetParent !== null && !e.disabled && !e.readOnly && !e.hasAttribute('data-mascara'));
           const el = livres.find(e => e.value.trim() !== '') || livres[0];
           if (!el) return null;
           if (el.id) return '#' + el.id;

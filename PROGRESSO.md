@@ -116,20 +116,14 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Revisão em andamento desde 02/nov/2026: pacotes 1 (visual), 2 (navegação) e 3 (cards que filtram, Voltar com os filtros, título do cabeçalho) feitos; faltam digitação (6 e 17) e regras de dinheiro (9 a 11).
+Revisão em andamento desde 02/nov/2026: pacotes 1 (visual), 2 (navegação), 3 (cards que filtram, Voltar com os filtros, título do cabeçalho) e 4 (digitação a partir dos centavos e das gramas; cards de Devolução e Rastreamento; preço do SKU no Pedido) feitos; faltam as regras de dinheiro (9 a 11).
 
 Pedidos do usuário de 19 a 26/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
 revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
 
-6. **Campo de dinheiro digitado a partir dos centavos.** Hoje o campo mostra "0,00" e o que se digita entra como texto.
-   O usuário quer a digitação da direita para a esquerda: com "0,00" na tela, digitar 2 dá 0,02; 0 dá 0,20; 0 dá 2,00;
-   0 dá 20,00. Digitar 250 dá 2,50; digitar 1589 dá 15,89. Vale para **todo campo de valor em reais**: mapear todos na
-   revisão e fazer um componente só. Atenção ao campo que aceita valor ou percentual ("Ex: 3,00 ou 10%", o desconto do
-   PDV), que precisa de regra própria. **Reforçado em 30/out** no cadastro de Embalagens (campo Custo): vale em todas as telas.
 9. **a comissão não conta o vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro incluído) Ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
 10. **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais
 11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
-17. **Campo de peso digitado a partir das gramas** (30/out): começa em gramas e cresce conforme se digita, no mesmo jeito do campo de dinheiro (item 6): 1 dá 0,001 kg; 15 dá 0,015; 150 dá 0,150; 1500 dá 1,500. Vale para **todo campo de peso**: mapear todos na revisão e fazer junto com o item 6. Mostrado no cadastro de Embalagens.
 
 *Custos do E-commerce, entrega 2 (27/out):* o vale de cortesia passou a sair da venda do resultado do pedido, mas a comissão **não** mudou por isso; o **item 9 continua aqui, sem mudar** (a base da comissão ainda é o total menos o frete).
 

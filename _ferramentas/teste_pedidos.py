@@ -475,6 +475,20 @@ with sync_playwright() as p:
     ok(com['vermelha'] and com['falta'] and com['aviso'] == 'só 0 disponível' and alinhadas(com) and pg.evaluate("document.getElementById('erroSaldo').classList.contains('show')"),
        'escolhido um produto sem saldo, o aviso "só 0 disponível" e o aviso geral voltam, e a caixa do SKU continua no topo das outras: %s' % com)
 
+    print('\n[24] SKU digitado numa linha nova traz o preco do produto para o campo "Preco Un" (02/nov/2026)')
+    abre(DET + '?id=1&editar=1', 700)
+    pg.evaluate("document.getElementById('btnAdicionarItem').click()"); pg.wait_for_timeout(200)
+    prod = pg.evaluate("(() => { const p = CATALOGO.filter(x => x.preco > 0)[0]; return { sku: p.sku, preco: fmtNum(p.preco) }; })()")
+    ok(pg.input_value('#corpoItens tr:last-child input[data-campo="precoLista"]') in ('0,00', ''), 'a linha nova nasce com o preco zerado')
+    pg.fill('#corpoItens tr:last-child input[data-campo="sku"]', prod['sku']); pg.wait_for_timeout(200)
+    ok(pg.input_value('#corpoItens tr:last-child input[data-campo="precoLista"]') == prod['preco'],
+       'digitado o SKU %s, o campo "Preco Un" mostra %s, como ao escolher pela descricao' % (prod['sku'], prod['preco']))
+    ok(pg.inner_text('#corpoItens tr:last-child td:nth-child(7) b').replace('R$', '').strip() == prod['preco'],
+       'e o total da linha acompanha o preco: %s' % pg.inner_text('#corpoItens tr:last-child td:nth-child(7) b'))
+    ok(pg.evaluate("document.activeElement.getAttribute('data-campo')") == 'sku', 'o foco continua no SKU (so a celula do preco foi reescrita)')
+    pg.fill('#corpoItens tr:last-child input[data-campo="sku"]', 'XXX-INEXISTENTE'); pg.wait_for_timeout(200)
+    ok(pg.input_value('#corpoItens tr:last-child input[data-campo="precoLista"]') == prod['preco'], 'SKU que nao existe nao apaga nem inventa preco')
+
     b.close()
 
 print('\nFALHAS: ' + str(len(falhas)))

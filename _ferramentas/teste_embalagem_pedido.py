@@ -198,7 +198,8 @@ with sync_playwright() as p:
         pg.fill('#inputNomeEmbalagem', 'Etiqueta de teste')
         antes = len(ls(pg, 'deskEmbalagens') or [])
         for ruim in ('abc', '-3', '1,234', '4,70,1'):
-            pg.fill('#inputCusto', ruim); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(150)
+            # a mascara de digitacao nao deixa digitar esses textos; posto por codigo, a validacao do salvar segue provada
+            pg.evaluate("(v) => { const e = document.getElementById('inputCusto'); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); }", ruim); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(150)
             ok(pg.evaluate("document.getElementById('erroCusto').classList.contains('show') && document.getElementById('campoCusto').classList.contains('has-error')") and ls(pg, 'deskEmbalagens') is None
                and pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')"), 'custo "%s" dá erro no padrão da casa e não salva' % ruim)
         pg.fill('#inputCusto', '0,15')

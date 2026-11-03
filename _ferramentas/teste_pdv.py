@@ -56,6 +56,11 @@ def ok(cond, texto):
         falhas.append(texto)
 
 
+def texto_cru(pg, sel, v):
+    # Texto que a mascara de digitacao nao deixa digitar (letras), posto por codigo: a validacao da tela segue provada.
+    pg.evaluate("(a) => { const e = document.querySelector(a[0]); e.value = a[1]; e.dispatchEvent(new Event('input', { bubbles: true })); }", [sel, v])
+
+
 def clic(pg, sel):
     pg.evaluate("(s) => document.querySelector(s).click()", sel)
 
@@ -188,7 +193,7 @@ with sync_playwright() as p:
     escolher(pg, 'abrirLoja', 2)
     ok('Loja Física Aldeota' in pg.inner_text('#hintAbrirLoja') and 'Desk Brands' in pg.inner_text('#hintAbrirLoja'),
        'escolher a loja diz o deposito e de quem sao os produtos: %s' % pg.inner_text('#hintAbrirLoja'))
-    pg.fill('#abrirTroco', 'abc')
+    texto_cru(pg, '#abrirTroco', 'abc')
     clic(pg, '#btnConfirmarAbertura'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#erroTroco') and pg.evaluate('turno') is None, 'troco que nao e numero nao abre o caixa')
     escolher(pg, 'abrirLoja', 1)
@@ -268,7 +273,7 @@ with sync_playwright() as p:
     clic(pg, '#listaItens tbody tr'); pg.wait_for_timeout(350)
     pg.fill('#itemQtd', '0'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#erroItem'), 'quantidade zero no painel e barrada')
-    pg.fill('#itemAjusteValor', 'abc'); pg.fill('#itemQtd', '3'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(250)
+    texto_cru(pg, '#itemAjusteValor', 'abc'); pg.fill('#itemQtd', '3'); clic(pg, '#btnAplicarItem'); pg.wait_for_timeout(250)
     ok(visivel(pg, '#erroItem') and 'em branco' in pg.inner_text('#erroItem') and pg.inner_text('#itemTotal') == '—', 'ajuste que nao e numero e barrado, e a previa nao inventa total')
     pg.fill('#itemAjusteValor', ''); pg.locator('#itemQtd').focus(); pg.keyboard.press('Control+Enter'); pg.wait_for_timeout(350)
     ok(pg.locator('#itemDrawer.open').count() == 0 and pg.evaluate('venda.itens[0].ajusteTipo') == 'nenhum' and pg.inner_text('#totVenda') == 'R$ 847,25',
@@ -599,7 +604,7 @@ with sync_playwright() as p:
     fechar_aviso(pg)
     clic(pg, '#listaItens tbody tr'); pg.wait_for_timeout(300)
     ok(pg.evaluate("document.getElementById('itemPreco').disabled") is True and 'travado' in pg.inner_text('#hintItemPreco'), 'com "bloquear alteracao de preco" ligado, o preco vem travado')
-    radio(pg, 'itemAjusteTipo', 'desconto'); radio(pg, 'itemAjusteModo', 'pct'); pg.fill('#itemAjusteValor', '8'); pg.wait_for_timeout(200)
+    radio(pg, 'itemAjusteTipo', 'desconto'); radio(pg, 'itemAjusteModo', 'pct'); pg.fill('#itemAjusteValor', '8,00'); pg.wait_for_timeout(200)
     ok(visivel(pg, '#itemNota') and '5,00%' in pg.inner_text('#itemNota'), 'e 8% de desconto ja passa do maximo de 5%')
     clic(pg, '#itemDrawer [data-fechar-painel]'); pg.wait_for_timeout(250)
     # fechamento NAO cego mostra o esperado; abrir com o ultimo valor sugere o troco

@@ -663,6 +663,55 @@ with sync_playwright() as pw:
     ok(p8.evaluate("DEV.forma") == 'sem' and not e8, 'e segue funcionando na memoria, sem erro de JS: %s' % e8[:1])
     p8.close()
 
+    print('\n[24] Os quatro cards do topo filtram a lista, pela mesma condicao que conta o numero (03/nov/2026)')
+    p9 = nav.new_page(viewport={'width': 1440, 'height': 1000})
+    e9 = []
+    p9.on('pageerror', lambda e: e9.append(str(e)))
+    p9.goto(localiza.uri(LISTA)); p9.wait_for_timeout(500)
+    IDS = ['aberto', 'andamento', 'valor', 'estoque']
+    def nums(): return p9.evaluate("Object.fromEntries([...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => [c.getAttribute('data-kpi'), c.querySelector('.kpi-value').textContent]))")
+    def linhas(): return p9.evaluate("filtradas().length")
+    def soma(): return p9.evaluate("filtradas().reduce((s, d) => s + totalDevolver(d), 0)")
+    def acesos(): return p9.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.classList.contains('on') && c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    def apertados(): return p9.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    ok(p9.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => c.getAttribute('data-kpi'))") == IDS, 'quatro cards na ordem ' + ', '.join(IDS))
+    ok(p9.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.hasAttribute('aria-pressed'))"),
+       'cada card e botao para o teclado: role, tabindex e aria-pressed')
+    # a conta direta, sem passar pelo codigo da tela
+    cont = p9.evaluate("() => ({ aberto: DEVOLUCOES.filter(d => d.situacao === 'aberta').length, andamento: DEVOLUCOES.filter(d => d.situacao === 'andamento').length, valor: DEVOLUCOES.filter(d => d.situacao !== 'cancelada' && d.situacao !== 'finalizada').length, estoque: DEVOLUCOES.filter(d => d.estoque).length })")
+    n0 = nums()
+    ok(int(n0['aberto']) == cont['aberto'] and int(n0['andamento']) == cont['andamento'] and int(n0['estoque']) == cont['estoque'], 'sem filtro, os numeros batem com a conta nos dados: %s' % n0)
+    total = linhas()
+    for k in IDS:
+        p9.click('.fila-kpis [data-kpi="%s"]' % k); p9.wait_for_timeout(100)
+        esperado = cont[k]
+        ok(acesos() == [k] and linhas() == esperado, 'clicar em "%s" liga so ele (aria-pressed e .on) e a lista tem %d linhas, as do card' % (k, esperado))
+        if k == 'valor':
+            ok(abs(soma() - float(p9.evaluate("(() => { const t = document.getElementById('kpiValor').textContent; return Number(t.replace(/[^\\d,]/g, '').replace(',', '.')); })()"))) < 0.006,
+               '  e a soma das linhas filtradas e o valor do card')
+        p9.click('.fila-kpis [data-kpi="%s"]' % k); p9.wait_for_timeout(100)
+        ok(apertados() == [] and linhas() == total, 'clicar de novo desliga e a lista volta a %d linhas' % total)
+    p9.focus('.fila-kpis [data-kpi="andamento"]'); p9.keyboard.press('Enter'); p9.wait_for_timeout(100)
+    ok(acesos() == ['andamento'], 'Enter no card (com o foco) liga')
+    p9.keyboard.press('Space'); p9.wait_for_timeout(100)
+    ok(apertados() == [], 'Espaco no card desliga')
+    p9.click('.fila-kpis [data-kpi="aberto"]'); p9.wait_for_timeout(100)
+    ok(p9.evaluate("document.querySelector('.aba-sit.active').getAttribute('data-sit')") == 'aberta', 'o card "aberto" acende a aba "Em aberto"')
+    p9.click('.aba-sit[data-sit="finalizada"]'); p9.wait_for_timeout(100)
+    ok(apertados() == [], 'clicar numa aba desliga o card')
+    p9.click('.fila-kpis [data-kpi="estoque"]'); p9.wait_for_timeout(100)
+    p9.evaluate("document.getElementById('btnLimparFiltros').click()"); p9.wait_for_timeout(120)
+    ok(apertados() == [] and linhas() == total, '"Limpar filtros" desliga o card e a lista volta inteira')
+    # soma com os filtros da barra: o numero do card os respeita e a lista clicada tem o mesmo tanto de linhas
+    p9.fill('#campoBusca', 'a'); p9.wait_for_timeout(150)
+    nb = nums()
+    for k in ('aberto', 'andamento', 'estoque'):
+        p9.click('.fila-kpis [data-kpi="%s"]' % k); p9.wait_for_timeout(80)
+        ok(linhas() == int(nb[k]), '  com a busca ligada, card "%s": %d linhas = o numero do card' % (k, int(nb[k])))
+        p9.click('.fila-kpis [data-kpi="%s"]' % k); p9.wait_for_timeout(80)
+    ok(not e9, 'sem erro de JS nos cards: %s' % e9[:2])
+    p9.close()
+
     nav.close()
 
 print('\nFALHAS: %d' % len(falhas))

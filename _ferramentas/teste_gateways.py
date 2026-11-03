@@ -429,7 +429,10 @@ with sync_playwright() as p:
             casos = [('prazo', 'abc'), ('prazo', '-1'), ('prazo', '2,5'), ('taxa', '101'), ('taxa', 'x'), ('taxa', '-1'), ('tarifa', '-0,5'), ('tarifa', 'zz'), ('taxa', '1,234'), ('prazo', '')]
             for campo, ruim in casos:
                 limpar(); novo('outro', 'Validando'); marcar('menuGwBandeiras', 'visa'); pg.evaluate("ESTADO_GRUPOS['fixas'] = true; renderCond()")
-                pg.fill(cel(0, campo), ruim); clic('#btnSalvarGw'); pg.wait_for_timeout(250)
+                # a mascara de digitacao da tarifa nao deixa digitar texto nem sinal; posto por codigo, a validacao do salvar segue provada
+                if campo == 'tarifa': pg.evaluate("([s, v]) => { const e = document.querySelector(s); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); }", [cel(0, campo), ruim])
+                else: pg.fill(cel(0, campo), ruim)
+                clic('#btnSalvarGw'); pg.wait_for_timeout(250)
                 ok(pg.evaluate("document.querySelectorAll('#wrapCondicoes td.tem-erro').length") == 1 and visivel('#erroCondicoes') and len(gws()) == 5 and not modal(),
                    '%s "%s" na tabela é recusado: a célula fica marcada, com a mensagem, e nada é gravado' % (campo, ruim))
             ok(pg.evaluate("document.querySelector('#wrapCondicoes .gw-erro-cel').textContent.length") > 5, 'a mensagem de erro aparece na célula, e não só a borda')

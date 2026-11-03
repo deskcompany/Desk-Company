@@ -494,6 +494,46 @@ with sync_playwright() as p:
         ok(est['larg'] <= 1440, 'detalhe tema %s: nao estoura em 1440 (%d)' % (tema, est['larg']))
     ok(not erros, 'sem erro de JS no detalhe: %s' % erros[:2])
 
+    print('\n[27] Os quatro cards do topo filtram a lista, pela mesma condicao que conta o numero (03/nov/2026)')
+    pg.goto(ARQ); pg.wait_for_timeout(500)
+    IDS = ['transito', 'atrasados', 'noprazo', 'semcodigo']
+    def nums(): return pg.evaluate("Object.fromEntries([...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => [c.getAttribute('data-kpi'), Number(c.querySelector('.kpi-value').textContent)]))")
+    def linhas(): return pg.evaluate("filtrados().length")
+    def acesos(): return pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.classList.contains('on') && c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    def apertados(): return pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].filter(c => c.getAttribute('aria-pressed') === 'true').map(c => c.getAttribute('data-kpi'))")
+    ok(pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].map(c => c.getAttribute('data-kpi'))") == IDS, 'quatro cards na ordem ' + ', '.join(IDS))
+    ok(pg.evaluate("[...document.querySelectorAll('.fila-kpis .kpi-card')].every(c => c.getAttribute('role') === 'button' && c.getAttribute('tabindex') === '0' && c.hasAttribute('aria-pressed'))"),
+       'cada card e botao para o teclado: role, tabindex e aria-pressed')
+    cont = pg.evaluate("""() => ({ transito: PEDIDOS.filter(p => p.situacao === 'enviado').length,
+        atrasados: PEDIDOS.filter(p => estadoPrazo(p) === 'atrasado' && !p.entregaEm).length,
+        noprazo: PEDIDOS.filter(p => p.situacao === 'entregue' && diasDeAtraso(p) === 0).length,
+        semcodigo: PEDIDOS.filter(p => faltaCodigo(p) > 0).length })""")
+    ok(nums() == cont, 'sem filtro, os numeros batem com a conta nos dados: %s' % nums())
+    total = linhas()
+    for k in IDS:
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(100)
+        ok(acesos() == [k] and linhas() == cont[k], 'clicar em "%s" liga so ele (aria-pressed e .on) e a lista tem %d linhas, as do card' % (k, cont[k]))
+        ok(pg.evaluate("document.querySelectorAll('#corpoTabela tr').length") == min(cont[k], 10), '  e a tabela desenha %d linha(s)' % min(cont[k], 10))
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(100)
+        ok(apertados() == [] and linhas() == total, 'clicar de novo desliga e a lista volta a %d linhas' % total)
+    pg.focus('.fila-kpis [data-kpi="atrasados"]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+    ok(acesos() == ['atrasados'], 'Enter no card (com o foco) liga')
+    pg.keyboard.press('Space'); pg.wait_for_timeout(100)
+    ok(apertados() == [], 'Espaco no card desliga')
+    # soma com os outros filtros: com a situacao "Entregue" escolhida, o card de atrasados continua contando o que passa por ela
+    pg.evaluate("document.querySelector('#filtroSituacao .dropdown-select-btn').click()"); pg.wait_for_timeout(100)
+    pg.evaluate("document.querySelector('#menuFiltroSituacao [data-value=\"enviado\"]').click()"); pg.wait_for_timeout(150)
+    n_env = nums()
+    ok(n_env['noprazo'] == 0 and n_env['transito'] == linhas(), 'com a situacao "Enviado", os cards contam so o que passa por ela: %s' % n_env)
+    for k in IDS:
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(80)
+        ok(linhas() == n_env[k], '  situacao ligada, card "%s": %d linhas = o numero do card' % (k, n_env[k]))
+        pg.click('.fila-kpis [data-kpi="%s"]' % k); pg.wait_for_timeout(80)
+    pg.click('.fila-kpis [data-kpi="transito"]'); pg.wait_for_timeout(80)
+    pg.evaluate("document.getElementById('btnLimparFiltros').click()"); pg.wait_for_timeout(150)
+    ok(apertados() == [] and linhas() == total, '"Limpar filtros" desliga o card e a lista volta inteira')
+    ok(not erros, 'sem erro de JS nos cards: %s' % erros[:2])
+
     b.close()
 
 print('\nFALHAS: ' + str(len(falhas)))

@@ -331,7 +331,8 @@ with sync_playwright() as p:
         preencher(pg, comissao='5')
         ok(visivel(pg, '#calcDiretaBloco') and not pg.is_disabled('#calcAplicar'), 'comissao de volta: o bloco volta e o Aplicar destrava')
         # nao conta valor negativo nem texto: vira zero
-        preencher(pg, custo='abc')
+        # a mascara de digitacao nao deixa digitar texto; posto por codigo, o calculo segue provado
+        pg.evaluate("() => { const e = document.getElementById('calcCusto'); e.value = 'abc'; e.dispatchEvent(new Event('input', { bubbles: true })); }"); pg.wait_for_timeout(120)
         ok(visivel(pg, '#calcAvisoCusto'), 'custo que nao e numero e o mesmo que sem custo')
         pg.context.close()
 
