@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 30/out/2026: a calculadora de precificação está feita (na aba Preços do produto) e espera a revisão dele. Custos do E-commerce está concluído. O próximo da fila é o estoque das embalagens, já aprovado por ele.*
+*Atualizado em 03/nov/2026: a revisão geral de 02-03/nov está feita (17 itens, selo verde), com dois itens anotados para a próxima. A calculadora de precificação espera a revisão dele. O próximo da fila é o estoque das embalagens, já aprovado por ele, numa conversa nova.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -106,6 +106,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
   exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
+- **Preço com mais de 2 casas** (usuário, 03/nov/2026: "por hora tranquilo"). Configurações aceita até 10 casas no
+  preço (`casasPreco`, hoje 2), mas a digitação a partir dos centavos (§14.105) fixa 2 casas nos campos de preço. Quando
+  alguém precisar de mais casas, o campo passa a ler o parâmetro.
 - **Taxas reais da loja virtual:** na integração da API da InfinitePay, pesquisar se o Checkout Integrado cobra a tabela do Link ou a da maquininha; o protótipo usa a Bronze (decisão do usuário). A vitrine dá o mesmo desconto Pix.
 - **A embalagem ainda não sai do estoque** (30/out/2026): a Conferência de Saída confirma caixa, tag e fita, e o custo entra em Custos do E-commerce, mas nenhum saldo baixa,
   porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo. **Saiu desta lista no mesmo dia:** ele aprovou fazer, e virou o item 1 do "Próximo da fila".
@@ -117,18 +120,21 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Revisão geral de 02-03/nov/2026 feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). A lista está vazia.
+A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). Ficou um item dela,
+e entrou uma decisão:
+
+1. **Os campos de tamanho de Embalagens continuam desalinhados** (03/nov, com print no tema claro, editando a caixa
+   Flex P). O item 16 da revisão passada alargou o painel lateral de 400 para 540 px e mediu certo a 1280 e 1440, mas
+   na janela dele "Comprimento (cm)" ainda quebra em duas linhas e a caixa desce. O usuário repetiu: pode aumentar a
+   largura do painel lateral até caber. Medir na largura real da janela dele (menor que 1280, ou com zoom), nos dois
+   temas, no cadastro novo e na edição, e o mesmo nos outros tipos (envelope, rolo).
+2. **Contas a Pagar: a aba "atrasadas" ignora o período** (aprovado pelo usuário em 03/nov). A lista abre no período
+   "mês" (decisão de 23/set), e por isso em 02/11 o card "Vencidas" dizia 8 e a aba "atrasadas" dizia 2. Conta vencida
+   em outubro continua atrasada em novembro. Conferir se Contas a Receber tem a mesma aba e o mesmo defeito.
 
 ## Esperando decisão do usuário
 
-Três pendências, que são dele:
-
-2. **Contas a Pagar: a aba "atrasadas" mostra só as do mês** (achado na revisão de 02/nov). A lista abre no período
-   "mês" (decisão de 23/set), então em 02/11 o card "Vencidas" dizia 8 e a aba "atrasadas" dizia 2. Proposta: a aba
-   "atrasadas" ignora o período, porque conta vencida de outubro continua atrasada em novembro.
-3. **Preço com mais de 2 casas** (achado na revisão de 03/nov). Configurações aceita até 10 casas no preço
-   (`casasPreco`, hoje 2), mas a digitação a partir dos centavos fixa 2 casas. Proposta: deixar 2 enquanto ninguém
-   usar mais; se um dia usar, o campo lê o parâmetro.
+Uma pendência, que é dele:
 
 1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
