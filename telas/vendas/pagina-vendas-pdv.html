@@ -2590,8 +2590,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       infinite: [1.88, 4.46, 5.81, 6.32, 6.83, 7.33, 7.83, 8.34, 8.83, 9.32, 9.81, 10.29, 10.77]
     }
   };
-  // O Link de Pagamento (a loja virtual): tabela geral "Em 1 dia util", de 1x a 12x. Sem debito. A pagina nao da a do Plano Inicial por nivel: conferir na conta.
-  const GWL_TAXAS_LINK_INFINITEPAY = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
+  // A loja virtual (decisao do usuario, 03/nov/2026): no prototipo ela usa a tabela BRONZE da maquininha, por bandeira (Visa e Mastercard num grupo; Elo, Amex e Hipercard no outro),
+  // com Pix gratis, credito de 1x a 12x, 1 dia util e SEM debito (loja online nao tem debito).
+  // shortcut: tabela do Link guardada; a pesquisa da API decide qual vale, na integracao. Link de Pagamento, 1x a 12x (so a migracao da versao 2 para a 3 a le, para reconhecer o online de fabrica):
+  const GWL_TAXAS_LINK_DE_FABRICA = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66];
   const GWL_GRUPO_INFINITEPAY = { visa: 'vm', mastercard: 'vm', elo: 'ea', amex: 'ea', hipercard: 'ea' };
   const GWL_NIVEIS_INFINITEPAY = [['Bronze', 'bronze', 'habilitado'], ['Prata', 'prata', 'desabilitado'], ['Ouro', 'ouro', 'desabilitado'], ['Infinite', 'infinite', 'desabilitado']];
   // A maquininha de um nivel: Pix (prazo 0) e, para cada bandeira, o debito da bandeira e o credito de 1x a 12x, todos em 1 dia util e sem tarifa.
@@ -2604,10 +2606,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     return gwlOrdenar(linhas);
   }
-  function gwlCondicoesLinkInfinitePay(bandeiras) {
-    const linhas = [{ forma: 'pix', bandeira: '', parcelas: 0, prazo: 0, taxa: 0, tarifa: 0 }];
-    bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) linhas.push({ forma: 'credito', bandeira: b, parcelas: p, prazo: 1, taxa: GWL_TAXAS_LINK_INFINITEPAY[p - 1], tarifa: 0 }); });
-    return gwlOrdenar(linhas);
+  // A loja virtual: a maquininha Bronze sem o debito (o Pix e, por bandeira, o credito de 1x a 12x).
+  const gwlCondicoesLojaVirtual = (bandeiras) => gwlCondicoesMaquininhaInfinitePay('bronze', bandeiras).filter(c => c.forma !== 'debito');
+  // O online ainda tem exatamente as condicoes do Link de fabrica (a versao 2 do exemplo)? Serve so a migracao da versao 2 para a 3: quem editou uma linha fica como esta.
+  function gwlOnlineEhDoLink(g) {
+    const n = (v) => Number(String(v).replace(',', '.')), cs = g.condicoes, esperado = [['pix', '', 0, 0, 0]];
+    g.bandeiras.forEach(b => { for (let p = 1; p <= 12; p++) esperado.push(['credito', b, p, 1, GWL_TAXAS_LINK_DE_FABRICA[p - 1]]); });
+    return cs.length === esperado.length && esperado.every(e => cs.some(c => c.forma === e[0] && c.bandeira === e[1] && Number(c.parcelas) === e[2] && n(c.prazo) === e[3] && n(c.taxa) === e[4] && n(c.tarifa) === 0));
   }
   const GWL_DESCRICAO_ONLINE = 'InfinitePay — loja virtual';
   // Os cinco gateways do exemplo, sem id: o online (tipo InfinitePay, com a chave) e os quatro niveis da maquininha.
@@ -2616,26 +2621,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const online = Object.assign({}, base, { tipo: 'infinitepay', descricao: GWL_DESCRICAO_ONLINE, situacao: 'habilitado', lojas: [1, 2], categoriaId: 1, contaCreditoId: 2, baixa: 'liberacao',
       juros: 1, multa: 2, diasMulta: 0, calculaAtraso: true, cnpj: '12.345.678/0001-95', endereco: 'Av. Santos Dumont, 1500, Aldeota', municipio: 'Fortaleza', chave: 'ipay_live_8f3a1c9e72b4d605',
       conciliacao: null, bandeiras: ['visa', 'mastercard', 'elo', 'amex'], bandeiraPadrao: 'visa' });
-    online.condicoes = gwlCondicoesLinkInfinitePay(online.bandeiras);
+    online.condicoes = gwlCondicoesLojaVirtual(online.bandeiras);
     const bandeiras = ['visa', 'mastercard', 'elo', 'amex', 'hipercard'];
     const niveis = GWL_NIVEIS_INFINITEPAY.map(n => Object.assign({}, base, { tipo: 'outro', descricao: 'InfinitePay Maquininha — ' + n[0], situacao: n[2], lojas: [1, 2, 3], tarifacao: 'pagamento', diaDebito: null,
       categoriaTarifaId: 17, bandeiras: bandeiras.slice(), bandeiraPadrao: 'visa', condicoes: gwlCondicoesMaquininhaInfinitePay(n[1], bandeiras) }));
     return [online].concat(niveis);
   }
-  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '2'). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
+  // A semeadura, uma vez por navegador por versao (marca deskGatewaysExemplo: '3'; da versao 2 para a 3 so o online muda de tabela, e so se ainda for a do Link de fabrica). Sem marca, nasce o exemplo inteiro, acrescentando sem apagar. Com a marca antiga ('1': o
   // exemplo de 20/out, com a Stone e a Cielo), o exemplo antigo e trocado: saem a Stone (id 2) e a Cielo (id 3), achadas pelo id E pela descricao de fabrica (e nao so pelo nome
   // digitado), o online (id 1, com a descricao de fabrica) e atualizado mantendo a chave e o link, e acrescentam-se os quatro niveis. Gateway criado pelo usuario fica como esta.
   // O gateway padrao de Formas que apontava para um dos que sairam e apagado (cai no de fabrica, o primeiro maquininha habilitado: o Bronze).
   (function gwlSemear() {
     try {
       const marca = localStorage.getItem('deskGatewaysExemplo');
-      if (marca === '2') return;
+      if (marca === '3') return;
       let lista = gwlLer();
-      const novos = gwlExemplosDeFabrica();
+      const novos = marca === '2' ? [] : gwlExemplosDeFabrica();   // da versao 2 para a 3 nao ha gateway novo
       let n = lista.reduce((m, g) => Math.max(m, Number(g.id) || 0), 0);
       const comId = (g) => Object.assign({ id: ++n }, g);
       const online = novos.shift();
-      if (marca === '1') {
+      if (marca === '2') {
+        // Versao 2 para 3 (03/nov/2026): a loja virtual troca a tabela do Link pela Bronze da maquininha, sem debito. So se as condicoes ainda forem exatamente as do Link de fabrica; se a pessoa editou, fica como esta.
+        const on = lista.filter(g => g.descricao === GWL_DESCRICAO_ONLINE)[0];
+        if (on && gwlOnlineEhDoLink(on)) on.condicoes = gwlCondicoesLojaVirtual(on.bandeiras);
+      } else if (marca === '1') {
         const sairam = lista.filter(g => (g.id === 2 && g.descricao === 'Stone — maquininha da loja') || (g.id === 3 && g.descricao === 'Cielo (antiga)')).map(g => g.id);
         lista = lista.filter(g => sairam.indexOf(g.id) < 0);
         const antigo = lista.filter(g => g.id === 1 && g.descricao === 'InfinityPay — loja virtual')[0];   // grafia errada do exemplo de 20/out: so aqui, para achar o gravado antigo
@@ -2653,7 +2662,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       }
       novos.forEach(g => { if (!lista.some(x => x.descricao === g.descricao)) lista.push(comId(g)); });
       gwlGravar(lista);
-      localStorage.setItem('deskGatewaysExemplo', '2');
+      localStorage.setItem('deskGatewaysExemplo', '3');
     } catch (e) { /* armazenamento bloqueado: sem exemplo nesta aba */ }
   })();
   const gwlPorId = (id) => gwlLer().filter(g => g.id === Number(id))[0] || null;
@@ -2901,10 +2910,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function hhmm(d) { return doisDigitos(d.getHours()) + ':' + doisDigitos(d.getMinutes()); }
   function dataBr(d) { return doisDigitos(d.getDate()) + '/' + doisDigitos(d.getMonth() + 1) + '/' + d.getFullYear(); }
   function maisDias(d, n) { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
-  // shortcut: so feriado nacional de data fixa; Carnaval, Sexta-feira Santa, Corpus Christi e feriado local entram quando houver calendario de feriados.
+  // Feriado nacional: os de data fixa e os MOVEIS, calculados para qualquer ano a partir da Pascoa (Meeus/Butcher), com cache por ano. Os moveis: Carnaval (segunda e terca, Pascoa -48 e -47;
+  // banco fechado), Sexta-feira Santa (-2) e Corpus Christi (+60).
+  // shortcut: feriado estadual e municipal ficam para o cadastro a mao, quando houver calendario de feriados.
   const FERIADOS_FIXOS = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '20/11', '25/12'];
-  function diaUtil(d) { return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(dataBr(d).slice(0, 5)) === -1; }
-  // Soma `n` dias UTEIS: o prazo do gateway e em dias uteis (sabado, domingo e feriado nacional de data fixa nao contam). Zero e o mesmo dia.
+  const FERIADOS_MOVEIS_POR_ANO = {};
+  function pascoaDe(ano) {
+    const a = ano % 19, b = Math.floor(ano / 100), c = ano % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+      h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+      mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(ano, mes - 1, dia);
+  }
+  function feriadosMoveis(ano) {
+    if (!FERIADOS_MOVEIS_POR_ANO[ano]) { const p = pascoaDe(ano); FERIADOS_MOVEIS_POR_ANO[ano] = [-48, -47, -2, 60].map(n => dataBr(new Date(ano, p.getMonth(), p.getDate() + n)).slice(0, 5)); }
+    return FERIADOS_MOVEIS_POR_ANO[ano];
+  }
+  function diaUtil(d) { const dm = dataBr(d).slice(0, 5); return d.getDay() !== 0 && d.getDay() !== 6 && FERIADOS_FIXOS.indexOf(dm) === -1 && feriadosMoveis(d.getFullYear()).indexOf(dm) === -1; }
+  // Soma `n` dias UTEIS: o prazo do gateway e em dias uteis (sabado, domingo e feriado nacional, fixo ou movel, nao contam). Zero e o mesmo dia.
   function maisDiasUteis(d, n) { const x = new Date(d.getTime()); while (n > 0) { x.setDate(x.getDate() + 1); if (diaUtil(x)) n -= 1; } return x; }
   function diasAte(d, alvo) { return Math.round((new Date(alvo.getFullYear(), alvo.getMonth(), alvo.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000); }
   const DIAS_NOME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];

@@ -37,15 +37,15 @@
 #             · embalagem 1,80 (estimada) · custo 199,90 · valor devolvido 349,90 x (349,90 − 15,00) / 349,90 = 334,90 (o vale de 15,00 nao volta em dinheiro)
 #             · devolucao 334,90 − 0 (avariado nao devolve o custo) + 38,90 = 373,80
 #             ->  lucro 334,90 − 22,00 − 0 − 1,80 − 199,90 − 373,80 = −262,60
-#   pedido 12 (credito Visa 10x, afiliado Bruno 5%, Brands):  venda 1.024,00 · dif. 26,50 · taxa 15,06% de 1.024,00 = 154,2144 -> 154,21
-#             · comissao 5% de 1.024,00 = 51,20 · embalagem 7,20 (CE-02 6,30 + tag Brands 0,60 + fita 0,30) · custo 604,00  ->  lucro 1.024,00 − 26,50 − 154,21 − 51,20 − 7,20 − 604,00 = 180,89
-#   pedido 11 (credito Elo 2x, Marina 5%, frete gratis para longe: a loja pagou 95,00):  venda 219,90 · dif. 95,00 · taxa 6,09% de 219,90 = 13,3919 -> 13,39
-#             · comissao 5% de 219,90 = 10,995 -> 11,00 · embalagem 5,40 (Flex M 4,70 + tag Shope 0,40 + fita 0,30) · custo 128,00  ->  lucro 219,90 − 95,00 − 13,39 − 11,00 − 5,40 − 128,00 = −32,89
+#   pedido 12 (credito Visa 10x, afiliado Bruno 5%, Brands):  venda 1.024,00 · dif. 26,50 · taxa 11,06% (Bronze Visa 10x) de 1.024,00 = 113,2544 -> 113,25
+#             · comissao 5% de 1.024,00 = 51,20 · embalagem 7,20 (CE-02 6,30 + tag Brands 0,60 + fita 0,30) · custo 604,00  ->  lucro 1.024,00 − 26,50 − 113,25 − 51,20 − 7,20 − 604,00 = 221,85
+#   pedido 11 (credito Elo 2x, Marina 5%, frete gratis para longe: a loja pagou 95,00):  venda 219,90 · dif. 95,00 · taxa 6,47% (Bronze Elo 2x) de 219,90 = 14,2275 -> 14,23
+#             · comissao 5% de 219,90 = 10,995 -> 11,00 · embalagem 5,40 (Flex M 4,70 + tag Shope 0,40 + fita 0,30) · custo 128,00  ->  lucro 219,90 − 95,00 − 14,23 − 11,00 − 5,40 − 128,00 = −33,73
 #   pedido 1  (credito Visa 3x, o cliente pagou 10,00 de frete e a loja 18,50; DV-0011 em andamento: 1 fone e 2 carregadores revendaveis, 445,00, frete pago pelo cliente):
-#             venda 1.890,00 − 10,00 = 1.880,00 · dif. 18,50 − 10,00 = 8,50 · taxa 7,01% de 1.890,00 (sobre o TOTAL, nao sobre a venda) = 132,489 -> 132,49
+#             venda 1.890,00 − 10,00 = 1.880,00 · dif. 18,50 − 10,00 = 8,50 · taxa 6,12% (Bronze Visa 3x) de 1.890,00 (sobre o TOTAL, nao sobre a venda) = 115,668 -> 115,67
 #             · comissao 5% de 1.880,00 = 94,00 x (1 − 445,00 / 1.880,00) = 71,75 · embalagem 6,60 (estimada) · custo 1.128,00
 #             · devolucao 445,00 − custo que voltou (150,00 + 2 x 58,50 = 267,00) + 0 = 178,00
-#             ->  lucro 1.880,00 − 8,50 − 132,49 − 71,75 − 6,60 − 1.128,00 − 178,00 = 354,66;  com o custo medio (1.105,00; voltou 146,90 + 2 x 57,30 = 261,50; devolucao 183,50): 372,16
+#             ->  lucro 1.880,00 − 8,50 − 115,67 − 71,75 − 6,60 − 1.128,00 − 178,00 = 371,48;  com o custo medio (1.105,00; voltou 146,90 + 2 x 57,30 = 261,50; devolucao 183,50): 388,98
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys, datetime
 import localiza
@@ -86,7 +86,7 @@ def secao(n, titulo):
 
 
 # ---------------------------------------------------------------- a conta refeita em Python (o oraculo)
-from oraculo_custos import D, c2, TAXAS_LINK, VENDEDORA, oraculo, ITENS, ONLINE, DEVOLUCOES, CORTESIA_EXEMPLO, itens_do_pedido
+from oraculo_custos import D, c2, VENDEDORA, oraculo, ITENS, ONLINE, DEVOLUCOES, CORTESIA_EXEMPLO, itens_do_pedido
 
 
 def br(v):
@@ -170,22 +170,22 @@ with sync_playwright() as p:
            and perto(a['devolvido'], 334.90) and perto(a['custoRecuperado'], 0) and perto(a['perdaAvaria'], 199.90) and perto(a['freteVolta'], 38.90) and perto(a['devolucao'], 373.80) and perto(a['lucro'], -262.60),
            'pedido 3 (pix, cortesia de 15,00, kit devolvido inteiro e avariado): venda 334,90, comissão 0, valor devolvido 334,90 (o vale de 15,00 não volta em dinheiro), devolução 373,80 (334,90 − 0 + 38,90), embalagem estimada 1,80, lucro −262,60 · %s' % {k: a[k] for k in ('venda', 'difFrete', 'taxa', 'comissao', 'embalagem', 'custo', 'devolucao', 'lucro')})
         a = r(12)
-        ok(perto(a['taxa'], 154.21) and perto(a['comissao'], 51.20) and perto(a['embalagem'], 7.20) and a['embalagemEstimada'] is False and perto(a['difFrete'], 26.50) and perto(a['devolucao'], 0) and perto(a['lucro'], 180.89),
-           'pedido 12 (crédito 10x, afiliado, 10 unidades): taxa 154,21 sobre o total, comissão 51,20, embalagem confirmada 7,20 (CE-02 + tag Brands + fita, uma por pedido, não 10 ×), lucro 180,89')
+        ok(perto(a['taxa'], 113.25) and perto(a['comissao'], 51.20) and perto(a['embalagem'], 7.20) and a['embalagemEstimada'] is False and perto(a['difFrete'], 26.50) and perto(a['devolucao'], 0) and perto(a['lucro'], 221.85),
+           'pedido 12 (crédito 10x, afiliado, 10 unidades): taxa 113,25 sobre o total (Bronze, Visa 10x: 11,06%), comissão 51,20, embalagem confirmada 7,20 (CE-02 + tag Brands + fita, uma por pedido, não 10 ×), lucro 221,85')
         a = r(11)
-        ok(perto(a['taxa'], 13.39) and perto(a['comissao'], 11.00) and perto(a['difFrete'], 95.00) and perto(a['embalagem'], 5.40) and a['embalagemTexto'] == '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' and perto(a['lucro'], -32.89) and a['lucro'] < 0,
-           'pedido 11 (o do frete caro): taxa 13,39, comissão 11,00 (10,995 sobe), dif. de frete 95,00, embalagem confirmada 5,40 (Flex M + tag Shope + fita, 5 unidades, uma só embalagem), lucro −32,89')
+        ok(perto(a['taxa'], 14.23) and perto(a['comissao'], 11.00) and perto(a['difFrete'], 95.00) and perto(a['embalagem'], 5.40) and a['embalagemTexto'] == '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' and perto(a['lucro'], -33.73) and a['lucro'] < 0,
+           'pedido 11 (o do frete caro): taxa 14,23 (Bronze, Elo 2x: 6,47%), comissão 11,00 (10,995 sobe), dif. de frete 95,00, embalagem confirmada 5,40 (Flex M + tag Shope + fita, 5 unidades, uma só embalagem), lucro −33,73')
         a = r(1)
-        ok(perto(a['venda'], 1880) and perto(a['freteCobrado'], 10) and perto(a['difFrete'], 8.50) and perto(a['taxa'], 132.49) and perto(a['comissao'], 71.75) and perto(a['embalagem'], 6.60) and a['embalagemEstimada'] is True and a['embalagemTexto'] == '1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva'
-           and perto(a['devolvido'], 445) and perto(a['custoRecuperado'], 267) and perto(a['perdaAvaria'], 0) and perto(a['freteVolta'], 0) and perto(a['devolucao'], 178) and perto(a['lucro'], 354.66),
-           'pedido 1: a taxa é sobre o total (1.890,00); a comissão de 94,00 cai para 71,75 (445,00 devolvidos de 1.880,00); embalagem estimada 6,60 (8 peças: Flex G + tag Shope + fita); devolução 445,00 − 267,00 de custo que voltou = 178,00; lucro 354,66')
-        ok(perto(a['margem'], 354.66 / 1880), 'a margem é o lucro sobre a venda: %.4f' % a['margem'])
+        ok(perto(a['venda'], 1880) and perto(a['freteCobrado'], 10) and perto(a['difFrete'], 8.50) and perto(a['taxa'], 115.67) and perto(a['comissao'], 71.75) and perto(a['embalagem'], 6.60) and a['embalagemEstimada'] is True and a['embalagemTexto'] == '1 Caixa de Encomenda Flex G + 1 Tag Desk Shope + 1 Fita adesiva'
+           and perto(a['devolvido'], 445) and perto(a['custoRecuperado'], 267) and perto(a['perdaAvaria'], 0) and perto(a['freteVolta'], 0) and perto(a['devolucao'], 178) and perto(a['lucro'], 371.48),
+           'pedido 1: a taxa é sobre o total (1.890,00); a comissão de 94,00 cai para 71,75 (445,00 devolvidos de 1.880,00); embalagem estimada 6,60 (8 peças: Flex G + tag Shope + fita); devolução 445,00 − 267,00 de custo que voltou = 178,00; lucro 371,48')
+        ok(perto(a['margem'], 371.48 / 1880), 'a margem é o lucro sobre a venda: %.4f' % a['margem'])
         # a embalagem e uma por pedido: nao muda com as unidades (o 16 tem 16 unidades, o 11 tem 5, o 3 tem 1)
         emb = {i: r(i)['embalagem'] for i in (1, 3, 4, 8, 9, 11, 12, 16)}
         ok(all(perto(emb[i], v) for i, v in {1: 6.60, 3: 1.80, 4: 7.20, 8: 7, 9: 6.80, 11: 5.40, 12: 7.20, 16: 12.60}.items()) and perto(sum(emb.values()), 54.60),
            'a embalagem: 1, 3 e 4 estimados pelo cadastro (6,60, 1,80 e 7,20); 8, 9, 11, 12 e 16 confirmados (7,00, 6,80, 5,40, 7,20 e 12,60); uma por pedido, sem olhar as unidades: %s, total %s' % (emb, sum(emb.values())))
         ok({i: r(i)['embalagemEstimada'] for i in emb} == {1: True, 3: True, 4: True, 8: False, 9: False, 11: False, 12: False, 16: False}, 'só o 1, o 3 e o 4 são estimados')
-        ok(perto(r(16)['lucro'], 333.56) and perto(r(1)['lucro'], 354.66), 'pedido 16 (16 unidades, caixa confirmada a 11,90 com o cadastro em 12,50): lucro 333,56; pedido 1 (8 unidades): lucro 354,66')
+        ok(perto(r(16)['lucro'], 434.49) and perto(r(1)['lucro'], 371.48), 'pedido 16 (16 unidades, caixa confirmada a 11,90 com o cadastro em 12,50; comissão 115,75 sobre a base sem o vale): lucro 434,49 (Bronze Mastercard 12x: 12,40%); pedido 1 (8 unidades): lucro 371,48')
         errados = []
         for i, x in por_id.items():
             o, a = oraculo(x), r(i)
@@ -229,7 +229,7 @@ with sync_playwright() as p:
         ors = [oraculo(x) for x in online(todos)]
         fat = sum(o['venda'] for o in ors); luc = sum(o['lucro'] for o in ors); cus = fat - luc; prej = sum(1 for o in ors if o['lucro'] < 0)
         cards = pg.evaluate("[kpiFaturamento, kpiCustos, kpiLucro, kpiMargem, kpiAbaixo, kpiSemCusto].map(e => e.textContent)")
-        ok(cards == [br(fat), br(cus), br(luc), pct(luc / fat), '3', '0'] and prej == 2, 'os cards: faturamento, custos, lucro, margem, abaixo da margem (3: o 3, o 11 e o 16; 2 deles no prejuízo) e sem custo (0): %s' % cards)
+        ok(cards == [br(fat), br(cus), br(luc), pct(luc / fat), '2', '0'] and prej == 2, 'os cards: faturamento, custos, lucro, margem, abaixo da margem (2: o 3 e o 11, os dois no prejuízo) e sem custo (0): %s' % cards)
         ok(perto(cus, sum(o['dif'] + o['taxa'] + o['comissao'] + o['embalagem'] + o['custo'] + o['devolucao'] for o in ors)), 'custos é tudo o que saiu: diferencial, taxa, comissão, embalagem, custo e devolução')
         ok(texto('#somaFiltro') == br(luc) and '8 pedidos' in texto('#contagemLinhas'), 'o rodapé soma o lucro do filtro: %s' % texto('#somaFiltro'))
         # a barra
@@ -267,7 +267,7 @@ with sync_playwright() as p:
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
         partes = pg.evaluate("Array.from(document.querySelectorAll('#barraDivisao > span')).map(s => s.getAttribute('data-parte'))")
-        ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 295,49' in texto('#legendaDivisao'), 'lucro negativo (− 262,60 e − 32,89 dos dois pedidos no prejuízo) fica na legenda, fora da barra: %s' % partes)
+        ok('lucro' not in partes and 'fora da barra' in texto('#legendaDivisao') and '− R$ 296,33' in texto('#legendaDivisao'), 'lucro negativo (− 262,60 e − 33,73 dos dois pedidos no prejuízo) fica na legenda, fora da barra: %s' % partes)
         ok('só os pedidos abaixo da margem mínima' in texto('#escopoBarra') and texto('#kpiLucro') == br(luc), 'a barra diz que explica só os pedidos abaixo da margem; os quatro primeiros cards seguem somando a lista inteira')
         pg.click('[data-kpi="abaixo"]'); pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()")
 
@@ -289,7 +289,7 @@ with sync_playwright() as p:
         # Cancelar descarta
         pg.evaluate("document.querySelector('#cfgCustoBase .dropdown-select-item[data-value=\"medio\"]').click()")
         pg.click('#btnCancelarCfg'); pg.wait_for_timeout(250)
-        ok(not pg.evaluate("cfgDrawer.classList.contains('open')") and param() is None and 'R$ 354,66' in texto('#corpoTabela'), 'Cancelar fecha sem gravar nada, e a lista segue com a conta de antes')
+        ok(not pg.evaluate("cfgDrawer.classList.contains('open')") and param() is None and 'R$ 371,48' in texto('#corpoTabela'), 'Cancelar fecha sem gravar nada, e a lista segue com a conta de antes')
         abrir_config()
         ok(pg.evaluate("document.querySelector('#cfgCustoBase').getAttribute('data-value')") == 'compra', 'e ao reabrir o painel mostra o que está gravado, não o que foi descartado')
         # custo medio
@@ -297,7 +297,7 @@ with sync_playwright() as p:
         aplicar_config()
         ok(param() and param()['custoBase'] == 'medio' and not pg.evaluate("cfgDrawer.classList.contains('open')"), 'Aplicar grava em deskParametros.custosEcommerce e fecha o painel: %s' % param())
         todos = dados(); l1 = [l for l in linhas() if 'nº 1 ' in l[0] + ' '][0]
-        ok(l1[9] == br(1105) and l1[10] == br(183.50) and l1[11] == br(372.16), 'com o custo médio o pedido 1 troca de custo 1.128,00 para 1.105,00, de devolução 178,00 para 183,50 (voltou 261,50) e de lucro 354,66 para 372,16: %s' % l1[9:12])
+        ok(l1[9] == br(1105) and l1[10] == br(183.50) and l1[11] == br(388.98), 'com o custo médio o pedido 1 troca de custo 1.128,00 para 1.105,00, de devolução 178,00 para 183,50 (voltou 261,50) e de lucro 371,48 para 388,98: %s' % l1[9:12])
         errados = [x['id'] for x in online(todos) if not perto(pg.evaluate("(i) => resultadoDoPedido(PEDIDOS.filter(p => p.id === i)[0]).lucro", x['id']), oraculo(x, 'medio')['lucro'])]
         ok(not errados, 'e todos os online batem com a conta refeita em custo médio: %s' % errados)
         ok('custo médio' in (pg.evaluate("JSON.parse(localStorage.getItem('deskLog'))[0].detalhe")), 'o registro de atividades guarda o que mudou')
@@ -338,12 +338,12 @@ with sync_playwright() as p:
         abrir(); todo_periodo(); todos = dados()
         ok(pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => c.hasAttribute('aria-pressed'))") == [False] * 6 + [True] * 2, 'só os dois cards de alerta filtram (Abaixo da margem e Produto sem custo)')
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
-        ok(sorted(numeros()) == [3, 11, 16] and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'true' and pg.evaluate("document.querySelector('[data-kpi=abaixo]').classList.contains('on')"),
-           'Abaixo da margem filtra: o 3 (devolvido inteiro), o 11 (frete caro) e o 16 (14,4%, abaixo dos 15%), e o card fica marcado')
+        ok(sorted(numeros()) == [3, 11] and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'true' and pg.evaluate("document.querySelector('[data-kpi=abaixo]').classList.contains('on')"),
+           'Abaixo da margem filtra: o 3 (devolvido inteiro) e o 11 (frete caro), e o card fica marcado (o 16, a 18,8%, está acima dos 15%)')
         borda = pg.evaluate("(() => { const c = document.querySelector('[data-kpi=abaixo]'); const s = getComputedStyle(c); return [s.borderTopColor, getComputedStyle(document.body).getPropertyValue('--active-text').trim()]; })()")
         ok(borda[0] != 'rgb(38, 38, 38)' and borda[0] != 'rgb(233, 231, 224)', 'a borda do card ativo é azul, não a de repouso: %s' % borda[0])
         cards_depois = pg.evaluate("[kpiFaturamento, kpiAbaixo].map(e => e.textContent)")
-        ok(cards_depois[0] == br(sum(oraculo(x)['venda'] for x in online(todos))) and cards_depois[1] == '3', 'os cards continuam somando a lista inteira, não a que o card filtrou')
+        ok(cards_depois[0] == br(sum(oraculo(x)['venda'] for x in online(todos))) and cards_depois[1] == '2', 'os cards continuam somando a lista inteira, não a que o card filtrou')
         pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
         ok(len(numeros()) == 8 and pg.evaluate("document.querySelector('[data-kpi=abaixo]').getAttribute('aria-pressed')") == 'false', 'clicar de novo desfaz o filtro')
         pg.evaluate("PEDIDOS.filter(p => p.id === 9)[0].custo = 0; render();"); pg.wait_for_timeout(150)
@@ -430,7 +430,7 @@ with sync_playwright() as p:
         pg.click('#corpoTabela tr[data-id="11"]'); pg.wait_for_timeout(300)
         corpo = texto('#eventDrawer')
         ok(pg.evaluate("eventDrawer.classList.contains('open')") and 'Pedido nº 11' in corpo, 'clicar no pedido abre o painel lateral')
-        ok('− R$ 32,89' in corpo and 'Cartão de crédito Elo 2x' in corpo and 'Marina Costa' in corpo and 'R$ 95,00' in corpo and 'R$ 13,39' in corpo and 'R$ 11,00' in corpo and 'Amazonas (AM)' in corpo
+        ok('− R$ 33,73' in corpo and 'Cartão de crédito Elo 2x' in corpo and 'Marina Costa' in corpo and 'R$ 95,00' in corpo and 'R$ 14,23' in corpo and 'R$ 11,00' in corpo and 'Amazonas (AM)' in corpo
            and 'camiseta básica algodão' in corpo.lower() and 'carregador usb-c 20w' in corpo.lower(),
            'com o detalhamento: estado de destino, itens, dif. de frete, taxa, comissão, embalagem, custo, lucro e o pagamento')
         ok('R$ 5,40' in corpo and '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva' in corpo and 'estimada' not in corpo and 'Trocada na conferência' not in corpo,
@@ -506,7 +506,7 @@ with sync_playwright() as p:
            'o canal aparece no cabeçalho do pedido, com o estado de destino: Loja virtual · Entrega em UF nos 8 online, Venda manual nos 8 outros')
         ir(PV_D, '?id=11')
         cx = texto('#caixaResultado')
-        ok(all(t in cx for t in ('Venda', 'R$ 219,90', 'Frete cobrado do cliente', 'Diferencial de frete', 'R$ 95,00', 'Taxa do gateway', 'R$ 13,39', 'Comissão de venda', 'R$ 11,00', 'Embalagem', '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva', 'R$ 5,40', 'Custo dos produtos', 'R$ 128,00', 'Lucro', '− R$ 32,89', 'margem de − 15,0%', 'ver em Custos do E-commerce')),
+        ok(all(t in cx for t in ('Venda', 'R$ 219,90', 'Frete cobrado do cliente', 'Diferencial de frete', 'R$ 95,00', 'Taxa do gateway', 'R$ 14,23', 'Comissão de venda', 'R$ 11,00', 'Embalagem', '1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva', 'R$ 5,40', 'Custo dos produtos', 'R$ 128,00', 'Lucro', '− R$ 33,73', 'margem de − 15,3%', 'ver em Custos do E-commerce')),
            'a caixa traz venda, frete cobrado, dif. de frete, taxa, comissão, embalagem, custo, lucro e margem, com o link para Custos do E-commerce')
         ok(pg.evaluate("document.getElementById('resLink').getAttribute('href')") == '../vendas/pagina-vendas-custos-ecommerce.html?busca=11', 'o link da caixa abre a tela nova já no pedido')
         ok(pg.input_value('#inputFretePagoLoja') == '95,00' and 'frete pago pela loja' in texto('.totais-grid').lower(), 'o campo "Frete pago pela loja" fica ao lado do frete do cliente: 95,00')
@@ -520,7 +520,7 @@ with sync_playwright() as p:
         antes = pg.evaluate("[...document.querySelectorAll('#resLinhas .ped-res-linha b')].map(b => b.textContent)")
         pg.fill('#inputFretePagoLoja', '20,00'); pg.wait_for_timeout(200)
         depois = pg.evaluate("[...document.querySelectorAll('#resLinhas .ped-res-linha b')].map(b => b.textContent)")
-        ok(antes[2] == 'R$ 8,50' and depois[2] == 'R$ 10,00' and depois[-1] == br(354.66 - 1.50), 'editar o frete pago pela loja (18,50 → 20,00) muda a caixa na hora: dif. 8,50 → 10,00, lucro 354,66 → 353,16 (%s)' % depois[-1])
+        ok(antes[2] == 'R$ 8,50' and depois[2] == 'R$ 10,00' and depois[-1] == br(371.48 - 1.50), 'editar o frete pago pela loja (18,50 → 20,00) muda a caixa na hora: dif. 8,50 → 10,00, lucro 371,48 → 369,98 (%s)' % depois[-1])
         pg.fill('#inputFrete', '30,00'); pg.wait_for_timeout(200)
         d2 = pg.evaluate("[...document.querySelectorAll('#resLinhas .ped-res-linha b')].map(b => b.textContent)")
         ok(d2[1] == 'R$ 30,00' and d2[0] == depois[0] and d2[2] == '− R$ 10,00', 'o frete cobrado entra no total mas não na venda: com 30,00 a venda segue %s e o diferencial vira − R$ 10,00 (a loja ganhou no frete)' % d2[0])
@@ -742,7 +742,7 @@ with sync_playwright() as p:
         abrir(); todo_periodo(); todos = dados(); por = {x['id']: x for x in todos}
         ok(perto(conta(3)['cortesia'], 15) and perto(conta(16)['cortesia'], 25) and all(conta(i)['cortesia'] == 0 for i in (1, 4, 8, 9, 11, 12)),
            'no exemplo só os pedidos 3 (15,00) e 16 (25,00) usaram vale de cortesia')
-        ok(perto(conta(16)['venda'], 2340 - 25) and perto(conta(16)['comissao'], 117), 'a venda do 16 é 2.340,00 − 25,00 = 2.315,00, e a comissão segue 5% de 2.340,00 = 117,00 (a comissão não muda nesta entrega)')
+        ok(perto(conta(16)['venda'], 2340 - 25) and perto(conta(16)['comissao'], 115.75), 'a venda do 16 é 2.340,00 − 25,00 = 2.315,00, e a comissão é 5% de 2.315,00 = 115,75 (desde 03/nov/2026 a base da comissão também tira o vale)')
         ls = {int(re.search(r'nº (\d+)', l[0]).group(1)): l for l in linhas()}
         ok(ls[16][4] == 'R$ 25,00' and ls[3][4] == 'R$ 15,00' and ls[1][4] == 'R$ 0,00', 'a coluna Cortesia mostra o vale de cada pedido: %s' % [ls[i][4] for i in (1, 3, 16)])
         # simulacao: so cortesia conta, uso estornado e outras origens nao
@@ -752,7 +752,7 @@ with sync_playwright() as p:
             {'n': 2, 'origem': 'devolucao', 'valor': 50, 'usos': [{'valor': 10, 'doc': {'tipo': 'pedido', 'id': 9}}]},
             {'n': 3, 'origem': 'comissao', 'valor': 50, 'usos': [{'valor': 12, 'doc': {'tipo': 'pedido', 'id': 9}}]}]}
         pg.evaluate("(v) => { localStorage.setItem('deskValesCompra', JSON.stringify(v)); localStorage.setItem('deskValesCompraExemplo', '1'); }", vales); pg.evaluate("render()")
-        a, o = conta(9), oraculo(por[9], cortesia=20)
+        a, o = conta(9), oraculo(por[9], cortesia=20, vale=42)   # a comissao tira os 42,00 de vale de todas as origens (20 + 10 + 12); o lucro, so a cortesia
         ok(perto(a['cortesia'], 20) and perto(a['venda'], 435) and perto(a['lucro'], o['lucro']) and perto(conta(3)['cortesia'], 0) and perto(conta(16)['cortesia'], 0),
            'só o uso de vale de origem cortesia, não estornado, conta: 20,00 no pedido 9 (venda 435,00); devolução, comissão, estornado e PDV não contam, e com a marca do exemplo ele não volta')
         pg.evaluate("render()"); ls = {int(re.search(r'nº (\d+)', l[0]).group(1)): l for l in linhas()}
@@ -760,10 +760,10 @@ with sync_playwright() as p:
         # a devolucao nao traz de volta a parte paga com o vale: 2 cadernos (37,00) no pedido 9 (total 455,00, sem frete, cortesia 20,00) -> 37,00 x 435 / 455 = 35,37
         devs9 = [dev_py(10, 9, 'andamento', [('PAP-3001', 2, 18.50, 'revendavel')], {'paga': 'cliente', 'valor': 20})]
         entrega9 = {9: (HOJE_PY + datetime.timedelta(days=por[9]['dp'])).isoformat()}
-        grava(devs9); pg.evaluate("render()"); a, o = conta(9), oraculo(por[9], cortesia=20, devolucoes=devs9, entrega=entrega9)
+        grava(devs9); pg.evaluate("render()"); a, o = conta(9), oraculo(por[9], cortesia=20, vale=42, devolucoes=devs9, entrega=entrega9)
         ok(perto(a['devolvido'], 35.37) and perto(o['devolvido'], 35.37) and perto(a['devolucao'], o['devolucao']) and perto(a['lucro'], o['lucro']),
            'com 20,00 de cortesia o valor devolvido de 2 cadernos (37,00) é 37,00 × 435 / 455 = 35,37, e a conta bate com a refeita em Python: %s' % a['devolvido'])
-        ok(perto(a['comissao'], o['comissao']) and perto(a['comissao'], float(oraculo(por[9], cortesia=0, devolucoes=devs9, entrega=entrega9)['comissao'])), 'a comissão não muda por causa da cortesia na devolução (segue a soma dos itens)')
+        ok(perto(a['comissao'], o['comissao']) and perto(a['comissao'], float(oraculo(por[9], cortesia=0, vale=42, devolucoes=devs9, entrega=entrega9)['comissao'])), 'a comissão não muda por causa da cortesia na devolução (segue a soma dos itens)')
         pg.evaluate("localStorage.setItem('deskValesCompra', JSON.stringify({ vales: [] }))"); pg.evaluate("render()"); a = conta(9)
         ok(perto(a['cortesia'], 0) and perto(a['devolvido'], 37), 'sem cortesia o valor devolvido é a soma dos itens, 37,00')
         grava([]); pg.evaluate("render()")
@@ -1059,12 +1059,12 @@ with sync_playwright() as p:
         x860 = pg.evaluate("Array.from(document.querySelectorAll('#indicadores .kpi-card')).map(c => Math.round(c.getBoundingClientRect().left))")
         ok(len(set(x860)) == 2, 'em tela estreita são 2 por linha: %s' % x860)
         pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(150)
-        # a margem: 15 -> 3, 11, 16
+        # a margem: 15 -> 3, 11 (o 16 esta a 18,8%: entra de 19 para cima)
         abrir(); todo_periodo(); todos = dados()
         ors = {x['id']: oraculo(x) for x in online(todos)}
         o16 = ors[16]
-        ok(perto(o16['lucro'], 333.56) and perto(o16['venda'], 2315) and perto(o16['lucro'] / o16['venda'], 0.14408), 'o 16: 333,56 ÷ 2.315,00 = %s (abaixo de 15%%)' % pct(o16['lucro'] / o16['venda']))
-        for minima, quer in ((15, [3, 11, 16]), (0, [3, 11]), (20, [1, 3, 11, 12, 16])):
+        ok(perto(o16['lucro'], 434.49) and perto(o16['venda'], 2315) and perto(o16['lucro'] / o16['venda'], 0.18768), 'o 16: 434,49 ÷ 2.315,00 = %s (acima de 15%%, abaixo de 19%%)' % pct(o16['lucro'] / o16['venda']))
+        for minima, quer in ((15, [3, 11]), (0, [3, 11]), (19, [3, 11, 16]), (20, [1, 3, 11, 16])):
             pg.evaluate("(m) => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = m; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); }", minima); pg.wait_for_timeout(150)
             esp = sorted(i for i, o in ors.items() if abaixo_da_margem(o, minima))
             pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(150)
@@ -1072,32 +1072,34 @@ with sync_playwright() as p:
             sub = texto('#subAbaixo')
             pg.click('[data-kpi="abaixo"]'); pg.wait_for_timeout(100)
             ok(got == quer == esp and texto('#kpiAbaixo') == str(len(quer)) and sub == '2 no prejuízo · mínima de %s%%' % minima, 'mínima %s%%: Abaixo da margem filtra %s (o oráculo diz %s) e a legenda diz "%s"' % (minima, got, esp, sub))
-        ok(perto(ors[1]['lucro'] / ors[1]['venda'], 0.18949) and perto(ors[12]['lucro'] / ors[12]['venda'], 0.17587), 'a 20%%, além do 12 (%s) entra o 1 (%s): é a margem dele que está entre 15%% e 20%%' % (pct(ors[12]['lucro'] / ors[12]['venda']), pct(ors[1]['lucro'] / ors[1]['venda'])))
+        ok(perto(ors[1]['lucro'] / ors[1]['venda'], 0.19761) and ors[12]['lucro'] / ors[12]['venda'] > 0.20, 'a 20%%, entram o 1 (%s) e o 16 (%s); o 12 (%s) fica de fora, acima dos 20%%' % (pct(ors[1]['lucro'] / ors[1]['venda']), pct(ors[16]['lucro'] / ors[16]['venda']), pct(ors[12]['lucro'] / ors[12]['venda'])))
         pg.evaluate("(m) => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = m; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); }", 12.5); pg.wait_for_timeout(150)
         ok(texto('#subAbaixo').endswith('mínima de 12,5%') and sorted(i for i, o in ors.items() if abaixo_da_margem(o, 12.5)) == [3, 11], 'mínima fracionada: "12,5%"')
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
         ok(texto('#subAbaixo').endswith('mínima de 15%'), 'sem a chave gravada vale o 15 de fábrica')
-        # a coluna Margem
+        # a coluna Margem (com a mínima em 19%: o 16, a 18,8%, fica no meio; o 1, a 19,8%, acima)
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 19; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
         pg.evaluate("itensPorPaginaAtual = 100; render();"); pg.wait_for_timeout(150)
         cel = lambda i: pg.evaluate("(i) => { const td = document.querySelector('#corpoTabela tr[data-id=\"' + i + '\"] td:last-child'); return [td.className, td.getAttribute('title'), getComputedStyle(td).color]; }", i)
         c16, c3, c1 = cel(16), cel(3), cel(1)
         cor = lambda v: pg.evaluate("(v) => { const t = document.createElement('i'); t.style.color = v; document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove(); return c; }", v)
-        ok(c16[0] == 'ce-atencao' and c16[1] == 'abaixo da mínima de 15%' and c16[2] == cor('var(--warning)'), 'margem de 14,4%% (pedido 16): na cor de atenção, com o title "abaixo da mínima de 15%%": %s' % c16)
+        ok(c16[0] == 'ce-atencao' and c16[1] == 'abaixo da mínima de 19%' and c16[2] == cor('var(--warning)'), 'margem de 18,8%% (pedido 16) com a mínima em 19%%: na cor de atenção, com o title "abaixo da mínima de 19%%": %s' % c16)
         ok(c3[0] == 'ce-neg' and c3[1] is None and c3[2] == cor('var(--danger)'), 'lucro negativo (pedido 3) continua vermelho, sem aquele title: %s' % c3)
-        ok(c1[0] == '' and c1[1] is None, 'margem acima da mínima (pedido 1, 19,0%) sem destaque')
+        ok(c1[0] == '' and c1[1] is None, 'margem acima da mínima (pedido 1, 19,8%) sem destaque')
         pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 0; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
         ok(cel(16)[0] == '', 'com a mínima em 0 o pedido 16 não tem destaque')
-        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); p.margemMinimaPct = 19; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
         # o painel lateral
         pg.click('#corpoTabela tr[data-id="16"]'); pg.wait_for_timeout(250)
-        ok(pg.evaluate("document.getElementById('notaMargemPainel') ? document.getElementById('notaMargemPainel').textContent : null") == 'abaixo da mínima de 15%', 'o painel do pedido 16 diz embaixo da margem: "abaixo da mínima de 15%"')
+        ok(pg.evaluate("document.getElementById('notaMargemPainel') ? document.getElementById('notaMargemPainel').textContent : null") == 'abaixo da mínima de 19%', 'o painel do pedido 16 diz embaixo da margem: "abaixo da mínima de 19%"')
         pg.click('#drawerClose'); pg.wait_for_timeout(150)
         pg.click('#corpoTabela tr[data-id="1"]'); pg.wait_for_timeout(250)
-        ok(pg.evaluate("document.getElementById('notaMargemPainel')") is None, 'o do pedido 1 (19,0%) não diz nada')
+        ok(pg.evaluate("document.getElementById('notaMargemPainel')") is None, 'o do pedido 1 (19,8%) não diz nada')
         pg.click('#drawerClose'); pg.wait_for_timeout(150)
         pg.click('#corpoTabela tr[data-id="3"]'); pg.wait_for_timeout(250)
         ok(pg.evaluate("document.getElementById('notaMargemPainel')") is None, 'o do pedido 3 (lucro negativo) também não: ele já é vermelho')
         pg.click('#drawerClose'); pg.wait_for_timeout(150)
+        pg.evaluate("(() => { const p = JSON.parse(localStorage.getItem('deskParametros') || '{}'); delete p.margemMinimaPct; localStorage.setItem('deskParametros', JSON.stringify(p)); render(); })()"); pg.wait_for_timeout(150)
         # Configurar: a linha da margem
         abrir_config()
         ok(texto('#cfgMargem') == 'Margem mínima: 15%. Muda em Parâmetros de Vendas' and pg.evaluate("document.querySelector('#cfgMargem a').getAttribute('href')") == '../configuracoes/pagina-configuracoes-parametros-vendas.html',
@@ -1146,14 +1148,14 @@ with sync_playwright() as p:
         marg = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-marg')).map(e => e.textContent.trim())")
         ok(marg == ['margem ' + pct(l / f) for (_, f, l) in esp], 'a margem em %% embaixo de cada mês: %s' % marg)
         vals = pg.evaluate("Array.from(document.querySelectorAll('#mesGrafico .ce-mes-val')).map(e => e.textContent.trim())")
-        ok(len(vals) == 12 and all(v.startswith('R$') or v.startswith('− R$') for v in vals) and 'R$ 7.579' in vals and 'R$ 1.051' in vals, 'os valores aparecem sobre as barras, legíveis: %s' % vals[-4:])
+        ok(len(vals) == 12 and all(v.startswith('R$') or v.startswith('− R$') for v in vals) and 'R$ 7.579' in vals and 'R$ 1.225' in vals, 'os valores aparecem sobre as barras, legíveis: %s' % vals[-4:])
 
         def pct_sinal(v):
             x = (abs(v) * 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
             return ('−' if v < 0 else '+') + str(x).replace('.', ',') + '%'
         f_at, l_at, f_an, l_an = atual[1], atual[2], esp[-2][1], esp[-2][2]
         texto_quer = 'Outubro (até hoje) contra setembro: faturamento %s · lucro %s' % (pct_sinal((f_at - f_an) / abs(f_an)), pct_sinal((l_at - l_an) / abs(l_an)))
-        ok(texto('#mesComparacao') == texto_quer == 'Outubro (até hoje) contra setembro: faturamento −10,1% · lucro −6,8%', 'a comparação em texto: "%s"' % texto('#mesComparacao'))
+        ok(texto('#mesComparacao') == texto_quer == 'Outubro (até hoje) contra setembro: faturamento −10,1% · lucro +8,6%', 'a comparação em texto: "%s"' % texto('#mesComparacao'))
         ok(pg.evaluate("document.getElementById('mesComparacao').compareDocumentPosition(document.getElementById('mesGrafico')) & Node.DOCUMENT_POSITION_FOLLOWING") != 0, 'e ela fica acima do gráfico')
         al = pg.evaluate("document.getElementById('mesGrafico').getAttribute('aria-label')")
         ok(pg.evaluate("document.getElementById('mesGrafico').getAttribute('role')") == 'img' and al.startswith('Gráfico de barras, mês a mês') and 'Outubro de 2026, faturamento R$ 7.579,20' in al and 'Maio de 2026' in al, 'o aria-label descreve o gráfico: %s' % al[:150])

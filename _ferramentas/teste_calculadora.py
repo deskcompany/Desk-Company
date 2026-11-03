@@ -65,7 +65,8 @@ def fonte(n):
 
 
 # ====================================================================== o oraculo: a conta refeita em Decimal, sem olhar para o codigo da tela
-LINK = [D(x) for x in ('4.20', '6.09', '7.01', '7.91', '8.80', '9.67', '12.59', '13.42', '14.25', '15.06', '15.87', '16.66')]   # o Link de Pagamento: 1x a 12x
+# A loja virtual usa a tabela Bronze da maquininha (decisao de 03/nov/2026), credito Visa de 1x a 12x (o nome LINK ficou do tempo em que era o Link de Pagamento: 4.20, 6.09, 7.01 ... 16.66).
+LINK = [D(x) for x in ('3.15', '5.39', '6.12', '6.85', '7.57', '8.28', '8.99', '9.69', '10.38', '11.06', '11.74', '12.40')]
 CENT = D('0.01')
 
 
@@ -260,23 +261,23 @@ with sync_playwright() as p:
     if secao(1, 'Os numeros da aprovacao: produto 1, Desk Shope, custo 50,00, Flex M 4,70 + Tag 0,40 + Fita 0,30, margem 30, 3x, imposto 4, comissao 5'):
         pg = nova()
         editar(pg, loja='Desk Shope')
-        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 129,90 dá margem de 41,3%', 'a margem de hoje com R$ 129,90 no preco: "%s"' % txt(pg, '#calcHoje'))
+        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 129,90 dá margem de 42,2%', 'a margem de hoje com R$ 129,90 no preco: "%s"' % txt(pg, '#calcHoje'))
         abrir(pg)
         ok(pg.input_value('#calcCusto') == '50,00' and pg.input_value('#calcEmbalagem') == '5,40' and txt(pg, '#calcCustoTotal') == 'R$ 55,40', 'custo 50,00 (da aba Custos), embalagem 5,40 e custo total 55,40')
         ok(txt(pg, '#calcEmbOrigem') == 'Caixa R$ 4,70 + Tag Desk Shope R$ 0,40 + Fita adesiva R$ 0,30' and txt(pg, '#calcCaixa .dropdown-select-label') == 'Caixa de Encomenda Flex M', 'a origem da embalagem e a caixa do produto: "%s"' % txt(pg, '#calcEmbOrigem'))
         ok(txt(pg, '#calcCustoOrigem') == 'O mesmo que Custos do E-commerce usa: custo da compra' and txt(pg, '#calcMinimaDica') == 'A mínima é 15%, de Parâmetros de Vendas', 'as dicas do custo e da margem minima')
-        ok(pg.input_value('#calcMargem') == '30' and pg.input_value('#calcImposto') == '4' and pg.input_value('#calcComissao') == '5' and txt(pg, '#calcParcelas .dropdown-select-label') == '3x · taxa 7,01%', 'margem 30, imposto 4, comissao 5 e 3x com taxa 7,01%')
+        ok(pg.input_value('#calcMargem') == '30' and pg.input_value('#calcImposto') == '4' and pg.input_value('#calcComissao') == '5' and txt(pg, '#calcParcelas .dropdown-select-label') == '3x · taxa 6,12%', 'margem 30, imposto 4, comissao 5 e 3x com taxa 6,12% (Bronze, Visa)')
         v = {c['id']: c for c in cartoes(pg)}
         ok([c['id'] for c in cartoes(pg)] == ['varejo', 'barreira', 'redondo', 'exato'], 'as quatro sugestoes, na ordem')
-        ok(v['varejo']['preco'] == 'R$ 102,90' and v['varejo']['margem'] == 'margem 30,1%lucro R$ 31,02' and v['varejo']['cor'] == '', 'Varejo R$ 102,90, 30,1%, lucro 31,02')
-        ok(v['barreira']['preco'] == 'R$ 99,90' and v['barreira']['margem'] == 'margem 28,5%lucro R$ 28,50' and v['barreira']['cor'] == 'abaixo', 'Abaixo da faixa R$ 99,90, 28,5%, lucro 28,50, laranja')
-        ok(v['redondo']['preco'] == 'R$ 110,00' and v['redondo']['margem'] == 'margem 33,6%lucro R$ 36,99', 'Redondo R$ 110,00, 33,6%, lucro 36,99')
-        ok(v['exato']['preco'] == 'R$ 102,62' and v['exato']['margem'] == 'margem 30,0%lucro R$ 30,80', 'Exato R$ 102,62, 30,0%, lucro 30,80 (sobe ao centavo)')
-        ok(v['varejo']['ativa'] and txt(pg, '#calcPreco') == 'R$ 102,90' and txt(pg, '#calcPrecoRot') == 'Preço escolhido: Varejo ,90', 'o Varejo abre escolhido')
-        ok([txt(pg, i) for i in ('#calcR2', '#calcR3', '#calcR5', '#calcR4')] == ['R$ 7,21', 'R$ 4,12', 'R$ 5,15', 'R$ 31,02'] and txt(pg, '#calcMarkup') == '2,05800', 'no Varejo: taxa 7,21, imposto 4,12, comissao 5,15, lucro 31,02 e markup 2,05800')
-        ok([(f[0].split(',')[0].split(' no ')[0], f[1]) for f in formas(pg)] == [('Pix', '35,4%'), ('1x', '33,0%'), ('3x', '30,1%'), ('6x', '27,5%'), ('10x', '22,1%'), ('12x', '20,5%')], 'as formas: Pix 35,4%%, 1x 33,0%%, 3x 30,1%%, 6x 27,5%%, 10x 22,1%%, 12x 20,5%%: %s' % [f[1] for f in formas(pg)])
-        ok(txt(pg, '#calcPiso') == 'R$ 80,31' and 'margem de 34,1%' in txt(pg, '#calcNaTela'), 'preco minimo 80,31 e, em Custos do E-commerce, 34,1%')
-        ok(txt(pg, '#calcDireta') == 'R$ 94,51' and 'Lucro de R$ 35,33, margem de 37,4%.' in txt(pg, '#calcDiretaNota') and 'No Pix, com os dois descontos (8,15%)' == txt(pg, '#calcDiretaRot'), 'venda nossa no Pix (8,15%): R$ 94,51, lucro 35,33, margem 37,4%')
+        ok(v['varejo']['preco'] == 'R$ 101,90' and v['varejo']['margem'] == 'margem 30,5%lucro R$ 31,08' and v['varejo']['cor'] == '', 'Varejo R$ 101,90, 30,5%, lucro 31,08')
+        ok(v['barreira']['preco'] == 'R$ 99,90' and v['barreira']['margem'] == 'margem 29,4%lucro R$ 29,39' and v['barreira']['cor'] == 'abaixo', 'Abaixo da faixa R$ 99,90, 29,4%, lucro 29,39, laranja')
+        ok(v['redondo']['preco'] == 'R$ 110,00' and v['redondo']['margem'] == 'margem 34,5%lucro R$ 37,97', 'Redondo R$ 110,00, 34,5%, lucro 37,97')
+        ok(v['exato']['preco'] == 'R$ 100,95' and v['exato']['margem'] == 'margem 30,0%lucro R$ 30,28', 'Exato R$ 100,95, 30,0%, lucro 30,28 (sobe ao centavo)')
+        ok(v['varejo']['ativa'] and txt(pg, '#calcPreco') == 'R$ 101,90' and txt(pg, '#calcPrecoRot') == 'Preço escolhido: Varejo ,90', 'o Varejo abre escolhido')
+        ok([txt(pg, i) for i in ('#calcR2', '#calcR3', '#calcR5', '#calcR4')] == ['R$ 6,24', 'R$ 4,08', 'R$ 5,10', 'R$ 31,08'] and txt(pg, '#calcMarkup') == '2,03800', 'no Varejo: taxa 6,24, imposto 4,08, comissao 5,10, lucro 31,08 e markup 2,03800')
+        ok([(f[0].split(',')[0].split(' no ')[0], f[1]) for f in formas(pg)] == [('Pix', '34,9%'), ('1x', '33,5%'), ('3x', '30,5%'), ('6x', '28,3%'), ('10x', '25,6%'), ('12x', '24,2%')], 'as formas: Pix 34,9%%, 1x 33,5%%, 3x 30,5%%, 6x 28,3%%, 10x 25,6%%, 12x 24,2%%: %s' % [f[1] for f in formas(pg)])
+        ok(txt(pg, '#calcPiso') == 'R$ 79,28' and 'margem de 34,5%' in txt(pg, '#calcNaTela'), 'preco minimo 79,28 e, em Custos do E-commerce, 34,5%')
+        ok(txt(pg, '#calcDireta') == 'R$ 93,60' and 'Lucro de R$ 34,46, margem de 36,8%.' in txt(pg, '#calcDiretaNota') and 'No Pix, com os dois descontos (8,15%)' == txt(pg, '#calcDiretaRot'), 'venda nossa no Pix (8,15%): R$ 93,60, lucro 34,46, margem 36,8%')
         ok(txt(pg, '#calcParcelasDica') == 'Taxa do gateway da loja, a mesma de Custos do E-commerce' and not visivel(pg, '#calcAvisoCusto') and not visivel(pg, '#calcErro'), 'a dica da taxa e nenhum aviso')
         pg.click('.calc-opcao[data-id="redondo"]'); pg.wait_for_timeout(100)
         ok(txt(pg, '#calcPreco') == 'R$ 110,00' and txt(pg, '#calcMarkup') == '2,20000' and txt(pg, '#calcPrecoRot') == 'Preço escolhido: Redondo', 'escolher o Redondo muda o preco escolhido e o markup (2,20000)')
@@ -289,7 +290,7 @@ with sync_playwright() as p:
         abrir(pg)
         cenarios = [
             dict(custo='50,00', margem='30', imposto='4', comissao='5', parcelas=3, frete='0,00', freteloja='0,00'),
-            dict(custo='20,00', margem='20', imposto='4', comissao='5', parcelas=1, frete='0,00', freteloja='0,00'),
+            dict(custo='21,00', margem='20', imposto='4', comissao='5', parcelas=1, frete='0,00', freteloja='0,00'),   # era 20,00; com a Bronze (1x a 3,15%) o redondo cai numa margem de exatos 24,35%, que a tela arredonda para baixo (toFixed) e o oraculo para cima
             dict(custo='120,00', margem='50', imposto='6', comissao='8', parcelas=12, frete='3,50', freteloja='7,25'),
             dict(custo='1.234,56', margem='25,5', imposto='4', comissao='0', parcelas=6, frete='12,00', freteloja='0,00'),
             dict(custo='79,90', margem='35', imposto='0', comissao='10', parcelas=10, frete='0,00', freteloja='15,00'),
@@ -314,9 +315,9 @@ with sync_playwright() as p:
         pg = nova()
         editar(pg, loja='Desk Shope')
         abrir(pg)
-        preencher(pg, custo='48,32')
+        preencher(pg, custo='49,20')
         ids = [c['id'] for c in cartoes(pg)]
-        ok(ids == ['varejo', 'redondo', 'exato'] and cartoes(pg)[0]['preco'] == 'R$ 99,90' and txt(pg, '#calcCustoTotal') == 'R$ 53,72', 'custo 48,32 (total 53,72): sem "Abaixo da faixa" e Varejo R$ 99,90: %s %s' % (ids, cartoes(pg)[0]['preco']))
+        ok(ids == ['varejo', 'redondo', 'exato'] and cartoes(pg)[0]['preco'] == 'R$ 99,90' and txt(pg, '#calcCustoTotal') == 'R$ 54,60', 'custo 49,20 (total 54,60; era 48,32 com a taxa do Link): sem "Abaixo da faixa" e Varejo R$ 99,90: %s %s' % (ids, cartoes(pg)[0]['preco']))
         preencher(pg, custo='3,00')
         ids = [c['id'] for c in cartoes(pg)]
         ok('barreira' not in ids and cartoes(pg)[0]['preco'] == 'R$ 15,90', 'custo 3,00: sem "Abaixo da faixa" (cairia abaixo da margem minima) e Varejo R$ 15,90: %s %s' % (ids, cartoes(pg)[0]['preco']))
@@ -343,11 +344,11 @@ with sync_playwright() as p:
         param_set(pg, impostoPadraoPct=6, margemMinimaPct=20, comissaoPadraoPct=8, parcelasVitrine=6)
         editar(pg, loja='Desk Shope')
         abrir(pg)
-        ok(pg.input_value('#calcImposto') == '6' and pg.input_value('#calcComissao') == '8' and txt(pg, '#calcParcelas .dropdown-select-label') == '6x · taxa 9,67%', 'imposto 6, comissao 8 e 6x vem dos parametros: %s / %s / %s' % (pg.input_value('#calcImposto'), pg.input_value('#calcComissao'), txt(pg, '#calcParcelas .dropdown-select-label')))
+        ok(pg.input_value('#calcImposto') == '6' and pg.input_value('#calcComissao') == '8' and txt(pg, '#calcParcelas .dropdown-select-label') == '6x · taxa 8,28%', 'imposto 6, comissao 8 e 6x vem dos parametros: %s / %s / %s' % (pg.input_value('#calcImposto'), pg.input_value('#calcComissao'), txt(pg, '#calcParcelas .dropdown-select-label')))
         ok(txt(pg, '#calcMinimaDica') == 'A mínima é 20%, de Parâmetros de Vendas' and txt(pg, '#calcPisoRot') == 'Preço mínimo, com a margem de 20%', 'a margem minima de 20% muda a dica e o rotulo do preco minimo')
         esp = oraculo(EMB_SHOPE + 50, 30, LINK[5], 0, 6, 8, minima=20)
         confere_opcoes(pg, esp, 6, 'com os parametros (imposto 6, comissao 8, 6x, minima 20)')
-        confere_resultado(pg, esp, 'varejo', 'Taxa do cartão 6x (9,67%)', 50, D(6), D(8), D(20), D('3.15'), TAB_LINK, 6, 'com os parametros')
+        confere_resultado(pg, esp, 'varejo', 'Taxa do cartão 6x (8,28%)', 50, D(6), D(8), D(20), D('3.15'), TAB_LINK, 6, 'com os parametros')
         fechar(pg)
         ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 129,90 dá margem de %s' % pct1(margem(conta(D('129.90'), EMB_SHOPE + 50, LINK[5], 0, 6, 8))), 'a margem de hoje acompanha os parametros: "%s"' % txt(pg, '#calcHoje'))
         # parametro estragado cai no de fabrica
@@ -564,22 +565,22 @@ with sync_playwright() as p:
         editar(pg, loja='Desk Shope'); abrir(pg)
         ok(ls(pg, 'deskCalculoPreco') is None, 'so abrir e mexer na calculadora nao grava nada')
         pg.click('#calcAplicar'); pg.wait_for_timeout(350)
-        ok(pg.input_value('#inputPrecoVenda') == '102,90' and pg.input_value('#inputPrecoListaPadrao') == '102,90' and pg.input_value('#inputMarkup') == '2,05800', 'Aplicar preenche o Preco de venda, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
+        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'Aplicar preenche o Preco de venda, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
         ok(not pg.evaluate("document.getElementById('calcDrawer').classList.contains('open')"), 'e fecha a gaveta')
         sv = (ls(pg, 'deskCalculoPreco') or {}).get('1')
-        ok(sv and sv['preco'] == 102.9 and sv['markup'] == 2.058 and sv['margem'] == 30 and sv['parcelas'] == 3 and sv['imposto'] == 4 and sv['comissao'] == 5 and sv['frete'] == 0 and sv['freteLoja'] == 0 and sv['escolhida'] == 'varejo' and sv['caixaId'] == 2 and sv['embalagemManual'] is None and sv['em'],
+        ok(sv and sv['preco'] == 101.9 and sv['markup'] == 2.038 and sv['margem'] == 30 and sv['parcelas'] == 3 and sv['imposto'] == 4 and sv['comissao'] == 5 and sv['frete'] == 0 and sv['freteLoja'] == 0 and sv['escolhida'] == 'varejo' and sv['caixaId'] == 2 and sv['embalagemManual'] is None and sv['em'],
            'o calculo fica guardado por id do produto: %s' % sv)
-        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 102,90 dá margem de 30,1%', 'a margem de hoje passa a ser a do preco aplicado: "%s"' % txt(pg, '#calcHoje'))
+        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 101,90 dá margem de 30,5%', 'a margem de hoje passa a ser a do preco aplicado: "%s"' % txt(pg, '#calcHoje'))
         log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(e => e.chave === 'calculadoraPreco')")
         ok(len(log) == 1 and log[0]['acao'] == 'Aplicar o preço calculado' and log[0]['modulo'] == 'Cadastros' and log[0]['senha'] is False and log[0]['onde'] == 'Cadastros → Produtos', 'cai no Registro de atividades (grupo Cadastros, sem senha): %s' % (log[0] if log else None))
-        ok(log and log[0]['detalhe'] == 'Fone de Ouvido Bluetooth X200: preço de R$ 129,90 para R$ 102,90, margem de 30,1%.' and len(log[0]['detalhe']) <= 180, 'o texto diz produto, preco anterior, preco novo e margem (ate 180): "%s"' % (log[0]['detalhe'] if log else None))
+        ok(log and log[0]['detalhe'] == 'Fone de Ouvido Bluetooth X200: preço de R$ 129,90 para R$ 101,90, margem de 30,5%.' and len(log[0]['detalhe']) <= 180, 'o texto diz produto, preco anterior, preco novo e margem (ate 180): "%s"' % (log[0]['detalhe'] if log else None))
         ok(txt(pg, '#inputEmbalagem .dropdown-select-label') == 'Caixa de Encomenda Flex M', 'Aplicar devolve a caixa escolhida ao campo Embalagem')
         ir(pg, REGISTRO)
         ok('Aplicar o preço calculado' in pg.evaluate("document.body.textContent"), 'o Registro de atividades mostra a acao pelo nome')
         # reload: repoe preco, Padrao e Markup; a calculadora abre com os numeros guardados
         editar(pg, loja='Desk Shope')
-        ok(pg.input_value('#inputPrecoVenda') == '102,90' and pg.input_value('#inputPrecoListaPadrao') == '102,90' and pg.input_value('#inputMarkup') == '2,05800', 'recarregar repoe o preco, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
-        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 102,90 dá margem de 30,1%', 'e a margem de hoje com o preco guardado: "%s"' % txt(pg, '#calcHoje'))
+        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'recarregar repoe o preco, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
+        ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 101,90 dá margem de 30,5%', 'e a margem de hoje com o preco guardado: "%s"' % txt(pg, '#calcHoje'))
         pg.context.close()
 
         # um calculo bem diferente, guardado, e depois os parametros e o cadastro mudam
@@ -646,14 +647,14 @@ with sync_playwright() as p:
         ok(ls(pg, 'deskCalculoPreco') is None, 'Salvar alteracoes sem calculo guardado nao cria calculo')
         # com calculo guardado
         abrir(pg); pg.click('#calcAplicar'); pg.wait_for_timeout(300)
-        ok(pg.input_value('#inputPrecoVenda') == '102,90', 'Aplicar sobrescreve o digitado (so ele faz isso)')
+        ok(pg.input_value('#inputPrecoVenda') == '101,90', 'Aplicar sobrescreve o digitado (so ele faz isso)')
         pg.fill('#inputPrecoVenda', '115,50'); pg.wait_for_timeout(120)
-        ok(pg.input_value('#inputPrecoListaPadrao') == '102,90' and pg.input_value('#inputMarkup') == '2,05800' and (ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 102.9, 'digitar depois de aplicar nao mexe na lista Padrao, no Markup nem no guardado')
+        ok(pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800' and (ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 101.9, 'digitar depois de aplicar nao mexe na lista Padrao, no Markup nem no guardado')
         pg.click('#btnSalvarProduto'); pg.wait_for_timeout(300)
         sv = (ls(pg, 'deskCalculoPreco') or {})['1']
-        ok(sv['preco'] == 115.5 and sv['markup'] == 2.058 and pg.input_value('#inputPrecoListaPadrao') == '115,50', 'Salvar alteracoes leva o digitado para o preco guardado e para a lista Padrao: %s' % sv['preco'])
+        ok(sv['preco'] == 115.5 and sv['markup'] == 2.038 and pg.input_value('#inputPrecoListaPadrao') == '115,50', 'Salvar alteracoes leva o digitado para o preco guardado e para a lista Padrao: %s' % sv['preco'])
         pg.reload(); pg.wait_for_timeout(450); pg.click('.tab-item[data-tab="precos"]')
-        ok(pg.input_value('#inputPrecoVenda') == '115,50' and pg.input_value('#inputPrecoListaPadrao') == '115,50' and pg.input_value('#inputMarkup') == '2,05800', 'o reload nao desfaz a edicao: preco 115,50, Padrao 115,50 e o Markup do calculo')
+        ok(pg.input_value('#inputPrecoVenda') == '115,50' and pg.input_value('#inputPrecoListaPadrao') == '115,50' and pg.input_value('#inputMarkup') == '2,03800', 'o reload nao desfaz a edicao: preco 115,50, Padrao 115,50 e o Markup do calculo')
         pg.fill('#inputPrecoVenda', ''); pg.click('#btnSalvarProduto'); pg.wait_for_timeout(300)
         ok((ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 115.5, 'preco vazio ao salvar nao apaga o guardado')
         pg.context.close()
@@ -663,7 +664,7 @@ with sync_playwright() as p:
         pg = nova()
         ir(pg, PROD)
         pg.click('.tab-item[data-tab="precos"]')
-        ok(pg.evaluate("document.body.classList.contains('modo-leitura')") and not visivel(pg, '#btnCalcularPreco') and visivel(pg, '#calcHoje') and txt(pg, '#calcHoje').startswith('Com o custo de hoje, R$ 129,90 dá margem de 41,3%'),
+        ok(pg.evaluate("document.body.classList.contains('modo-leitura')") and not visivel(pg, '#btnCalcularPreco') and visivel(pg, '#calcHoje') and txt(pg, '#calcHoje').startswith('Com o custo de hoje, R$ 129,90 dá margem de 42,2%'),
            'em modo leitura o botao "Calcular preco" some e a margem de hoje continua: "%s"' % txt(pg, '#calcHoje'))
         pg.click('#btnEditarRegistro'); pg.wait_for_timeout(200)
         ok(visivel(pg, '#btnCalcularPreco') and visivel(pg, '#calcHoje'), 'ao editar o botao aparece')

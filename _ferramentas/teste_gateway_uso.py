@@ -200,7 +200,7 @@ with sync_playwright() as p:
             ir(PDV)
         pg.evaluate("(ks) => ks.forEach(k => localStorage.removeItem(k))", CHAVES_LOCAIS)
         if bancada:
-            pg.evaluate("(g) => { localStorage.setItem('deskGateways', JSON.stringify({ gateways: g })); localStorage.setItem('deskGatewaysExemplo', '2'); }", gateways_bancada())
+            pg.evaluate("(g) => { localStorage.setItem('deskGateways', JSON.stringify({ gateways: g })); localStorage.setItem('deskGatewaysExemplo', '3'); }", gateways_bancada())
             params = dict(dict(pdvDescontoAVista=False), **params)
         if params:
             param(**params)
@@ -251,7 +251,7 @@ with sync_playwright() as p:
         # a semente do PDV de um navegador que nunca abriu Gateways e a mesma da pagina do gateway
         limpar(bancada=False); ir(PDV)
         do_pdv = json.dumps(gws(), sort_keys=True)
-        ok(len(gws()) == 5 and pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '2', 'o PDV, num navegador limpo, semeia os cinco gateways do exemplo (sem ele ficaria sem maquininha)')
+        ok(len(gws()) == 5 and pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3', 'o PDV, num navegador limpo, semeia os cinco gateways do exemplo (sem ele ficaria sem maquininha)')
         limpar(bancada=False); ir(LISTA)
         ok(json.dumps(gws(), sort_keys=True) == do_pdv, 'e sao os mesmos dados que a pagina do gateway semeia, campo a campo')
         limpar(bancada=False); ir(FORMAS)

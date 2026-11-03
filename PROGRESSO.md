@@ -75,7 +75,7 @@ Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão
    - O saldo pode ser acertado à mão, com motivo.
    - Na produção a entrada vem pela nota, como qualquer item.
 2. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-3. **Gateways de Pagamento:** falta o protótipo da vitrine. Os três consertos do teste estão na revisão geral (itens 9 a 11).
+3. **Gateways de Pagamento:** falta o protótipo da vitrine.
 4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
 5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
@@ -106,6 +106,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
   exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
 
+- **Taxas reais da loja virtual:** na integração da API da InfinitePay, pesquisar se o Checkout Integrado cobra a tabela do Link ou a da maquininha; o protótipo usa a Bronze (decisão do usuário). A vitrine dá o mesmo desconto Pix.
 - **A embalagem ainda não sai do estoque** (30/out/2026): a Conferência de Saída confirma caixa, tag e fita, e o custo entra em Custos do E-commerce, mas nenhum saldo baixa,
   porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo. **Saiu desta lista no mesmo dia:** ele aprovou fazer, e virou o item 1 do "Próximo da fila".
 - **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
@@ -116,16 +117,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-Revisão em andamento desde 02/nov/2026: pacotes 1 (visual), 2 (navegação), 3 (cards que filtram, Voltar com os filtros, título do cabeçalho) e 4 (digitação a partir dos centavos e das gramas; cards de Devolução e Rastreamento; preço do SKU no Pedido) feitos; faltam as regras de dinheiro (9 a 11).
-
-Pedidos do usuário de 19 a 26/out/2026, **para não mexer agora**: entram juntos quando ele decidir fazer a próxima auditoria e
-revisão. Até lá, seguimos construindo. Cada item vira conserto de componente, em todas as telas de uma vez, com suíte.
-
-9. **a comissão não conta o vale-compra**: hoje a base é o total menos o frete; passa a ser o total menos o frete e menos o que o pedido pagou com vale, para vendedor e afiliado (a comissão é sobre o que foi vendido de fato, já com todos os descontos, o Pix/dinheiro incluído) Ele perguntou se fazia sentido e concordamos: o vale não traz dinheiro novo (devolução: a venda original já comissionou; cortesia: presente da loja; comissão em vale: evitaria comissão sobre comissão).
-10. **a loja virtual usa as taxas da Bronze da maquininha** no protótipo, decisão dele, e a vitrine dá o mesmo desconto Pix. **Pesquisa obrigatória na integração da API da InfinitePay:** o Checkout Integrado cobra a tabela do Link de Pagamento (mais cara: 4,20% à vista na tabela geral) ou a da maquininha/InfiniteTap? A resposta decide as taxas reais
-11. **os feriados nacionais móveis entram no dia útil**, calculados sozinhos para qualquer ano (fixos pela data, móveis pela Páscoa): Carnaval (segunda e terça, banco fechado), Sexta-feira Santa e Corpus Christi. Feriado estadual e municipal (cadastro à mão) fica para depois.
-
-*Custos do E-commerce, entrega 2 (27/out):* o vale de cortesia passou a sair da venda do resultado do pedido, mas a comissão **não** mudou por isso; o **item 9 continua aqui, sem mudar** (a base da comissão ainda é o total menos o frete).
+Revisão geral de 02-03/nov/2026 feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). A lista está vazia.
 
 ## Esperando decisão do usuário
 

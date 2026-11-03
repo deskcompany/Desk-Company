@@ -1721,7 +1721,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // no Programa de afiliados (Configuracoes > Cadastro de clientes), no dia da venda. Quem compra pelo
   // proprio link nao gera comissao, por isso quem indica nunca e o cliente do pedido.
   // `custo` = custo dos produtos, congelado no faturamento. Financas > Comissoes Afiliados calcula o lucro
-  // com ele; a base da comissao e o total menos o frete.
+  // com ele; a base da comissao e o total menos o frete e menos o vale-compra que o pedido pagou.
   // Desde 22/out/2026 (Custos do E-commerce): `canal` = 'loja_virtual' (as vitrines; 1, 3, 4, 8, 9, 11, 12 e 16) ou 'manual'; `custoMedio` = custo medio
   // congelado no faturamento (ao lado do `custo`, que e o da compra); e, so nos online, `ufEntrega` (o estado de destino),
   // `fretePagoLoja` (o frete que a loja pagou) e `pagamento` { forma, bandeira, vezes }. O pedido 11 fica no prejuizo de proposito (frete gratis para longe).

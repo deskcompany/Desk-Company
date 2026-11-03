@@ -99,8 +99,12 @@ def taxa_de(total, pct, tarifa=0):
     return cent(Decimal(str(total)) * Decimal(str(pct)) / 100 + Decimal(str(tarifa)))
 
 
-# As taxas conferidas a mao, das tabelas de fabrica (Link da InfinitePay = loja virtual; Maquininha Bronze = Outro):
-LINK_TAXAS = {1: 4.20, 2: 6.09, 3: 7.01, 4: 7.91, 5: 8.80, 6: 9.67, 7: 12.59, 8: 13.42, 9: 14.25, 10: 15.06, 11: 15.87, 12: 16.66}
+# As taxas conferidas a mao, das tabelas de fabrica (desde 03/nov/2026 a loja virtual usa a Bronze da maquininha, sem debito; antes era o Link: 4,20% em 1x, 7,01% em 3x ... 16,66% em 12x):
+# credito Bronze da InfinitePay por grupo de bandeira (vm = Visa e Mastercard; ea = Elo, Amex e Hipercard).
+LOJA_TAXAS = {'vm': {1: 3.15, 2: 5.39, 3: 6.12, 4: 6.85, 5: 7.57, 6: 8.28, 7: 8.99, 8: 9.69, 9: 10.38, 10: 11.06, 11: 11.74, 12: 12.40},
+              'ea': {1: 4.91, 2: 6.47, 3: 7.20, 4: 7.92, 5: 8.63, 6: 9.33, 7: 10.03, 8: 10.72, 9: 11.41, 10: 12.08, 11: 12.75, 12: 13.41}}
+GRUPO = {'visa': 'vm', 'mastercard': 'vm', 'elo': 'ea', 'amex': 'ea', 'hipercard': 'ea'}
+LINK_TAXAS = lambda vezes, bandeira='visa': LOJA_TAXAS[GRUPO[bandeira]][vezes]
 BRONZE_VM = {'debito': 1.37, 1: 3.15, 2: 5.39, 3: 6.12}
 
 with sync_playwright() as p:
@@ -165,9 +169,14 @@ with sync_playwright() as p:
     tot = total_tela()
     ok(tot == Decimal('1890.00'), 'o pedido nº 1 vale R$ 1.890,00: %s' % tot)
     cs = chips()
-    taxa1 = taxa_de(1890, LINK_TAXAS[3])
+    taxa1 = taxa_de(1890, LINK_TAXAS(3))
     ok(len(cs) == 1, 'crédito Visa 3x na InfinitePay (antecipada): UMA conta, não três: %d chips' % len(cs))
-    ok(taxa1 == Decimal('132.49'), 'a conta à mão: 7,01% de 1.890,00 = 132,49 (o 6,09% é o 2x da tabela, não o 3x)')
+    ok(taxa1 == Decimal('115.67'), 'a conta à mão: 6,12% de 1.890,00 = 115,67 (o 5,39% é o 2x da tabela Bronze, não o 3x)')
+    # Feriados moveis no dia util do pedido (03/nov/2026): a mesma regra do PDV, para 2026, 2027 e 2028.
+    got = pg.evaluate("[2026, 2027, 2028].map(a => [brData(pascoaDe(a)).slice(0, 5)].concat(feriadosMoveis(a)))")
+    ok(got == [['05/04', '16/02', '17/02', '03/04', '04/06'], ['28/03', '08/02', '09/02', '26/03', '27/05'], ['16/04', '28/02', '29/02', '14/04', '15/06']],
+       'a Pascoa, o Carnaval (2 dias), a Sexta-feira Santa e o Corpus Christi de 2026, 2027 e 2028 batem com o calendario: %s' % got)
+    ok(pg.evaluate("brData(maisDiasUteis(new Date(2026, 1, 13), 1))") == '18/02/2026', 'pedido: da sexta 13/02/2026 com 1 dia util pula o fim de semana e o Carnaval e cai na quarta 18/02/2026')
     if cs:
         c = cs[0]
         ok(c['n'] == '1/1', 'o chip diz 1/1: %s' % c['n'])
@@ -184,12 +193,12 @@ with sync_playwright() as p:
     conta = pg.evaluate("planoDoCartao(1890).itens[0].conta")
     ok(conta['nome'] == 'InfinitePay — loja virtual' and conta['id'] == 'gw1', 'a conta a receber é a do gateway (gw1): %s' % conta)
     # os 6 pedidos online no credito, cada um com a sua bandeira e parcelas
-    for pid, vezes in ((1, 3), (4, 1), (8, 6), (11, 2), (12, 10), (16, 12)):
+    for pid, vezes, band in ((1, 3, 'visa'), (4, 1, 'mastercard'), (8, 6, 'visa'), (11, 2, 'elo'), (12, 10, 'visa'), (16, 12, 'mastercard')):
         abre('?id=%d' % pid)
         t = total_tela(); cs = chips()
         # O pedido nº 16 tem R$ 25,00 pagos em vale-compra no exemplo: a conta (e a taxa) e so do que falta receber.
         vale = Decimal(25) if pid == 16 else Decimal(0)
-        t = t - vale; tx = taxa_de(t, LINK_TAXAS[vezes])
+        t = t - vale; tx = taxa_de(t, LINK_TAXAS(vezes, band))
         certo = len(cs) == 1 and cs[0]['n'] == '1/1' and cs[0]['taxa'] == br(tx) and cs[0]['liq'] == br(t - tx) and cs[0]['bruto'] == br(t) and cs[0]['venc'] == '03/11/2026'
         ok(certo, 'pedido nº %d (%dx, %s): 1 conta de %s, taxa %s, líquido %s' % (pid, vezes, t, br(t), br(tx), br(t - tx)) + ('' if certo else ' — veio %s' % cs))
         if vale:
@@ -244,7 +253,7 @@ with sync_playwright() as p:
     # pedido online com o gateway da loja virtual sem antecipação
     gateways("d.gateways.forEach(function(g){ if (g.tipo === 'infinitepay') g.antecipacao = 'sem'; });")
     abre('?id=1')
-    cs = chips(); tx = taxa_de(1890, LINK_TAXAS[3]); vals = dividir(1890, 3); taxs = dividir(tx, 3)
+    cs = chips(); tx = taxa_de(1890, LINK_TAXAS(3)); vals = dividir(1890, 3); taxs = dividir(tx, 3)
     ok(len(cs) == 3 and [c['taxa'] for c in cs] == [br(v) for v in taxs] and [c['bruto'] for c in cs] == [br(v) for v in vals],
        'pedido nº 1 com a InfinitePay da loja virtual sem antecipação: 3 contas de %s, com a taxa repartida (total %s)' % ([c['bruto'] for c in cs], br(tx)))
     ok(taxa_resultado() == br(tx) and sum(taxs) == tx, 'e a soma das taxas é a do Resultado do pedido')
@@ -310,7 +319,7 @@ with sync_playwright() as p:
     ok(len(chips()) == 3, 'dinheiro 3x segue como era (a divisão simples): 3 parcelas')
     # trocar a forma recalcula
     escolhe('inputRecebimento', 'credito')
-    cs = chips(); tx = taxa_de(1890, LINK_TAXAS[3])
+    cs = chips(); tx = taxa_de(1890, LINK_TAXAS(3))
     ok(len(cs) == 1 and cs[0]['liq'] == br(1890 - tx), 'de dinheiro para crédito: a lista vira 1 conta de %s' % br(1890 - tx))
     escolhe('inputRecebimento', 'boleto')
     ok(len(chips()) == 3 and pg.query_selector('#notaCartao') is None, 'e de volta para boleto: as 3 parcelas')
@@ -322,7 +331,7 @@ with sync_playwright() as p:
     ok(len(chips()) == 1, 'e de volta à Desk Shope, a conta volta')
     # o vale-compra: a taxa e sobre o que falta receber
     pg.evaluate("renderParcelas(1000, 890)"); pg.wait_for_timeout(100)
-    cs = chips(); tx = taxa_de(1000, LINK_TAXAS[3])
+    cs = chips(); tx = taxa_de(1000, LINK_TAXAS(3))
     ok(len(cs) == 1 and cs[0]['bruto'] == br(1000) and cs[0]['taxa'] == br(tx) and cs[0]['liq'] == br(1000 - tx), 'com R$ 890,00 pagos em vale, a conta é de R$ 1.000,00 e a taxa é sobre ela (%s)' % br(tx))
     ok('R$ 890,00 pagos com vale-compra' in pg.inner_text('#previaParcelas'), 'e a nota do vale continua lá')
     pg.evaluate("renderParcelas(0, 1890)"); pg.wait_for_timeout(100)
@@ -331,7 +340,7 @@ with sync_playwright() as p:
     # =======================================================================
     print('\n[6] O Salvar anuncia o mesmo plano')
     abre('?id=1'); pg.evaluate("localStorage.clear()"); abre('?id=1&editar=1')
-    tx = taxa_de(1890, LINK_TAXAS[3])
+    tx = taxa_de(1890, LINK_TAXAS(3))
     ok(pg.evaluate("fraseNascer(1890)") == 'a conta a receber de %s (líquido de %s em 03/11/2026, já sem a taxa de %s)' % (br(1890), br(1890 - tx), br(tx)), 'a pergunta antes de salvar: %s' % pg.evaluate("fraseNascer(1890)"))
     t = aviso_salvar()
     ok('Pedido salvo' in t and 'a conta a receber de %s nasceu em aberto, com %s de taxa: líquido de %s em 03/11/2026, na conta InfinitePay — loja virtual' % (br(1890), br(tx), br(1890 - tx)) in t,

@@ -356,6 +356,16 @@ with sync_playwright() as p:
     ok('limite de crédito' not in lr, 'e o cartao NAO confere o limite de credito do cliente')
     ok([pg.evaluate("diaUtil(new Date(%s))" % d) for d in ('2026, 9, 9', '2026, 9, 10', '2026, 9, 11', '2026, 9, 12', '2026, 9, 13')] == [True, False, False, False, True],
        'dia util: sexta 09/10 sim; sabado, domingo e o feriado nacional de data fixa (segunda 12/10) nao; terca 13/10 sim')
+    # Feriados moveis (03/nov/2026): a Pascoa de Meeus/Butcher e, dela, Carnaval (-48 e -47), Sexta-feira Santa (-2) e Corpus Christi (+60), para qualquer ano.
+    esperados = {2026: ('05/04', ['16/02', '17/02', '03/04', '04/06']), 2027: ('28/03', ['08/02', '09/02', '26/03', '27/05']), 2028: ('16/04', ['28/02', '29/02', '14/04', '15/06'])}
+    for ano, (pascoa, moveis) in esperados.items():
+        got = pg.evaluate("((a) => { const p = pascoaDe(a); return [dataBr(p).slice(0, 5), feriadosMoveis(a)]; })(%d)" % ano)
+        ok(got[0] == pascoa and got[1] == moveis, '%d: Pascoa %s; Carnaval %s e %s, Sexta-feira Santa %s, Corpus Christi %s: %s' % (ano, pascoa, moveis[0], moveis[1], moveis[2], moveis[3], got))
+    ok(pg.evaluate("feriadosMoveis(2026) === feriadosMoveis(2026)") is True, 'o calculo de cada ano fica em cache')
+    ok([pg.evaluate("diaUtil(new Date(%s))" % d) for d in ('2026, 1, 16', '2026, 1, 17', '2026, 1, 18', '2026, 3, 3', '2026, 5, 4', '2026, 3, 6', '2026, 5, 5')] == [False, False, True, False, False, True, True],
+       'dia util: Carnaval (16 e 17/02), Sexta-feira Santa (03/04) e Corpus Christi (04/06) de 2026 nao contam; e contam a quarta 18/02, a segunda 06/04 (dia seguinte a Pascoa) e a sexta 05/06')
+    ok(pg.evaluate("dataBr(vencimentoDoCartao(venda.recebimentos[1], new Date(2026, 1, 13)))") == '18/02/2026',
+       'venda no cartao na sexta 13/02/2026, prazo de 1 dia util: pula sabado, domingo e o Carnaval (segunda 16 e terca 17) e recebe na quarta 18/02/2026')
     vezes(pg, 1, 3)
     r1 = pg.evaluate('venda.recebimentos[1]')
     ok(r1['vezes'] == 3 and pg.evaluate('taxaDe(venda.recebimentos[1])') == 27.52 and 'Taxa da maquininha (6,12%)' in pg.inner_text('#listaReceb'),

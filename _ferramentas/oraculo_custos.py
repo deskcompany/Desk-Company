@@ -6,7 +6,14 @@ from decimal import Decimal, ROUND_HALF_UP
 
 D = lambda x: Decimal(str(x))
 c2 = lambda x: x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-TAXAS_LINK = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66]   # InfinitePay, Link de pagamento, 1x a 12x
+# A loja virtual usa a tabela BRONZE da maquininha da InfinitePay (decisao do usuario, 03/nov/2026), credito de 1x a 12x, por grupo de bandeira. Antes era a do Link de pagamento:
+# 4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66 (a pesquisa da API da InfinitePay decide qual vale, na integracao).
+TAXAS_LOJA_VIRTUAL = {
+    'vm': [3.15, 5.39, 6.12, 6.85, 7.57, 8.28, 8.99, 9.69, 10.38, 11.06, 11.74, 12.40],   # Visa e Mastercard
+    'ea': [4.91, 6.47, 7.20, 7.92, 8.63, 9.33, 10.03, 10.72, 11.41, 12.08, 12.75, 13.41],  # Elo, American Express e Hipercard
+}
+GRUPO_BANDEIRA = {'visa': 'vm', 'mastercard': 'vm', 'elo': 'ea', 'amex': 'ea', 'hipercard': 'ea'}
+taxa_loja_virtual = lambda bandeira, vezes: TAXAS_LOJA_VIRTUAL[GRUPO_BANDEIRA[bandeira]][vezes - 1]
 # O cadastro de Embalagens de fabrica, so o que a estimativa le (30/out/2026): (id, nome, tipo, status, cap, custo, auto). A estimativa de um pedido que a Conferencia de Saida ainda
 # nao confirmou e a menor caixa ativa com `cap` em que cabem as pecas (se nenhuma couber, a de maior `cap`, em quantas forem precisas) mais os insumos ativos da loja, a preco de hoje.
 CADASTRO_EMB = [
@@ -155,23 +162,25 @@ def embalagem_do_pedido(pid, loja, cadastro=None, confirmadas=None):
     return estimativa_embalagem(pid, loja, cadastro), True
 
 
-def oraculo(p, base='compra', cadastro=None, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None, confirmadas=None):
+def oraculo(p, base='compra', cadastro=None, comissao=None, devolucoes=None, cortesia=None, prazo=7, entrega=None, confirmadas=None, vale=None):
     """`comissao` (Decimal) troca a comissao do cadastro: as suites de Comissoes mudam o percentual e passam o valor que a tela deve usar.
     `devolucoes`: a lista de devolucoes (de fabrica, a do exemplo); `cortesia`: R$ do vale de cortesia usado no pedido (de fabrica, o do exemplo); `prazo` e `entrega`: o prazo
     de devolucao e a data de entrega de cada pedido (de fabrica, 7 dias e a ENTREGA do exemplo). `cadastro`: o cadastro de Embalagens (de fabrica, CADASTRO_EMB); `confirmadas`: a embalagem confirmada por pedido
-    (de fabrica, EMB_CONFIRMADA); o pedido que esta nela usa o registro, os outros usam a estimativa pelo `cadastro`."""
+    (de fabrica, EMB_CONFIRMADA); o pedido que esta nela usa o registro, os outros usam a estimativa pelo `cadastro`.
+    `vale`: R$ pagos com vale-compra de QUALQUER origem (tira da base da comissao desde 03/nov/2026); de fabrica, o da cortesia (no exemplo so ha vale de cortesia). O lucro tira so a cortesia."""
     total_, frete = D(p['total']), D(p.get('frete', 0))
     cort = D(CORTESIA_EXEMPLO.get(p['id'], 0) if cortesia is None else cortesia)
     venda = total_ - frete - cort
+    vale_ = cort if vale is None else D(vale)
     dif = D(p['fretePagoLoja']) - frete if p.get('fretePagoLoja') is not None else D(0)
     taxa = D(0)
     pg = p.get('pagamento')
     if pg and pg['forma'] == 'credito':
-        taxa = c2(c2(total_) * D(TAXAS_LINK[pg['vezes'] - 1]) / 100)
+        taxa = c2(c2(total_) * D(taxa_loja_virtual(pg['bandeira'], pg['vezes'])) / 100)
     pct = p['ind']['pct'] if p.get('ind') else VENDEDORA.get(p['vend'], 0)
     devs = aceitas(p['id'], devolucoes)
     if comissao is None:
-        bruta = c2(c2(total_ - frete) * D(pct) / 100)
+        bruta = c2(c2(max(D(0), total_ - frete - vale_)) * D(pct) / 100)   # a base tira o vale; a proporcao da devolucao segue a base BRUTA (total - frete)
         no_p = [d for d in devs if no_prazo(d, p['id'], prazo, entrega)]
         comissao = comissao_reduzida(bruta, total_ - frete, sum((valor_itens(d) for d in no_p), D(0)))
     embalagem, estimada = embalagem_do_pedido(p['id'], p['loja'], cadastro, confirmadas)   # uma por pedido

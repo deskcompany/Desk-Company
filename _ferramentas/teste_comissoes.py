@@ -62,7 +62,10 @@ HOJE = date.fromisoformat(_os.environ.get('DESK_HOJE') or '2026-10-30')
 INI = date(HOJE.year, HOJE.month, 1)
 redondo = lambda x: math.floor(x + 0.5)
 dia = lambda n: HOJE + timedelta(days=n)
-base = lambda p: p['total'] - p.get('frete', 0)
+# Desde 03/nov/2026 a base da comissao tira tambem o vale-compra que o pedido pagou (de qualquer origem; no exemplo, so os de cortesia: 3, 10 e 16).
+base_bruta = lambda p: p['total'] - p.get('frete', 0)   # a base da proporcao da devolucao
+vale = lambda p: oraculo_custos.CORTESIA_EXEMPLO.get(p['id'], 0)
+base = lambda p: max(0, base_bruta(p) - vale(p))
 comissao = lambda p, pct: redondo(redondo(base(p) * 100) * pct / 100) / 100
 no_mes = lambda d: d is not None and d.year == HOJE.year and d.month == HOJE.month
 
@@ -70,7 +73,7 @@ no_mes = lambda d: d is not None and d.year == HOJE.year and d.month == HOJE.mon
 def reduzida(p, v):
     # a devolucao aceita dentro do prazo (7 dias de fabrica) reduz a comissao na proporcao do que voltou (27/out/2026)
     no_p = [d for d in oraculo_custos.aceitas(p['id']) if oraculo_custos.no_prazo(d, p['id'])]
-    return float(oraculo_custos.comissao_reduzida(oraculo_custos.D(v), oraculo_custos.D(base(p)), sum((oraculo_custos.valor_itens(d) for d in no_p), oraculo_custos.D(0))))
+    return float(oraculo_custos.comissao_reduzida(oraculo_custos.D(v), oraculo_custos.D(base_bruta(p)), sum((oraculo_custos.valor_itens(d) for d in no_p), oraculo_custos.D(0))))
 
 
 def oraculo(pedidos, b):
@@ -448,7 +451,7 @@ with sync_playwright() as p:
         ok('(+) comissões do período' in pg.inner_text('#corpoResumo').lower() and ('Período: %s a %s' % (br(a5), br(a5 + timedelta(days=4)))) in pg.inner_text('#periodoConta'),
            'período que não é um mês: a linha se chama "do período" e o período é o escrito')
         esperados = da_marina(a5, a5 + timedelta(days=4))
-        ok(c1['pedidos'] == len(esperados) and perto(c1['vendido'], sum(q['total'] - q.get('frete', 0) for q in esperados)),
+        ok(c1['pedidos'] == len(esperados) and perto(c1['vendido'], sum(base(q) for q in esperados)),
            'os pedidos e o vendido do período são os da data inicial à final: %d pedido(s)' % len(esperados))
         # periodos seguidos: o saldo do fim de um, sem os lancamentos que valem pelo mes, e o saldo anterior do seguinte
         periodo(ini, ini + timedelta(days=9)); ca = pg.evaluate("contaAtual()")
@@ -971,15 +974,16 @@ with sync_playwright() as p:
         antes = saldo()
         grava([d_(20, 16, dia(-20).isoformat(), [('PAP-3001', 6, 18.50)])]); ir(LISTA)
         e = pg.evaluate("estornosDe(beneficiarioDe('v1'))")
-        esperado = float(oraculo_custos.c2(D_(117) - oraculo_custos.comissao_reduzida(D_(117), D_(2340), D_(111))))
-        ok(len(e) == 1 and abs(e[0]['valor'] - esperado) < 0.001 and abs(esperado - 5.55) < 0.001 and e[0]['data'] == dia(-20).isoformat() and e[0]['pedido']['id'] == 16,
-           'comissão já liberada e reduzida depois: a diferença (117,00 − 111,45) vira um estorno de 5,55, no dia da abertura: %s' % [(x['valor'], x['data']) for x in e])
-        ok(com(16) == [117.0], 'a comissão que já estava no saldo segue inteira (117,00); o que cai é o estorno')
-        ok(abs(saldo() - (antes - 5.55)) < 0.005, 'o estorno desconta do saldo: %.2f → %.2f' % (antes, saldo()))
+        # o 16 pagou 25,00 com vale de cortesia: a comissao e 5% de 2.315,00 = 115,75, e a proporcao da devolucao e pela base BRUTA (2.340,00)
+        esperado = float(oraculo_custos.c2(D_('115.75') - oraculo_custos.comissao_reduzida(D_('115.75'), D_(2340), D_(111))))
+        ok(len(e) == 1 and abs(e[0]['valor'] - esperado) < 0.001 and abs(esperado - 5.49) < 0.001 and e[0]['data'] == dia(-20).isoformat() and e[0]['pedido']['id'] == 16,
+           'comissão já liberada e reduzida depois: a diferença (115,75 − 110,26) vira um estorno de 5,49, no dia da abertura: %s' % [(x['valor'], x['data']) for x in e])
+        ok(com(16) == [115.75], 'a comissão que já estava no saldo segue inteira (115,75, já sem os 25,00 de vale); o que cai é o estorno')
+        ok(abs(saldo() - (antes - 5.49)) < 0.005, 'o estorno desconta do saldo: %.2f → %.2f' % (antes, saldo()))
         r = pg.evaluate("contaDoPeriodo(beneficiarioDe('v1'), '2000-01-01', HOJE_ISO)")
-        ok(abs(r['devolucoes'] - 5.55) < 0.005 and len(r['estornos']) == 1, 'e aparece na linha "(−) Débitos de devoluções" da conta: %s' % r['devolucoes'])
+        ok(abs(r['devolucoes'] - 5.49) < 0.005 and len(r['estornos']) == 1, 'e aparece na linha "(−) Débitos de devoluções" da conta: %s' % r['devolucoes'])
         h = pg.evaluate("historicoDe(beneficiarioDe('v1')).filter(x => x.texto.indexOf('Estorno') === 0).map(x => [x.texto, x.valor, x.efeito, x.tipo])")
-        ok(len(h) == 1 and h[0][0].startswith('Estorno: devolução do pedido nº 16') and abs(h[0][1] - 5.55) < 0.005 and abs(h[0][2] + 5.55) < 0.005, 'e o histórico traz a linha "Estorno: devolução do pedido nº 16" que desconta 5,55: %s' % h)
+        ok(len(h) == 1 and h[0][0].startswith('Estorno: devolução do pedido nº 16') and abs(h[0][1] - 5.49) < 0.005 and abs(h[0][2] + 5.49) < 0.005, 'e o histórico traz a linha "Estorno: devolução do pedido nº 16" que desconta 5,49: %s' % h)
         grava([]); ir(LISTA)
         # o afiliado libera pelo prazo do parametro (pedido 12, do Bruno: entregue ha 12 dias; libera na entrega + prazo)
         def lib12():
@@ -995,6 +999,55 @@ with sync_playwright() as p:
         ir(PV_D, '?id=4&editar=1')
         ok('5 dias sem devolução' in pg.inner_text('#hintComissao'), 'e a página do pedido dita o prazo do parâmetro: %s' % pg.inner_text('#hintComissao')[:90])
         limpar()
+
+    if secao(13, 'A base da comissão tira o vale-compra, de qualquer origem; a devolução segue a base bruta (03/nov/2026)'):
+        limpar()
+        CINCO = [LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', PV_D, 'pagina-vendas-custos-ecommerce.html']
+        c2 = oraculo_custos.c2; D_c = oraculo_custos.D
+        SEM_VALES = "['deskValesCompra', 'deskValesCompraExemplo'].forEach(k => localStorage.removeItem(k))"   # o limpar() da suite nao toca nos vales
+        p16 = [q for q in PEDIDOS if q['id'] == 16][0]
+        p1 = [q for q in PEDIDOS if q['id'] == 1][0]
+        # (a) o exemplo: o pedido 16 pagou 25,00 com vale de cortesia; a base e total - frete - vale, o mesmo valor nas cinco telas
+        ok(vale(p16) == 25 and base(p16) == base_bruta(p16) - 25, 'o oráculo: o pedido 16 tem 25,00 de vale; a base é %.2f (total − frete %.2f − vale)' % (base(p16), base_bruta(p16)))
+        for tela in CINCO:
+            ir(tela)
+            r = pg.evaluate("(() => { const p = PEDIDOS.filter(x => x.id === 16)[0], b = { aliquota: 5, tipo: 'vendedor' }; return [baseDe(p), valeDoPedido(p), comissaoBrutaDoPedido(p, b), resCortesia(p)]; })()")
+            ok(perto(r[0], base(p16)) and r[1] == 25 and perto(r[2], comissao(p16, p16['ind']['pct'] if p16.get('ind') else 5)) and r[3] == 25,
+               '%s: base %.2f, vale 25,00, comissão %.2f (5%% da base sem o vale); o lucro segue tirando só a cortesia' % (tela[7:-5], r[0], r[2]))
+        # (b) vale de OUTRA origem (devolucao), no pedido 1, mais um uso estornado que nao conta; o navegador ja gravou os vales (sem o espelho do exemplo)
+        VALES = {'vales': [{'n': 1, 'origem': 'devolucao', 'usos': [{'valor': 40, 'doc': {'tipo': 'pedido', 'id': 1}}, {'valor': 10, 'estornado': {'em': '2026-10-01', 'motivo': 'x'}, 'doc': {'tipo': 'pedido', 'id': 1}}]},
+                           {'n': 2, 'origem': 'comissao', 'usos': [{'valor': 5, 'doc': {'tipo': 'pedido', 'id': 1}}, {'valor': 99, 'doc': {'tipo': 'pdv', 'id': 1}}]}]}
+        for tela in CINCO:
+            ir(tela)
+            pg.evaluate("(v) => { localStorage.setItem('deskValesCompra', JSON.stringify(v)); localStorage.setItem('deskValesCompraExemplo', '1'); }", VALES)
+            ir(tela)
+            r = pg.evaluate("(() => { const p = PEDIDOS.filter(x => x.id === 1)[0], q = PEDIDOS.filter(x => x.id === 16)[0]; return [baseDe(p), valeDoPedido(p), resCortesia(p), valeDoPedido(q), baseDe(q)]; })()")
+            ok(perto(r[0], p1['total'] - p1.get('frete', 0) - 45) and r[1] == 45 and r[2] == 0 and r[3] == 0 and perto(r[4], base_bruta(p16)),
+               '%s: vale de devolução (40) e de comissão (5) tiram da base do pedido 1 (%.2f); o estornado e o do PDV não contam; cortesia 0 (o lucro não muda); sem o espelho, o 16 volta à base cheia' % (tela[7:-5], r[0]))
+        limpar(); pg.evaluate(SEM_VALES)
+        # (c) devolucao de metade dos itens: a comissao cai pela metade (proporcao pela base BRUTA). Pedido 999 de 100,00 que pagou 50,00 com vale; 10%
+        VALE_999 = {'vales': [{'n': 1, 'origem': 'cortesia', 'usos': [{'valor': 50, 'doc': {'tipo': 'pedido', 'id': 999}}]}]}
+        for tela in CINCO:
+            ir(tela)
+            pg.evaluate("(v) => { localStorage.setItem('deskValesCompra', JSON.stringify(v)); localStorage.setItem('deskValesCompraExemplo', '1'); }", VALE_999)
+            ir(tela)
+            r = pg.evaluate("""(() => { const p = { id: 999, total: 100, frete: 0 }, b = { aliquota: 10, tipo: 'vendedor' },
+                dev = (v) => [{ itens: [{ qtd: 1, unit: v }] }];
+                return [baseDe(p), comissaoBrutaDoPedido(p, b), comissaoAposDevolucoes(p, b, []), comissaoAposDevolucoes(p, b, dev(50)), comissaoAposDevolucoes(p, b, dev(100)), comissaoAposDevolucoes(p, b, dev(25))]; })()""")
+            ok(r == [50, 5, 5, 2.5, 0, 3.75], '%s: pedido de 100 com 50 de vale: base 50, comissão 5,00; devolvendo metade dos itens 2,50 (e não zero), tudo 0,00, um quarto 3,75: %s' % (tela[7:-5], r))
+        limpar(); pg.evaluate(SEM_VALES)
+        # (d) o pedido real: metade dos itens do 16 devolvida (valor 1.170 de 2.340): 115,75 x 1/2 = 57,88 (meio para cima)
+        for tela in CINCO[:1]:
+            ir(tela)
+            r = pg.evaluate("(() => { const p = PEDIDOS.filter(x => x.id === 16)[0], b = { aliquota: 5, tipo: 'vendedor' }; return comissaoAposDevolucoes(p, b, [{ itens: [{ qtd: 1, unit: 1170 }] }]); })()")
+            esp = float(c2(oraculo_custos.comissao_reduzida(D_c(comissao(p16, 5)), D_c(base_bruta(p16)), D_c(1170))))
+            ok(perto(r, esp) and perto(esp, 57.88), 'pedido 16, metade dos itens devolvida: a comissão é %.2f (o oráculo diz %.2f)' % (r, esp))
+        # (e) a pagina do pedido mostra o vale fora da base e o mesmo valor de Comissoes
+        ir(PV_D, '?id=16'); pg.evaluate("document.querySelector('.tab-item[data-tab=\"comissoes\"]').click()"); pg.wait_for_timeout(200)
+        txt = pg.inner_text('#resumoComissao'); val_pag = txt.split(chr(10))[-1].strip()
+        ir(CONTA, '?id=v1'); val_com = pg.evaluate("moedaC(comissoesDe(B).filter(i => i.pedido.id === 16)[0].valor)")
+        ok('vale-compra' in txt.lower() and '− R$ 25,00' in txt and 'R$ 2.315,00' in txt and val_pag == val_com, 'a página do pedido 16 mostra o vale de 25,00 fora da base e a mesma comissão de Comissões: %s / %s' % (val_pag, val_com))
+        limpar(); pg.evaluate(SEM_VALES)
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
     nav.close()

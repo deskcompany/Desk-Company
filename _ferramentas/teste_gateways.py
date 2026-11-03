@@ -205,7 +205,7 @@ with sync_playwright() as p:
             limpar(); ir(LISTA)
             pg.evaluate("localStorage.setItem('deskGateways', JSON.stringify({ gateways: [] }))"); ir(LISTA)
             ok(visivel('#emptyState') and txt('#emptyTitulo') == 'Nenhum gateway cadastrado', 'sem nenhum gateway a lista diz que não há nenhum cadastrado (e não que é o filtro)')
-            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '2' and len(gws()) == 0, 'e o exemplo de fábrica não volta por cima do que o usuário apagou')
+            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3' and len(gws()) == 0, 'e o exemplo de fábrica não volta por cima do que o usuário apagou')
 
         # ================================================================== [2] a pagina por tipo
         except Exception as e:   # uma secao que para por erro de navegador e falha, e nao derruba o resumo
@@ -845,7 +845,7 @@ with sync_playwright() as p:
                 return r[0] if r else None
             ok(sorted(g['descricao'] for g in gws()) == sorted(['InfinitePay — loja virtual'] + ['InfinitePay Maquininha — ' + n for n in ('Bronze', 'Prata', 'Ouro', 'Infinite')]),
                'de fábrica há cinco gateways: a loja virtual e a maquininha em quatro níveis (Bronze, Prata, Ouro, Infinite)')
-            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '2', 'a marca do exemplo é a da versão 2')
+            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3', 'a marca do exemplo é a da versão 3')
             ok([(g['id'], g['tipo'], g['situacao']) for g in gws()] == [(1, 'infinitepay', 'habilitado'), (2, 'outro', 'habilitado'), (3, 'outro', 'desabilitado'), (4, 'outro', 'desabilitado'), (5, 'outro', 'desabilitado')],
                'o tipo interno é infinitepay (com e), e só o Bronze nasce habilitado: %s' % [(g['id'], g['tipo'], g['situacao']) for g in gws()])
             for i in (2, 3, 4, 5):
@@ -873,9 +873,10 @@ with sync_playwright() as p:
                'a cada nível acima a taxa do crédito na Visa cai, de 1x a 12x')
             on = gw(1)
             ok(on['tipo'] == 'infinitepay' and on['chave'] == CHAVE_API and on['bandeiras'] == ['visa', 'mastercard', 'elo', 'amex'] and on['repassar'] == 'opcional' and len(on['condicoes']) == 49 and
-               not any(c['forma'] == 'debito' for c in on['condicoes']) and cond(1, 'credito', 'visa', 1)['taxa'] == 4.20 and cond(1, 'credito', 'elo', 12)['taxa'] == 16.66 and
+               not any(c['forma'] == 'debito' for c in on['condicoes']) and cond(1, 'credito', 'visa', 1)['taxa'] == 3.15 and cond(1, 'credito', 'elo', 12)['taxa'] == 13.41 and
+               all(cond(1, c['forma'], c['bandeira'], c['parcelas']) == cond(2, c['forma'], c['bandeira'], c['parcelas']) for c in on['condicoes']) and
                cond(1, 'pix', '', 0)['taxa'] == 0 and all(c['prazo'] == (0 if c['forma'] == 'pix' else 1) for c in on['condicoes']),
-               'a loja virtual (Link de Pagamento): crédito de 4,20% em 1x a 16,66% em 12x, Pix grátis, sem débito, 1 dia útil, repasse Opcional, com a chave')
+               'a loja virtual usa a tabela Bronze da maquininha (decisão de 03/nov/2026): crédito de 3,15% em 1x (Visa) a 13,41% em 12x (Elo), linha por linha igual à do Bronze, Pix grátis, sem débito, 1 dia útil, repasse Opcional, com a chave')
             # a lista, por nível
             ir(LISTA); escolher('filtroSituacao', 'todos')
             ok(txt('#contagemLinhas') == '5 gateways', 'a lista de Todos conta os cinco')
@@ -899,7 +900,7 @@ with sync_playwright() as p:
             nomes = sorted(g['descricao'] for g in gws())
             ok(nomes == sorted(['InfinitePay — loja virtual', 'Minha maquininha própria'] + ['InfinitePay Maquininha — ' + n for n in ('Bronze', 'Prata', 'Ouro', 'Infinite')]),
                'a troca do exemplo antigo tira a Stone e a Cielo, atualiza a loja virtual, acrescenta os quatro níveis e deixa o gateway do usuário como está: %s' % nomes)
-            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '2', 'e a marca vai para a versão 2 (a troca acontece uma vez só)')
+            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3', 'e a marca vai para a versão 3 (a troca acontece uma vez só)')
             on = gw(1)
             ok(on['descricao'] == 'InfinitePay — loja virtual' and on['tipo'] == 'infinitepay' and on['chave'] == CHAVE_API and on['conciliacao']['id'] == 'abcd1234efgh' and len(on['condicoes']) == 49 and 'proximoDiaUtil' not in on,
                'a loja virtual antiga foi atualizada (nome e taxas da InfinitePay), mantendo a chave e o link de conciliação')
@@ -913,6 +914,33 @@ with sync_playwright() as p:
             # a lista aberta (so habilitados) mostra a Bronze, a loja virtual e o do usuario
             ok(sorted(l for l in pg.evaluate("Array.from(document.querySelectorAll('#corpoTabela tr td:first-child')).map(t => t.textContent.trim())")) ==
                sorted(['InfinitePay — loja virtual', 'InfinitePay Maquininha — Bronze', 'Minha maquininha própria']), 'a lista aberta mostra a loja virtual, a Bronze e o gateway do usuário')
+
+            # a migracao da versao 2 para a 3 (03/nov/2026): a loja virtual troca a tabela do Link pela Bronze, sem debito, so se ainda for exatamente a do Link de fabrica
+            LINK = [4.20, 6.09, 7.01, 7.91, 8.80, 9.67, 12.59, 13.42, 14.25, 15.06, 15.87, 16.66]
+            def v2(bandeiras, editar=None):
+                linhas = [{'forma': 'pix', 'bandeira': '', 'parcelas': 0, 'prazo': 0, 'taxa': 0, 'tarifa': 0}] + [
+                    {'forma': 'credito', 'bandeira': b, 'parcelas': n, 'prazo': 1, 'taxa': LINK[n - 1], 'tarifa': 0} for b in bandeiras for n in range(1, 13)]
+                if editar:
+                    editar(linhas)
+                return {'id': 1, 'tipo': 'infinitepay', 'descricao': 'InfinitePay — loja virtual', 'situacao': 'habilitado', 'lojas': [1, 2], 'chave': CHAVE_API, 'conciliacao': None,
+                        'categoriaId': 1, 'contaCreditoId': 2, 'bandeiras': bandeiras, 'bandeiraPadrao': 'visa', 'condicoes': linhas, 'antecipacao': 'antecipado', 'repassar': 'opcional', 'repassarAPartir': 1}
+            def grava_v2(g):
+                limpar(); ir(LISTA)
+                pg.evaluate("(g) => { localStorage.setItem('deskGateways', JSON.stringify({ gateways: [g] })); localStorage.setItem('deskGatewaysExemplo', '2'); }", g); ir(LISTA)
+            grava_v2(v2(['visa', 'mastercard', 'elo', 'amex']))
+            on = gw(1)
+            ok(len(gws()) == 1 and pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3' and len(on['condicoes']) == 49 and not any(c['forma'] == 'debito' for c in on['condicoes']) and
+               cond(1, 'credito', 'visa', 1)['taxa'] == 3.15 and cond(1, 'credito', 'mastercard', 12)['taxa'] == 12.40 and cond(1, 'credito', 'elo', 1)['taxa'] == 4.91 and cond(1, 'credito', 'amex', 12)['taxa'] == 13.41 and
+               on['chave'] == CHAVE_API,
+               'marca 2 com o Link de fábrica intacto: o online passa para a Bronze (Visa 3,15% em 1x, Mastercard 12,40% em 12x, Elo 4,91% em 1x, Amex 13,41% em 12x), sem débito, sem gateway novo, com a chave, e a marca vai para 3')
+            def mexe(linhas):
+                [l for l in linhas if l['forma'] == 'credito' and l['bandeira'] == 'visa' and l['parcelas'] == 3][0]['taxa'] = 6.50
+            grava_v2(v2(['visa', 'mastercard', 'elo', 'amex'], mexe))
+            on = gw(1)
+            ok(pg.evaluate("localStorage.getItem('deskGatewaysExemplo')") == '3' and cond(1, 'credito', 'visa', 3)['taxa'] == 6.50 and cond(1, 'credito', 'visa', 1)['taxa'] == 4.20 and cond(1, 'credito', 'elo', 12)['taxa'] == 16.66,
+               'marca 2 com uma linha editada (Visa 3x a 6,50%): o online fica como está, com as taxas do Link, e a marca vai para 3')
+            grava_v2(v2(['visa', 'mastercard', 'elo', 'amex'], lambda ls: ls.pop()))
+            ok(len(gw(1)['condicoes']) == 48 and cond(1, 'credito', 'visa', 1)['taxa'] == 4.20, 'marca 2 com uma linha a menos: também fica como está')
         except Exception as e:   # uma secao que para por erro de navegador e falha, e nao derruba o resumo
             ok(False, 'a seção 8 parou por erro: %s: %s' % (type(e).__name__, str(e).split(chr(10))[0][:150]))
 
