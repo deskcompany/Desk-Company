@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 04/nov/2026: a calculadora de precificação foi aprovada por ele, e o estoque das embalagens fica como está até a rodada de correção, que é o próximo da fila. Ele ainda decide o que o preço promocional faz.*
+*Atualizado em 04/nov/2026: a calculadora de precificação foi aprovada por ele; o estoque das embalagens fica como está, com a rodada de correção segurada por ele; as regras do preço promocional foram barganhadas e entram com a vitrine. O próximo a fazer é o desconto da venda nossa (opcional) ou o protótipo da vitrine.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -66,14 +66,14 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov, depois de testar a entrega; começa pela barganha):
+1. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov, depois de testar a entrega; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
 2. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-3. **Gateways de Pagamento:** falta o protótipo da vitrine.
+3. **Gateways de Pagamento:** falta o protótipo da vitrine, que agora também leva as regras do preço promocional (em "Decidido").
 4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
 5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
@@ -85,6 +85,19 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
+- **Preço promocional** (barganhado com o usuário em 04/nov/2026; entra junto com o protótipo da vitrine). O preço tem um dono só, o
+  sistema: o promocional é cadastrado na aba Preços do produto, e a vitrine só ativa e desativa. O painel da vitrine não cadastra nem
+  muda preço: mostra os produtos da loja e manda pedidos ao sistema (auditoria de produto, revisão de preço), que viram notificação.
+  - **Vale só na vitrine.** O PDV e os pedidos do sistema seguem no preço de venda.
+  - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias). Ao acabar, volta sozinho ao preço de venda.
+  - **Na vitrine:** o preço de venda riscado e o promocional como o preço (de R$ 149,90 por R$ 99,90).
+  - **Trava do preço mínimo:** promocional abaixo do mínimo da calculadora não ativa, e a vitrine mostra "Peça revisão de preço".
+    Bloqueia de vez; vender abaixo do mínimo de propósito passa pela revisão de preço.
+  - **O riscado é verdadeiro:** não ativa se o preço de venda subiu nos últimos 30 dias (referência de mercado, não número da lei;
+    CDC art. 37). Pede o histórico de preço do produto, que o cadastro ainda não guarda.
+  - **Sem promocional cadastrado:** o "Ativar" fica apagado e leva ao pedido de revisão de preço.
+  - **O sistema vê e encerra:** a página do produto mostra "Em promoção até <data>, ativada por <nome> pela vitrine", quem está no
+    sistema pode encerrar antes, e a ativação vai para o Registro de atividades.
 - **Hospedagem: Cloudflare Pages, com o banco no Supabase** (usuário, 10/out/2026). A Vercel fica
   como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
   publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
@@ -133,7 +146,7 @@ e entrou uma decisão:
 
 ## Esperando decisão do usuário
 
-Duas pendências, que são dele:
+Uma pendência, que é dele:
 
 1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
@@ -141,9 +154,6 @@ Duas pendências, que são dele:
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
    computador; para atualizar, reenvia por lá a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`.
-2. **O que o preço promocional faz** (pergunta dele em 04/nov). Hoje é só um campo da aba Preços: nenhuma tela o lê e não há regra.
-   As opções: (A) preenchido vale sempre, e a vitrine mostra o preço de venda riscado e o promocional como o preço; (B) só vale quando ativado, por
-   prazo (7 dias, até uma data) ou até acabar o estoque. A recomendação do principal foi a A com prazo opcional. Entra junto com o protótipo da vitrine.
 
 O defeito dos links do chat que não traziam o navegador para a frente era da sessão do editor e
 sumiu sozinho (confirmado por ele em 13/out).
