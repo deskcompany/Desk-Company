@@ -10,6 +10,24 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Estoque das embalagens (03/nov/2026) — testado pelo usuário em 03-04/nov; ele pediu para segurar como está, e a rodada de correção está no PROGRESSO
+
+**Mora na tela de Embalagens e em Necessidades de Compra.** Mora na tela de Embalagens (abra `http://localhost:3000/cadastros/pagina-cadastros-embalagens.html`) e em Necessidades de Compra (`http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html`). O que conferir:
+- **A lista:** cada embalagem diz "Saldo X · mín. Y"; Flex G, CE-02 e a Tag Desk Brands (de exemplo) trazem o selo "Abaixo do mínimo"; a fita diz "R$ 15,00 a unidade · rende 50 (R$ 0,30 por pedido)".
+- **Dar entrada** (botão ao lado de "Nova Embalagem"): escolha a Fita adesiva, quantidade 2, custo 17,00; a prévia diz "Saldo 8 → 10 · custo R$ 15,00 → R$ 15,40 (médio)". Salve e veja a lista e o Registro de atividades ("Editar · Embalagens").
+- **Abrir uma embalagem:** a parte "Estoque" (mínimo, saldo só leitura, "Acertar saldo" com motivo obrigatório) e, no insumo, o "Rende" com a dica ao vivo.
+- **A baixa:** a Separação do pedido 4 não baixa nada; ao fechar a Conferência de Saída dele, o saldo cai (a fita em 1/50) e o aviso final cita o que ficou abaixo do mínimo ou negativo, sem travar.
+- **Necessidades de Compra:** o card "Embalagens abaixo do mínimo" (só as ativas), com o link "Dar entrada" que abre o painel já na embalagem certa (`?entrada=<id>`).
+- **Decidido (pelo principal, com a regra que ele aprovou em 30/out):** o custo da entrada é por unidade; o fornecedor é texto livre; o saldo do insumo fica na unidade de compra, com fração; entrada e acerto vão para o Registro de atividades como "Editar · Embalagens" (a chave que já existe, `embalagensEditar`; sem senha de fábrica, segue a trava de editar embalagens); Necessidades de Compra só mostra e leva à entrada, sem ordem de compra (na produção a entrada vem pela nota); não há extrato de movimentações por embalagem (o histórico é o Registro de atividades). Cancelar depois de fechar não devolve.
+- **Limite, de propósito:** o saldo é um só por empresa, sem depósito, e vive no navegador como o resto do protótipo. O detalhe técnico e a prova estão no §14.107; a suíte é a seção [13] de `teste_embalagem_pedido.py`.
+
+### Calculadora de precificação (30/out/2026) — testada e aprovada pelo usuário em 04/nov
+
+**Mora na aba Preços do produto.** Mora na aba Preços do produto, no botão "Calcular preço" (abra `http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1`). Tem o custo do produto (o da aba Custos, de compra ou médio, como Custos do E-commerce lê), a embalagem completa (a caixa do cadastro do produto mais os insumos que entram sozinhos na loja), o frete, a margem desejada, as parcelas, e o imposto e a comissão de Parâmetros de Vendas. Mostra quatro sugestões (Varejo ,90, Abaixo da faixa, Redondo e Exato), a conta aberta, a margem por forma de pagamento, a "venda nossa" sem comissão e o preço mínimo. A taxa e a tarifa vêm do gateway da loja virtual da loja do produto, a mesma fonte de Custos do E-commerce (hoje a tabela do Link), e por isso acompanha sozinha o item 10 da revisão geral. Parâmetros de Vendas ganhou a comissão padrão (5%) e as parcelas da vitrine (3).
+- **Só preenche campos:** o preço continua editável à mão, e só o botão "Aplicar preço" mexe no Preço de venda, na lista Padrão e no Markup, guarda o cálculo (`deskCalculoPreco`, por produto) e escreve no Registro de atividades ("Aplicar o preço calculado").
+- **Decidido:** o markup é preço ÷ custo do produto; o Exato sobe ao centavo (a margem nunca fica abaixo da pedida); a embalagem é a de um pedido de uma peça (o produto indo sozinho: junto com outro, a margem só melhora). A pesquisa por trás das quatro sugestões está em `docs/pesquisa-psicologia-de-precos.md`.
+- **Limite, de propósito:** a lista de produtos, o PDV e os pedidos seguem com o preço do exemplo; o cadastro novo (`?novo=1`) calcula mas não grava o cálculo, até haver banco. A suíte é `teste_calculadora.py`; o detalhe técnico, o §14.101.
+
 ### Custos do E-commerce, entrega 4 (30/out/2026), com o ajuste do mesmo dia — módulo concluído
 
 Testes 1, 2, 3, 4 e 6 da primeira rodada feitos e aprovados pelo usuário; os testes finais do ajuste ele delegou ao principal, que os rodou no navegador no mesmo dia (61 itens, nenhuma falha, temas claro e escuro).
