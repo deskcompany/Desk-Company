@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 04/nov/2026: a calculadora de precificação foi aprovada por ele; o estoque das embalagens fica como está, com a rodada de correção segurada por ele; as regras do preço promocional foram barganhadas e entram com a vitrine. O próximo a fazer é o desconto da venda nossa (opcional) ou o protótipo da vitrine.*
+*Atualizado em 04/nov/2026: a calculadora de precificação foi aprovada por ele; o estoque das embalagens fica como está, com a rodada de correção segurada por ele; as regras do preço promocional foram barganhadas e o próximo módulo é Promoções e Encartes, em Vendas, numa conversa nova.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -72,10 +72,22 @@ Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-2. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-3. **Gateways de Pagamento:** falta o protótipo da vitrine, que agora também leva as regras do preço promocional (em "Decidido").
-4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+2. **Promoções e Encartes** (módulo novo, em Vendas; combinado com o usuário em 04/nov/2026; vem antes da vitrine, que só usa a regra).
+   Começa numa conversa nova, pela barganha, com prints de encartes que eles usam hoje, se houver. As regras do preço estão em "Decidido".
+   - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha).
+   - **A lista:** nome, situação (rascunho, em revisão, agendada, ativa, encerrada), prazo, onde vale e quantos produtos.
+   - **Os produtos, com seleção bem detalhada,** ou pela **planilha:** SKU (obrigatório), Quantidade (o limite de unidades na promoção;
+     "ESTOQUE" = até acabar o estoque) e Preço promocional (opcional: vazio vale o do cadastro; diferente, a revisão mostra os dois e o novo
+     entra no cadastro ao aprovar). A tela oferece o modelo da planilha para baixar.
+   - **A revisão de ponta a ponta:** cada linha "ok" ou "fora", com o motivo (SKU não encontrado, abaixo do mínimo, sem preço promocional,
+     preço subiu nos últimos 30 dias); corrige ou tira a linha antes de aprovar.
+   - **Ao aprovar:** título, observações, e onde vale (quais vitrines, o PDV, os vendedores). Começa e termina sozinha.
+   - **"Gerar encarte"** (a peça com foto, "de… por…" e prazo, para imprimir ou mandar aos vendedores): numa segunda entrega.
+   - **A decidir na barganha:** como cada produto pertence a uma loja só, "quais vitrines" é a da loja de cada produto ou a promoção já nasce por loja.
+3. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+4. **Gateways de Pagamento:** falta o protótipo da vitrine, que usa a regra do preço promocional (em "Decidido") e o painel da vitrine.
+5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -85,11 +97,19 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
-- **Preço promocional** (barganhado com o usuário em 04/nov/2026; entra junto com o protótipo da vitrine). O preço tem um dono só, o
-  sistema: o promocional é cadastrado na aba Preços do produto, e a vitrine só ativa e desativa. O painel da vitrine não cadastra nem
-  muda preço: mostra os produtos da loja e manda pedidos ao sistema (auditoria de produto, revisão de preço), que viram notificação.
-  - **Vale só na vitrine.** O PDV e os pedidos do sistema seguem no preço de venda.
-  - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias). Ao acabar, volta sozinho ao preço de venda.
+- **Preço promocional** (barganhado com o usuário em 04/nov/2026; mora na tela nova Promoções e Encartes, item 2 do "Próximo da fila").
+  O preço tem um dono só, o sistema: o promocional é cadastrado na aba Preços do produto (ou chega pela planilha da promoção e entra no
+  cadastro quando ela é aprovada). O painel da vitrine não cadastra nem muda preço: mostra os produtos da loja e manda pedidos ao
+  sistema (auditoria de produto, revisão de preço), que viram notificação; o "Ativar preço promocional" dele cria uma promoção só
+  da vitrine, com as mesmas travas, na mesma lista.
+  - **Vale onde a promoção for ativada:** as vitrines, o PDV e os vendedores (Pedido de Venda), cada um marcado na promoção. Enquanto
+    ela está ativa, o preço entra sozinho, sem senha (a decisão foi tomada ao aprovar). Primeira versão desta regra, no mesmo dia: "só na vitrine".
+  - **A exceção na hora:** fora de promoção, o botão "Aplicar preço promocional" no item do PDV e do Pedido de Venda pede senha, e só
+    quem tem a permissão no cadastro dele aplica; vai para Confirmações por senha e para o Registro de atividades, e respeita a trava do mínimo.
+  - **Desconto por cima:** o preço promocional não conta como desconto; o desconto máximo do PDV (hoje 10%) vale sobre o promocional,
+    com a mesma liberação de hoje.
+  - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias); e, por produto, um limite de unidades.
+    Ao acabar, volta sozinho ao preço de venda.
   - **Na vitrine:** o preço de venda riscado e o promocional como o preço (de R$ 149,90 por R$ 99,90).
   - **Trava do preço mínimo:** promocional abaixo do mínimo da calculadora não ativa, e a vitrine mostra "Peça revisão de preço".
     Bloqueia de vez; vender abaixo do mínimo de propósito passa pela revisão de preço.
