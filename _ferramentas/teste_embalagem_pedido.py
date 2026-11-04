@@ -20,9 +20,11 @@
 #   [6]  O custo do dia: mudar o cadastro nao mexe no 4; o 16 usa 11,90 com o cadastro em 12,50; um pedido confirmado depois usa o preco novo;
 #   [7]  Configurar nao tem o campo de embalagem; o valor antigo por loja e ignorado e some ao salvar; o log nao cita embalagem;
 #   [8]  A pagina do pedido: o 11 com os nomes, o 1 "estimada", o 4 com a troca;
-#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 9 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
+#   [9]  As copias: o bloco EMBALAGENS: LEITURA nas 10 telas, o da Conferencia nas 2, o pedido 4 igual nas FILAs;
 #   [10] O layout do bloco a 1280 e 860 px, sem barra horizontal;
-#   [11] A estimativa pelo cadastro (custo, "cabe ate", cadastro vazio), a Separacao que nao mexe no custo, sem trava de capacidade, Total de volumes e o teto de 999.
+#   [11] A estimativa pelo cadastro (custo, "cabe ate", cadastro vazio), a Separacao que nao mexe no custo, sem trava de capacidade, Total de volumes e o teto de 999;
+#   [12] O painel do cadastro: Largura, Altura e Comprimento na mesma linha;
+#   [13] O ESTOQUE das embalagens (03/nov/2026): ver o cabecalho da secao 13 mais abaixo.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys, datetime
 import localiza
@@ -38,6 +40,7 @@ CONF, CONF_F = 'pagina-logistica-conferencia-saida.html', 'pagina-logistica-conf
 CUSTOS = 'pagina-vendas-custos-ecommerce.html'
 PV_D = 'pagina-vendas-pedidos-detalhe.html'
 PROD_D = 'pagina-cadastros-produtos-detalhe.html'
+NC = 'pagina-estoque-necessidades-compra.html'
 FIXO = datetime.datetime(2026, 10, 30, 10, 0, 0)   # sexta: o mes, o periodo e os anuncios nao dependem do dia em que a suite roda
 
 falhas = []
@@ -176,9 +179,9 @@ with sync_playwright() as p:
         metas = pg.evaluate("Array.from(document.querySelectorAll('#listaEmbalagens .embalagens-card')).map(c => [c.querySelector('.embalagens-nome').textContent, c.querySelector('.embalagens-meta').textContent, c.querySelector('.tipo-badge').textContent])")
         ok(len(metas) == 14, 'o padrão de fábrica tem as 10 de antes e os 4 insumos: %d' % len(metas))
         m = {x[0]: x for x in metas}
-        ok(m['Caixa de Encomenda Flex P'][1] == '26,0×21,0×1,0cm · 0,09 Kg · R$ 3,50' and m['Caixa para Eletrônicos'][1] == '40,0×30,0×30,0cm · 1,20 Kg · R$ 12,50', 'a linha de baixo mostra medidas, peso e custo: %s' % m['Caixa de Encomenda Flex P'][1])
-        ok(m['Tag Desk Shope'][1] == 'R$ 0,40 · entra sozinho: Desk Shope' and m['Tag Desk Brands'][1] == 'R$ 0,60 · entra sozinho: Desk Brands'
-           and m['Fita adesiva'][1] == 'R$ 0,30 · entra sozinho: todas as lojas' and m['Saco plástico'][1] == 'R$ 0,25', 'o insumo mostra o custo e onde entra sozinho (e só o custo, se não entra): %s' % [m[k][1] for k in ('Tag Desk Shope', 'Fita adesiva', 'Saco plástico')])
+        ok(m['Caixa de Encomenda Flex P'][1] == '26,0×21,0×1,0cm · 0,09 Kg · R$ 3,50 · Saldo 140 · mín. 50' and m['Caixa para Eletrônicos'][1] == '40,0×30,0×30,0cm · 1,20 Kg · R$ 12,50 · Saldo 6 · mín. 5', 'a linha de baixo mostra medidas, peso e custo: %s' % m['Caixa de Encomenda Flex P'][1])
+        ok(m['Tag Desk Shope'][1] == 'R$ 0,40 · entra sozinho: Desk Shope · Saldo 800 · mín. 300' and m['Tag Desk Brands'][1] == 'R$ 0,60 · entra sozinho: Desk Brands · Saldo 150 · mín. 200'
+           and m['Fita adesiva'][1] == 'R$ 15,00 a unidade · rende 50 (R$ 0,30 por pedido) · entra sozinho: todas as lojas · Saldo 8 · mín. 4' and m['Saco plástico'][1] == 'R$ 0,25 · Saldo 400 · mín. 100', 'o insumo mostra o custo e onde entra sozinho (e só o custo, se não entra): %s' % [m[k][1] for k in ('Tag Desk Shope', 'Fita adesiva', 'Saco plástico')])
         ok(m['Tag Desk Shope'][2] == 'INSUMO' and m['Rolo para Tecido'][1].startswith('Ø12,0×120,0cm'), 'o tipo Insumo tem a etiqueta, e o rolo segue com o diâmetro')
         ok([x['v'] for x in pg.evaluate("Array.from(document.querySelectorAll('#filtroTipo .dropdown-select-item')).map(i => ({ v: i.getAttribute('data-value') }))")] == ['todos', 'pacote', 'envelope', 'rolo', 'insumo'], 'o filtro de tipo ganhou "Insumo"')
         escolher(pg, '#filtroTipo', 'insumo')
@@ -214,7 +217,7 @@ with sync_playwright() as p:
         ir(pg, CAD)
         pg.evaluate("itensPorPaginaAtual = 25; renderEmbalagens();"); pg.wait_for_timeout(150)
         metas = {c[0]: c[1] for c in pg.evaluate("Array.from(document.querySelectorAll('#listaEmbalagens .embalagens-card')).map(c => [c.querySelector('.embalagens-nome').textContent, c.querySelector('.embalagens-meta').textContent])")}
-        ok(metas.get('Etiqueta de teste') == 'R$ 0,15 · entra sozinho: Desk Tech' and len(metas) == 15, 'recarregar a página não perde o insumo novo: %s' % metas.get('Etiqueta de teste'))
+        ok(metas.get('Etiqueta de teste') == 'R$ 0,15 · entra sozinho: Desk Tech · Saldo 0 · mín. 0' and len(metas) == 15, 'recarregar a página não perde o insumo novo: %s' % metas.get('Etiqueta de teste'))
         # editar a caixa: custo e "cabe ate" persistem, e custo vazio vale zero
         pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"2\"]').click()"); pg.wait_for_timeout(300)
         ok(pg.input_value('#inputCusto') == '4,70' and pg.input_value('#inputCap') == '5' and vis('campoCap'), 'a Flex M abre com custo 4,70 e "cabe até" 5')
@@ -654,12 +657,12 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 9. copias
-    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 9 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
+    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 10 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
         IN, FIM = '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='
         n5 = ['pagina-vendas-custos-ecommerce.html', PV_D, 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html']
-        nove = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F, PROD_D) + tuple(n5)]
-        ok(len(nove) == 9 and all(x == nove[0] for x in nove) and 'function sugerirEmbalagem(lista, pecas)' in nove[0] and 'function embResumo' in nove[0] and 'Identico em 9 telas' in nove[0],
-           'o bloco EMBALAGENS: LEITURA é idêntico nas 9 telas: Cadastro, Separação, Conferência, a ficha do produto e as 5 do RESULTADO DO PEDIDO')
+        nove = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F, PROD_D, NC) + tuple(n5)]
+        ok(len(nove) == 10 and all(x == nove[0] for x in nove) and 'function sugerirEmbalagem(lista, pecas)' in nove[0] and 'function embResumo' in nove[0] and 'function embBaixar' in nove[0] and 'function embCustoUso' in nove[0] and 'Identico em 10 telas' in nove[0],
+           'o bloco EMBALAGENS: LEITURA é idêntico nas 10 telas: Cadastro, Separação, Conferência, a ficha do produto, Necessidades de Compra e as 5 do RESULTADO DO PEDIDO')
         ok(all(fonte(n).index(IN) < fonte(n).index('  // ===== RESULTADO DO PEDIDO (bloco comum') for n in n5), 'e nas 5 do RESULTADO DO PEDIDO ele vem ANTES do bloco da conta (o const já está inicializado)')
         ok(fonte(CONF_F).count('function sugerirEmbalagem') == 1 and fonte(SEP_F).count('function sugerirEmbalagem') == 1, 'a sugerirEmbalagem local da bancada saiu: uma só em cada ficha')
         ok('const EMBALAGENS = [' not in fonte(CONF_F), 'a bancada não carrega mais a lista fixa de embalagens: lê o cadastro')
@@ -918,10 +921,323 @@ with sync_playwright() as p:
                    'a %d px, tipo %s: %d campos de medida, rótulos numa linha só, caixas no mesmo topo, nenhum campo do painel passa da borda: %s' % (w, tipo, quantos, m))
             pg.context.close()
 
+    # ================================================================ 13. estoque
+    # O ESTOQUE das embalagens (aprovado em 30/out, feito em 03/nov/2026). O que esta secao protege:
+    #   o cadastro ganha saldo (na unidade de compra, fracionario e negativo), minimo e, no insumo, "rende" (1 rolo de fita de R$ 15 que rende 50 = R$ 0,30 por pedido);
+    #   Dar entrada recalcula o custo MEDIO e soma o saldo; com saldo zerado ou negativo vale so o custo da entrada; entra e fica no Registro de atividades ("Editar · Embalagens");
+    #   a baixa e SO quando a Conferencia de Saida fecha (a Separacao nao baixa), uma vez por pedido (ficha reaberta nao baixa de novo), com o custo por uso, e falta de saldo so avisa;
+    #   o acerto de saldo exige motivo; ?entrada=<id> abre o painel de entrada; Necessidades de Compra lista as ativas abaixo do minimo; cadastro gravado antes do estoque migra;
+    #   o custo de cada pedido de exemplo nao mudou (a fita sai 0,30) e os tres leitores do custo leem o custo por uso.
+    if secao(13, 'O estoque das embalagens: entrada com custo médio, baixa na Conferência (uma vez), acerto com motivo, ?entrada=, Necessidades de Compra, migração, custo por uso'):
+        def emb(pg, i):
+            return next((e for e in (ls(pg, 'deskEmbalagens') or []) if e['id'] == i), None)
+
+        def ir_cad(pg, q=''):
+            ir(pg, CAD, q); pg.evaluate("itensPorPaginaAtual = 25; renderEmbalagens();"); pg.wait_for_timeout(120)
+
+        def log_edita(pg):
+            return pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(x => x.chave === 'embalagensEditar')")
+
+        def preencher_entrada(pg, qtd, custo, forn='', nota=''):
+            pg.fill('#entradaQtd', qtd); pg.fill('#entradaCusto', custo)
+            if forn: pg.fill('#entradaFornecedor', forn)
+            if nota: pg.fill('#entradaNota', nota)
+            pg.wait_for_timeout(150)
+
+        def meta(pg, i):
+            return pg.evaluate("(i) => document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"' + i + '\"] .embalagens-meta').textContent", i)
+
+        def mostra(pg, sel):
+            return pg.evaluate("(s) => document.querySelector(s).classList.contains('show')", sel)
+
+        def grava_cadastro(pg, mexe):
+            """Muda o cadastro no navegador: `mexe` e o corpo JS de uma funcao que recebe a lista (por id)."""
+            pg.evaluate("(m) => { const L = embalagensLer(); const por = (i) => L.filter(e => e.id === i)[0]; new Function('por', m)(por); embalagensGravar(L); }", mexe)
+
+        # ---- 13a. Dar entrada: o botao, a validacao, o custo medio, o Registro de atividades
+        pg = nova()
+        ir_cad(pg)
+        ok(pg.evaluate("document.getElementById('btnDarEntrada').classList.contains('btn-secundario') && document.getElementById('btnNovaEmbalagem').classList.contains('btn-primary') && (() => { const a = document.getElementById('btnDarEntrada').getBoundingClientRect(), b = document.getElementById('btnNovaEmbalagem').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right <= b.left; })()"),
+           '"Dar entrada" é o botão secundário, ao lado de "Nova Embalagem" no cabeçalho')
+        pg.click('#btnDarEntrada'); pg.wait_for_timeout(350)
+        ok(pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"), 'o botão abre o painel lateral de entrada')
+        itens = [x.strip() for x in pg.locator('#entradaEmb .dropdown-select-item').all_inner_texts()]
+        ok(len(itens) == 13 and 'Fita adesiva' in itens and 'Tag Desk Brands' in itens and 'Rolo para Tecido' not in itens, 'o dropdown lista só as ativas, insumos inclusive (13 de 14; o rolo inativo fica de fora): %s' % itens)
+        pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(150)
+        ok(mostra(pg, '#erroEntradaEmb') and mostra(pg, '#erroEntradaQtd') and mostra(pg, '#erroEntradaCusto') and ls(pg, 'deskEmbalagens') is None and log_edita(pg) == [], 'salvar vazio avisa a embalagem, a quantidade e o custo e não grava nada')
+        escolher(pg, '#entradaEmb', 13)
+        for ruim in ('0', 'abc', '-2'):
+            pg.fill('#entradaQtd', ruim); pg.fill('#entradaCusto', '1,00'); pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(120)
+            ok(mostra(pg, '#erroEntradaQtd') and emb(pg, 13) is None, 'quantidade "%s" dá erro e não grava' % ruim)
+        pg.fill('#entradaQtd', '2'); pg.fill('#entradaCusto', ''); pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(120)
+        ok(mostra(pg, '#erroEntradaCusto') and not mostra(pg, '#erroEntradaQtd') and ls(pg, 'deskEmbalagens') is None, 'o custo da unidade é obrigatório')
+        preencher_entrada(pg, '2', '17,00', 'Papelaria Central', 'NF 1234')
+        ok(pg.inner_text('#entradaPrevia') == 'Saldo 8 → 10 · custo R$ 15,00 → R$ 15,40 (médio)', 'a prévia mostra o saldo e o custo médio: %s' % pg.inner_text('#entradaPrevia'))
+        pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
+        f = emb(pg, 13)
+        ok(f and f['saldo'] == 10 and perto(f['custo'], 15.40) and f['rende'] == 50 and not pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"),
+           'salvar soma a quantidade ao saldo (8 → 10), grava o custo médio (15,40) no cadastro, mantém o rende e fecha o painel: %s' % f)
+        ok(meta(pg, 13) == 'R$ 15,40 a unidade · rende 50 (R$ 0,31 por pedido) · entra sozinho: todas as lojas · Saldo 10 · mín. 4', 'a lista mostra o saldo novo e o custo por pedido (15,40 ÷ 50): %s' % meta(pg, 13))
+        lg = log_edita(pg)
+        ok(len(lg) == 1 and lg[0]['acao'] == 'Editar · Embalagens' and lg[0]['senha'] is False and 'Entrada de 2 Fita adesiva a R$ 17,00 a unidade.' in lg[0]['detalhe'] and 'Fornecedor: Papelaria Central.' in lg[0]['detalhe'] and 'Nota: NF 1234.' in lg[0]['detalhe']
+           and 'Saldo 8 → 10' in lg[0]['detalhe'] and 'R$ 15,00 → R$ 15,40' in lg[0]['detalhe'], 'a entrada vai para o Registro de atividades como "Editar · Embalagens", com quantidade, custo, fornecedor, nota e o antes e depois: %s' % (lg and lg[0]['detalhe']))
+        # a segunda entrada pondera de novo: (10 x 15,40 + 10 x 20,00) / 20 = 17,70
+        pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
+        ok(pg.evaluate("document.getElementById('entradaFornecedor').value + document.getElementById('entradaNota').value + document.getElementById('entradaQtd').value") == '' and pg.evaluate("document.getElementById('entradaEmb').getAttribute('data-value')") == '', 'o painel abre limpo da vez seguinte')
+        escolher(pg, '#entradaEmb', 13); preencher_entrada(pg, '10', '20,00')
+        pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
+        f = emb(pg, 13)
+        ok(f['saldo'] == 20 and perto(f['custo'], 17.70) and len(log_edita(pg)) == 2 and 'Fornecedor' not in log_edita(pg)[0]['detalhe'] and 'Nota' not in log_edita(pg)[0]['detalhe'], 'a segunda entrada pondera o custo (17,70) e, sem fornecedor nem nota, o registro não os cita: %s' % f)
+        pg.context.close()
+
+        # ---- 13b. saldo zerado ou negativo nao pesa no custo: vale so o custo da entrada
+        pg = nova()
+        ir_cad(pg)
+        grava_cadastro(pg, "por(1).saldo = -4; por(2).saldo = 0;")
+        ir_cad(pg)
+        pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
+        escolher(pg, '#entradaEmb', 1); preencher_entrada(pg, '10', '6,00')
+        ok(pg.inner_text('#entradaPrevia') == 'Saldo −4 → 6 · custo R$ 3,50 → R$ 6,00 (o da entrada: não havia saldo)', 'saldo negativo antes: a prévia diz que vale o custo da entrada: %s' % pg.inner_text('#entradaPrevia'))
+        pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
+        ok(emb(pg, 1)['saldo'] == 6 and perto(emb(pg, 1)['custo'], 6.00), 'com saldo −4 a entrada de 10 deixa 6 e o custo é o da entrada (6,00), sem média: %s' % emb(pg, 1))
+        pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
+        escolher(pg, '#entradaEmb', 2); preencher_entrada(pg, '5', '5,00')
+        pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
+        ok(emb(pg, 2)['saldo'] == 5 and perto(emb(pg, 2)['custo'], 5.00), 'com saldo zero o custo também é o da entrada (5,00), não a média com 4,70')
+        pg.context.close()
+
+        # ---- 13c. ?entrada=<id>
+        pg = nova()
+        ir_cad(pg, '?entrada=13')
+        ok(pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')") and pg.inner_text('#entradaEmb .dropdown-select-label') == 'Fita adesiva' and pg.get_attribute('#entradaEmb', 'data-value') == '13'
+           and not pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')"), '?entrada=13 abre o painel de entrada com a Fita adesiva já escolhida (e não o painel de edição)')
+        pg.fill('#entradaQtd', '1'); pg.fill('#entradaCusto', '16,00'); pg.wait_for_timeout(150)
+        ok(pg.inner_text('#entradaPrevia').startswith('Saldo 8 → 9 · custo R$ 15,00 → R$ 15,11'), 'e a prévia já parte do saldo dela: %s' % pg.inner_text('#entradaPrevia'))
+        pg.press('body', 'Escape'); pg.wait_for_timeout(300)
+        ok(not pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"), 'o Esc fecha o painel de entrada')
+        for q in ('?entrada=10', '?entrada=999', '?entrada=abc'):
+            ir_cad(pg, q)
+            ok(pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')") == (q != '?entrada=abc') and pg.inner_text('#entradaEmb .dropdown-select-label') == 'Escolha a embalagem',
+               '%s: embalagem inativa ou que não existe não vem escolhida (o painel abre para escolher); texto que não é número nem abre' % q)
+        pg.context.close()
+
+        # ---- 13d. Painel de edicao: Estoque, Rende, dica do custo, acerto de saldo
+        pg = nova()
+        ir_cad(pg)
+        pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(350)
+        vis = lambda i: pg.evaluate("(i) => document.getElementById(i).getClientRects().length > 0", i)
+        ok(pg.input_value('#inputMinimo') == '4' and pg.inner_text('#saldoAtual') == '8' and pg.input_value('#inputRende') == '50' and pg.inner_text('#dicaRende') == 'R$ 0,30 por pedido' and vis('campoRende') and vis('linkAcertarSaldo'),
+           'a fita abre com mínimo 4, saldo 8 (só leitura), rende 50 e a dica "R$ 0,30 por pedido"')
+        ok('Atualizado sozinho a cada entrada (custo médio).' in pg.inner_text('#campoCusto'), 'o campo Custo diz que é atualizado sozinho a cada entrada')
+        ok(not pg.evaluate("document.getElementById('saldoAtual').matches('input, textarea')") and not vis('blocoAcerto'), 'o saldo atual é só leitura e o acerto começa fechado')
+        pg.fill('#inputRende', '25'); pg.wait_for_timeout(120)
+        ok(pg.inner_text('#dicaRende') == 'R$ 0,60 por pedido', 'a dica do rende acompanha o campo ao vivo: 15,00 ÷ 25 = %s' % pg.inner_text('#dicaRende'))
+        pg.fill('#inputCusto', '30,00'); pg.wait_for_timeout(120)
+        ok(pg.inner_text('#dicaRende') == 'R$ 1,20 por pedido', 'e o custo (30,00 ÷ 25 = 1,20)')
+        for ruim in ('0', 'abc', '2,5', '-1'):
+            pg.fill('#inputRende', ruim); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(120)
+            ok(mostra(pg, '#erroRende') and ls(pg, 'deskEmbalagens') is None and pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')"), 'rende "%s" avisa e não salva (inteiro de 1 em diante)' % ruim)
+        pg.fill('#inputRende', '25'); pg.fill('#inputCusto', '15,00'); pg.fill('#inputMinimo', 'x'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(120)
+        ok(mostra(pg, '#erroMinimo') and ls(pg, 'deskEmbalagens') is None, 'mínimo que não é número avisa e não salva')
+        pg.fill('#inputMinimo', '6'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        f = emb(pg, 13)
+        ok(f['minimo'] == 6 and f['saldo'] == 8 and f['rende'] == 25 and perto(f['custo'], 15) and f['auto'] == 'todas', 'o Salvar normal grava o mínimo e o rende, e NÃO mexe no saldo (8): %s' % f)
+        # acerto de saldo
+        pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(350)
+        pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(150)
+        ok(vis('blocoAcerto') and vis('inputNovoSaldo') and vis('inputMotivoAcerto') and vis('btnAplicarAcerto') and 'Aplicar acerto' in pg.inner_text('#btnAplicarAcerto'), 'o link "Acertar saldo" abre ali mesmo "Novo saldo", "Motivo" e o botão "Aplicar acerto"')
+        n_log = len(log_edita(pg))
+        pg.fill('#inputNovoSaldo', '5'); pg.fill('#inputMotivoAcerto', ''); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
+        ok(mostra(pg, '#erroMotivoAcerto') and emb(pg, 13)['saldo'] == 8 and len(log_edita(pg)) == n_log, 'sem motivo o acerto não vale: o saldo segue 8 e nada vai para o registro')
+        pg.fill('#inputNovoSaldo', 'abc'); pg.fill('#inputMotivoAcerto', 'contagem do galpão'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
+        ok(mostra(pg, '#erroNovoSaldo') and emb(pg, 13)['saldo'] == 8, 'saldo que não é número também não vale')
+        pg.fill('#inputNovoSaldo', '5'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
+        lg = log_edita(pg)
+        ok(emb(pg, 13)['saldo'] == 5 and len(lg) == n_log + 1 and lg[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 8 para 5. Motivo: contagem do galpão' and lg[0]['acao'] == 'Editar · Embalagens',
+           'o acerto grava o saldo (5) e vai para o deskLog: "%s"' % (lg and lg[0]['detalhe']))
+        ok(pg.inner_text('#saldoAtual') == '5' and not vis('blocoAcerto') and pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')") and 'Saldo 5 · mín. 6' in meta(pg, 13) and 'Abaixo do mínimo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="13"]'),
+           'o painel mostra o saldo novo, o acerto fecha, e a lista já avisa "Abaixo do mínimo" (5 < 6)')
+        # saldo negativo e fracionario no acerto
+        pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(150)
+        pg.fill('#inputNovoSaldo', '-1,5'); pg.fill('#inputMotivoAcerto', 'perda'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
+        ok(emb(pg, 13)['saldo'] == -1.5 and log_edita(pg)[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 5 para −1,5. Motivo: perda' and 'Saldo negativo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="13"]'), 'o acerto aceita negativo e fração: −1,5 e o selo vira "Saldo negativo"')
+        # embalagem nova: saldo 0, minimo 0, rende 1; sem acerto
+        pg.click('#drawerClose'); pg.wait_for_timeout(300)
+        pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
+        ok(not vis('linkAcertarSaldo') and pg.inner_text('#saldoAtual') == '0' and pg.input_value('#inputMinimo') == '' and not vis('campoRende'), 'embalagem nova: saldo 0, sem "Acertar saldo", o rende só aparece no insumo')
+        escolher(pg, '#inputTipoEmbalagem', 'insumo')
+        ok(vis('campoRende') and pg.input_value('#inputRende') == '' and pg.inner_text('#dicaRende') == 'R$ 0,00 por pedido', 'no insumo novo o rende aparece, em branco (vale 1)')
+        pg.fill('#inputNomeEmbalagem', 'Etiqueta nova'); pg.fill('#inputCusto', '0,20'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        n = next(e for e in ls(pg, 'deskEmbalagens') if e['nome'] == 'Etiqueta nova')
+        ok(n['saldo'] == 0 and n['minimo'] == 0 and n['rende'] == 1, 'a nova nasce com saldo 0, mínimo 0 e rende 1: %s' % n)
+        pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
+        pg.fill('#inputNomeEmbalagem', 'Caixa nova'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        n = next(e for e in ls(pg, 'deskEmbalagens') if e['nome'] == 'Caixa nova')
+        ok(n['saldo'] == 0 and n['minimo'] == 0 and 'rende' not in n, 'a caixa nova não guarda rende: %s' % n)
+        # trocar o tipo de insumo para caixa tira o rende; editar nao mexe no saldo
+        pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(350)
+        escolher(pg, '#inputTipoEmbalagem', 'pacote'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        ok('rende' not in emb(pg, 13) and emb(pg, 13)['saldo'] == -1.5, 'mudar o tipo para caixa tira o rende e mantém o saldo')
+        pg.context.close()
+
+        # ---- 13e. A lista: selos e as linhas de baixo
+        pg = nova()
+        ir_cad(pg)
+        selos = pg.evaluate("Array.from(document.querySelectorAll('#listaEmbalagens .embalagens-card')).filter(c => c.querySelector('.selo-estoque')).map(c => [c.querySelector('.embalagens-nome').textContent, c.querySelector('.selo-estoque').textContent])")
+        ok(selos == [['Caixa de Encomenda Flex G', 'Abaixo do mínimo'], ['Caixa de Encomenda CE-02', 'Abaixo do mínimo'], ['Tag Desk Brands', 'Abaixo do mínimo']], 'o exemplo tem três abaixo do mínimo, com o selo: %s' % selos)
+        ok('Saldo 32 · mín. 40' in meta(pg, 3) and 'Saldo 150 · mín. 200' in meta(pg, 12) and pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"10\"] .selo-estoque')") is None, 'cada cartão mostra "Saldo X · mín. Y"; zero com mínimo zero não avisa (o rolo de tecido)')
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 1)[0].saldo = -2.5; embalagensGravar(L); }")
+        ir_cad(pg)
+        ok('Saldo −2,5 · mín. 50' in meta(pg, 1) and pg.text_content('#listaEmbalagens .embalagens-card[data-id="1"] .selo-estoque') == 'Saldo negativo' and 'var(--danger-solid)' in pg.get_attribute('#listaEmbalagens .embalagens-card[data-id="1"] .selo-estoque', 'style')
+           and 'var(--warning)' in pg.get_attribute('#listaEmbalagens .embalagens-card[data-id="3"] .selo-estoque', 'style'), 'saldo negativo: selo "Saldo negativo" na cor de perigo (o aviso usa a cor de aviso), fração com vírgula')
+        CONTRASTE = """() => { const lum = (c) => { const v = c.match(/[\\d.]+/g).slice(0, 3).map(Number).map(x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+            return Array.from(document.querySelectorAll('.selo-estoque')).map(el => { const cs = getComputedStyle(el), a = lum(cs.color), b = lum(cs.backgroundColor); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }); }"""
+        for tema in ('light', 'dark'):
+            pg.evaluate("(t) => document.body.classList.toggle('dark', t === 'dark')", tema); pg.wait_for_timeout(300)
+            cs = pg.evaluate(CONTRASTE)
+            ok(len(cs) == 4 and min(cs) >= 4.5, 'tema %s: o texto dos selos tem contraste de 4,5 ou mais (menor: %.2f)' % (tema, min(cs)))
+        pg.context.close()
+
+        # ---- 13f. Separacao nao baixa; a Conferencia baixa na hora de fechar, com o custo por uso
+        pg = nova()
+        separar4(pg)
+        ok(ls(pg, 'deskEmbalagens') is None, 'a Separação concluir o pedido 4 não baixa nada (o cadastro nem foi gravado)')
+        t = conferir4(pg)
+        ok('A embalagem sai do estoque agora.' in t and t.index('Embalagem confirmada:') < t.index('A embalagem sai do estoque agora.'), 'o texto de confirmação avisa "A embalagem sai do estoque agora.": %s' % t[-120:])
+        ce, tg, fi = emb(pg, 5), emb(pg, 12), emb(pg, 13)
+        ok(ce['saldo'] == 17 and tg['saldo'] == 149 and fi['saldo'] == 7.98 and emb(pg, 6)['saldo'] == 6 and emb(pg, 3)['saldo'] == 32,
+           'fechar baixa a caixa (18 → 17), a tag (150 → 149) e a fita em 1/50 (8 → 7,98); o resto não mexe: %s' % [ce['saldo'], tg['saldo'], fi['saldo']])
+        r = reg(pg)
+        ok([(i['id'], i['qtd'], i['custo']) for i in r['itens']] == [(5, 1, 6.3), (12, 1, 0.6), (13, 1, 0.3)] and fi['custo'] == 15 and fi['rende'] == 50, 'o pedido grava o custo POR USO (a fita 0,30) e o cadastro segue com R$ 15,00 o rolo: %s' % r['itens'])
+        a = AVISO[0]
+        ok('A embalagem saiu do estoque.' in a and 'Ficou abaixo do mínimo: Caixa de Encomenda CE-02 (17, mínimo 20); Tag Desk Brands (149, mínimo 200).' in a and 'Saldo negativo' not in a and 'Veja em Estoque → Necessidades de Compra.' in a and 'Fita' not in a[a.index('Ficou'):],
+           'o aviso final diz o que ficou abaixo do mínimo (CE-02 e a tag; a fita, não) e aponta para Necessidades de Compra: %s' % a[-230:])
+        # ficha reaberta que ja estava confirmada: fechar de novo NAO baixa de novo
+        ir(pg, CONF_F, '?id=4')
+        pg.evaluate("fechada = false"); pg.evaluate("fechar()"); pg.wait_for_timeout(320)
+        t2 = modal(pg)
+        confirmar(pg); a2 = modal(pg); confirmar(pg)
+        ok(t2.startswith('Fechar a conferência do pedido #') and 'Conferência fechada' in a2, 'a ficha reaberta chegou ao fechamento de verdade: %s' % t2[:50])
+        ok(emb(pg, 5)['saldo'] == 17 and emb(pg, 12)['saldo'] == 149 and emb(pg, 13)['saldo'] == 7.98 and 'abaixo do mínimo' not in a2 and 'saiu do estoque' not in a2, 'baixa dupla não acontece: o saldo segue 17, 149 e 7,98, e o aviso não repete a baixa: %s' % a2[-120:])
+        pg.context.close()
+
+        # ---- 13g. Saldo negativo avisa e nao trava; fita com rende 100
+        pg = nova()
+        ir_cad(pg)
+        grava_cadastro(pg, "por(5).saldo = 0.5; por(13).custo = 15; por(13).rende = 100;")
+        separar4(pg)
+        t = conferir4(pg)
+        r = reg(pg)
+        ok(r and r['situacao'] == 'confirmada' and [(i['id'], i['qtd'], i['custo']) for i in r['itens']] == [(5, 1, 6.3), (12, 1, 0.6), (13, 1, 0.15)], 'falta de saldo não trava a expedição: o pedido fecha e grava; a fita com rende 100 grava 0,15: %s' % (r and r['itens']))
+        ok(emb(pg, 5)['saldo'] == -0.5 and emb(pg, 13)['saldo'] == 7.99, 'a caixa com 0,5 fica em −0,5 e a fita em 1/100 (7,99)')
+        a = AVISO[0]
+        ok('Ficou abaixo do mínimo: Tag Desk Brands (149, mínimo 200).' in a and 'Saldo negativo: Caixa de Encomenda CE-02 (−0,5).' in a and 'Veja em Estoque → Necessidades de Compra.' in a, 'o aviso separa "abaixo do mínimo" de "saldo negativo": %s' % a[-210:])
+        ir(pg, CONF_F, '?id=4')
+        ok(pg.inner_text('#badgeSituacao').strip().upper() == 'CONFERIDO', 'e o pedido fica conferido')
+        pg.context.close()
+
+        # ---- 13h. Necessidades de Compra
+        pg = nova()
+        ir(pg, NC)
+        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
+        cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaEmbalagens thead th')).map(th => th.textContent.trim())")
+        ok(cab == ['Embalagem', 'Tipo', 'Saldo', 'Mínimo', 'Comprar', 'Custo da unidade', 'Total', ''] and pg.inner_text('#painelEmbalagens .card-title') == 'Embalagens abaixo do mínimo', 'o card "Embalagens abaixo do mínimo" tem as colunas Embalagem, Tipo, Saldo, Mínimo, Comprar, Custo da unidade e Total: %s' % cab)
+        ok(linhas == [['Caixa de Encomenda Flex G', 'Pacote / Caixa', '32', '40', '8', 'R$ 5,90', 'R$ 47,20', 'Dar entrada'],
+                      ['Caixa de Encomenda CE-02', 'Pacote / Caixa', '18', '20', '2', 'R$ 6,30', 'R$ 12,60', 'Dar entrada'],
+                      ['Tag Desk Brands', 'Insumo', '150', '200', '50', 'R$ 0,60', 'R$ 30,00', 'Dar entrada']], 'lista as três de exemplo, com o que comprar (mínimo − saldo) e o total: %s' % linhas)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens a')).map(a => a.getAttribute('href'))") == ['../cadastros/pagina-cadastros-embalagens.html?entrada=%d' % i for i in (3, 5, 12)], 'cada linha tem o link "Dar entrada" para ../cadastros/pagina-cadastros-embalagens.html?entrada=<id>')
+        ok(pg.evaluate("document.getElementById('painelCompra').compareDocumentPosition(document.getElementById('painelEmbalagens')) & 4") == 4, 'o card fica abaixo do painel da compra')
+        pg.click('#corpoEmbalagens tr[data-id="12"] a'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+        ok('pagina-cadastros-embalagens.html' in pg.url and pg.inner_text('#entradaEmb .dropdown-select-label') == 'Tag Desk Brands' and pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"), 'o link leva à tela de Embalagens com o painel de entrada aberto na Tag Desk Brands')
+        pg.context.close()
+        pg = nova()
+        ir_cad(pg)
+        grava_cadastro(pg, "por(13).saldo = 3.98; por(10).saldo = -5; por(10).minimo = 5; por(3).saldo = 40; por(5).saldo = 20; por(12).saldo = 200;")
+        ir(pg, NC)
+        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(0, 7).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
+        ok(linhas == [['Fita adesiva', 'Insumo', '3,98', '4', '1', 'R$ 15,00', 'R$ 15,00']], 'saldo fracionário abaixo do mínimo entra (3,98 de 4: comprar 1, arredondado para cima); inativa abaixo do mínimo fica de fora; saldo igual ao mínimo não entra: %s' % linhas)
+        grava_cadastro(pg, "por(13).saldo = 4;")
+        ir(pg, NC)
+        ok(pg.inner_text('#embVazio') == 'Nenhuma embalagem abaixo do mínimo.' and pg.locator('#embVazio').is_visible() and not pg.locator('#tabelaEmbalagens').is_visible(), 'sem nenhuma abaixo: "Nenhuma embalagem abaixo do mínimo."')
+        pg.context.close()
+        for w in (1280, 1440):
+            pg = nova(w, 900, fixo=False)
+            ir(pg, NC)
+            m = pg.evaluate("(() => { const w = document.getElementById('tabelaEmbalagensWrap'); return [w.scrollWidth - w.clientWidth, document.documentElement.scrollWidth - document.documentElement.clientWidth]; })()")
+            ok(m[0] <= 0 and m[1] <= 0, 'a %d px a tabela das embalagens não tem barra horizontal: %s' % (w, m))
+            pg.context.close()
+
+        # ---- 13i. Migracao: cadastro gravado antes do estoque
+        pg = nova()
+        ir_cad(pg)
+        pg.evaluate("""() => localStorage.setItem('deskEmbalagens', JSON.stringify([
+            { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo' },
+            { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 0.3, auto: 'todas', status: 'ativo' },
+            { id: 99, nome: 'Caixa do Fornecedor', tipo: 'pacote', cap: 3, custo: 2, status: 'ativo' },
+            { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', cap: 25, custo: 12.5, saldo: 2, minimo: 1, status: 'ativo' }]))""")
+        ir_cad(pg)
+        ler = pg.evaluate("embalagensLer().map(e => [e.id, e.saldo, e.minimo, e.custo, e.rende === undefined ? null : e.rende, embCustoUso(e)])")
+        ok(ler == [[5, 18, 20, 6.3, None, 6.3], [13, 8, 4, 0.3, None, 0.3], [99, 0, 0, 2, None, 2], [6, 2, 1, 12.5, None, 12.5]],
+           'o cadastro antigo ganha saldo e mínimo do padrão de mesmo id (ou 0); a fita gravada a 0,30 NÃO ganha rende nem custo do padrão (segue 0,30 por pedido); quem já tem saldo fica como está: %s' % ler)
+        ir_cad(pg)
+        ok('Saldo 8 · mín. 4' in meta(pg, 13) and 'R$ 0,30' in meta(pg, 13) and 'rende' not in meta(pg, 13) and 'Abaixo do mínimo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="5"]'), 'a lista mostra o que migrou: a fita sem "rende" e a CE-02 abaixo do mínimo')
+        pg.context.close()
+
+        # ---- 13j. O custo de cada pedido de exemplo nao mudou; os leitores usam o custo por uso
+        ANTIGO = {1: 3.5, 2: 4.7, 3: 5.9, 4: 4.2, 5: 6.3, 6: 12.5, 7: 1.1, 8: 1.8, 9: 4.5, 10: 7, 11: 0.4, 12: 0.6, 13: 0.3, 14: 0.25}
+        pg = nova()
+        ir(pg, PROD_D)
+        uso = {i: c for i, c in pg.evaluate("embalagensLer().map(e => [e.id, embCustoUso(e)])")}
+        ok(all(perto(uso[i], c) for i, c in ANTIGO.items()), 'o custo por uso de cada embalagem do exemplo é o de antes (a fita sai 0,30): %s' % uso)
+        for tela in ('pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html'):
+            ir(pg, tela, '?id=v1' if 'detalhe.html' in tela and 'comissoes' in tela else '')
+            ok(pg.evaluate("resultadoDoPedido(PEDIDOS.filter(p => p.id === 4)[0]).embalagem") == 7.2, '%s: a embalagem estimada do 4 segue 7,20 (6,30 + 0,60 + 0,30)' % tela.replace('pagina-', ''))
+        abrir_custos(pg)
+        ok(linha_pedido(pg, 4)['Embalagem'] == 'R$ 7,20 estimada' and linha_pedido(pg, 1)['Embalagem'] == 'R$ 6,60 estimada' and linha_pedido(pg, 3)['Embalagem'] == 'R$ 1,80 estimada', 'Custos do E-commerce: o 4 (7,20), o 1 (6,60) e o 3 (1,80) seguem como antes')
+        pg.context.close()
+        # com o rende da fita em 100, os cinco leitores e a calculadora usam 0,15 por pedido
+        pg = nova()
+        ir_cad(pg)
+        grava_cadastro(pg, "por(13).custo = 15; por(13).rende = 100;")
+        for tela in ('pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html'):
+            ir(pg, tela, '?id=v1' if 'detalhe.html' in tela and 'comissoes' in tela else '')
+            ok(perto(pg.evaluate("resultadoDoPedido(PEDIDOS.filter(p => p.id === 4)[0]).embalagem"), 7.05), '%s: com a fita rendendo 100, o 4 estimado vai a 7,05 (a conta lê o custo por uso)' % tela.replace('pagina-', ''))
+        abrir_custos(pg)
+        ok(linha_pedido(pg, 4)['Embalagem'] == 'R$ 7,05 estimada', 'Custos do E-commerce: 7,05 com o rende da fita em 100')
+        ir(pg, PV_D, '?id=4')
+        ok('R$ 7,05' in pg.inner_text('#caixaResultado'), 'a página do pedido: 7,05 com o rende da fita em 100')
+        ir(pg, PROD_D, '?editar=1')
+        ok(pg.evaluate("insumosAutomaticos(embalagensLer(), 1).map(i => i.nome)") == ['Tag Desk Shope', 'Fita adesiva'], 'a ficha do produto lê o cadastro com o rende')
+        pg.click('.tab-item[data-tab="complementares"]'); escolher(pg, '#inputLojaDesk', 'Desk Shope'); pg.click('.tab-item[data-tab="precos"]')
+        pg.click('#btnCalcularPreco'); pg.wait_for_timeout(500)
+        ok(pg.inner_text('#calcEmbOrigem') == 'Caixa R$ 4,70 + Tag Desk Shope R$ 0,40 + Fita adesiva R$ 0,15' and pg.input_value('#calcEmbalagem') == '5,25', 'a calculadora usa o custo por uso: Flex M 4,70 + tag 0,40 + fita 0,15 = 5,25: %s' % pg.inner_text('#calcEmbOrigem'))
+        pg.context.close()
+
+        # ---- 13k. O layout dos campos novos: nenhum quebra linha a 1280 e 1440 (e a 1024, a janela de quem usa zoom), nos dois temas
+        for w in (1024, 1280, 1440):
+            for tema in ('light', 'dark'):
+                pg = nova(w, 900, fixo=False)
+                ir_cad(pg)
+                pg.evaluate("(t) => document.body.classList.toggle('dark', t === 'dark')", tema)
+                pg.click('#btnDarEntrada'); pg.wait_for_timeout(400)
+                MEDE = """(raiz) => { const d = document.getElementById(raiz).getBoundingClientRect(), r = document.getElementById(raiz);
+                  const rot = Array.from(r.querySelectorAll('label')).filter(l => l.getBoundingClientRect().width > 0).map(l => Math.round(l.getBoundingClientRect().height));
+                  const fora = Array.from(r.querySelectorAll('input, .dropdown-select-btn, .saldo-leitura, button')).filter(e => e.getBoundingClientRect().width > 0 && e.getBoundingClientRect().right > d.right - 20).length;
+                  return { rotulos: rot, fora: fora, lateral: r.scrollWidth - r.clientWidth, pagina: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }"""
+                m = pg.evaluate(MEDE, 'entradaDrawer')
+                ok(max(m['rotulos']) < 20 and m['fora'] == 0 and m['lateral'] <= 0 and m['pagina'] <= 0, 'a %d px, tema %s, entrada: rótulos numa linha só e nada passa da borda: %s' % (w, tema, m))
+                pg.click('#entradaClose'); pg.wait_for_timeout(300)
+                pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(450)
+                pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(200)
+                m = pg.evaluate(MEDE, 'eventDrawer')
+                topos = pg.evaluate("['inputMinimo', 'saldoAtual'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)).concat(['inputNovoSaldo', 'inputMotivoAcerto'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)))")
+                ok(max(m['rotulos']) < 20 and m['fora'] == 0 and m['lateral'] <= 0 and m['pagina'] <= 0 and topos[0] == topos[1] and topos[2] == topos[3], 'a %d px, tema %s, edição do insumo (Rende, Estoque, acerto): rótulos numa linha, pares no mesmo topo, nada passa da borda: %s %s' % (w, tema, m, topos))
+                pg.context.close()
+
     ok(not erros, 'nenhum erro de JavaScript em toda a suíte: %s' % erros[:3])
     nav.close()
 
 print('\n%d asserções · FALHAS: %d' % (total[0], len(falhas)))
 for f in falhas:
-    print(' - ' + f)
+    print((' - ' + f).encode(sys.stdout.encoding or 'utf-8', 'replace').decode(sys.stdout.encoding or 'utf-8'))
 raise SystemExit(1 if falhas else 0)

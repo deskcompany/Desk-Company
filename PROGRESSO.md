@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 03/nov/2026: a revisão geral de 02-03/nov está feita (17 itens, selo verde), com dois itens anotados para a próxima. A calculadora de precificação espera a revisão dele. O próximo da fila é o estoque das embalagens, já aprovado por ele, numa conversa nova.*
+*Atualizado em 03/nov/2026: o estoque das embalagens está feito (selo verde) e espera a revisão dele, junto com a calculadora de precificação. A revisão geral de 02-03/nov também está feita, com dois itens anotados para a próxima. O próximo da fila é o desconto da venda nossa na hora da venda (opcional) ou o protótipo da vitrine.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,12 +10,21 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Estoque das embalagens: feito em 03/nov/2026, esperando a revisão dele.** Mora na tela de Embalagens (abra `http://localhost:3000/cadastros/pagina-cadastros-embalagens.html`) e em Necessidades de Compra (`http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html`). O que conferir:
+- **A lista:** cada embalagem diz "Saldo X · mín. Y"; Flex G, CE-02 e a Tag Desk Brands (de exemplo) trazem o selo "Abaixo do mínimo"; a fita diz "R$ 15,00 a unidade · rende 50 (R$ 0,30 por pedido)".
+- **Dar entrada** (botão ao lado de "Nova Embalagem"): escolha a Fita adesiva, quantidade 2, custo 17,00; a prévia diz "Saldo 8 → 10 · custo R$ 15,00 → R$ 15,40 (médio)". Salve e veja a lista e o Registro de atividades ("Editar · Embalagens").
+- **Abrir uma embalagem:** a parte "Estoque" (mínimo, saldo só leitura, "Acertar saldo" com motivo obrigatório) e, no insumo, o "Rende" com a dica ao vivo.
+- **A baixa:** a Separação do pedido 4 não baixa nada; ao fechar a Conferência de Saída dele, o saldo cai (a fita em 1/50) e o aviso final cita o que ficou abaixo do mínimo ou negativo, sem travar.
+- **Necessidades de Compra:** o card "Embalagens abaixo do mínimo" (só as ativas), com o link "Dar entrada" que abre o painel já na embalagem certa (`?entrada=<id>`).
+- **Decidido (pelo principal, com a regra que ele aprovou em 30/out):** o custo da entrada é por unidade; o fornecedor é texto livre; o saldo do insumo fica na unidade de compra, com fração; entrada e acerto vão para o Registro de atividades como "Editar · Embalagens" (a chave que já existe, `embalagensEditar`; sem senha de fábrica, segue a trava de editar embalagens); Necessidades de Compra só mostra e leva à entrada, sem ordem de compra (na produção a entrada vem pela nota); não há extrato de movimentações por embalagem (o histórico é o Registro de atividades). Cancelar depois de fechar não devolve.
+- **Limite, de propósito:** o saldo é um só por empresa, sem depósito, e vive no navegador como o resto do protótipo. O detalhe técnico e a prova estão no §14.107; a suíte é a seção [13] de `teste_embalagem_pedido.py`.
+
 **Calculadora de precificação: feita em 30/out/2026, esperando a revisão dele.** Mora na aba Preços do produto, no botão "Calcular preço" (abra `http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1`). Tem o custo do produto (o da aba Custos, de compra ou médio, como Custos do E-commerce lê), a embalagem completa (a caixa do cadastro do produto mais os insumos que entram sozinhos na loja), o frete, a margem desejada, as parcelas, e o imposto e a comissão de Parâmetros de Vendas. Mostra quatro sugestões (Varejo ,90, Abaixo da faixa, Redondo e Exato), a conta aberta, a margem por forma de pagamento, a "venda nossa" sem comissão e o preço mínimo. A taxa e a tarifa vêm do gateway da loja virtual da loja do produto, a mesma fonte de Custos do E-commerce (hoje a tabela do Link), e por isso acompanha sozinha o item 10 da revisão geral. Parâmetros de Vendas ganhou a comissão padrão (5%) e as parcelas da vitrine (3).
 - **Só preenche campos:** o preço continua editável à mão, e só o botão "Aplicar preço" mexe no Preço de venda, na lista Padrão e no Markup, guarda o cálculo (`deskCalculoPreco`, por produto) e escreve no Registro de atividades ("Aplicar o preço calculado").
 - **Decidido:** o markup é preço ÷ custo do produto; o Exato sobe ao centavo (a margem nunca fica abaixo da pedida); a embalagem é a de um pedido de uma peça (o produto indo sozinho: junto com outro, a margem só melhora). A pesquisa por trás das quatro sugestões está em `docs/pesquisa-psicologia-de-precos.md`.
 - **Limite, de propósito:** a lista de produtos, o PDV e os pedidos seguem com o preço do exemplo; o cadastro novo (`?novo=1`) calcula mas não grava o cálculo, até haver banco. A suíte é `teste_calculadora.py`; o detalhe técnico, o §14.101.
 
-**Custos do E-commerce: concluído em 30/out/2026.** As quatro entregas e os ajustes estão no HISTORICO.md, e o detalhe no §14.95 a §14.100. Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. As entregas 1 a 3 e a primeira rodada da 4 ele testou e aprovou; os testes finais do ajuste da 4 (a estimativa pelo cadastro, a Separação que não mexe no custo, o "Total de volumes", a troca) ele delegou ao principal, que os rodou no navegador em 30/out: 61 itens, nenhuma falha. O que ficou de fora de propósito está em "Decidido, e ainda não feito de propósito" (a baixa da embalagem no estoque) e na lista da revisão geral (os itens 6, 9, 10, 12, 16 e 17 mexem nesta área; o 9 e o 10 mudam números do lucro).
+**Custos do E-commerce: concluído em 30/out/2026.** As quatro entregas e os ajustes estão no HISTORICO.md, e o detalhe no §14.95 a §14.100. Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. As entregas 1 a 3 e a primeira rodada da 4 ele testou e aprovou; os testes finais do ajuste da 4 (a estimativa pelo cadastro, a Separação que não mexe no custo, o "Total de volumes", a troca) ele delegou ao principal, que os rodou no navegador em 30/out: 61 itens, nenhuma falha. A baixa da embalagem no estoque, que tinha ficado de fora, foi feita em 03/nov (acima). O que mais ficou de fora está na lista da revisão geral (os itens 6, 9, 10, 12, 16 e 17 mexem nesta área; o 9 e o 10 mudam números do lucro).
 
 Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
 inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
@@ -67,17 +76,10 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão em
 "Prioridades dos próximos passos", no HISTORICO.md).
 
-1. **Estoque das embalagens** (aprovado por ele em 30/out, opção A). As regras:
-   - O estoque mora na própria tela de Embalagens, com o botão "Dar entrada" (quantidade, custo, fornecedor e nota; os dois últimos são opcionais). A lista mostra o saldo e o mínimo, avisa quando está abaixo do mínimo, e Necessidades de Compra ganha um bloco para elas.
-   - A baixa é automática quando a Conferência de Saída fecha, nunca na Separação. Falta de saldo não trava a expedição: o saldo fica negativo e avisa. Pedido cancelado depois de fechar não devolve.
-   - O saldo é único por empresa, sem depósito. Cada entrada recalcula o custo médio, que passa a ser o custo do cadastro, e o pedido guarda o custo do dia.
-   - O insumo ganha o campo "Rende": 1 rolo de fita que rende 50 pedidos, com R$ 15, vira R$ 0,30 por pedido (de fábrica 1).
-   - O saldo pode ser acertado à mão, com motivo.
-   - Na produção a entrada vem pela nota, como qualquer item.
-2. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-3. **Gateways de Pagamento:** falta o protótipo da vitrine.
-4. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-5. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+1. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+2. **Gateways de Pagamento:** falta o protótipo da vitrine.
+3. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+4. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -110,8 +112,6 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   preço (`casasPreco`, hoje 2), mas a digitação a partir dos centavos (§14.105) fixa 2 casas nos campos de preço. Quando
   alguém precisar de mais casas, o campo passa a ler o parâmetro.
 - **Taxas reais da loja virtual:** na integração da API da InfinitePay, pesquisar se o Checkout Integrado cobra a tabela do Link ou a da maquininha; o protótipo usa a Bronze (decisão do usuário). A vitrine dá o mesmo desconto Pix.
-- **A embalagem ainda não sai do estoque** (30/out/2026): a Conferência de Saída confirma caixa, tag e fita, e o custo entra em Custos do E-commerce, mas nenhum saldo baixa,
-  porque as embalagens só existem no cadastro, sem estoque próprio. Ficou fora da entrega 4 com ele sabendo. **Saiu desta lista no mesmo dia:** ele aprovou fazer, e virou o item 1 do "Próximo da fila".
 - **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
   barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
   (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem

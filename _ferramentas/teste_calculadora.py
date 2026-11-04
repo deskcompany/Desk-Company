@@ -500,6 +500,7 @@ with sync_playwright() as p:
                 e['custo'] = 6.0
             if e['nome'] == 'Fita adesiva':
                 e['custo'] = 0.55
+                e['rende'] = 1   # 03/nov: o custo da fita agora e do rolo e rende 50 pedidos; aqui a fita volta a custar por pedido para o resto da conta ficar igual
         ls_set(pg, 'deskEmbalagens', lista)
         editar(pg, loja='Desk Shope'); abrir(pg)
         ok(pg.input_value('#calcEmbalagem') == '6,95' and txt(pg, '#calcEmbOrigem') == 'Caixa R$ 6,00 + Tag Desk Shope R$ 0,40 + Fita adesiva R$ 0,55', 'mudar o custo no cadastro de Embalagens muda a embalagem completa: "%s"' % txt(pg, '#calcEmbOrigem'))

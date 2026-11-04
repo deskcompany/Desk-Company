@@ -5,6 +5,8 @@
 
 *Em 30/out/2026 (depois da entrega 3): Custos do E-commerce, entrega 4, a embalagem automática: Cadastros › Embalagens ganhou custo e o tipo Insumo; a Separação escolhe a embalagem do pedido, a Conferência de Saída confirma, e Custos e a página do pedido leem o que foi confirmado, com o custo do dia. Nenhuma tela nova: 45 de 55 itens de menu com tela, em 90 telas (§14.99).*
 
+*Em 03/nov/2026: o estoque das embalagens (§14.107). Cadastros › Embalagens ganhou saldo, mínimo, "Rende" e a entrada com custo médio; a Conferência de Saída baixa o estoque ao fechar; Necessidades de Compra ganhou o card das embalagens abaixo do mínimo. Nenhuma tela nova: 45 de 55 itens de menu com tela, em 90 telas.*
+
 *Em 30/out/2026: Custos do E-commerce, entrega 3 (os anúncios lidos de Contas a Pagar, o gráfico mês a mês, oito cards com "Abaixo da margem" e o módulo no perfil do vendedor) e a tela nova **Parâmetros de vendas**, em Configurações: 45 de 55 itens de menu com tela, em 90 telas (§14.98).*
 
 *Em 22/out/2026: Custos do E-commerce, entrega 1 (a tela nova, a caixa "Resultado do pedido" na página do pedido e a conta única do lucro, que Comissões Afiliados passou a usar), em Vendas: 45 de 55 itens de menu com tela, em 89 telas (§14.95).*
@@ -40,7 +42,7 @@
 | ✅ | Departamento de Produtos |
 | ✅ | Seção de Produtos |
 | ✅ | Marcas de Produtos |
-| ✅ | Embalagens *(com custo, "cabe até" e o tipo Insumo, a tag, a fita e o saco, que entram sozinhos no pedido de uma loja ou de todas, desde 30/out)* |
+| ✅ | Embalagens *(com custo, "cabe até" e o tipo Insumo, a tag, a fita e o saco, que entram sozinhos no pedido de uma loja ou de todas, desde 30/out. **03/nov: ganhou o estoque**: saldo, mínimo e, no insumo, o "Rende" (quantos pedidos uma unidade atende); o botão "Dar entrada" soma ao saldo e recalcula o custo médio; "Acertar saldo" exige motivo; a lista avisa "Abaixo do mínimo" e "Saldo negativo"; o saldo baixa quando a Conferência de Saída fecha, nunca na Separação)* |
 | ✅ | Lojas Desk *(+ detalhe)* |
 | ✅ | Depósitos |
 | ✅ | Endereços de Estoque |
@@ -51,7 +53,7 @@
 |---|---|
 | ✅ | Controle de Estoques *(+ detalhe; 13/out: a página do produto ficou sem a aba "Lançamentos": o histórico é o da Movimentação de Estoque)* |
 | ✅ | Movimentação de Estoque *(13/out: o histórico individual de cada produto, só para consulta. Abre com os filtros: o produto pela busca padrão do sistema e o período obrigatório, no mês atual. Depois de Buscar mostra estoque atual, reservado, disponível, custo médio e valor em estoque, e cada movimento com o saldo de antes e o de depois. Clicar no movimento abre o documento inteiro, com todos os itens, e é o que se imprime)* |
-| ✅ | Necessidades de Compra *(10/out: lista viva do que comprar hoje. A conta usa só o vendável, soma o que está chegando e desconta os pedidos que vão sair; mínimo e máximo ou dias de cobertura; a ordem de compra nasce dali, uma por fornecedor)* |
+| ✅ | Necessidades de Compra *(10/out: lista viva do que comprar hoje. A conta usa só o vendável, soma o que está chegando e desconta os pedidos que vão sair; mínimo e máximo ou dias de cobertura; a ordem de compra nasce dali, uma por fornecedor. **03/nov: ganhou o card "Embalagens abaixo do mínimo"**, só as ativas, com o que comprar e o link "Dar entrada" para o cadastro de Embalagens; esse card não gera ordem de compra)* |
 | ✅ | Ordens de Compra *(+ detalhe)* |
 | ✅ | Entrada de Notas *(+ detalhe)* |
 | ✅ | Conferência de Entrada *(+ a tela de contagem cega; desde 12/out confere também a chegada de transferência entre estoques)* |

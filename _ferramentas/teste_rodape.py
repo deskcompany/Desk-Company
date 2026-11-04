@@ -57,6 +57,7 @@ def ok(cond, texto):
 # dois existirem, a proxima tela copia o que estiver mais perto.
 APOSENTADOS = ['form-footer-bar', 'par-barra', 'par-barra-nota']
 
+PARCIAL = bool(_os.environ.get('DESK_ALVOS', '').strip())   # o selo rodando so nas telas que mudaram: a contagem minima nao vale
 arquivos = _filtrar(sorted(localiza.caminhos()))
 
 print('[1] Os nomes antigos nao existem mais em lugar nenhum')
@@ -261,7 +262,7 @@ with sync_playwright() as p:
                '(aberta=%s, acima=%s, cabe=%s, inteira=%s)' % (nome, pos, aberto, acima, cabe, inteiro))
             pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-btn').click()"); pg.wait_for_timeout(80)
     print('    %d tela(s) com "Por pagina" medidas, %d medidas' % (com_pager, medidas_pager))
-    ok(com_pager >= 46, 'o "Por pagina" foi medido em pelo menos 46 telas: %d' % com_pager)
+    ok(PARCIAL or com_pager >= 46, 'o "Por pagina" foi medido em pelo menos 46 telas: %d' % com_pager)
 
     b.close()
 
