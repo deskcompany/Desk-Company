@@ -1,4 +1,4 @@
-*Atualizado em 10/nov/2026: Promoções e Encartes, entrega 2, testada por ele e ajustada no mesmo dia. As quatro perguntas dela viraram decisão, e a barganha abriu uma fila nova: o mapa dos canais de venda, depois Usuários do sistema e Permissões de Usuários, depois o pacote do gerente na promoção.*
+*Atualizado em 10/nov/2026: o mapa dos canais de venda foi aprovado por ele (docs/mapa-canais-venda-desk-company.md). O próximo da fila é Usuários do sistema e Permissões de Usuários, que começa pela barganha; depois, o pacote do gerente na promoção e o preço de atacado.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -59,18 +59,21 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da barganha das quatro perguntas.
 
-1. **O mapa dos canais de venda: proposta escrita em 10/nov, esperando a aprovação dele** ([docs/mapa-canais-venda-desk-company.md](docs/mapa-canais-venda-desk-company.md),
-   com as quatro perguntas no fim; o Olist não tem tela parecida, e as referências são Dynamics 365, Shopify, Erply, Senior e Alterdata).
-   Ele aprovou pensar grande ("vamos transformar essa empresa em uma máquina de vendas"). Entram os canais de hoje (PDV, Pedido
-   de Venda, loja virtual, afiliados) e os que podem vir (marketplaces, vendedor externo pelo celular, atacado para empresas,
-   WhatsApp, televendas, evento ou feira). Para cada um: onde a venda nasce, quem vende, se pode dar desconto e de onde vem o preço.
-   Já respondido: o Pedido de Venda é usado por ele, um gerente e um supervisor de vendas. Dele saem os perfis do item 2.
-2. **Usuários do sistema e Permissões de Usuários** (módulo novo; começa pela barganha, com prints do Olist se houver). As duas
+**O mapa dos canais de venda foi aprovado por ele em 10/nov/2026** ([docs/mapa-canais-venda-desk-company.md](docs/mapa-canais-venda-desk-company.md)):
+11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
+cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
+
+1. **Usuários do sistema e Permissões de Usuários** (módulo novo; começa pela barganha, com prints do Olist se houver). As duas
    estão no hub de Configurações sem tela; Permissões é a mesma grade de Confirmações por senha com a pergunta "este perfil
    pode?" (arquitetura, §1095 e §1219: o 4º verbo "ver"), e hoje é mocada em Vendedores → Acesso e Permissões. Usuários nasce
-   antes (o cadastro de que a tela depende). Aqui nasce o **"desconto máximo sem senha" por pessoa**, que só o usuário mestre altera.
-3. **O pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o preço promocional fora
+   antes (o cadastro de que a tela depende). Os perfis de partida são os do mapa dos canais. Aqui nasce o **"desconto máximo sem
+   senha" por pessoa**, que só o Owner altera, e cada perfil faz só o que o Owner liberou (o supervisor pode ter limite maior que o
+   vendedor, mas o resto fica com o gerente ou o Owner).
+2. **O pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o preço promocional fora
    da promoção só com o gerente; o botão do gerente no excedente do limite; o limite de desconto por pessoa no PDV e no Pedido.
+3. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
+   unidades"; no Pedido de Venda, a linha que chega à quantidade mínima troca o preço sozinha. Vale para empresa e para pessoa
+   física que assuma os impostos (como o imposto entra na nota fica para Notas Fiscais, com o contador). Passa pela trava do mínimo.
 4. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
 5. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
 6. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
@@ -108,7 +111,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
     com a mesma liberação de hoje. *(Feito na entrega 2.)*
   - **Desconto sem senha, por pessoa** (resposta dele em 10/nov, opção b): o PDV continua dando até 10% sem senha e o gerente libera
     acima disso. O parâmetro já existe (Configurações → PDV, `pdvDescontoMaximoPct`). O limite passa a ser **por pessoa**, num
-    campo "desconto máximo sem senha" que só o usuário mestre altera; quem não tem o seu fica com o de Configurações → PDV, e vale
+    campo "desconto máximo sem senha" que só o Owner altera; quem não tem o seu fica com o de Configurações → PDV, e vale
     igual no PDV e no Pedido de Venda (hoje o Pedido não tem limite). **Vem com Permissões de Usuários e o pacote do gerente.**
   - **O excedente do limite por cliente** (resposta dele em 10/nov): continua automático, numa linha a parte pelo preço de venda. Na
     linha, o botão "Aplicar preço promocional no excedente": o gerente põe a senha e diz quantas peças recebem o promocional (todas
@@ -231,7 +234,8 @@ Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "
 
 As quatro perguntas da entrega 2 foram respondidas em 10/nov e estão em "Decidido". Falta:
 
-1. **Aprovar o mapa dos canais de venda**, quando o principal trouxer a proposta (item 1 da fila).
+1. **Promoção e preço de atacado na mesma linha:** a proposta do mapa é ficar o menor dos dois, sem somar. Ele confirma antes do
+   preço de atacado (item 3 da fila).
 2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
