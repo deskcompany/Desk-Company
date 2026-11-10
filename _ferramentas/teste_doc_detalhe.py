@@ -211,7 +211,8 @@ with sync_playwright() as p:
         skus = sorted(set(i['sku'] for itens in ITENS_PV.values() for i in itens))
         ir('pagina-cadastros-produtos.html'); do_cadastro = set(pg.evaluate("PRODUTOS.map(p => p.sku)")); ir(PV_D)
         sem_catalogo = [s for s in skus if not pg.evaluate("(s) => !!produtoDe(s)", s)]
-        ok(sem_catalogo and all(s in do_cadastro for s in sem_catalogo) and len(sem_catalogo) == 9, 'todo produto dos pedidos da lista existe no catálogo da página ou em Cadastros › Produtos (os 9 dos pedidos online, que a página não confere contra o saldo): %s' % sem_catalogo)
+        # desde 10/nov (§14.109) o catalogo da venda tem os 8 produtos das promocoes; dos pedidos online so a Luminaria segue fora dele
+        ok(sem_catalogo == ['MOB-4002'] and all(s in do_cadastro for s in sem_catalogo), 'todo produto dos pedidos da lista existe no catálogo da página ou em Cadastros › Produtos (fora do catálogo, só a Luminária dos pedidos online): %s' % sem_catalogo)
 
     if secao(8, 'Cada pedido abre a si mesmo'):
         ruins, vistos = [], {}

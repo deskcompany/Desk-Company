@@ -881,6 +881,13 @@
   .pdv-item-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
   .pdv-item-sub { font-size:11.5px; color:var(--text); margin-top:2px; }
   .pdv-item-ajuste { font-size:11.5px; font-weight:700; color:var(--active-text); margin-top:2px; }
+  /* Promocoes e Encartes, entrega 2 (09/nov/2026): o item com o preco da promocao, e a excecao na hora. Mesmas classes no Pedido de Venda. */
+  .promo-tag { font-size:11.5px; color:var(--text); margin-top:3px; line-height:1.5; white-space:normal; }
+  .promo-tag-selo { display:inline-block; font-family:'Nunito',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:.2px; padding:1px 8px; margin-right:6px; border-radius:10px; background:var(--active-bg); color:var(--active-text); vertical-align:1px; }
+  .promo-tag-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .promo-tag-link:hover { text-decoration:underline; }
+  .pdv-ed-promo { margin:-2px 0 8px; }
+  .btn-secundario.pdv-btn-promo { margin:0 0 12px; }
   .pdv-icone-btn { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; }
   .pdv-icone-btn:hover { color:var(--text-heading); border-color:var(--divisor); }
   .pdv-icone-btn svg { width:14px; height:14px; }
@@ -1021,6 +1028,9 @@
   /* O pedido da venda concluida e link (12/out/2026) */
   .pdv-link { color:var(--active-text); text-decoration:none; }
   .pdv-link:hover { text-decoration:underline; }
+  /* O link da venda no "quanto vendeu" do bloco PROMOCOES (10/nov/2026) */
+  .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .painel-link:hover { text-decoration:underline; }
 </style>
 </head>
 <body class="dark">
@@ -1530,6 +1540,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <input type="text" id="itemQtd" inputmode="decimal">
   </div>
   <div class="pdv-ed-linha"><span>Preço do cadastro</span><b id="itemPrecoCadastro">R$ 0,00</b></div>
+  <div class="field-hint pdv-ed-promo" id="itemPromo" style="display:none;"></div>
+  <button type="button" class="btn-secundario pdv-btn-promo" id="btnAplicarPromo" style="display:none;">Aplicar preço promocional</button>
   <div class="pdv-ed-linha" id="campoItemPreco">
     <label for="itemPreco">Editar preço (R$)</label>
     <input data-mascara="dinheiro" type="text" id="itemPreco" inputmode="decimal">
@@ -1945,6 +1957,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'promocaoEncerra',    nome:'Encerrar uma promoção antes do fim',           onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvSangria',           nome:'Lançar sangria de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'pdvFechaComDiferenca', nome:'Fechar o caixa do PDV com diferença',            onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
@@ -2720,6 +2733,506 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { pct: c ? c.taxa : 0, gateway: g, bandeira: b };
   }
   // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 10 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma), as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado, a ficha do produto (a calculadora
+  // de preco le o custo da caixa e dos insumos) e Necessidades de Compra (lista as abaixo do minimo); teste_embalagem_pedido.py compara as copias.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  //   saldo                 quanto ha em estoque, na UNIDADE DE COMPRA (a caixa, o rolo de fita): pode ser fracionario e negativo (a expedicao nunca trava por falta de saldo).
+  //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
+  //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
+  //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
+        // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
+        g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        return g;
+      }
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // Quantos pedidos uma unidade atende: so o insumo tem `rende`; caixa, envelope e rolo gastam uma unidade por uso.
+  function embRende(e) { return e && e.tipo === 'insumo' ? Math.max(1, Math.floor(Number(e.rende)) || 1) : 1; }
+  // O custo que UM pedido consome: um rolo de fita de R$ 15,00 que rende 50 custa R$ 0,30 por pedido. E este, e nao o `custo` do cadastro, que os pedidos e a calculadora leem.
+  function embCustoUso(e) { return (Number(e && e.custo) || 0) / embRende(e); }
+  // A baixa do estoque, quando a Conferencia de Saida fecha: `itens` = [{ id, qtd }]. Subtrai qtd / rende do saldo (4 casas) e devolve os avisos das que ficaram negativas ou abaixo do minimo.
+  // Falta de saldo nunca trava: so avisa. Quem chama garante que o pedido ainda nao tinha sido confirmado (senao baixaria duas vezes).
+  function embBaixar(itens) {
+    const lista = embalagensLer(), ids = [];
+    itens.forEach(i => {
+      const e = lista.filter(x => x.id === i.id)[0];
+      if (!e) return;
+      e.saldo = Math.round(((Number(e.saldo) || 0) - (Number(i.qtd) || 0) / embRende(e)) * 10000) / 10000;
+      if (ids.indexOf(e.id) < 0) ids.push(e.id);
+    });
+    embalagensGravar(lista);
+    return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
+      .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
+  }
+  // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
+  function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
+  // ===== PRECO MINIMO: A CONTA DA CALCULADORA (bloco comum, 09/nov/2026) =====
+  // A conta do preco minimo e UMA so: a calculadora de preco da ficha do produto (Cadastros > Produtos) a usa para sugerir o preco, e Promocoes e Encartes
+  // (Vendas) a usa para a trava do minimo. Saiu de dentro da calculadora em 09/nov/2026 sem mudar nenhum numero; o bloco e IDENTICO nas duas telas
+  // e teste_promocoes.py compara as copias. Depende dos blocos GATEWAYS: LEITURA e EMBALAGENS: LEITURA, que vem antes dele.
+  // Tudo em centavos e pontos-base inteiros (1% = 100), sem erro de ponto flutuante.
+  const PRECO_FABRICA = { impostoPadraoPct: 4, margemMinimaPct: 15, comissaoPadraoPct: 5, parcelasVitrine: 3 };   // o de fabrica de Parametros de vendas
+  const precoCent = (reais) => Math.round(reais * 100 + (reais < 0 ? -1e-6 : 1e-6));
+  const precoBp = (pct) => Math.round(pct * 100 + 1e-6);
+  // Imposto, margem minima, comissao e parcelas de Configuracoes > Parametros de vendas; o que estiver estragado vale o de fabrica.
+  function precoParametros() {
+    const p = lerParametros();
+    const v = (k, min, max, inteiro) => { const n = Number(p[k]); return (p[k] === undefined || p[k] === null || p[k] === '' || isNaN(n) || n < min || n > max || (inteiro && n % 1 !== 0)) ? PRECO_FABRICA[k] : n; };
+    return { imposto: v('impostoPadraoPct', 0, 100), minima: v('margemMinimaPct', 0, 100), comissao: v('comissaoPadraoPct', 0, 100), parcelas: v('parcelasVitrine', 1, 12, true),
+             custoBase: (p.custosEcommerce && p.custosEcommerce.custoBase) === 'medio' ? 'medio' : 'compra' };
+  }
+  // O gateway da loja virtual (InfinitePay) da loja, a bandeira padrao dele, as parcelas que ele tem e a taxa e a tarifa de cada uma. Sem gateway, taxa 0.
+  function precoGateway(lojaId) {
+    const g = gwlHabilitados(lojaId, 'infinitepay')[0] || null, b = g ? gwlBandeiraPadrao(g) : null, vezes = g && b ? gwlVezes(g, b) : [];
+    const par = (c) => ({ taxa: c ? c.taxa : 0, tarifa: c ? c.tarifa : 0 });
+    return { tem: vezes.length > 0, vezes: vezes, cond: (n) => par(g && b ? gwlCondicao(g, 'credito', b, n) : null), pix: par(g ? gwlCondicao(g, 'pix') : null) };
+  }
+  const precoEhCaixa = (e) => e.status === 'ativo' && e.tipo !== 'insumo';
+  // A embalagem completa: a caixa + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro. O produto vai sozinho no pacote (1 peca).
+  function precoEmbalagem(lista, lojaId, caixaId) {
+    const cai = lista.filter((e) => e.id === caixaId && precoEhCaixa(e))[0] || null, cC = cai ? precoCent(embCustoUso(cai)) : 0;
+    const brl = (c) => 'R$ ' + (Math.floor(c / 100) + '').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + ('0' + (c % 100)).slice(-2);
+    const ins = insumosAutomaticos(lista, lojaId).map((i) => { const e = lista.filter((x) => x.id === i.id)[0]; return { nome: e.nome, c: precoCent(embCustoUso(e)) * i.qtd }; });
+    return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: (cai ? 'Caixa ' + brl(cC) : 'Sem caixa ativa no cadastro') + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
+  }
+  // A parcela pedida, ou a maior que o gateway tem abaixo dela (ou a primeira).
+  const precoLimitarParcelas = (n, vezes) => { if (!vezes.length) return 1; if (vezes.indexOf(n) >= 0) return n; const m = vezes.filter((v) => v <= n); return m.length ? m[m.length - 1] : vezes[0]; };
+  // O menor preco (centavos) que deixa a margem `margemBp`: sobe ao centavo seguinte, para a margem nunca ficar abaixo da pedida. null quando a conta nao fecha.
+  function precoPiso(custoTotalC, tarifaC, margemBp, taxaBp, impostoBp, comissaoBp) {
+    const s = 10000 - margemBp - taxaBp - impostoBp - comissaoBp;
+    return s > 0 ? Math.floor(((custoTotalC + tarifaC) * 10000 + s - 1) / s) : null;
+  }
+  // O preco minimo de um produto (centavos), com a margem minima de Parametros de vendas: o mesmo "Preco minimo" que a calculadora mostra.
+  // `o` = { lojaId, custo (reais, o do custoBase), caixaId (null = a sugerida para 1 peca) } e, se houver um calculo guardado na calculadora (`deskCalculoPreco`),
+  // o que ele guardou vale mais que o padrao: frete, freteLoja, embalagemManual, caixaId, parcelas, imposto e comissao. Sem custo, devolve null.
+  function precoMinimo(o, salvo) {
+    const par = precoParametros(), gw = precoGateway(o.lojaId), lista = embalagensLer(), s = salvo || null;
+    const num = (v, d) => (v !== undefined && v !== null && isFinite(Number(v)) ? Number(v) : d);
+    const custo = precoCent(Number(o.custo) || 0);
+    if (custo <= 0) return null;
+    const caixaSalva = s && lista.filter((e) => e.id === s.caixaId && precoEhCaixa(e))[0];
+    const caixaCad = lista.filter((e) => e.id === o.caixaId && precoEhCaixa(e))[0];
+    const caixaId = caixaSalva ? caixaSalva.id : caixaCad ? caixaCad.id : (sugerirEmbalagem(lista, 1) || { id: null }).id;
+    const manual = !!(s && s.embalagemManual !== null && s.embalagemManual !== undefined && isFinite(Number(s.embalagemManual)));
+    const emb = manual ? precoCent(Number(s.embalagemManual)) : precoEmbalagem(lista, o.lojaId, caixaId).total;
+    const custoTotal = custo + (s ? precoCent(num(s.frete, 0)) : 0) + emb + (s ? precoCent(num(s.freteLoja, 0)) : 0);
+    const parcelas = precoLimitarParcelas(s ? num(s.parcelas, par.parcelas) : par.parcelas, gw.vezes), tx = gw.cond(parcelas);
+    return precoPiso(custoTotal, precoCent(tx.tarifa), precoBp(par.minima), precoBp(tx.taxa), precoBp(s ? num(s.imposto, par.imposto) : par.imposto), precoBp(s ? num(s.comissao, par.comissao) : par.comissao));
+  }
+  // ===== FIM DO BLOCO PRECO MINIMO =====
+  // ===== PROMOCOES: DADOS E LEITURA (bloco comum, 09/nov/2026) =====
+  // Promocoes e Encartes (Vendas) e a dona das promocoes; a ficha do produto (Cadastros > Produtos) e a dona do preco e do historico do preco.
+  // O bloco e IDENTICO em tres telas: a lista e a pagina de Promocoes e Encartes e a ficha do produto. teste_promocoes.py compara as copias.
+  // Gravado no navegador: `deskPromocoes` (as promocoes, com os exemplos), `deskPrecoProduto` (preco de venda e promocional que mudaram, por id do
+  // produto) e `deskHistoricoPreco` (o historico gravado, por id). Na producao: promocoes, promocao_itens e historico_preco.
+  // Regras (barganha de 04 e 09/nov/2026): a promocao nasce de UMA loja; vale onde foi marcada (vitrine da loja, PDV, vendedores); comeca e termina
+  // sozinha; depois de aprovada, preco e produtos so mudam antes de comecar; depois de comecar, so antecipar, prorrogar ou encerrar.
+  const PROMO_FABRICA = { promoRiscadoDias: 30, promoEstoqueMaxDias: 30 };   // o de fabrica de Configuracoes > Parametros de vendas
+  function promoParam(k) {
+    const p = lerParametros(), n = Number(p[k]);
+    return (p[k] === undefined || p[k] === null || p[k] === '' || !Number.isInteger(n) || n < 1 || n > 365) ? PROMO_FABRICA[k] : n;
+  }
+  const PROMO_HOJE = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+  const promoIso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const promoHoje = () => promoIso(PROMO_HOJE);
+  const promoDia = (n) => { const d = new Date(PROMO_HOJE); d.setDate(d.getDate() + n); return promoIso(d); };   // n dias a partir de hoje (negativo = passado)
+  const promoSoma = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return promoIso(d); };
+  const promoDias = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);   // de a ate b, em dias
+  const promoData = (iso) => (iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—');
+  const promoMoeda = (n) => 'R$ ' + Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const PROMO_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech' };   // espelho de Cadastros > Lojas Desk
+  const PROMO_ONDE = { vitrine: 'Vitrine da loja', pdv: 'PDV', vendedores: 'Vendedores (Pedido de Venda)' };
+  const PROMO_SIT = { rascunho: 'Rascunho', revisao: 'Em revisão', agendada: 'Agendada', ativa: 'Ativa', encerrada: 'Encerrada' };
+  const PROMO_PRAZO = { '7dias': '7 dias', data: 'Até uma data', estoque: 'Até acabar o estoque' };
+  const PROMO_ORIGEM = { cadastro: 'cadastro', aprovada: 'promoção aprovada', planilha: 'planilha' };
+
+  // Os produtos. ESPELHO de Cadastros > Produtos (id, sku, nome, preco, estoque, status, categoria); teste_promocoes.py compara. O que a lista de
+  // produtos nao tem: loja, departamento e secao seguem a categoria e a hierarquia da ficha do produto (CATEGORIAS_PRODUTO, HIERARQUIA_DEPARTAMENTO_SECAO);
+  // marca e fornecedor sao nomes de Cadastros > Marcas e > Fornecedores; custo e custoMedio sao os do faturamento mais recente do SKU nos Pedidos de
+  // Venda (ITENS_PEDIDO), e os do produto 1 vem da aba Custos da ficha; caixa e a embalagem do cadastro (so o produto 1 tem; os outros, a sugerida).
+  const PROMO_PRODUTOS = [
+    { id: 1, sku: 'ELE-1001', nome: 'Fone de Ouvido Bluetooth X200', preco: 129.90, estoque: 42, status: 'ativo', categoria: 'Eletrônicos', loja: 1, departamento: 'Áudio e Vídeo', secao: 'Fones de Ouvido', marca: 'MultiMarca Desk', fornecedor: 'TechParts Distribuidora', custo: 50.00, custoMedio: 48.00, caixa: 2 },
+    { id: 2, sku: 'VES-2001', nome: 'Camiseta Básica Algodão', preco: 39.90, estoque: 120, status: 'ativo', categoria: 'Vestuário e Acessórios', loja: 2, departamento: 'Roupas', secao: 'Camisetas', marca: 'Desk Wear', fornecedor: 'Tecidos Ceará S/A', custo: 23.90, custoMedio: 23.50, caixa: null },
+    { id: 3, sku: 'PAP-3001', nome: 'Caderno Universitário 200 folhas', preco: 18.50, estoque: 8, status: 'ativo', categoria: 'Papelaria', loja: 1, departamento: 'Escrita', secao: 'Cadernos e Blocos', marca: 'Desk Original', fornecedor: 'Distribuidora Nordeste Ltda', custo: 11.10, custoMedio: 10.90, caixa: null },
+    { id: 4, sku: 'MOB-4001', nome: 'Kit Escritório Completo', preco: 349.90, estoque: 5, status: 'ativo', categoria: 'Mobiliário e Decoração', loja: 1, departamento: 'Escritório', secao: 'Mesas e Cadeiras', marca: 'Nordic Home', fornecedor: 'Móveis Nordeste Ltda', custo: 199.90, custoMedio: 205.40, caixa: null },
+    { id: 5, sku: 'ELE-1002', nome: 'Filamento PLA 1kg', preco: 89.90, estoque: 30, status: 'ativo', categoria: 'Eletrônicos', loja: 3, departamento: 'Informática', secao: 'Periféricos', marca: 'TechPro', fornecedor: 'TechParts Distribuidora', custo: null, custoMedio: null, caixa: null },
+    { id: 6, sku: 'VES-2002', nome: 'Tênis Esportivo Runner', preco: 199.90, estoque: 60, status: 'ativo', categoria: 'Vestuário e Acessórios', loja: 2, departamento: 'Calçados', secao: 'Tênis', marca: 'UrbanStyle', fornecedor: 'Tecidos Ceará S/A', custo: 120.00, custoMedio: 117.50, caixa: null },
+    { id: 7, sku: 'ELE-1003', nome: 'Mouse Sem Fio Compacto', preco: 59.90, estoque: 0, status: 'ativo', categoria: 'Eletrônicos', loja: 1, departamento: 'Informática', secao: 'Periféricos', marca: 'MultiMarca Desk', fornecedor: 'TechParts Distribuidora', custo: 36.50, custoMedio: 37.20, caixa: null },
+    { id: 8, sku: 'MOB-4002', nome: 'Luminária de Mesa LED', preco: 79.90, estoque: 15, status: 'ativo', categoria: 'Mobiliário e Decoração', loja: 1, departamento: 'Escritório', secao: 'Iluminação', marca: 'Nordic Home', fornecedor: 'Luminárias Brasil', custo: 47.06, custoMedio: 46.08, caixa: null },
+    { id: 9, sku: 'PAP-3002', nome: 'Kit Papelaria Volta às Aulas', preco: 64.90, estoque: 22, status: 'ativo', categoria: 'Papelaria', loja: 1, departamento: 'Escrita', secao: 'Canetas e Lápis', marca: 'Desk Original', fornecedor: 'Distribuidora Nordeste Ltda', custo: 39.50, custoMedio: 40.30, caixa: null },
+    { id: 10, sku: 'VES-2003', nome: 'Jaqueta Corta-Vento', preco: 159.90, estoque: 18, status: 'inativo', categoria: 'Vestuário e Acessórios', loja: 2, departamento: 'Roupas', secao: 'Jaquetas', marca: 'UrbanStyle', fornecedor: 'Tecidos Ceará S/A', custo: null, custoMedio: null, caixa: null },
+    { id: 11, sku: 'ELE-1004', nome: 'Carregador USB-C 20W', preco: 45.00, estoque: 3, status: 'ativo', categoria: 'Eletrônicos', loja: 1, departamento: 'Áudio e Vídeo', secao: 'Cabos e Adaptadores', marca: 'MultiMarca Desk', fornecedor: 'TechParts Distribuidora', custo: 26.20, custoMedio: 26.85, caixa: null },
+    { id: 12, sku: 'MOB-4003', nome: 'Organizador de Mesa Bambu', preco: 54.90, estoque: 27, status: 'ativo', categoria: 'Mobiliário e Decoração', loja: 2, departamento: 'Decoração', secao: 'Organizadores', marca: 'Desk Original', fornecedor: 'Nordic Home Importação', custo: 32.40, custoMedio: 32.10, caixa: null },
+    { id: 13, sku: 'VES-2004', nome: 'Tecido Algodão (metro)', preco: 24.90, estoque: 200, status: 'ativo', categoria: 'Vestuário e Acessórios', loja: 2, departamento: 'Roupas', secao: 'Camisetas', marca: 'Desk Wear', fornecedor: 'Tecidos Ceará S/A', custo: null, custoMedio: null, caixa: null },
+    { id: 14, sku: 'PAP-3003', nome: 'Caneta Esferográfica Caixa c/50', preco: 32.00, estoque: 0, status: 'inativo', categoria: 'Papelaria', loja: 1, departamento: 'Escrita', secao: 'Canetas e Lápis', marca: 'Desk Original', fornecedor: 'Distribuidora Nordeste Ltda', custo: null, custoMedio: null, caixa: null }
+  ];
+  const promoProduto = (sku) => PROMO_PRODUTOS.filter(p => p.sku === String(sku || '').trim().toUpperCase())[0] || null;
+  const promoProdutoId = (id) => PROMO_PRODUTOS.filter(p => p.id === Number(id))[0] || null;
+
+  // O preco promocional que cada produto ja tem no cadastro (aba Precos da ficha). Vazio = sem preco promocional.
+  const PROMO_PROMOCIONAL_PADRAO = { 1: 99.90, 2: 37.90, 4: 319.90, 6: 179.90, 7: 54.90, 9: 59.90, 11: 42.90, 12: 49.90 };
+  // O historico de preco de exemplo. `dia` = dias a partir de hoje (negativo = passado). campo 'venda' ou 'promocional'.
+  // O produto 8 subiu o preco de venda ha 12 dias: o riscado nao seria verdadeiro, e a revisao da promocao o deixa de fora.
+  const PROMO_HISTORICO_PADRAO = [
+    { produto: 1, dia: -75, campo: 'venda', de: 119.90, para: 129.90, quem: 'Administrador Desk', origem: 'cadastro' },
+    { produto: 1, dia: -36, campo: 'promocional', de: null, para: 109.90, quem: 'Administrador Desk', origem: 'planilha', promocao: 6 },
+    { produto: 1, dia: -2, campo: 'promocional', de: 109.90, para: 99.90, quem: 'Administrador Desk', origem: 'aprovada', promocao: 2 },
+    { produto: 6, dia: -45, campo: 'venda', de: 189.90, para: 199.90, quem: 'Marina Costa', origem: 'planilha' },
+    { produto: 8, dia: -12, campo: 'venda', de: 69.90, para: 79.90, quem: 'Marina Costa', origem: 'cadastro' },
+    { produto: 11, dia: -40, campo: 'venda', de: 49.90, para: 45.00, quem: 'Administrador Desk', origem: 'cadastro' }
+  ];
+
+  // As promocoes de exemplo, uma em cada situacao. `ini`, `fim` e os `...Dia` sao dias a partir de hoje. Item: sku, preco (null = o do cadastro),
+  // limite (unidades na promocao, ou 'ESTOQUE' = ate acabar o estoque), cliente (unidades por cliente; null = sem limite), planilha (veio da planilha).
+  // A nº 3 esta em revisao com uma linha em cada motivo de "fora"; a nº 8 esta em revisao toda ok, pronta para aprovar.
+  const PROMOCOES_PADRAO = [
+    { id: 1, nome: 'Volta às aulas', loja: 1, situacao: 'aprovada', prazo: 'data', ini: -10, fim: 4, onde: ['vitrine', 'pdv', 'vendedores'], obs: 'Encarte na vitrine e no balcão.',
+      criadaPor: 'Marina Costa', criadaDia: -13, aprovadaPor: 'Administrador Desk', aprovadaDia: -11,
+      itens: [{ sku: 'PAP-3002', preco: 59.90, limite: 'ESTOQUE', cliente: 2 }, { sku: 'ELE-1003', preco: 54.90, limite: 30, cliente: 1 }, { sku: 'MOB-4001', preco: 319.90, limite: 10, cliente: 1 }] },
+    { id: 2, nome: 'Semana do escritório', loja: 1, situacao: 'aprovada', prazo: '7dias', ini: 3, fim: 9, onde: ['vitrine', 'pdv'], obs: '',
+      criadaPor: 'Administrador Desk', criadaDia: -4, aprovadaPor: 'Administrador Desk', aprovadaDia: -2,
+      itens: [{ sku: 'ELE-1001', preco: 99.90, limite: 'ESTOQUE', cliente: 2 }, { sku: 'ELE-1004', preco: 42.90, limite: 50, cliente: 3 }] },
+    { id: 3, nome: 'Black Friday Desk Shope', loja: 1, situacao: 'revisao', prazo: 'data', ini: 5, fim: 12, onde: ['vitrine', 'pdv', 'vendedores'], obs: 'Planilha mandada pelo comercial.',
+      criadaPor: 'Marina Costa', criadaDia: -1,
+      itens: [{ sku: 'PAP-3002', preco: 59.90, limite: 40, cliente: 2 }, { sku: 'MOB-4001', preco: 299.90, limite: 'ESTOQUE', cliente: 1, planilha: true },
+              { sku: 'ELE-1003', preco: 49.90, limite: 20, cliente: 1, planilha: true }, { sku: 'MOB-4002', preco: 72.90, limite: 15, cliente: 2, planilha: true },
+              { sku: 'PAP-3001', preco: null, limite: 100, cliente: 5, planilha: true }, { sku: 'ELE-9999', preco: 19.90, limite: 10, cliente: null, planilha: true },
+              { sku: 'VES-2001', preco: 34.90, limite: 30, cliente: 3, planilha: true }, { sku: 'ELE-1004', preco: 41.90, limite: 'ESTOQUE', cliente: 2, planilha: true }] },
+    { id: 4, nome: 'Liquida inverno', loja: 2, situacao: 'aprovada', prazo: 'data', ini: -25, fim: -15, onde: ['vitrine', 'vendedores'], obs: '',
+      criadaPor: 'Marina Costa', criadaDia: -28, aprovadaPor: 'Administrador Desk', aprovadaDia: -27,
+      itens: [{ sku: 'VES-2002', preco: 179.90, limite: 30, cliente: 2 }, { sku: 'VES-2003', preco: 139.90, limite: 15, cliente: 1 }, { sku: 'MOB-4003', preco: 49.90, limite: 40, cliente: null }] },
+    { id: 5, nome: 'Semana maker Desk Tech', loja: 3, situacao: 'rascunho', prazo: '7dias', ini: 7, fim: 13, onde: ['vitrine'], obs: '',
+      criadaPor: 'Rafael Andrade', criadaDia: 0,
+      itens: [{ sku: 'ELE-1002', preco: 79.90, limite: 20, cliente: 2 }] },
+    { id: 6, nome: 'Dia das crianças', loja: 1, situacao: 'encerrada', prazo: 'data', ini: -35, fim: -22, onde: ['vitrine', 'pdv'], obs: 'Encerrada antes: o fornecedor parou de entregar.',
+      criadaPor: 'Administrador Desk', criadaDia: -38, aprovadaPor: 'Administrador Desk', aprovadaDia: -36, encerradaPor: 'Administrador Desk', encerradaDia: -27,
+      itens: [{ sku: 'ELE-1001', preco: 109.90, limite: 25, cliente: 2, planilha: true }] },
+    { id: 7, nome: 'Camisetas até acabar', loja: 2, situacao: 'aprovada', prazo: 'estoque', ini: -5, fim: 24, onde: ['vitrine', 'pdv', 'vendedores'], obs: '',
+      criadaPor: 'Marina Costa', criadaDia: -7, aprovadaPor: 'Administrador Desk', aprovadaDia: -6,
+      itens: [{ sku: 'VES-2001', preco: 37.90, limite: 'ESTOQUE', cliente: 3 }] },
+    { id: 8, nome: 'Dia do tênis', loja: 2, situacao: 'revisao', prazo: 'data', ini: 10, fim: 16, onde: ['vitrine'], obs: '',
+      criadaPor: 'Rafael Andrade', criadaDia: -1,
+      itens: [{ sku: 'VES-2002', preco: 179.90, limite: 20, cliente: 1 }, { sku: 'MOB-4003', preco: 49.90, limite: 30, cliente: null }] }
+  ];
+
+  function promoLerJson(chave, padrao) { try { const v = JSON.parse(localStorage.getItem(chave) || 'null'); return v === null || v === undefined ? padrao : v; } catch (e) { return padrao; } }
+  function promoGravarJson(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }   // bloqueado: vale ate recarregar
+  const promoQuando = (dia) => promoDia(dia) + 'T10:00:00';
+  function promoSemente() {
+    return PROMOCOES_PADRAO.map(s => {
+      const p = { id: s.id, nome: s.nome, loja: s.loja, situacao: s.situacao, prazo: s.prazo, inicio: promoDia(s.ini), fim: promoDia(s.fim), onde: s.onde.slice(), obs: s.obs,
+        origem: 'Promoções e Encartes', criadaPor: s.criadaPor, criadaEm: promoQuando(s.criadaDia), historico: [{ em: promoQuando(s.criadaDia), por: s.criadaPor, texto: 'Criou a promoção.' }],
+        itens: s.itens.map(i => ({ sku: i.sku, preco: i.preco, limite: i.limite, cliente: i.cliente, planilha: !!i.planilha })) };
+      if (s.aprovadaPor) { p.aprovadaPor = s.aprovadaPor; p.aprovadaEm = promoQuando(s.aprovadaDia); p.historico.push({ em: p.aprovadaEm, por: s.aprovadaPor, texto: 'Aprovou a promoção, com senha.' }); }
+      if (s.encerradaPor) { p.encerradaPor = s.encerradaPor; p.encerradaEm = promoDia(s.encerradaDia); p.historico.push({ em: promoQuando(s.encerradaDia), por: s.encerradaPor, texto: 'Encerrou a promoção antes do fim.' }); }
+      return p;
+    });
+  }
+  function lerPromocoes() { const g = promoLerJson('deskPromocoes', null); return Array.isArray(g) ? g : promoSemente(); }
+  function gravarPromocoes(lista) { return promoGravarJson('deskPromocoes', lista); }
+  const promoAprovada = (p) => p.situacao === 'aprovada' || (p.situacao === 'encerrada' && !!p.aprovadaEm);
+
+  // As vendas: ESPELHO dos Pedidos de Venda (PEDIDOS e ITENS_PEDIDO), so os pedidos com itens e so o que a conta usa: [pedido, dias atras, loja, canal,
+  // situacao, itens [sku, qtd, preco]]. canal: 'vitrine' (loja_virtual) ou 'vendedores' (manual). As vendas do PDV sao lidas de `deskPdv`, como a lista
+  // de Pedidos le. teste_promocoes.py compara o espelho com a lista de Pedidos.
+  // Desde a entrega 2 (09/nov/2026) so conta o item vendido com o preco da promocao: ele leva `promocao` (o id dela). Nenhum item de exemplo leva:
+  // os pedidos de exemplo sao da vitrine, que ainda nao aplica o preco (vem com o prototipo dela), ou de vendedor, fora das promocoes ativas.
+  // O PDV grava `promocao` no item da venda; o Pedido de Venda grava o uso em `deskPromoUsos` ao salvar (o pedido novo nao vai para a lista no prototipo).
+  const PROMO_VENDAS = [
+    [1, 0, 1, 'vitrine', 'aberto', [['FON-BT-200', 2, 249.90], ['CAR-33W-01', 4, 97.55], ['CAD-EXE-PT', 2, 495.00]]],
+    [2, 1, 3, 'vendedores', 'aberto', [['NTB-PRO-14', 1, 5890.00], ['TEC-MEC-006', 6, 231.10], ['CAB-HDM-009', 16, 9.50]]],
+    [3, 2, 1, 'vitrine', 'aprovado', [['MOB-4001', 1, 349.90]]],
+    [4, 3, 2, 'vitrine', 'aprovado', [['VES-2001', 3, 39.90], ['PAP-3001', 5, 18.50], ['VES-2002', 2, 199.90]]],
+    [6, 5, 1, 'vendedores', 'separacao', [['MES-140-CZ', 6, 1420.00], ['CAD-EXE-PT', 8, 495.00]]],
+    [8, 7, 1, 'vitrine', 'faturado', [['PAP-3001', 4, 18.50], ['MOB-4001', 1, 349.90], ['ELE-1003', 2, 59.90], ['PAP-3002', 3, 64.90]]],
+    [9, 9, 2, 'vitrine', 'prontoenvio', [['PAP-3001', 3, 18.50], ['MOB-4002', 5, 79.90]]],
+    [10, 11, 3, 'vendedores', 'enviado', [['KIT-MAN-01', 5, 289.90], ['CAB-HDM-009', 20, 9.50], ['TEC-MEC-006', 7, 231.10]]],
+    [11, 14, 1, 'vitrine', 'enviado', [['VES-2001', 1, 39.90], ['ELE-1004', 4, 45.00]]],
+    [12, 18, 2, 'vitrine', 'entregue', [['VES-2002', 3, 199.90], ['PAP-3002', 4, 64.90], ['MOB-4003', 3, 54.90]]],
+    [16, 28, 1, 'vitrine', 'entregue', [['PAP-3001', 6, 18.50], ['MOB-4001', 5, 349.90], ['VES-2002', 1, 199.90], ['ELE-1003', 2, 59.90], ['MOB-4002', 2, 79.90]]]
+  ];
+  // O cliente como chave do limite por cliente: o nome sem acento e em minusculas; "Consumidor final" (PDV sem cliente) e vazio.
+  function promoChaveCliente(nome) {
+    const k = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return k === 'consumidor final' ? '' : k;
+  }
+  function promoVendas() {
+    const vendas = PROMO_VENDAS.map(v => ({ pedido: v[0], numero: String(v[0]), data: promoDia(-v[1]), loja: v[2], canal: v[3], situacao: v[4], cliente: '',
+      itens: v[5].map(i => ({ sku: i[0], qtd: i[1], preco: i[2], promocao: i[3] || null })) }));
+    const g = promoLerJson('deskPdv', null);
+    if (g) [].concat((g.ultimoTurno && g.ultimoTurno.vendas) || [], (g.turno && g.turno.vendas) || []).forEach(v => {
+      const q = new Date(v.quando);
+      vendas.push({ pedido: 900000 + Number(v.numero), numero: 'PDV-' + String(v.numero).padStart(4, '0'), data: isNaN(q) ? promoHoje() : promoIso(q), loja: Number(v.lojaId), canal: 'pdv',
+        situacao: v.situacao || 'entregue', cliente: v.clienteId ? promoChaveCliente(v.clienteNome) : '',
+        // O preco e o que o item rendeu, com o desconto dele (o `total` da linha), como o Pedido de Venda grava.
+        itens: (v.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: i.total !== undefined && Number(i.qtd) ? Number(i.total) / Number(i.qtd) : Number(i.preco) || 0, promocao: i.promocao || null })) });
+    });
+    // O que o Pedido de Venda salvou com o preco da promocao: { numero: { pedido (id na lista, ou null), data, loja, cliente, itens } }.
+    const u = promoLerJson('deskPromoUsos', {}) || {};
+    Object.keys(u).forEach(n => { const r = u[n]; vendas.push({ pedido: r.pedido || null, numero: String(n), data: r.data, loja: Number(r.loja), canal: 'vendedores', situacao: 'aberto',
+      cliente: r.cliente || '', itens: (r.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: Number(i.preco) || 0, promocao: i.promocao || null })) }); });
+    return vendas;
+  }
+  // Quanto a promocao vendeu: so o item vendido com o preco dela (`promocao` = o id dela), na loja dela, nos lugares onde ela vale, do inicio ate o fim
+  // (ou o encerramento, ou hoje). So promocao aprovada vende. Pedido cancelado nao conta. Item encerrado antes (na ficha do produto) para de contar no dia
+  // do encerramento. `porCliente` ('cliente|sku') e o que cada cliente identificado levou, para o limite por cliente.
+  function promoVendido(p) {
+    const r = { qtd: 0, valor: 0, porSku: {}, porCliente: {}, pedidos: [] };
+    p.itens.forEach(i => { r.porSku[i.sku] = { qtd: 0, valor: 0 }; });
+    if (!promoAprovada(p)) return r;
+    const ate = [p.fim, promoHoje()].concat(p.encerradaEm ? [p.encerradaEm] : []).sort()[0];
+    promoVendas().forEach(v => {
+      if (v.loja !== p.loja || p.onde.indexOf(v.canal) < 0 || v.situacao === 'cancelado' || v.data < p.inicio || v.data > ate) return;
+      let entrou = false;
+      v.itens.forEach(it => {
+        const item = p.itens.filter(i => i.sku === it.sku)[0];
+        if (!item || it.promocao !== p.id || (item.encerrado && v.data > item.encerrado.em)) return;
+        r.porSku[it.sku].qtd += it.qtd; r.porSku[it.sku].valor += it.qtd * it.preco; r.qtd += it.qtd; r.valor += it.qtd * it.preco; entrou = true;
+        if (v.cliente) { const k = v.cliente + '|' + it.sku; r.porCliente[k] = (r.porCliente[k] || 0) + it.qtd; }
+      });
+      if (entrou) r.pedidos.push({ pedido: v.pedido, numero: v.numero, canal: v.canal });
+    });
+    r.valor = Math.round(r.valor * 100) / 100;
+    return r;
+  }
+  // O link de cada venda que usou o preco da promocao: a do PDV cai na lista de Pedidos (que le o PDV); o pedido da lista abre a pagina dele; o pedido
+  // novo, salvo no Pedido de Venda, ainda nao entra na lista no prototipo, e fica como texto (link que cai em lista vazia e pior que texto).
+  function promoLinkVenda(x) {
+    if (x.canal === 'pdv') return '<a class="painel-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(x.numero) + '">Venda ' + x.numero + ' no PDV</a>';
+    if (x.pedido) return '<a class="painel-link" href="../vendas/pagina-vendas-pedidos-detalhe.html?id=' + x.pedido + '">Pedido de Venda nº ' + x.numero + '</a>';
+    return '<span>Pedido de Venda nº ' + x.numero + ' (novo, salvo no Pedido de Venda)</span>';
+  }
+  // O limite total do item em unidades: o numero digitado, ou o estoque do produto quando e "ate acabar o estoque".
+  function promoLimite(item) { if (item.limite === 'ESTOQUE') { const pr = promoProduto(item.sku); return pr ? pr.estoque : 0; } return Number(item.limite) || 0; }
+  function promoSituacao(p) {
+    if (p.situacao === 'rascunho' || p.situacao === 'revisao' || p.situacao === 'encerrada') return p.situacao;
+    const h = promoHoje(), vivos = p.itens.filter(i => !i.encerrado);
+    if (p.fim < h || !vivos.length) return 'encerrada';
+    if (p.inicio > h) return 'agendada';
+    if (p.prazo === 'estoque') { const v = promoVendido(p); if (vivos.every(i => v.porSku[i.sku].qtd >= promoLimite(i))) return 'encerrada'; }
+    return 'ativa';
+  }
+  // O fim que o prazo da: 7 dias contam o dia do inicio; "ate acabar o estoque" tem o limite de Parametros de vendas.
+  function promoFimDoPrazo(prazo, inicio, fimData) {
+    if (prazo === '7dias') return promoSoma(inicio, 6);
+    if (prazo === 'estoque') return promoSoma(inicio, promoParam('promoEstoqueMaxDias') - 1);
+    return fimData;
+  }
+
+  // ---------- o preco do produto e o historico (a ficha do produto e a dona; a aprovacao da promocao escreve por aqui) ----------
+  function promoPrecos(id) {
+    const g = (promoLerJson('deskPrecoProduto', {}) || {})[id] || {}, p = promoProdutoId(id);
+    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '' };
+  }
+  function promoHistorico(id) {
+    const semente = PROMO_HISTORICO_PADRAO.filter(h => h.produto === Number(id)).map(h => ({ em: promoQuando(h.dia), campo: h.campo, de: h.de, para: h.para, quem: h.quem, origem: h.origem, promocao: h.promocao || null }));
+    const gravado = (promoLerJson('deskHistoricoPreco', {}) || {})[id] || [];
+    return semente.concat(gravado).sort((a, b) => (a.em < b.em ? 1 : a.em > b.em ? -1 : 0));
+  }
+  // Grava o preco novo e a linha do historico. Preco igual ao de hoje nao grava nada.
+  function promoGravarPreco(id, campo, para, origem, promocaoId) {
+    const atual = promoPrecos(id), de = atual[campo];
+    if (de === para || (de !== null && para !== null && Math.abs(de - para) < 0.005)) return false;
+    const tudo = promoLerJson('deskPrecoProduto', {}) || {}, reg = tudo[id] || {};
+    reg[campo] = para; reg.em = new Date().toISOString(); tudo[id] = reg;
+    const hist = promoLerJson('deskHistoricoPreco', {}) || {};
+    (hist[id] = hist[id] || []).push({ em: reg.em, campo: campo, de: de, para: para, quem: USUARIO_SESSAO.nome, origem: origem, promocao: promocaoId || null });
+    return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
+  }
+  // O riscado e verdadeiro: a subida do preco de venda nos ultimos N dias (Parametros de vendas), ou null.
+  function promoSubiu(id) {
+    const desde = promoDia(-promoParam('promoRiscadoDias'));
+    return promoHistorico(id).filter(h => h.campo === 'venda' && h.de !== null && h.para > h.de && h.em.slice(0, 10) >= desde)[0] || null;
+  }
+  // A promocao em que o produto esta agora (ativa) ou vai estar (agendada), com o item.
+  function promoDoProduto(sku) {
+    const achadas = [];
+    lerPromocoes().forEach(p => { const s = promoSituacao(p), item = p.itens.filter(i => i.sku === sku && !i.encerrado)[0]; if (item && (s === 'ativa' || s === 'agendada')) achadas.push({ p: p, item: item, sit: s }); });
+    return achadas.sort((a, b) => (a.sit === b.sit ? (a.p.inicio < b.p.inicio ? -1 : 1) : a.sit === 'ativa' ? -1 : 1))[0] || null;
+  }
+  // Outra promocao ativa ou agendada, com o mesmo produto, que se sobrepoe ao periodo desta.
+  function promoConflito(p, sku, todas) {
+    return (todas || lerPromocoes()).filter(o => o.id !== p.id && ['ativa', 'agendada'].indexOf(promoSituacao(o)) >= 0 && o.inicio <= p.fim && p.inicio <= o.fim &&
+      o.itens.some(i => i.sku === sku && !i.encerrado))[0] || null;
+  }
+
+  // ---------- as transicoes (a lista, a pagina e a ficha do produto escrevem por aqui) ----------
+  function promoRegistrar(p, texto) { (p.historico = p.historico || []).push({ em: new Date().toISOString(), por: USUARIO_SESSAO.nome, texto: texto }); }
+  // Antecipar: o inicio vira hoje. No prazo de 7 dias o fim anda junto; no "ate acabar o estoque" o fim nao passa do limite.
+  function promoAntecipar(p) {
+    const antes = p.inicio; p.inicio = promoHoje();
+    if (p.prazo === '7dias') p.fim = promoFimDoPrazo('7dias', p.inicio);
+    if (p.prazo === 'estoque' && p.fim > promoFimDoPrazo('estoque', p.inicio)) p.fim = promoFimDoPrazo('estoque', p.inicio);
+    promoRegistrar(p, 'Antecipou o início de ' + promoData(antes) + ' para hoje.');
+  }
+  // Prorrogar: a nova data final. O prazo de 7 dias vira "ate uma data".
+  function promoProrrogar(p, fim) {
+    const antes = p.fim; p.fim = fim;
+    if (p.prazo === '7dias') p.prazo = 'data';
+    promoRegistrar(p, 'Prorrogou o fim de ' + promoData(antes) + ' para ' + promoData(fim) + '.');
+  }
+  // O maior fim que a prorrogacao aceita: sem limite em "ate uma data"; no "ate acabar o estoque", o limite de dias contado do inicio.
+  const promoFimMaximo = (p) => (p.prazo === 'estoque' ? promoFimDoPrazo('estoque', p.inicio) : null);
+  function promoEncerrar(p) {
+    p.situacao = 'encerrada'; p.encerradaPor = USUARIO_SESSAO.nome; p.encerradaEm = promoHoje();
+    promoRegistrar(p, 'Encerrou a promoção antes do fim.');
+  }
+  // Clonar: uma promocao nova, em rascunho, com a loja, os produtos, os precos e os limites desta; comeca amanha e dura o mesmo que esta.
+  function promoClonar(p, todas) {
+    const id = todas.reduce((m, o) => Math.max(m, o.id), 0) + 1, inicio = promoDia(1);
+    const novo = { id: id, nome: p.nome + ' (cópia)', loja: p.loja, situacao: 'rascunho', prazo: p.prazo, inicio: inicio, fim: promoFimDoPrazo(p.prazo, inicio, promoSoma(inicio, Math.max(0, promoDias(p.inicio, p.fim)))),
+      onde: p.onde.slice(), obs: p.obs || '', origem: 'Promoções e Encartes', criadaPor: USUARIO_SESSAO.nome, criadaEm: new Date().toISOString(), clonadaDe: p.id, historico: [],
+      itens: p.itens.map(i => ({ sku: i.sku, preco: i.preco, limite: i.limite, cliente: i.cliente, planilha: false })) };
+    promoRegistrar(novo, 'Clonou da promoção nº ' + p.id + ' (' + p.nome + ').');
+    todas.push(novo);
+    return novo;
+  }
+  // ===== FIM DO BLOCO PROMOCOES =====
+  // ===== PROMOCOES: NA VENDA (bloco comum, 09/nov/2026) =====
+  // O preco promocional chega na venda (entrega 2 de Promocoes e Encartes). O bloco e IDENTICO no PDV e no Pedido de Venda, e teste_promocoes.py
+  // compara as copias. Depende dos blocos PROMOCOES: DADOS E LEITURA e PRECO MINIMO, que vem antes dele. Regras (barganha de 04 e 09/nov/2026):
+  //   - Promocao ATIVA, da loja da venda, que vale naquele lugar ('pdv' no PDV, 'vendedores' no Pedido de Venda): o preco entra sozinho, sem senha
+  //     (a decisao foi tomada ao aprovar). Agendada, encerrada, de outra loja ou de outro lugar nao entra.
+  //   - Limite total (o vendido com o preco dela + o desta venda; ESTOQUE = o estoque de hoje) e limite por cliente (o que o cliente ja levou + o desta
+  //     venda). Sem cliente identificado, o limite por cliente vale por venda. O que passa do limite entra numa linha a parte, pelo preco de venda.
+  //   - O promocional nao conta como desconto: o desconto do item e o da venda (e o maximo do PDV) valem sobre ele.
+  //   - Fora de promocao, "Aplicar preco promocional" (so com promocional no cadastro) pede senha (`promocaoNaHora`), so quem tem a permissao no
+  //     cadastro aplica, e o promocional abaixo do minimo da calculadora (bloco PRECO MINIMO) nao entra. Nao conta no vendido de promocao nenhuma.
+  // Quem pode aplicar: ESPELHO de Cadastros > Vendedores (o perfil, em Confirmacoes por senha), mocado ate Permissoes de Usuarios existir. Sem vendedor
+  // na venda, quem aplica e quem esta no sistema (`USUARIO_SESSAO`), e o perfil Owner pode.
+  const PROMO_PODE_NA_HORA = ['Marina Costa'];
+  const promoPodeNaHora = (vendedor) => (vendedor ? PROMO_PODE_NA_HORA.indexOf(vendedor) >= 0 : USUARIO_SESSAO.perfil === 'Owner');
+  const PROMO_PAGINA = '../vendas/pagina-vendas-promocoes-detalhe.html?id=';
+  // O preco de venda de hoje: o da ficha do produto (a dona do preco); o do catalogo para o produto que a ficha nao tem.
+  function promoPrecoVenda(sku, precoCatalogo) { const pr = promoProduto(sku), v = pr ? promoPrecos(pr.id).venda : null; return v !== null && v !== undefined ? v : precoCatalogo; }
+  // A promocao que vale para o produto nesta venda, ou null: { p, item, preco (o promocional), de (o de venda) }.
+  function promoNaVenda(sku, lojaId, lugar) {
+    const pr = promoProduto(sku);
+    if (!pr) return null;
+    const a = lerPromocoes().filter(p => p.loja === Number(lojaId) && p.onde.indexOf(lugar) >= 0 && promoSituacao(p) === 'ativa')
+      .map(p => ({ p: p, item: p.itens.filter(i => i.sku === pr.sku && !i.encerrado)[0] })).filter(x => x.item)[0];
+    if (!a) return null;
+    const precos = promoPrecos(pr.id), preco = a.item.preco !== null && a.item.preco !== undefined ? a.item.preco : precos.promocional;
+    return preco ? { p: a.p, item: a.item, preco: preco, de: precos.venda } : null;
+  }
+  // Quanto ainda cabe no preco da promocao, e por que para: o limite total menos o vendido com o preco dela, e o por cliente menos o que o cliente levou.
+  // `naVenda` = o que esta venda ja tem com ela; `semUso` = o numero do pedido que esta sendo alterado (o uso gravado dele nao conta duas vezes).
+  function promoCabe(a, cliente, naVenda, semUso) {
+    const v = promoVendido(a.p), sku = a.item.sku, uso = semUso ? ((promoLerJson('deskPromoUsos', {}) || {})[semUso] || null) : null;
+    const meu = (soCliente) => (uso && (!soCliente || uso.cliente === cliente) ? uso.itens.filter(i => i.sku === sku && i.promocao === a.p.id).reduce((s, i) => s + i.qtd, 0) : 0);
+    const total = promoLimite(a.item) - (v.porSku[sku].qtd - meu(false)) - naVenda;
+    const levou = cliente ? (v.porCliente[cliente + '|' + sku] || 0) - meu(true) : 0;
+    const porCliente = a.item.cliente ? a.item.cliente - levou - naVenda : Infinity;
+    const motivo = porCliente < total
+      ? 'o limite de ' + a.item.cliente + ' por cliente' + (cliente ? (levou > 0 ? ' (o cliente já levou ' + levou + ')' : '') : ' (sem cliente identificado, vale por venda)')
+      : (a.item.limite === 'ESTOQUE' ? 'o estoque da promoção' : 'o limite de ' + a.item.limite + ' un. da promoção');
+    return { cabe: Math.max(0, Math.min(total, porCliente)), motivo: motivo };
+  }
+  // A etiqueta do item: "de R$ X por R$ Y" e a promocao, com o link para a pagina dela; ou o preco aplicado na hora, com senha.
+  function promoEtiqueta(promocao, de, por) {
+    const p = promocao ? lerPromocoes().filter(x => x.id === promocao)[0] : null;
+    if (p) return '<div class="promo-tag"><span class="promo-tag-selo">Promoção</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) +
+      ' · <a class="promo-tag-link" href="' + PROMO_PAGINA + p.id + '">nº ' + p.id + ' ' + p.nome + '</a></div>';
+    return '<div class="promo-tag"><span class="promo-tag-selo">Na hora</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) + ', aplicado com senha</div>';
+  }
+  // O minimo da calculadora para o produto (centavos), com o calculo guardado nela quando houver; null sem custo no cadastro.
+  function promoMinimoCent(pr) {
+    let salvo = null;
+    try { const s = (JSON.parse(localStorage.getItem('deskCalculoPreco') || '{}') || {})[pr.id]; salvo = s && isFinite(Number(s.preco)) && Number(s.preco) > 0 ? s : null; } catch (e) { salvo = null; }
+    return precoMinimo({ lojaId: pr.loja, custo: precoParametros().custoBase === 'medio' ? pr.custoMedio : pr.custo, caixaId: pr.caixa }, salvo);
+  }
+  // "Aplicar preco promocional" fora de promocao: o promocional do cadastro, ou null quando o botao nao aparece.
+  function promoNaHoraPreco(sku, precoAtual) { const pr = promoProduto(sku), v = pr ? promoPrecos(pr.id).promocional : null; return v && precoAtual > v + 0.004 ? v : null; }
+  // O que impede aplicar, ou null: a trava do minimo, depois a permissao de quem aplica.
+  function promoNaHoraImpede(sku, vendedor) {
+    const pr = promoProduto(sku), promo = promoPrecos(pr.id).promocional, min = promoMinimoCent(pr);
+    if (min === null) return 'O produto não tem custo no cadastro, e o preço mínimo não tem como ser conferido. Peça a revisão de preço.';
+    if (Math.round(promo * 100) < min) return 'O preço promocional do cadastro (' + promoMoeda(promo) + ') está abaixo do mínimo da calculadora (' + promoMoeda(min / 100) +
+      '): não entra. Vender abaixo do mínimo passa pela revisão de preço.';
+    if (!promoPodeNaHora(vendedor)) return vendedor + ' não tem a permissão "Aplicar o preço promocional fora da promoção" no cadastro (Cadastros → Vendedores → Confirmações por senha).';
+    return null;
+  }
+  // Na hora de fechar a venda: as linhas com o preco da promocao ainda cabem? (outro caixa vendeu, o cliente mudou). Devolve as mensagens.
+  function promoConferir(linhas, lojaId, lugar, cliente, semUso) {
+    const soma = {};
+    linhas.filter(l => l.promocao).forEach(l => { const k = l.promocao + '|' + l.sku; soma[k] = soma[k] || { sku: l.sku, nome: l.nome, promocao: l.promocao, qtd: 0 }; soma[k].qtd += l.qtd; });
+    return Object.keys(soma).map(k => {
+      const s = soma[k], a = promoNaVenda(s.sku, lojaId, lugar);
+      if (!a || a.p.id !== s.promocao) return s.nome + ': a promoção nº ' + s.promocao + ' não vale mais nesta venda. Tire o item e ponha de novo, pelo preço de hoje.';
+      const c = promoCabe(a, cliente, 0, semUso);
+      return s.qtd > c.cabe ? s.nome + ': cabem só ' + c.cabe + ' un. no preço da promoção, por ' + c.motivo + '. Tire o item e ponha de novo: o que passar entra pelo preço de venda.' : null;
+    }).filter(Boolean);
+  }
+  // O uso do Pedido de Venda (so as linhas com o preco da promocao), lido pelo "quanto vendeu". Sem linha de promocao, o uso do pedido sai.
+  function promoGravarUso(numero, pedidoId, lojaId, cliente, linhas) {
+    const tudo = promoLerJson('deskPromoUsos', {}) || {}, itens = linhas.filter(l => l.promocao).map(l => ({ sku: l.sku, qtd: l.qtd, preco: l.preco, promocao: l.promocao }));
+    if (itens.length) tudo[numero] = { pedido: pedidoId || null, data: promoHoje(), loja: Number(lojaId), cliente: cliente || '', itens: itens }; else delete tudo[numero];
+    return promoGravarJson('deskPromoUsos', tudo);
+  }
+  // ===== FIM DO BLOCO PROMOCOES: NA VENDA =====
   // ---------- ESPELHOS (no sistema de producao viram join; a suite compara cada um) ----------
   // Pedido de Venda: lojas, depositos e catalogo com saldo por deposito.
   const LOJAS = [{ id: 1, nome: 'Desk Shope' }, { id: 2, nome: 'Desk Brands' }, { id: 3, nome: 'Desk Tech' }];
@@ -2736,7 +3249,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { sku: 'NTB-PRO-14',  gtin: '7891000300015', nome: 'Notebook Desk Pro 14',          loja: 3, un: 'UN', preco: 5890.00, saldo: { 1: 0, 2: 3,  3: 0, 4: 5 } },
     { sku: 'TEC-MEC-006', gtin: '7891000300022', nome: 'Teclado Mecânico Compacto',     loja: 3, un: 'UN', preco: 231.10,  saldo: { 1: 0,  2: 0,  3: 0, 4: 28 } },
     { sku: 'CAB-HDM-009', gtin: '7891000300039', nome: 'Cabo HDMI 2.1 2m',              loja: 3, un: 'UN', preco: 9.50,    saldo: { 1: 0,  2: 0,  3: 0, 4: 140 } },
-    { sku: 'KIT-MAN-01',  gtin: '7891000300046', nome: 'Kit Manutenção Desk Tech',      loja: 3, un: 'UN', preco: 289.90,  saldo: { 1: 0,  2: 0,  3: 0, 4: 11 } }
+    { sku: 'KIT-MAN-01',  gtin: '7891000300046', nome: 'Kit Manutenção Desk Tech',      loja: 3, un: 'UN', preco: 289.90,  saldo: { 1: 0,  2: 0,  3: 0, 4: 11 } },
+    // Desde 09/nov/2026 (Promocoes e Encartes, entrega 2): os produtos de Cadastros > Produtos que as promocoes usam, com o estoque da ficha no
+    // deposito padrao da loja. O GTIN fica em branco: a ficha nao o tem.
+    { sku: 'MOB-4001', gtin: '', nome: 'Kit Escritório Completo', loja: 1, un: 'UN', preco: 349.90, saldo: { 1: 5, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'PAP-3002', gtin: '', nome: 'Kit Papelaria Volta às Aulas', loja: 1, un: 'UN', preco: 64.90, saldo: { 1: 22, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'ELE-1003', gtin: '', nome: 'Mouse Sem Fio Compacto', loja: 1, un: 'UN', preco: 59.90, saldo: { 1: 0, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'ELE-1004', gtin: '', nome: 'Carregador USB-C 20W', loja: 1, un: 'UN', preco: 45.00, saldo: { 1: 3, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'PAP-3001', gtin: '', nome: 'Caderno Universitário 200 folhas', loja: 1, un: 'UN', preco: 18.50, saldo: { 1: 8, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'VES-2001', gtin: '', nome: 'Camiseta Básica Algodão', loja: 2, un: 'UN', preco: 39.90, saldo: { 1: 0, 2: 0, 3: 120, 4: 0 } },
+    { sku: 'VES-2002', gtin: '', nome: 'Tênis Esportivo Runner', loja: 2, un: 'UN', preco: 199.90, saldo: { 1: 0, 2: 0, 3: 60, 4: 0 } },
+    { sku: 'MOB-4003', gtin: '', nome: 'Organizador de Mesa Bambu', loja: 2, un: 'UN', preco: 54.90, saldo: { 1: 0, 2: 0, 3: 27, 4: 0 } }
   ];
   // Metas: os vendedores. `lojaId:null` e o vendedor sem loja, que vende em qualquer uma.
   const VENDEDORES = [
@@ -3142,7 +3665,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const aj = ajusteDoItem(it);
         return '<tr data-item="' + i + '">' +
           '<td class="col-texto"><div class="pdv-item-nome">' + esc(it.nome) + '</div><div class="pdv-item-sub">' + esc(it.sku) + '</div>' +
-            (aj !== 0 ? '<div class="pdv-item-ajuste">' + (aj < 0 ? 'desconto de ' + moeda(-aj) : 'acréscimo de ' + moeda(aj)) + '</div>' : '') + '</td>' +
+            (aj !== 0 ? '<div class="pdv-item-ajuste">' + (aj < 0 ? 'desconto de ' + moeda(-aj) : 'acréscimo de ' + moeda(aj)) + '</div>' : '') +
+            (it.promocao || it.naHora ? promoEtiqueta(it.promocao, it.precoOriginal, it.preco) : '') +
+            (it.foraPromo ? '<div class="promo-tag">Pelo preço de venda: ' + esc(it.foraPromo) + '</div>' : '') + '</td>' +
           '<td>' + fmtQtd(it.qtd, it.un) + ' ' + esc(it.un) + '</td>' +
           '<td>' + moeda(it.preco) + '</td>' +
           '<td>' + moeda(totalDoItem(it)) + '</td>' +
@@ -3151,7 +3676,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       }).join('') + '</tbody></table></div>';
     cx.querySelectorAll('tbody tr').forEach(tr => {
       tr.style.cursor = 'pointer';
-      tr.addEventListener('click', () => abrirItem(Number(tr.getAttribute('data-item'))));
+      tr.addEventListener('click', (e) => { if (!e.target.closest('a')) abrirItem(Number(tr.getAttribute('data-item'))); });   // o link da promocao navega
     });
     cx.querySelectorAll('[data-remover]').forEach(b => b.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -3184,7 +3709,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (sugestaoFoco >= sugestoesAtuais.length) sugestaoFoco = 0;
     cx.innerHTML = sugestoesAtuais.length
       ? sugestoesAtuais.map((p, i) => '<div class="pdv-sug' + (i === sugestaoFoco ? ' foco' : '') + '" data-sku="' + p.sku + '"><span>' + esc(p.nome) + '</span>' +
-          '<span class="pdv-sug-sub">' + p.sku + ' · ' + moeda(p.preco) + ' · saldo ' + fmtQtd(saldoDe(p.sku, venda.depositoId), p.un) + '</span></div>').join('')
+          '<span class="pdv-sug-sub">' + p.sku + ' · ' + moeda(promoPrecoVenda(p.sku, p.preco)) + ' · saldo ' + fmtQtd(saldoDe(p.sku, venda.depositoId), p.un) + '</span></div>').join('')
       : '<div class="pdv-sug-vazio">Nenhum produto da ' + esc(lojaDe(turno.lojaId).nome) + ' com esse texto. Produto de outra loja não entra neste turno.</div>';
     cx.style.display = 'block';
     cx.querySelectorAll('.pdv-sug').forEach(el => el.addEventListener('mousedown', (e) => { e.preventDefault(); selecionarProduto(produtoDe(el.getAttribute('data-sku'))); }));
@@ -3200,8 +3725,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('prodSku', p.sku);
     texto('prodRotuloEstoque', 'Disponível em ' + depositoDe(venda.depositoId).nome);
     html('prodEstoque', (disp <= 0 ? '<span class="falta">' : '<span>') + fmtQtd(Math.max(0, disp), p.un) + ' ' + p.un + '</span>');
-    texto('prodPreco', moeda(p.preco));
-    texto('prodTotal', moeda(q && q > 0 ? q * p.preco : 0));
+    // Com promocao ativa aqui, o preco dela e o total ja com o limite (o que passar vai pelo preco de venda).
+    const pv = promoPrecoVenda(p.sku, p.preco), a = promoNaVenda(p.sku, turno.lojaId, 'pdv');
+    const qp = a && q && q > 0 ? Math.min(q, promoCabe(a, chaveClienteDaVenda(), qtdNaPromo(p.sku, a.p.id, -1)).cabe) : 0;
+    html('prodPreco', a ? moeda(a.preco) + ' <span class="promo-tag-selo">Promoção nº ' + a.p.id + '</span>' : moeda(pv));
+    texto('prodTotal', moeda(q && q > 0 ? arred(qp * (a ? a.preco : 0) + (q - qp) * pv) : 0));
   }
   function selecionarProduto(p) {
     if (!p) return;
@@ -3238,12 +3766,44 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const q = qtdDigitada();
     const erro = erroDeQuantidade(p, q, qtdNaVenda(p.sku));
     if (erro) { marcarErro(null, 'erroProduto', erro); return; }
-    // `pdvAgrupaIguais`: o mesmo produto, sem preco mexido nem ajuste, soma na linha que ja existe.
-    const igual = PARAM.pdvAgrupaIguais ? venda.itens.filter(it => it.sku === p.sku && it.preco === p.preco && it.ajusteTipo === 'nenhum')[0] : null;
-    if (igual) igual.qtd = arred(igual.qtd + q);
-    else venda.itens.push({ sku: p.sku, nome: p.nome, un: p.un, qtd: q, preco: p.preco, precoOriginal: p.preco, ajusteTipo: 'nenhum', ajusteModo: 'valor', ajusteValor: 0 });
+    // Promocoes e Encartes (entrega 2): a promocao ativa da loja que vale no PDV poe o preco dela sozinha, sem senha, ate o limite (total e por
+    // cliente); o que passar entra numa linha a parte, pelo preco de venda, e a tela diz por que.
+    const pv = promoPrecoVenda(p.sku, p.preco), a = promoNaVenda(p.sku, turno.lojaId, 'pdv');
+    const c = a ? promoCabe(a, chaveClienteDaVenda(), qtdNaPromo(p.sku, a.p.id, -1)) : null;
+    const qPromo = c ? Math.min(q, c.cabe) : 0;
+    const fora = a && qPromo < q ? 'passou d' + c.motivo + ', na promoção nº ' + a.p.id : null;
+    const poe = (qtd, preco, promocao, nota) => {
+      if (!(qtd > 0)) return;
+      // `pdvAgrupaIguais`: o mesmo produto, sem preco mexido nem ajuste (e com a mesma promocao), soma na linha que ja existe.
+      const igual = PARAM.pdvAgrupaIguais ? venda.itens.filter(it => it.sku === p.sku && it.preco === preco && it.ajusteTipo === 'nenhum' && (it.promocao || null) === promocao && !it.naHora)[0] : null;
+      if (igual) igual.qtd = arred(igual.qtd + qtd);
+      else venda.itens.push({ sku: p.sku, nome: p.nome, un: p.un, qtd: qtd, preco: preco, precoOriginal: pv, ajusteTipo: 'nenhum', ajusteModo: 'valor', ajusteValor: 0, promocao: promocao, foraPromo: nota });
+    };
+    poe(qPromo, a ? a.preco : pv, qPromo > 0 ? a.p.id : null, null);
+    poe(arred(q - qPromo), pv, null, fora);
     limparProduto();
     pintarVenda(); gravar();
+    if (fora) avisar(qPromo > 0
+      ? fmtQtd(qPromo, p.un) + ' ' + p.un + ' de "' + p.nome + '" entraram pelo preço da promoção nº ' + a.p.id + ' (' + moeda(a.preco) + ') e ' + fmtQtd(arred(q - qPromo), p.un) + ' ' + p.un +
+        ' pelo preço de venda (' + moeda(pv) + '), numa linha a parte: ' + fora + '.'
+      : '"' + p.nome + '" entrou pelo preço de venda (' + moeda(pv) + '), e não pelo da promoção nº ' + a.p.id + ': ' + fora + '.');
+  }
+  // O cliente da venda como chave do limite por cliente da promocao; sem cliente identificado, vazio (o limite vale por venda).
+  function chaveClienteDaVenda() { return venda.clienteId ? promoChaveCliente(rotuloCliente()) : ''; }
+  // O que esta venda ja tem do produto com o preco da promocao, fora a linha `semLinha`.
+  function qtdNaPromo(sku, promocao, semLinha) { return venda.itens.filter((it, i) => i !== semLinha && it.sku === sku && it.promocao === promocao).reduce((s, it) => s + it.qtd, 0); }
+  // "Aplicar preco promocional" (fora de promocao): a trava do minimo e a permissao de quem vende, depois a senha (Confirmacoes por senha).
+  function aplicarPromoNaHora() {
+    const base = venda.itens[itemEmEdicao], pn = base ? promoNaHoraPreco(base.sku, base.preco) : null;
+    if (!pn) return;
+    const v = vendedorDe(venda.vendedorId), quem = v ? v.nome : null, impede = promoNaHoraImpede(base.sku, quem);
+    limparErro(null, 'erroItem');
+    if (impede) { marcarErro(null, 'erroItem', impede); return; }
+    confirmarAcao('promocaoNaHora', 'Aplicar o preço promocional do cadastro em "' + base.nome + '", fora de promoção: de ' + moeda(base.preco) + ' por ' + moeda(pn) +
+      '? Quem aplica: ' + (quem || USUARIO_SESSAO.nome) + ', no PDV da ' + lojaDe(turno.lojaId).nome + '.', () => {
+      base.preco = pn; base.naHora = { por: quem || USUARIO_SESSAO.nome, em: new Date().toISOString() }; base.foraPromo = null;
+      fecharPaineis(); pintarVenda(); gravar();
+    });
   }
 
   // ----- editar item -----
@@ -3254,11 +3814,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Campo em branco (ou zero) e "sem ajuste": o tipo marcado so vale quando ha quanto.
     const txt = document.getElementById('itemAjusteValor').value.trim();
     const quanto = txt === '' ? 0 : numero(txt);
+    const preco = numero(document.getElementById('itemPreco').value), mesmo = preco !== null && Math.abs(preco - base.preco) < 0.005;
+    // Preco mexido a mao deixa de ser o da promocao (e o aplicado na hora): o desconto e o acrescimo, nao.
     return { sku: base.sku, nome: base.nome, un: base.un, precoOriginal: base.precoOriginal,
              qtd: numero(document.getElementById('itemQtd').value),
-             preco: numero(document.getElementById('itemPreco').value),
+             preco: preco,
              ajusteTipo: quanto === 0 ? 'nenhum' : radioDe('itemAjusteTipo'), ajusteModo: radioDe('itemAjusteModo'),
-             ajusteValor: quanto };
+             ajusteValor: quanto, promocao: mesmo ? base.promocao || null : null, naHora: mesmo ? base.naHora || null : null, foraPromo: mesmo ? base.foraPromo || null : null };
   }
   function pintarPainelItem() {
     const it = lerItemDoPainel();
@@ -3279,6 +3841,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     texto('rotuloItemQtd', 'Quantidade (' + it.un + ')');
     document.getElementById('itemQtd').value = fracionavel(it.un) ? fmtNum(it.qtd) : String(it.qtd);
     texto('itemPrecoCadastro', moeda(it.precoOriginal));
+    // A promocao do item, ou, fora de promocao (e com o promocional no cadastro), o botao da excecao na hora.
+    const pn = !it.promocao && !it.naHora && !promoNaVenda(it.sku, turno.lojaId, 'pdv') ? promoNaHoraPreco(it.sku, it.preco) : null;
+    html('itemPromo', it.promocao || it.naHora ? promoEtiqueta(it.promocao, it.precoOriginal, it.preco) +
+        (it.promocao ? 'O desconto do item vale sobre o preço da promoção, com o máximo de ' + fmtNum(PARAM.pdvDescontoMaximoPct) + '% sem liberação.' : '')
+      : pn ? 'Fora de promoção. O preço promocional do cadastro é <b>' + moeda(pn) + '</b>: aplicar pede senha, só quem tem a permissão no cadastro aplica, e abaixo do mínimo da calculadora não entra.' : '');
+    mostrar('itemPromo', !!(it.promocao || it.naHora || pn));
+    mostrar('btnAplicarPromo', !!pn);
     const preco = document.getElementById('itemPreco');
     preco.value = fmtNum(it.preco);
     // `pdvBloqueiaAlterarPreco`: o preco e o do cadastro; so desconto e acrescimo mexem no total.
@@ -3299,6 +3868,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const outros = qtdNaVenda(base.sku) - base.qtd;
     const erroQ = erroDeQuantidade(produtoDe(base.sku), it.qtd, outros);
     if (erroQ) { marcarErro(null, 'erroItem', erroQ); return; }
+    // A linha com o preco da promocao nao cresce alem do limite: o que passar entra adicionando o produto de novo, pelo preco de venda.
+    const a = it.promocao ? promoNaVenda(base.sku, turno.lojaId, 'pdv') : null;
+    if (a && a.p.id === it.promocao && it.qtd !== null) {
+      const c = promoCabe(a, chaveClienteDaVenda(), qtdNaPromo(base.sku, a.p.id, itemEmEdicao));
+      if (it.qtd > c.cabe) { marcarErro(null, 'erroItem', 'Cabem ' + c.cabe + ' un. no preço da promoção nº ' + a.p.id + ', por ' + c.motivo + '. Para vender mais, adicione o produto de novo: o que passar entra pelo preço de venda.'); return; }
+    }
     if (it.preco === null || it.preco < 0) { marcarErro(null, 'erroItem', 'Informe o preço com números, usando vírgula para os centavos.'); return; }
     if (it.ajusteTipo !== 'nenhum') {
       if (it.ajusteValor === null || it.ajusteValor < 0) { marcarErro(null, 'erroItem', 'Informe o ' + (it.ajusteTipo === 'desconto' ? 'desconto' : 'acréscimo') + ' com números, ou deixe o campo em branco.'); return; }
@@ -3581,6 +4156,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function pendenciasDaVenda() {
     const p = [];
     const total = totalVenda(), soma = somaRecebimentos();
+    // As linhas com o preco da promocao ainda cabem no limite (o cliente pode ter mudado depois que o item entrou, ou outro caixa vendeu).
+    promoConferir(venda.itens, turno.lojaId, 'pdv', chaveClienteDaVenda()).forEach(m => p.push(m));
     if (descontoGeral() === null) p.push('O desconto da venda não é um valor válido. Use um valor (3,00) ou uma porcentagem (10%), sem passar do subtotal.');
     if (venda.recebimentos.length === 0) p.push('Adicione ao menos um recebimento.');
     else if (soma < total - 0.005) p.push('Falta receber ' + moeda(total - soma) + '.');
@@ -3866,7 +4443,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       numero: numeroVenda, quando: agora.toISOString(), lojaId: turno.lojaId, depositoId: venda.depositoId, categoriaId: venda.categoriaId,
       vendedorId: venda.vendedorId, vendedorNome: vend ? vend.nome : null, clienteId: venda.clienteId, clienteNome: cli ? cli.nome : 'Consumidor final',
       clienteDoc: cli ? cli.documento : '', situacao: PARAM.pdvSituacaoVenda,
-      itens: venda.itens.map(it => ({ sku: it.sku, nome: it.nome, un: it.un, qtd: it.qtd, preco: it.preco, total: totalDoItem(it) })),
+      // `promocao`: o item saiu com o preco da promocao (e conta no "quanto vendeu" dela); `naHora`: o promocional aplicado com senha, fora de promocao.
+      itens: venda.itens.map(it => ({ sku: it.sku, nome: it.nome, un: it.un, qtd: it.qtd, preco: it.preco, total: totalDoItem(it), precoVenda: it.precoOriginal,
+                                      promocao: it.promocao || null, naHora: it.naHora || null })),
       // `total` e o que o cliente pagou: a venda mais a taxa de cartao repassada, menos o desconto a vista (Pix e dinheiro), quando ha. A comissao e a meta leem esse total.
       subtotal: subtotal(), desconto: descontoGeral() || 0, acrescimo: acrescimos(), total: totalAPagar(), troco: trocoTotal(),
       descontoAVista: descAV > 0 ? { pct: pctAV, valor: descAV, gatewayId: refAV.gateway ? refAV.gateway.id : null } : null, descontoAVistaTirado: !!venda.semDescontoAVista,
@@ -4263,6 +4842,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnNovoCliente').addEventListener('click', () => { mostrar('blocoNovoCliente', true); document.getElementById('novoCliNome').focus(); });
   document.getElementById('btnSalvarCliente').addEventListener('click', salvarClienteRapido);
   document.getElementById('btnAplicarItem').addEventListener('click', aplicarItem);
+  document.getElementById('btnAplicarPromo').addEventListener('click', aplicarPromoNaHora);
   document.getElementById('btnRemoverItem').addEventListener('click', () => { venda.itens.splice(itemEmEdicao, 1); fecharPaineis(); pintarVenda(); gravar(); });
   document.getElementById('btnContinuar').addEventListener('click', continuar);
   document.getElementById('btnCancelarVenda').addEventListener('click', cancelarVenda);

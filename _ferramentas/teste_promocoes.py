@@ -21,6 +21,8 @@
 #   [8]  O historico de preco e a trava dos N dias; a ficha do produto com "Em promocao ate" e o encerrar antes
 #   [9]  A selecao detalhada (Categoria > Departamento > Secao), a selecao em massa da lista e Parametros de vendas
 #   [10] Os dois temas, 1280 e 1440: sem barra para o lado, e o menu abre para baixo
+#   [11] Entrega 2: o preco chega na venda (PDV e Pedido de Venda): so onde vale, os limites, o desconto por cima, a excecao na hora com senha e
+#        permissao, a trava do minimo, o registro e o "quanto vendeu" so com o preco da promocao; PDV e Pedido nos dois temas, 1280 e 1440
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys
 import localiza
@@ -33,6 +35,9 @@ PAG = 'pagina-vendas-promocoes-detalhe.html'
 PROD = 'pagina-cadastros-produtos-detalhe.html'
 PRODS = 'pagina-cadastros-produtos.html'
 PED = 'pagina-vendas-pedidos.html'
+PEDD = 'pagina-vendas-pedidos-detalhe.html'
+PDV = 'pagina-vendas-pdv.html'
+VEND = 'pagina-cadastros-vendedores-detalhe.html'
 PARV = 'pagina-configuracoes-parametros-vendas.html'
 CONF = 'pagina-configuracoes-confirmacoes-senha.html'
 
@@ -118,11 +123,16 @@ with sync_playwright() as p:
     # ------------------------------------------------------------------------------------------------
     if secao(1, 'As cópias e os espelhos'):
         PI, PF = '  // ===== PROMOCOES: DADOS E LEITURA', '  // ===== FIM DO BLOCO PROMOCOES ====='
-        cop = [bloco(fonte(n), PI, PF) for n in (LISTA, PAG, PROD)]
-        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PROMOCOES é idêntico na lista, na página da promoção e na ficha do produto')
+        cop = [bloco(fonte(n), PI, PF) for n in (LISTA, PAG, PROD, PDV, PEDD)]
+        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PROMOCOES é idêntico na lista, na página da promoção, na ficha do produto, no PDV e no Pedido de Venda')
+        NI, NF = '  // ===== PROMOCOES: NA VENDA', '  // ===== FIM DO BLOCO PROMOCOES: NA VENDA ====='
+        nv = [bloco(fonte(n), NI, NF) for n in (PDV, PEDD)]
+        ok(nv[0] and nv[0] == nv[1], 'o bloco PROMOCOES: NA VENDA é idêntico no PDV e no Pedido de Venda')
+        ok(bloco(fonte(PDV), '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====') == bloco(fonte(PAG), '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='),
+           'o PDV leva o bloco EMBALAGENS: LEITURA igual ao da página da promoção (a trava do mínimo precisa dele)')
         MI, MF = '  // ===== PRECO MINIMO: A CONTA DA CALCULADORA', '  // ===== FIM DO BLOCO PRECO MINIMO ====='
-        cop = [bloco(fonte(n), MI, MF) for n in (PAG, PROD)]
-        ok(cop[0] and cop[0] == cop[1], 'o bloco PRECO MINIMO é idêntico na página da promoção e na ficha do produto (a calculadora)')
+        cop = [bloco(fonte(n), MI, MF) for n in (PAG, PROD, PDV, PEDD)]
+        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PRECO MINIMO é idêntico na página da promoção, na ficha do produto (a calculadora), no PDV e no Pedido de Venda')
         calc = bloco(fonte(PROD), '  // ===== CALCULADORA DE PRECO (aprovada', '  // ===== ABA PRECOS')
         ok(calc and 'precoPiso(custoTotal' in calc and '10000 - mg - b.tBp' not in calc and 'const parametros = precoParametros' in calc,
            'a calculadora usa a conta do bloco (precoPiso e precoParametros), sem uma cópia da fórmula dentro dela')
@@ -146,8 +156,8 @@ with sync_playwright() as p:
 
     # ------------------------------------------------------------------------------------------------
     if secao(2, 'O menu e o catálogo'):
-        PDV = '<div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html">'
-        item = re.compile(r'\n[ \t]*' + re.escape(PDV) + r'[^\n]*\n[ \t]*<div class="flyout-item" data-label="Promoções e Encartes" data-href="\.\./vendas/pagina-vendas-promocoes\.html">')
+        FLY_PDV = '<div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html">'
+        item = re.compile(r'\n[ \t]*' + re.escape(FLY_PDV) + r'[^\n]*\n[ \t]*<div class="flyout-item" data-label="Promoções e Encartes" data-href="\.\./vendas/pagina-vendas-promocoes\.html">')
         sem = [_os.path.basename(c) for c in localiza.caminhos() if 'id="flyout-vendas"' in open(c, encoding='utf-8').read() and not item.search(open(c, encoding='utf-8').read())]
         ok(not sem, 'toda tela com menu traz "Promoções e Encartes" logo depois do PDV: %s' % sem[:4])
         ir(PED)
@@ -160,8 +170,15 @@ with sync_playwright() as p:
             r = ev("(ch) => ch.map(c => { const a = ACOES_SENHA.filter(x => x.chave === c)[0]; return a ? [a.grupo, a.onde, a.exigePadrao] : null; })", CH)
             ok(all(x and x[0] == 'Vendas' and x[1] == 'Vendas → Promoções e Encartes' for x in r) and [x[2] for x in r] == [False, True, False, False, False, False, False],
                '%s: as 7 ações no catálogo, grupo Vendas; só aprovar pede senha de fábrica' % tela)
+        for tela in (CONF, PDV, PEDD, VEND, 'pagina-configuracoes-registro-atividades.html'):
+            ir(tela)
+            ok(ev("ACOES_SENHA.filter(a => a.chave === 'promocaoNaHora').map(a => [a.grupo, a.onde, a.exigePadrao, a.nome])") == [['Vendas', 'Vendas → PDV e Pedidos de Venda', True, 'Aplicar o preço promocional fora da promoção']],
+               '%s: "Aplicar o preço promocional fora da promoção" no catálogo, com senha de fábrica' % tela)
+        com = [c for c in localiza.caminhos() if "chave:'promocaoAprova'" in open(c, encoding='utf-8').read()]
+        sem = [_os.path.basename(c) for c in com if "chave:'promocaoNaHora'" not in open(c, encoding='utf-8').read()]
+        ok(len(com) >= 24 and not sem, 'a ação nova está nas %d telas com o catálogo completo: %s' % (len(com), sem))
         ir(CONF)
-        ok('Aprovar uma promoção' in pg.inner_text('.main'), 'Confirmações por senha mostra "Aprovar uma promoção"')
+        ok('Aprovar uma promoção' in pg.inner_text('.main') and 'Aplicar o preço promocional fora da promoção' in pg.inner_text('.main'), 'Confirmações por senha mostra "Aprovar uma promoção" e a ação nova')
         ir('pagina-cadastros-vendedores-detalhe.html')
         ok('Promoções e Encartes' in ev("MODULOS_ACESSO") and 'Aprovar uma promoção' in ev("document.getElementById('listaConfirmacoes').textContent"),
            'o perfil do vendedor tem o módulo Promoções e Encartes e a confirmação "Aprovar uma promoção"')
@@ -177,8 +194,9 @@ with sync_playwright() as p:
         ok(sits == {'1': 'ativa', '2': 'agendada', '3': 'revisao', '4': 'encerrada', '5': 'rascunho', '6': 'encerrada', '7': 'ativa', '8': 'revisao'}, 'cada exemplo numa situação, pela data de hoje: %s' % sits)
         # Quanto vendeu, refeito aqui a partir da lista de Pedidos (e nao do espelho).
         ir(PED)
+        # Desde a entrega 2 so conta o item vendido com o preco da promocao (`promocao` = 1); os pedidos de exemplo nao levam: o painel diz zero.
         esperado = ev("""(() => { const sku = ['PAP-3002', 'ELE-1003', 'MOB-4001']; let q = 0, v = 0;
-            PEDIDOS.filter(p => p.loja === 1 && p.dv <= 10 && p.situacao !== 'cancelado' && ITENS_PEDIDO[p.id]).forEach(p => ITENS_PEDIDO[p.id].forEach(i => { if (sku.includes(i.sku)) { q += i.qtd; v += i.qtd * i.preco; } }));
+            PEDIDOS.filter(p => p.loja === 1 && p.dv <= 10 && p.situacao !== 'cancelado' && ITENS_PEDIDO[p.id]).forEach(p => ITENS_PEDIDO[p.id].forEach(i => { if (sku.includes(i.sku) && i.promocao === 1) { q += i.qtd; v += i.qtd * i.preco; } }));
             return [q, Math.round(v * 100) / 100]; })()""")
         ir(LISTA)
         clica('.aba-sit[data-sit="todos"]'); clica('#corpoTabela tr[data-id="1"]')
@@ -186,8 +204,8 @@ with sync_playwright() as p:
         fmt = lambda n: 'R$ ' + '{:,.2f}'.format(n).replace(',', 'X').replace('.', ',').replace('X', '.')
         ok(pg.inner_text('#prVendidoQtd').startswith('%d de 62' % esperado[0]) and pg.inner_text('#prVendidoValor') == fmt(esperado[1]),
            'o painel da nº 1 diz quanto vendeu, igual à conta feita nos Pedidos: %s un., %s (%s; %s)' % (esperado[0], fmt(esperado[1]), pg.inner_text('#prVendidoQtd'), pg.inner_text('#prVendidoValor')))
-        links = ev("Array.from(document.querySelectorAll('#prPedidos a')).map(a => a.getAttribute('href'))")
-        ok(links == ['../vendas/pagina-vendas-pedidos-detalhe.html?id=3', '../vendas/pagina-vendas-pedidos-detalhe.html?id=8'], 'e leva aos pedidos que somaram: %s' % links)
+        ok(esperado == [0, 0] and not ev("!!document.getElementById('prPedidos')") and 'só o que saiu com o preço da promoção' in pg.inner_text('#drawerCorpo'),
+           'os pedidos 3 e 8 venderam os produtos pelo preço de venda (vitrine): não contam, e o painel diz que só conta o preço da promoção')
         ok(ev(TXT('#drawerCorpo .drawer-footer button')) == ['Prorrogar', 'Encerrar agora', 'Clonar', 'Abrir promoção completa'], 'ativa: prorrogar, encerrar, clonar e abrir')
         ok(ev("Array.from(document.querySelectorAll('#drawerCorpo .mov-tipo a')).map(a => a.getAttribute('href'))")[0] == '../cadastros/pagina-cadastros-produtos-detalhe.html?id=9', 'o produto do painel leva à ficha dele')
         clica('#drawerClose'); clica('#corpoTabela tr[data-id="2"]')
@@ -201,7 +219,7 @@ with sync_playwright() as p:
             ok(ev("Array.from(document.querySelectorAll('#corpoTabela tr')).map(t => +t.getAttribute('data-id'))") == ids and ev("document.querySelector('[data-kpi=\"%s\"]').classList.contains('on')" % k), 'o card "%s" filtra %s e fica aceso' % (k, ids))
             clica('#indicadoresPromocoes [data-kpi="%s"]' % k)
         ok(not ev("document.querySelector('.kpi-card.on')") and ev("document.querySelector('#abasSituacao .aba-sit.active').getAttribute('data-sit')") == 'revisao', 'clicar de novo desfaz, e a lista volta a abrir em "Em revisão"')
-        ok(pg.inner_text('#indicadoresPromocoes [data-kpi="ativas"] .kpi-value') == fmt(esperado[1] + 3 * 39.90), 'o card "Vendido nas ativas" soma a nº 1 e a nº 7')
+        ok(pg.inner_text('#indicadoresPromocoes [data-kpi="ativas"] .kpi-value') == fmt(0), 'o card "Vendido nas ativas" soma só a venda com o preço da promoção (o pedido 4 vendeu a camiseta a R$ 39,90: não conta)')
         clica('.aba-sit[data-sit="todos"]')
         ev("document.querySelector('#filtroLoja .dropdown-select-btn').click()"); clica('#filtroLoja .dropdown-select-item[data-value="2"]')
         ok(ev("Array.from(document.querySelectorAll('#corpoTabela tr')).map(t => +t.getAttribute('data-id'))") == [4, 7, 8], 'o filtro de loja deixa só as da Desk Brands')
@@ -461,6 +479,226 @@ with sync_playwright() as p:
         ev("document.querySelector('#inputLoja .dropdown-select-btn').click()"); pg.wait_for_timeout(100)
         ok(ev("document.querySelectorAll('.dropdown-select-menu.open').length") == 1, 'abrir um dropdown fecha o outro')
         ok(ev("getComputedStyle(document.body).fontFamily").startswith('Nunito'), 'Nunito no corpo')
+
+    # ------------------------------------------------------------------------------------------------
+    # Entrega 2 (09/nov/2026): o preco chega na venda. PDV e Pedido de Venda, os limites, o desconto por cima, a excecao na hora e o vendido.
+    def escolhe(raiz, v):
+        clica('#%s .dropdown-select-btn' % raiz)
+        ev("([r, v]) => document.querySelector('#' + r + ' .dropdown-select-item[data-value=\"' + v + '\"]').click()", [raiz, str(v)]); pg.wait_for_timeout(150)
+
+    def pdv_abre(loja=1):
+        ir(PDV); ev("localStorage.removeItem('deskPdv'); localStorage.setItem('deskParametros', JSON.stringify({ pdvDescontoAVista: false }))"); ir(PDV)
+        clica('#btnAbrirCaixa'); escolhe('abrirLoja', loja); pg.fill('#abrirTroco', '100'); clica('#btnConfirmarAbertura'); pg.wait_for_timeout(250)
+
+    def pdv_add(sku, q='1'):
+        pg.fill('#qtdProduto', q); pg.fill('#buscaProduto', sku); pg.locator('#buscaProduto').press('Enter'); pg.wait_for_timeout(250)
+
+    def fecha_aviso():
+        if modal_aberto():
+            clica('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)
+
+    def itens_pdv():
+        return ev("venda.itens.map(i => [i.sku, i.qtd, i.preco, i.promocao || null])")
+
+    def pdv_finaliza():
+        clica('#btnContinuar'); pg.wait_for_timeout(300)
+        escolhe('selAddReceb', 'pix'); clica('#btnFinalizar'); pg.wait_for_timeout(350); fecha_aviso()
+        clica('#btnOutraVenda'); pg.wait_for_timeout(250)
+
+    def pdv_cliente(txt):
+        clica('#btnCliente'); pg.fill('#buscaCliente', txt); pg.wait_for_timeout(150); clica('#listaClientes .pdv-cli'); pg.wait_for_timeout(200)
+
+    def ped_campo(i, c, v):
+        ev("([i, c, v]) => { const e = document.querySelector('#corpoItens input[data-campo=\"' + c + '\"][data-i=\"' + i + '\"]'); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }", [i, c, v])
+        pg.wait_for_timeout(150)
+
+    def ped_novo(loja=1):
+        ir(PEDD, '?novo=1'); escolhe('inputLoja', loja)
+
+    def ped_add(sku, q):
+        n = ev("ITENS.findIndex(i => !i.sku)")   # o pedido novo ja abre com uma linha em branco
+        if n < 0:
+            clica('#btnAdicionarItem'); n = ev("ITENS.length") - 1
+        ped_campo(n, 'sku', sku); ped_campo(n, 'qtd', q)
+
+    def itens_ped():
+        return ev("ITENS.filter(i => i.sku).map(i => [i.sku, i.qtd, i.precoLista, i.promocao || null])")
+
+    def promo_muda(id_, **m):
+        ev("([i, m]) => { const l = lerPromocoes(); Object.assign(l.filter(p => p.id === i)[0], m); gravarPromocoes(l); }", [id_, m])
+
+    if secao(11, 'O preço na venda: PDV e Pedido de Venda'):
+        limpar()
+        # --- o preco entra sozinho so onde vale
+        pdv_abre(1)
+        pdv_add('PAP-3002')
+        ok(itens_pdv() == [['PAP-3002', 1, 59.9, 1]], 'PDV: a promoção ativa nº 1 (Desk Shope, PDV marcado) põe o preço dela sozinha, sem senha: %s' % itens_pdv())
+        ok(not modal_aberto(), 'e não pede senha nem mostra aviso')
+        tag = ev("(() => { const t = document.querySelector('#listaItens tbody tr .promo-tag'); return t ? [t.textContent.replace(/\\s+/g, ' ').trim(), t.querySelector('a').getAttribute('href')] : null; })()")
+        ok(tag and 'de R$ 64,90 por R$ 59,90' in tag[0] and 'nº 1 Volta às aulas' in tag[0] and tag[1] == '../vendas/pagina-vendas-promocoes-detalhe.html?id=1',
+           'o item mostra "de R$ 64,90 por R$ 59,90" e a promoção, com o link para a página dela: %s' % tag)
+        pdv_add('ELE-1004')
+        ok(itens_pdv()[-1] == ['ELE-1004', 1, 45.0, None], 'a agendada (nº 2, Carregador) não entra: preço de venda')
+        ok(ev("promoNaVenda('VES-2001', 1, 'pdv')") is None and ev("promoNaVenda('VES-2001', 2, 'pdv').preco") == 37.9, 'a camiseta só tem o preço da nº 7 na Desk Brands, a loja da promoção')
+        # --- o limite por cliente, sem cliente: vale por venda; a linha se divide
+        pdv_add('PAP-3002', '2')
+        av = ev("document.getElementById('confirmModalTexto').textContent") if modal_aberto() else ''
+        fecha_aviso()
+        ok(itens_pdv() == [['PAP-3002', 2, 59.9, 1], ['ELE-1004', 1, 45.0, None], ['PAP-3002', 1, 64.9, None]],
+           'limite de 2 por cliente: a terceira unidade entra numa linha a parte, pelo preço de venda: %s' % itens_pdv())
+        ok('numa linha a parte' in av and 'por venda' in av, 'e a tela diz por quê, e que sem cliente o limite vale por venda: "%s"' % av[:160])
+        ok('sem cliente identificado, vale por venda' in ev("document.querySelectorAll('#listaItens tbody tr')[2].textContent"), 'a linha do preço de venda guarda o motivo')
+        # --- o desconto maximo vale sobre o promocional
+        clica('#listaItens tbody tr[data-item="0"] td:nth-child(2)')
+        ev("document.querySelector('input[name=itemAjusteModo][value=valor]').click()")
+        pg.fill('#itemAjusteValor', '11,98'); ev("document.getElementById('itemAjusteValor').dispatchEvent(new Event('input'))"); clica('#btnAplicarItem')
+        ok(not modal_aberto() and ev("venda.itens[0].ajusteValor") == 11.98, 'desconto de R$ 11,98 nas 2 un. de R$ 59,90 (10% do promocional) passa sem liberação')
+        clica('#listaItens tbody tr[data-item="0"] td:nth-child(2)')
+        pg.fill('#itemAjusteValor', '12,98'); ev("document.getElementById('itemAjusteValor').dispatchEvent(new Event('input'))"); clica('#btnAplicarItem')
+        txt = ev("document.getElementById('confirmModalTexto').textContent") if modal_aberto() else ''
+        ok(modal_aberto() and '10,83%' in txt and ev("document.getElementById('campoSenhaModal').classList.contains('on')"),
+           'R$ 12,98 (10%% do preço de venda, 10,83%% do promocional) pede a liberação com senha: o máximo vale sobre o promocional: "%s"' % txt[:90])
+        clica('#btnConfirmModalCancelar'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        # --- "Aplicar preco promocional": so fora de promocao e com o promocional no cadastro
+        botao = lambda: ev("getComputedStyle(document.getElementById('btnAplicarPromo')).display !== 'none' && document.getElementById('itemDrawer').classList.contains('open')")
+        clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)')
+        ok(botao(), 'no Carregador (fora de promoção hoje, promocional R$ 42,90 no cadastro) aparece "Aplicar preço promocional"')
+        est = ev("(() => { const s = getComputedStyle(document.getElementById('btnAplicarPromo')); return [s.fontFamily.split(',')[0], s.borderRadius]; })()")
+        ok(est == ['Nunito', '20px'], 'e o botão tem o CSS do botão secundário do sistema (Nunito, cantos de 20px), e não o nativo: %s' % est)
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        clica('#listaItens tbody tr[data-item="0"] td:nth-child(2)')
+        ok(not botao(), 'no item que já está na promoção, não aparece'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        pdv_add('PAP-3001'); clica('#listaItens tbody tr[data-item="3"] td:nth-child(2)')
+        ok(not botao(), 'no produto sem promocional no cadastro (Caderno), não aparece'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        # sem permissao
+        escolhe('selVendedor', 6)
+        clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); clica('#btnAplicarPromo')
+        ok(not modal_aberto() and 'Bianca Furtado não tem a permissão' in pg.inner_text('#erroItem') and ev("venda.itens[1].preco") == 45,
+           'vendedora sem a permissão no cadastro (Bianca Furtado): não aplica e diz onde a permissão mora')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        # abaixo do minimo: o promocional do cadastro abaixo da conta da calculadora
+        ev("localStorage.setItem('deskPrecoProduto', JSON.stringify({ 11: { promocional: 39.90 } }))")
+        escolhe('selVendedor', 1)
+        clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); clica('#btnAplicarPromo')
+        ok(not modal_aberto() and 'abaixo do mínimo da calculadora (R$ 40,07)' in pg.inner_text('#erroItem') and ev("venda.itens[1].preco") == 45,
+           'promocional do cadastro abaixo do mínimo da calculadora: não aplica e diz por quê: "%s"' % pg.inner_text('#erroItem')[:120])
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        ev("localStorage.removeItem('deskPrecoProduto')")
+        # com permissao: pede senha; sem senha nao aplica
+        clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); clica('#btnAplicarPromo')
+        ok(modal_aberto() and ev("document.getElementById('campoSenhaModal').classList.contains('on')") and 'Quem aplica: Marina Costa' in ev("document.getElementById('confirmModalTexto').textContent"),
+           'Marina Costa (com a permissão): abre a confirmação, com o campo de senha')
+        confirmar('')
+        ok(modal_aberto() and ev("venda.itens[1].preco") == 45, 'sem a senha, não aplica')
+        confirmar('1234')
+        ok(not modal_aberto() and ev("venda.itens[1].preco") == 42.9 and ev("venda.itens[1].naHora.por") == 'Marina Costa', 'com a senha, o item passa a R$ 42,90, com quem aplicou')
+        l = log('promocaoNaHora')
+        ok(len(l) == 1 and l[0]['senha'] is True and 'Carregador USB-C 20W' in l[0]['detalhe'] and 'Marina Costa' in l[0]['detalhe'], 'e vai para o Registro de atividades, com senha: %s' % (l[:1],))
+        ok('aplicado com senha' in ev("document.querySelectorAll('#listaItens tbody tr')[1].textContent"), 'a linha mostra que o promocional foi aplicado com senha')
+        # o minimo e a mesma conta da pagina da promocao (bloco PRECO MINIMO)
+        m_pdv = ev("PROMO_PRODUTOS.map(p => promoMinimoCent(p))")
+        # --- fecha a venda: o vendido conta so o que saiu com o preco da promocao
+        pdv_finaliza()
+        vend = ev("JSON.parse(localStorage.getItem('deskPdv')).turno.vendas[0].itens.map(i => [i.sku, i.qtd, i.promocao, !!i.naHora])")
+        ok(vend == [['PAP-3002', 2, 1, False], ['ELE-1004', 1, None, True], ['PAP-3002', 1, None, False], ['PAP-3001', 1, None, False]], 'a venda gravada marca a promoção de cada item: %s' % vend)
+        ir(PAG, '?id=1')
+        ok(ev("PROMO_PRODUTOS.map(p => minimoDe(p))") == m_pdv, 'o mínimo do PDV é o da página da promoção, produto a produto (a mesma conta da calculadora)')
+        ir(LISTA); clica('.aba-sit[data-sit="todos"]'); clica('#corpoTabela tr[data-id="1"]')
+        ok(pg.inner_text('#prVendidoQtd').startswith('2 de 62') and pg.inner_text('#prVendidoValor') == 'R$ 107,82',
+           'o painel da nº 1 conta só as 2 un. com o preço dela (2 × R$ 59,90 − R$ 11,98 de desconto): %s, %s' % (pg.inner_text('#prVendidoQtd'), pg.inner_text('#prVendidoValor')))
+        ok(ev("Array.from(document.querySelectorAll('#prPedidos a')).map(a => a.getAttribute('href'))") == ['../vendas/pagina-vendas-pedidos.html?busca=PDV-0001'], 'e leva à venda do PDV que usou o preço')
+        clica('#drawerClose')
+        ok(pg.inner_text('#indicadoresPromocoes [data-kpi="ativas"] .kpi-value') == 'R$ 107,82', 'o card "Vendido nas ativas" soma a mesma venda')
+        # --- o limite por cliente entre vendas, com cliente identificado
+        pdv_abre(1); pdv_cliente('Marina Duarte'); pdv_add('PAP-3002', '2'); fecha_aviso(); pdv_finaliza()
+        pdv_cliente('Marina Duarte'); pdv_add('PAP-3002', '1')
+        av = ev("document.getElementById('confirmModalTexto').textContent") if modal_aberto() else ''
+        fecha_aviso()
+        ok(itens_pdv() == [['PAP-3002', 1, 64.9, None]] and 'o cliente já levou 2' in av, 'a cliente que já levou 2 na promoção leva a próxima pelo preço de venda, e a tela diz que ela já levou 2: "%s"' % av[:140])
+        pdv_cliente('Pedro Henrique'); ev("venda.itens = []; pintarVenda()"); pdv_add('PAP-3002', '1')
+        ok(itens_pdv() == [['PAP-3002', 1, 59.9, 1]], 'outro cliente leva pelo preço da promoção')
+        # trocar para o cliente que ja levou: a venda nao fecha com a linha da promocao
+        pdv_cliente('Marina Duarte'); clica('#btnContinuar'); pg.wait_for_timeout(250); escolhe('selAddReceb', 'pix'); clica('#btnFinalizar'); pg.wait_for_timeout(300)
+        ok(modal_aberto() and 'cabem só 0 un. no preço da promoção' in ev("document.getElementById('confirmModalTexto').textContent"), 'trocar para a cliente que já levou o limite trava a venda e diz o que fazer')
+        fecha_aviso()
+        # --- o limite total
+        ev("localStorage.setItem('deskPromoUsos', JSON.stringify({ 90: { pedido: null, data: promoHoje(), loja: 1, cliente: 'outro', itens: [{ sku: 'MOB-4001', qtd: 10, preco: 319.9, promocao: 1 }] } }))")
+        pdv_abre(1); pdv_add('MOB-4001')
+        av = ev("document.getElementById('confirmModalTexto').textContent") if modal_aberto() else ''
+        fecha_aviso()
+        ok(itens_pdv() == [['MOB-4001', 1, 349.9, None]] and 'o limite de 10 un. da promoção' in av, 'com as 10 un. do limite total já vendidas, o Kit entra pelo preço de venda: "%s"' % av[:120])
+        ev("localStorage.removeItem('deskPromoUsos')")
+        # --- agendada antecipada, encerrada, e o lugar
+        promo_muda(1, onde=['vitrine', 'vendedores'])
+        pdv_abre(1); pdv_add('PAP-3002')
+        ok(itens_pdv() == [['PAP-3002', 1, 64.9, None]], 'a nº 1 sem o PDV marcado não entra no PDV')
+        promo_muda(1, onde=['vitrine', 'pdv', 'vendedores'], situacao='encerrada', encerradaEm=ev("promoHoje()"), encerradaPor='Teste')
+        pdv_abre(1); pdv_add('PAP-3002')
+        ok(itens_pdv() == [['PAP-3002', 1, 64.9, None]], 'encerrada não entra')
+        promo_muda(2, inicio=ev("promoHoje()"))
+        pdv_abre(1); pdv_add('ELE-1004')
+        ok(itens_pdv() == [['ELE-1004', 1, 42.9, 2]], 'a nº 2, antecipada para hoje (ativa), entra')
+        ev("localStorage.setItem('deskPrecoProduto', JSON.stringify({ 9: { venda: 69.90 } }))")
+        pdv_add('PAP-3002')
+        ok(itens_pdv()[-1] == ['PAP-3002', 1, 69.9, None], 'o preço de venda é o da ficha do produto (a dona do preço): mudou lá, a venda usa o novo')
+        limpar()
+
+        # --- Pedido de Venda
+        ped_novo(1); ped_add('PAP-3002', '3')
+        ok(itens_ped() == [['PAP-3002', 2, 59.9, 1], ['PAP-3002', 1, 64.9, None]], 'Pedido de Venda: a nº 1 (vendedores marcado) entra sozinha, e o que passa do limite vai numa linha logo abaixo: %s' % itens_ped())
+        tags = ev("Array.from(document.querySelectorAll('#corpoItens [data-promo]')).map(e => e.textContent.replace(/\\s+/g, ' ').trim())")
+        ok('de R$ 64,90 por R$ 59,90' in tags[0] and 'passou do limite de 2 por cliente' in tags[1], 'cada linha diz a sua: "de… por…" e o motivo do preço de venda: %s' % tags[:2])
+        ok(ev("document.querySelector('#corpoItens [data-promo] a').getAttribute('href')") == '../vendas/pagina-vendas-promocoes-detalhe.html?id=1', 'com o link para a promoção')
+        ev("ITENS[0].desconto = 10; renderItens()")
+        ok(abs(ev("precoUnit(ITENS[0])") - 53.91) < 0.001, 'o desconto do item vale sobre o promocional (R$ 59,90 − 10% = R$ 53,91)')
+        ped_novo(2); ped_add('PAP-3002', '1')
+        ok(itens_ped() == [['PAP-3002', 1, 64.9, None]], 'num pedido da Desk Brands, a promoção da Desk Shope não entra')
+        promo_muda(1, onde=['vitrine', 'pdv'])
+        ped_novo(1); ped_add('PAP-3002', '1')
+        ok(itens_ped() == [['PAP-3002', 1, 64.9, None]], 'a nº 1 sem "vendedores" marcado não entra no Pedido de Venda')
+        limpar()
+        ped_novo(1); ped_add('ELE-1004', '1')
+        escolhe('inputVendedor', 'Rafael Andrade'); clica('#corpoItens [data-editar="0"]'); clica('#btnAplicarPromoItem')
+        ok(not modal_aberto() and 'Rafael Andrade não tem a permissão' in pg.inner_text('#erroPromoItem') and ev("ITENS[0].precoLista") == 45, 'Pedido: sem a permissão, não aplica')
+        clica('#btnCancelarItem'); escolhe('inputVendedor', 'Marina Costa'); clica('#corpoItens [data-editar="0"]'); clica('#btnAplicarPromoItem'); confirmar('1234')
+        ok(ev("ITENS[0].precoLista") == 42.9 and ev("ITENS[0].naHora.por") == 'Marina Costa' and len(log('promocaoNaHora')) == 1, 'com a permissão e a senha, aplica e registra')
+        # salvar grava o uso; o painel da promocao conta
+        ped_add('PAP-3002', '2')
+        pg.fill('#inputCliente', 'Juliana Prado'); ev("document.getElementById('inputCliente').dispatchEvent(new Event('input'))")
+        ev("PARAM.bloquearPedidoAtrasoDias = 0"); clica('#btnSalvar'); pg.wait_for_timeout(250); fecha_aviso(); pg.wait_for_timeout(200)
+        uso = ev("JSON.parse(localStorage.getItem('deskPromoUsos') || '{}')")
+        ok(len(uso) == 1 and list(uso.values())[0]['itens'] == [{'sku': 'PAP-3002', 'qtd': 2, 'preco': 59.9, 'promocao': 1}] and list(uso.values())[0]['cliente'] == 'juliana prado',
+           'salvar grava o que saiu com o preço da promoção (e só isso; o Carregador aplicado na hora não conta): %s' % uso)
+        ir(LISTA); clica('.aba-sit[data-sit="todos"]'); clica('#corpoTabela tr[data-id="1"]')
+        ok(pg.inner_text('#prVendidoQtd').startswith('2 de 62') and pg.inner_text('#prVendidoValor') == 'R$ 119,80' and 'Pedido de Venda nº' in pg.inner_text('#prPedidos'),
+           'o painel da nº 1 conta o pedido salvo: %s, %s' % (pg.inner_text('#prVendidoQtd'), pg.inner_text('#prVendidoValor')))
+        ir(PAG, '?id=1')
+        ok('2 unidades, R$ 119,80, com o preço dela' in pg.inner_text('#faixaTexto') and 'Pedido de Venda nº' in pg.inner_text('#prFaixaVendas'), 'a página da promoção diz quanto vendeu com o preço dela, e em qual pedido: "%s"' % pg.inner_text('#faixaTexto')[:160])
+        ped_novo(1); pg.fill('#inputCliente', 'Juliana Prado'); ev("document.getElementById('inputCliente').dispatchEvent(new Event('input'))"); ped_add('PAP-3002', '1')
+        ok(itens_ped() == [['PAP-3002', 1, 64.9, None]], 'a mesma cliente, em outro pedido, já levou as 2: preço de venda')
+        # --- a permissao mora no cadastro do vendedor
+        ir(VEND, '?id=1')
+        ok(ev("PODE_CONFIRMAR.promocaoNaHora") is True, 'o perfil da Marina Costa pode confirmar a ação')
+        nomes = ev("PODE_NA_HORA_IDS.map(i => REGISTROS.filter(r => r.id === i)[0].nome)")
+        ir(VEND, '?id=3'); sem_perm = ev("PODE_CONFIRMAR.promocaoNaHora")
+        ir(PDV); esp_pdv = ev("PROMO_PODE_NA_HORA")
+        ok(sem_perm is False and nomes == esp_pdv == ['Marina Costa'], 'o do Rafael Andrade não; e o PDV e o Pedido leem o espelho do cadastro: %s' % esp_pdv)
+        cat = ev("PROMO_PRODUTOS.filter(p => CATALOGO.some(c => c.sku === p.sku)).map(p => { const c = CATALOGO.filter(x => x.sku === p.sku)[0]; return [p.sku, c.nome === p.nome, c.loja === p.loja, c.preco === p.preco, Object.values(c.saldo).reduce((s, n) => s + n, 0) === p.estoque]; })")
+        ok(len(cat) == 8 and all(all(x[1:]) for x in cat), 'os produtos do cadastro no catálogo do PDV têm o nome, a loja, o preço e o estoque da ficha: %s' % [x for x in cat if not all(x[1:])])
+        # --- PDV e Pedido nos dois temas, 1280 e 1440
+        for w in (1280, 1440):
+            pg.set_viewport_size({'width': w, 'height': 900})
+            for tema in ('dark', 'light'):
+                pdv_abre(1); pdv_add('PAP-3002', '3'); fecha_aviso()
+                ev("(t) => document.body.classList.toggle('dark', t === 'dark')", tema)
+                r = ev("[document.documentElement.scrollWidth <= innerWidth, getComputedStyle(document.querySelector('.promo-tag-selo')).fontFamily.split(',')[0]]")
+                ok(r == [True, 'Nunito'], 'PDV com item em promoção a %d, tema %s: sem barra para o lado, selo em Nunito: %s' % (w, tema, r))
+                ped_novo(1); ped_add('PAP-3002', '3')
+                ev("(t) => document.body.classList.toggle('dark', t === 'dark')", tema)
+                r = ev("[document.documentElement.scrollWidth <= innerWidth, Math.max(0, ...Array.from(document.querySelectorAll('.itens-table-wrap')).map(e => e.scrollWidth - e.clientWidth)) <= 1, getComputedStyle(document.querySelector('.promo-tag-selo')).fontFamily.split(',')[0]]")
+                ok(r == [True, True, 'Nunito'], 'Pedido de Venda com a linha dividida a %d, tema %s: sem barra, selo em Nunito: %s' % (w, tema, r))
+        pg.set_viewport_size({'width': 1440, 'height': 900})
+        limpar()
 
     limpar()
     reais = [e for e in erros if 'ERR_' not in e]

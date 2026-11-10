@@ -10,6 +10,16 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Promoções e Encartes, entrega 1 (09/nov/2026) — testada pelo usuário em 09/nov; os ajustes que ele pediu estão na revisão geral do PROGRESSO (itens 4 a 9)
+
+**A lista, a página da promoção, a revisão com aprovação por senha e o histórico do preço na ficha do produto.** Para abrir:
+- `http://localhost:3000/vendas/pagina-vendas-promocoes.html` (a lista; abre em "Em revisão")
+- `http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=3` (em revisão, com uma linha em cada motivo de "fora") e `?id=8` (em revisão, toda ok: dá para aprovar com senha)
+- `http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?id=7` (aba Preços: "Em promoção até…", o histórico do preço e o encerrar antes)
+- `http://localhost:3000/configuracoes/pagina-configuracoes-parametros-vendas.html` (a seção Promoções, com os dois prazos novos)
+
+O que entrou: a lista (cards que filtram, abas por situação, busca, loja, período, a coluna "Vendido / limite", a seleção que encerra ou exclui, o painel com o resumo, quanto vendeu e as ações da situação); a página (dados, onde vale, os produtos pelo SKU, pela seleção detalhada ou pela planilha com o modelo para baixar, limite total e por cliente, "Aplicar X% nos selecionados", a revisão linha por linha e aprovar com senha); depois de aprovada, antecipar, prorrogar, encerrar, alterar antes de começar e clonar; o item no menu logo depois do PDV; as sete ações no catálogo de Confirmações por senha e no Registro de atividades; o módulo no perfil do vendedor; e, na ficha do produto, o histórico do preço de venda e do promocional, de onde sai a trava "o preço de venda subiu nos últimos 30 dias". A trava do mínimo é a conta da própria calculadora de preço, que passou a morar num bloco comum (sem mudar número nenhum). Respostas dele no teste: "Encerrar antes" pela ficha encerra só aquele produto; alterar uma agendada a devolve para "em revisão" e pede senha de novo; os quatro motivos a mais ficam por ora; excluir só rascunho e em revisão, sem senha de fábrica. O detalhe técnico está no §14.108.
+
 ### Estoque das embalagens (03/nov/2026) — testado pelo usuário em 03-04/nov; ele pediu para segurar como está, e a rodada de correção está no PROGRESSO
 
 **Mora na tela de Embalagens e em Necessidades de Compra.** Mora na tela de Embalagens (abra `http://localhost:3000/cadastros/pagina-cadastros-embalagens.html`) e em Necessidades de Compra (`http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html`). O que conferir:

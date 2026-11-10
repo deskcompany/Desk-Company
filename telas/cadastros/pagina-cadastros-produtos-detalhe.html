@@ -1717,7 +1717,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'promocaoProrroga',   nome:'Prorrogar uma promoção aprovada',              onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoEncerra',    nome:'Encerrar uma promoção antes do fim',           onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
-    { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false }
+    { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -3392,6 +3393,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // As vendas: ESPELHO dos Pedidos de Venda (PEDIDOS e ITENS_PEDIDO), so os pedidos com itens e so o que a conta usa: [pedido, dias atras, loja, canal,
   // situacao, itens [sku, qtd, preco]]. canal: 'vitrine' (loja_virtual) ou 'vendedores' (manual). As vendas do PDV sao lidas de `deskPdv`, como a lista
   // de Pedidos le. teste_promocoes.py compara o espelho com a lista de Pedidos.
+  // Desde a entrega 2 (09/nov/2026) so conta o item vendido com o preco da promocao: ele leva `promocao` (o id dela). Nenhum item de exemplo leva:
+  // os pedidos de exemplo sao da vitrine, que ainda nao aplica o preco (vem com o prototipo dela), ou de vendedor, fora das promocoes ativas.
+  // O PDV grava `promocao` no item da venda; o Pedido de Venda grava o uso em `deskPromoUsos` ao salvar (o pedido novo nao vai para a lista no prototipo).
   const PROMO_VENDAS = [
     [1, 0, 1, 'vitrine', 'aberto', [['FON-BT-200', 2, 249.90], ['CAR-33W-01', 4, 97.55], ['CAD-EXE-PT', 2, 495.00]]],
     [2, 1, 3, 'vendedores', 'aberto', [['NTB-PRO-14', 1, 5890.00], ['TEC-MEC-006', 6, 231.10], ['CAB-HDM-009', 16, 9.50]]],
@@ -3405,20 +3409,33 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     [12, 18, 2, 'vitrine', 'entregue', [['VES-2002', 3, 199.90], ['PAP-3002', 4, 64.90], ['MOB-4003', 3, 54.90]]],
     [16, 28, 1, 'vitrine', 'entregue', [['PAP-3001', 6, 18.50], ['MOB-4001', 5, 349.90], ['VES-2002', 1, 199.90], ['ELE-1003', 2, 59.90], ['MOB-4002', 2, 79.90]]]
   ];
+  // O cliente como chave do limite por cliente: o nome sem acento e em minusculas; "Consumidor final" (PDV sem cliente) e vazio.
+  function promoChaveCliente(nome) {
+    const k = String(nome || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return k === 'consumidor final' ? '' : k;
+  }
   function promoVendas() {
-    const vendas = PROMO_VENDAS.map(v => ({ pedido: v[0], numero: String(v[0]), data: promoDia(-v[1]), loja: v[2], canal: v[3], situacao: v[4], itens: v[5].map(i => ({ sku: i[0], qtd: i[1], preco: i[2] })) }));
+    const vendas = PROMO_VENDAS.map(v => ({ pedido: v[0], numero: String(v[0]), data: promoDia(-v[1]), loja: v[2], canal: v[3], situacao: v[4], cliente: '',
+      itens: v[5].map(i => ({ sku: i[0], qtd: i[1], preco: i[2], promocao: i[3] || null })) }));
     const g = promoLerJson('deskPdv', null);
     if (g) [].concat((g.ultimoTurno && g.ultimoTurno.vendas) || [], (g.turno && g.turno.vendas) || []).forEach(v => {
       const q = new Date(v.quando);
       vendas.push({ pedido: 900000 + Number(v.numero), numero: 'PDV-' + String(v.numero).padStart(4, '0'), data: isNaN(q) ? promoHoje() : promoIso(q), loja: Number(v.lojaId), canal: 'pdv',
-        situacao: v.situacao || 'entregue', itens: (v.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: Number(i.preco) || 0 })) });
+        situacao: v.situacao || 'entregue', cliente: v.clienteId ? promoChaveCliente(v.clienteNome) : '',
+        // O preco e o que o item rendeu, com o desconto dele (o `total` da linha), como o Pedido de Venda grava.
+        itens: (v.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: i.total !== undefined && Number(i.qtd) ? Number(i.total) / Number(i.qtd) : Number(i.preco) || 0, promocao: i.promocao || null })) });
     });
+    // O que o Pedido de Venda salvou com o preco da promocao: { numero: { pedido (id na lista, ou null), data, loja, cliente, itens } }.
+    const u = promoLerJson('deskPromoUsos', {}) || {};
+    Object.keys(u).forEach(n => { const r = u[n]; vendas.push({ pedido: r.pedido || null, numero: String(n), data: r.data, loja: Number(r.loja), canal: 'vendedores', situacao: 'aberto',
+      cliente: r.cliente || '', itens: (r.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: Number(i.preco) || 0, promocao: i.promocao || null })) }); });
     return vendas;
   }
-  // Quanto a promocao vendeu: os itens dela vendidos na loja dela, nos lugares onde ela vale, do inicio ate o fim (ou o encerramento, ou hoje).
-  // So promocao aprovada vende. Pedido cancelado nao conta. Item encerrado antes (na ficha do produto) para de contar no dia do encerramento.
+  // Quanto a promocao vendeu: so o item vendido com o preco dela (`promocao` = o id dela), na loja dela, nos lugares onde ela vale, do inicio ate o fim
+  // (ou o encerramento, ou hoje). So promocao aprovada vende. Pedido cancelado nao conta. Item encerrado antes (na ficha do produto) para de contar no dia
+  // do encerramento. `porCliente` ('cliente|sku') e o que cada cliente identificado levou, para o limite por cliente.
   function promoVendido(p) {
-    const r = { qtd: 0, valor: 0, porSku: {}, pedidos: [] };
+    const r = { qtd: 0, valor: 0, porSku: {}, porCliente: {}, pedidos: [] };
     p.itens.forEach(i => { r.porSku[i.sku] = { qtd: 0, valor: 0 }; });
     if (!promoAprovada(p)) return r;
     const ate = [p.fim, promoHoje()].concat(p.encerradaEm ? [p.encerradaEm] : []).sort()[0];
@@ -3427,13 +3444,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       let entrou = false;
       v.itens.forEach(it => {
         const item = p.itens.filter(i => i.sku === it.sku)[0];
-        if (!item || (item.encerrado && v.data > item.encerrado.em)) return;
+        if (!item || it.promocao !== p.id || (item.encerrado && v.data > item.encerrado.em)) return;
         r.porSku[it.sku].qtd += it.qtd; r.porSku[it.sku].valor += it.qtd * it.preco; r.qtd += it.qtd; r.valor += it.qtd * it.preco; entrou = true;
+        if (v.cliente) { const k = v.cliente + '|' + it.sku; r.porCliente[k] = (r.porCliente[k] || 0) + it.qtd; }
       });
       if (entrou) r.pedidos.push({ pedido: v.pedido, numero: v.numero, canal: v.canal });
     });
     r.valor = Math.round(r.valor * 100) / 100;
     return r;
+  }
+  // O link de cada venda que usou o preco da promocao: a do PDV cai na lista de Pedidos (que le o PDV); o pedido da lista abre a pagina dele; o pedido
+  // novo, salvo no Pedido de Venda, ainda nao entra na lista no prototipo, e fica como texto (link que cai em lista vazia e pior que texto).
+  function promoLinkVenda(x) {
+    if (x.canal === 'pdv') return '<a class="painel-link" href="../vendas/pagina-vendas-pedidos.html?busca=' + encodeURIComponent(x.numero) + '">Venda ' + x.numero + ' no PDV</a>';
+    if (x.pedido) return '<a class="painel-link" href="../vendas/pagina-vendas-pedidos-detalhe.html?id=' + x.pedido + '">Pedido de Venda nº ' + x.numero + '</a>';
+    return '<span>Pedido de Venda nº ' + x.numero + ' (novo, salvo no Pedido de Venda)</span>';
   }
   // O limite total do item em unidades: o numero digitado, ou o estoque do produto quando e "ate acabar o estoque".
   function promoLimite(item) { if (item.limite === 'ESTOQUE') { const pr = promoProduto(item.sku); return pr ? pr.estoque : 0; } return Number(item.limite) || 0; }

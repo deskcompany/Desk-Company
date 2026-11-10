@@ -562,7 +562,8 @@ with sync_playwright() as p:
     ok(dict((str(l['id']), l['nome']) for l in pdv['lojas']) == ped['lojas'] and dict((str(d['id']), d['nome']) for d in pdv['depositos']) == ped['depositos']
        and dict((str(k), v) for k, v in pdv['padrao'].items()) == dict((str(k), v) for k, v in ped['padrao'].items()),
        'lojas, depositos e o deposito padrao de cada loja iguais aos do Pedido')
-    ok(len(set(x['gtin'] for x in pdv['catalogo'])) == len(pdv['catalogo']), 'e nenhum GTIN repetido no catalogo do PDV')
+    gt = [x['gtin'] for x in pdv['catalogo'] if x['gtin']]   # o produto de Cadastros > Produtos vem sem GTIN (a ficha nao o tem): em branco nao conta
+    ok(len(set(gt)) == len(gt), 'e nenhum GTIN repetido no catalogo do PDV')
     p2.goto(localiza.http(METAS)); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
     ok(p2.evaluate("VENDEDORES") == pdv['vendedores'], 'vendedores iguais aos de Metas')
     p2.goto(localiza.http(CLIENTES_CAD)); p2.wait_for_load_state('load'); p2.wait_for_timeout(500)
@@ -675,7 +676,7 @@ with sync_playwright() as p:
     ok(pg.evaluate('momento') == 'venda', 'e Ctrl+Enter no painel confirma')
     pg.evaluate("document.activeElement.blur()")
     pg.keyboard.type('cad'); pg.wait_for_timeout(250)
-    ok(pg.input_value('#buscaProduto') == 'cad' and pg.locator('#sugestoes .pdv-sug').count() == 1, 'digitar sem clicar no campo vai para a busca de produto')
+    ok(pg.input_value('#buscaProduto') == 'cad' and pg.locator('#sugestoes .pdv-sug').count() == 2, 'digitar sem clicar no campo vai para a busca de produto (a Cadeira e, desde 09/nov, o Caderno do cadastro)')
     pg.keyboard.press('Enter'); pg.wait_for_timeout(200); pg.keyboard.press('Enter'); pg.wait_for_timeout(250)
     ok(pg.evaluate('venda.itens.length') == 1, 'Enter escolhe e Enter adiciona')
     pg.keyboard.press('F8'); pg.wait_for_timeout(300)
