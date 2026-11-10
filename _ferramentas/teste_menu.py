@@ -179,7 +179,7 @@ with sync_playwright() as p:
         'estoque': ['Controle de Estoques', 'Movimentação de Estoque', 'Necessidades de Compra', 'Ordens de Compra', 'Entrada de Notas', 'Conferência de Entrada',
                     'Endereçamento', 'Reposição', 'Transferência Entre Estoques', 'Inventário', 'Acerto de Estoque', 'Tratamento de Perdas', 'Giro de Estoque',
                     'Relatórios de Estoque'],
-        'vendas': ['CRM', 'Pedidos de Venda', 'PDV', 'Notas Fiscais', 'Metas e Performance', 'Margem Contribuição', 'Custos do E-commerce',
+        'vendas': ['CRM', 'Pedidos de Venda', 'PDV', 'Promoções e Encartes', 'Notas Fiscais', 'Metas e Performance', 'Margem Contribuição', 'Custos do E-commerce',
                    'Relatórios de Vendas'],
         'logistica': ['Separação', 'Conferência de Saída', 'Expedição', 'Rastreamento de Pedidos', 'Devolução', 'Relatórios de Logística'],
         'financas': ['Contas a Receber', 'Contas a Pagar', 'Caixa', 'Comissões Afiliados', 'Vale-compra', 'Relatórios Finanças'],

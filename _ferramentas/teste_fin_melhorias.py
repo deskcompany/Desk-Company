@@ -223,6 +223,8 @@ with sync_playwright() as p:
             pl.goto(localiza.http(CAIXA))
             pl.evaluate("(e) => localStorage.setItem('deskCaixaExtras', JSON.stringify(e))", longo)
             pl.reload(); pl.wait_for_timeout(450)
+            # O lancamento e de 12/10 e o Caixa abre no mes de hoje: sem o periodo, a linha aparece em qualquer data (09/nov/2026).
+            pl.evaluate("() => { periodoAtual = 'todos'; itensPorPaginaAtual = 100; render(); }"); pl.wait_for_timeout(250)
             m = pl.evaluate("""() => { const w = document.querySelector('.estoque-table-wrap'), l = document.querySelector('tbody tr[data-id="900000"]');
                 return { sw: w.scrollWidth, cw: w.clientWidth, tem: !!l, data: l ? l.children[1].textContent.trim() : '', inteira: l ? l.children[1].title : '' }; }""")
             ok(m['tem'] and m['sw'] <= m['cw'], 'a %dpx, com um historico comprido, a tabela cabe: %d em %d' % (largura, m['sw'], m['cw']))

@@ -1,6 +1,6 @@
 # Progresso do ERP Desk Company
 
-*Atualizado em 04/nov/2026: a calculadora de precificação foi aprovada por ele; o estoque das embalagens fica como está, com a rodada de correção segurada por ele; as regras do preço promocional foram barganhadas e o próximo módulo é Promoções e Encartes, em Vendas, numa conversa nova.*
+*Atualizado em 09/nov/2026: Promoções e Encartes, entrega 1 (a lista, a página da promoção, a revisão com aprovação por senha, o histórico do preço na ficha do produto), feita e esperando o teste dele. As entregas 2 e 3 vêm depois do teste.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,23 +10,23 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção (motivos de acerto, prejuízo, inventário, ordem de compra e movimentação) é o item 1 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Promoções e Encartes, entrega 1: feita em 09/nov/2026, esperando o teste dele.** O detalhe está no §14.108. Para abrir:
 
-**Calculadora de precificação: testada e aprovada por ele em 04/nov/2026.** O que foi feito está no HISTORICO.md e o detalhe no §14.101. As duas observações do teste estão abaixo: várias embalagens na calculadora (revisão geral, item 3) e o que o preço promocional faz (esperando decisão dele).
+- `http://localhost:3000/vendas/pagina-vendas-promocoes.html` (a lista; abre em "Em revisão")
+- `http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=3` (a promoção em revisão com uma linha em cada motivo de "fora")
+- `http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=8` (em revisão, toda ok: dá para aprovar com senha)
+- `http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?id=7` (aba Preços: "Em promoção até…", o histórico do preço e o encerrar antes)
+- `http://localhost:3000/configuracoes/pagina-configuracoes-parametros-vendas.html` (a seção Promoções, com os dois prazos novos)
 
-**Custos do E-commerce: concluído em 30/out/2026.** As quatro entregas e os ajustes estão no HISTORICO.md, e o detalhe no §14.95 a §14.100. Tela: `http://localhost:3000/vendas/pagina-vendas-custos-ecommerce.html`. As entregas 1 a 3 e a primeira rodada da 4 ele testou e aprovou; os testes finais do ajuste da 4 (a estimativa pelo cadastro, a Separação que não mexe no custo, o "Total de volumes", a troca) ele delegou ao principal, que os rodou no navegador em 30/out: 61 itens, nenhuma falha. A baixa da embalagem no estoque, que tinha ficado de fora, foi feita em 03/nov. O que mais ficou de fora está na lista da revisão geral (os itens 6, 9, 10, 12, 16 e 17 mexem nesta área; o 9 e o 10 mudam números do lucro).
+O que entrou: a lista (cards que filtram, abas por situação, busca, loja, período, a coluna "Vendido / limite", a seleção que encerra ou exclui, o painel com o resumo, quanto vendeu e as ações da situação); a página (dados, onde vale, os produtos pelo SKU, pela seleção detalhada ou pela planilha com o modelo para baixar, limite total e por cliente, "Aplicar X% nos selecionados", a revisão linha por linha e aprovar com senha); depois de aprovada, antecipar, prorrogar, encerrar, alterar antes de começar e clonar; o item no menu logo depois do PDV; as sete ações no catálogo de Confirmações por senha e no Registro de atividades; o módulo no perfil do vendedor; e, na ficha do produto, o histórico do preço de venda e do promocional, de onde sai a trava "o preço de venda subiu nos últimos 30 dias". A trava do mínimo é a conta da própria calculadora de preço, que passou a morar num bloco comum (sem mudar número nenhum).
 
-Confirmado por ele em 22/out: "do mês" vai do dia 1 até hoje; os cards somam a lista toda. **Recebimento da InfinitePay:** a venda no cartão, mesmo parcelada, cai
-inteira no dia útil seguinte, já sem a taxa (o gateway da loja virtual é "Antecipado"). **A antecipação saiu do módulo:** o cadastro de gateway não tem taxa de
-antecipação à parte, e na InfinitePay ela já está na taxa.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 4 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
-**Vale-compra: concluído.** As três entregas foram testadas e aprovadas pelo usuário (a 3 em 20/out, junto com o conserto
-que faz a Devolução ficar gravada); o que foi feito está no HISTORICO.md e o detalhe no §14.89 a §14.91.
+**Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
-**Gateways de Pagamento: as entregas 1 e 2 e os ajustes do teste, testados e aprovados pelo usuário em 21/out** (§14.92 a
-§14.94; o que foi feito está no HISTORICO.md). Ficaram três consertos pedidos no teste (comissão sem o vale-compra, a loja
-virtual com as taxas da Bronze, os feriados móveis), que foram para a revisão geral (decisão dele em 21/out: a cota semanal
-está no fim e ele prefere construir agora). Falta o protótipo da vitrine, no "Próximo da fila".
+**Custos do E-commerce: concluído em 30/out/2026** (HISTORICO.md, §14.95 a §14.100). O que ficou de fora está na lista da revisão geral.
+
+**Vale-compra e Gateways de Pagamento: concluídos e aprovados por ele** (HISTORICO.md, §14.89 a §14.94). Falta o protótipo da vitrine, no "Próximo da fila".
 
 **Como trabalhamos desde 21/out** (combinado com o usuário depois de gastar 78% da cota semanal em 2 dias, com entregas
 de 1 a 3 horas; medido: o executor reaproveitado chegou a 840 mil tokens e 300 ações, e esperar o selo em laço relia
@@ -40,20 +40,20 @@ de baixo risco (o usuário decide). Os retornos de teste vêm num pacote só.
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **45 de 55 (82%)**, em 90 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **46 de 56 (82%)**, em 92 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
-Os 80% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
+Os 82% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
-Eram 80 telas e 41 de 55 itens com tela até 12/out/2026.
+Eram 90 telas e 45 de 55 itens com tela até 03/nov/2026: Promoções e Encartes entrou no menu já com a lista e a página.
 
 | módulo | com tela | falta |
 |---|---|---|
 | Início | 4 de 4 | nada |
 | Cadastros | 12 de 13 | Relatórios de Cadastros |
 | Estoque | 13 de 14 | Relatórios de Estoque |
-| Vendas | 5 de 8 | Notas Fiscais, Margem de Contribuição, Relatórios de Vendas |
+| Vendas | 6 de 9 | Notas Fiscais, Margem de Contribuição, Relatórios de Vendas |
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
 | Integrações | 1 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Relatórios de Integrações |
@@ -63,31 +63,21 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## Próximo da fila
 
-Refeita em 30/out, depois da calculadora (a lista de 19/out e os porquês estão em
-"Prioridades dos próximos passos", no HISTORICO.md).
+Refeita em 09/nov, depois da entrega 1 de Promoções e Encartes.
 
-1. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov, depois de testar a entrega; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+1. **O teste dele na entrega 1 de Promoções e Encartes**, e os ajustes que vierem num pacote só. As perguntas da entrega estão em "Esperando decisão do usuário".
+2. **Promoções e Encartes, entrega 2: o preço entra sozinho.** Enquanto a promoção está ativa, o preço promocional entra sozinho no PDV e no Pedido de Venda (onde ela vale), sem senha, respeitando o limite total e o por cliente; o desconto máximo do PDV vale sobre o promocional. E a exceção na hora: o botão "Aplicar preço promocional" no item do PDV e do Pedido de Venda, fora de promoção, com senha, só para quem tem a permissão no cadastro, com a trava do mínimo, indo para Confirmações por senha e para o Registro de atividades. Com isso o "quanto vendeu" passa a contar só o que foi vendido com o preço da promoção.
+3. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+4. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+5. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-2. **Promoções e Encartes** (módulo novo, em Vendas; combinado com o usuário em 04/nov/2026; vem antes da vitrine, que só usa a regra).
-   Começa numa conversa nova, pela barganha, com prints de encartes que eles usam hoje, se houver. As regras do preço estão em "Decidido".
-   - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha).
-   - **A lista:** nome, situação (rascunho, em revisão, agendada, ativa, encerrada), prazo, onde vale e quantos produtos.
-   - **Os produtos, com seleção bem detalhada,** ou pela **planilha:** SKU (obrigatório), Quantidade (o limite de unidades na promoção;
-     "ESTOQUE" = até acabar o estoque) e Preço promocional (opcional: vazio vale o do cadastro; diferente, a revisão mostra os dois e o novo
-     entra no cadastro ao aprovar). A tela oferece o modelo da planilha para baixar.
-   - **A revisão de ponta a ponta:** cada linha "ok" ou "fora", com o motivo (SKU não encontrado, abaixo do mínimo, sem preço promocional,
-     preço subiu nos últimos 30 dias); corrige ou tira a linha antes de aprovar.
-   - **Ao aprovar:** título, observações, e onde vale (quais vitrines, o PDV, os vendedores). Começa e termina sozinha.
-   - **"Gerar encarte"** (a peça com foto, "de… por…" e prazo, para imprimir ou mandar aos vendedores): numa segunda entrega.
-   - **A decidir na barganha:** como cada produto pertence a uma loja só, "quais vitrines" é a da loja de cada produto ou a promoção já nasce por loja.
-3. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-4. **Gateways de Pagamento:** falta o protótipo da vitrine, que usa a regra do preço promocional (em "Decidido") e o painel da vitrine.
-5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+6. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+7. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+8. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -97,27 +87,46 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
-- **Preço promocional** (barganhado com o usuário em 04/nov/2026; mora na tela nova Promoções e Encartes, item 2 do "Próximo da fila").
+- **Preço promocional** (barganhado com o usuário em 04/nov/2026; mora em Promoções e Encartes, em Vendas).
   O preço tem um dono só, o sistema: o promocional é cadastrado na aba Preços do produto (ou chega pela planilha da promoção e entra no
   cadastro quando ela é aprovada). O painel da vitrine não cadastra nem muda preço: mostra os produtos da loja e manda pedidos ao
   sistema (auditoria de produto, revisão de preço), que viram notificação; o "Ativar preço promocional" dele cria uma promoção só
   da vitrine, com as mesmas travas, na mesma lista.
   - **Vale onde a promoção for ativada:** as vitrines, o PDV e os vendedores (Pedido de Venda), cada um marcado na promoção. Enquanto
-    ela está ativa, o preço entra sozinho, sem senha (a decisão foi tomada ao aprovar). Primeira versão desta regra, no mesmo dia: "só na vitrine".
+    ela está ativa, o preço entra sozinho, sem senha (a decisão foi tomada ao aprovar). **É a entrega 2.**
   - **A exceção na hora:** fora de promoção, o botão "Aplicar preço promocional" no item do PDV e do Pedido de Venda pede senha, e só
-    quem tem a permissão no cadastro dele aplica; vai para Confirmações por senha e para o Registro de atividades, e respeita a trava do mínimo.
+    quem tem a permissão no cadastro dele aplica; vai para Confirmações por senha e para o Registro de atividades, e respeita a trava do mínimo. **É a entrega 2.**
   - **Desconto por cima:** o preço promocional não conta como desconto; o desconto máximo do PDV (hoje 10%) vale sobre o promocional,
-    com a mesma liberação de hoje.
-  - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias); e, por produto, um limite de unidades.
-    Ao acabar, volta sozinho ao preço de venda.
-  - **Na vitrine:** o preço de venda riscado e o promocional como o preço (de R$ 149,90 por R$ 99,90).
+    com a mesma liberação de hoje. **É a entrega 2.**
+  - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias, em Parâmetros de vendas); e, por produto, um limite de unidades.
+    Ao acabar, volta sozinho ao preço de venda. *(Feito na entrega 1.)*
+  - **Na vitrine:** o preço de venda riscado e o promocional como o preço (de R$ 149,90 por R$ 99,90). **Vem com o protótipo da vitrine.**
   - **Trava do preço mínimo:** promocional abaixo do mínimo da calculadora não ativa, e a vitrine mostra "Peça revisão de preço".
-    Bloqueia de vez; vender abaixo do mínimo de propósito passa pela revisão de preço.
+    Bloqueia de vez; vender abaixo do mínimo de propósito passa pela revisão de preço. *(Feito na entrega 1: a revisão deixa a linha fora.)*
   - **O riscado é verdadeiro:** não ativa se o preço de venda subiu nos últimos 30 dias (referência de mercado, não número da lei;
-    CDC art. 37). Pede o histórico de preço do produto, que o cadastro ainda não guarda.
-  - **Sem promocional cadastrado:** o "Ativar" fica apagado e leva ao pedido de revisão de preço.
-  - **O sistema vê e encerra:** a página do produto mostra "Em promoção até <data>, ativada por <nome> pela vitrine", quem está no
-    sistema pode encerrar antes, e a ativação vai para o Registro de atividades.
+    CDC art. 37), lido do histórico de preço do produto. *(Feito na entrega 1; os 30 dias estão em Parâmetros de vendas.)*
+  - **Sem promocional cadastrado:** o "Ativar" fica apagado e leva ao pedido de revisão de preço. **Vem com o protótipo da vitrine.**
+  - **O sistema vê e encerra:** a página do produto mostra "Em promoção até <data>, ativada por <nome> pela <origem>", quem está no
+    sistema pode encerrar antes, e a ativação vai para o Registro de atividades. *(Feito na entrega 1.)*
+- **Promoções e Encartes** (barganha de 04 e 09/nov/2026; a entrega 1 fez o que está marcado como feito):
+  - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha). *(A permissão é mocada, como o resto, até Permissões de Usuários existir.)*
+  - **A promoção nasce de UMA loja** (o encarte sai com a marca dela); produtos de outra loja não entram (09/nov).
+  - **Situações:** rascunho, em revisão, agendada, ativa, encerrada. Começa e termina sozinha.
+  - **A planilha:** SKU (obrigatório), Quantidade (número ou "ESTOQUE" = até acabar o estoque) e Preço promocional (opcional: vazio = o do
+    cadastro; diferente = a revisão mostra os dois e o novo entra no cadastro ao aprovar), com o modelo para baixar.
+  - **A revisão de ponta a ponta:** cada linha "ok" ou "fora", com o motivo (SKU não encontrado, abaixo do mínimo da calculadora, sem preço
+    promocional, preço subiu nos últimos 30 dias, já está em outra promoção); corrige ou tira a linha antes de aprovar.
+  - **Produto já em outra promoção** ativa ou agendada que se sobrepõe no período fica "fora", motivo "já está na promoção <nome>" (09/nov).
+  - **Depois de aprovada** (igual à Bluesoft): preço e produtos só mudam antes de começar; depois de começar, só antecipar (o início vira
+    hoje), prorrogar (nova data final) ou encerrar (09/nov).
+  - **Clonar** copia a promoção, com os preços, como rascunho novo (09/nov).
+  - **Limite por cliente** (unidades por cliente com o preço promocional), além do limite total por produto ("ESTOQUE" = até acabar o estoque) (09/nov).
+  - **"Aplicar X% nos selecionados"** calcula o promocional dos marcados a partir do preço de venda, e passa pela mesma revisão (09/nov).
+  - **Quanto vendeu:** o painel mostra as unidades vendidas contra o limite e o faturamento, lidos dos Pedidos de Venda e do PDV (09/nov).
+  - **Menu:** Vendas → "Promoções e Encartes", logo depois do PDV (09/nov).
+  - **Histórico de preço do produto** na ficha (data, de, para, quem, origem: cadastro, promoção aprovada, planilha); dele sai a trava dos
+    30 dias, e a mesma aba mostra "Em promoção até…" com o link e o encerrar antes (09/nov; ele pediu nesta entrega, mesmo sendo o mais caro).
+  - **"Gerar encarte":** entrega 3.
 - **Hospedagem: Cloudflare Pages, com o banco no Supabase** (usuário, 10/out/2026). A Vercel fica
   como destino de migração, para quando o projeto pedir mais. **Nenhuma conta foi criada e nada foi
   publicado:** ele quer mais módulos prontos antes de subir. O detalhe está na seção 2 de
@@ -135,8 +144,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 - **Exemplos como estão** (usuário, 13/out/2026): "telas mais simples, sem muita complexidade para
   teste, pode deixar os exemplos como estão, mas deixe registrado também que as próximas telas devem
   seguir um padrão melhor, corrija as que realmente precisa agora". Não se abre entrega para alinhar
-  exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills.
-
+  exemplo entre telas prontas. A regra da tela nova está no §14.73 e nas duas skills. **Promoções e
+  Encartes** usa os produtos de Cadastros › Produtos (a ficha é a dona do preço); os pedidos de exemplo
+  vendem o mesmo SKU em lojas diferentes, e a promoção só conta a venda da loja dela (§14.108).
 - **Preço com mais de 2 casas** (usuário, 03/nov/2026: "por hora tranquilo"). Configurações aceita até 10 casas no
   preço (`casasPreco`, hoje 2), mas a digitação a partir dos centavos (§14.105) fixa 2 casas nos campos de preço. Quando
   alguém precisar de mais casas, o campo passa a ler o parâmetro.
@@ -162,21 +172,31 @@ e entrou uma decisão:
    em outubro continua atrasada em novembro. Conferir se Contas a Receber tem a mesma aba e o mesmo defeito.
 3. **Calculadora de preço: mais de uma embalagem** (pedido dele em 04/nov, no teste da calculadora). O campo "Caixa" vira uma lista com caixa de
    seleção: marcar a caixa e o saquinho da loja (ou mais de uma), só entre as embalagens ativas com estoque. Exemplo dele: a garrafa térmica vai numa
-   caixa e dentro de um saquinho da loja. Os insumos que entram sozinhos continuam entrando.
+   caixa e dentro de um saquinho da loja. Os insumos que entram sozinhos continuam entrando. (A conta do mínimo agora é um bloco comum com
+   Promoções e Encartes, §14.108: mudar a embalagem muda as duas telas juntas.)
 
 ## Esperando decisão do usuário
 
-Uma pendência, que é dele:
+Da entrega 1 de Promoções e Encartes (o que está feito segue a escolha marcada; muda num ajuste se ele preferir outra):
 
-1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **"Encerrar antes" pela ficha do produto** encerra a promoção **só para aquele produto**, e os outros da promoção continuam. A outra opção é
+   encerrar a promoção inteira (o que a lista e a página da promoção já fazem).
+2. **Alterar uma agendada** (antes de começar) a devolve para "em revisão", e ela só vale de novo depois de aprovada outra vez, com senha.
+   A outra opção é salvar a mudança sem nova aprovação.
+3. **Motivos de "fora" que a regra pediu e não estavam na lista:** "é de outra loja" (pela planilha), "sem custo no cadastro: não dá para
+   conferir o mínimo" (o Filamento, por exemplo), "não é menor que o preço de venda" e "limite inválido". Ficam?
+4. **Excluir** só vale para rascunho e em revisão, e não pede senha de fábrica (dá para ligar em Confirmações por senha).
+5. **O "quanto vendeu" desta entrega** conta tudo o que se vendeu dos produtos da promoção, na loja e nos lugares marcados, durante o prazo:
+   o preço ainda não entra sozinho no PDV e no Pedido de Venda (entrega 2). Na entrega 2 ele passa a contar só a venda com o preço da promoção.
+
+E uma de antes, que é dele:
+
+6. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
    computador; para atualizar, reenvia por lá a pasta
    `C:\Claude AI\Skills\Skills ERP System\desk-company-erp`.
-
-O defeito dos links do chat que não traziam o navegador para a frente era da sessão do editor e
-sumiu sozinho (confirmado por ele em 13/out).
 
 ## O que está no HISTORICO.md
 

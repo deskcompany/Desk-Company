@@ -417,7 +417,8 @@ with sync_playwright() as p:
         pg.click('#btnPeriodo'); pg.wait_for_timeout(100)
         pg.fill('#periodoDe', pg.evaluate("fmtData(isoDe(diaMais(-8)))")); pg.fill('#periodoAte', pg.evaluate("fmtData(HOJE_ISO)")); pg.click('#btnAplicarPeriodo'); pg.wait_for_timeout(250)
         dias = pg.evaluate("PEDIDOS.filter(p => p.canal === 'loja_virtual' && p.dv <= 8).map(p => p.numero).sort((a, b) => a - b)")
-        ok(sorted(numeros()) == dias and ' a ' in texto('#rotuloPeriodo'), 'o período entre datas (De/Até) filtra pela data da venda: %s' % sorted(numeros()))
+        # Quando os 8 dias comecam no dia 1 (09/nov/2026), o intervalo e o mes inteiro e o rotulo diz "Do mes": tambem certo.
+        ok(sorted(numeros()) == dias and (' a ' in texto('#rotuloPeriodo') or pg.evaluate("isoDe(diaMais(-8)).slice(8) === '01'")), 'o período entre datas (De/Até) filtra pela data da venda: %s' % sorted(numeros()))
         pg.click('#btnPeriodo'); pg.click('#periodoOpcoes [data-periodo="mes"]'); pg.wait_for_timeout(200)
         ok(texto('#rotuloPeriodo') == 'Do mês' and pg.evaluate("per.de") == mes, 'a opção "Do mês" volta ao mês atual')
         pg.click('#btnPeriodo'); pg.fill('#periodoDe', '31/02/2026'); pg.click('#btnAplicarPeriodo'); pg.wait_for_timeout(150)

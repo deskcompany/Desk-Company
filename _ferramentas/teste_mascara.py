@@ -56,6 +56,7 @@ MAPA = {
     'pagina-logistica-expedicao-detalhe.html': [('id="inputPesoBruto"', P)],
     'pagina-vendas-crm-detalhe.html': [('id="propValor"', D)],
     'pagina-vendas-metas.html': [('id="defValor"', D)],
+    'pagina-vendas-promocoes-detalhe.html': [('class="pr-in-preco"', D)],   # o preco promocional de cada linha (09/nov/2026)
     'pagina-vendas-pdv.html': [('id="finDesconto"', V), ('id="abrirTroco"', D), ('id="itemPreco"', D), ('id="itemAjusteValor"', D), ('id="movValor"', D), ('id="valeUsarValor"', D),
         ('data-receb-valor=', D), ('data-receb-recebido=', D), ('data-parc-valor=', D), ('data-fechar=', D)],
     'pagina-vendas-pedidos-detalhe.html': [('id="inputDesconto"', V), ('id="inputFrete"', D), ('id="inputFretePagoLoja"', D), ('id="inputDespesas"', D), ('id="inputValeUsar"', D),
@@ -391,6 +392,8 @@ with sync_playwright() as pw:
     alvo = pg.evaluate("(() => { const t = TITULOS.filter(x => !x.cancelado && x.pago === 0 && x.valor > 1300)[0]; return t ? t.id : null; })()")
     ok(alvo is not None, 'existe uma conta em aberto acima de R$ 1.300 para provar')
     if alvo is not None:
+        # A conta pode cair na pagina 2 conforme a data de hoje (09/nov/2026): mais itens por pagina antes de procurar a linha.
+        pg.evaluate("document.querySelector('#itensPorPagina .dropdown-select-item[data-value=\"100\"]').click()"); pg.wait_for_timeout(250)
         pg.evaluate("(id) => document.querySelector('[data-check=\"titulo\"][data-id=\"' + id + '\"]').click()", alvo); pg.wait_for_timeout(250)
         pg.click('#btnPagarSelecionadas'); pg.wait_for_timeout(400); pg.click('#linkMaisOpcoes'); pg.wait_for_timeout(200)
         digita(pg, '#inputValorPago', '123456'); pg.wait_for_timeout(300)

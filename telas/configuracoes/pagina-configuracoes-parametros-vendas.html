@@ -1254,6 +1254,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="flyout-item" data-label="CRM" data-href="../vendas/pagina-vendas-crm.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M23 21v-1a4 4 0 0 0-3-3.87"/></svg>CRM</div>
       <div class="flyout-item" data-label="Pedidos de Venda" data-href="../vendas/pagina-vendas-pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Pedidos de Venda</div>
       <div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
+      <div class="flyout-item" data-label="Promoções e Encartes" data-href="../vendas/pagina-vendas-promocoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Promoções e Encartes</div>
       <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
       <div class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas e Performance</div>
       <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
@@ -1424,6 +1425,49 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <div class="par-secao">
+    <div class="par-secao-titulo">Promoções</div>
+    <div class="par-secao-sub">As duas travas de tempo de Promoções e Encartes. Valem para todas as lojas e são lidas na revisão de cada promoção.</div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoRiscado">
+            <label>Preço de venda sem subir há</label>
+            <div class="par-num">
+              <input type="text" id="promoRiscado" data-param="promoRiscadoDias" value="30" inputmode="numeric" autocomplete="off">
+              <span class="par-num-sufixo">dias</span>
+            </div>
+            <span class="par-erro" id="erroRiscado">Informe um número inteiro de 1 a 365 (como 30).</span>
+          </div>
+        </div>
+      </div>
+      <div class="par-exp" id="previaRiscado">
+        O riscado é verdadeiro: o produto cujo preço de venda subiu nesses dias fica fora da promoção, para o "de… por…" não enganar o cliente (referência de mercado, não número da lei; CDC art. 37).
+        <span class="par-onde">Aparece na <b>revisão de Promoções e Encartes</b> e no histórico de preço do produto</span>
+      </div>
+    </div>
+
+    <div class="par-linha">
+      <div>
+        <div class="par-campos">
+          <div class="par-campo" id="campoEstoqueMax">
+            <label>"Até acabar o estoque" dura no máximo</label>
+            <div class="par-num">
+              <input type="text" id="promoEstoqueMax" data-param="promoEstoqueMaxDias" value="30" inputmode="numeric" autocomplete="off">
+              <span class="par-num-sufixo">dias</span>
+            </div>
+            <span class="par-erro" id="erroEstoqueMax">Informe um número inteiro de 1 a 365 (como 30).</span>
+          </div>
+        </div>
+      </div>
+      <div class="par-exp">
+        A promoção com o prazo "até acabar o estoque" termina quando o estoque dos produtos dela acaba, ou neste limite, contado do dia do início. Prorrogar também não passa dele.
+        <span class="par-onde">Aparece no <b>prazo das promoções</b> de Promoções e Encartes</span>
+      </div>
+    </div>
+  </div>
+
   <div class="barra-salvar" id="barraSalvar">
     <button class="btn-primary" id="btnSalvarParam">Salvar parâmetros</button>
     <div class="drawer-link" id="btnRestaurarParam">Restaurar padrão</div>
@@ -1519,6 +1563,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     margemMinimaPct: 15,
     comissaoPadraoPct: 5,
     parcelasVitrine: 3,
+    // promocoes (Promocoes e Encartes, 09/nov/2026)
+    promoRiscadoDias: 30,
+    promoEstoqueMaxDias: 30,
     separacaoOrdemPorEndereco: true,
     conferenciaSaidaCega: true,
     sugerirEmbalagem: true,
@@ -1603,7 +1650,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // duas coisas.
     { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
     { chave:'parametrosVendas',    nome:'Alterar os parâmetros de vendas',           onde:'Configurações → Parâmetros de vendas', grupo:'Vendas',       pronto:true,  exigePadrao:false },
-    { chave:'calculadoraPreco',     nome:'Aplicar o preço calculado',                    onde:'Cadastros → Produtos', grupo:'Cadastros',     pronto:true,  exigePadrao:false }
+    { chave:'calculadoraPreco',     nome:'Aplicar o preço calculado',                    onde:'Cadastros → Produtos', grupo:'Cadastros',     pronto:true,  exigePadrao:false },
+    { chave:'promocaoSalva',      nome:'Criar ou alterar uma promoção',                onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoAprova',     nome:'Aprovar uma promoção',                         onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'promocaoAntecipa',   nome:'Antecipar o início de uma promoção aprovada',  onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoProrroga',   nome:'Prorrogar uma promoção aprovada',              onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoEncerra',    nome:'Encerrar uma promoção antes do fim',           onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
@@ -2129,8 +2183,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `devolucaoPrazoDias`), e as outras LEEM: Custos do E-commerce le a margem minima; a calculadora de precos (Cadastros > Produtos) le o imposto padrao, a margem minima,
   // a comissao padrao e as parcelas da vitrine; a Margem de Contribuicao vai ler o imposto padrao.
   // De fabrica: imposto 4,00%, margem minima 15,00% e comissao 5,00% (de 0 a 100, com ate duas casas); parcelas 3 (inteiro, de 1 a 12).
-  const CHAVES = ['impostoPadraoPct', 'margemMinimaPct', 'comissaoPadraoPct', 'parcelasVitrine'];
-  const INTEIROS = { parcelasVitrine: [1, 12] };
+  const CHAVES = ['impostoPadraoPct', 'margemMinimaPct', 'comissaoPadraoPct', 'parcelasVitrine', 'promoRiscadoDias', 'promoEstoqueMaxDias'];
+  const INTEIROS = { parcelasVitrine: [1, 12], promoRiscadoDias: [1, 365], promoEstoqueMaxDias: [1, 365] };
   const fmtPct = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmtParam = (k, n) => (INTEIROS[k] ? String(n) : fmtPct(n));
   // O que esta gravado, ou o de fabrica se a gravacao estiver estragada.
@@ -2170,10 +2224,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       ? 'Com <b>0%</b>, só pedido no prejuízo entra no alerta de Custos do E-commerce.'
       : 'Com <b>' + fmtPct(m) + '%</b>, o pedido online que sobra menos de R$ ' + fmtPct(m) + ' em cada R$ 100 vendidos entra no alerta de Custos do E-commerce, o de prejuízo inclusive.';
   }
+  // Dias de Promocoes: inteiro de 1 a 365, so digitos.
+  function lerDias(id) {
+    const bruto = document.getElementById(id).value.trim();
+    if (!/^\d{1,3}$/.test(bruto)) return null;
+    const n = Number(bruto);
+    return (n < 1 || n > 365) ? null : n;
+  }
   function validar() {
-    const i = lerCampo('impostoPadrao'), m = lerCampo('margemMinima'), c = lerCampo('comissaoPadrao'), pv = lerParcelas('parcelasVitrine');
+    const i = lerCampo('impostoPadrao'), m = lerCampo('margemMinima'), c = lerCampo('comissaoPadrao'), pv = lerParcelas('parcelasVitrine'), rd = lerDias('promoRiscado'), em = lerDias('promoEstoqueMax');
     marcarErro('campoImposto', i === null); marcarErro('campoMargem', m === null); marcarErro('campoComissao', c === null); marcarErro('campoParcelas', pv === null);
-    return (i !== null && m !== null && c !== null && pv !== null) ? { impostoPadraoPct: i, margemMinimaPct: m, comissaoPadraoPct: c, parcelasVitrine: pv } : null;
+    marcarErro('campoRiscado', rd === null); marcarErro('campoEstoqueMax', em === null);
+    return (i !== null && m !== null && c !== null && pv !== null && rd !== null && em !== null)
+      ? { impostoPadraoPct: i, margemMinimaPct: m, comissaoPadraoPct: c, parcelasVitrine: pv, promoRiscadoDias: rd, promoEstoqueMaxDias: em } : null;
   }
   function mudou() {
     const v = validar();
@@ -2189,11 +2252,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   document.getElementById('btnSalvarParam').addEventListener('click', () => {
     const v = validar();
-    if (!v) { avisar('Há campos inválidos, destacados em vermelho. O imposto, a margem mínima e a comissão vão de 0 a 100, com até duas casas; as parcelas, de 1 a 12.'); return; }
+    if (!v) { avisar('Há campos inválidos, destacados em vermelho. O imposto, a margem mínima e a comissão vão de 0 a 100, com até duas casas; as parcelas, de 1 a 12; os dias das promoções, de 1 a 365.'); return; }
     const mudancas = CHAVES.filter(k => v[k] !== lido(k)).length;
     CHAVES.forEach(k => { PARAM[k] = v[k]; });
     const gravou = gravarParametros(PARAM);
-    if (mudancas) registrarLog('parametrosVendas', 'Imposto padrão ' + fmtPct(v.impostoPadraoPct) + '% · margem mínima ' + fmtPct(v.margemMinimaPct) + '% · comissão padrão na calculadora ' + fmtPct(v.comissaoPadraoPct) + '% · parcelas na vitrine ' + v.parcelasVitrine + 'x', false);
+    if (mudancas) registrarLog('parametrosVendas', 'Imposto padrão ' + fmtPct(v.impostoPadraoPct) + '% · margem mínima ' + fmtPct(v.margemMinimaPct) + '% · comissão padrão na calculadora ' + fmtPct(v.comissaoPadraoPct) + '% · parcelas na vitrine ' + v.parcelasVitrine + 'x · preço sem subir há ' + v.promoRiscadoDias + ' dias · "até acabar o estoque" até ' + v.promoEstoqueMaxDias + ' dias', false);
     mudou();
     avisar(mudancas === 0
       ? 'Nenhum parâmetro mudou.'
