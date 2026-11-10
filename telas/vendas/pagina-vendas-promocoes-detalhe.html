@@ -2356,7 +2356,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const p = { id: s.id, nome: s.nome, loja: s.loja, situacao: s.situacao, prazo: s.prazo, inicio: promoDia(s.ini), fim: promoDia(s.fim), onde: s.onde.slice(), obs: s.obs,
         origem: 'Promoções e Encartes', criadaPor: s.criadaPor, criadaEm: promoQuando(s.criadaDia), historico: [{ em: promoQuando(s.criadaDia), por: s.criadaPor, texto: 'Criou a promoção.' }],
         itens: s.itens.map(i => ({ sku: i.sku, preco: i.preco, limite: i.limite, cliente: i.cliente, planilha: !!i.planilha })) };
-      if (s.aprovadaPor) { p.aprovadaPor = s.aprovadaPor; p.aprovadaEm = promoQuando(s.aprovadaDia); p.historico.push({ em: p.aprovadaEm, por: s.aprovadaPor, texto: 'Aprovou a promoção, com senha.' }); }
+      if (s.aprovadaPor) { p.aprovadaPor = s.aprovadaPor; p.aprovadaEm = promoQuando(s.aprovadaDia); p.historico.push({ em: p.aprovadaEm, por: s.aprovadaPor, texto: 'Aprovou a promoção.' }); }
       if (s.encerradaPor) { p.encerradaPor = s.encerradaPor; p.encerradaEm = promoDia(s.encerradaDia); p.historico.push({ em: promoQuando(s.encerradaDia), por: s.encerradaPor, texto: 'Encerrou a promoção antes do fim.' }); }
       return p;
     });
@@ -3201,7 +3201,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         else promoGravarPreco(pr.id, 'promocional', i.preco, i.planilha ? 'planilha' : 'aprovada', E.id);
       });
       E.situacao = 'aprovada'; E.aprovadaPor = USUARIO_SESSAO.nome; E.aprovadaEm = new Date().toISOString();
-      promoRegistrar(E, 'Aprovou a promoção, com senha.' + (mudam.length ? ' ' + plural(mudam.length, 'preço promocional entrou', 'preços promocionais entraram') + ' no cadastro.' : ''));
+      promoRegistrar(E, 'Aprovou a promoção.' + (mudam.length ? ' ' + plural(mudam.length, 'preço promocional entrou', 'preços promocionais entraram') + ' no cadastro.' : ''));
       gravar();
       marcaVoltando('../vendas/pagina-vendas-promocoes.html'); window.location.href = '../vendas/pagina-vendas-promocoes.html?aprovada=' + P.id;
     });

@@ -3239,7 +3239,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const p = { id: s.id, nome: s.nome, loja: s.loja, situacao: s.situacao, prazo: s.prazo, inicio: promoDia(s.ini), fim: promoDia(s.fim), onde: s.onde.slice(), obs: s.obs,
         origem: 'Promoções e Encartes', criadaPor: s.criadaPor, criadaEm: promoQuando(s.criadaDia), historico: [{ em: promoQuando(s.criadaDia), por: s.criadaPor, texto: 'Criou a promoção.' }],
         itens: s.itens.map(i => ({ sku: i.sku, preco: i.preco, limite: i.limite, cliente: i.cliente, planilha: !!i.planilha })) };
-      if (s.aprovadaPor) { p.aprovadaPor = s.aprovadaPor; p.aprovadaEm = promoQuando(s.aprovadaDia); p.historico.push({ em: p.aprovadaEm, por: s.aprovadaPor, texto: 'Aprovou a promoção, com senha.' }); }
+      if (s.aprovadaPor) { p.aprovadaPor = s.aprovadaPor; p.aprovadaEm = promoQuando(s.aprovadaDia); p.historico.push({ em: p.aprovadaEm, por: s.aprovadaPor, texto: 'Aprovou a promoção.' }); }
       if (s.encerradaPor) { p.encerradaPor = s.encerradaPor; p.encerradaEm = promoDia(s.encerradaDia); p.historico.push({ em: promoQuando(s.encerradaDia), por: s.encerradaPor, texto: 'Encerrou a promoção antes do fim.' }); }
       return p;
     });
@@ -3404,6 +3404,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return novo;
   }
   // ===== FIM DO BLOCO PROMOCOES =====
+  // No Pedido de Venda a etiqueta do item leva o link da promocao; no PDV, nao (pedido do usuario em 10/nov/2026). Fora do bloco comum de proposito.
+  const PROMO_ETIQUETA_LINK = true;
   // ===== PROMOCOES: NA VENDA (bloco comum, 09/nov/2026) =====
   // O preco promocional chega na venda (entrega 2 de Promocoes e Encartes). O bloco e IDENTICO no PDV e no Pedido de Venda, e teste_promocoes.py
   // compara as copias. Depende dos blocos PROMOCOES: DADOS E LEITURA e PRECO MINIMO, que vem antes dele. Regras (barganha de 04 e 09/nov/2026):
@@ -3444,11 +3446,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : (a.item.limite === 'ESTOQUE' ? 'o estoque da promoção' : 'o limite de ' + a.item.limite + ' un. da promoção');
     return { cabe: Math.max(0, Math.min(total, porCliente)), motivo: motivo };
   }
-  // A etiqueta do item: "de R$ X por R$ Y" e a promocao, com o link para a pagina dela; ou o preco aplicado na hora, com senha.
+  // A etiqueta do item: "de R$ X por R$ Y" e a promocao, com o link para a pagina dela onde PROMO_ETIQUETA_LINK liga; ou o preco aplicado na hora, com senha.
   function promoEtiqueta(promocao, de, por) {
     const p = promocao ? lerPromocoes().filter(x => x.id === promocao)[0] : null;
     if (p) return '<div class="promo-tag"><span class="promo-tag-selo">Promoção</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) +
-      ' · <a class="promo-tag-link" href="' + PROMO_PAGINA + p.id + '">nº ' + p.id + ' ' + p.nome + '</a></div>';
+      (PROMO_ETIQUETA_LINK ? ' · <a class="promo-tag-link" href="' + PROMO_PAGINA + p.id + '">nº ' + p.id + ' ' + p.nome + '</a>' : '') + '</div>';
     return '<div class="promo-tag"><span class="promo-tag-selo">Na hora</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) + ', aplicado com senha</div>';
   }
   // O minimo da calculadora para o produto (centavos), com o calculo guardado nela quando houver; null sem custo no cadastro.

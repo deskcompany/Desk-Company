@@ -534,9 +534,10 @@ with sync_playwright() as p:
         pdv_add('PAP-3002')
         ok(itens_pdv() == [['PAP-3002', 1, 59.9, 1]], 'PDV: a promoção ativa nº 1 (Desk Shope, PDV marcado) põe o preço dela sozinha, sem senha: %s' % itens_pdv())
         ok(not modal_aberto(), 'e não pede senha nem mostra aviso')
-        tag = ev("(() => { const t = document.querySelector('#listaItens tbody tr .promo-tag'); return t ? [t.textContent.replace(/\\s+/g, ' ').trim(), t.querySelector('a').getAttribute('href')] : null; })()")
-        ok(tag and 'de R$ 64,90 por R$ 59,90' in tag[0] and 'nº 1 Volta às aulas' in tag[0] and tag[1] == '../vendas/pagina-vendas-promocoes-detalhe.html?id=1',
-           'o item mostra "de R$ 64,90 por R$ 59,90" e a promoção, com o link para a página dela: %s' % tag)
+        tag = ev("(() => { const t = document.querySelector('#listaItens tbody tr .promo-tag'); return t ? [t.textContent.replace(/\\s+/g, ' ').trim(), !!t.querySelector('a')] : null; })()")
+        # 10/nov (pedido do usuario): no PDV a etiqueta so diz o preco, sem o link da promocao; no Pedido de Venda o link fica
+        ok(tag and 'de R$ 64,90 por R$ 59,90' in tag[0] and 'Volta às aulas' not in tag[0] and not tag[1],
+           'o item mostra "de R$ 64,90 por R$ 59,90", sem o nome nem o link da promoção: %s' % tag)
         pdv_add('ELE-1004')
         ok(itens_pdv()[-1] == ['ELE-1004', 1, 45.0, None], 'a agendada (nº 2, Carregador) não entra: preço de venda')
         ok(ev("promoNaVenda('VES-2001', 1, 'pdv')") is None and ev("promoNaVenda('VES-2001', 2, 'pdv').preco") == 37.9, 'a camiseta só tem o preço da nº 7 na Desk Brands, a loja da promoção')
