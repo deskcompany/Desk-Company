@@ -192,6 +192,9 @@ Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
    botão nativo: a classe `btn-secundario` não tem CSS nessa tela, porque entra pelo JS). Trocar pelo botão do design
    system e procurar, nas 92 telas, outra classe que só aparece em string do JS sem CSS na tela. A regra entrou na skill
    `desk-company-page-qa` (checklist manual, "Interação de verdade") em 09/nov.
+9. **Promoção, revisão: "fora" vira "Corrigir"** (escolha dele em 09/nov/2026, entre as sugestões). A linha boa vira
+   "Pronto" e a com problema "Corrigir", na etiqueta, no filtro e na frase embaixo da tabela ("3 prontos e 2 para
+   corrigir"). Trocar também nos textos de ajuda, na suíte `teste_promocoes.py` e no §14.108.
 
 ## Esperando decisão do usuário
 
@@ -202,14 +205,12 @@ alterar uma agendada a devolve para "em revisão" e **pede senha** de novo; os q
 "sem custo no cadastro", "não é menor que o preço de venda", "limite inválido") **ficam por ora**; e excluir só
 rascunho e em revisão, sem senha de fábrica.
 
-1. **O nome "fora" na revisão** (ele achou estranho e pediu sugestões antes de mexer): a etiqueta da linha e a frase
-   "0 produtos ok e 2 fora". As sugestões foram mandadas a ele em 09/nov; a troca vai junto da próxima revisão.
-2. **O "quanto vendeu" desta entrega** conta tudo o que se vendeu dos produtos da promoção, na loja e nos lugares marcados, durante o prazo:
+1. **O "quanto vendeu" desta entrega** conta tudo o que se vendeu dos produtos da promoção, na loja e nos lugares marcados, durante o prazo:
    o preço ainda não entra sozinho no PDV e no Pedido de Venda (entrega 2). Na entrega 2 ele passa a contar só a venda com o preço da promoção.
 
 E uma de antes, que é dele:
 
-3. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
