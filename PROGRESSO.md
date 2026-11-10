@@ -130,6 +130,20 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   - **Sem promocional cadastrado:** o "Ativar" fica apagado e leva ao pedido de revisão de preço. **Vem com o protótipo da vitrine.**
   - **O sistema vê e encerra:** a página do produto mostra "Em promoção até <data>, ativada por <nome> pela <origem>", quem está no
     sistema pode encerrar antes, e a ativação vai para o Registro de atividades. *(Feito na entrega 1.)*
+- **Usuários do sistema e Permissões de Usuários** (barganha de 10/nov/2026, com 15 prints do Olist: Configurações → Geral →
+  Usuários do sistema, Perfil de usuários, a página do usuário e as permissões adicionais; o print é o piso da tela):
+  - **4 telas em Configurações:** a lista de usuários (no padrão da casa: indicadores, busca, filtros, tabela, painel lateral), a
+    página do usuário, a lista de perfis e a página do perfil. A aba "Acesso e Permissões" de Vendedores vira só o vínculo com o usuário.
+  - **Um perfil por usuário, mais permissões avulsas** (opção A dele): o perfil diz tudo, e a exceção aparece no próprio usuário.
+  - **O código de autorização é separado da senha de entrar** (como o "código para liberação de descontos" do Olist): quem autoriza
+    digita o código dele, e o sistema sabe quem autorizou. Resolve a senha mocada de Confirmações por senha.
+  - **Desconto sem senha:** o perfil traz um padrão, e a pessoa pode ter um valor próprio, que vale no lugar dele.
+  - **A grade é a lista do Olist** (opção B dele): cada tela do menu é um item, e dentro dela as funções concretas (abrir e fechar o
+    caixa, relatório, incluir, alterar, cancelar, ver os de outros), com "marcar todos" por aba de módulo. No fim, "Permissões de
+    ações": as ações que pedem autorização, as mesmas chaves de Confirmações por senha.
+  - **Os perfis de partida** são os do mapa dos canais: Owner (não se edita), Gerente, Supervisor de vendas, Vendedor interno,
+    Caixa / vendedor de balcão, Representante externo.
+  - **Fora do protótipo:** a confirmação da troca de senha por código no e-mail (só o aviso) e as integrações próprias do Olist.
 - **Promoções e Encartes** (barganha de 04 e 09/nov/2026; a entrega 1 fez o que está marcado como feito):
   - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha). *(A permissão é mocada, como o resto, até Permissões de Usuários existir.)*
   - **A promoção nasce de UMA loja** (o encarte sai com a marca dela); produtos de outra loja não entram (09/nov).
@@ -232,11 +246,9 @@ Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "
 
 ## Esperando decisão do usuário
 
-As quatro perguntas da entrega 2 foram respondidas em 10/nov e estão em "Decidido". Falta:
+As quatro perguntas da entrega 2, o mapa dos canais e a barganha de Usuários e Permissões foram respondidos em 10/nov e estão em "Decidido". Falta:
 
-1. **Promoção e preço de atacado na mesma linha:** a proposta do mapa é ficar o menor dos dois, sem somar. Ele confirma antes do
-   preço de atacado (item 3 da fila).
-2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste

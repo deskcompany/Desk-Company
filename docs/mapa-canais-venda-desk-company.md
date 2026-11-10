@@ -56,7 +56,9 @@ Do mais geral ao mais específico. Cada degrau só existe onde o canal deixa.
 - **No pedido**, a quantidade decide: chegou ao mínimo, o preço da linha vira o de atacado sozinho. Abaixo do mínimo, vale o
   preço de venda.
 - **O preço de atacado também passa pela trava do mínimo da calculadora**, como o promocional.
-- Quando a promoção e o atacado valem para a mesma linha, fica o **menor** dos dois, sem somar. *A confirmar na construção.*
+- **Atacado é atacado** (resposta do usuário, 10/nov). A promoção mexe só no preço de venda e não encosta no atacado: a linha que
+  chegou à quantidade mínima fica no preço de atacado, com promoção ativa ou não. No fechamento do pedido, quem tem permissão
+  ainda pode dar um desconto (10%, 5%, 2%...) até o limite dele, como em qualquer venda.
 
 ## Os perfis que saem do mapa
 
