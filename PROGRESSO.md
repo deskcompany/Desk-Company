@@ -1,6 +1,4 @@
-*Atualizado em 10/nov/2026: Promoções e Encartes, entrega 2 (o preço chega na venda: PDV e Pedido de Venda), feita e esperando o teste dele. A entrega 1 foi testada por ele em 09/nov; os ajustes estão na revisão geral.*
-
-*Atualizado em 09/nov/2026: Promoções e Encartes, entrega 1 (a lista, a página da promoção, a revisão com aprovação por senha, o histórico do preço na ficha do produto), feita e esperando o teste dele. As entregas 2 e 3 vêm depois do teste.*
+*Atualizado em 10/nov/2026: Promoções e Encartes, entrega 2, testada por ele e ajustada no mesmo dia. As quatro perguntas dela viraram decisão, e a barganha abriu uma fila nova: o mapa dos canais de venda, depois Usuários do sistema e Permissões de Usuários, depois o pacote do gerente na promoção.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -10,23 +8,13 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Promoções e Encartes, entrega 2: o preço chega na venda. Feita em 09-10/nov/2026, esperando o teste dele.** O detalhe está no §14.109. Para abrir:
-
-- `http://localhost:3000/vendas/pagina-vendas-pdv.html` (abra o caixa na **Desk Shope**)
-- `http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?novo=1` (escolha a loja **Desk Shope**)
-- `http://localhost:3000/vendas/pagina-vendas-promocoes.html` (aba "Todas", linha nº 1 "Volta às aulas": o painel com quanto vendeu)
-- `http://localhost:3000/cadastros/pagina-cadastros-vendedores-detalhe.html?id=1` (Confirmações por senha: a Marina Costa pode "Aplicar o preço promocional fora da promoção"; o `?id=3`, Rafael Andrade, não)
-
-O que conferir:
-- **O preço entra sozinho:** no PDV, passe `PAP-3002` (Kit Papelaria, da promoção nº 1, ativa): entra a R$ 59,90, com "Promoção de R$ 64,90 por R$ 59,90" (sem o link da promoção, pedido dele no teste de 10/nov; no Pedido de Venda o link fica), sem senha. O `ELE-1004` (Carregador, da nº 2, que ainda está agendada) entra pelo preço de venda, R$ 45,00. No Pedido de Venda, o mesmo SKU na linha também troca o preço sozinho.
-- **O limite:** a nº 1 deixa 2 Kits por cliente. Passe 3 sem cliente: 2 entram a R$ 59,90 e o terceiro vai numa linha a parte a R$ 64,90, com o motivo ("sem cliente identificado, vale por venda"). Com cliente (Marina Duarte), feche uma venda de 2 e comece outra para ela: o próximo Kit entra pelo preço de venda, "a cliente já levou 2". Trocar para ela depois de pôr o item trava o finalizar, com o que fazer.
-- **O desconto por cima:** no item de R$ 59,90, desconto de 10% (R$ 5,99 por unidade) passa; mais que isso pede a liberação do gerente, como hoje. O máximo vale sobre o promocional.
-- **A exceção na hora:** no Carregador (fora de promoção, promocional R$ 42,90 no cadastro), abra o item: aparece "Aplicar preço promocional". Com a vendedora Bianca Furtado (PDV) ou Rafael Andrade (Pedido), não aplica e diz onde mora a permissão; com a Marina Costa, pede senha e aplica; vai para Confirmações por senha e para o Registro de atividades. Para ver a trava do mínimo: na ficha do Carregador (`cadastros/pagina-cadastros-produtos-detalhe.html?id=11`, aba Preços), ponha o promocional em 39,90 e salve; o aplicar diz que está abaixo do mínimo da calculadora (R$ 40,07) e não aplica.
-- **Quanto vendeu:** depois de fechar a venda no PDV (ou salvar o pedido), o painel da nº 1 conta só o que saiu com o preço da promoção e leva à venda. Os pedidos de exemplo 3 e 8 venderam os produtos da nº 1 pelo preço de venda (pela vitrine, que ainda não aplica): não contam mais, e a nº 1 abre com zero.
+**Promoções e Encartes, entrega 2 (o preço chega na venda): testada por ele em 10/nov/2026.** Os ajustes que ele pediu na hora foram
+feitos no mesmo dia (a etiqueta sem o link da promoção, no PDV e no Pedido; o histórico sem "com senha"); os que ele deixou para depois
+estão na revisão geral (itens 10 a 12). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.109.
 
 **Promoções e Encartes, entrega 1: testada por ele em 09/nov/2026.** Os ajustes que ele pediu estão na revisão geral (itens 4 a 9) e ficam para ela; o texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.108.
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 4 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 7 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
 **Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
@@ -69,21 +57,31 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 ## Próximo da fila
 
-Refeita em 10/nov, depois da entrega 2 de Promoções e Encartes.
+Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da barganha das quatro perguntas.
 
-1. **O teste dele na entrega 2 de Promoções e Encartes**, e os ajustes que vierem num pacote só. As perguntas estão em "Esperando decisão do usuário".
-2. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes do teste da entrega 1), quando ele quiser.
-3. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
-4. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-5. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+1. **O mapa dos canais de venda** (próximo passo; o principal escreve a proposta e traz para ele aprovar antes de construir).
+   Ele aprovou pensar grande ("vamos transformar essa empresa em uma máquina de vendas"). Entram os canais de hoje (PDV, Pedido
+   de Venda, loja virtual, afiliados) e os que podem vir (marketplaces, vendedor externo pelo celular, atacado para empresas,
+   WhatsApp, televendas, evento ou feira). Para cada um: onde a venda nasce, quem vende, se pode dar desconto e de onde vem o preço.
+   Já respondido: o Pedido de Venda é usado por ele, um gerente e um supervisor de vendas. Dele saem os perfis do item 2.
+2. **Usuários do sistema e Permissões de Usuários** (módulo novo; começa pela barganha, com prints do Olist se houver). As duas
+   estão no hub de Configurações sem tela; Permissões é a mesma grade de Confirmações por senha com a pergunta "este perfil
+   pode?" (arquitetura, §1095 e §1219: o 4º verbo "ver"), e hoje é mocada em Vendedores → Acesso e Permissões. Usuários nasce
+   antes (o cadastro de que a tela depende). Aqui nasce o **"desconto máximo sem senha" por pessoa**, que só o usuário mestre altera.
+3. **O pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o preço promocional fora
+   da promoção só com o gerente; o botão do gerente no excedente do limite; o limite de desconto por pessoa no PDV e no Pedido.
+4. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
+5. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+6. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+7. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-6. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-7. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-8. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+8. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+9. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+10. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -102,8 +100,22 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
     ela está ativa, o preço entra sozinho, sem senha (a decisão foi tomada ao aprovar). *(Feito na entrega 2, no PDV e no Pedido de Venda; a vitrine vem com o protótipo dela.)*
   - **A exceção na hora:** fora de promoção, o botão "Aplicar preço promocional" no item do PDV e do Pedido de Venda pede senha, e só
     quem tem a permissão no cadastro dele aplica; vai para Confirmações por senha e para o Registro de atividades, e respeita a trava do mínimo. *(Feito na entrega 2.)*
+    **Muda (resposta dele em 10/nov):** a permissão é **do gerente**, não do vendedor. O vendedor só tem os preços das promoções e
+    encartes ativos; fora disso, preço promocional ou desconto acima do limite dele pede a autorização do gerente. **Vem no pacote do
+    gerente (item 3 da fila)**, depois de Permissões de Usuários; até lá fica a permissão no cadastro do vendedor.
   - **Desconto por cima:** o preço promocional não conta como desconto; o desconto máximo do PDV (hoje 10%) vale sobre o promocional,
     com a mesma liberação de hoje. *(Feito na entrega 2.)*
+  - **Desconto sem senha, por pessoa** (resposta dele em 10/nov, opção b): o PDV continua dando até 10% sem senha e o gerente libera
+    acima disso. O parâmetro já existe (Configurações → PDV, `pdvDescontoMaximoPct`). O limite passa a ser **por pessoa**, num
+    campo "desconto máximo sem senha" que só o usuário mestre altera; quem não tem o seu fica com o de Configurações → PDV, e vale
+    igual no PDV e no Pedido de Venda (hoje o Pedido não tem limite). **Vem com Permissões de Usuários e o pacote do gerente.**
+  - **O excedente do limite por cliente** (resposta dele em 10/nov): continua automático, numa linha a parte pelo preço de venda. Na
+    linha, o botão "Aplicar preço promocional no excedente": o gerente põe a senha e diz quantas peças recebem o promocional (todas
+    ou uma parte), e a linha se divide. Exemplo dele: o cliente pede 5, o máximo é 2, o gerente negocia e libera mais 2. A peça
+    liberada **conta no limite total** da promoção e não passa dele. Vai para o Registro de atividades com quem e quantas.
+    **Vem no pacote do gerente.**
+  - **O exemplo da nº 1 abre com zero vendido** (resposta dele em 10/nov: "deixa como está"). Os pedidos de exemplo 3 e 8 venderam
+    pelo preço de venda e não são refeitos.
   - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias, em Parâmetros de vendas); e, por produto, um limite de unidades.
     Ao acabar, volta sozinho ao preço de venda. *(Feito na entrega 1.)*
   - **Na vitrine:** o preço de venda riscado e o promocional como o preço (de R$ 149,90 por R$ 99,90). **Vem com o protótipo da vitrine.**
@@ -202,18 +214,24 @@ Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
    "Pronto" e a com problema "Corrigir", na etiqueta, no filtro e na frase embaixo da tabela ("3 prontos e 2 para
    corrigir"). Trocar também nos textos de ajuda, na suíte `teste_promocoes.py` e no §14.108.
 
+Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "vamos avaliar depois"):
+
+10. **PDV, "O que esta venda gerou": menos detalhe para quem está no caixa.** Ficam o título a receber, a taxa da
+    maquininha (R$ 4,51), o valor total e a forma de pagamento. Saem o nome da maquininha, o nível da taxa (Bronze) e a
+    bandeira do cartão (Visa). Avaliar com ele, antes de mexer, se o mesmo vale para o resumo do Pedido de Venda.
+11. **PDV, caixa "Desconto à vista": tirar a maquininha, o nível (Bronze) e a bandeira** da frase ("a taxa do crédito à
+    vista de InfinitePay Maquininha — Bronze, Visa"). Ficam a porcentagem, as formas (Pix e dinheiro), o valor e o botão.
+12. **A bolinha azul dos itens de lista e das opções de marcar está torta.** Na lista "O que esta venda gerou" e nas opções
+    "Desconto / Acréscimo" e "Valor fixo / Porcentagem" do PDV, a bolinha não fica centralizada no texto nem na caixa, e
+    cada cartão a mostra num lugar diferente. Medir nos dois temas e procurar o mesmo marcador e a mesma opção nas outras
+    telas, para corrigir num bloco comum.
+
 ## Esperando decisão do usuário
 
-Da entrega 2 de Promoções e Encartes (o que está feito segue a opção mais conservadora; muda num ajuste se ele preferir outra):
+As quatro perguntas da entrega 2 foram respondidas em 10/nov e estão em "Decidido". Falta:
 
-1. **Os pedidos de exemplo 3 e 8 venderam os produtos da nº 1 pelo preço de venda.** Com a regra nova eles não contam, e a nº 1 abre com zero vendido. Para o exemplo mostrar venda com o preço da promoção, o preço desses itens teria de virar o promocional, e o total deles se repete em sete telas (Clientes, Comissões, CRM, Custos do E-commerce, Devolução), mexendo em comissão, devolução e vale-compra. Ficou como está; ele decide se quer o exemplo refeito.
-2. **O Pedido de Venda não tem desconto máximo**, como o PDV tem (10%). O desconto do item vale sobre o promocional, sem trava nova. Ele quer um máximo no Pedido também, com a mesma liberação por senha?
-3. **Quem precisa da permissão para "Aplicar preço promocional":** hoje é o vendedor da venda (sem vendedor, quem está no sistema). A outra leitura é quem digita a senha (o gerente). Enquanto a senha é mocada e não diz quem é, ficou o vendedor.
-4. **O excedente do limite vira uma linha a parte pelo preço de venda**, com o motivo na linha e um aviso no PDV. A outra forma é só avisar e deixar a pessoa decidir. Ele prefere qual?
-
-E uma de antes, que é dele:
-
-5. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+1. **Aprovar o mapa dos canais de venda**, quando o principal trouxer a proposta (item 1 da fila).
+2. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste

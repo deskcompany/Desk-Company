@@ -10,6 +10,15 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Promoções e Encartes, entrega 2 (09-10/nov/2026) — testada pelo usuário em 10/nov ("os testes passaram"); ajustes feitos no mesmo dia, e o que ele deixou para depois está na revisão geral do PROGRESSO (itens 10 a 12)
+
+**O preço da promoção chega na venda: PDV e Pedido de Venda.** Para abrir:
+- `http://localhost:3000/vendas/pagina-vendas-pdv.html` (abra o caixa na Desk Shope e passe `PAP-3002`)
+- `http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?novo=1` (loja Desk Shope)
+- `http://localhost:3000/vendas/pagina-vendas-promocoes.html` (nº 1 "Volta às aulas": quanto vendeu)
+
+O que entrou: a promoção ativa põe o preço sozinha, sem senha, só na loja dela e no lugar marcado (PDV ou vendedores); agendada, encerrada ou de outra loja entra pelo preço de venda. O limite por cliente divide a linha (o que passa vai pelo preço de venda, com o motivo; sem cliente, o limite vale por venda). O desconto máximo do PDV vale sobre o promocional. Fora de promoção, "Aplicar preço promocional" pede senha e permissão, respeita a trava do mínimo e vai para o Registro de atividades. O "quanto vendeu" conta só o que saiu com o preço da promoção (por isso a nº 1 abre com zero: os pedidos de exemplo venderam pelo preço de venda, e ele decidiu deixar assim). O catálogo da venda ganhou os 8 produtos das promoções. Ajustes do teste dele: a etiqueta do item diz só "de R$ X por R$ Y", sem o nome nem o link da promoção, no PDV e no Pedido; e o histórico da promoção diz só "Aprovou a promoção.", sem "com senha". A queda de energia de 10/nov pegou a entrega antes do selo final; o fechamento consertou uma suíte velha e o `painel-link` sem CSS. As respostas dele às quatro perguntas viraram decisão no PROGRESSO (o gerente aplica o preço fora da promoção e libera o excedente, desconto por pessoa) e dependem de Usuários do sistema e Permissões de Usuários. O detalhe técnico está no §14.109.
+
 ### Promoções e Encartes, entrega 1 (09/nov/2026) — testada pelo usuário em 09/nov; os ajustes que ele pediu estão na revisão geral do PROGRESSO (itens 4 a 9)
 
 **A lista, a página da promoção, a revisão com aprovação por senha e o histórico do preço na ficha do produto.** Para abrir:

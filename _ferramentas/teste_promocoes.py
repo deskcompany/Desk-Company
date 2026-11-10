@@ -535,7 +535,7 @@ with sync_playwright() as p:
         ok(itens_pdv() == [['PAP-3002', 1, 59.9, 1]], 'PDV: a promoção ativa nº 1 (Desk Shope, PDV marcado) põe o preço dela sozinha, sem senha: %s' % itens_pdv())
         ok(not modal_aberto(), 'e não pede senha nem mostra aviso')
         tag = ev("(() => { const t = document.querySelector('#listaItens tbody tr .promo-tag'); return t ? [t.textContent.replace(/\\s+/g, ' ').trim(), !!t.querySelector('a')] : null; })()")
-        # 10/nov (pedido do usuario): no PDV a etiqueta so diz o preco, sem o link da promocao; no Pedido de Venda o link fica
+        # 10/nov (pedido do usuario): a etiqueta so diz o preco, sem o link da promocao, no PDV e no Pedido de Venda (o bloco NA VENDA e o mesmo)
         ok(tag and 'de R$ 64,90 por R$ 59,90' in tag[0] and 'Volta às aulas' not in tag[0] and not tag[1],
            'o item mostra "de R$ 64,90 por R$ 59,90", sem o nome nem o link da promoção: %s' % tag)
         pdv_add('ELE-1004')
@@ -649,7 +649,7 @@ with sync_playwright() as p:
         ok(itens_ped() == [['PAP-3002', 2, 59.9, 1], ['PAP-3002', 1, 64.9, None]], 'Pedido de Venda: a nº 1 (vendedores marcado) entra sozinha, e o que passa do limite vai numa linha logo abaixo: %s' % itens_ped())
         tags = ev("Array.from(document.querySelectorAll('#corpoItens [data-promo]')).map(e => e.textContent.replace(/\\s+/g, ' ').trim())")
         ok('de R$ 64,90 por R$ 59,90' in tags[0] and 'passou do limite de 2 por cliente' in tags[1], 'cada linha diz a sua: "de… por…" e o motivo do preço de venda: %s' % tags[:2])
-        ok(ev("document.querySelector('#corpoItens [data-promo] a').getAttribute('href')") == '../vendas/pagina-vendas-promocoes-detalhe.html?id=1', 'com o link para a promoção')
+        ok(not ev("!!document.querySelector('#corpoItens [data-promo] a')") and 'Volta às aulas' not in tags[0], 'sem o nome nem o link da promoção (pedido do usuário em 10/nov)')
         ev("ITENS[0].desconto = 10; renderItens()")
         ok(abs(ev("precoUnit(ITENS[0])") - 53.91) < 0.001, 'o desconto do item vale sobre o promocional (R$ 59,90 − 10% = R$ 53,91)')
         ped_novo(2); ped_add('PAP-3002', '1')

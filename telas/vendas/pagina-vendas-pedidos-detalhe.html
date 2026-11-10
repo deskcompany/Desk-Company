@@ -806,8 +806,6 @@
   /* Promocoes e Encartes, entrega 2 (09/nov/2026): o item com o preco da promocao, e a excecao na hora. Mesmas classes no PDV. */
   .promo-tag { font-size:11.5px; color:var(--text); margin-top:3px; line-height:1.5; white-space:normal; }
   .promo-tag-selo { display:inline-block; font-family:'Nunito',sans-serif; font-size:10.5px; font-weight:800; letter-spacing:.2px; padding:1px 8px; margin-right:6px; border-radius:10px; background:var(--active-bg); color:var(--active-text); vertical-align:1px; }
-  .promo-tag-link { color:var(--active-text); font-weight:700; text-decoration:none; }
-  .promo-tag-link:hover { text-decoration:underline; }
   .btn-secundario.item-btn-promo { display:inline-flex; margin:2px 0 14px; }
   .item-saldo.falta { color:var(--danger); opacity:1; font-weight:700; }
   .linha-sem-saldo td { background: rgba(220,80,80,0.07); }
@@ -3404,8 +3402,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return novo;
   }
   // ===== FIM DO BLOCO PROMOCOES =====
-  // No Pedido de Venda a etiqueta do item leva o link da promocao; no PDV, nao (pedido do usuario em 10/nov/2026). Fora do bloco comum de proposito.
-  const PROMO_ETIQUETA_LINK = true;
   // ===== PROMOCOES: NA VENDA (bloco comum, 09/nov/2026) =====
   // O preco promocional chega na venda (entrega 2 de Promocoes e Encartes). O bloco e IDENTICO no PDV e no Pedido de Venda, e teste_promocoes.py
   // compara as copias. Depende dos blocos PROMOCOES: DADOS E LEITURA e PRECO MINIMO, que vem antes dele. Regras (barganha de 04 e 09/nov/2026):
@@ -3420,7 +3416,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // na venda, quem aplica e quem esta no sistema (`USUARIO_SESSAO`), e o perfil Owner pode.
   const PROMO_PODE_NA_HORA = ['Marina Costa'];
   const promoPodeNaHora = (vendedor) => (vendedor ? PROMO_PODE_NA_HORA.indexOf(vendedor) >= 0 : USUARIO_SESSAO.perfil === 'Owner');
-  const PROMO_PAGINA = '../vendas/pagina-vendas-promocoes-detalhe.html?id=';
   // O preco de venda de hoje: o da ficha do produto (a dona do preco); o do catalogo para o produto que a ficha nao tem.
   function promoPrecoVenda(sku, precoCatalogo) { const pr = promoProduto(sku), v = pr ? promoPrecos(pr.id).venda : null; return v !== null && v !== undefined ? v : precoCatalogo; }
   // A promocao que vale para o produto nesta venda, ou null: { p, item, preco (o promocional), de (o de venda) }.
@@ -3446,11 +3441,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       : (a.item.limite === 'ESTOQUE' ? 'o estoque da promoção' : 'o limite de ' + a.item.limite + ' un. da promoção');
     return { cabe: Math.max(0, Math.min(total, porCliente)), motivo: motivo };
   }
-  // A etiqueta do item: "de R$ X por R$ Y" e a promocao, com o link para a pagina dela onde PROMO_ETIQUETA_LINK liga; ou o preco aplicado na hora, com senha.
+  // A etiqueta do item: "de R$ X por R$ Y", sem o nome nem o link da promocao (pedido do usuario em 10/nov/2026); ou o preco aplicado na hora, com senha.
   function promoEtiqueta(promocao, de, por) {
     const p = promocao ? lerPromocoes().filter(x => x.id === promocao)[0] : null;
-    if (p) return '<div class="promo-tag"><span class="promo-tag-selo">Promoção</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) +
-      (PROMO_ETIQUETA_LINK ? ' · <a class="promo-tag-link" href="' + PROMO_PAGINA + p.id + '">nº ' + p.id + ' ' + p.nome + '</a>' : '') + '</div>';
+    if (p) return '<div class="promo-tag"><span class="promo-tag-selo">Promoção</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) + '</div>';
     return '<div class="promo-tag"><span class="promo-tag-selo">Na hora</span>de ' + promoMoeda(de) + ' por ' + promoMoeda(por) + ', aplicado com senha</div>';
   }
   // O minimo da calculadora para o produto (centavos), com o calculo guardado nela quando houver; null sem custo no cadastro.
