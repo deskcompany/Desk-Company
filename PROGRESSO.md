@@ -59,7 +59,8 @@ O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
 Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da barganha das quatro perguntas.
 
-1. **O mapa dos canais de venda** (próximo passo; o principal escreve a proposta e traz para ele aprovar antes de construir).
+1. **O mapa dos canais de venda: proposta escrita em 10/nov, esperando a aprovação dele** ([docs/mapa-canais-venda-desk-company.md](docs/mapa-canais-venda-desk-company.md),
+   com as quatro perguntas no fim; o Olist não tem tela parecida, e as referências são Dynamics 365, Shopify, Erply, Senior e Alterdata).
    Ele aprovou pensar grande ("vamos transformar essa empresa em uma máquina de vendas"). Entram os canais de hoje (PDV, Pedido
    de Venda, loja virtual, afiliados) e os que podem vir (marketplaces, vendedor externo pelo celular, atacado para empresas,
    WhatsApp, televendas, evento ou feira). Para cada um: onde a venda nasce, quem vende, se pode dar desconto e de onde vem o preço.
