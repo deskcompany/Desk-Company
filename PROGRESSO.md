@@ -175,23 +175,41 @@ e entrou uma decisão:
    caixa e dentro de um saquinho da loja. Os insumos que entram sozinhos continuam entrando. (A conta do mínimo agora é um bloco comum com
    Promoções e Encartes, §14.108: mudar a embalagem muda as duas telas juntas.)
 
+Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
+
+4. **Promoção, tabela de produtos: os números desalinhados com os campos de digitação.** "De" e "Mínimo" (texto) não
+   ficam na mesma linha nem na mesma borda dos campos "Por", "Limite" e "Por cliente" (caixas). Alinhar texto e caixa
+   na mesma altura e no mesmo lado; ver se o mesmo acontece nas outras tabelas editáveis (Ordem de Compra, Entrada de Notas).
+5. **Painel lateral aberto: a página de trás não rola** (vale para o sistema todo). Hoje a rolagem desce a página
+   principal por trás do painel. Com o painel da direita aberto, a rolagem mexe só nele; ao fechar, a página volta a rolar
+   do ponto em que estava. Todas as telas com painel lateral, num bloco comum.
+6. **Painel da promoção: organizar os botões** "Antecipar para hoje", "Prorrogar", "Encerrar agora", "Clonar",
+   "Abrir promoção completa" e "Fechar". Hoje são seis pílulas soltas em três linhas, sem hierarquia. Propor a
+   organização (a principal em destaque, as outras agrupadas) antes de mexer, seguindo os painéis das telas prontas.
+7. **Ficha do produto, aba Dados Complementares: alinhamento.** "Loja Desk" e "Selecionar Loja" ficam colados na
+   Categoria, os nomes não seguem a grade das outras linhas, e os valores aparecem no meio. Alinhar à grade da aba Dados Gerais.
+8. **Ficha do produto, aba Preços: o botão "Encerrar antes para este produto" está fora do padrão** (saiu com cara de
+   botão nativo: a classe `btn-secundario` não tem CSS nessa tela, porque entra pelo JS). Trocar pelo botão do design
+   system e procurar, nas 92 telas, outra classe que só aparece em string do JS sem CSS na tela. A regra entrou na skill
+   `desk-company-page-qa` (checklist manual, "Interação de verdade") em 09/nov.
+
 ## Esperando decisão do usuário
 
 Da entrega 1 de Promoções e Encartes (o que está feito segue a escolha marcada; muda num ajuste se ele preferir outra):
 
-1. **"Encerrar antes" pela ficha do produto** encerra a promoção **só para aquele produto**, e os outros da promoção continuam. A outra opção é
-   encerrar a promoção inteira (o que a lista e a página da promoção já fazem).
-2. **Alterar uma agendada** (antes de começar) a devolve para "em revisão", e ela só vale de novo depois de aprovada outra vez, com senha.
-   A outra opção é salvar a mudança sem nova aprovação.
-3. **Motivos de "fora" que a regra pediu e não estavam na lista:** "é de outra loja" (pela planilha), "sem custo no cadastro: não dá para
-   conferir o mínimo" (o Filamento, por exemplo), "não é menor que o preço de venda" e "limite inválido". Ficam?
-4. **Excluir** só vale para rascunho e em revisão, e não pede senha de fábrica (dá para ligar em Confirmações por senha).
-5. **O "quanto vendeu" desta entrega** conta tudo o que se vendeu dos produtos da promoção, na loja e nos lugares marcados, durante o prazo:
+Respondidas por ele em 09/nov/2026, e ficam como estão: "Encerrar antes" pela ficha encerra **só aquele produto**;
+alterar uma agendada a devolve para "em revisão" e **pede senha** de novo; os quatro motivos a mais ("de outra loja",
+"sem custo no cadastro", "não é menor que o preço de venda", "limite inválido") **ficam por ora**; e excluir só
+rascunho e em revisão, sem senha de fábrica.
+
+1. **O nome "fora" na revisão** (ele achou estranho e pediu sugestões antes de mexer): a etiqueta da linha e a frase
+   "0 produtos ok e 2 fora". As sugestões foram mandadas a ele em 09/nov; a troca vai junto da próxima revisão.
+2. **O "quanto vendeu" desta entrega** conta tudo o que se vendeu dos produtos da promoção, na loja e nos lugares marcados, durante o prazo:
    o preço ainda não entra sozinho no PDV e no Pedido de Venda (entrega 2). Na entrega 2 ele passa a contar só a venda com o preço da promoção.
 
 E uma de antes, que é dele:
 
-6. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
+3. **Reenviar as skills do ERP pelo claude.ai, se quiser.** As regras que o Claude segue no ERP
    (o padrão de tela e o portão de qualidade) existem em dois lugares: nesta máquina, onde são
    atualizadas a cada entrega, e na conta dele no claude.ai, de onde o plugin foi enviado. A cópia
    da conta ficou com o texto antigo. Só faz diferença se ele trabalhar no ERP fora deste
