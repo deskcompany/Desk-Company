@@ -1704,6 +1704,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'pedidosExclui',      nome:'Excluir pedido de venda',                       onde:'Vendas \u2192 Pedidos de Venda',           grupo:'Vendas',    pronto:true,  exigePadrao:true },
     { chave:'pedidosCria',        nome:'Criar pedido de venda',                         onde:'Vendas \u2192 Pedidos de Venda',           grupo:'Vendas',    pronto:true,  exigePadrao:false },
     { chave:'promocaoNaHora',     nome:'Aplicar o pre\u00e7o promocional fora da promo\u00e7\u00e3o', onde:'Vendas \u2192 PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true },
+    { chave:'perfilPermissoes',   nome:'Alterar as permissões de um perfil',                       onde:'Configurações → Permissões de usuários', grupo:'Configurações', pronto:true, exigePadrao:true  },
+    { chave:'usuarioPermissoes',  nome:'Alterar o perfil ou as permissões avulsas de um usuário',   onde:'Configurações → Usuários do sistema',    grupo:'Configurações', pronto:true, exigePadrao:true  },
     // Andar um passo do funil e operacao normal: confirma e registra, sem senha.
     // PULAR ou VOLTAR passo e correcao, e correcao de situacao mexe em comissao,
     // em conta a receber e em saldo — por isso a senha mora so na segunda.

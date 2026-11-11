@@ -1,4 +1,4 @@
-*Atualizado em 10/nov/2026: o mapa dos canais de venda foi aprovado por ele (docs/mapa-canais-venda-desk-company.md). O próximo da fila é Usuários do sistema e Permissões de Usuários, que começa pela barganha; depois, o pacote do gerente na promoção e o preço de atacado.*
+*Atualizado em 11/nov/2026: a entrega 1 de Usuários do sistema e Permissões de usuários está feita e espera o teste dele (§14.110). O próximo da fila é a entrega 2, o pacote do gerente na promoção; depois, o preço de atacado.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -7,6 +7,13 @@ aprovada, o texto dela sai daqui e vai para o começo do [HISTORICO.md](HISTORIC
 As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do design system.
 
 ## Onde paramos
+
+**Usuários do sistema e Permissões de usuários, entrega 1: feita em 10/nov/2026, esperando o teste dele.** Quatro telas novas em Configurações (as duas listas abrem pelo hub, aba Geral). O detalhe está no §14.110; a suíte `teste_usuarios.py` tem 345 asserções. **O que conferir:**
+- A lista de usuários: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html>. Os quatro indicadores (Ativos 6, Bloqueados 1, Autorizam 3, Sem código 2) filtram; busca, perfil, loja e situação; clicar na linha abre o painel (abrir, alterar senha, alterar código, bloquear); "Mais ações → Gerenciar vendedores" leva a Vendedores.
+- A página do usuário: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?id=3> (a Marina: perfil Supervisor, uma permissão avulsa, desconto próprio de 18%) e <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?novo=1> (em branco; ao salvar, abre o painel da senha). Teste o código (só 4 a 6 números, nunca aparece depois), a senha (12 a 32) e "editar permissões avulsas" (o que o perfil dá vem marcado e travado; salvar pede a senha).
+- A lista de perfis: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario.html>. Clonar copia como perfil novo; só se exclui perfil sem usuário; o Owner não tem "excluir".
+- A página do perfil: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=2> (o Gerente) e <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=1> (o Owner abre só para ver, com tudo marcado). Abas por módulo, "Marcar todos", as funções de cada tela e, no fim da aba, as ações que pedem autorização; mudar a grade pede a senha.
+- Vendedores: <http://localhost:3000/cadastros/pagina-cadastros-vendedores-detalhe.html?id=1>, aba "Acesso e Permissões": mostra o usuário vinculado e diz onde moram horário, IP e módulos.
 
 **Promoções e Encartes, entrega 2 (o preço chega na venda): testada por ele em 10/nov/2026.** Os ajustes que ele pediu na hora foram
 feitos no mesmo dia (a etiqueta sem o link da promoção, no PDV e no Pedido; o histórico sem "com senha"); os que ele deixou para depois
@@ -34,13 +41,13 @@ de baixo risco (o usuário decide). Os retornos de teste vêm num pacote só.
 
 | etapa | o que mede | hoje |
 |---|---|---|
-| **Protótipo** | itens do menu que já têm tela HTML validada | **46 de 56 (82%)**, em 92 telas |
+| **Protótipo** | itens do menu que já têm tela HTML validada | **46 de 56 (82%)**, em 96 telas |
 | **Produção** | o que já virou sistema de verdade | **não começou** |
 
 Os 82% medem só o protótipo. Nenhuma tela virou sistema de verdade ainda. As fases de produção
 (F0 a F8) estão em `docs/arquitetura-roadmap-desk-company.md`.
 
-Eram 90 telas e 45 de 55 itens com tela até 03/nov/2026: Promoções e Encartes entrou no menu já com a lista e a página.
+Eram 90 telas e 45 de 55 itens com tela até 03/nov/2026: Promoções e Encartes entrou no menu já com a lista e a página. Em 10/nov entraram as quatro telas de Usuários e Perfis, em Configurações (o menu não mudou).
 
 | módulo | com tela | falta |
 |---|---|---|
@@ -51,7 +58,7 @@ Eram 90 telas e 45 de 55 itens com tela até 03/nov/2026: Promoções e Encartes
 | Logística | 5 de 6 | Relatórios de Logística |
 | Finanças | 4 de 5 | Relatórios Finanças |
 | Integrações | 1 de 4 | Marketplaces e Hubs, Emissão de Notas Fiscais, Relatórios de Integrações |
-| Configurações | hub com 20 telas | Formas de pagamento (a lista fiscal da NF-e) |
+| Configurações | hub com 24 telas | Formas de pagamento (a lista fiscal da NF-e) |
 
 O detalhe de cada tela está em `docs/mapa-modulos-desk-company.md`.
 
@@ -63,13 +70,8 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **Usuários do sistema e Permissões de Usuários** (módulo novo; começa pela barganha, com prints do Olist se houver). As duas
-   estão no hub de Configurações sem tela; Permissões é a mesma grade de Confirmações por senha com a pergunta "este perfil
-   pode?" (arquitetura, §1095 e §1219: o 4º verbo "ver"), e hoje é mocada em Vendedores → Acesso e Permissões. Usuários nasce
-   antes (o cadastro de que a tela depende). Os perfis de partida são os do mapa dos canais. Aqui nasce o **"desconto máximo sem
-   senha" por pessoa**, que só o Owner altera, e cada perfil faz só o que o Owner liberou (o supervisor pode ter limite maior que o
-   vendedor, mas o resto fica com o gerente ou o Owner).
-2. **O pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o preço promocional fora
+1. **Usuários do sistema e Permissões de usuários: a entrega 1 está feita** (ver "Onde paramos") e espera o teste dele. O resto do módulo é a entrega 2, abaixo.
+2. **A entrega 2 do módulo: o pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o código de autorização de cada pessoa valendo no lugar da senha mocada das outras telas (quem autoriza digita o código dele e o sistema sabe quem foi), e a permissão do preço promocional na hora saindo da ficha do vendedor para o perfil do gerente; o preço promocional fora
    da promoção só com o gerente; o botão do gerente no excedente do limite; o limite de desconto por pessoa no PDV e no Pedido.
 3. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
    unidades"; no Pedido de Venda, a linha que chega à quantidade mínima troca o preço sozinha. Vale para empresa e para pessoa
@@ -130,7 +132,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   - **Sem promocional cadastrado:** o "Ativar" fica apagado e leva ao pedido de revisão de preço. **Vem com o protótipo da vitrine.**
   - **O sistema vê e encerra:** a página do produto mostra "Em promoção até <data>, ativada por <nome> pela <origem>", quem está no
     sistema pode encerrar antes, e a ativação vai para o Registro de atividades. *(Feito na entrega 1.)*
-- **Usuários do sistema e Permissões de Usuários** (barganha de 10/nov/2026, com 15 prints do Olist: Configurações → Geral →
+- **Usuários do sistema e Permissões de Usuários** (barganha de 10/nov/2026; a entrega 1 fez tudo o que está abaixo, menos o que diz "entrega 2"; com 15 prints do Olist: Configurações → Geral →
   Usuários do sistema, Perfil de usuários, a página do usuário e as permissões adicionais; o print é o piso da tela):
   - **4 telas em Configurações:** a lista de usuários (no padrão da casa: indicadores, busca, filtros, tabela, painel lateral), a
     página do usuário, a lista de perfis e a página do perfil. A aba "Acesso e Permissões" de Vendedores vira só o vínculo com o usuário.
@@ -144,6 +146,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   - **Os perfis de partida** são os do mapa dos canais: Owner (não se edita), Gerente, Supervisor de vendas, Vendedor interno,
     Caixa / vendedor de balcão, Representante externo.
   - **Fora do protótipo:** a confirmação da troca de senha por código no e-mail (só o aviso) e as integrações próprias do Olist.
+  - **Entrega 2 (não feita):** o código de autorização valendo no lugar da senha mocada nas outras telas, e o PDV e o Pedido de Venda lendo o limite de desconto da pessoa.
 - **Promoções e Encartes** (barganha de 04 e 09/nov/2026; a entrega 1 fez o que está marcado como feito):
   - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha). *(A permissão é mocada, como o resto, até Permissões de Usuários existir.)*
   - **A promoção nasce de UMA loja** (o encarte sai com a marca dela); produtos de outra loja não entram (09/nov).

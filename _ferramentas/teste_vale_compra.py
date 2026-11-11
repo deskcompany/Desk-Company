@@ -657,8 +657,8 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.getElementById('breadcrumb').textContent.replace(/\\s+/g, '')") == 'Finanças›Vale-compra', 'e o caminho no topo diz Finanças › Vale-compra')
         # o catalogo de acoes
         carregam = [c for c in localiza.caminhos() if "chave:'comissaoReprograma'" in open(c, encoding='utf-8').read()]
-        ok(len(carregam) == 22 and any(_os.path.basename(c) == LISTA for c in carregam) and any(_os.path.basename(c) == DET for c in carregam),
-           'o catálogo está em 22 telas: as 15 que carregavam, as duas do Vale-compra, as duas de Promoções e Encartes, as duas de Gateways e Custos do E-commerce: %d' % len(carregam))
+        ok(len(carregam) == 26 and any(_os.path.basename(c) == LISTA for c in carregam) and any(_os.path.basename(c) == DET for c in carregam),
+           'o catálogo está em 26 telas: as 15 que carregavam, as quatro de Usuários e Perfis, as duas do Vale-compra, as duas de Promoções e Encartes, as duas de Gateways e Custos do E-commerce: %d' % len(carregam))
         faltam = [_os.path.basename(c) for c in carregam
                   if len(re.findall(r"chave:'valeCompra(?:Incluir|Cancelar|Reativar)'.*exigePadrao:true", open(c, encoding='utf-8').read())) != 3]
         ok(not faltam, 'cada uma traz as três ações (incluir, cancelar, reativar), todas com senha por padrão: %s' % faltam[:3])

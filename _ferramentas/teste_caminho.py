@@ -32,6 +32,8 @@ DETALHES = [n for n in localiza.nomes()
             if n.endswith('-detalhe.html') or n in ('pagina-financas-caixa-lancamento.html', 'pagina-estoque-transferencia-nova.html')]
 # "Voltar para Gateways" e o texto que a revisao deixou como estava; o item do menu e "Gateways de Pagamento".
 NOME_DIFERENTE = {'pagina-integracoes-gateways.html': 'Gateways'}
+# As duas listas de Usuarios e Perfis (10/nov/2026) moram em Configuracoes e so o hub as abre: nao sao item do menu, e o "Voltar para" delas usa o nome da tela.
+SEM_MENU = {'pagina-configuracoes-usuarios.html': 'Usuários do sistema', 'pagina-configuracoes-perfis-usuario.html': 'Permissões de usuários'}
 
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path=CHROME)
@@ -176,7 +178,10 @@ with sync_playwright() as p:
         if r['velho']: defeitos.append('sobrou .voltar-link')
         if not r['href'] or not localiza.existe(localiza.nome(r['href']).split('?')[0]): defeitos.append('href nao leva a tela que existe: %s' % r['href'])
         nome_menu = NOME_DIFERENTE.get(localiza.nome(r['href'] or '').split('?')[0], r['menu'])
-        if not r['menu'] or r['texto'] != 'Voltar para ' + nome_menu: defeitos.append('texto "%s", menu "%s"' % (r['texto'], r['menu']))
+        sem_menu = SEM_MENU.get(localiza.nome(r['href'] or '').split('?')[0])
+        if sem_menu:
+            if r['texto'] != 'Voltar para ' + sem_menu: defeitos.append('texto "%s", esperado "Voltar para %s"' % (r['texto'], sem_menu))
+        elif not r['menu'] or r['texto'] != 'Voltar para ' + nome_menu: defeitos.append('texto "%s", menu "%s"' % (r['texto'], r['menu']))
         if defeitos: ruins.append('%s: %s' % (n, '; '.join(defeitos)))
     ok(not ruins, 'todas: um so "Voltar para <nome do menu>", primeiro de .header-acoes, com seta e href para tela que existe: %s' % ruins[:3])
 

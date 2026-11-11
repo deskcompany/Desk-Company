@@ -1658,7 +1658,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'promocaoEncerra',    nome:'Encerrar uma promoção antes do fim',           onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
-    { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  }
+    { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'perfilPermissoes',   nome:'Alterar as permissões de um perfil',                       onde:'Configurações → Permissões de usuários', grupo:'Configurações', pronto:true, exigePadrao:true  },
+    { chave:'usuarioPermissoes',  nome:'Alterar o perfil ou as permissões avulsas de um usuário',   onde:'Configurações → Usuários do sistema',    grupo:'Configurações', pronto:true, exigePadrao:true  }
   ];
   // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
   // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.

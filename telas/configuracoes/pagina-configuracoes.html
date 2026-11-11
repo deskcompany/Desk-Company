@@ -1973,8 +1973,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         { nome:null, itens:[
           { nome:'Dados da empresa', ajuda:'Razão social, CNPJ, endereço e logo — usados em documento impresso e na NF-e.' },
           { nome:'Dados do usuário', ajuda:'Seu nome, foto, senha e verificação em duas etapas.' },
-          { nome:'Usuários do sistema' },
-          { nome:'Permissões de usuários', ajuda:'Mesma grade de Confirmações por senha, com outra pergunta: quem pode executar cada ação.' },
+          { nome:'Usuários do sistema', href:'../configuracoes/pagina-configuracoes-usuarios.html', ajuda:'Quem entra no sistema: o perfil de cada pessoa, as lojas em que trabalha, o desconto que dá sem senha, o código de autorização, a senha e as restrições de acesso. Só o Owner altera.' },
+          { nome:'Permissões de usuários', href:'../configuracoes/pagina-configuracoes-perfis-usuario.html', ajuda:'Os perfis (Owner, Gerente, Supervisor, Vendedor interno, Caixa, Representante externo e os que vierem): a lista de telas e funções de cada um e as ações que autoriza, as mesmas de Confirmações por senha. A pessoa ainda pode ter permissões avulsas.' },
           { nome:'Registro de atividades', href:'../configuracoes/pagina-configuracoes-registro-atividades.html', ajuda:'Quem fez o quê, quando e em qual registro. Toda ação do catálogo entra aqui, com senha ou sem.' },
           { nome:'Confirmações por senha', href:'../configuracoes/pagina-configuracoes-confirmacoes-senha.html', ajuda:'Catálogo das ações que exigem a senha de quem executa. Quem pode confirmar é outra tela: Permissões de usuários.' },
           { nome:'Interface do usuário', href:'../configuracoes/pagina-configuracoes-interface-usuario.html', ajuda:'Registros por página (10/25/50/100), se o cadastro abre em visualização ou edição, onde parar ao salvar e o tema. Preferência por usuário, não da empresa.' },

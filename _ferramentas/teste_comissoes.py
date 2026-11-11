@@ -274,7 +274,7 @@ with sync_playwright() as p:
         sem = [_os.path.basename(c) for c in localiza.caminhos() if 'data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"' not in open(c, encoding='utf-8').read()]
         ok(not sem, 'o item Comissões Afiliados do menu tem destino nas %d telas: %s' % (len(localiza.caminhos()), sem[:3]))
         com_cat = [c for c in localiza.caminhos() if "chave:'comissaoAjusta'" in open(c, encoding='utf-8').read()]
-        ok(len(com_cat) == 22 and any('confirmacoes-senha' in c for c in com_cat), 'as três ações novas estão no catálogo de senha das 22 telas que o carregam (as 15 de antes, as duas de Promoções e Encartes, as duas do Vale-compra, as duas de Gateways e Custos do E-commerce), Confirmações com senha entre elas')
+        ok(len(com_cat) == 26 and any('confirmacoes-senha' in c for c in com_cat), 'as três ações novas estão no catálogo de senha das 26 telas que o carregam (as 15 de antes, as quatro de Usuários e Perfis, as duas de Promoções e Encartes, as duas do Vale-compra, as duas de Gateways e Custos do E-commerce), Confirmações com senha entre elas')
         fontes = [open(localiza.onde(n), encoding='utf-8').read() for n in (LISTA, CONTA, 'pagina-cadastros-clientes-detalhe.html', PV_D, 'pagina-vendas-custos-ecommerce.html')]
         def bloco(t):
             a = t.index('  // ===== COMISSOES: DADOS E REGRAS')
@@ -364,7 +364,7 @@ with sync_playwright() as p:
         ok(bl(cp[0]) == bl(cp[1]), 'o bloco que lê os pagamentos é o mesmo na lista e na página de Contas a Pagar')
         com_cat = [n for n, t in fontes.items() if "'Comissões de vendedores e afiliados'" in t and 'id:25,' in t]
         ok(len(com_cat) == 8 and 'pagina-configuracoes-categorias-financeiras.html' in com_cat, 'a categoria nova está em Configurações e nas 7 telas que repetem as categorias: %d' % len(com_cat))
-        ok(len([n for n, t in fontes.items() if "chave:'comissaoPaga'" in t]) == 22, 'e "Realizar pagamento de comissão" está no catálogo de senha das 22 telas')
+        ok(len([n for n, t in fontes.items() if "chave:'comissaoPaga'" in t]) == 26, 'e "Realizar pagamento de comissão" está no catálogo de senha das 26 telas')
         limpar()
 
     if secao(7, 'Histórico, saque pedido na vitrine, pago e os cadastros (entrega 2c)'):
@@ -739,8 +739,8 @@ with sync_playwright() as p:
 
         # ---- o catalogo de acoes auditaveis
         cat = [c for c in localiza.caminhos() if "chave:'comissaoReprograma'" in open(c, encoding='utf-8').read()]
-        ok(len(cat) == 22 and any('confirmacoes-senha' in c for c in cat) and all(re.search(r"chave:'comissaoReprograma'.*exigePadrao:false", open(c, encoding='utf-8').read()) for c in cat),
-           'reprogramar está no catálogo das 22 telas que o carregam (as duas de Promoções e Encartes, as duas do Vale-compra, as duas de Gateways e Custos do E-commerce entre elas), Confirmações com senha entre elas, sem senha por padrão')
+        ok(len(cat) == 26 and any('confirmacoes-senha' in c for c in cat) and all(re.search(r"chave:'comissaoReprograma'.*exigePadrao:false", open(c, encoding='utf-8').read()) for c in cat),
+           'reprogramar está no catálogo das 26 telas que o carregam (as quatro de Usuários e Perfis, as duas de Promoções e Encartes, as duas do Vale-compra, as duas de Gateways e Custos do E-commerce entre elas), Confirmações com senha entre elas, sem senha por padrão')
         ir('pagina-configuracoes-confirmacoes-senha.html')
         ok('Reprogramar o vencimento de pagamento de comissão' in pg.inner_text('.main'), 'e aparece em Configurações > Confirmações com senha')
 

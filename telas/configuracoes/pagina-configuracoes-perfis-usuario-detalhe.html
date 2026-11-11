@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  /* Nunito local (06/out/2026) — era Google Fonts pela rede. A altura dos campos
+     sai da metrica da fonte (input sem altura fixa), entao sem a fonte em disco
+     toda medicao em pixel dependia de ter rede na hora. Ver _ferramentas/LEIA-ME.md,
+     secao "A medicao dependia de ter rede". Fonte variavel: um arquivo, todos os pesos. */
+  @font-face { font-family:'Nunito'; font-style:normal; font-weight:200 1000; font-display:block;
+    src:url('../fontes/nunito-latin.woff2') format('woff2');
+    unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family:'Nunito'; font-style:normal; font-weight:200 1000; font-display:block;
+    src:url('../fontes/nunito-latin-ext.woff2') format('woff2');
+    unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  * { box-sizing: border-box; margin:0; padding:0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
+
+  :root {
+    --page-bg: #FCFBF8; --panel-bg: #FCFBF8; --border: #E9E7E0; --divisor: #CFCBBD;
+    --text: #3E3E3D; --text-heading: #101010; --active-bg: #E8EFFF; --active-text: #0A4EE4;
+    --brand-blue: #2563EB; --logo-color: #2979FF;
+    --success: #15803D; --danger: #DC2626; --danger-solid: #DC2626; --warning: #F5A623;
+    --chart-1: #0A4EE4; --chart-2: #6B93F2; --chart-3: #B7C7F5;
+    --card-bg: #FFFFFF;
+  }
+  body.dark {
+    --page-bg: #101010; --panel-bg: #101010; --border: #262626; --divisor: #363636;
+    --text: #AFADA2; --text-heading: #F5F4F1; --active-bg: #000C29; --active-text: #9DB8F0;
+    --brand-blue: #2563EB; --logo-color: #FFFFFF;
+    --success: #22C55E; --danger: #EF4444; --danger-solid: #DC2626; --warning: #F5A623;
+    --chart-1: #9DB8F0; --chart-2: #4C6FC4; --chart-3: #263A73;
+    --card-bg: #17181C;
+  }
+
+  html, body { min-height:100%; color: var(--text); transition: background .2s, color .2s; scrollbar-width: thin; scrollbar-color: var(--border) var(--page-bg); }
+  body { background: var(--page-bg); }
+  html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+  html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, *::-webkit-scrollbar-track { background: #FCFBF8 !important; }
+  html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb { background: #E9E7E0 !important; border-radius: 4px !important; }
+  html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover { background: #C7C5BE !important; }
+  html::-webkit-scrollbar-corner, body::-webkit-scrollbar-corner { background: #FCFBF8 !important; }
+
+  body.dark::-webkit-scrollbar-track, body.dark ::-webkit-scrollbar-track { background: #101010 !important; }
+  body.dark::-webkit-scrollbar-thumb, body.dark ::-webkit-scrollbar-thumb { background: #262626 !important; }
+  body.dark::-webkit-scrollbar-thumb:hover, body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3a3a !important; }
+  body.dark::-webkit-scrollbar-corner, body.dark ::-webkit-scrollbar-corner { background: #101010 !important; }
+
+  .main {
+    margin-left: 336px;
+    padding: 30px 40px;
+    min-height: 100vh;
+  }
+  .breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color: var(--text); margin-bottom:18px; }
+  .breadcrumb .crumb { cursor:pointer; }
+  .breadcrumb .crumb:hover { color: var(--active-text); text-decoration: underline; }
+  .breadcrumb .crumb.current { color: var(--text-heading); font-weight:700; cursor:default; }
+  .breadcrumb .crumb.current:hover { text-decoration:none; }
+  .breadcrumb .crumb[role="link"]:focus-visible { outline:2px solid var(--active-text); outline-offset:2px; border-radius:3px; }
+  .breadcrumb .sep { color: var(--text); }
+
+  .main h1 { font-family:'Nunito',sans-serif; font-weight:800; font-size: 22px; color:var(--text-heading); margin-bottom:2px; }
+  .main .subtitle { font-size:13.5px; color: var(--text); max-width: 480px; }
+
+  /* ===== HEADER DA PÁGINA ===== */
+  .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; flex-wrap:wrap; gap:14px; }
+  .period-filters { display:flex; align-items:center; gap:8px; }
+  .pill-btn { font-family:'Nunito',sans-serif; font-weight:600; font-size:13px; padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--panel-bg); color:var(--text); cursor:pointer; user-select:none; transition: background .15s, color .15s; }
+  .pill-btn.active { background: var(--brand-blue); border-color: var(--brand-blue); color:#fff; }
+  .pill-btn:hover:not(.active) { background: rgba(120,120,140,0.08); }
+
+  .store-filter-wrap { position:relative; }
+  .store-filter-btn { display:flex; align-items:center; gap:7px; }
+  .store-menu { position:absolute; top:calc(100% + 8px); right:0; width:190px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 30px rgba(0,0,0,0.25); display:none; z-index:40; }
+  .store-menu.open { display:block; }
+  .store-menu-item { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px; color:var(--text); cursor:pointer; }
+  .store-menu-item:hover { background: var(--active-bg); color:var(--active-text); }
+  .store-menu-item.active { color:var(--active-text); background:var(--active-bg); }
+  .icon-btn { width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--panel-bg); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+  .icon-btn:hover { background: rgba(120,120,140,0.08); }
+  .icon-btn svg { width:16px; height:16px; }
+
+  .pill-btn-sm { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; padding:4px 9px; border-radius:14px; border:1px solid var(--border); background:transparent; color:var(--text); cursor:pointer; user-select:none; transition: background .15s, color .15s; }
+  .pill-btn-sm.active { background: var(--brand-blue); border-color: var(--brand-blue); color:#fff; }
+  .pill-btn-sm:hover:not(.active) { background: rgba(120,120,140,0.08); }
+  .qty-filter { display:flex; align-items:center; gap:5px; }
+
+  /* ===== CARDS / PAINÉIS GERAIS ===== */
+  .card { background: var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .card-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
+  .more-btn { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; color:var(--text); cursor:pointer; }
+  .more-btn:hover { background: rgba(120,120,140,0.1); }
+  .more-btn svg { width:16px; height:16px; }
+
+  /* ===== GRID PRINCIPAL ===== */
+  .grid-row { display:grid; gap:16px; margin-bottom:16px; }
+  .row-kpis { grid-template-columns: repeat(3, 1fr) 1.1fr; }
+  .row-mid { grid-template-columns: 1fr 1.5fr; }
+  .row-bottom { grid-template-columns: repeat(3, 1fr); }
+  .kpi-stack { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; grid-column: span 3; align-content:stretch; }
+
+  /* ===== KPI CARD ===== */
+  .kpi-card { border-left:3px solid; }
+  .kpi-label { font-family:'Nunito',sans-serif; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text); margin-bottom:10px; }
+  .kpi-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:var(--text-heading); margin-bottom:6px; }
+  .kpi-delta { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:4px; }
+  .kpi-delta.up { color: var(--success); }
+  .kpi-delta.down { color: var(--danger); }
+  .kpi-delta.neutral { color: var(--text); font-weight:500; }
+
+  /* ===== INSIGHT CARDS (Meta / Devolução / Giro) ===== */
+  .insight-card { border:1px solid var(--border); border-left:3px solid var(--border); }
+  .insight-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:19px; color:var(--text-heading); margin-bottom:2px; }
+  .insight-of { font-family:'Nunito',sans-serif; font-weight:600; font-size:12px; color:var(--text); }
+
+  /* ===== DONUT ===== */
+  .donut-card { display:flex; flex-direction:column; }
+  .donut-wrap { position:relative; width:170px; height:170px; margin: 6px auto 18px; }
+  .donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-center .lbl { font-size:11px; color:var(--text); font-weight:700; text-transform:uppercase; }
+  .donut-center .val { font-family:'Nunito',sans-serif; font-weight:900; font-size:19px; color:var(--text-heading); }
+  .legend-row { display:flex; align-items:center; justify-content:space-between; padding:9px 4px; border-top:1px solid var(--border); font-size:13px; }
+  .legend-row:first-of-type { border-top:none; }
+  .legend-name { display:flex; align-items:center; gap:8px; color:var(--text-heading); font-weight:600; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .legend-value { font-family:'Nunito',sans-serif; font-weight:800; color:var(--text-heading); }
+  .legend-delta { font-size:11.5px; font-weight:700; margin-left:6px; }
+
+  /* ===== TOP PRODUTOS ===== */
+  .rank-item { display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
+  .rank-item:first-of-type { border-top:none; }
+  .rank-num { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--active-text); color:var(--active-text); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0; }
+  .rank-info { flex:1; }
+  .rank-name { font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .rank-store { font-size:12px; color:var(--text); }
+  .rank-right { text-align:right; }
+  .rank-value { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--active-text); }
+  .rank-units { font-size:11.5px; color:var(--text); }
+
+  /* ===== VENDAS DA SEMANA ===== */
+  .sales-total { font-family:'Nunito',sans-serif; font-weight:900; font-size:24px; color:var(--text-heading); margin: 2px 0 4px; }
+  .sales-delta { color:var(--success); font-weight:700; font-size:13px; }
+  .chart-legend { display:flex; gap:16px; font-size:12px; color:var(--text); margin-top:4px; }
+  .chart-legend span { display:flex; align-items:center; gap:6px; }
+  .legend-line { width:14px; height:2px; }
+
+  /* ===== COMPARATIVO / STATUS / ESTOQUE ===== */
+  .comp-item { padding:10px 0; border-top:1px solid var(--border); }
+  .comp-item:first-of-type { border-top:none; }
+  .comp-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .comp-name { display:flex; align-items:center; gap:8px; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .comp-value { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--text-heading); }
+  .progress-track { height:6px; border-radius:4px; background: rgba(120,120,140,0.15); overflow:hidden; margin-bottom:5px; }
+  .progress-fill { height:100%; border-radius:4px; }
+  .comp-sub { font-size:12.5px; color:var(--text); }
+
+  /* ===== METAS POR LOJA ===== */
+  .goal-bar-row { display:flex; align-items:center; gap:12px; padding:9px 0; }
+  .goal-bar-row.goal-bar-total { margin-top:4px; padding-top:14px; border-top:1px dashed var(--border); }
+  .goal-bar-name { width:100px; font-size:13px; font-weight:600; color:var(--text-heading); flex-shrink:0; }
+  .goal-bar-row.goal-bar-total .goal-bar-name { font-weight:800; }
+  .goal-bar-pct { width:42px; font-family:'Nunito',sans-serif; font-weight:700; font-size:14px; color:var(--text-heading); text-align:right; flex-shrink:0; }
+  .goal-bar-track { flex:1; position:relative; height:16px; }
+  .goal-bar-track::before { content:''; position:absolute; inset:0; background:rgba(120,120,140,0.15); border-radius:4px; }
+  .goal-bar-fill { position:absolute; left:0; top:0; height:100%; border-radius:4px; }
+  .goal-bar-tick { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--text); opacity:0.4; }
+  .goal-bar-value { width:80px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); text-align:right; flex-shrink:0; }
+
+  .status-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .status-item:first-of-type { border-top:none; }
+  .status-name { width:90px; font-size:13.5px; color:var(--text-heading); font-weight:700; }
+  .status-track { flex:1; height:6px; border-radius:4px; background: rgba(120,120,140,0.15); overflow:hidden; }
+  .status-fill { height:100%; border-radius:4px; }
+  .status-count { width:70px; text-align:right; font-size:12px; color:var(--text); }
+
+  .stock-total { font-size:12.5px; color:var(--text); }
+  .stock-total b { color:var(--active-text); font-family:'Nunito',sans-serif; }
+  .stock-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .stock-item:first-of-type { border-top:none; }
+  .stock-icon { width:30px; height:30px; border-radius:8px; background: rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .stock-icon svg { width:15px; height:15px; }
+  .stock-info { flex:1; }
+  .stock-name { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .stock-min { font-size:12px; color:var(--text); }
+  .stock-qty { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--danger); }
+
+  @media (max-width: 1200px) {
+    .row-kpis { grid-template-columns: repeat(3,1fr); }
+    .donut-card { grid-column: span 3; grid-row: auto; }
+    .row-mid, .row-bottom { grid-template-columns: 1fr; }
+  }
+
+  /* CARTÃO ÚNICO — sidebar + flyout juntos, sem vão */
+  .floating-card {
+    position: fixed;
+    top: 18px; left: 18px;
+    height: calc(100vh - 36px);
+    display:flex;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    overflow: hidden;
+    z-index: 30;
+    transition: width .2s ease;
+  }
+
+  .sidebar-col { width: 300px; padding: 18px 14px; display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; transition: width .2s ease, padding .2s ease; }
+  .sidebar-col.collapsed { width: 74px; padding: 18px 10px; }
+  .sidebar-col.collapsed .label-text,
+  .sidebar-col.collapsed .wordmark,
+  .sidebar-col.collapsed .fixar-text { display:none; }
+  .sidebar-col.collapsed .nav-item,
+  .sidebar-col.collapsed .bottom-item,
+  .sidebar-col.collapsed .fixar-row,
+  .sidebar-col.collapsed .logo { justify-content:center; }
+  .sidebar-col.collapsed .erp-label { text-align:center; }
+
+  .logo { padding: 0 8px 16px; display:flex; flex-direction:column; }
+  .wordmark { font-family:'Nunito',sans-serif; font-size: 26px; font-weight: 900; color: var(--logo-color); letter-spacing: -0.3px; line-height:1.15; user-select:none; }
+  .erp-label { font-family:'Nunito',sans-serif; font-size: 16px; font-weight: 400; color: var(--text-heading); margin-top: 10px; user-select:none; }
+
+  .nav-item {
+    display:flex; align-items:center; gap:13px; padding:8px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:15px; color: var(--text); cursor:pointer; margin-bottom:1px;
+    user-select: none;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-item svg { width:18px; height:18px; flex-shrink:0; }
+  .nav-item.active { background: var(--active-bg); color: var(--active-text); font-weight:600; }
+  .nav-item:hover:not(.active) { background: rgba(120,120,140,0.08); }
+
+  .spacer { flex:1; }
+
+  /* Linha SOZINHA precisa de mais contraste que contorno de card: `--border`
+     media 1.2:1 aqui e sumia. `--divisor` fica em ~1.57:1 nos dois temas. */
+  .bottom-list { border-top: 1px solid var(--divisor); padding-top: 10px; margin-top: 10px; }
+  .bottom-item {
+    display:flex; align-items:center; gap:13px; padding:7px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:14px; color: var(--text); cursor:pointer; margin-bottom:1px;
+    user-select: none;
+    transition: background .15s ease, color .15s ease;
+  }
+  .bottom-item svg { width:16px; height:16px; flex-shrink:0; }
+  .bottom-item:hover, .bottom-item.active { background: var(--active-bg); color: var(--active-text); }
+
+  .fixar-row { display:flex; align-items:center; justify-content:space-between; padding: 10px 12px 2px; font-size:13px; color: var(--text); user-select:none; }
+  .switch { width:32px; height:18px; background: #9a9890; border-radius:20px; position:relative; cursor:pointer; transition: background .15s; flex-shrink:0; }
+  .switch.on { background: var(--brand-blue); }
+  .switch::after { content:''; position:absolute; width:14px; height:14px; background:#fff; border-radius:50%; top:2px; left:2px; transition: left .15s; }
+  .switch.on::after { left:16px; }
+
+  /* COLUNA FLYOUT — parte do mesmo cartão, só uma borda fina separando */
+  .flyout-col {
+    width: 0;
+    padding: 22px 0;
+    overflow: hidden;
+    border-left: 0px solid var(--border);
+    flex-shrink:0;
+    display:flex; flex-direction:column;
+    transition: width .2s ease, padding .2s ease, border-width .2s ease;
+  }
+  .flyout-col.open { width: 300px; padding: 22px 10px; border-left-width: 1px; }
+  /* A linha abaixo do titulo do modulo atravessa o painel inteiro: a margem
+     negativa compensa o padding lateral do .flyout-col aberto (10px). Sem
+     ela o titulo encostava nos itens e os dois pareciam a mesma lista. */
+  .flyout-col h4 { font-family:'Nunito',sans-serif; font-size:18px; font-weight:800; color:var(--text-heading); padding: 0 22px 14px; margin: 0 -10px 12px; white-space: nowrap; user-select:none; border-bottom: 1px solid var(--divisor); }
+
+  .flyout-body { overflow-y:auto; overflow-x:hidden; flex:1; }
+  .flyout-item {
+    display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius:10px;
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:14.5px; color: var(--text); cursor:pointer;
+    white-space: nowrap; user-select: none;
+    transform: translateX(0);
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .flyout-item svg { width:17px; height:17px; flex-shrink:0; }
+  .flyout-item:hover { transform: translateX(6px); background: var(--active-bg); color: var(--active-text); }
+
+  .theme-picker { margin-top: auto; padding: 12px 12px 4px; border-top: 1px solid var(--divisor); }
+  .theme-picker .label { font-family:'Nunito',sans-serif; font-size:13px; font-weight:800; color: var(--text-heading); margin-bottom:9px; }
+  /* Rotulo a esquerda, botoes a direita, na mesma linha: o tema e preferencia
+     que se mexe uma vez, nao acao principal. Esticar os botoes pela largura
+     dava a eles o peso de um botao de salvar. */
+  .theme-linha { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .theme-linha-rotulo { font-family:'Nunito',sans-serif; font-size:12.5px; font-weight:700; color: var(--text); flex-shrink:0; }
+  .theme-seg { display:flex; background: rgba(120,120,140,0.12); border-radius: 20px; padding:2px; }
+  .theme-seg button {
+    border:none; background:transparent; color: var(--text); font-size:11.5px; padding:4px 9px;
+    border-radius: 18px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:700;
+    white-space:nowrap;
+  }
+  .theme-seg button:hover { color: var(--text-heading); }
+  .theme-seg button.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== CADASTROS > CATEGORIAS (listagem) ===== */
+  .btn-primary { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--brand-blue); color:#fff; cursor:pointer; user-select:none; transition: opacity .15s; }
+  .btn-primary:hover { opacity:0.88; }
+  .btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-primary svg { width:14px; height:14px; }
+
+  .btn-ghost { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; text-decoration:none; }
+  .btn-ghost:hover { background: rgba(120,120,140,0.08); }
+  .btn-ghost svg { width:14px; height:14px; }
+
+  .header-actions { display:flex; align-items:center; gap:10px; }
+
+
+  .dropdown-select { position:relative; flex-shrink:0; }
+  .dropdown-select-btn.pill { display:flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:8px 14px; cursor:pointer; white-space:nowrap; }
+  .dropdown-select-btn.pill:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
+  .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
+  .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu.open { display:block; }
+  .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
+  .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-select-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-select-item.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== CADASTROS > MARCAS (listagem) ===== */
+  .estoque-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .depositos-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .search-wrap { position:relative; flex:1; min-width:220px; max-width:340px; }
+  .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text); }
+  .search-wrap input { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 14px 9px 34px; outline:none; }
+
+  .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .parent-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
+
+  .selecao-bar { display:none; align-items:center; gap:16px; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-top:14px; }
+  .selecao-bar.show { display:flex; }
+  .selecao-info { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .selecao-acoes { display:flex; align-items:center; gap:14px; margin-left:auto; }
+
+  .selecionar-todos-row { display:flex; align-items:center; gap:10px; padding:11px 4px; border-bottom:1px solid var(--border); font-size:12.5px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; }
+  .item-checkbox, .checkbox-todos {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .item-checkbox:checked, .checkbox-todos:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .item-checkbox:checked::after, .checkbox-todos:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  /* Terceiro estado: RESPONDIDO EM PARTE (tracinho, nao check). Marca cheia
+     diria "coletei tudo" e marca vazia diria "nem olhei" — as duas mentem
+     sobre um item que veio incompleto de proposito. */
+  .item-checkbox:indeterminate { background:var(--chart-2); border-color:var(--chart-2); }
+  .item-checkbox:indeterminate::after {
+    content:''; position:absolute; left:2px; top:5.5px; width:9px; height:2px;
+    background:#fff; border-radius:1px;
+  }
+
+  .deposito-card { display:flex; align-items:center; gap:14px; padding:15px 4px; border-top:1px solid var(--border); cursor:pointer; }
+  .deposito-card:first-of-type { border-top:none; }
+  .deposito-card:hover { background: rgba(120,120,140,0.06); }
+  .deposito-info { flex:1; min-width:0; }
+  .deposito-nome-row { display:flex; align-items:center; gap:8px; }
+  .deposito-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .deposito-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .deposito-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
+
+  .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
+  .empty-state svg { width:34px; height:34px; color:var(--text); opacity:0.5; }
+  .empty-state-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; color:var(--text-heading); }
+  .empty-state-sub { font-size:12.5px; color:var(--text); }
+
+  .paginacao-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; }
+  .paginacao-info { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text); }
+  .paginacao-nav { display:flex; align-items:center; gap:10px; }
+  .paginacao-btn { width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text-heading); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .paginacao-btn:hover:not(:disabled) { background: rgba(120,120,140,0.08); }
+  .paginacao-btn:disabled { opacity:0.35; cursor:not-allowed; }
+  .paginacao-btn svg { width:14px; height:14px; }
+  .paginacao-paginas { font-size:12.5px; font-weight:700; color:var(--text-heading); font-family:'Nunito',sans-serif; }
+
+  /* ===== PAINEL LATERAL: nova/editar ===== */
+  .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+  .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
+  .event-drawer.open { right:0; }
+  .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }
+  .drawer-close { display:flex; align-items:center; gap:5px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-close:hover { color:var(--text-heading); }
+  .drawer-close svg { width:15px; height:15px; }
+
+  .form-field { margin-bottom:18px; }
+  .form-field label { display:block; font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-bottom:6px; }
+  .form-field input[type="text"], .form-field textarea { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field textarea { resize:vertical; min-height:78px; }
+  .form-field input:focus, .form-field textarea:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .field-error-msg { display:none; color: var(--danger); font-size:12px; font-weight:600; margin-top:6px; }
+  .field-error-msg.show { display:block; }
+  .form-field.has-error input, .form-field.has-error textarea { border-color: var(--danger); }
+  .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+
+  .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
+  .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
+  .drawer-link:hover { color: var(--text-heading); }
+
+  .excluir-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--danger); cursor:pointer; user-select:none; margin-top:26px; padding-top:18px; border-top:1px solid var(--border); }
+  .excluir-link:hover { opacity:0.8; }
+  .excluir-link svg { width:14px; height:14px; }
+
+  /* ===== MODAL: confirmação centralizada (excluir/inativar) ===== */
+  .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
+  .modal-card.open { transform:translateY(0); }
+  .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }
+  .confirm-texto { font-size:15px; color:var(--text-heading); line-height:1.5; margin-bottom:26px; }
+  .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
+  .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
+  .confirm-acoes { display:flex; align-items:center; gap:20px; }
+  .confirm-acoes button { padding:11px 26px; font-size:14px; }
+  .confirm-acoes button:disabled { opacity:0.4; cursor:not-allowed; }
+  .esc-hint { font-size:11px; color:var(--text); margin-left:4px; font-weight:700; }
+  .btn-danger { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:none; background: var(--danger-solid); color:#fff; cursor:pointer; user-select:none; }
+  .btn-danger:hover { opacity:0.88; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
+
+  /* Dropdown multi-seleção: Loja(s) aplicável(is) — mesmo componente .dropdown-select,
+     mas o menu tem checkboxes em vez de itens únicos e não fecha ao marcar (§10.2). */
+
+  /* ===== Filtro de situacao em abas (§7) ===== */
+  .filtro-tipo { display:flex; background: rgba(120,120,140,0.12); border-radius:10px; padding:3px; flex-shrink:0; }
+  .filtro-tipo button { border:none; background:transparent; color:var(--text); font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .filtro-tipo button.active { background: var(--brand-blue); color:#fff; }
+
+  /* ===== Avatar com cor automatica por Tipo (§11) ===== */
+  .profile-avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Nunito',sans-serif; font-weight:800; flex-shrink:0; overflow:hidden; width:42px; height:42px; font-size:14.5px; }
+  /* Avatar por Tipo — a cor do TEXTO é escolhida pelo contraste real contra o fundo
+     em cada tema, nunca fixada em branco (§1: cor de fundo não serve como cor de texto).
+     Contraste aferido: pior caso 4.80:1, todos os outros acima de 6:1. */
+  .av-geral           { background: var(--chart-2); color:#101010; }
+  .av-galpao          { background: var(--chart-3); color:#101010; }
+  .av-loja_fisica     { background: var(--chart-1); color:#FFFFFF; }
+  .av-trade_marketing { background: var(--text);    color:#FFFFFF; }
+  .av-transito        { background: var(--warning); color:#101010; }
+  body.dark .av-geral           { color:#FFFFFF; }
+  body.dark .av-galpao          { color:#FFFFFF; }
+  body.dark .av-loja_fisica     { color:#101010; }
+  body.dark .av-trade_marketing { color:#101010; }
+  body.dark .av-transito        { color:#101010; }
+
+  .tipo-tag { font-size:10px; font-weight:800; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:1px 6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-principal { font-size:10px; font-weight:800; color:#fff; background:var(--chart-2); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+  .tag-excluido { font-size:10px; font-weight:800; color:#fff; background:var(--danger); border-radius:6px; padding:2px 7px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; }
+
+  /* ===== Formulario em duas colunas dentro do drawer ===== */
+  .form-row { display:flex; gap:12px; }
+  .form-row .form-field { flex:1; min-width:120px; }
+  .section-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:24px 0 14px; padding-top:20px; border-top:1px solid var(--border); }
+
+  /* ===== Linha de interruptor dentro do formulario ===== */
+  .switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px; padding:12px 13px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .switch-row-texto { flex:1; min-width:0; }
+  .switch-row-titulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); }
+  .switch-row .field-hint { margin-top:4px; }
+
+
+  /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
+  .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
+  .estoque-table th.col-texto { text-align:left; }
+  .estoque-table th.ordenavel { cursor:pointer; }
+  .estoque-table th.ordenavel:hover { color:var(--text-heading); }
+  .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
+  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado { color:var(--text-heading); }
+  .estoque-table td { padding:13px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
+  .estoque-table td.col-texto { text-align:left; }
+  .estoque-table tbody tr { cursor:pointer; }
+  .estoque-table tbody tr:hover td { background: rgba(120,120,140,0.06); }
+  .estoque-table tbody tr:last-child td { border-bottom:none; }
+  .col-produto { font-weight:700; }
+  .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
+  .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
+  .celula-reservada { color:var(--text); opacity:0.5; }
+  .saldo-critico { color:var(--danger); font-weight:800; }
+  .saldo-negativo { color:var(--danger); font-weight:800; }
+  .aviso-minimo { display:inline-flex; align-items:center; gap:4px; }
+  .aviso-minimo svg { width:12px; height:12px; color:var(--danger); flex-shrink:0; }
+  .col-localizacao-vazia { color:var(--text); opacity:0.5; }
+
+  /* rodape do card: contagem + valor total (§6 — total sempre no rodape) */
+  .estoque-rodape { display:flex; align-items:center; justify-content:space-between; gap:14px; padding-top:16px; margin-top:6px; border-top:1px solid var(--border); flex-wrap:wrap; font-size:12.5px; color:var(--text); }
+  .estoque-total b { color:var(--active-text); font-weight:800; }
+
+  /* aviso de coluna reservada (mesmo tom dos campos fiscais, §11) */
+
+  /* ===== Abas de situacao COM CONTADOR (padrao novo, Ordens de Compra) ===== */
+  .abas-situacao { display:flex; align-items:center; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+  .aba-sit { display:flex; align-items:center; gap:7px; padding:10px 14px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text); border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; }
+  .aba-sit:hover { color:var(--text-heading); }
+  .aba-sit.active { color:var(--text-heading); border-bottom-color:var(--active-text); }
+  .aba-sit .sit-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .aba-sit .sit-contador { font-size:12px; font-weight:800; color:var(--text); background:rgba(120,120,140,0.14); border-radius:20px; padding:1px 7px; }
+  .aba-sit.active .sit-contador { background:var(--active-bg); color:var(--active-text); }
+
+  /* cores das situacoes da OC — aferidas por contraste contra o fundo da pagina */
+  .sit-aberto      { background:#B45309; }
+  .sit-andamento   { background:#0A4EE4; }
+  .sit-atendida    { background:#15803D; }
+  .sit-cancelada   { background:#6B7280; }
+  body.dark .sit-aberto    { background:#F5A623; }
+  body.dark .sit-andamento { background:#9DB8F0; }
+  body.dark .sit-atendida  { background:#4ADE80; }
+  body.dark .sit-cancelada { background:#9CA3AF; }
+
+  .badge-situacao { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; border:1px solid currentColor; border-radius:20px; padding:2px 9px; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
+  .badge-situacao .sit-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+  .bs-aberto      { color:#B45309; }
+  .bs-andamento   { color:#0A4EE4; }
+  .bs-atendida    { color:#15803D; }
+  .bs-cancelada   { color:#6B7280; }
+  body.dark .bs-aberto    { color:#F5A623; }
+  body.dark .bs-andamento { color:#9DB8F0; }
+  body.dark .bs-atendida  { color:#4ADE80; }
+  body.dark .bs-cancelada { color:#9CA3AF; }
+
+  /* filtro de periodo em popover */
+  .periodo-wrap { position:relative; flex-shrink:0; }
+  .periodo-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:30; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:0 12px 28px rgba(0,0,0,0.22); min-width:280px; }
+  .periodo-menu.open { display:block; }
+  .periodo-titulo { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); margin-bottom:10px; }
+  .periodo-opcoes { display:flex; flex-wrap:wrap; gap:8px; }
+  .periodo-op { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:7px 13px; cursor:pointer; white-space:nowrap; }
+  .periodo-op:hover { background:rgba(120,120,140,0.08); }
+  .periodo-op.active { color:var(--active-text); border-color:var(--active-text); }
+
+
+  /* ===== Detalhe da Ordem de Compra ===== */
+  .oc-topo { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+  .oc-titulo-bloco { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  .linha-links { display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:8px; }
+  .link-inline { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .link-inline:hover { text-decoration:underline; }
+  .bloco-expansivel { display:none; margin-top:14px; padding:14px 16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; }
+  .bloco-expansivel.open { display:block; }
+  .dado-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:7px 0; font-size:12.5px; }
+  .dado-rotulo { color:var(--text); }
+  .dado-valor { font-weight:700; color:var(--text-heading); }
+
+  /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
+  .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
+  .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
+  /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026; varredura de 19/out/2026): cabe no cartao a partir de
+     1280px. O CSS comum fixa 880px de largura minima, e abaixo de 1334px de janela isso vira barra; aqui a tabela encolhe, a
+     coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
+  .main .itens-table { min-width:0; }
+  .main .itens-table th { white-space:normal; vertical-align:bottom; }
+  .main .itens-table td.col-texto { white-space:normal; }
+  /* Sem largura, o campo do item cortava o nome do produto (ate em 1440). Em 1280 os nove campos nao cabem inteiros: pendente
+     de decisao do usuario (barra ou corte), PROGRESSO e 14.88. */
+  .main .itens-table th:nth-child(1) { width:19%; }
+  .main .itens-table input[type="text"] { min-width:0; }
+  .itens-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .itens-table th.col-texto { text-align:left; }
+  .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
+  .itens-table td.col-texto { text-align:left; }
+  .itens-table tbody tr:last-child td { border-bottom:none; }
+  .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
+  .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .itens-table input.col-texto-input { text-align:left; }
+  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
+  .item-remover:hover { opacity:0.75; }
+  .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
+  .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
+  .acao-link:hover { text-decoration:underline; }
+  .acao-link svg { width:14px; height:14px; }
+
+  .totais-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; }
+  .total-item { background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:11px 13px; }
+  .total-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); }
+  .total-valor { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); margin-top:4px; }
+  .total-item.destaque .total-valor { color:var(--active-text); font-size:17px; }
+  .total-item input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); background:transparent; border:none; border-bottom:1px dashed var(--border); padding:2px 0; margin-top:4px; outline:none; }
+  .total-item input[type="text"]:focus { border-bottom-color: var(--chart-2); }
+
+  .parcelas-table { width:100%; border-collapse:collapse; }
+  .parcelas-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  .parcelas-table th.col-texto { text-align:left; }
+  .parcelas-table td { padding:10px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; }
+  .parcelas-table td.col-texto { text-align:left; }
+  .parcelas-table tbody tr:last-child td { border-bottom:none; }
+  .parcelas-vazio { font-size:12.5px; color:var(--text); padding:14px 0; }
+
+  .barra-salvar { display:flex; align-items:center; gap:16px; position:sticky; bottom:0; background:var(--page-bg); border-top:1px solid var(--border); padding:14px 0; margin-top:26px; z-index:20; }
+  .barra-info { font-size:12.5px; font-weight:700; color:var(--text); margin-left:auto; }
+
+  .fiscal-ativo-hint { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .fiscal-ativo-hint svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  .oc-numero { font-weight:800; color:var(--active-text); }
+
+  .nota-reservado { display:flex; align-items:flex-start; gap:8px; padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-radius:10px; font-size:12px; color:var(--text); }
+  .nota-reservado svg { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+
+  /* acoes do cabecalho da pagina */
+  .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; max-width:100%; margin-left:auto; }
+  /* a coluna do titulo nunca e espremida pelos botoes: se nao couber, os botoes descem, alinhados a direita */
+  .page-header > :first-child { flex:1 1 380px; min-width:0; }
+  .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
+  .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
+  .btn-secundario-topo svg { width:14px; height:14px; }
+
+  /* extrato dentro do drawer */
+  .extrato-bloco-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 10px; }
+  .extrato-linha { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .extrato-linha:first-of-type { border-top:none; }
+  .extrato-rotulo { color:var(--text); }
+  .extrato-valor { font-weight:700; color:var(--text-heading); }
+  .mov-item { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-top:1px solid var(--border); }
+  .mov-item:first-of-type { border-top:none; }
+  .mov-icone { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .mov-icone svg { width:13px; height:13px; }
+  .mov-entrada { background: rgba(34,197,94,0.15); color:var(--success); }
+  .mov-saida { background: rgba(239,68,68,0.15); color:var(--danger); }
+  .mov-info { flex:1; min-width:0; }
+  .mov-tipo { font-size:12.5px; font-weight:700; color:var(--text-heading); }
+  .mov-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .mov-qtd { font-size:13px; font-weight:800; flex-shrink:0; }
+  .mov-qtd.entrada { color:var(--success); }
+  .mov-qtd.saida { color:var(--danger); }
+
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .form-field.has-error .dropdown-select-btn { border-color: var(--danger); }
+
+  /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
+  .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
+  /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
+  /* Exclusao pede senha (Configuracoes -> Confirmacoes por senha). O campo mora
+     no modal que ja existe, em vez de um segundo dialogo em cima do primeiro. */
+  .confirm-senha-row { display:none; margin:2px 0 14px; }
+  .confirm-senha-row.on { display:block; }
+  .confirm-senha-row label { display:block; font-family:'Nunito',sans-serif; font-weight:700;
+                             font-size:12px; color:var(--text); margin-bottom:6px; }
+  /* O modal e uma folha que ocupa a largura toda (bottom sheet, §8). Campo de
+     senha a 100% dessa largura vira uma faixa de 1400px para 12 caracteres. */
+  .confirm-senha-row input { width:100%; max-width:420px; box-sizing:border-box; font-family:'Nunito',sans-serif;
+                             font-size:13.5px; color:var(--text-heading); background:var(--page-bg);
+                             border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .confirm-senha-row input:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
+  .confirm-senha-row.has-error input { border-color:var(--danger); }
+  .confirm-senha-erro { display:none; font-size:11.5px; font-weight:700; color:var(--danger); margin-top:5px; }
+  .confirm-senha-row.has-error .confirm-senha-erro { display:block; }
+
+  /* ===== Campo de data com mini calendário (componente compartilhado) ===== */
+  .date-field { position:relative; }
+  .date-field input[type="text"] { padding-right:34px; }
+  .date-btn { position:absolute; top:50%; right:6px; transform:translateY(-50%); display:flex; align-items:center;
+              justify-content:center; width:24px; height:24px; border-radius:7px; border:none; background:transparent;
+              color:var(--text); cursor:pointer; }
+  .date-btn:hover { background: rgba(120,120,140,0.12); color:var(--text-heading); }
+  .date-btn svg { width:13px; height:13px; }
+  /* Ancorado no ICONE: alinha pela direita e sobe. Desce (`.abaixo`) so quando
+     o campo esta no topo da tela e nao ha espaco acima. */
+  .date-pop { display:none; position:absolute; bottom:calc(100% + 6px); right:0; left:auto; z-index:40; width:252px; padding:10px;
+              background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 12px 28px rgba(0,0,0,0.22); }
+  .date-pop.open { display:block; }
+  .date-pop.abaixo { bottom:auto; top:calc(100% + 6px); }
+  .date-pop.esquerda { right:auto; left:0; }
+  .date-cab { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:8px; }
+  .date-mes { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:capitalize; }
+  .date-nav { display:flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px;
+              border:1px solid var(--border); background:var(--card-bg); color:var(--text-heading); cursor:pointer; }
+  .date-nav:hover { background: rgba(120,120,140,0.12); }
+  .date-nav svg { width:11px; height:11px; }
+  .date-grade { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+  .date-ds { text-align:center; font-family:'Nunito',sans-serif; font-weight:800; font-size:10px; color:var(--text);
+             padding-bottom:4px; text-transform:uppercase; }
+  .date-dia { display:flex; align-items:center; justify-content:center; height:30px; border-radius:8px; font-size:12.5px;
+              font-variant-numeric:tabular-nums; color:var(--text-heading); cursor:pointer; }
+  .date-dia:hover { background: rgba(120,120,140,0.14); }
+  .date-dia.vazio { cursor:default; }
+  .date-dia.vazio:hover { background:transparent; }
+  .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
+  .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off:hover { background:transparent; }
+  .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
+  .date-rodape b { color:var(--text-heading); }
+
+  .dropdown-select-divider { border-top:1px solid var(--border); margin:5px 4px; }
+  /* item destrutivo dentro do menu de acoes — vermelho, sempre por ultimo */
+  .dropdown-select-item.item-perigo { color: var(--danger); }
+  .dropdown-grupo { padding:9px 12px 4px; font-family:'Nunito',sans-serif; font-weight:800; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; color:var(--text); }
+  /* Campo somente-leitura tem de PARECER somente-leitura. Sem esta regra ele fica
+     idêntico a um campo editável — foi o que fez a data do lançamento parecer um
+     campo de data quebrado, quando na verdade ela é travada em hoje de propósito
+     (§9.2: campo travado sem aparência própria faz o usuário achar que quebrou). */
+  .form-field input[readonly], .form-field input:disabled { opacity:0.55; cursor:not-allowed; }
+  a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
+  /* Impressao da tela (10/out/2026): so o conteudo, em texto escuro e na largura da folha */
+  @media print {
+    body { background:#fff !important; }
+    .floating-card, .sidebar-col, .flyout-col, .breadcrumb, .page-header .header-acoes, .page-header .header-actions, .estoque-toolbar, [class$="-toolbar"],
+    .abas-situacao, .nota-reservado, .paginacao-bar, .selecao-bar, .barra-salvar, .event-drawer, .drawer-backdrop, .modal-card, .item-checkbox { display:none !important; }
+    .main { margin-left:0 !important; padding:0 !important; }
+    .main, .main * { color:#101010 !important; }
+    .card { background:#fff !important; border:none !important; box-shadow:none !important; }
+  }
+
+  /* busca padrao de produto: a mesma do Acerto de Estoque */
+  .busca-produto-wrap { position:relative; }
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+
+  .section-hint { font-size:11.5px; color:var(--text); margin-top:-8px; margin-bottom:16px; }
+  .barra-salvar button, .barra-salvar .drawer-link { white-space:nowrap; }
+  .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  .painel-link:hover { text-decoration:underline; }
+  .up-card .section-title:first-child { margin-top:0; padding-top:0; border-top:none; }
+  /* ===== USUARIOS E PERFIS (10/nov/2026): a lista, a pagina, o painel e a grade de permissoes ===== */
+  .bs-up-ativo     { color:#15803D; }
+  .bs-up-bloqueado { color:#B91C1C; }
+  body.dark .bs-up-ativo     { color:#4ADE80; }
+  body.dark .bs-up-bloqueado { color:#F87171; }
+  .up-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:600; }
+  .up-nome { font-weight:800; color:var(--text-heading); }
+  .up-pessoa { display:flex; align-items:center; gap:10px; }
+  .up-av { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; background:var(--active-bg); color:var(--active-text); }
+  .up-av.grande { width:52px; height:52px; font-size:17px; }
+  .up-painel-nome { font-family:'Nunito',sans-serif; font-weight:800; font-size:16px; color:var(--text-heading); }
+  .estoque-table.up-tabela { min-width:0; }
+  .estoque-table.up-tabela td.col-texto { white-space:normal; }
+  .estoque-table tr.up-destaque td { background:var(--active-bg); }
+  .up-tag { display:inline-block; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--active-text); border:1px solid var(--active-text); border-radius:20px; padding:1px 8px; margin-left:6px; vertical-align:middle; }
+  .up-cabeca { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .up-cabeca-dados { min-width:0; }
+  .up-cabeca-email { font-size:12.5px; color:var(--text); font-weight:600; }
+  .up-bloco { margin-bottom:6px; }
+  .up-resumo { font-size:13px; color:var(--text-heading); line-height:1.5; }
+  .up-resumo b { font-weight:800; }
+  .up-chips { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px; }
+  .up-chip { font-size:12px; font-weight:700; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:20px; padding:4px 11px; }
+  .up-chip.vazio { color:var(--text); opacity:0.7; }
+  .up-linha-acao { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:14px 0; border-top:1px solid var(--border); }
+  .up-linha-acao:first-of-type { border-top:none; }
+  .up-linha-texto { flex:1; min-width:220px; }
+  .up-linha-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:var(--text-heading); }
+  .up-lojas { display:flex; flex-wrap:wrap; gap:6px 22px; }
+  .up-lojas .checklist-row { margin:0; }
+  .up-dias { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+  .up-dia { font-family:'Nunito',sans-serif; font-weight:700; font-size:12.5px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:6px 14px; cursor:pointer; user-select:none; }
+  .up-dia:hover { background:rgba(120,120,140,0.08); }
+  .up-dia.active { color:var(--active-text); border-color:var(--active-text); }
+  .up-restricao { margin:4px 0 14px 28px; }
+  .up-horas { display:flex; align-items:center; gap:10px; }
+  .up-horas .form-field { margin-bottom:0; max-width:120px; }
+  .up-aviso { padding:11px 13px; margin-bottom:16px; background:var(--page-bg); border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:10px; font-size:12.5px; color:var(--text-heading); }
+  .up-vazio-pagina { padding:40px 0; text-align:center; color:var(--text); font-size:14px; }
+  .up-lista-perfil { display:flex; flex-direction:column; gap:6px; margin:8px 0 14px; font-size:13px; }
+  .form-field input[type="password"] { width:100%; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+  .form-field input[type="password"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
+  .form-field.has-error input[type="password"] { border-color: var(--danger); }
+  .up-senha-campo { position:relative; }
+  .up-senha-campo input[type="password"], .up-senha-campo input[type="text"] { padding-right:40px; }
+  .up-olho { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; color:var(--text); border-radius:50%; }
+  .up-olho:hover { color:var(--text-heading); background:rgba(120,120,140,0.10); }
+  .up-olho svg { width:16px; height:16px; }
+  .event-drawer.pg-largo { width:min(720px, 94vw); right:calc(-1 * min(720px, 94vw) - 20px); }
+  .event-drawer.pg-largo.open { right:0; }
+  /* a grade de permissoes (a lista do Olist, com as abas do nosso menu) */
+  .pg-abas { margin-bottom:10px; }
+  .pg-corpo { min-width:0; }
+  .pg-todos { display:flex; align-items:center; gap:10px; padding:10px 0 12px; cursor:pointer; user-select:none; font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:var(--text-heading); border-bottom:1px solid var(--border); }
+  .pg-todos.pg-leitura { cursor:default; opacity:0.75; }
+  .pg-linha { display:flex; align-items:center; flex-wrap:wrap; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px; color:var(--text-heading); }
+  .pg-chk { flex-shrink:0; }
+  .pg-linha label { cursor:pointer; }
+  .pg-linha .item-checkbox:disabled + label { cursor:default; }
+  .pg-filho { padding-left:28px; font-size:13px; }
+  .pg-tag { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); border:1px solid var(--border); border-radius:20px; padding:1px 8px; }
+  .pg-nota { font-size:11.5px; color:var(--text); font-weight:600; }
+  .pg-secao-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:12.5px; color:var(--text-heading); text-transform:uppercase; letter-spacing:0.4px; margin:22px 0 4px; }
+  .pg-secao-nota { margin:0 0 6px; }
+  .pg-grupo { font-size:11.5px; font-weight:800; color:var(--text); margin:14px 0 2px; }
+  .checklist-row { display:flex; align-items:center; gap:10px; padding:7px 0; }
+  .checklist-row label { font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); cursor:pointer; }
+  .com-link { color:var(--active-text); cursor:pointer; font-weight:700; text-decoration:none; font-size:12px; }
+  .com-link:hover { text-decoration:underline; }
+  .oc-kpis.tres { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  @media (max-width:1100px) { .oc-kpis.tres { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
+     A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
+     so serve na tela. O cabecalho do relatorio so existe no papel. Igual em toda tela que tem o bloco
+     de planilha e impressao; teste_impressao.py compara. */
+  .relatorio-cabecalho { display:none; border-bottom:1.5px solid #101010; padding-bottom:8px; margin-bottom:10px; }
+  .relatorio-cabecalho .rel-empresa { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .relatorio-cabecalho .rel-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; margin:2px 0 4px; }
+  .relatorio-cabecalho .rel-linha { font-size:10.5px; line-height:1.5; }
+  @page { margin:12mm; }
+  @media print {
+    .relatorio-cabecalho { display:block !important; }
+    body.imprime-lista .page-header, [class$="-kpis"], .selecionar-todos-row, .busca-link { display:none !important; }
+    [class$="-table-wrap"] { overflow:visible !important; }
+    .card { padding:0 !important; }
+    .main table { border-collapse:collapse !important; width:100% !important; min-width:0 !important; }
+    .main thead { display:table-header-group; }
+    .main tr { break-inside:avoid; }
+    .main th, .main td { padding:4px 6px !important; font-size:10.5px !important; background:#fff !important;
+                         border:none !important; border-bottom:1px solid #cfcfcf !important; }
+    .main th { font-weight:800 !important; border-bottom:1.5px solid #101010 !important; }
+    .main th .seta, .main .sit-dot { display:none !important; }
+    .main th:has(> .checkbox-todos), .main td:has(> .item-checkbox),
+    .main table:has(tbody td:first-child > .item-checkbox) th:first-child { display:none !important; }
+    .main [class*="badge"] { background:none !important; border:none !important; padding:0 !important; font-weight:700 !important; }
+  }
+</style>
+</head>
+<body class="dark">
+<script>/* Tema salvo aplicado antes da pintura: sem isto a tela pisca no tema errado. Fonte: Configuracoes > Interface do usuario. */
+try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema==="light")document.body.classList.remove("dark");else if(_dp.tema==="auto")document.body.classList.toggle("dark",window.matchMedia("(prefers-color-scheme: dark)").matches);}catch(e){}</script>
+
+<div class="floating-card" id="card">
+  <div class="sidebar-col" id="sidebarCol">
+    <div class="logo">
+      <div class="wordmark">Desk Company</div>
+      <div class="erp-label">ERP System</div>
+    </div>
+
+    <div class="nav-item" data-id="inicio" data-label="Início">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span class="label-text">Início</span>
+    </div>
+    <div class="nav-item" data-id="cadastros" data-label="Cadastros">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/></svg>
+      <span class="label-text">Cadastros</span>
+    </div>
+    <div class="nav-item" data-id="estoque" data-label="Estoque">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M2 7l3-4h14l3 4"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      <span class="label-text">Estoque</span>
+    </div>
+    <div class="nav-item" data-id="vendas" data-label="Vendas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="label-text">Vendas</span>
+    </div>
+    <div class="nav-item" data-id="logistica" data-label="Logística">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <span class="label-text">Logística</span>
+    </div>
+    <div class="nav-item" data-id="financas" data-label="Finanças">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h3.5a1.75 1.75 0 1 1 0 3.5h-2a1.75 1.75 0 1 0 0 3.5h3.5"/></svg>
+      <span class="label-text">Finanças</span>
+    </div>
+    <div class="nav-item" data-id="integracoes" data-label="Integrações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>
+      <span class="label-text">Integrações</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="bottom-list">
+      <div class="bottom-item" data-id="notificacoes" data-label="Notificações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="label-text">Notificações</span>
+      </div>
+      <div class="bottom-item" data-id="suporte" data-label="Central de Suporte">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="label-text">Central de Suporte</span>
+      </div>
+      <div class="bottom-item active" data-id="config" data-label="Configurações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="label-text">Configurações</span>
+      </div>
+
+      <div class="fixar-row">
+        <span class="fixar-text">Fixar menu</span>
+        <div class="switch on" id="fixarSwitch"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Início -->
+  <div class="flyout-col" id="flyout-inicio">
+    <h4>Início</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Página inicial" data-href="../inicio/pagina-inicio-boas-vindas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Página inicial</div>
+      <div class="flyout-item" data-label="Dashboard KPIs" data-href="../inicio/pagina-dashboard-kpis.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/><circle cx="12" cy="12" r="1.5"/></svg>Dashboard KPIs</div>
+      <div class="flyout-item" data-label="Agenda" data-href="../inicio/pagina-inicio-agenda.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>Agenda</div>
+      <div class="flyout-item" data-label="Minha Conta" data-href="../inicio/pagina-inicio-minha-conta.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Minha Conta</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Cadastros -->
+  <div class="flyout-col" id="flyout-cadastros">
+    <h4>Cadastros</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Clientes" data-href="../cadastros/pagina-cadastros-clientes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Clientes</div>
+      <div class="flyout-item" data-label="Fornecedores" data-href="../cadastros/pagina-cadastros-fornecedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v18"/><path d="M2 22h20"/><line x1="9" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="15" y2="8"/><line x1="9" y1="13" x2="10" y2="13"/><line x1="14" y1="13" x2="15" y2="13"/></svg>Fornecedores</div>
+      <div class="flyout-item" data-label="Vendedores" data-href="../cadastros/pagina-cadastros-vendedores.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M23 21v-1a4 4 0 0 0-3-3.87"/></svg>Vendedores</div>
+      <div class="flyout-item" data-label="Produtos" data-href="../cadastros/pagina-cadastros-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v10l10 5 10-5V7z"/><path d="M2 7l10 5 10-5"/><line x1="12" y1="22" x2="12" y2="12"/></svg>Produtos</div>
+      <div class="flyout-item" data-label="Categorias" data-href="../cadastros/pagina-cadastros-categorias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Categorias</div>
+      <div class="flyout-item" data-label="Departamento de Produtos" data-href="../cadastros/pagina-cadastros-departamento-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Departamento de Produtos</div>
+      <div class="flyout-item" data-label="Seção de Produtos" data-href="../cadastros/pagina-cadastros-secao-produtos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Seção de Produtos</div>
+      <div class="flyout-item" data-label="Marcas de Produtos" data-href="../cadastros/pagina-cadastros-marcas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.82z"/><circle cx="8" cy="8" r="1.5"/></svg>Marcas de Produtos</div>
+      <div class="flyout-item" data-label="Embalagens" data-href="../cadastros/pagina-cadastros-embalagens.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/><line x1="10" y1="16" x2="14" y2="16"/></svg>Embalagens</div>
+      <div class="flyout-item" data-label="Lojas Desk" data-href="../cadastros/pagina-cadastros-lojas-desk.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>Lojas Desk</div>
+      <div class="flyout-item" data-label="Depósitos" data-href="../cadastros/pagina-cadastros-depositos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20V10l10-6 10 6v10"/><path d="M2 20h20"/><rect x="7" y="14" width="4" height="6"/><rect x="13" y="14" width="4" height="6"/></svg>Depósitos</div>
+      <div class="flyout-item" data-label="Endereços de Estoque" data-href="../cadastros/pagina-cadastros-enderecos-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/></svg>Endereços de Estoque</div>
+      <div class="flyout-item" data-label="Relatórios de Cadastros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Cadastros</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Estoque -->
+  <div class="flyout-col" id="flyout-estoque">
+    <h4>Estoque</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Controle de Estoques" data-href="../estoque/pagina-estoque-controle-estoques.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 14 11 16 15 12"/></svg>Controle de Estoques</div>
+      <div class="flyout-item" data-label="Movimentação de Estoque" data-href="../estoque/pagina-estoque-movimentacao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><polyline points="12 7 12 12 15 14"/></svg>Movimentação de Estoque</div>
+      <div class="flyout-item" data-label="Necessidades de Compra" data-href="../estoque/pagina-estoque-necessidades-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Necessidades de Compra</div>
+      <div class="flyout-item" data-label="Ordens de Compra" data-href="../estoque/pagina-estoque-ordens-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Ordens de Compra</div>
+      <div class="flyout-item" data-label="Entrada de Notas" data-href="../estoque/pagina-estoque-entrada-notas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Entrada de Notas</div>
+      <div class="flyout-item" data-label="Conferência de Entrada" data-href="../estoque/pagina-estoque-conferencia-entrada.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Conferência de Entrada</div>
+      <div class="flyout-item" data-label="Endereçamento" data-href="../estoque/pagina-estoque-enderecamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><line x1="9" y1="7" x2="15" y2="13"/><line x1="15" y1="7" x2="9" y2="13"/></svg>Endereçamento</div>
+      <div class="flyout-item" data-label="Reposição" data-href="../estoque/pagina-estoque-reposicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Reposição</div>
+      <div class="flyout-item" data-label="Transferência Entre Estoques" data-href="../estoque/pagina-estoque-transferencia.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transferência Entre Estoques</div>
+      <div class="flyout-item" data-label="Inventário" data-href="../estoque/pagina-estoque-inventario.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Inventário</div>
+      <div class="flyout-item" data-label="Acerto de Estoque" data-href="../estoque/pagina-estoque-acerto.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Acerto de Estoque</div>
+      <div class="flyout-item" data-label="Tratamento de Perdas" data-href="../estoque/pagina-estoque-itens-bloqueados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Tratamento de Perdas</div>
+      <div class="flyout-item" data-label="Giro de Estoque" data-href="../estoque/pagina-estoque-giro-estoque.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Giro de Estoque</div>
+      <div class="flyout-item" data-label="Relatórios de Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Estoque</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Vendas -->
+  <div class="flyout-col" id="flyout-vendas">
+    <h4>Vendas</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="CRM" data-href="../vendas/pagina-vendas-crm.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="3"/><path d="M23 21v-1a4 4 0 0 0-3-3.87"/></svg>CRM</div>
+      <div class="flyout-item" data-label="Pedidos de Venda" data-href="../vendas/pagina-vendas-pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Pedidos de Venda</div>
+      <div class="flyout-item" data-label="PDV" data-href="../vendas/pagina-vendas-pdv.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PDV</div>
+      <div class="flyout-item" data-label="Promoções e Encartes" data-href="../vendas/pagina-vendas-promocoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Promoções e Encartes</div>
+      <div class="flyout-item" data-label="Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Notas Fiscais</div>
+      <div class="flyout-item" data-label="Metas e Performance" data-href="../vendas/pagina-vendas-metas.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Metas e Performance</div>
+      <div class="flyout-item" data-label="Margem Contribuição"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Margem Contribuição</div>
+      <div class="flyout-item" data-label="Custos do E-commerce" data-href="../vendas/pagina-vendas-custos-ecommerce.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l1.5 5h9L18 2"/><path d="M3.5 7h17l-1.4 12.5a2 2 0 0 1-2 1.5H6.9a2 2 0 0 1-2-1.5z"/></svg>Custos do E-commerce</div>
+      <div class="flyout-item" data-label="Relatórios de Vendas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Vendas</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Logística -->
+  <div class="flyout-col" id="flyout-logistica">
+    <h4>Logística</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Separação" data-href="../logistica/pagina-logistica-separacao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14l-1.5 12a2 2 0 0 1-2 1.8H8.5a2 2 0 0 1-2-1.8L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Separação</div>
+      <div class="flyout-item" data-label="Conferência de Saída" data-href="../logistica/pagina-logistica-conferencia-saida.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Conferência de Saída</div>
+      <div class="flyout-item" data-label="Expedição" data-href="../logistica/pagina-logistica-expedicao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Expedição</div>
+      <div class="flyout-item" data-label="Rastreamento de Pedidos" data-href="../logistica/pagina-logistica-rastreamento.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Rastreamento de Pedidos</div>
+      <div class="flyout-item" data-label="Devolução" data-href="../logistica/pagina-logistica-devolucao.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>Devolução</div>
+      <div class="flyout-item" data-label="Relatórios de Logística"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Logística</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Finanças -->
+  <div class="flyout-col" id="flyout-financas">
+    <h4>Finanças</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Contas a Receber" data-href="../financas/pagina-financas-contas-receber.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><polyline points="8 12 12 16 16 12"/></svg>Contas a Receber</div>
+      <div class="flyout-item" data-label="Contas a Pagar" data-href="../financas/pagina-financas-contas-pagar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="8"/><polyline points="8 12 12 8 16 12"/></svg>Contas a Pagar</div>
+      <div class="flyout-item" data-label="Caixa" data-href="../financas/pagina-financas-caixa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>Caixa</div>
+      <div class="flyout-item" data-label="Comissões Afiliados" data-href="../financas/pagina-financas-comissoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Comissões Afiliados</div>
+      <div class="flyout-item" data-label="Vale-compra" data-href="../financas/pagina-financas-vale-compra.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>Vale-compra</div>
+      <div class="flyout-item" data-label="Relatórios Finanças"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios Finanças</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Integrações -->
+  <div class="flyout-col" id="flyout-integracoes">
+    <h4>Integrações</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Marketplaces e Hubs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="10" height="10" rx="2"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="22" y2="12"/></svg>Marketplaces e Hubs</div>
+      <div class="flyout-item" data-label="Gateways de Pagamento" data-href="../integracoes/pagina-integracoes-gateways.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Gateways de Pagamento</div>
+      <div class="flyout-item" data-label="Emissão de Notas Fiscais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="17" x2="12" y2="17"/></svg>Emissão de Notas Fiscais</div>
+      <div class="flyout-item" data-label="Relatórios de Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatórios de Integrações</div>
+    </div>
+  </div>
+
+  <!-- FLYOUT: Configurações -->
+  <!-- Deixou de listar paginas: agora e um atalho unico pro hub de Configuracoes,
+       mais as Preferencias (tema), que sao do usuario e nao do sistema. -->
+  <div class="flyout-col" id="flyout-config">
+    <h4>Configurações</h4>
+    <div class="flyout-body">
+      <div class="flyout-item" data-label="Configurações ERP" data-href="../configuracoes/pagina-configuracoes.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.2.62.77 1.06 1.42 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configurações ERP</div>
+    </div>
+    <div class="theme-picker">
+      <div class="label">Preferências</div>
+      <div class="theme-linha">
+        <span class="theme-linha-rotulo">Tema</span>
+        <div class="theme-seg">
+          <button data-theme="auto">Auto</button>
+          <button data-theme="light">Claro</button>
+          <button data-theme="dark" class="active">Escuro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="main">
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <div class="page-header">
+    <div class="oc-topo">
+      <div>
+        <div class="oc-titulo-bloco">
+          <h1 id="tituloPerfil">Perfil</h1>
+          <span class="up-tag" id="tagOwner" style="display:none;margin-left:0;">não se edita</span>
+        </div>
+        <div class="subtitle" id="subtituloPerfil">O que quem tem este perfil pode fazer, o desconto que dá sem senha e quais ações autoriza</div>
+      </div>
+    </div>
+    <div class="header-acoes">
+      <a class="btn-secundario-topo" href="../configuracoes/pagina-configuracoes-perfis-usuario.html" id="btnVoltarLista" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar para Permissões de usuários
+      </a>
+    </div>
+  </div>
+
+  <div class="up-vazio-pagina" id="naoEncontrado" style="display:none;">
+    Este endereço não tem um perfil que exista.
+    <div style="margin-top:10px;"><a class="painel-link" id="linkVoltarNaoEncontrado" href="../configuracoes/pagina-configuracoes-perfis-usuario.html">Voltar para Permissões de usuários</a></div>
+  </div>
+
+  <div id="conteudoPerfil">
+  <div class="up-aviso" id="avisoOwner" style="display:none;">O perfil Owner faz tudo, não tem limite de desconto e não se edita nem se exclui: a grade abre só para ver, com tudo marcado. Para um perfil parecido, clone o Owner na lista e ajuste a cópia.</div>
+  <div class="up-aviso" id="avisoSomenteOwner" style="display:none;">Só quem está no sistema com o perfil Owner altera perfis: esta página abre só para ver.</div>
+
+  <div class="card up-card">
+    <div class="section-title">Dados do perfil</div>
+    <div class="section-hint" style="margin-top:-6px;">Crie perfis como "separador" ou "financeiro" para dar a cada tipo de usuário só o que ele precisa. Cada usuário tem um perfil só; o que falta a uma pessoa se acrescenta nas permissões avulsas dela.</div>
+    <div class="form-row">
+      <div class="form-field" style="flex:2;" id="campoNome">
+        <label>Nome do perfil</label>
+        <input type="text" id="inputNome" maxlength="60" autocomplete="off">
+        <div class="field-error-msg" id="erroNome">Informe o nome do perfil.</div>
+      </div>
+      <div class="form-field" id="campoDesconto" style="max-width:240px;">
+        <label>Desconto padrão sem senha (%)</label>
+        <input type="text" id="inputDesconto" inputmode="decimal" maxlength="6" placeholder="Ex.: 10" autocomplete="off">
+        <div class="field-hint" id="hintDesconto">Cada pessoa pode ter o próprio limite, que vale no lugar dele.</div>
+        <div class="field-error-msg" id="erroDesconto">Informe um número de 0 a 100.</div>
+      </div>
+    </div>
+    <div class="form-field" id="campoDescricao" style="max-width:720px;">
+      <label>Descrição do perfil</label>
+      <input type="text" id="inputDescricao" maxlength="160" autocomplete="off">
+      <div class="field-hint">Aparece na lista e na página do usuário.</div>
+    </div>
+  </div>
+
+  <div class="card up-card" style="margin-top:16px;">
+    <div class="section-title">Permissões do perfil</div>
+    <div class="section-hint" style="margin-top:-6px;">Cada aba é um módulo do menu. Marcar a tela libera o acesso a ela; as funções de dentro só valem com a tela marcada. No fim de cada aba ficam as ações que pedem autorização.</div>
+    <div id="gradePerfil"></div>
+  </div>
+
+  <div class="card up-card" id="cartaoQuem" style="margin-top:16px;">
+    <div class="section-title">Quem tem este perfil</div>
+    <div id="listaQuem" class="up-lista-perfil"></div>
+  </div>
+
+  <div class="barra-salvar" id="barraSalvar">
+    <button class="btn-primary" id="btnSalvar">Salvar</button>
+    <div class="drawer-link" id="btnCancelar">Voltar para Permissões de usuários</div>
+    <div class="barra-info" id="infoPendente">—</div>
+  </div>
+  </div>
+
+<!-- MODAL: confirmação / aviso -->
+<div class="drawer-backdrop" id="confirmModalBackdrop"></div>
+<div class="modal-card" id="confirmModal">
+  <div class="confirm-titulo">Confirmação</div>
+  <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
+  <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
+    <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
+    Estou ciente destas ações e desejo continuar.
+  </label>
+  <div class="confirm-senha-row" id="campoSenhaModal">
+    <label>Sua senha</label>
+    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
+    <div class="confirm-senha-erro">Informe sua senha para confirmar esta ação.</div>
+  </div>
+  <div class="confirm-acoes">
+    <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
+    <div class="drawer-link" id="btnConfirmModalCancelar">Cancelar <span class="esc-hint">ESC</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  // ===== ESC FECHA O PAINEL LATERAL (correcao de COMPONENTE, nao de tela — 13/out/2026) =====
+  // O painel mostra "ESC" ao lado de fechar, mas em 42 paineis o Esc so fechava o modal de confirmacao:
+  // cada tela escrevia o seu tratamento de tecla, e a maioria esqueceu o painel. Aqui o Esc vale como
+  // clicar no "fechar" do painel aberto, entao cada tela continua dona do proprio fechamento. Roda na
+  // captura e vem ANTES do bloco do dropdown: com menu, calendario, sugestao ou modal por cima, nao faz
+  // nada, porque o que esta por cima fecha primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.querySelector('.dropdown-select-menu.open, .store-menu.open, .modal-card.open, .sugestoes.open, .date-pop.open, .periodo-menu.open, .auto-menu.open, .multiselect-menu.open, .mais-acoes-menu.open')) return;
+    const abertos = document.querySelectorAll('.event-drawer.open');
+    // Com dois paineis abertos, o de cima e o ultimo da pagina.
+    const fechar = abertos.length ? abertos[abertos.length - 1].querySelector('.drawer-close') : null;
+    if (!fechar) return;
+    fechar.click();
+    e.stopPropagation();
+  }, true);
+
+  // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
+  // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
+  // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o
+  // Esc quando havia mesmo um menu aberto: assim o que esta por CIMA fecha primeiro,
+  // e o handler de modal/drawer de cada tela continua valendo quando nao ha dropdown.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const abertos = document.querySelectorAll('.dropdown-select-menu.open');
+    if (!abertos.length) return;
+    abertos.forEach(m => m.classList.remove('open'));
+    e.stopPropagation();
+  }, true);
+
+
+  // ===== PARÂMETROS DO SISTEMA =====
+  // Fonte: Configuracoes > Parametros de estoque (valores da EMPRESA) e
+  // Configuracoes > Interface do usuario (preferencias POR USUARIO). No sistema de producao
+  // isto vira leitura da tabela `parametros` — chave, valor e `usuario_id`
+  // (nulo = valor da empresa; preenchido = preferencia daquele usuario).
+  // Aqui, como cada tela e um arquivo solto, o prototipo guarda o mesmo JSON no
+  // navegador: e o unico jeito de a tela de configuracao ter efeito de verdade
+  // nas outras. Navegador que bloqueia armazenamento cai no padrao de fabrica e
+  // nada quebra.
+  const PARAM_PADRAO = {
+    // empresa
+    conferenciaCompraAlerta: 1,
+    conferenciaCompraCritico: 3,
+    enderecamentoAlerta: 2,
+    enderecamentoCritico: 7,
+    estoqueZeroLimite: 7,
+    conferenciaCega: true,
+    ocultarItensFila: false,
+    ocultarVolumesFila: false,
+    casasQuantidade: 2,
+    casasPreco: 2,
+    permitirDocDuplicado: false,
+    mostrarObservacoesCliente: true,
+    // por usuario
+    registrosPorPagina: 10,
+    aoSalvar: 'listagem',
+    aoAbrirCadastro: 'leitura',
+    tema: 'dark'
+  };
+  function lerParametros() {
+    try {
+      const bruto = localStorage.getItem('deskParametros');
+      return Object.assign({}, PARAM_PADRAO, bruto ? JSON.parse(bruto) : {});
+    } catch (e) { return Object.assign({}, PARAM_PADRAO); }
+  }
+  function gravarParametros(p) {
+    try { localStorage.setItem('deskParametros', JSON.stringify(p)); return true; }
+    catch (e) { return false; }
+  }
+  const PARAM = lerParametros();
+
+  // ===== CATÁLOGO DE AÇÕES AUDITÁVEIS =====
+  // Matriz MÓDULO x VERBO (criar · editar · excluir) mais as ações específicas
+  // que nenhum verbo descreve. Decidido nas barganhas de 18 e 21/set/2026.
+  //
+  // DUAS telas leem este catálogo e fazem perguntas DIFERENTES sobre a MESMA
+  // célula: Configuracoes > Confirmacoes por senha pergunta "a acao exige
+  // senha?"; Permissoes de Usuarios (hoje espelhada em Vendedores > Acesso e
+  // Permissoes) pergunta "este perfil pode?". Uma lista so — duas copias
+  // divergiriam, e uma acao acabaria existindo numa tela e nao na outra.
+  //
+  // A trava nasce COM a tela: modulo novo entra aqui no mesmo passo em que e
+  // construido, e a celula aparece sozinha nas duas telas.
+  //
+  // `ligado` e o campo que impede a matriz de mentir: diz se a TELA daquele
+  // modulo ja chama a verificacao naquele verbo. Celula nao ligada aparece com
+  // CADEADO e o motivo — nunca como interruptor que nao faz nada. Hoje so
+  // `excluir` esta ligado nos 24 pontos de exclusao; criar e editar sao ligados
+  // modulo a modulo, conforme cada tela e revisitada.
+  const VERBOS_SENHA = [
+    { id:'criar',   sufixo:'Criar',  rotulo:'Criar',   exigePadrao:false },
+    { id:'editar',  sufixo:'Editar', rotulo:'Editar',  exigePadrao:false },
+    { id:'excluir', sufixo:'Exclui', rotulo:'Excluir', exigePadrao:true  }
+  ];
+  const MODULOS_SENHA = [
+    { base:'clientes', nome:'Clientes', onde:'Cadastros \u2192 Clientes', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'fornecedores', nome:'Fornecedores', onde:'Cadastros \u2192 Fornecedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'produtos', nome:'Produtos', onde:'Cadastros \u2192 Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'categorias', nome:'Categorias', onde:'Cadastros \u2192 Categorias', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'marcas', nome:'Marcas', onde:'Cadastros \u2192 Marcas', grupo:'Cadastros', ligado:{ criar:true,  editar:true,  excluir:true } },   // piloto: 1a tela com os tres verbos ligados
+    { base:'embalagens', nome:'Embalagens', onde:'Cadastros \u2192 Embalagens', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'departamentos', nome:'Departamento de Produtos', onde:'Cadastros \u2192 Departamento de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'secoes', nome:'Se\u00e7\u00e3o de Produtos', onde:'Cadastros \u2192 Se\u00e7\u00e3o de Produtos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'depositos', nome:'Dep\u00f3sitos', onde:'Cadastros \u2192 Dep\u00f3sitos', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'enderecos', nome:'Endere\u00e7os de Estoque', onde:'Cadastros \u2192 Endere\u00e7os de Estoque', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'lojas', nome:'Lojas Desk', onde:'Cadastros \u2192 Lojas Desk', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'vendedores', nome:'Vendedores', onde:'Cadastros \u2192 Vendedores', grupo:'Cadastros', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'notasEntrada', nome:'Entrada de Notas', onde:'Estoque \u2192 Entrada de Notas', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
+    { base:'ordensCompra', nome:'Ordens de Compra', onde:'Estoque \u2192 Ordens de Compra', grupo:'Estoque', ligado:{ criar:false, editar:false, excluir:true } },
+    // Modulo nascido DEPOIS da matriz: entra com os tres verbos ligados desde o
+    // primeiro dia. E a regra "a trava nasce com a tela" no caso facil.
+    { base:'contasFinanceiras', nome:'Contas financeiras', onde:'Configurações \u2192 Contas financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'contasBancarias',   nome:'Contas banc\u00e1rias',   onde:'Configurações \u2192 Contas banc\u00e1rias',   grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'formasRecebimento', nome:'Formas de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'crm', nome:'CRM', onde:'Vendas \u2192 CRM', grupo:'Vendas', ligado:{ criar:true, editar:true, excluir:true } },
+    { base:'estagiosFunil', nome:'Estágios do funil de vendas', onde:'Configurações → Estágios do funil de vendas', grupo:'Vendas', ligado:{ criar:true, editar:true, excluir:true } },
+    // Grupo de categorias NAO ganha modulo proprio: e parte do mesmo cadastro, e
+    // o detalhe no Registro de atividades diz se foi categoria ou grupo.
+    { base:'categoriasFinanceiras', nome:'Categorias financeiras', onde:'Configurações \u2192 Categorias financeiras', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'caixa', nome:'Caixa e Bancos', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', ligado:{ criar:true,  editar:true,  excluir:true } },
+    // Modulo nascido em 06/out/2026, junto com a Expedicao: entra com os tres
+    // verbos ligados desde o primeiro dia (a trava nasce COM a tela, §14.21).
+    { base:'transportadoras', nome:'Transportadoras', onde:'Configurações \u2192 Transportadoras', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'motivosDevolucao', nome:'Motivos de Devolução', onde:'Configurações → Motivos de Devolução', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+    { base:'motivosPerda', nome:'Motivos de Perda', onde:'Configurações → Motivos de Perda', grupo:'Operacional', ligado:{ criar:true,  editar:true,  excluir:true } },
+  ];
+  // Acoes que verbo nenhum descreve. `pronto:false` = a tela ainda nao existe.
+  const ACOES_ESPECIFICAS = [
+    { chave:'vendedorSenha',     nome:'Criar ou alterar senha de acesso de vendedor', onde:'Cadastros \u2192 Vendedores',              grupo:'Cadastros', pronto:true,  exigePadrao:true },
+    { chave:'acertoLote',        nome:'Finalizar acerto de estoque (lote)',           onde:'Estoque \u2192 Acerto de Estoque',         grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'transfRecebe',      nome:'Fechar confer\u00eancia de chegada de transfer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia de Entrada', grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'inventarioFecha',   nome:'Fechar invent\u00e1rio de estoque',                onde:'Estoque \u2192 Invent\u00e1rio',                  grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'ocCancelaRecebida', nome:'Cancelar ordem de compra j\u00e1 recebida',        onde:'Estoque \u2192 Ordens de Compra',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    { chave:'estoqueBloqueia',   nome:'Bloquear saldo de produto',                    onde:'Estoque \u2192 Controle de Estoques',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    { chave:'bloqueadosLibera',  nome:'Liberar item bloqueado para venda',            onde:'Estoque \u2192 Tratamento de Perdas',          grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    { chave:'bloqueadosBaixa',   nome:'Dar baixa em item bloqueado',                  onde:'Estoque \u2192 Tratamento de Perdas',          grupo:'Estoque',   pronto:true,  exigePadrao:true },
+    // Desligar a conferencia cega nao precisa de senha, mas PRECISA ficar
+    // registrado: e o momento em que a contagem deixa de ser independente.
+    // Nasce com senha desligada e log ligado — prova de que o registro grava as
+    // duas coisas.
+    { chave:'caixaAlterarConta', nome:'Alterar a conta financeira de um lan\u00e7amento', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:false },
+    { chave:'caixaFechaPeriodo', nome:'Fechar ou reabrir o per\u00edodo financeiro', onde:'Finan\u00e7as \u2192 Caixa', grupo:'Finan\u00e7as', pronto:true, exigePadrao:true },
+    { chave:'conferenciaCegaDesliga', nome:'Desligar a confer\u00eancia cega numa confer\u00eancia', onde:'Estoque \u2192 Confer\u00eancia',      grupo:'Estoque',   pronto:true,  exigePadrao:false },
+    // Logistica: trabalho de galpao nao pede senha — pede RASTRO. Quem assumiu,
+    // quem concluiu e, principalmente, quem registrou falta. A falta e a unica
+    // que vira divergencia de estoque, entao e a que mais precisa de nome.
+    { chave:'separacaoAssume',   nome:'Assumir um pedido na separação',               onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoConclui',  nome:'Concluir a separação de um pedido',            onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoFalta',    nome:'Registrar item em falta na separação',         onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoParcial',  nome:'Guardar separação parcial para continuar depois', onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'separacaoReabre',   nome:'Reabrir uma separação j\u00e1 conclu\u00edda',        onde:'Log\u00edstica \u2192 Separação', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Conferencia de Saida: fechar aqui EMITE A NOTA e ajusta o valor do pedido
+    // quando houve divergencia. Por isso e a unica etapa de galpao com uma acao
+    // que nasce pedindo senha — reabrir uma conferencia ja faturada.
+    { chave:'confSaidaAssume',     nome:'Assumir um pedido na confer\u00eancia de sa\u00edda',       onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaDivergencia',nome:'Confirmar a contagem divergente na confer\u00eancia de sa\u00edda', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaCegaDesliga',nome:'Desligar a contagem cega da confer\u00eancia de sa\u00edda', onde:'Configurações \u2192 Confer\u00eancia', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    { chave:'confSaidaFecha',      nome:'Fechar a confer\u00eancia de sa\u00edda e emitir a nota',  onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaParcial',    nome:'Guardar confer\u00eancia de sa\u00edda para continuar depois', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'confSaidaReabre',     nome:'Reabrir uma confer\u00eancia de sa\u00edda j\u00e1 faturada', onde:'Log\u00edstica \u2192 Confer\u00eancia de Sa\u00edda', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Expedicao: a carga sai daqui. Despachar e trabalho normal de doca e nao
+    // pede senha — mas e o momento em que o estoque fisico some, entao TUDO
+    // aqui grava rastro. Reabrir um romaneio ja despachado e a excecao: isso
+    // devolve pecas ao estoque depois de o caminhao ter saido.
+    { chave:'expedicaoMonta',      nome:'Montar um romaneio',                                 onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoTiraPedido', nome:'Tirar um pedido de um romaneio em montagem',          onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoCancela',    nome:'Cancelar um romaneio e devolver os pedidos \u00e0 fila', onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoDespacha',   nome:'Despachar a carga e dar baixa no estoque f\u00edsico',  onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'expedicaoReabre',     nome:'Reabrir um romaneio j\u00e1 despachado',                onde:'Log\u00edstica \u2192 Expedi\u00e7\u00e3o', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true },
+    // Rastreamento: confirmar codigo e trabalho de rotina e pede rastro, nao
+    // senha. ALTERAR um codigo ja confirmado e outra coisa — o cliente ja
+    // recebeu o antigo e pode estar acompanhando por ele. E marcar entrega na
+    // mao pula o evento da transportadora: e a mesma regra de Pedidos, onde
+    // avancar o funil nao pede senha e alterar a situacao a mao pede.
+    { chave:'metasDefine',        nome:'Definir meta de loja ou de vendedor',            onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'metasAlteraFechado', nome:'Alterar a meta de um mês que já fechou',         onde:'Vendas → Metas', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'afiliadoAprova',     nome:'Aprovar, recusar, incluir ou suspender afiliado',      onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:false },
+    { chave:'comissaoAjusta',     nome:'Editar ou excluir comissão de afiliado ou vendedor',   onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoLanca',      nome:'Lançar crédito ou débito na conta de comissão',        onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoPaga',       nome:'Realizar pagamento de comissão',                       onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'comissaoReprograma', nome:'Reprogramar o vencimento de pagamento de comissão',    onde:'Finanças → Comissões Afiliados', grupo:'Finanças', pronto:true,  exigePadrao:false },
+    { chave:'valeCompraIncluir',   nome:'Incluir vale-compra de cortesia',                     onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'valeCompraCancelar',  nome:'Cancelar vale-compra',                                onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'valeCompraReativar',  nome:'Reativar vale-compra vencido',                        onde:'Finanças → Vale-compra', grupo:'Finanças', pronto:true,  exigePadrao:true  },
+    { chave:'gatewayIncluir',      nome:'Incluir gateway de pagamento',                        onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:false },
+    { chave:'gatewayEditar',       nome:'Alterar gateway de pagamento',                        onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:false },
+    { chave:'gatewayChave',        nome:'Guardar, trocar ou apagar a chave da API de um gateway', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
+    { chave:'gatewayExcluir',      nome:'Excluir gateway de pagamento e a conta financeira dele', onde:'Integrações → Gateways de Pagamento', grupo:'Integrações', pronto:true,  exigePadrao:true  },
+    { chave:'custosEcomConfig',    nome:'Alterar as configurações de Custos do E-commerce',       onde:'Vendas → Custos do E-commerce',       grupo:'Vendas',       pronto:true,  exigePadrao:false },
+    { chave:'parametrosVendas',    nome:'Alterar os parâmetros de vendas',                   onde:'Configurações → Parâmetros de vendas', grupo:'Vendas',       pronto:true,  exigePadrao:false },
+    { chave:'calculadoraPreco',     nome:'Aplicar o preço calculado',                    onde:'Cadastros → Produtos', grupo:'Cadastros',     pronto:true,  exigePadrao:false },
+    { chave:'promocaoSalva',      nome:'Criar ou alterar uma promoção',                onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoAprova',     nome:'Aprovar uma promoção',                         onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'promocaoAntecipa',   nome:'Antecipar o início de uma promoção aprovada',  onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoProrroga',   nome:'Prorrogar uma promoção aprovada',              onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoEncerra',    nome:'Encerrar uma promoção antes do fim',           onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'perfilPermissoes',   nome:'Alterar as permissões de um perfil',                       onde:'Configurações → Permissões de usuários', grupo:'Configurações', pronto:true, exigePadrao:true  },
+    { chave:'usuarioPermissoes',  nome:'Alterar o perfil ou as permissões avulsas de um usuário',   onde:'Configurações → Usuários do sistema',    grupo:'Configurações', pronto:true, exigePadrao:true  },
+    { chave:'formasRecebimentoRegra', nome:'Alterar destino, taxa ou limite de uma forma de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', pronto:true,  exigePadrao:true },
+    { chave:'pdvSangria',           nome:'Lançar sangria de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },
+    { chave:'pdvFechaComDiferenca', nome:'Fechar o caixa do PDV com diferença',            onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvDescontoAcima',     nome:'Liberar desconto acima do máximo no PDV',        onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvRepasseTaxa',       nome:'Liberar o repasse da taxa do cartão ao cliente no PDV', onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvDescontoAVistaTira', nome:'Tirar o desconto à vista (Pix e dinheiro) de uma venda no PDV', onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'pdvCegoDesliga',       nome:'Desligar o fechamento cego do caixa do PDV',     onde:'Configurações → Configurações do PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCria',         nome:'Abrir uma devolução de venda',                   onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoConfirmaChegada', nome:'Confirmar a chegada da mercadoria devolvida',    onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoCodigoReversa', nome:'Registrar o código de postagem da reversa',      onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'devolucaoAlteraCodigoReversa', nome:'Alterar o código de postagem já informado', onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFreteReal',      nome:'Registrar a cobrança real do frete da reversa',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoFinaliza',     nome:'Finalizar uma devolução',                        onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoCancela',      nome:'Cancelar uma devolução',                         onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'devolucaoReversa',      nome:'Solicitar logística reversa de uma devolução',  onde:'Logística → Devolução', grupo:'Logística', pronto:true,  exigePadrao:false },
+    { chave:'rastreioConfirma',      nome:'Confirmar o c\u00f3digo de rastreio de um volume',          onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false },
+    { chave:'rastreioAltera',        nome:'Alterar um c\u00f3digo de rastreio j\u00e1 confirmado',       onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEntregaManual', nome:'Marcar entrega \u00e0 m\u00e3o, sem evento da transportadora', onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioAlteraPrevisao', nome:'Alterar a previsão de entrega de um volume',      onde:'Logística → Rastreamento de Pedidos', grupo:'Logística', pronto:true,  exigePadrao:true  },
+    { chave:'rastreioEventoVitrine', nome:'Mostrar ou esconder um evento para o cliente',            onde:'Log\u00edstica \u2192 Rastreamento de Pedidos', grupo:'Log\u00edstica', pronto:true,  exigePadrao:false }
+    ,{ chave:'nomesSistema',        nome:'Renomear os nomes do sistema',                  onde:'Configurações → Nomes do sistema', grupo:'Configurações', pronto:true,  exigePadrao:true  }
+  ];
+  // ACOES_SENHA continua existindo e agora e DERIVADA da matriz — quem ja lia
+  // (as telas que pedem senha, o checklist do perfil) nao precisou mudar.
+  const ACOES_SENHA = [];
+  MODULOS_SENHA.forEach(m => {
+    VERBOS_SENHA.forEach(v => {
+      ACOES_SENHA.push({
+        chave: m.base + v.sufixo, nome: v.rotulo + ' \u00b7 ' + m.nome, onde: m.onde,
+        modulo: m.grupo, grupo: m.grupo, base: m.base, verbo: v.id,
+        pronto: true, ligado: !!m.ligado[v.id], exigePadrao: v.exigePadrao
+      });
+    });
+  });
+  ACOES_ESPECIFICAS.forEach(a => {
+    ACOES_SENHA.push({
+      chave:a.chave, nome:a.nome, onde:a.onde, modulo:a.grupo, grupo:a.grupo,
+      base:null, verbo:null, pronto:a.pronto, ligado:a.pronto, exigePadrao:a.exigePadrao
+    });
+  });
+
+  // Ausente = vale o padrao do catalogo. Nunca `|| true` solto: isso faria uma
+  // acao desligada de proposito voltar a pedir senha sozinha.
+  function exigeSenha(chave) {
+    const salvo = (PARAM.confirmacoes || {})[chave];
+    if (typeof salvo === 'boolean') return salvo;
+    const a = ACOES_SENHA.filter(x => x.chave === chave)[0];
+    return a ? a.exigePadrao : true;
+  }
+  // Mostra ou esconde o campo de senha do painel de confirmacao. O painel continua
+  // abrindo mesmo sem exigencia: o resumo do que vai acontecer e o motivo dele
+  // existir; a senha e so a trava. Some o campo, nunca a conferencia.
+  function aplicarExigenciaSenha(chave, idCampo) {
+    const wrap = document.getElementById(idCampo || 'campoSenhaWrap');
+    if (wrap) wrap.style.display = exigeSenha(chave) ? '' : 'none';
+  }
+
+  // ----- Senha dentro do modal de confirmacao compartilhado -----
+  // O modal de confirmacao existe em 24 arquivos com TRES assinaturas diferentes
+  // (texto,qtd,cb) / (texto,qtd,cor,cb) / (texto,qtd,cor,cb,modo). Mudar a
+  // assinatura em todos seria trocar 24 chamadas por um bug. Em vez disso, quem
+  // vai excluir arma a senha numa linha antes de abrir o modal:
+  //     armarSenhaModal('clientesExclui'); abrirModalConfirmacao(...)
+  // O envelope abaixo mostra ou esconde o campo na abertura, e a trava roda na
+  // FASE DE CAPTURA — antes do handler de cada tela — e cancela a confirmacao se
+  // a senha estiver vazia. Nenhuma tela precisou mudar de assinatura.
+  let _senhaPendente = null, _senhaAtiva = null, _acaoPendente = null, _acaoAtiva = null;
+  // `_acao*` guarda a acao SEMPRE; `_senha*` so quando ela exige senha. Sao coisas
+  // diferentes: o registro de atividades grava a acao tenha havido senha ou nao.
+  function armarSenhaModal(chave) { _senhaPendente = chave; _acaoPendente = chave; }
+  if (typeof abrirModalConfirmacao === 'function') {
+    const _abrirOriginal = abrirModalConfirmacao;
+    const _envelopeSenha = function () {
+      _senhaAtiva = (_senhaPendente && exigeSenha(_senhaPendente)) ? _senhaPendente : null;
+      _acaoAtiva = _acaoPendente;
+      _senhaPendente = null; _acaoPendente = null;
+      const row = document.getElementById('campoSenhaModal');
+      if (row) {
+        row.classList.toggle('on', !!_senhaAtiva);
+        row.classList.remove('has-error');
+        const inp = document.getElementById('inputSenhaModal');
+        if (inp) inp.value = '';
+      }
+      return _abrirOriginal.apply(this, arguments);
+    };
+    // O envelope PRECISA herdar a aridade do original. `confirmarAcao` escolhe
+    // COMO chamar o modal lendo `.length` — e funcao declarada sem parametros
+    // tem length 0, o que jogava TODA chamada no ramo de 3 argumentos. Nas
+    // telas de 4 ou 5 parametros o callback caia na posicao da cor e a acao
+    // simplesmente nao acontecia depois de confirmar. Copiar a aridade mantem o
+    // despacho honesto sem precisar reescrever as tres assinaturas do sistema.
+    Object.defineProperty(_envelopeSenha, 'length', { value: _abrirOriginal.length, configurable: true });
+    abrirModalConfirmacao = _envelopeSenha;
+  }
+  // ===== REGISTRO DE ATIVIDADES =====
+  // Toda acao do catalogo grava aqui — com ou sem senha. O catalogo deixa de ser
+  // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
+  // passa a ser uma COLUNA do registro, nao o motivo dele existir.
+  // No prototipo grava na chave `deskLog` do navegador, limitado as ultimas 300
+  // entradas. No sistema de producao e a tabela `log_atividades`, escrita NO SERVIDOR — log
+  // gravado pelo cliente e log que o proprio usuario apaga depois de agir.
+  const LOG_MAX = 300;
+  // Nome com prefixo do bloco compartilhado de proposito: `USUARIO_ATUAL` ja
+  // existia na Agenda com outro significado, e o `const` duplicado derrubava a
+  // tela inteira. Bloco que vive em 41 arquivos nao usa nome generico.
+  const USUARIO_SESSAO = { nome: 'Administrador Desk', perfil: 'Owner' };
+  function lerLog() {
+    try { const b = localStorage.getItem('deskLog'); return b ? JSON.parse(b) : []; }
+    catch (e) { return []; }
+  }
+  function registrarLog(chave, detalhe, comSenha) {
+    if (!chave) return;
+    const a = ACOES_SENHA.filter(x => x.chave === chave)[0];
+    try {
+      const log = lerLog();
+      log.unshift({
+        ts: Date.now(), chave: chave,
+        acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
+        usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
+        senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180)
+      });
+      localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
+    } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
+  }
+
+  // Executa uma acao passando pela confirmacao por senha quando o catalogo exigir.
+  // Se nao exigir, executa direto — sem modal, sem atrito. A acao acontece SO
+  // dentro do callback: cancelar nao grava nada.
+  // O modal compartilhado tem tres assinaturas no sistema; o despacho le
+  // `.length` da funcao em vez de adivinhar — e o unico jeito seguro de chamar
+  // as tres sem reescrever 24 arquivos.
+  function confirmarAcao(chave, texto, executar) {
+    if (!exigeSenha(chave)) { registrarLog(chave, texto, false); executar(); return; }
+    // Tela sem modal de confirmacao: a acao que EXIGE senha NAO acontece. Antes
+    // esta linha executava direto — a trava sumia em silencio e a acao nem ia
+    // para o registro de atividades. Falhar fechado e barulhento e melhor que
+    // destravar calado: quem puser uma acao com trava numa tela sem modal ve o
+    // erro na hora, em vez de descobrir na auditoria que a senha nunca foi pedida.
+    if (typeof abrirModalConfirmacao !== 'function') {
+      console.error('[desk] Acao "' + chave + '" exige senha e esta tela nao tem o modal de confirmacao. Acao cancelada.');
+      return;
+    }
+    armarSenhaModal(chave);
+    if (abrirModalConfirmacao.length >= 4) abrirModalConfirmacao(texto, 1, 'primary', executar);
+    else abrirModalConfirmacao(texto, 1, executar);
+  }
+
+  (function travaSenhaModal() {
+    const btn = document.getElementById('btnConfirmModalConfirmar');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      if (_senhaAtiva) {
+        const inp = document.getElementById('inputSenhaModal');
+        if (inp && !inp.value.trim()) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          document.getElementById('campoSenhaModal').classList.add('has-error');
+          return;
+        }
+      }
+      // Passou: a acao vai acontecer. Registra aqui, num lugar so, em vez de em
+      // cada uma das 24 telas — e por isso nenhuma delas precisou saber que o
+      // registro de atividades existe.
+      if (_acaoAtiva) {
+        const txt = document.getElementById('confirmModalTexto');
+        registrarLog(_acaoAtiva, txt ? txt.textContent : '', !!_senhaAtiva);
+        _acaoAtiva = null;
+      }
+    }, true);
+  })();
+
+  // O tema ja foi aplicado na abertura da pagina (script do topo, antes da
+  // pintura); aqui so marcamos o botao certo no seletor do menu, senao o rodape
+  // mostra "Escuro" com a tela clara.
+  document.querySelectorAll('.theme-picker .theme-seg button').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-theme') === PARAM.tema);
+  });
+
+  // Casas decimais da QUANTIDADE (Configuracoes > cadastros > Cadastro de
+  // produtos). Nao vale para dinheiro: moeda tem as casas da moeda, e `fmtNum`
+  // de cada tela formata os dois — por isso a quantidade ganhou funcao propria
+  // em vez de o parametro entrar la e mexer em preco junto.
+  function fmtQtdNum(n) {
+    const c = PARAM.casasQuantidade;
+    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+  // Casas decimais do PRECO UNITARIO (0 a 10). Total e subtotal continuam em
+  // moeda; isto e a precisao do preco de tabela, onde centavo de centavo existe.
+  function fmtPrecoNum(n) {
+    const c = PARAM.casasPreco;
+    return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+
+  // Padrao de abertura das listagens (Interface do usuario). O seletor do rodape
+  // sobrepoe enquanto durar a sessao e nao volta pra ca — regra B, 18/set/2026.
+  function aplicarPaginacaoPadrao() {
+    const raiz = document.getElementById('itensPorPagina');
+    if (!raiz) return;
+    const valor = String(PARAM.registrosPorPagina);
+    const item = raiz.querySelector('.dropdown-select-item[data-value="' + valor + '"]');
+    if (!item) return;
+    raiz.setAttribute('data-value', valor);
+    raiz.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    const rotulo = raiz.querySelector('.dropdown-select-label');
+    if (rotulo) rotulo.textContent = valor;
+  }
+  aplicarPaginacaoPadrao();
+
+  // Onde parar depois de salvar um cadastro (Interface do usuario). A tela de
+  // detalhe nao decide mais sozinha: ela informa qual e a listagem dela.
+  function aoSalvarCadastro(listagem, botao) {
+    if (PARAM.aoSalvar !== 'ficar') { window.location.href = listagem; return; }
+    if (!botao || botao.dataset.confirmando) return;
+    const rotulo = botao.textContent;
+    botao.dataset.confirmando = '1';
+    botao.textContent = 'Salvo ✓';
+    setTimeout(() => { botao.textContent = rotulo; delete botao.dataset.confirmando; }, 1800);
+  }
+
+  const card = document.getElementById('card');
+  const sidebarCol = document.getElementById('sidebarCol');
+  const fixarSwitch = document.getElementById('fixarSwitch');
+  let openId = null;
+  let path = ['Configurações', 'Configurações ERP', 'Permissões de usuários', 'Perfil'];
+  // Qual modulo teve o painel aberto por ultimo — usado so para montar o
+  // breadcrumb quando se escolhe um submodulo que ainda nao tem tela.
+  let moduloDoFlyout = null;
+  function setMainTitle(t) { const el = document.getElementById('mainTitle'); if (el) el.textContent = t; }
+
+  function closeAll() {
+    document.querySelectorAll('.flyout-col').forEach(f => f.classList.remove('open'));
+    openId = null;
+  }
+
+  function openFlyout(id) {
+    const flyout = document.getElementById('flyout-' + id);
+    if (!flyout) { closeAll(); return; }
+    closeAll();
+    flyout.classList.add('open');
+    openId = id;
+  }
+
+  function renderBreadcrumb() {
+    const bc = document.getElementById('breadcrumb');
+    bc.innerHTML = '';
+    path.forEach((label, i) => {
+      const span = document.createElement('span');
+      span.textContent = label;
+      const ultimo = i === path.length - 1;
+      span.className = 'crumb' + (ultimo ? ' current' : '');
+      // O caminho navega (02/nov/2026). O ultimo nome e a tela em que se esta: fica parado.
+      // Os outros levam a algum lugar e NUNCA cortam `path` nem trocam o titulo da pagina.
+      if (!ultimo) {
+        span.setAttribute('role', 'link');
+        span.tabIndex = 0;
+        span.addEventListener('click', () => irParaCrumb(i));
+        span.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); irParaCrumb(i); } });
+      }
+      bc.appendChild(span);
+      if (i < path.length - 1) {
+        const sep = document.createElement('span');
+        sep.className = 'sep'; sep.textContent = '›';
+        bc.appendChild(sep);
+      }
+    });
+  }
+
+  // Voltar com os filtros (03/nov/2026): bloco igual em toda pagina com "Voltar para <lista>". So o botao "Voltar" e o
+  // nome do meio do caminho marcam a volta; a lista, ao abrir, le a marca, apaga e refaz os filtros que o usuario deixou.
+  function marcaVoltando(url) {
+    try { sessionStorage.setItem('deskVoltandoPara', new URL(url, location.href).pathname.split('/').pop() + '|' + Date.now()); } catch (e) {}
+  }
+  (function () {
+    const v = document.getElementById('btnVoltarLista');
+    if (v) v.addEventListener('click', () => marcaVoltando(v.getAttribute('href')), true);
+  })();
+
+  // Inicio leva ao Inicio (na propria tela, so abre o menu); Configuracoes leva ao hub; os outros
+  // modulos abrem o menu lateral deles. Nome do meio que e tela do menu leva a ela (com os filtros do
+  // botao "Voltar" do cabecalho, quando ele aponta para a mesma lista); sem destino, abre o menu do modulo.
+  function irParaCrumb(i) {
+    const label = path[i];
+    if (i === 0 && label === 'Início') {
+      const destino = '../inicio/pagina-inicio-boas-vindas.html';
+      if (!window.location.pathname.endsWith(destino.split('/').pop())) { window.location.href = destino; return; }
+    }
+    if (i === 0 && label === 'Configurações') {
+      const hub = '../configuracoes/pagina-configuracoes.html';
+      if (!window.location.pathname.endsWith(hub.split('/').pop())) { window.location.href = hub; return; }
+    }
+    if (i > 0) {
+      const item = document.querySelector('.flyout-item[data-label="' + label + '"][data-href]');
+      if (item) {
+        const destino = item.getAttribute('data-href');
+        const volta = document.getElementById('btnVoltarLista');
+        const arquivo = (u) => new URL(u, window.location.href).pathname;
+        const href = volta && volta.getAttribute('href');
+        const alvo = href && arquivo(href) === arquivo(destino) ? href : destino;
+        marcaVoltando(alvo);
+        window.location.href = alvo;
+        return;
+      }
+    }
+    const nav = document.querySelector('.nav-item[data-label="' + path[0] + '"], .bottom-item[data-label="' + path[0] + '"]');
+    const id = nav ? nav.getAttribute('data-id') : null;
+    if (typeof moduloDoFlyout !== 'undefined') moduloDoFlyout = path[0];
+    setActiveById(id);
+    // depois do clique subir: o "clicar fora" do document fecharia o menu recem-aberto
+    setTimeout(() => openFlyout(id), 0);
+  }
+
+  function idFromLabel(label) {
+    const el = document.querySelector('[data-label="' + label + '"]');
+    return el ? el.getAttribute('data-id') : null;
+  }
+
+  function setActiveById(id) {
+    document.querySelectorAll('.nav-item, .bottom-item').forEach(n => n.classList.remove('active'));
+    const el = document.querySelector('.nav-item[data-id="' + id + '"], .bottom-item[data-id="' + id + '"]');
+    if (el) el.classList.add('active');
+  }
+
+  document.querySelectorAll('.nav-item[data-id], .bottom-item[data-id]').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = item.getAttribute('data-id');
+      const label = item.getAttribute('data-label');
+      setActiveById(id);
+      // ABRIR O MENU NAO E NAVEGAR. Antes isto reescrevia o breadcrumb: clicar em
+      // "Configurações" so para ver o painel deixava a tela de Controle de Estoques
+      // com o caminho "Configurações" no topo — o breadcrumb passava a mentir sobre
+      // onde voce esta. Ele so muda quando a tela muda.
+      moduloDoFlyout = label;
+      openFlyout(id);
+    });
+  });
+
+  document.querySelectorAll('.flyout-item[data-label]').forEach(sub => {
+    sub.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Item de menu com destino navega de verdade. Os demais so movem o breadcrumb,
+      // porque no prototipo cada tela e um arquivo solto.
+      const destino = sub.getAttribute('data-href');
+      if (destino) { window.location.href = destino; return; }
+      path = [moduloDoFlyout || path[0], sub.getAttribute('data-label')];
+      renderBreadcrumb();
+      setMainTitle(sub.getAttribute('data-label'));
+      closeAll();
+    });
+  });
+
+  // Clicar fora do cartão fecha o flyout
+  document.addEventListener('click', (e) => {
+    if (!card.contains(e.target) && openId) {
+      closeAll();
+      // fechou sem escolher: o destaque volta para o modulo da tela em que se esta
+      moduloDoFlyout = null;
+      setActiveById(idFromLabel(path[0]));
+    }
+  });
+  card.addEventListener('click', (e) => e.stopPropagation());
+
+  // Fixar menu — recolher pra ícones (mantém "ERP", esconde "Desk")
+  fixarSwitch.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fixarSwitch.classList.toggle('on');
+    sidebarCol.classList.toggle('collapsed');
+  });
+
+  // Seletor de tema dentro de Configurações.
+  // Escopado a ".theme-picker .theme-seg button" (nunca ".theme-seg button" sozinho): a classe
+  // visual .theme-seg é reaproveitada por outros toggles do sistema (Tipo Pessoa, Tipo de Loja,
+  // modo de meta...). Sem o escopo, clicar num desses toggles caía neste listener, e como eles
+  // não têm data-theme o "mode" vinha null e o código entrava no ramo "auto", trocando o tema
+  // claro/escuro da tela inteira sem o usuário pedir (bug real — ver design-system §14).
+  document.querySelectorAll('.theme-picker .theme-seg button').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.theme-picker .theme-seg button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const mode = btn.getAttribute('data-theme');
+      if (mode === 'dark') document.body.classList.add('dark');
+      else if (mode === 'light') document.body.classList.remove('dark');
+      else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.toggle('dark', prefersDark);
+      }
+      // Tema e preferencia do usuario, nao do arquivo: grava para as outras telas
+      // abrirem no mesmo tema. Antes disto, trocar de tela voltava pro escuro.
+      PARAM.tema = mode; gravarParametros(PARAM);
+    });
+  });
+
+
+
+  renderBreadcrumb();
+
+  // ===== PERMISSOES: O CATALOGO (bloco comum, 10/nov/2026) =====
+  // A grade de permissoes (Configuracoes > Permissoes de usuarios e Usuarios do sistema) e a lista do Olist, com os modulos do NOSSO menu como abas.
+  // Cada tela do menu e um item (marcar = "acessa a tela"); dentro dele ficam as funcoes concretas da tela, tiradas dos botoes e acoes que ela tem de
+  // verdade (as de dentro so valem com o item marcado). No fim de cada aba ficam as ACOES QUE PEDEM AUTORIZACAO, lidas do catalogo ACOES_SENHA
+  // (as mesmas chaves e nomes de Configuracoes > Confirmacoes por senha, agrupadas pelo `grupo`). Chaves de uma permissao:
+  //   item `clientes` · funcao `clientes.incluir` · acao `@promocaoAprova`
+  // O perfil e a pessoa guardam essas chaves, ou atalhos que a leitura expande: `*` (tudo), `modulo:vendas` (os itens e as funcoes do modulo),
+  // `clientes.*` (o item e todas as funcoes dele) e `@grupo:Vendas` (as acoes do grupo). Tela nova do menu entra aqui no mesmo dia em que nasce.
+  // O bloco e IDENTICO nas quatro telas de Usuarios e Perfis; teste_usuarios.py compara as copias e confere cada tela e cada item do menu.
+  const permCrud = (x, extras) => Object.assign({ incluir: 'Incluir ' + x, alterar: 'Alterar ' + x, inativar: 'Inativar ' + x, excluir: 'Excluir ' + x }, extras || {});
+  const permExp = { exportar: 'Baixar a planilha da lista', imprimir: 'Imprimir a lista' };
+  const PERM_MODULOS = [
+    { id: 'inicio', nome: 'Início', itens: [
+      { id: 'boasVindas', nome: 'Página inicial', tela: '../inicio/pagina-inicio-boas-vindas.html' },
+      { id: 'dashboardKpis', nome: 'Dashboard KPIs', tela: '../inicio/pagina-dashboard-kpis.html' },
+      { id: 'agenda', nome: 'Agenda', tela: '../inicio/pagina-inicio-agenda.html', fn: { incluir: 'Incluir compromisso' } },
+      { id: 'minhaConta', nome: 'Minha Conta', tela: '../inicio/pagina-inicio-minha-conta.html' }
+    ] },
+    { id: 'cadastros', nome: 'Cadastros', itens: [
+      { id: 'clientes', nome: 'Clientes', tela: '../cadastros/pagina-cadastros-clientes.html', fn: permCrud('cliente', { inativar: 'Inativar clientes', excluir: 'Excluir clientes', exportar: 'Baixar a planilha de clientes', imprimir: 'Imprimir a lista de clientes' }) },
+      { id: 'fornecedores', nome: 'Fornecedores', tela: '../cadastros/pagina-cadastros-fornecedores.html', fn: permCrud('fornecedor', { inativar: 'Inativar fornecedores', excluir: 'Excluir fornecedores', exportar: 'Baixar a planilha de fornecedores', imprimir: 'Imprimir a lista de fornecedores' }) },
+      { id: 'vendedores', nome: 'Vendedores', tela: '../cadastros/pagina-cadastros-vendedores.html', fn: permCrud('vendedor', { inativar: 'Inativar vendedores', excluir: 'Excluir vendedores' }) },
+      { id: 'produtos', nome: 'Produtos', tela: '../cadastros/pagina-cadastros-produtos.html', fn: permCrud('produto', { inativar: 'Inativar produtos', excluir: 'Excluir produtos', precoPromocional: 'Alterar o preço promocional', exportar: 'Baixar a planilha de produtos', imprimir: 'Imprimir a lista de produtos' }) },
+      { id: 'categorias', nome: 'Categorias', tela: '../cadastros/pagina-cadastros-categorias.html', fn: { incluir: 'Incluir categoria', alterar: 'Alterar categoria', excluir: 'Excluir categorias' } },
+      { id: 'departamentos', nome: 'Departamento de Produtos', tela: '../cadastros/pagina-cadastros-departamento-produtos.html', fn: permCrud('departamento', { inativar: 'Inativar departamentos', excluir: 'Excluir departamentos' }) },
+      { id: 'secoes', nome: 'Seção de Produtos', tela: '../cadastros/pagina-cadastros-secao-produtos.html', fn: permCrud('seção', { inativar: 'Inativar seções', excluir: 'Excluir seções' }) },
+      { id: 'marcas', nome: 'Marcas de Produtos', tela: '../cadastros/pagina-cadastros-marcas.html', fn: permCrud('marca', { inativar: 'Inativar marcas', excluir: 'Excluir marcas' }) },
+      { id: 'embalagens', nome: 'Embalagens', tela: '../cadastros/pagina-cadastros-embalagens.html', fn: permCrud('embalagem', { inativar: 'Inativar embalagens', excluir: 'Excluir embalagens', entrada: 'Dar entrada de embalagem', acerto: 'Acertar o saldo de embalagem' }) },
+      { id: 'lojas', nome: 'Lojas Desk', tela: '../cadastros/pagina-cadastros-lojas-desk.html', fn: permCrud('loja', { inativar: 'Inativar lojas', excluir: 'Excluir lojas' }) },
+      { id: 'depositos', nome: 'Depósitos', tela: '../cadastros/pagina-cadastros-depositos.html', fn: permCrud('depósito', { inativar: 'Inativar depósitos', excluir: 'Excluir depósitos' }) },
+      { id: 'enderecos', nome: 'Endereços de Estoque', tela: '../cadastros/pagina-cadastros-enderecos-estoque.html', fn: permCrud('endereço', { inativar: 'Inativar endereços', excluir: 'Excluir endereços', gerarMassa: 'Gerar endereços em massa' }) }
+    ] },
+    { id: 'estoque', nome: 'Estoque', itens: [
+      { id: 'controleEstoques', nome: 'Controle de Estoques', tela: '../estoque/pagina-estoque-controle-estoques.html', fn: Object.assign({ lancamento: 'Incluir lançamento no produto' }, permExp) },
+      { id: 'movimentacao', nome: 'Movimentação de Estoque', tela: '../estoque/pagina-estoque-movimentacao.html', fn: permExp },
+      { id: 'necessidadesCompra', nome: 'Necessidades de Compra', tela: '../estoque/pagina-estoque-necessidades-compra.html', fn: Object.assign({ gerarOrdem: 'Gerar ordem de compra' }, permExp) },
+      { id: 'ordensCompra', nome: 'Ordens de Compra', tela: '../estoque/pagina-estoque-ordens-compra.html', fn: Object.assign({ incluir: 'Incluir ordem de compra', alterar: 'Alterar ordem de compra', receber: 'Receber mercadorias', cancelar: 'Cancelar ordens de compra', excluir: 'Excluir ordens de compra', gerarNota: 'Gerar nota de entrada' }, permExp) },
+      { id: 'entradaNotas', nome: 'Entrada de Notas', tela: '../estoque/pagina-estoque-entrada-notas.html', fn: Object.assign({ incluir: 'Incluir nota de entrada', importarXml: 'Importar XML', alterar: 'Alterar nota de entrada', manifestar: 'Manifestar ciência', conferir: 'Enviar para conferência', lancarContas: 'Lançar contas a pagar', excluir: 'Excluir notas de entrada' }, permExp) },
+      { id: 'conferenciaEntrada', nome: 'Conferência de Entrada', tela: '../estoque/pagina-estoque-conferencia-entrada.html', fn: Object.assign({ receber: 'Receber mercadorias', conferir: 'Conferir e finalizar a nota', cancelar: 'Cancelar conferência' }, permExp) },
+      { id: 'enderecamento', nome: 'Endereçamento', tela: '../estoque/pagina-estoque-enderecamento.html', fn: Object.assign({ enderecar: 'Endereçar mercadorias' }, permExp) },
+      { id: 'reposicao', nome: 'Reposição', tela: '../estoque/pagina-estoque-reposicao.html', fn: { confirmar: 'Confirmar reposição' } },
+      { id: 'transferencia', nome: 'Transferência Entre Estoques', tela: '../estoque/pagina-estoque-transferencia.html', fn: { incluir: 'Incluir transferência', enviar: 'Enviar para trânsito' } },
+      { id: 'inventario', nome: 'Inventário', tela: '../estoque/pagina-estoque-inventario.html', fn: Object.assign({ abrir: 'Abrir inventário', contar: 'Informar quantidades', fechar: 'Fechar o inventário', cancelar: 'Cancelar inventário' }, permExp) },
+      { id: 'acerto', nome: 'Acerto de Estoque', tela: '../estoque/pagina-estoque-acerto.html', fn: { acertar: 'Acertar o saldo de produto' } },
+      { id: 'tratamentoPerdas', nome: 'Tratamento de Perdas', tela: '../estoque/pagina-estoque-itens-bloqueados.html', fn: { bloquear: 'Bloquear item', liberar: 'Liberar item para venda', baixa: 'Dar baixa em item bloqueado' } },
+      { id: 'giro', nome: 'Giro de Estoque', tela: '../estoque/pagina-estoque-giro-estoque.html', fn: Object.assign({ faixas: 'Alterar as faixas de giro' }, permExp) }
+    ] },
+    { id: 'vendas', nome: 'Vendas', itens: [
+      { id: 'crm', nome: 'CRM', tela: '../vendas/pagina-vendas-crm.html', fn: { incluir: 'Incluir assunto', alterar: 'Alterar assunto', acao: 'Registrar ação no assunto', encerrar: 'Encerrar assunto', arquivar: 'Arquivar assuntos', excluir: 'Excluir assuntos', verOutros: 'Ver os assuntos de outros vendedores' } },
+      { id: 'pedidos', nome: 'Pedidos de Venda', tela: '../vendas/pagina-vendas-pedidos.html', fn: Object.assign({ incluir: 'Incluir pedido de venda', alterar: 'Alterar pedido de venda', cancelar: 'Cancelar pedidos', excluir: 'Excluir pedidos', verOutros: 'Ver os pedidos de outros vendedores' }, permExp) },
+      { id: 'pdv', nome: 'PDV', tela: '../vendas/pagina-vendas-pdv.html', fn: { abrirCaixa: 'Abrir o caixa', fecharCaixa: 'Fechar o caixa', relatorio: 'Relatório de controle de caixa', sangria: 'Lançar sangria de caixa', reforco: 'Lançar reforço de caixa', cancelarVenda: 'Cancelar venda' } },
+      { id: 'promocoes', nome: 'Promoções e Encartes', tela: '../vendas/pagina-vendas-promocoes.html', fn: Object.assign({ incluir: 'Incluir promoção', alterar: 'Alterar promoção', encerrar: 'Encerrar promoção', clonar: 'Clonar promoção', excluir: 'Excluir promoção' }, permExp) },
+      { id: 'metas', nome: 'Metas e Performance', tela: '../vendas/pagina-vendas-metas.html', fn: { definir: 'Definir meta', verOutros: 'Ver as metas de outros vendedores', exportar: 'Baixar a planilha de metas' } },
+      { id: 'custosEcommerce', nome: 'Custos do E-commerce', tela: '../vendas/pagina-vendas-custos-ecommerce.html', fn: Object.assign({ configurar: 'Alterar as configurações de custos' }, permExp) }
+    ] },
+    { id: 'logistica', nome: 'Logística', itens: [
+      { id: 'separacao', nome: 'Separação', tela: '../logistica/pagina-logistica-separacao.html', fn: { separar: 'Separar pedidos', reabrir: 'Reabrir separação concluída', imprimir: 'Imprimir listas de separação', exportar: 'Baixar a planilha da fila' } },
+      { id: 'conferenciaSaida', nome: 'Conferência de Saída', tela: '../logistica/pagina-logistica-conferencia-saida.html', fn: { conferir: 'Conferir pedidos', fechar: 'Fechar a conferência e emitir a nota', reabrir: 'Reabrir conferência já faturada', exportar: 'Baixar a planilha da fila' } },
+      { id: 'expedicao', nome: 'Expedição', tela: '../logistica/pagina-logistica-expedicao.html', fn: { montar: 'Montar romaneio', despachar: 'Despachar a carga', cancelar: 'Cancelar romaneio', reabrir: 'Reabrir romaneio despachado', imprimir: 'Imprimir o romaneio', exportar: 'Baixar a planilha da fila' } },
+      { id: 'rastreamento', nome: 'Rastreamento de Pedidos', tela: '../logistica/pagina-logistica-rastreamento.html', fn: { confirmar: 'Confirmar códigos de rastreio', alterar: 'Alterar código de rastreio', exportar: 'Baixar a planilha da fila' } },
+      { id: 'devolucao', nome: 'Devolução', tela: '../logistica/pagina-logistica-devolucao.html', fn: { incluir: 'Abrir devolução', receber: 'Confirmar a chegada da mercadoria', finalizar: 'Finalizar devolução', cancelar: 'Cancelar devolução', reversa: 'Pedir logística reversa', exportar: 'Baixar a planilha de devoluções' } }
+    ] },
+    { id: 'financas', nome: 'Finanças', itens: [
+      { id: 'contasReceber', nome: 'Contas a Receber', tela: '../financas/pagina-financas-contas-receber.html', fn: { incluir: 'Incluir conta a receber', alterar: 'Alterar conta a receber', receber: 'Dar baixa (receber)', excluir: 'Excluir contas a receber' } },
+      { id: 'contasPagar', nome: 'Contas a Pagar', tela: '../financas/pagina-financas-contas-pagar.html', fn: { incluir: 'Incluir conta a pagar', alterar: 'Alterar conta a pagar', pagar: 'Dar baixa (pagar)', excluir: 'Excluir contas a pagar' } },
+      { id: 'caixa', nome: 'Caixa', tela: '../financas/pagina-financas-caixa.html', fn: { incluir: 'Incluir lançamento', transferir: 'Transferir entre contas', alterarConta: 'Alterar a conta de um lançamento', fecharPeriodo: 'Fechar ou reabrir o período financeiro' } },
+      { id: 'comissoes', nome: 'Comissões Afiliados', tela: '../financas/pagina-financas-comissoes.html', fn: Object.assign({ incluirAfiliado: 'Incluir afiliado', aprovarAfiliado: 'Aprovar ou recusar afiliado', pagar: 'Realizar pagamento de comissão', lancar: 'Lançar crédito ou débito', reprogramar: 'Reprogramar o vencimento' }, permExp) },
+      { id: 'valeCompra', nome: 'Vale-compra', tela: '../financas/pagina-financas-vale-compra.html', fn: Object.assign({ incluir: 'Incluir vale-compra', cancelar: 'Cancelar vale-compra', reativar: 'Reativar vale vencido' }, permExp) }
+    ] },
+    { id: 'integracoes', nome: 'Integrações', itens: [
+      { id: 'gateways', nome: 'Gateways de Pagamento', tela: '../integracoes/pagina-integracoes-gateways.html', fn: Object.assign({ incluir: 'Incluir gateway', alterar: 'Alterar gateway', excluir: 'Excluir gateways', chave: 'Guardar ou trocar a chave da API' }, permExp) }
+    ] },
+    { id: 'configuracoes', nome: 'Configurações', itens: [
+      { id: 'hub', nome: 'Hub de Configurações', tela: '../configuracoes/pagina-configuracoes.html' },
+      { id: 'usuarios', nome: 'Usuários do sistema', tela: '../configuracoes/pagina-configuracoes-usuarios.html', nota: 'Só quem está no sistema com o perfil Owner inclui, altera e bloqueia usuários.' },
+      { id: 'perfis', nome: 'Permissões de usuários', tela: '../configuracoes/pagina-configuracoes-perfis-usuario.html', nota: 'Só quem está no sistema com o perfil Owner inclui, altera e exclui perfis.' },
+      { id: 'registroAtividades', nome: 'Registro de atividades', tela: '../configuracoes/pagina-configuracoes-registro-atividades.html' },
+      { id: 'confirmacoesSenha', nome: 'Confirmações por senha', tela: '../configuracoes/pagina-configuracoes-confirmacoes-senha.html', fn: { alterar: 'Alterar as confirmações por senha' } },
+      { id: 'interfaceUsuario', nome: 'Interface do usuário', tela: '../configuracoes/pagina-configuracoes-interface-usuario.html', fn: { alterar: 'Alterar as preferências' } },
+      { id: 'nomesSistema', nome: 'Nomes do sistema', tela: '../configuracoes/pagina-configuracoes-nomes-sistema.html', fn: { alterar: 'Renomear os nomes do sistema' } },
+      { id: 'parametrosEstoque', nome: 'Parâmetros de estoque', tela: '../configuracoes/pagina-configuracoes-parametros-estoque.html', fn: { alterar: 'Alterar os parâmetros' } },
+      { id: 'parametrosLogistica', nome: 'Parâmetros de logística', tela: '../configuracoes/pagina-configuracoes-parametros-logistica.html', fn: { alterar: 'Alterar os parâmetros' } },
+      { id: 'parametrosVendas', nome: 'Parâmetros de vendas', tela: '../configuracoes/pagina-configuracoes-parametros-vendas.html', fn: { alterar: 'Alterar os parâmetros' } },
+      { id: 'configConferencia', nome: 'Configurações da conferência', tela: '../configuracoes/pagina-configuracoes-conferencia.html', fn: { alterar: 'Alterar as configurações' } },
+      { id: 'configCadastroClientes', nome: 'Configurações do cadastro de clientes', tela: '../configuracoes/pagina-configuracoes-cadastro-clientes.html', fn: { alterar: 'Alterar as configurações' } },
+      { id: 'configCadastroProdutos', nome: 'Configurações do cadastro de produtos', tela: '../configuracoes/pagina-configuracoes-cadastro-produtos.html', fn: { alterar: 'Alterar as configurações' } },
+      { id: 'configCrm', nome: 'Configurações do CRM', tela: '../configuracoes/pagina-configuracoes-crm.html', fn: { alterar: 'Alterar as configurações' } },
+      { id: 'configPdv', nome: 'Configurações do PDV', tela: '../configuracoes/pagina-configuracoes-pdv.html', fn: { alterar: 'Alterar as configurações' } },
+      { id: 'estagiosFunil', nome: 'Estágios do funil de vendas', tela: '../configuracoes/pagina-configuracoes-estagios-funil.html', fn: { incluir: 'Incluir estágio', alterar: 'Alterar estágio', excluir: 'Excluir estágios' } },
+      { id: 'formasRecebimento', nome: 'Formas de recebimento', tela: '../configuracoes/pagina-configuracoes-formas-recebimento.html', fn: { incluir: 'Incluir forma', alterar: 'Alterar forma', excluir: 'Excluir formas' } },
+      { id: 'contasFinanceiras', nome: 'Contas financeiras', tela: '../configuracoes/pagina-configuracoes-contas-financeiras.html', fn: { incluir: 'Incluir conta', alterar: 'Alterar conta', excluir: 'Excluir contas' } },
+      { id: 'contasBancarias', nome: 'Contas bancárias', tela: '../configuracoes/pagina-configuracoes-contas-bancarias.html', fn: { incluir: 'Incluir conta bancária', alterar: 'Alterar conta bancária', excluir: 'Excluir contas bancárias' } },
+      { id: 'categoriasFinanceiras', nome: 'Categorias financeiras', tela: '../configuracoes/pagina-configuracoes-categorias-financeiras.html', fn: { incluir: 'Incluir categoria', alterar: 'Alterar categoria', excluir: 'Excluir categorias' } },
+      { id: 'transportadoras', nome: 'Transportadoras', tela: '../configuracoes/pagina-configuracoes-transportadoras.html', fn: permCrud('transportadora', { inativar: 'Inativar transportadoras', excluir: 'Excluir transportadoras' }) },
+      { id: 'motivosDevolucao', nome: 'Motivos de Devolução', tela: '../configuracoes/pagina-configuracoes-motivos-devolucao.html', fn: permCrud('motivo', { inativar: 'Inativar motivos', excluir: 'Excluir motivos' }) },
+      { id: 'motivosPerda', nome: 'Motivos de Perda', tela: '../configuracoes/pagina-configuracoes-motivos-perda.html', fn: permCrud('motivo', { inativar: 'Inativar motivos', excluir: 'Excluir motivos' }) }
+    ] }
+  ];
+  // O `grupo` de cada acao do catalogo cai na aba do modulo dele; "Operacional" (transportadoras e motivos) mora em Configuracoes.
+  const PERM_GRUPO_MODULO = { 'Cadastros': 'cadastros', 'Estoque': 'estoque', 'Vendas': 'vendas', 'Logística': 'logistica', 'Finanças': 'financas', 'Integrações': 'integracoes', 'Configurações': 'configuracoes', 'Operacional': 'configuracoes' };
+  const permModuloDoGrupo = (g) => PERM_GRUPO_MODULO[g] || 'configuracoes';
+  // As acoes que pedem autorizacao: as do catalogo cuja trava esta ligada nas telas e que pedem senha hoje (Configuracoes > Confirmacoes por senha).
+  function permAcoes() { return ACOES_SENHA.filter(a => a.pronto && a.ligado && exigeSenha(a.chave)); }
+  const permChaveAcao = (a) => '@' + a.chave;
+  function permItens() { const r = []; PERM_MODULOS.forEach(m => m.itens.forEach(i => r.push({ modulo: m.id, item: i }))); return r; }
+  // Todas as chaves explicitas de um modulo: itens, funcoes e as acoes do grupo dele.
+  function permChavesDoModulo(modId, comAcoes) {
+    const m = PERM_MODULOS.filter(x => x.id === modId)[0], r = [];
+    if (!m) return r;
+    m.itens.forEach(i => { r.push(i.id); Object.keys(i.fn || {}).forEach(f => r.push(i.id + '.' + f)); });
+    if (comAcoes !== false) permAcoes().filter(a => permModuloDoGrupo(a.grupo) === modId).forEach(a => r.push(permChaveAcao(a)));
+    return r;
+  }
+  function permTodasChaves() { let r = []; PERM_MODULOS.forEach(m => { r = r.concat(permChavesDoModulo(m.id)); }); return r; }
+  // Expande os atalhos em chaves explicitas. Chave que nao existe mais no catalogo some.
+  function permExpandir(perms) {
+    const todas = new Set(permTodasChaves()), r = new Set();
+    (perms || []).forEach(p => {
+      if (p === '*') { todas.forEach(c => r.add(c)); return; }
+      if (p.indexOf('modulo:') === 0) { permChavesDoModulo(p.slice(7), false).forEach(c => r.add(c)); return; }
+      if (p.indexOf('@grupo:') === 0) { permAcoes().filter(a => a.grupo === p.slice(7)).forEach(a => r.add(permChaveAcao(a))); return; }
+      if (/\.\*$/.test(p)) { const id = p.slice(0, -2); todas.forEach(c => { if (c === id || c.indexOf(id + '.') === 0) r.add(c); }); return; }
+      if (todas.has(p)) { r.add(p); const i = p.indexOf('.'); if (p.charAt(0) !== '@' && i > 0) r.add(p.slice(0, i)); }   // a funcao leva a tela dela
+    });
+    return permNormalizar(r);
+  }
+  // A hierarquia: funcao sem o item da tela nao vale.
+  function permNormalizar(conjunto) {
+    const r = new Set();
+    conjunto.forEach(c => { const i = c.indexOf('.'); if (c.charAt(0) === '@' || i < 0 || conjunto.has(c.slice(0, i))) r.add(c); });
+    return r;
+  }
+  // O que a pessoa pode de fato: o que o perfil da, mais as permissoes avulsas (que so acrescentam).
+  function permEfetivas(perfil, usuario) {
+    const r = permExpandir(perfil ? perfil.perms : []);
+    permExpandir(usuario ? usuario.perms : []).forEach(c => r.add(c));
+    return permNormalizar(r);
+  }
+  function permContar(conjunto) {
+    let telas = 0, funcoes = 0, acoes = 0;
+    conjunto.forEach(c => { if (c.charAt(0) === '@') acoes++; else if (c.indexOf('.') >= 0) funcoes++; else telas++; });
+    return { telas: telas, funcoes: funcoes, acoes: acoes };
+  }
+  // Autoriza quem esta ativo, tem o codigo definido e alguma acao de autorizacao (do perfil ou avulsa).
+  function permAutoriza(perfil, usuario) {
+    if (!usuario || usuario.situacao !== 'ativo' || !usuario.codigoHash) return false;
+    return permContar(permEfetivas(perfil, usuario)).acoes > 0;
+  }
+  // ===== FIM DO BLOCO PERMISSOES: O CATALOGO =====
+
+  // ===== PERMISSOES: A GRADE (bloco comum as duas paginas, 10/nov/2026) =====
+  // A grade e a mesma na pagina do perfil e no painel das permissoes avulsas do usuario: uma aba por modulo do menu, "Marcar todos" por aba, cada tela
+  // como item e as funcoes dela por dentro, e no fim da aba as acoes que pedem autorizacao. `marcadas` e o conjunto que a tela edita; `travadas` e o
+  // que o perfil ja da (aparece marcado e travado); `leitura` abre tudo so para ver (o Owner). O bloco e IDENTICO nas duas paginas.
+  function gradeMontar(raiz, op) {
+    const marcadas = op.marcadas, travadas = op.travadas || new Set(), leitura = !!op.leitura;
+    let aba = op.aba || PERM_MODULOS[0].id, serie = 0;
+    const tem = (c) => marcadas.has(c) || travadas.has(c);
+    const tag = (c) => (travadas.has(c) && !leitura ? '<span class="pg-tag">do perfil</span>' : '');
+    function linha(c, nome, filho, extra) {
+      const id = 'pgChk' + (serie++), marcada = tem(c);
+      return '<div class="pg-linha' + (filho ? ' pg-filho' : '') + '"><input type="checkbox" class="item-checkbox pg-chk" id="' + id + '" data-chave="' + c + '"' +
+        (marcada ? ' checked' : '') + (leitura || travadas.has(c) ? ' disabled' : '') + '><label for="' + id + '">' + nome + '</label>' + tag(c) + (extra || '') + '</div>';
+    }
+    // Todas as abas ficam na pagina o tempo todo (so uma aparece): trocar de aba nao muda quantos campos a pagina tem, e a nota do rodape de salvar nao se confunde.
+    function corpoDaAba(modId) {
+      const m = PERM_MODULOS.filter(x => x.id === modId)[0], chaves = permChavesDoModulo(modId), todas = chaves.every(tem);
+      let h = '<div class="pg-todos' + (leitura ? ' pg-leitura' : '') + '" data-aba="' + modId + '" role="button" tabindex="0"><div class="switch' + (todas ? ' on' : '') + '"></div><span>Marcar todos</span></div>';
+      m.itens.forEach(i => {
+        h += linha(i.id, i.nome, false, i.nota ? '<span class="pg-nota">' + i.nota + '</span>' : '');
+        Object.keys(i.fn || {}).forEach(f => { h += linha(i.id + '.' + f, i.fn[f], true); });
+      });
+      const acoes = permAcoes().filter(a => permModuloDoGrupo(a.grupo) === modId);
+      if (acoes.length) {
+        h += '<div class="pg-secao-titulo">Permissões de ações</div><div class="field-hint pg-secao-nota">Quem tem a ação autoriza com o código de autorização dele. O que pede senha em cada ação se decide em Configurações → Confirmações por senha.</div>';
+        let ultima = null;
+        acoes.forEach(a => {
+          if (a.onde !== ultima) { h += '<div class="pg-grupo">' + a.onde + '</div>'; ultima = a.onde; }
+          h += linha(permChaveAcao(a), a.nome, false);
+        });
+      }
+      return h;
+    }
+    function desenhar() {
+      serie = 0;
+      let abas = '';
+      PERM_MODULOS.forEach(m => {
+        const chaves = permChavesDoModulo(m.id), n = chaves.filter(tem).length;
+        abas += '<div class="aba-sit' + (m.id === aba ? ' active' : '') + '" data-aba="' + m.id + '"><span>' + m.nome + '</span><span class="sit-contador">' + n + '</span></div>';
+      });
+      let corpos = '';
+      PERM_MODULOS.forEach(m => { corpos += '<div class="pg-corpo" data-painel="' + m.id + '"' + (m.id === aba ? '' : ' style="display:none;"') + '>' + corpoDaAba(m.id) + '</div>'; });
+      raiz.innerHTML = '<div class="abas-situacao pg-abas">' + abas + '</div>' + corpos;
+    }
+    function mudou() { desenhar(); if (op.aoMudar) op.aoMudar(marcadas); }
+    if (!raiz._gradeLigada) {
+      raiz._gradeLigada = true;
+      raiz.addEventListener('click', (e) => {
+        const a = e.target.closest ? e.target.closest('.aba-sit') : null;
+        if (a) { aba = a.getAttribute('data-aba'); desenhar(); return; }
+        const t = e.target.closest ? e.target.closest('.pg-todos') : null;
+        if (t && !leitura) {
+          const chaves = permChavesDoModulo(t.getAttribute('data-aba')).filter(c => !travadas.has(c));
+          if (chaves.every(c => marcadas.has(c))) chaves.forEach(c => marcadas.delete(c)); else chaves.forEach(c => marcadas.add(c));
+          mudou();
+        }
+      });
+      raiz.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('pg-todos')) { e.preventDefault(); e.target.click(); } });
+      raiz.addEventListener('change', (e) => {
+        const c = e.target.getAttribute && e.target.getAttribute('data-chave');
+        if (!c || leitura) return;
+        if (e.target.checked) {
+          marcadas.add(c);
+          const i = c.indexOf('.');
+          if (c.charAt(0) !== '@' && i > 0 && !travadas.has(c.slice(0, i))) marcadas.add(c.slice(0, i));   // marcar uma funcao marca a tela
+        } else {
+          marcadas.delete(c);
+          if (c.charAt(0) !== '@' && c.indexOf('.') < 0) Array.from(marcadas).forEach(x => { if (x.indexOf(c + '.') === 0) marcadas.delete(x); });   // desmarcar a tela leva as funcoes
+        }
+        mudou();
+      });
+    }
+    desenhar();
+    return { abrirAba: (id) => { aba = id; desenhar(); }, aba: () => aba, atualizar: desenhar };
+  }
+  // O resumo do que um conjunto de permissoes da: quantas telas, funcoes e acoes por modulo.
+  function permResumo(conjunto) {
+    return PERM_MODULOS.map(m => {
+      const c = permContar(new Set(permChavesDoModulo(m.id).filter(k => conjunto.has(k))));
+      return { id: m.id, nome: m.nome, telas: c.telas, funcoes: c.funcoes, acoes: c.acoes, total: m.itens.length };
+    });
+  }
+  // ===== FIM DO BLOCO PERMISSOES: A GRADE =====
+
+  // ===== USUARIOS E PERFIS: DADOS E LEITURA (bloco comum, 10/nov/2026) =====
+  // Os usuarios do sistema e os perfis (Configuracoes > Usuarios do sistema e Permissoes de usuarios). Um perfil por usuario, mais permissoes avulsas
+  // que so ACRESCENTAM ao perfil. O codigo de autorizacao e separado da senha de entrar (4 a 6 numeros, por pessoa) e nunca e mostrado depois de
+  // gravado: a tela diz so "definido em <data>" ou "nao definido". O desconto sem senha vem do perfil, e a pessoa pode ter um valor proprio, que vale
+  // no lugar dele (vazio = o do perfil; o Owner nao tem limite). Gravado no navegador: `deskUsuarios` e `deskPerfis`. Na producao: usuarios, perfis e
+  // perfil_permissoes, com a senha e o codigo so como hash, no servidor.
+  // O bloco e IDENTICO nas quatro telas de Usuarios e Perfis e na pagina do vendedor (que mostra o usuario vinculado); teste_usuarios.py compara.
+  const UP_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech', 4: 'Desk Flash' };   // espelho de Devolucao e de Cadastros > Lojas Desk
+  const UP_VENDEDORES = [   // espelho de Cadastros > Vendedores (os que nao foram excluidos); a pagina do vendedor e a dona
+    { id: 1, nome: 'Marina Costa' }, { id: 2, nome: 'Ponto Parceiro Vila Mariana' }, { id: 3, nome: 'Rafael Andrade' }
+  ];
+  const UP_DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  const UP_PERFIS_FABRICA = [
+    { id: 1, nome: 'Owner', descricao: 'Dono do sistema: faz tudo, sem limite de desconto, e define os perfis e os limites de cada pessoa.', descontoPct: null, fixo: true, perms: ['*'] },
+    { id: 2, nome: 'Gerente', descricao: 'Vende em todas as lojas e autoriza com o código dele: desconto acima do limite, preço promocional fora da promoção, excedente da promoção.', descontoPct: 20, fixo: false,
+      perms: ['modulo:inicio', 'modulo:cadastros', 'modulo:estoque', 'modulo:vendas', 'modulo:logistica', 'modulo:financas', 'gateways', 'hub', 'registroAtividades',
+              '@grupo:Cadastros', '@grupo:Estoque', '@grupo:Vendas', '@grupo:Logística', '@grupo:Finanças'] },
+    { id: 3, nome: 'Supervisor de vendas', descricao: 'Acompanha a equipe de escritório, atacado, WhatsApp e televendas (metas e CRM). Só autoriza o que o Owner liberar para ele.', descontoPct: 15, fixo: false,
+      perms: ['boasVindas', 'dashboardKpis', 'agenda.*', 'minhaConta', 'clientes.*', 'vendedores', 'produtos', 'crm.*', 'pedidos.*', 'promocoes', 'metas.*', 'rastreamento', 'devolucao', 'comissoes'] },
+    { id: 4, nome: 'Vendedor interno', descricao: 'Vende no escritório, no WhatsApp, no televendas e no atacado. Nas promoções, só o preço que elas dão.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'crm.encerrar',
+              'pedidos.incluir', 'pedidos.alterar', 'pedidos.imprimir', 'promocoes', 'rastreamento'] },
+    { id: 5, nome: 'Caixa / vendedor de balcão', descricao: 'Vende no balcão e em eventos pelo PDV, e abre e fecha o caixa. O desconto padrão é o de Configurações → PDV.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'produtos', 'controleEstoques', 'pdv.abrirCaixa', 'pdv.fecharCaixa', 'pdv.relatorio', 'pdv.sangria', 'pdv.reforco', 'pdv.cancelarVenda'] },
+    { id: 6, nome: 'Representante externo', descricao: 'Visita o cliente e vende no atacado fora da loja, pelo celular.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'pedidos.incluir', 'pedidos.alterar', 'rastreamento'] }
+  ];
+  // As pessoas que ja existem no sistema: o Owner (a sessao de todas as telas), a equipe de Minha Conta (Ana, Carlos e Fernanda) e os vendedores das Metas
+  // e do PDV (Marina e Bianca; Rafael Andrade, do cadastro de Vendedores, que esta inativo). Sem horario, IP ou e-mail onde as telas de origem nao sabem.
+  // `senhaHash` e `codigoHash` sao so o resumo: o valor digitado nunca e guardado nem mostrado.
+  const UP_USUARIOS_FABRICA = [
+    { id: 1, nome: 'Administrador Desk', login: 'administrador@desk', email: 'contato@deskcompany.com.br', emailCom: 'contato@deskcompany.com.br', situacao: 'ativo', perfilId: 1, perms: [],
+      lojas: [1, 2, 3, 4], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:5d0e41b7', codigoEm: '2026-10-08', codigoHash: 'fnv1a:1c2f8a90' },
+    { id: 2, nome: 'Carlos Mendes', login: 'carlos.mendes@desk', email: 'carlos.mendes@deskcompany.com.br', emailCom: 'carlos.mendes@deskcompany.com.br', situacao: 'ativo', perfilId: 2, perms: [],
+      lojas: [1, 2, 3, 4], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:7a31c0d4', codigoEm: '2026-10-12', codigoHash: 'fnv1a:93be5521' },
+    { id: 3, nome: 'Marina Costa', login: 'marina.costa@desk', email: 'marina.costa@example.com', emailCom: 'marina.costa@example.com', situacao: 'ativo', perfilId: 3, perms: ['@promocaoNaHora'],
+      lojas: [1, 2], vendedorId: 1, descontoPct: 18, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-15', senhaHash: 'fnv1a:2e8b9f06', codigoEm: '2026-10-15', codigoHash: 'fnv1a:b04d7e13' },
+    { id: 4, nome: 'Ana Souza', login: 'ana.souza@desk', email: 'ana.souza@deskcompany.com.br', emailCom: 'ana.souza@deskcompany.com.br', situacao: 'ativo', perfilId: 4, perms: [],
+      lojas: [1], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-09', senhaEm: '2026-10-09', senhaHash: 'fnv1a:c6a05b32', codigoEm: '2026-10-20', codigoHash: 'fnv1a:48f1d6ea' },
+    { id: 5, nome: 'Bianca Furtado', login: 'bianca.furtado@desk', email: '', emailCom: '', situacao: 'ativo', perfilId: 4, perms: [],
+      lojas: [1], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-22', senhaEm: '2026-10-22', senhaHash: 'fnv1a:0f9d3c68', codigoEm: null, codigoHash: null },
+    { id: 6, nome: 'Fernanda Lima', login: 'fernanda.lima@desk', email: 'fernanda.lima@deskcompany.com.br', emailCom: 'fernanda.lima@deskcompany.com.br', situacao: 'ativo', perfilId: 5, perms: [],
+      lojas: [2], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-09', senhaEm: '2026-10-09', senhaHash: 'fnv1a:e3704ab9', codigoEm: null, codigoHash: null },
+    { id: 7, nome: 'Rafael Andrade', login: 'rafael.andrade@desk', email: '', emailCom: '', situacao: 'bloqueado', perfilId: 6, perms: [],
+      lojas: [3], vendedorId: 3, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:6b12e8f5', codigoEm: '2026-10-08', codigoHash: 'fnv1a:d9a7340c' }
+  ];
+  const upCopia = (v) => JSON.parse(JSON.stringify(v));
+  function upLer(chave, fabrica) {
+    try { const b = localStorage.getItem(chave); if (b) { const v = JSON.parse(b); if (Array.isArray(v) && v.length) return v; } } catch (e) {}
+    return upCopia(fabrica);
+  }
+  function upGravar(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  // O Owner nao se edita: o que estiver gravado para ele e ignorado, e ele volta sempre como de fabrica (tudo marcado, sem limite).
+  function lerPerfis() {
+    const lista = upLer('deskPerfis', UP_PERFIS_FABRICA).filter(p => p.id !== 1);
+    return [upCopia(UP_PERFIS_FABRICA[0])].concat(lista);
+  }
+  function gravarPerfis(lista) { return upGravar('deskPerfis', lista.filter(p => p.id !== 1)); }
+  function lerUsuarios() { return upLer('deskUsuarios', UP_USUARIOS_FABRICA); }
+  function gravarUsuarios(lista) { return upGravar('deskUsuarios', lista); }
+  const upPerfilDe = (u, perfis) => (perfis || lerPerfis()).filter(p => p.id === u.perfilId)[0] || null;
+  const upEOwner = (perfil) => !!perfil && perfil.id === 1;
+  // O desconto sem senha da pessoa: o proprio, se tiver, no lugar do perfil; o Owner nao tem limite.
+  function upDesconto(u, perfil) {
+    if (upEOwner(perfil)) return { pct: null, origem: 'semLimite' };
+    if (u.descontoPct !== null && u.descontoPct !== undefined) return { pct: u.descontoPct, origem: 'proprio' };
+    return { pct: perfil ? perfil.descontoPct : null, origem: 'perfil' };
+  }
+  const upPct = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + '%';
+  const upData = (iso) => (iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—');
+  const upHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const upIniciais = (nome) => nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+  const upVendedorNome = (id) => { const v = UP_VENDEDORES.filter(x => x.id === id)[0]; return v ? v.nome : ''; };
+  const upNomeLojas = (u) => u.lojas.map(l => UP_LOJAS[l]).join(', ');
+  // shortcut: o resumo e FNV-1a de 32 bits com o login como sal. Serve para o valor nao ficar em texto puro no navegador; na producao a senha vira hash lento (bcrypt) no servidor.
+  function upHash(texto, sal) {
+    let h = 0x811c9dc5; const s = String(sal || '') + '|' + String(texto);
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return 'fnv1a:' + h.toString(16).padStart(8, '0');
+  }
+  // O codigo de autorizacao: de 4 a 6 numeros, so numeros.
+  const upCodigoValido = (c) => /^[0-9]{4,6}$/.test(String(c));
+  // Incluir, bloquear, trocar a senha e trocar o codigo vao para o Registro de atividades (a mesma chave e o mesmo formato do registro comum).
+  function upRegistrar(chave, acao, onde, detalhe, comSenha) {
+    try {
+      const b = localStorage.getItem('deskLog'), log = b ? JSON.parse(b) : [];
+      log.unshift({ ts: Date.now(), chave: chave, acao: acao, onde: onde, modulo: 'Configurações', usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil, senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180) });
+      localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
+    } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
+  }
+  // Quem altera usuarios e perfis: so quem esta no sistema com o perfil Owner.
+  const upPodeMexer = () => USUARIO_SESSAO.perfil === 'Owner';
+  // ===== FIM DO BLOCO USUARIOS E PERFIS =====
+
+  // ===== PERMISSOES DE USUARIOS: A PAGINA DO PERFIL (10/nov/2026) =====
+  // ?id=<n> abre o perfil; ?novo=1 abre em branco. Nome, descricao, o desconto padrao sem senha e a grade de permissoes (a lista do Olist, com as abas do nosso menu).
+  // O Owner abre so para ver, com tudo marcado: ele nao se edita nem se exclui. Alterar a grade de um perfil pede a senha (`perfilPermissoes`); mudar so o nome, a descricao
+  // ou o desconto grava direto. So quem esta no sistema com o perfil Owner altera.
+  const LISTA = '../configuracoes/pagina-configuracoes-perfis-usuario.html';
+  const PAGINA = '../configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html';
+  const USUARIO_PAGINA = '../configuracoes/pagina-configuracoes-usuarios-detalhe.html';
+  const USUARIOS_LISTA = '../configuracoes/pagina-configuracoes-usuarios.html';
+  let PERFIS = lerPerfis(), USUARIOS = lerUsuarios();
+  const QUERY = new URLSearchParams(window.location.search);
+  const NOVO = QUERY.get('novo') === '1';
+  let P = NOVO ? null : (PERFIS.filter(x => x.id === Number(QUERY.get('id')))[0] || null);
+  const OWNER = !!P && P.id === 1;
+  const EDITA = upPodeMexer() && !OWNER;
+  const $id = (id) => document.getElementById(id);
+  const plural = (n, um, muitos) => n + ' ' + (n === 1 ? um : muitos);
+  const erro = (campo, ligado) => { $id(campo).classList.toggle('has-error', !!ligado); $id('erro' + campo.slice(5)).classList.toggle('show', !!ligado); };
+
+  // ===== MODAL =====
+  const confirmModal = $id('confirmModal');
+  const confirmModalBackdrop = $id('confirmModalBackdrop');
+  const confirmCienteRow = $id('confirmCienteRow');
+  const confirmCienteCheckbox = $id('confirmCienteCheckbox');
+  const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
+  let acaoConfirmada = null;
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+    $id('confirmModalTexto').textContent = texto;
+    acaoConfirmada = aoConfirmar || null;
+    btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    const precisaCiente = qtd >= 2 && modo !== 'aviso';
+    confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
+    confirmCienteCheckbox.checked = false;
+    btnConfirmar.disabled = precisaCiente;
+    confirmModalBackdrop.classList.add('open');
+    confirmModal.classList.add('open');
+  }
+  function avisar(texto) { abrirModalConfirmacao(texto, 1, 'primary', null, 'aviso'); }
+  function fecharModalConfirmacao() { confirmModalBackdrop.classList.remove('open'); confirmModal.classList.remove('open'); acaoConfirmada = null; }
+  confirmCienteCheckbox.addEventListener('change', (e) => { btnConfirmar.disabled = !e.target.checked; });
+  // Fecha antes de executar (§13): o callback que termina num aviso nao pode ser apagado pelo fechamento.
+  btnConfirmar.addEventListener('click', () => { const executar = acaoConfirmada; fecharModalConfirmacao(); if (executar) executar(); });
+  document.getElementById('btnConfirmModalCancelar').addEventListener('click', fecharModalConfirmacao);
+  confirmModalBackdrop.addEventListener('click', fecharModalConfirmacao);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && confirmModal.classList.contains('open')) fecharModalConfirmacao(); });
+
+  // ===== A GRADE E OS CAMPOS =====
+  // A grade edita um conjunto de chaves explicitas; o perfil guardado pode trazer atalhos (`modulo:vendas`), que a leitura expande.
+  const marcadas = P ? permExpandir(P.perms) : new Set();
+  const marcadasAoAbrir = Array.from(marcadas).sort().join('|');
+  let grade = null;
+  const lerDesconto = (s) => { const t = s.trim().replace('%', '').replace(',', '.'); return /^[0-9]+(\.[0-9]{1,2})?$/.test(t) && Number(t) >= 0 && Number(t) <= 100 ? Number(t) : null; };
+
+  function pintarQuem() {
+    const quem = P ? USUARIOS.filter(u => u.perfilId === P.id) : [];
+    $id('listaQuem').innerHTML = !P ? '<span class="field-hint">O perfil ainda não existe: salve e depois escolha-o na página de cada usuário.</span>' : quem.length
+      ? quem.map(u => '<a class="painel-link" href="' + USUARIO_PAGINA + '?id=' + u.id + '">' + u.nome + '</a>').join('') + '<a class="painel-link" id="linkUsuariosDoPerfil" href="' + USUARIOS_LISTA + '?perfil=' + P.id + '">Ver na lista de usuários</a>'
+      : '<span class="field-hint">Ninguém tem este perfil ainda. Escolha-o na página de um usuário.</span>';
+  }
+  function atualizarContagem() {
+    const c = permContar(marcadas);
+    $id('subtituloPerfil').textContent = plural(c.telas, 'tela', 'telas') + ' · ' + plural(c.funcoes, 'função', 'funções') + ' · ' + plural(c.acoes, 'ação de autorização', 'ações de autorização');
+  }
+
+  if (!NOVO && !P) {
+    $id('conteudoPerfil').style.display = 'none'; $id('naoEncontrado').style.display = '';
+    $id('tituloPerfil').textContent = 'Perfil não encontrado';
+  } else {
+    $id('tituloPerfil').textContent = P ? P.nome : 'Novo perfil';
+    $id('inputNome').value = P ? P.nome : '';
+    $id('inputDescricao').value = P ? P.descricao : '';
+    $id('inputDesconto').value = OWNER ? 'Sem limite' : (P && P.descontoPct !== null ? String(P.descontoPct).replace('.', ',') : '');
+    const pdv = (lerParametros().pdvDescontoMaximoPct);
+    $id('hintDesconto').textContent = OWNER ? 'O Owner não tem limite de desconto.' : 'Cada pessoa pode ter o próprio limite, que vale no lugar dele. Configurações → PDV: ' + upPct(pdv === undefined ? 10 : pdv) + '.';
+    $id('tagOwner').style.display = OWNER ? '' : 'none';
+    $id('avisoOwner').style.display = OWNER ? '' : 'none';
+    if (!upPodeMexer() && !OWNER) $id('avisoSomenteOwner').style.display = '';
+    if (!EDITA) {
+      document.querySelectorAll('.main input[type="text"]').forEach(e => { e.disabled = true; });
+      $id('barraSalvar').style.display = 'none';
+    }
+    grade = gradeMontar($id('gradePerfil'), { marcadas: marcadas, leitura: !EDITA, aoMudar: atualizarContagem });
+    atualizarContagem();
+    pintarQuem();
+    $id('cartaoQuem').style.display = NOVO ? 'none' : '';
+  }
+
+  // ===== SALVAR =====
+  function depoisDeSalvar(id, novo) {
+    if (typeof marcarSalvo === 'function') marcarSalvo();
+    if (PARAM.aoSalvar === 'ficar') {
+      if (novo) { window.location.href = PAGINA + '?id=' + id; return; }
+      aoSalvarCadastro(LISTA, document.getElementById('btnSalvar')); return;
+    }
+    marcaVoltando(LISTA); window.location.href = LISTA + '?salvo=' + id + (novo ? '&novo=1' : '');
+  }
+  function salvar() {
+    if (!EDITA) return;
+    const nome = $id('inputNome').value.trim(), desconto = lerDesconto($id('inputDesconto').value);
+    const repetido = PERFIS.some(x => x.nome.toLowerCase() === nome.toLowerCase() && (!P || x.id !== P.id));
+    erro('campoNome', !nome || repetido); $id('erroNome').textContent = repetido ? 'Já existe um perfil com este nome.' : 'Informe o nome do perfil.';
+    erro('campoDesconto', desconto === null);
+    if (!nome || repetido || desconto === null) return;
+    const descricao = $id('inputDescricao').value.trim(), chaves = Array.from(marcadas).sort();
+    const permsMudaram = chaves.join('|') !== (NOVO ? '' : marcadasAoAbrir);
+    const gravar = () => {
+      let id, novo = NOVO;
+      if (NOVO) {
+        id = Math.max.apply(null, PERFIS.map(x => x.id)) + 1;
+        PERFIS.push({ id: id, nome: nome, descricao: descricao, descontoPct: desconto, fixo: false, perms: chaves });
+        upRegistrar('perfilInclui', 'Incluir um perfil', 'Configurações → Permissões de usuários', 'Incluiu o perfil ' + nome + '.', false);
+      } else {
+        id = P.id;
+        Object.assign(P, { nome: nome, descricao: descricao, descontoPct: desconto, perms: chaves });
+        if (!permsMudaram) upRegistrar('perfilSalva', 'Alterar um perfil', 'Configurações → Permissões de usuários', 'Alterou o nome, a descrição ou o desconto do perfil ' + nome + '.', false);
+      }
+      gravarPerfis(PERFIS);
+      depoisDeSalvar(id, novo);
+    };
+    if (permsMudaram) confirmarAcao('perfilPermissoes', 'Alterar as permissões do perfil "' + nome + '": ' + plural(permContar(marcadas).telas, 'tela', 'telas') + ', ' + plural(permContar(marcadas).funcoes, 'função', 'funções') + ' e ' + plural(permContar(marcadas).acoes, 'ação de autorização', 'ações de autorização') + '. Vale para todos os usuários do perfil.', gravar);
+    else gravar();
+  }
+  document.getElementById('btnSalvar').addEventListener('click', salvar);
+
+  // O nome do meio do caminho leva a lista (ela nao e item do menu: so o hub de Configuracoes e). O ultimo nome e o do registro e fica parado.
+  (function caminhoLeva() {
+    const ir = () => { marcaVoltando(LISTA); window.location.href = LISTA; };
+    const eLista = (e) => { const c = e.target.closest ? e.target.closest('.crumb') : null; return !!c && c.textContent === 'Permissões de usuários' && !c.classList.contains('current'); };
+    $id('breadcrumb').addEventListener('click', (e) => { if (eLista(e)) { e.stopPropagation(); ir(); } }, true);
+    $id('breadcrumb').addEventListener('keydown', (e) => { if (e.key === 'Enter' && eLista(e)) { e.stopPropagation(); e.preventDefault(); ir(); } }, true);
+  })();
+
+  // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
+  // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,
+  // chips). A cor de fundo desses elementos vem de mapa em JS, por style inline,
+  // onde CSS nenhum alcanca. Entao a regra vira medicao: le a luminancia do fundo
+  // que ficou aplicado, calcula o contraste com a tinta atual e, SO se reprovar em
+  // 4.5:1, troca pela tinta que passa. Elemento que ja passa nao e tocado — isso
+  // preserva texto colorido proposital e mexe unicamente no que estava ilegivel.
+  (function tintaAutomatica() {
+    var ALVOS = '.profile-avatar, .origem-badge, .parent-badge, .tipo-badge, .estoque-badge,' +
+                '.status-badge, .tag-principal, .role-badge, .day-number, .avatar-mini,' +
+                '[data-tinta-auto], [style*="background"]';
+    var CLARA = [255, 255, 255], ESCURA = [16, 16, 16];
+    function canal(c) { c = c / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+    function lum(p) { return 0.2126 * canal(p[0]) + 0.7152 * canal(p[1]) + 0.0722 * canal(p[2]); }
+    function razao(a, b) {
+      var la = lum(a), lb = lum(b), hi = Math.max(la, lb), lo = Math.min(la, lb);
+      return (hi + 0.05) / (lo + 0.05);
+    }
+    function cor(txt) {
+      var m = (txt || '').match(/[\d.]+/g);
+      if (!m || m.length < 3) return null;
+      if (m.length > 3 && parseFloat(m[3]) < 0.6) return null;   // fundo translucido: herda do pai
+      return [+m[0], +m[1], +m[2]];
+    }
+    function aplicar(el) {
+      var cs = getComputedStyle(el);
+      var fundo = cor(cs.backgroundColor), tinta = cor(cs.color);
+      if (!fundo || !tinta) return;
+      if (razao(tinta, fundo) >= 4.5) return;                    // ja passa: nao mexe
+      el.style.color = razao(CLARA, fundo) >= razao(ESCURA, fundo) ? '#FFFFFF' : '#101010';
+    }
+    function varrer(raiz) {
+      if (raiz.nodeType !== 1) return;
+      if (raiz.matches && raiz.matches(ALVOS)) aplicar(raiz);
+      if (raiz.querySelectorAll) raiz.querySelectorAll(ALVOS).forEach(aplicar);
+    }
+    function tudo() { varrer(document.body); }
+    tudo();
+    new MutationObserver(function (muts) {
+      muts.forEach(function (m) {
+        if (m.type === 'attributes') { tudo(); return; }         // trocou de tema: refaz
+        m.addedNodes.forEach(varrer);                            // render novo: so o que entrou
+      });
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  })();
+
+  // ------------------------------------------------- rodape de salvar
+  // A barra diz, o tempo todo, quantos campos divergem da ultima gravacao, e
+  // sair com pendencia para e pergunta. Antes, a saida era calada: levava
+  // embora o que nao tinha sido salvo sem dizer uma palavra.
+  const RODAPE = { limpo: null };
+
+  // A raiz e `.main`: `#card` e a SIDEBAR nesta familia de telas, nao o
+  // formulario.
+  function estadoDoFormulario() {
+    const partes = [];
+    document.querySelectorAll('.main input, .main textarea').forEach((el, i) => {
+      if (el.type === 'file') return;
+      const marcavel = el.type === 'checkbox' || el.type === 'radio';
+      partes.push(i + ':' + (marcavel ? (el.checked ? '1' : '0') : el.value));
+    });
+    document.querySelectorAll('.main .dropdown-select').forEach((d, i) => {
+      partes.push('d' + i + ':' + (d.getAttribute('data-value') || ''));
+    });
+    return partes.join('|');
+  }
+  function camposAlterados() {
+    if (RODAPE.limpo === null) return 0;
+    const antes = RODAPE.limpo.split('|');
+    const agora = estadoDoFormulario().split('|');
+    let n = 0;
+    for (let i = 0; i < Math.max(antes.length, agora.length); i++) {
+      if (antes[i] !== agora[i]) n++;
+    }
+    return n;
+  }
+  function temPendencia() { return camposAlterados() > 0; }
+  function marcarSalvo() { RODAPE.limpo = estadoDoFormulario(); atualizarRodape(); }
+  function atualizarRodape() {
+    const info = document.getElementById('infoPendente');
+    if (!info) return;
+    const n = camposAlterados();
+    info.textContent = n === 0
+      ? 'Nenhuma alteração pendente.'
+      : n + (n === 1 ? ' campo alterado' : ' campos alterados') + ', ainda não salvo.';
+  }
+
+  // Sair com alteracao pendente para e pergunta.
+  (function avisarAoSair() {
+    const link = document.getElementById('btnCancelar');
+    if (!link) return;
+    const antigos = link.cloneNode(true);
+    link.parentNode.replaceChild(antigos, link);
+    antigos.addEventListener('click', () => {
+      const ir = () => { marcaVoltando(LISTA); window.location.href = LISTA; };
+      if (!temPendencia()) { ir(); return; }
+      abrirModalConfirmacao(
+        'Esta tela tem alterações que ainda não foram salvas. Sair agora descarta o que você mudou.',
+        1, 'danger', ir);
+    });
+  })();
+
+  // A nota so mente se parar de ouvir. Dropdown e caixa de marcar nao disparam
+  // `input`, entao o clique tambem reavalia — depois de o componente ter
+  // gravado o data-value dele.
+  document.addEventListener('input', atualizarRodape);
+  document.addEventListener('change', atualizarRodape);
+  document.addEventListener('click', () => setTimeout(atualizarRodape, 0));
+  // O baseline nasce DEPOIS de a tela terminar de se montar. Medido cedo
+  // demais, ele congela um formulario vazio e a barra passa a mentir: diz que
+  // nao ha pendencia porque nunca mais olhou.
+  if (document.readyState === 'complete') setTimeout(marcarSalvo, 0);
+  else window.addEventListener('load', () => setTimeout(marcarSalvo, 0));
+  marcarSalvo();
+
+</script>
+
+</body>
+</html>

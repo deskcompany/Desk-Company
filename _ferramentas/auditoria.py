@@ -229,6 +229,8 @@ def audita(caminho):
              'deskEmbalagens',   # 30/out: o cadastro de Embalagens (com custo e insumo): a tela de Embalagens grava; a Separacao e a Conferencia de Saida leem
              'deskEmbalagensPedido',   # 30/out: a embalagem de cada pedido (rascunho, separada, confirmada, com o custo do dia): a Separacao e a Conferencia gravam; Custos e a pagina do pedido leem
              'deskCalculoPreco',   # 30/out: o calculo da calculadora de preco, por id do produto (preco, margem, parcelas, caixa...): so Cadastros > Produtos (a ficha) grava e le
+             'deskUsuarios',   # 10/nov: Usuarios do sistema. A pagina do usuario e a lista gravam; a pagina do perfil, Vendedores (o usuario vinculado) e as outras telas de Usuarios e Perfis leem
+             'deskPerfis',   # 10/nov: os perfis de usuario (menos o Owner, que nao se edita e volta sempre de fabrica): a pagina do perfil e a lista gravam; os usuarios leem
              'deskSaques'}   # 15/out: a decisao sobre o saque que o cliente afiliado pede na vitrine (aprovado ou recusado)
     chaves_ls = set(x for t in re.findall(r"localStorage\.\w+Item\(['\"]([^'\"]+)['\"]", txt) for x in [t])
     # A chave tambem pode estar numa constante (CHAVE_ORDENS = 'deskOrdensGeradas'): ate 10/out so a

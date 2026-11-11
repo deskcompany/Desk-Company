@@ -934,7 +934,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <!-- ABA: ACESSO E PERMISSÕES -->
   <div class="tab-panel" id="tab-acesso">
 
+  <div class="section-title">Usuário do sistema</div>
+  <div class="afi-nota" id="blocoUsuarioVinculado"></div>
+
   <div class="section-title">Dados de acesso</div>
+  <div class="section-hint" style="margin-top:-8px;">Só consulta: quem entra no sistema, o horário, o IP e o que cada pessoa abre se definem em Configurações → Usuários do sistema e Permissões de usuários.</div>
   <div class="form-row">
     <div class="form-field" style="flex:1.4;">
       <label>Usuário do Sistema</label>
@@ -975,7 +979,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 
   <div class="section-title">Módulos que podem ser acessados pelo vendedor</div>
-  <div class="section-hint" style="margin-top:-8px;">Mocado — vira permissão de verdade quando Configurações → Permissões de Usuários existir.</div>
+  <div class="section-hint" style="margin-top:-8px;">Só consulta. O que cada pessoa abre agora vem do perfil dela e das permissões avulsas, em Configurações → Permissões de usuários.</div>
   <div id="listaModulosAcesso"></div>
 
   <div class="section-title">O que este usuário pode confirmar com a própria senha</div>
@@ -1311,6 +1315,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { chave:'promocaoClona',      nome:'Clonar uma promoção',                          onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoExclui',     nome:'Excluir uma promoção que não foi aprovada',    onde:'Vendas → Promoções e Encartes', grupo:'Vendas', pronto:true,  exigePadrao:false },
     { chave:'promocaoNaHora',     nome:'Aplicar o preço promocional fora da promoção', onde:'Vendas → PDV e Pedidos de Venda', grupo:'Vendas', pronto:true,  exigePadrao:true  },
+    { chave:'perfilPermissoes',   nome:'Alterar as permissões de um perfil',                       onde:'Configurações → Permissões de usuários', grupo:'Configurações', pronto:true, exigePadrao:true  },
+    { chave:'usuarioPermissoes',  nome:'Alterar o perfil ou as permissões avulsas de um usuário',   onde:'Configurações → Usuários do sistema',    grupo:'Configurações', pronto:true, exigePadrao:true  },
     { chave:'formasRecebimentoRegra', nome:'Alterar destino, taxa ou limite de uma forma de recebimento', onde:'Configurações → Formas de recebimento', grupo:'Finanças', pronto:true,  exigePadrao:true },
     { chave:'pdvSangria',           nome:'Lançar sangria de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:true  },
     { chave:'pdvReforco',           nome:'Lançar reforço de caixa no PDV',                 onde:'Vendas → PDV', grupo:'Vendas', pronto:true,  exigePadrao:false },
@@ -1707,6 +1713,99 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== USUARIOS E PERFIS: DADOS E LEITURA (bloco comum, 10/nov/2026) =====
+  // Os usuarios do sistema e os perfis (Configuracoes > Usuarios do sistema e Permissoes de usuarios). Um perfil por usuario, mais permissoes avulsas
+  // que so ACRESCENTAM ao perfil. O codigo de autorizacao e separado da senha de entrar (4 a 6 numeros, por pessoa) e nunca e mostrado depois de
+  // gravado: a tela diz so "definido em <data>" ou "nao definido". O desconto sem senha vem do perfil, e a pessoa pode ter um valor proprio, que vale
+  // no lugar dele (vazio = o do perfil; o Owner nao tem limite). Gravado no navegador: `deskUsuarios` e `deskPerfis`. Na producao: usuarios, perfis e
+  // perfil_permissoes, com a senha e o codigo so como hash, no servidor.
+  // O bloco e IDENTICO nas quatro telas de Usuarios e Perfis e na pagina do vendedor (que mostra o usuario vinculado); teste_usuarios.py compara.
+  const UP_LOJAS = { 1: 'Desk Shope', 2: 'Desk Brands', 3: 'Desk Tech', 4: 'Desk Flash' };   // espelho de Devolucao e de Cadastros > Lojas Desk
+  const UP_VENDEDORES = [   // espelho de Cadastros > Vendedores (os que nao foram excluidos); a pagina do vendedor e a dona
+    { id: 1, nome: 'Marina Costa' }, { id: 2, nome: 'Ponto Parceiro Vila Mariana' }, { id: 3, nome: 'Rafael Andrade' }
+  ];
+  const UP_DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  const UP_PERFIS_FABRICA = [
+    { id: 1, nome: 'Owner', descricao: 'Dono do sistema: faz tudo, sem limite de desconto, e define os perfis e os limites de cada pessoa.', descontoPct: null, fixo: true, perms: ['*'] },
+    { id: 2, nome: 'Gerente', descricao: 'Vende em todas as lojas e autoriza com o código dele: desconto acima do limite, preço promocional fora da promoção, excedente da promoção.', descontoPct: 20, fixo: false,
+      perms: ['modulo:inicio', 'modulo:cadastros', 'modulo:estoque', 'modulo:vendas', 'modulo:logistica', 'modulo:financas', 'gateways', 'hub', 'registroAtividades',
+              '@grupo:Cadastros', '@grupo:Estoque', '@grupo:Vendas', '@grupo:Logística', '@grupo:Finanças'] },
+    { id: 3, nome: 'Supervisor de vendas', descricao: 'Acompanha a equipe de escritório, atacado, WhatsApp e televendas (metas e CRM). Só autoriza o que o Owner liberar para ele.', descontoPct: 15, fixo: false,
+      perms: ['boasVindas', 'dashboardKpis', 'agenda.*', 'minhaConta', 'clientes.*', 'vendedores', 'produtos', 'crm.*', 'pedidos.*', 'promocoes', 'metas.*', 'rastreamento', 'devolucao', 'comissoes'] },
+    { id: 4, nome: 'Vendedor interno', descricao: 'Vende no escritório, no WhatsApp, no televendas e no atacado. Nas promoções, só o preço que elas dão.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'crm.encerrar',
+              'pedidos.incluir', 'pedidos.alterar', 'pedidos.imprimir', 'promocoes', 'rastreamento'] },
+    { id: 5, nome: 'Caixa / vendedor de balcão', descricao: 'Vende no balcão e em eventos pelo PDV, e abre e fecha o caixa. O desconto padrão é o de Configurações → PDV.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'produtos', 'controleEstoques', 'pdv.abrirCaixa', 'pdv.fecharCaixa', 'pdv.relatorio', 'pdv.sangria', 'pdv.reforco', 'pdv.cancelarVenda'] },
+    { id: 6, nome: 'Representante externo', descricao: 'Visita o cliente e vende no atacado fora da loja, pelo celular.', descontoPct: 10, fixo: false,
+      perms: ['boasVindas', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'pedidos.incluir', 'pedidos.alterar', 'rastreamento'] }
+  ];
+  // As pessoas que ja existem no sistema: o Owner (a sessao de todas as telas), a equipe de Minha Conta (Ana, Carlos e Fernanda) e os vendedores das Metas
+  // e do PDV (Marina e Bianca; Rafael Andrade, do cadastro de Vendedores, que esta inativo). Sem horario, IP ou e-mail onde as telas de origem nao sabem.
+  // `senhaHash` e `codigoHash` sao so o resumo: o valor digitado nunca e guardado nem mostrado.
+  const UP_USUARIOS_FABRICA = [
+    { id: 1, nome: 'Administrador Desk', login: 'administrador@desk', email: 'contato@deskcompany.com.br', emailCom: 'contato@deskcompany.com.br', situacao: 'ativo', perfilId: 1, perms: [],
+      lojas: [1, 2, 3, 4], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:5d0e41b7', codigoEm: '2026-10-08', codigoHash: 'fnv1a:1c2f8a90' },
+    { id: 2, nome: 'Carlos Mendes', login: 'carlos.mendes@desk', email: 'carlos.mendes@deskcompany.com.br', emailCom: 'carlos.mendes@deskcompany.com.br', situacao: 'ativo', perfilId: 2, perms: [],
+      lojas: [1, 2, 3, 4], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:7a31c0d4', codigoEm: '2026-10-12', codigoHash: 'fnv1a:93be5521' },
+    { id: 3, nome: 'Marina Costa', login: 'marina.costa@desk', email: 'marina.costa@example.com', emailCom: 'marina.costa@example.com', situacao: 'ativo', perfilId: 3, perms: ['@promocaoNaHora'],
+      lojas: [1, 2], vendedorId: 1, descontoPct: 18, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-15', senhaHash: 'fnv1a:2e8b9f06', codigoEm: '2026-10-15', codigoHash: 'fnv1a:b04d7e13' },
+    { id: 4, nome: 'Ana Souza', login: 'ana.souza@desk', email: 'ana.souza@deskcompany.com.br', emailCom: 'ana.souza@deskcompany.com.br', situacao: 'ativo', perfilId: 4, perms: [],
+      lojas: [1], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-09', senhaEm: '2026-10-09', senhaHash: 'fnv1a:c6a05b32', codigoEm: '2026-10-20', codigoHash: 'fnv1a:48f1d6ea' },
+    { id: 5, nome: 'Bianca Furtado', login: 'bianca.furtado@desk', email: '', emailCom: '', situacao: 'ativo', perfilId: 4, perms: [],
+      lojas: [1], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-22', senhaEm: '2026-10-22', senhaHash: 'fnv1a:0f9d3c68', codigoEm: null, codigoHash: null },
+    { id: 6, nome: 'Fernanda Lima', login: 'fernanda.lima@desk', email: 'fernanda.lima@deskcompany.com.br', emailCom: 'fernanda.lima@deskcompany.com.br', situacao: 'ativo', perfilId: 5, perms: [],
+      lojas: [2], vendedorId: null, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-09', senhaEm: '2026-10-09', senhaHash: 'fnv1a:e3704ab9', codigoEm: null, codigoHash: null },
+    { id: 7, nome: 'Rafael Andrade', login: 'rafael.andrade@desk', email: '', emailCom: '', situacao: 'bloqueado', perfilId: 6, perms: [],
+      lojas: [3], vendedorId: 3, descontoPct: null, horario: null, ips: null, criadoEm: '2026-10-08', senhaEm: '2026-10-08', senhaHash: 'fnv1a:6b12e8f5', codigoEm: '2026-10-08', codigoHash: 'fnv1a:d9a7340c' }
+  ];
+  const upCopia = (v) => JSON.parse(JSON.stringify(v));
+  function upLer(chave, fabrica) {
+    try { const b = localStorage.getItem(chave); if (b) { const v = JSON.parse(b); if (Array.isArray(v) && v.length) return v; } } catch (e) {}
+    return upCopia(fabrica);
+  }
+  function upGravar(chave, v) { try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  // O Owner nao se edita: o que estiver gravado para ele e ignorado, e ele volta sempre como de fabrica (tudo marcado, sem limite).
+  function lerPerfis() {
+    const lista = upLer('deskPerfis', UP_PERFIS_FABRICA).filter(p => p.id !== 1);
+    return [upCopia(UP_PERFIS_FABRICA[0])].concat(lista);
+  }
+  function gravarPerfis(lista) { return upGravar('deskPerfis', lista.filter(p => p.id !== 1)); }
+  function lerUsuarios() { return upLer('deskUsuarios', UP_USUARIOS_FABRICA); }
+  function gravarUsuarios(lista) { return upGravar('deskUsuarios', lista); }
+  const upPerfilDe = (u, perfis) => (perfis || lerPerfis()).filter(p => p.id === u.perfilId)[0] || null;
+  const upEOwner = (perfil) => !!perfil && perfil.id === 1;
+  // O desconto sem senha da pessoa: o proprio, se tiver, no lugar do perfil; o Owner nao tem limite.
+  function upDesconto(u, perfil) {
+    if (upEOwner(perfil)) return { pct: null, origem: 'semLimite' };
+    if (u.descontoPct !== null && u.descontoPct !== undefined) return { pct: u.descontoPct, origem: 'proprio' };
+    return { pct: perfil ? perfil.descontoPct : null, origem: 'perfil' };
+  }
+  const upPct = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + '%';
+  const upData = (iso) => (iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—');
+  const upHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  const upIniciais = (nome) => nome.split(' ').filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase();
+  const upVendedorNome = (id) => { const v = UP_VENDEDORES.filter(x => x.id === id)[0]; return v ? v.nome : ''; };
+  const upNomeLojas = (u) => u.lojas.map(l => UP_LOJAS[l]).join(', ');
+  // shortcut: o resumo e FNV-1a de 32 bits com o login como sal. Serve para o valor nao ficar em texto puro no navegador; na producao a senha vira hash lento (bcrypt) no servidor.
+  function upHash(texto, sal) {
+    let h = 0x811c9dc5; const s = String(sal || '') + '|' + String(texto);
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return 'fnv1a:' + h.toString(16).padStart(8, '0');
+  }
+  // O codigo de autorizacao: de 4 a 6 numeros, so numeros.
+  const upCodigoValido = (c) => /^[0-9]{4,6}$/.test(String(c));
+  // Incluir, bloquear, trocar a senha e trocar o codigo vao para o Registro de atividades (a mesma chave e o mesmo formato do registro comum).
+  function upRegistrar(chave, acao, onde, detalhe, comSenha) {
+    try {
+      const b = localStorage.getItem('deskLog'), log = b ? JSON.parse(b) : [];
+      log.unshift({ ts: Date.now(), chave: chave, acao: acao, onde: onde, modulo: 'Configurações', usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil, senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180) });
+      localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
+    } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
+  }
+  // Quem altera usuarios e perfis: so quem esta no sistema com o perfil Owner.
+  const upPodeMexer = () => USUARIO_SESSAO.perfil === 'Owner';
+  // ===== FIM DO BLOCO USUARIOS E PERFIS =====
   // ===== VENDEDORES (detalhe): dropdowns, tipo de pessoa, loja vinculada, permissões, comissão, senha =====
   // ===== COMPONENTE: dropdown customizado (substitui <select> nativo) =====
   function inicializarDropdownSelect(raiz, aoMudar) {
@@ -2169,6 +2268,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.querySelectorAll('input[name="tipoComissao"]').forEach(x => { x.checked = x.value === r.tipoComissao; });
     aplicarTipoComissao(r.tipoComissao);
     atualizarLabelPerfisContato();
+  })();
+
+  // ===== O USUARIO VINCULADO A ESTE VENDEDOR (10/nov/2026) =====
+  // O vinculo mora na pagina do usuario (Configuracoes > Usuarios do sistema); esta aba so mostra quem e e leva para la. Horario, IP e modulos ja
+  // nao se editam aqui: ficam so para consulta, e o que cada pessoa abre vem do perfil e das permissoes avulsas.
+  (function usuarioVinculado() {
+    const caixa = document.getElementById('blocoUsuarioVinculado');
+    const u = REGISTRO ? lerUsuarios().filter(x => x.vendedorId === REGISTRO.id)[0] : null;
+    const perfil = u ? upPerfilDe(u, lerPerfis()) : null;
+    const pagina = '../configuracoes/pagina-configuracoes-usuarios-detalhe.html';
+    if (u) {
+      caixa.innerHTML = 'Este vendedor entra no sistema como <a class="add-contato-link" style="margin-bottom:0;" id="linkUsuarioVinculado" href="' + pagina + '?id=' + u.id + '">' + u.nome + '</a> (' + u.login + '), com o perfil ' +
+        (perfil ? '<a class="add-contato-link" style="margin-bottom:0;" id="linkPerfilVinculado" href="../configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=' + perfil.id + '">' + perfil.nome + '</a>' : '—') +
+        '. Situação do acesso: <b id="situacaoUsuarioVinculado">' + (u.situacao === 'ativo' ? 'ativo' : 'bloqueado') + '</b>. A senha, o código de autorização, o desconto sem senha e as permissões dele estão na página do usuário.';
+    } else {
+      caixa.innerHTML = 'Este vendedor ainda não tem usuário do sistema. Para ele entrar, <a class="add-contato-link" style="margin-bottom:0;" id="linkIncluirUsuarioVendedor" href="' + pagina + '?novo=1">inclua um usuário</a> e escolha este vendedor em "Vendedor vinculado".';
+    }
+    ['inputUsuarioSistema', 'chkAcessoHorario', 'chkAcessoIp'].forEach(id => { document.getElementById(id).disabled = true; });
+    document.querySelectorAll('.perfil-checkbox, #listaModulosAcesso input').forEach(i => { i.disabled = true; });
+    document.querySelector('#dropdownPerfisContato .dropdown-select-btn').disabled = true;
   })();
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====

@@ -129,6 +129,7 @@ with sync_playwright() as p:
     sem_cartao = [os.path.basename(c) for c in localiza.caminhos()
                   if os.path.basename(os.path.dirname(c)) == 'configuracoes'
                   and os.path.basename(c) != 'pagina-configuracoes.html'
+                  and not os.path.basename(c).endswith('-detalhe.html')   # a pagina de detalhe abre pela lista (10/nov: usuario e perfil)
                   and ("href:'../configuracoes/" + os.path.basename(c) + "'") not in hub]
     ok(not sem_cartao, 'toda tela de Configuracoes tem cartao no hub: %s' % sem_cartao[:4])
     com_modulo = [os.path.basename(c) for c in _filtrar(localiza.caminhos())
