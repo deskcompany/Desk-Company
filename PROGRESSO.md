@@ -1,4 +1,4 @@
-*Atualizado em 11/nov/2026: a entrega 1 de Usuários do sistema e Permissões de usuários está feita e espera o teste dele (§14.110). O próximo da fila é a entrega 2, o pacote do gerente na promoção; depois, o preço de atacado.*
+*Atualizado em 11/nov/2026: a entrega 1 de Usuários do sistema e Permissões de usuários foi testada por ele e passou (§14.110). O próximo da fila é a entrega 2, o pacote do gerente na promoção; depois, o preço de atacado.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -8,12 +8,7 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Usuários do sistema e Permissões de usuários, entrega 1: feita em 10/nov/2026, esperando o teste dele.** Quatro telas novas em Configurações (as duas listas abrem pelo hub, aba Geral). O detalhe está no §14.110; a suíte `teste_usuarios.py` tem 345 asserções. **O que conferir:**
-- A lista de usuários: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html>. Os quatro indicadores (Ativos 6, Bloqueados 1, Autorizam 3, Sem código 2) filtram; busca, perfil, loja e situação; clicar na linha abre o painel (abrir, alterar senha, alterar código, bloquear); "Mais ações → Gerenciar vendedores" leva a Vendedores.
-- A página do usuário: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?id=3> (a Marina: perfil Supervisor, uma permissão avulsa, desconto próprio de 18%) e <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?novo=1> (em branco; ao salvar, abre o painel da senha). Teste o código (só 4 a 6 números, nunca aparece depois), a senha (12 a 32) e "editar permissões avulsas" (o que o perfil dá vem marcado e travado; salvar pede a senha).
-- A lista de perfis: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario.html>. Clonar copia como perfil novo; só se exclui perfil sem usuário; o Owner não tem "excluir".
-- A página do perfil: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=2> (o Gerente) e <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=1> (o Owner abre só para ver, com tudo marcado). Abas por módulo, "Marcar todos", as funções de cada tela e, no fim da aba, as ações que pedem autorização; mudar a grade pede a senha.
-- Vendedores: <http://localhost:3000/cadastros/pagina-cadastros-vendedores-detalhe.html?id=1>, aba "Acesso e Permissões": mostra o usuário vinculado e diz onde moram horário, IP e módulos.
+**Usuários do sistema e Permissões de usuários, entrega 1: testada por ele em 11/nov/2026** ("os testes passaram"). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.110. O resto do módulo é a entrega 2, o primeiro da fila.
 
 **Promoções e Encartes, entrega 2 (o preço chega na venda): testada por ele em 10/nov/2026.** Os ajustes que ele pediu na hora foram
 feitos no mesmo dia (a etiqueta sem o link da promoção, no PDV e no Pedido; o histórico sem "com senha"); os que ele deixou para depois
@@ -21,7 +16,7 @@ estão na revisão geral (itens 10 a 12). O texto da entrega foi para o HISTORIC
 
 **Promoções e Encartes, entrega 1: testada por ele em 09/nov/2026.** Os ajustes que ele pediu estão na revisão geral (itens 4 a 9) e ficam para ela; o texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.108.
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 7 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 6 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
 **Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
@@ -70,24 +65,23 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **Usuários do sistema e Permissões de usuários: a entrega 1 está feita** (ver "Onde paramos") e espera o teste dele. O resto do módulo é a entrega 2, abaixo.
-2. **A entrega 2 do módulo: o pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o código de autorização de cada pessoa valendo no lugar da senha mocada das outras telas (quem autoriza digita o código dele e o sistema sabe quem foi), e a permissão do preço promocional na hora saindo da ficha do vendedor para o perfil do gerente; o preço promocional fora
+1. **Usuários do sistema e Permissões de usuários, entrega 2: o pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o código de autorização de cada pessoa valendo no lugar da senha mocada das outras telas (quem autoriza digita o código dele e o sistema sabe quem foi), e a permissão do preço promocional na hora saindo da ficha do vendedor para o perfil do gerente; o preço promocional fora
    da promoção só com o gerente; o botão do gerente no excedente do limite; o limite de desconto por pessoa no PDV e no Pedido.
-3. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
+2. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
    unidades"; no Pedido de Venda, a linha que chega à quantidade mínima troca o preço sozinha. Vale para empresa e para pessoa
    física que assuma os impostos (como o imposto entra na nota fica para Notas Fiscais, com o contador). Passa pela trava do mínimo.
-4. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
-5. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
-6. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-7. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+3. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
+4. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+5. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+6. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-8. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-9. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-10. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+7. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+8. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+9. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de

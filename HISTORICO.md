@@ -10,6 +10,17 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Usuários do sistema e Permissões de usuários, entrega 1 (10-11/nov/2026) — testada pelo usuário em 11/nov ("os testes passaram")
+
+Quatro telas novas em Configurações (as duas listas abrem pelo hub, aba Geral). O detalhe está no §14.110; a suíte `teste_usuarios.py` tem 345 asserções. **O que conferir:**
+- A lista de usuários: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html>. Os quatro indicadores (Ativos 6, Bloqueados 1, Autorizam 3, Sem código 2) filtram; busca, perfil, loja e situação; clicar na linha abre o painel (abrir, alterar senha, alterar código, bloquear); "Mais ações → Gerenciar vendedores" leva a Vendedores.
+- A página do usuário: <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?id=3> (a Marina: perfil Supervisor, uma permissão avulsa, desconto próprio de 18%) e <http://localhost:3000/configuracoes/pagina-configuracoes-usuarios-detalhe.html?novo=1> (em branco; ao salvar, abre o painel da senha). Teste o código (só 4 a 6 números, nunca aparece depois), a senha (12 a 32) e "editar permissões avulsas" (o que o perfil dá vem marcado e travado; salvar pede a senha).
+- A lista de perfis: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario.html>. Clonar copia como perfil novo; só se exclui perfil sem usuário; o Owner não tem "excluir".
+- A página do perfil: <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=2> (o Gerente) e <http://localhost:3000/configuracoes/pagina-configuracoes-perfis-usuario-detalhe.html?id=1> (o Owner abre só para ver, com tudo marcado). Abas por módulo, "Marcar todos", as funções de cada tela e, no fim da aba, as ações que pedem autorização; mudar a grade pede a senha.
+- Vendedores: <http://localhost:3000/cadastros/pagina-cadastros-vendedores-detalhe.html?id=1>, aba "Acesso e Permissões": mostra o usuário vinculado e diz onde moram horário, IP e módulos.
+
+Decisões que o executor tomou sozinho e o teste aceitou: o Gerente de exemplo é o Carlos Mendes e a Marina é Supervisor; o Gerente autoriza tudo menos Configurações e Integrações; a grade só tem tela que existe; mudar nome, descrição ou desconto do perfil não pede senha; ninguém bloqueia a si mesmo. Desencontros anotados no §14.110: a Bianca Furtado vende no PDV, nas Metas e no CRM mas não existe em Vendedores; a ficha do vendedor ainda tem "Criar senha", que sai na entrega 2.
+
 ### Promoções e Encartes, entrega 2 (09-10/nov/2026) — testada pelo usuário em 10/nov ("os testes passaram"); ajustes feitos no mesmo dia, e o que ele deixou para depois está na revisão geral do PROGRESSO (itens 10 a 12)
 
 **O preço da promoção chega na venda: PDV e Pedido de Venda.** Para abrir:
