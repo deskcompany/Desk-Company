@@ -8,6 +8,11 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Usuários do sistema e Permissões de usuários, entrega 2: o plano está escrito, a implementação não começou (pausa em 11/nov/2026).**
+O plano da entrega está em [docs/plano-usuarios-entrega-2.md](docs/plano-usuarios-entrega-2.md) (o que muda em cada tela, as regras
+já decididas e a ordem das peças A a E). Nada foi implementado: a árvore do git está como o commit da entrega 1. A entrega 2 é o
+primeiro da fila, e o próximo dela é o preço de atacado.
+
 **Usuários do sistema e Permissões de usuários, entrega 1: testada por ele em 11/nov/2026** ("os testes passaram"). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.110. O resto do módulo é a entrega 2, o primeiro da fila.
 
 **Promoções e Encartes, entrega 2 (o preço chega na venda): testada por ele em 10/nov/2026.** Os ajustes que ele pediu na hora foram
