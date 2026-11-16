@@ -566,7 +566,7 @@ with sync_playwright() as p:
         editar(pg, loja='Desk Shope'); abrir(pg)
         ok(ls(pg, 'deskCalculoPreco') is None, 'so abrir e mexer na calculadora nao grava nada')
         pg.click('#calcAplicar'); pg.wait_for_timeout(350)
-        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'Aplicar preenche o Preco de venda, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
+        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'Aplicar preenche o Preco de venda e o Markup: %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputMarkup')))
         ok(not pg.evaluate("document.getElementById('calcDrawer').classList.contains('open')"), 'e fecha a gaveta')
         sv = (ls(pg, 'deskCalculoPreco') or {}).get('1')
         ok(sv and sv['preco'] == 101.9 and sv['markup'] == 2.038 and sv['margem'] == 30 and sv['parcelas'] == 3 and sv['imposto'] == 4 and sv['comissao'] == 5 and sv['frete'] == 0 and sv['freteLoja'] == 0 and sv['escolhida'] == 'varejo' and sv['caixaId'] == 2 and sv['embalagemManual'] is None and sv['em'],
@@ -580,7 +580,7 @@ with sync_playwright() as p:
         ok('Aplicar o preço calculado' in pg.evaluate("document.body.textContent"), 'o Registro de atividades mostra a acao pelo nome')
         # reload: repoe preco, Padrao e Markup; a calculadora abre com os numeros guardados
         editar(pg, loja='Desk Shope')
-        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'recarregar repoe o preco, a lista Padrao e o Markup: %s / %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
+        ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'recarregar repoe o preco e o Markup: %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputMarkup')))
         ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 101,90 dá margem de 30,5%', 'e a margem de hoje com o preco guardado: "%s"' % txt(pg, '#calcHoje'))
         pg.context.close()
 
@@ -639,7 +639,7 @@ with sync_playwright() as p:
         # sem calculo guardado: digitar atualiza a margem de hoje e mais nada
         pg.fill('#inputPrecoVenda', '119,90'); pg.wait_for_timeout(120)
         esperado = 'Com o custo de hoje, R$ 119,90 dá margem de %s' % pct1(margem(conta(D('119.90'), EMB_SHOPE + 50, LINK[2], 0, 4, 5)))
-        ok(txt(pg, '#calcHoje') == esperado and pg.input_value('#inputPrecoListaPadrao') == '129,90' and pg.input_value('#inputMarkup') == '', 'digitar o preco atualiza a margem de hoje na hora (%s) e nada mais: Padrao %s, Markup "%s"' % (txt(pg, '#calcHoje'), pg.input_value('#inputPrecoListaPadrao'), pg.input_value('#inputMarkup')))
+        ok(txt(pg, '#calcHoje') == esperado and pg.input_value('#inputMarkup') == '', 'digitar o preco atualiza a margem de hoje na hora (%s) e nada mais: Markup "%s"' % (txt(pg, '#calcHoje'), pg.input_value('#inputMarkup')))
         ok(ls(pg, 'deskCalculoPreco') is None, 'e nada e gravado')
         # abrir e fechar a calculadora nunca muda o preco
         abrir(pg); fechar(pg)
@@ -650,12 +650,12 @@ with sync_playwright() as p:
         abrir(pg); pg.click('#calcAplicar'); pg.wait_for_timeout(300)
         ok(pg.input_value('#inputPrecoVenda') == '101,90', 'Aplicar sobrescreve o digitado (so ele faz isso)')
         pg.fill('#inputPrecoVenda', '115,50'); pg.wait_for_timeout(120)
-        ok(pg.input_value('#inputPrecoListaPadrao') == '101,90' and pg.input_value('#inputMarkup') == '2,03800' and (ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 101.9, 'digitar depois de aplicar nao mexe na lista Padrao, no Markup nem no guardado')
+        ok(pg.input_value('#inputMarkup') == '2,03800' and (ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 101.9, 'digitar depois de aplicar nao mexe no Markup nem no guardado')
         pg.click('#btnSalvarProduto'); pg.wait_for_timeout(300)
         sv = (ls(pg, 'deskCalculoPreco') or {})['1']
-        ok(sv['preco'] == 115.5 and sv['markup'] == 2.038 and pg.input_value('#inputPrecoListaPadrao') == '115,50', 'Salvar alteracoes leva o digitado para o preco guardado e para a lista Padrao: %s' % sv['preco'])
+        ok(sv['preco'] == 115.5 and sv['markup'] == 2.038, 'Salvar alteracoes leva o digitado para o preco guardado: %s' % sv['preco'])
         pg.reload(); pg.wait_for_timeout(450); pg.click('.tab-item[data-tab="precos"]')
-        ok(pg.input_value('#inputPrecoVenda') == '115,50' and pg.input_value('#inputPrecoListaPadrao') == '115,50' and pg.input_value('#inputMarkup') == '2,03800', 'o reload nao desfaz a edicao: preco 115,50, Padrao 115,50 e o Markup do calculo')
+        ok(pg.input_value('#inputPrecoVenda') == '115,50' and pg.input_value('#inputMarkup') == '2,03800', 'o reload nao desfaz a edicao: preco 115,50 e o Markup do calculo')
         pg.fill('#inputPrecoVenda', ''); pg.click('#btnSalvarProduto'); pg.wait_for_timeout(300)
         ok((ls(pg, 'deskCalculoPreco') or {})['1']['preco'] == 115.5, 'preco vazio ao salvar nao apaga o guardado')
         pg.context.close()
@@ -682,7 +682,7 @@ with sync_playwright() as p:
         confere_opcoes(pg, esp, 3, 'cadastro novo, custo 50,00')
         pg.click('#calcAplicar'); pg.wait_for_timeout(300)
         va = esp['ops'][0]['r']['preco']
-        ok(pg.input_value('#inputPrecoVenda') == campo(va) and pg.input_value('#inputPrecoListaPadrao') == campo(va) and pg.input_value('#inputMarkup') == str((va / 50).quantize(D('0.00001'), rounding=ROUND_HALF_UP)).replace('.', ','), 'cadastro novo: Aplicar preenche os tres campos (%s)' % pg.input_value('#inputPrecoVenda'))
+        ok(pg.input_value('#inputPrecoVenda') == campo(va) and pg.input_value('#inputMarkup') == str((va / 50).quantize(D('0.00001'), rounding=ROUND_HALF_UP)).replace('.', ','), 'cadastro novo: Aplicar preenche o preco e o Markup (%s)' % pg.input_value('#inputPrecoVenda'))
         ok(ls(pg, 'deskCalculoPreco') is None and not pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(e => e.chave === 'calculadoraPreco').length"), 'mas nao grava o calculo nem registra (grava quando houver banco)')
         ok('shortcut:' in fonte(PROD) and re.search(r'shortcut: cadastro novo \(\?novo=1\) nao grava o calculo', fonte(PROD)) is not None, 'o limite esta registrado com um comentario shortcut:')
         pg.context.close()

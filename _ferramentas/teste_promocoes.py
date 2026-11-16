@@ -689,7 +689,7 @@ with sync_playwright() as p:
         ok(com_avulsa is True and sem_perm is False, 'dada a permissão avulsa à Marina em Usuários, a ficha dela mostra; a do Rafael Andrade não')
         ir(PDV); ok(ev("typeof PROMO_PODE_NA_HORA") == 'undefined', 'o PDV não tem mais a lista de nomes mocada')
         cat = ev("PROMO_PRODUTOS.filter(p => CATALOGO.some(c => c.sku === p.sku)).map(p => { const c = CATALOGO.filter(x => x.sku === p.sku)[0]; return [p.sku, c.nome === p.nome, c.loja === p.loja, c.preco === p.preco, Object.values(c.saldo).reduce((s, n) => s + n, 0) === p.estoque]; })")
-        ok(len(cat) == 8 and all(all(x[1:]) for x in cat), 'os produtos do cadastro no catálogo do PDV têm o nome, a loja, o preço e o estoque da ficha: %s' % [x for x in cat if not all(x[1:])])
+        ok(len(cat) == 9 and all(all(x[1:]) for x in cat), 'os produtos do cadastro no catálogo do PDV têm o nome, a loja, o preço e o estoque da ficha: %s' % [x for x in cat if not all(x[1:])])
         # --- PDV e Pedido nos dois temas, 1280 e 1440
         for w in (1280, 1440):
             pg.set_viewport_size({'width': w, 'height': 900})

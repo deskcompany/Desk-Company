@@ -590,6 +590,9 @@
   .calc-opcao-margem.minima { color:var(--danger); }
   .calc-opcao-uso { font-size:11px; color:var(--text); margin-top:6px; line-height:1.35; }
   .calc-sufixo { position:relative; }
+  .sufixo-campo { position:relative; }   /* o sufixo "unidades" do campo da ficha: o input fica filho direto do campo, para o modo leitura o ler */
+  .sufixo-campo > span { position:absolute; right:12px; bottom:11px; font-size:13px; color:var(--text); pointer-events:none; }
+  body.modo-leitura .sufixo-campo > span { display:none; }
   .calc-sufixo span { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--text); pointer-events:none; }
   .calc-bloco { border-top:1px solid var(--border); margin-top:12px; padding-top:12px; }
   .calc-bloco-tit { font-family:'Nunito',sans-serif; font-weight:800; font-size:12px; color:var(--text-heading); margin-bottom:2px; }
@@ -1199,24 +1202,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
 
-    <div class="section-title">Preço por lista</div>
-    <div class="section-hint" style="margin-bottom:14px;">Mesmas listas de preço já usadas em Fornecedores — reaproveitando o conceito pra diferenciar valor por canal.</div>
     <div class="form-row">
-      <div class="form-field">
-        <label>Padrão</label>
-        <input data-mascara="dinheiro" inputmode="decimal" type="text" id="inputPrecoListaPadrao" value="129,90">
+      <div class="form-field" id="campoPrecoAtacado">
+        <label>Preço de atacado</label>
+        <input data-mascara="dinheiro" inputmode="decimal" type="text" id="inputPrecoAtacado" placeholder="0,00">
       </div>
-      <div class="form-field">
-        <label>Atacado</label>
-        <input data-mascara="dinheiro" inputmode="decimal" type="text" placeholder="0,00">
-      </div>
-      <div class="form-field">
-        <label>Varejo</label>
-        <input data-mascara="dinheiro" inputmode="decimal" type="text" placeholder="0,00">
+      <div class="form-field sufixo-campo" id="campoAtacadoMin">
+        <label>A partir de</label>
+        <input type="text" inputmode="numeric" id="inputAtacadoMin" autocomplete="off" style="padding-right:76px;">
+        <span>unidades</span>
       </div>
     </div>
+    <div class="section-hint" style="margin-top:-8px; margin-bottom:18px;">A partir dessa quantidade do produto na venda, no PDV e no Pedido de Venda, cada peça sai por este preço. A promoção não mexe no atacado.</div>
+    <div class="field-error-msg" id="erroAtacado" style="margin-top:-12px; margin-bottom:14px;"></div>
     <div class="section-title">Histórico do preço</div>
-    <div class="section-hint" style="margin-bottom:10px;">Cada mudança do preço de venda e do promocional: quando, de quanto para quanto, quem mudou e de onde veio (o cadastro, uma promoção aprovada ou a planilha de uma promoção).</div>
+    <div class="section-hint" style="margin-bottom:10px;">Cada mudança do preço de venda, do promocional e do atacado: quando, de quanto para quanto, quem mudou e de onde veio (o cadastro, uma promoção aprovada ou a planilha de uma promoção).</div>
     <div class="custos-table-wrap" id="historicoPrecoWrap">
       <table class="custos-table">
         <thead><tr><th>Data</th><th>Preço</th><th>De</th><th>Para</th><th>Quem</th><th>Origem</th></tr></thead>
@@ -3448,6 +3448,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // O preco promocional que cada produto ja tem no cadastro (aba Precos da ficha). Vazio = sem preco promocional.
   const PROMO_PROMOCIONAL_PADRAO = { 1: 99.90, 2: 37.90, 4: 319.90, 6: 179.90, 7: 54.90, 9: 59.90, 11: 42.90, 12: 49.90 };
+  // O preco de atacado que cada produto ja tem no cadastro (aba Precos da ficha): a partir de `min` unidades do produto na venda, cada peca sai por `preco`.
+  // Os dois andam juntos. Vazio = sem atacado. O de 8 e o de 9 ficam acima do minimo da calculadora e abaixo do preco de venda (e do promocional, no 9).
+  const PROMO_ATACADO_PADRAO = { 8: { preco: 72.90, min: 6 }, 9: { preco: 59.50, min: 10 } };
   // O historico de preco de exemplo. `dia` = dias a partir de hoje (negativo = passado). campo 'venda' ou 'promocional'.
   // O produto 8 subiu o preco de venda ha 12 dias: o riscado nao seria verdadeiro, e a revisao da promocao o deixa de fora.
   const PROMO_HISTORICO_PADRAO = [
@@ -3600,7 +3603,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ---------- o preco do produto e o historico (a ficha do produto e a dona; a aprovacao da promocao escreve por aqui) ----------
   function promoPrecos(id) {
     const g = (promoLerJson('deskPrecoProduto', {}) || {})[id] || {}, p = promoProdutoId(id);
-    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '' };
+    const at = g.atacado !== undefined ? { preco: g.atacado, min: g.atacadoMin === undefined ? null : g.atacadoMin } : (PROMO_ATACADO_PADRAO[id] || { preco: null, min: null });
+    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '', atacado: at.preco, atacadoMin: at.min };
   }
   function promoHistorico(id) {
     const semente = PROMO_HISTORICO_PADRAO.filter(h => h.produto === Number(id)).map(h => ({ em: promoQuando(h.dia), campo: h.campo, de: h.de, para: h.para, quem: h.quem, origem: h.origem, promocao: h.promocao || null }));
@@ -3615,6 +3619,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     reg[campo] = para; reg.em = new Date().toISOString(); tudo[id] = reg;
     const hist = promoLerJson('deskHistoricoPreco', {}) || {};
     (hist[id] = hist[id] || []).push({ em: reg.em, campo: campo, de: de, para: para, quem: USUARIO_SESSAO.nome, origem: origem, promocao: promocaoId || null });
+    return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
+  }
+  // O atacado: o preco e a quantidade minima andam juntos (os dois ou nenhum; null nos dois tira o atacado). O historico ganha uma linha para cada um que mudou
+  // (campo 'atacado', em reais, e campo 'atacadoMin', em unidades).
+  function promoGravarAtacado(id, preco, min, origem) {
+    const atual = promoPrecos(id), mudouP = !(atual.atacado === preco || (atual.atacado !== null && preco !== null && Math.abs(atual.atacado - preco) < 0.005)), mudouM = atual.atacadoMin !== min;
+    if (!mudouP && !mudouM) return false;
+    const tudo = promoLerJson('deskPrecoProduto', {}) || {}, reg = tudo[id] || {}, em = new Date().toISOString();
+    reg.atacado = preco; reg.atacadoMin = min; reg.em = em; tudo[id] = reg;
+    const hist = promoLerJson('deskHistoricoPreco', {}) || {}, lista = (hist[id] = hist[id] || []);
+    if (mudouP) lista.push({ em: em, campo: 'atacado', de: atual.atacado, para: preco, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
+    if (mudouM) lista.push({ em: em, campo: 'atacadoMin', de: atual.atacadoMin, para: min, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
     return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
   }
   // O riscado e verdadeiro: a subida do preco de venda nos ultimos N dias (Parametros de vendas), ou null.
@@ -3882,7 +3898,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     function fechar() { $('calcDrawer').classList.remove('open'); $('calcBackdrop').classList.remove('open'); atualizarHoje(); }
 
-    // Aplicar: preenche o Preco de venda, a lista Padrao e o Markup, devolve a caixa ao cadastro, guarda o calculo e registra a acao.
+    // Aplicar: preenche o Preco de venda e o Markup, devolve a caixa ao cadastro, guarda o calculo e registra a acao.
     function aplicar() {
       if (!RES) return;
       desenhar(); if (!RES) return;
@@ -3891,7 +3907,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const reg = { preco: preco / 100, markup: Number(RES.markup.toFixed(5)), frete: ST.frete / 100, caixaId: ST.caixaId, embalagemManual: ST.embManual ? ST.emb / 100 : null, freteLoja: ST.freteLoja / 100,
                     margem: ST.margem, parcelas: ST.parcelas, imposto: ST.imposto, comissao: ST.comissao, escolhida: ST.escolhida, em: new Date().toISOString() };
       const executar = () => {
-        $('inputPrecoVenda').value = campo(preco); $('inputPrecoListaPadrao').value = campo(preco); $('inputMarkup').value = reg.markup.toFixed(5).replace('.', ',');
+        $('inputPrecoVenda').value = campo(preco); $('inputMarkup').value = reg.markup.toFixed(5).replace('.', ',');
         if (ST.caixaId !== null) porNoDropdown('inputEmbalagem', ST.caixaId);
         gravarSalvo(reg);
         fechar(); atualizarRodape();
@@ -3900,11 +3916,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!REGISTRO) executar(); else confirmarAcao('calculadoraPreco', texto, executar);
     }
 
-    // Reabrir ou recarregar: o calculo guardado repoe o preco, a lista Padrao e o Markup.
+    // Reabrir ou recarregar: o calculo guardado repoe o preco e o Markup.
     function restaurar() {
       const s = lerSalvo();
       if (s) {
-        $('inputPrecoVenda').value = campo(cent(Number(s.preco))); $('inputPrecoListaPadrao').value = campo(cent(Number(s.preco)));
+        $('inputPrecoVenda').value = campo(cent(Number(s.preco)));
         $('inputMarkup').value = isFinite(Number(s.markup)) ? Number(s.markup).toFixed(5).replace('.', ',') : '';
       }
       atualizarHoje();
@@ -3913,7 +3929,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     function aoSalvar() {
       const s = lerSalvo(), p = cent(lerNum($('inputPrecoVenda').value));
       if (!s || p <= 0) return;
-      s.preco = p / 100; $('inputPrecoListaPadrao').value = campo(p); gravarSalvo(s);
+      s.preco = p / 100; gravarSalvo(s);
     }
 
     // ---------- ligacoes ----------
@@ -3933,7 +3949,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.addEventListener('input', atualizarHoje);
     document.addEventListener('click', () => setTimeout(atualizarHoje, 0));
     restaurar();
-    return { aoSalvar: aoSalvar };
+    // O preco minimo de hoje (centavos), com o custo da aba Custos e a margem minima: a trava do atacado. null sem custo (ou com a conta que nao fecha).
+    function minimoCent() { const cx = contexto(), st = semente(cx); if (st.custo <= 0) return null; const b = base(st, cx); return b.piso(b.minBp); }
+    return { aoSalvar: aoSalvar, minimo: minimoCent };
   })();
 
   // ===== ABA PRECOS: O PRECO GUARDADO, O HISTORICO E A PROMOCAO (09/nov/2026) =====
@@ -3941,18 +3959,36 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // (`deskHistoricoPreco`, origem "cadastro"); a aprovacao de uma promocao grava o promocional dela (origem "promocao aprovada" ou "planilha").
   // E do historico que sai a trava "o preco de venda subiu nos ultimos N dias" da revisao da promocao (bloco PROMOCOES).
   // A faixa "Em promocao ate ..." le a promocao ativa (ou agendada) do produto, leva a ela, e deixa encerrar antes so para este produto.
-  const PRECO_ABRIU = { venda: null, promocional: null };
+  const PRECO_ABRIU = { venda: null, promocional: null, atacado: null, atacadoMin: null };
   const campoPreco = (n) => (n === null || n === undefined ? '' : Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
   const lerPrecoCampo = (id) => { let s = String(document.getElementById(id).value || '').trim(); if (!s) return null; if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.'); const n = parseFloat(s); return isFinite(n) && n > 0 ? Math.round(n * 100) / 100 : null; };
+  // A quantidade do atacado: so digitos (inteiro); '' = vazio; qualquer outra coisa devolve NaN e a trava recusa.
+  const lerAtacadoMin = () => { const s = String(document.getElementById('inputAtacadoMin').value || '').trim(); return s === '' ? null : (/^\d+$/.test(s) ? parseInt(s, 10) : NaN); };
   function abrirPrecoGuardado() {
     if (!REGISTRO) return;
     const g = promoPrecos(REGISTRO.id);
     let calcEm = '';
     try { const s = (JSON.parse(localStorage.getItem('deskCalculoPreco') || '{}') || {})[REGISTRO.id]; calcEm = s && s.em ? s.em : ''; } catch (e) {}
     // O preco de venda gravado aqui vale, a nao ser que a calculadora tenha aplicado um depois (ela repoe o dela ao abrir).
-    if (g.em && g.em >= calcEm && g.venda !== null) { document.getElementById('inputPrecoVenda').value = campoPreco(g.venda); document.getElementById('inputPrecoListaPadrao').value = campoPreco(g.venda); }
+    if (g.em && g.em >= calcEm && g.venda !== null) { document.getElementById('inputPrecoVenda').value = campoPreco(g.venda); }
     document.getElementById('inputPrecoPromocional').value = campoPreco(g.promocional);
+    document.getElementById('inputPrecoAtacado').value = campoPreco(g.atacado);
+    document.getElementById('inputAtacadoMin').value = g.atacadoMin === null || g.atacadoMin === undefined ? '' : String(g.atacadoMin);
     PRECO_ABRIU.venda = lerPrecoCampo('inputPrecoVenda'); PRECO_ABRIU.promocional = lerPrecoCampo('inputPrecoPromocional');
+    PRECO_ABRIU.atacado = lerPrecoCampo('inputPrecoAtacado'); PRECO_ABRIU.atacadoMin = lerAtacadoMin();
+  }
+  // A trava do atacado ao salvar: devolve a mensagem (o erro fica no campo, nao em alert), ou '' quando serve.
+  function erroDoAtacado() {
+    const preco = lerPrecoCampo('inputPrecoAtacado'), min = lerAtacadoMin(), venda = lerPrecoCampo('inputPrecoVenda');
+    if (preco === PRECO_ABRIU.atacado && min === PRECO_ABRIU.atacadoMin) return '';   // nao mexeu no atacado: o que ja estava gravado nao trava o resto do cadastro (a venda reconfere o minimo)
+    if (preco === null && min === null) return '';
+    if (preco === null || min === null) return 'Informe o preço e a quantidade, ou deixe os dois vazios.';
+    if (!Number.isInteger(min) || min < 2) return 'A quantidade do atacado é um número inteiro, de 2 para cima.';
+    if (venda !== null && preco >= venda) return 'O preço de atacado (' + promoMoeda(preco) + ') precisa ficar abaixo do preço de venda (' + promoMoeda(venda) + ').';
+    const minimo = CALC.minimo();
+    if (minimo === null) return 'O produto não tem custo no cadastro, e o preço mínimo não tem como ser conferido. Peça a revisão de preço.';
+    if (Math.round(preco * 100) < minimo) return 'O preço de atacado (' + promoMoeda(preco) + ') está abaixo do mínimo da calculadora (' + promoMoeda(minimo / 100) + '): não entra. Vender abaixo do mínimo passa pela revisão de preço.';
+    return '';
   }
   // Ao salvar: o que mudou vai para o historico, com quem e de onde.
   function gravarPrecoAoSalvar() {
@@ -3960,13 +3996,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const venda = lerPrecoCampo('inputPrecoVenda'), promo = lerPrecoCampo('inputPrecoPromocional');
     if (venda !== null && venda !== PRECO_ABRIU.venda) promoGravarPreco(REGISTRO.id, 'venda', venda, 'cadastro');
     if (promo !== PRECO_ABRIU.promocional) promoGravarPreco(REGISTRO.id, 'promocional', promo, 'cadastro');
+    const atP = lerPrecoCampo('inputPrecoAtacado'), atM = lerAtacadoMin();
+    if (atP !== PRECO_ABRIU.atacado || atM !== PRECO_ABRIU.atacadoMin) promoGravarAtacado(REGISTRO.id, atP, atM, 'cadastro');
   }
+  const valorHistorico = (x, v) => (v === null || v === undefined ? '—' : x.campo === 'atacadoMin' ? v + ' un.' : promoMoeda(v));
   function pintarHistoricoPreco() {
     const corpo = document.getElementById('tabelaHistoricoPreco'), h = REGISTRO ? promoHistorico(REGISTRO.id) : [];
     document.getElementById('historicoPrecoVazio').style.display = h.length ? 'none' : '';
     document.getElementById('historicoPrecoWrap').style.display = h.length ? '' : 'none';
-    corpo.innerHTML = h.map(x => '<tr><td>' + promoData(x.em.slice(0, 10)) + '</td><td>' + (x.campo === 'venda' ? 'De venda' : 'Promocional') + '</td>' +
-      '<td>' + (x.de === null ? '—' : promoMoeda(x.de)) + '</td><td>' + (x.para === null ? '—' : promoMoeda(x.para)) + '</td><td>' + x.quem + '</td>' +
+    corpo.innerHTML = h.map(x => '<tr><td>' + promoData(x.em.slice(0, 10)) + '</td><td>' + ({ venda: 'De venda', promocional: 'Promocional', atacado: 'Atacado', atacadoMin: 'Atacado a partir de' })[x.campo] + '</td>' +
+      '<td>' + valorHistorico(x, x.de) + '</td><td>' + valorHistorico(x, x.para) + '</td><td>' + x.quem + '</td>' +
       '<td>' + PROMO_ORIGEM[x.origem] + (x.promocao ? ' · <a class="painel-link" href="../vendas/pagina-vendas-promocoes-detalhe.html?id=' + x.promocao + '">nº ' + x.promocao + '</a>' : '') + '</td></tr>').join('');
     const subiu = REGISTRO ? promoSubiu(REGISTRO.id) : null;
     document.getElementById('historicoPrecoTrava').textContent = subiu ? 'O preço de venda subiu em ' + promoData(subiu.em.slice(0, 10)) + ': até ' + promoData(promoSoma(subiu.em.slice(0, 10), promoParam('promoRiscadoDias'))) +
@@ -3995,9 +4034,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   abrirPrecoGuardado();
   pintarHistoricoPreco();
   pintarPromocaoDoProduto();
-  document.getElementById('btnSalvarProduto').addEventListener('click', () => {
+  const limparErroAtacado = () => { document.getElementById('erroAtacado').classList.remove('show'); ['campoPrecoAtacado', 'campoAtacadoMin'].forEach(id => document.getElementById(id).classList.remove('has-error')); };
+  ['inputPrecoAtacado', 'inputAtacadoMin', 'inputPrecoVenda'].forEach(id => document.getElementById(id).addEventListener('input', limparErroAtacado));
+  document.getElementById('btnSalvarProduto').addEventListener('click', (e) => {
     // Fase de captura: roda antes do Salvar, que navega para a lista; grava so quando o cadastro passa na mesma conferencia do Salvar.
-    if (document.getElementById('inputNomeProduto').value.trim() && document.getElementById('inputSku').value.trim()) gravarPrecoAoSalvar();
+    if (!(document.getElementById('inputNomeProduto').value.trim() && document.getElementById('inputSku').value.trim())) return;
+    const erro = erroDoAtacado();
+    if (erro) {
+      document.getElementById('erroAtacado').textContent = erro; document.getElementById('erroAtacado').classList.add('show');
+      ['campoPrecoAtacado', 'campoAtacadoMin'].forEach(id => document.getElementById(id).classList.add('has-error'));
+      document.querySelector('.tab-item[data-tab="precos"]').click();
+      e.stopImmediatePropagation();
+      return;
+    }
+    gravarPrecoAoSalvar();
   }, true);
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====

@@ -2423,6 +2423,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // O preco promocional que cada produto ja tem no cadastro (aba Precos da ficha). Vazio = sem preco promocional.
   const PROMO_PROMOCIONAL_PADRAO = { 1: 99.90, 2: 37.90, 4: 319.90, 6: 179.90, 7: 54.90, 9: 59.90, 11: 42.90, 12: 49.90 };
+  // O preco de atacado que cada produto ja tem no cadastro (aba Precos da ficha): a partir de `min` unidades do produto na venda, cada peca sai por `preco`.
+  // Os dois andam juntos. Vazio = sem atacado. O de 8 e o de 9 ficam acima do minimo da calculadora e abaixo do preco de venda (e do promocional, no 9).
+  const PROMO_ATACADO_PADRAO = { 8: { preco: 72.90, min: 6 }, 9: { preco: 59.50, min: 10 } };
   // O historico de preco de exemplo. `dia` = dias a partir de hoje (negativo = passado). campo 'venda' ou 'promocional'.
   // O produto 8 subiu o preco de venda ha 12 dias: o riscado nao seria verdadeiro, e a revisao da promocao o deixa de fora.
   const PROMO_HISTORICO_PADRAO = [
@@ -2575,7 +2578,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ---------- o preco do produto e o historico (a ficha do produto e a dona; a aprovacao da promocao escreve por aqui) ----------
   function promoPrecos(id) {
     const g = (promoLerJson('deskPrecoProduto', {}) || {})[id] || {}, p = promoProdutoId(id);
-    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '' };
+    const at = g.atacado !== undefined ? { preco: g.atacado, min: g.atacadoMin === undefined ? null : g.atacadoMin } : (PROMO_ATACADO_PADRAO[id] || { preco: null, min: null });
+    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '', atacado: at.preco, atacadoMin: at.min };
   }
   function promoHistorico(id) {
     const semente = PROMO_HISTORICO_PADRAO.filter(h => h.produto === Number(id)).map(h => ({ em: promoQuando(h.dia), campo: h.campo, de: h.de, para: h.para, quem: h.quem, origem: h.origem, promocao: h.promocao || null }));
@@ -2590,6 +2594,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     reg[campo] = para; reg.em = new Date().toISOString(); tudo[id] = reg;
     const hist = promoLerJson('deskHistoricoPreco', {}) || {};
     (hist[id] = hist[id] || []).push({ em: reg.em, campo: campo, de: de, para: para, quem: USUARIO_SESSAO.nome, origem: origem, promocao: promocaoId || null });
+    return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
+  }
+  // O atacado: o preco e a quantidade minima andam juntos (os dois ou nenhum; null nos dois tira o atacado). O historico ganha uma linha para cada um que mudou
+  // (campo 'atacado', em reais, e campo 'atacadoMin', em unidades).
+  function promoGravarAtacado(id, preco, min, origem) {
+    const atual = promoPrecos(id), mudouP = !(atual.atacado === preco || (atual.atacado !== null && preco !== null && Math.abs(atual.atacado - preco) < 0.005)), mudouM = atual.atacadoMin !== min;
+    if (!mudouP && !mudouM) return false;
+    const tudo = promoLerJson('deskPrecoProduto', {}) || {}, reg = tudo[id] || {}, em = new Date().toISOString();
+    reg.atacado = preco; reg.atacadoMin = min; reg.em = em; tudo[id] = reg;
+    const hist = promoLerJson('deskHistoricoPreco', {}) || {}, lista = (hist[id] = hist[id] || []);
+    if (mudouP) lista.push({ em: em, campo: 'atacado', de: atual.atacado, para: preco, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
+    if (mudouM) lista.push({ em: em, campo: 'atacadoMin', de: atual.atacadoMin, para: min, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
     return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
   }
   // O riscado e verdadeiro: a subida do preco de venda nos ultimos N dias (Parametros de vendas), ou null.

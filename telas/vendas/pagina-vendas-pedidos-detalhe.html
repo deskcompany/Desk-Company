@@ -2257,6 +2257,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Desde 09/nov/2026 (Promocoes e Encartes, entrega 2): os produtos de Cadastros > Produtos que as promocoes usam, com o estoque da ficha no
     // deposito padrao da loja. O GTIN fica em branco: a ficha nao o tem.
     { sku: 'MOB-4001', nome: 'Kit Escritório Completo', loja: 1, un: 'UN', preco: 349.90, saldo: { 1: 5, 2: 0, 3: 0, 4: 0 } },
+    { sku: 'MOB-4002', nome: 'Luminária de Mesa LED', loja: 1, un: 'UN', preco: 79.90, saldo: { 1: 15, 2: 0, 3: 0, 4: 0 } },
     { sku: 'PAP-3002', nome: 'Kit Papelaria Volta às Aulas', loja: 1, un: 'UN', preco: 64.90, saldo: { 1: 22, 2: 0, 3: 0, 4: 0 } },
     { sku: 'ELE-1003', nome: 'Mouse Sem Fio Compacto', loja: 1, un: 'UN', preco: 59.90, saldo: { 1: 0, 2: 0, 3: 0, 4: 0 } },
     { sku: 'ELE-1004', nome: 'Carregador USB-C 20W', loja: 1, un: 'UN', preco: 45.00, saldo: { 1: 3, 2: 0, 3: 0, 4: 0 } },
@@ -3305,6 +3306,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // O preco promocional que cada produto ja tem no cadastro (aba Precos da ficha). Vazio = sem preco promocional.
   const PROMO_PROMOCIONAL_PADRAO = { 1: 99.90, 2: 37.90, 4: 319.90, 6: 179.90, 7: 54.90, 9: 59.90, 11: 42.90, 12: 49.90 };
+  // O preco de atacado que cada produto ja tem no cadastro (aba Precos da ficha): a partir de `min` unidades do produto na venda, cada peca sai por `preco`.
+  // Os dois andam juntos. Vazio = sem atacado. O de 8 e o de 9 ficam acima do minimo da calculadora e abaixo do preco de venda (e do promocional, no 9).
+  const PROMO_ATACADO_PADRAO = { 8: { preco: 72.90, min: 6 }, 9: { preco: 59.50, min: 10 } };
   // O historico de preco de exemplo. `dia` = dias a partir de hoje (negativo = passado). campo 'venda' ou 'promocional'.
   // O produto 8 subiu o preco de venda ha 12 dias: o riscado nao seria verdadeiro, e a revisao da promocao o deixa de fora.
   const PROMO_HISTORICO_PADRAO = [
@@ -3457,7 +3461,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ---------- o preco do produto e o historico (a ficha do produto e a dona; a aprovacao da promocao escreve por aqui) ----------
   function promoPrecos(id) {
     const g = (promoLerJson('deskPrecoProduto', {}) || {})[id] || {}, p = promoProdutoId(id);
-    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '' };
+    const at = g.atacado !== undefined ? { preco: g.atacado, min: g.atacadoMin === undefined ? null : g.atacadoMin } : (PROMO_ATACADO_PADRAO[id] || { preco: null, min: null });
+    return { venda: g.venda !== undefined ? g.venda : (p ? p.preco : null), promocional: g.promocional !== undefined ? g.promocional : (PROMO_PROMOCIONAL_PADRAO[id] !== undefined ? PROMO_PROMOCIONAL_PADRAO[id] : null), em: g.em || '', atacado: at.preco, atacadoMin: at.min };
   }
   function promoHistorico(id) {
     const semente = PROMO_HISTORICO_PADRAO.filter(h => h.produto === Number(id)).map(h => ({ em: promoQuando(h.dia), campo: h.campo, de: h.de, para: h.para, quem: h.quem, origem: h.origem, promocao: h.promocao || null }));
@@ -3472,6 +3477,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     reg[campo] = para; reg.em = new Date().toISOString(); tudo[id] = reg;
     const hist = promoLerJson('deskHistoricoPreco', {}) || {};
     (hist[id] = hist[id] || []).push({ em: reg.em, campo: campo, de: de, para: para, quem: USUARIO_SESSAO.nome, origem: origem, promocao: promocaoId || null });
+    return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
+  }
+  // O atacado: o preco e a quantidade minima andam juntos (os dois ou nenhum; null nos dois tira o atacado). O historico ganha uma linha para cada um que mudou
+  // (campo 'atacado', em reais, e campo 'atacadoMin', em unidades).
+  function promoGravarAtacado(id, preco, min, origem) {
+    const atual = promoPrecos(id), mudouP = !(atual.atacado === preco || (atual.atacado !== null && preco !== null && Math.abs(atual.atacado - preco) < 0.005)), mudouM = atual.atacadoMin !== min;
+    if (!mudouP && !mudouM) return false;
+    const tudo = promoLerJson('deskPrecoProduto', {}) || {}, reg = tudo[id] || {}, em = new Date().toISOString();
+    reg.atacado = preco; reg.atacadoMin = min; reg.em = em; tudo[id] = reg;
+    const hist = promoLerJson('deskHistoricoPreco', {}) || {}, lista = (hist[id] = hist[id] || []);
+    if (mudouP) lista.push({ em: em, campo: 'atacado', de: atual.atacado, para: preco, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
+    if (mudouM) lista.push({ em: em, campo: 'atacadoMin', de: atual.atacadoMin, para: min, quem: USUARIO_SESSAO.nome, origem: origem, promocao: null });
     return promoGravarJson('deskPrecoProduto', tudo) && promoGravarJson('deskHistoricoPreco', hist);
   }
   // O riscado e verdadeiro: a subida do preco de venda nos ultimos N dias (Parametros de vendas), ou null.
@@ -3575,6 +3592,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     try { const s = (JSON.parse(localStorage.getItem('deskCalculoPreco') || '{}') || {})[pr.id]; salvo = s && isFinite(Number(s.preco)) && Number(s.preco) > 0 ? s : null; } catch (e) { salvo = null; }
     return precoMinimo({ lojaId: pr.loja, custo: precoParametros().custoBase === 'medio' ? pr.custoMedio : pr.custo, caixaId: pr.caixa }, salvo);
   }
+  // O preco de atacado (16/nov/2026): a partir de `min` unidades do produto na venda INTEIRA (a soma de todas as linhas do mesmo SKU), cada peca sai
+  // pelo preco de atacado. Atacado e atacado: a promocao nao encosta nele, e ele nao e desconto (nao dispara a liberacao de desconto acima do maximo).
+  // O atacado do produto, ou null: sem atacado, produto fora do catalogo, ou atacado abaixo do minimo da calculadora (a trava: atacado travado nao entra
+  // na venda; sem custo no cadastro o minimo nao tem como ser conferido e ele tambem nao entra). Devolve { preco, min }.
+  function promoAtacado(sku) {
+    const pr = promoProduto(sku);
+    if (!pr) return null;
+    const a = promoPrecos(pr.id);
+    if (!(a.atacado > 0) || !(a.atacadoMin >= 2)) return null;
+    if (a.venda !== null && a.atacado >= a.venda - 0.004) return null;   // o preco de venda pode baixar depois do atacado gravado: o atacado nunca sobe o preco da linha
+    const min = promoMinimoCent(pr);
+    if (min === null || Math.round(a.atacado * 100) < min) return null;
+    return { preco: a.atacado, min: a.atacadoMin };
+  }
+  // A etiqueta da linha de atacado (a classe `promo-tag` da promocao) e o aviso do que falta (so o texto: cada tela o veste no estilo secundario dela).
+  const atacadoEtiqueta = (min) => '<div class="promo-tag"><span class="promo-tag-selo">Atacado</span>a partir de ' + min + ' un.</div>';
+  const atacadoFalta = (qtd, at) => 'faltam ' + String(Math.round((at.min - qtd) * 1000) / 1000).replace('.', ',') + ' para o atacado (' + promoMoeda(at.preco) + ' cada)';
   // "Aplicar preco promocional" fora de promocao: o promocional do cadastro, ou null quando o botao nao aparece.
   function promoNaHoraPreco(sku, precoAtual) { const pr = promoProduto(sku), v = pr ? promoPrecos(pr.id).promocional : null; return v && precoAtual > v + 0.004 ? v : null; }
   // O que impede aplicar, ou null: a trava do minimo, depois a permissao de quem aplica.
@@ -4020,7 +4054,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const i = Number(inp.getAttribute('data-i'));
         const campo = inp.getAttribute('data-campo');
         if (campo === 'qtd') ITENS[i].qtd = paraNumero(inp.value);
-        else if (campo === 'precoLista') { const novo = paraNumero(inp.value); if (Math.abs(novo - ITENS[i].precoLista) >= 0.005) { ITENS[i].promocao = null; ITENS[i].naHora = null; ITENS[i].foraPromo = null; } ITENS[i].precoLista = novo; ITENS[i].desconto = 0; }
+        else if (campo === 'precoLista') { const novo = paraNumero(inp.value); if (Math.abs(novo - ITENS[i].precoLista) >= 0.005) { ITENS[i].promocao = null; ITENS[i].naHora = null; ITENS[i].foraPromo = null; ITENS[i].atacado = false; ITENS[i].precoMao = true; } ITENS[i].precoLista = novo; ITENS[i].desconto = 0; }
         else if (campo === 'un') ITENS[i].un = inp.value.trim().toUpperCase();
         else if (campo === 'sku') { ITENS[i].sku = inp.value.trim().toUpperCase(); ITENS[i].foraDoSaldo = false; aplicarProduto(i);
           // SKU valido traz o preco do produto para o campo "Preco Un" (so a celula e reescrita, para o foco ficar no SKU).
@@ -4033,7 +4067,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         recalcularTotais();
       });
       // O limite da promocao e conferido ao sair do campo (a cada tecla a linha se dividiria no meio da digitacao).
-      if (inp.getAttribute('data-campo') === 'qtd' || inp.getAttribute('data-campo') === 'sku') inp.addEventListener('change', () => { if (promoAjustarLinha(Number(inp.getAttribute('data-i')))) renderItens(); });
+      // O atacado tambem e conferido ao sair do campo; chegou ao minimo, as linhas do produto se juntam e a promocao nao divide nada.
+      if (inp.getAttribute('data-campo') === 'qtd' || inp.getAttribute('data-campo') === 'sku') inp.addEventListener('change', () => { if (atacadoReconciliar() || promoAjustarLinha(Number(inp.getAttribute('data-i')))) renderItens(); });
     });
     corpo.querySelectorAll('[data-editar]').forEach(el => {
       el.addEventListener('click', () => abrirItem(Number(el.getAttribute('data-editar'))));
@@ -4041,6 +4076,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     corpo.querySelectorAll('.item-remover').forEach(el => {
       el.addEventListener('click', () => {
         ITENS.splice(Number(el.getAttribute('data-remover')), 1);
+        atacadoReconciliar();
         renderItens();
       });
     });
@@ -4054,15 +4090,51 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Promocoes e Encartes (entrega 2): a promocao ativa da loja que vale para os vendedores poe o preco dela sozinha, sem senha; o limite e conferido
     // na quantidade (promoAjustarLinha). O preco de venda e o da ficha do produto.
     const pv = promoPrecoVenda(p.sku, p.preco), a = promoNaVenda(p.sku, lojaAtual(), 'vendedores');
-    Object.assign(ITENS[i], { precoVenda: pv, precoLista: a ? a.preco : pv, promocao: a ? a.p.id : null, naHora: null, foraPromo: null });
+    Object.assign(ITENS[i], { precoVenda: pv, precoLista: a ? a.preco : pv, promocao: a ? a.p.id : null, naHora: null, foraPromo: null, atacado: false, atacadoMin: undefined, precoMao: false });
   }
   // O cliente do pedido como chave do limite por cliente da promocao (sem cliente digitado, vale para o pedido).
   const clientePromo = () => promoChaveCliente(document.getElementById('inputCliente').value);
   // A etiqueta embaixo da descricao: "de R$ X por R$ Y" e a promocao (com o link), o preco aplicado na hora, ou o que passou do limite.
   function etiquetaPromo(it) {
+    const falta = faltaAtacado(it);
     return (it.promocao || it.naHora ? promoEtiqueta(it.promocao, it.precoVenda, it.precoLista) : '') +
+      (it.atacado ? atacadoEtiqueta(it.atacadoMin) : (falta && ITENS.indexOf(it) === ITENS.findIndex(x => x.sku === it.sku) ? '<div class="item-saldo">' + falta + '</div>' : '')) +
       (it.excedente ? '<div class="promo-tag">Excedente liberado por ' + (it.excedentePor || '') + '</div>' : '') +
       (it.foraPromo ? '<div class="promo-tag">Pelo preço de venda: ' + it.foraPromo + '</div>' : '');
+  }
+  // O que falta para o atacado (texto), ou '': o produto tem atacado e a soma dele no pedido ainda esta abaixo do minimo.
+  function faltaAtacado(it) {
+    const at = it.atacado || !it.sku ? null : promoAtacado(it.sku);
+    if (!at) return '';
+    const q = ITENS.filter(x => x.sku === it.sku).reduce((s, x) => s + (x.qtd || 0), 0);
+    return q < at.min ? atacadoFalta(q, at) : '';
+  }
+  // O atacado decide pela soma do produto no pedido inteiro (todas as linhas do SKU). Chegou ao minimo: as linhas se juntam numa so, pelo preco de
+  // atacado, sem promocao e sem excedente. Caiu abaixo: o produto volta ao caminho de hoje (preco de venda e a promocao onde ela vale), como se tivesse
+  // acabado de entrar; o desconto do item acompanha. Preco mexido a mao deixa o produto fora dessa conta. Devolve true quando mexeu nos itens.
+  function atacadoReconciliar() {
+    let mexeu = false;
+    ITENS.map(x => x.sku).filter((s, k, a) => s && a.indexOf(s) === k).forEach(sku => {
+      const idx = [];
+      ITENS.forEach((it, i) => { if (it.sku === sku) idx.push(i); });
+      const linhas = idx.map(i => ITENS[i]);
+      if (linhas.some(l => l.precoMao)) return;
+      const at = promoAtacado(sku), qtd = linhas.reduce((s, l) => s + (l.qtd || 0), 0), p = produtoDe(sku);
+      const base = linhas.filter(l => l.desconto)[0] || linhas[0];
+      if (at && qtd >= at.min) {
+        if (linhas.length === 1 && linhas[0].atacado) { linhas[0].atacadoMin = at.min; return; }
+        const nova = { nome: linhas[0].nome, sku: sku, qtd: qtd, un: linhas[0].un, precoLista: at.preco, precoVenda: promoPrecoVenda(sku, p ? p.preco : at.preco), desconto: base.desconto || 0,
+                       obs: linhas[0].obs || '', promocao: null, naHora: null, foraPromo: null, atacado: true, atacadoMin: at.min };
+        idx.slice().reverse().forEach(i => ITENS.splice(i, 1));
+        ITENS.splice(idx[0], 0, nova); mexeu = true;
+      } else if (linhas.some(l => l.atacado) && p) {
+        const nova = { nome: linhas[0].nome, sku: sku, qtd: qtd, un: linhas[0].un, precoLista: 0, desconto: base.desconto || 0, obs: linhas[0].obs || '' };
+        idx.slice().reverse().forEach(i => ITENS.splice(i, 1));
+        ITENS.splice(idx[0], 0, nova);
+        aplicarProduto(idx[0]); promoAjustarLinha(idx[0]); mexeu = true;
+      }
+    });
+    return mexeu;
   }
   // O limite da promocao (total e por cliente): a linha com o preco dela fica com o que cabe, e o resto vai para uma linha logo abaixo, pelo preco de
   // venda, com o motivo. Devolve true quando mexeu nos itens.
@@ -4330,7 +4402,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const it = ITENS[idx];
     const disp = saldoDe(it.sku, depositoAtual());
     // Fora de promocao, com o promocional no cadastro: o botao "Aplicar preco promocional" (com senha).
-    const pn = !it.promocao && !it.naHora && !promoNaVenda(it.sku, lojaAtual(), 'vendedores') ? promoNaHoraPreco(it.sku, precoUnit(it)) : null;
+    const pn = !it.promocao && !it.naHora && !it.atacado && !promoNaVenda(it.sku, lojaAtual(), 'vendedores') ? promoNaHoraPreco(it.sku, precoUnit(it)) : null;
     document.getElementById('drawerTitulo').textContent = 'Dados do item';
     document.getElementById('drawerCorpo').innerHTML =
       '<div class="form-field"><label>Descrição</label><input type="text" id="itNome" value="' + it.nome + '"></div>' +
@@ -4351,6 +4423,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           : '') +
       '</div>' +
       '<div class="form-field"><label>Preço total</label><input type="text" id="itTotal" value="' + fmtNum(totalItem(it)) + '" readonly></div>' +
+      (it.atacado ? '<div class="form-field">' + atacadoEtiqueta(it.atacadoMin) + '<div class="field-hint">O desconto do item vale sobre o preço de atacado.</div></div>' : '') +
+      (faltaAtacado(it) ? '<div class="field-hint" style="margin-bottom:6px;">' + faltaAtacado(it) + '</div>' : '') +
       (it.promocao || it.naHora ? '<div class="form-field">' + promoEtiqueta(it.promocao, it.precoVenda, it.precoLista) +
          (it.promocao ? '<div class="field-hint">O desconto do item vale sobre o preço da promoção.</div>' : '') + '</div>'
        : pn ? '<div class="field-hint" style="margin-bottom:6px;">Fora de promoção. O preço promocional do cadastro é <b>' + fmtMoeda(pn) + '</b>: aplicar pede senha, só quem tem a permissão no cadastro aplica, e abaixo do mínimo da calculadora não entra.</div>' +
@@ -4389,7 +4463,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       it.un = document.getElementById('itUn').value.trim().toUpperCase();
       it.qtd = paraNumero(document.getElementById('itQtd').value);
       const lista = paraNumero(document.getElementById('itLista').value);
-      if (Math.abs(lista - it.precoLista) >= 0.005) { it.promocao = null; it.naHora = null; it.foraPromo = null; }   // preco mexido a mao deixa de ser o da promocao
+      if (Math.abs(lista - it.precoLista) >= 0.005) { it.promocao = null; it.naHora = null; it.foraPromo = null; it.atacado = false; it.precoMao = true; }   // preco mexido a mao deixa de ser o da promocao e o do atacado
       it.precoLista = lista;
       it.desconto = paraNumero(document.getElementById('itDesc').value);
       it.obs = document.getElementById('itObs').value;
@@ -4398,13 +4472,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (autoAcimaLimite(it.desconto, limiteItem)) {
         confirmarAcao('pdvDescontoAcima', 'Liberar desconto de ' + fmtNum(it.desconto) + '% no item "' + it.nome + '"? O máximo sem liberação é ' + autoTextoLimite(limiteItem) + '.', () => {
           fecharDrawer();
-          promoAjustarLinha(idx);
+          if (!atacadoReconciliar()) promoAjustarLinha(idx);
           renderItens();
         });
         return;
       }
       fecharDrawer();
-      promoAjustarLinha(idx);
+      if (!atacadoReconciliar()) promoAjustarLinha(idx);
       renderItens();
     });
 
@@ -5247,7 +5321,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // no pedido de origem enquanto os dois existem na mesma sessao.
       ITENS = ITENS.map(it => ({ nome: it.nome, sku: it.sku, qtd: it.qtd, un: it.un,
                                  precoLista: it.precoLista, desconto: it.desconto, obs: it.obs,
-                                 precoVenda: it.precoVenda, promocao: it.promocao || null, naHora: it.naHora || null, foraPromo: it.foraPromo || null }));
+                                 precoVenda: it.precoVenda, promocao: it.promocao || null, naHora: it.naHora || null, foraPromo: it.foraPromo || null,
+                                 atacado: !!it.atacado, atacadoMin: it.atacadoMin, precoMao: !!it.precoMao }));
     }
 
     document.getElementById('tituloPedido').textContent =

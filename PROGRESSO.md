@@ -1,4 +1,4 @@
-*Atualizado em 12/nov/2026: a entrega 2 de Usuários do sistema (o código de autorização no lugar da senha mocada, o limite de desconto por pessoa e o pacote do gerente na promoção) foi implementada e está esperando o teste dele. O próximo da fila é o preço de atacado.*
+*Atualizado em 16/nov/2026: o preço de atacado (ficha do produto, PDV e Pedido de Venda) foi implementado e está esperando o teste dele. O próximo da fila é a revisão geral.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -7,6 +7,18 @@ aprovada, o texto dela sai daqui e vai para o começo do [HISTORICO.md](HISTORIC
 As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do design system.
 
 ## Onde paramos
+
+**O preço de atacado: implementado em 16/nov/2026, esperando o teste dele.** A ficha do produto ganhou, na aba Preços, o "Preço de atacado" e o "A partir de N unidades" (saiu a
+seção "Preço por lista"); no PDV e no Pedido de Venda, chegou à quantidade mínima, a linha vira o preço de atacado sozinha (a soma do produto na venda inteira decide, a promoção
+não divide e não conta uso), e antes do mínimo a linha avisa "faltam N para o atacado (R$ X cada)". O atacado não é desconto. O detalhe está no §14.112 e o plano em `docs/plano-preco-atacado.md`.
+O que conferir (a Luminária de Mesa LED já tem atacado de exemplo: R$ 72,90 a partir de 6, com o preço de venda em R$ 79,90; o Kit Papelaria, R$ 59,50 a partir de 10; os códigos de exemplo: 1234 do Administrador, 2468 do Carlos):
+- A ficha, aba Preços: [Luminária, com o atacado de exemplo](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=8) e
+  [Fone de Ouvido, para testar as travas](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1): só o preço sem a quantidade, quantidade 1, preço igual
+  ao de venda e preço abaixo de R$ 79,28 (o mínimo da calculadora) recusam, com a mensagem no campo; salvar cria duas linhas no histórico do preço.
+- O PDV: [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html), abra o caixa na Desk Shope, ponha 5 Luminárias (a linha diz "faltam 1 para o atacado (R$ 72,90 cada)"), depois mais 1 (vira "Atacado, a partir de
+  6 un." a R$ 72,90; a prévia de "Adicionar produto" já mostra o atacado quando a soma chega a 6); o Kit Papelaria com 10 sai a R$ 59,50 mesmo com a promoção ativa.
+- O Pedido de Venda: [novo pedido](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?novo=1), loja Desk Shope, o mesmo caminho (a conferência acontece ao sair do campo da
+  quantidade). Diminuir a quantidade abaixo do mínimo devolve o preço de venda.
 
 **Usuários do sistema e Permissões de usuários, entrega 2: testada por ele em 16/nov/2026** ("os demais testes passaram"). O que ele
 pediu no teste ficou para a revisão geral (itens 14 a 18). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.111.
@@ -21,7 +33,7 @@ estão na revisão geral (itens 10 a 12). O texto da entrega foi para o HISTORIC
 
 **Promoções e Encartes, entrega 1: testada por ele em 09/nov/2026.** Os ajustes que ele pediu estão na revisão geral (itens 4 a 9) e ficam para ela; o texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.108.
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 6 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 4 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
 **Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
@@ -70,21 +82,18 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
-   unidades"; no Pedido de Venda, a linha que chega à quantidade mínima troca o preço sozinha. Vale para empresa e para pessoa
-   física que assuma os impostos (como o imposto entra na nota fica para Notas Fiscais, com o contador). Passa pela trava do mínimo.
-2. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
-3. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
-4. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-5. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+1. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
+2. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+3. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+4. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-6. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-7. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-8. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+5. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+6. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+7. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
