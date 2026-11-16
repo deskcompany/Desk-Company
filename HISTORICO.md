@@ -10,6 +10,14 @@ entrega continua no §14 do design system, e o código no `git log`.
 
 ## Entregas, da mais nova para a mais velha
 
+### Usuários do sistema e Permissões de usuários, entrega 2 (12-16/nov/2026) — testada pelo usuário em 16/nov ("os demais testes passaram"); o que ele pediu no teste está na revisão geral do PROGRESSO (itens 14 a 18)
+
+O código de autorização entrou no lugar da senha mocada nas 95 telas que têm o envelope da senha: quem libera digita o **código dele** (4 a 6 números) e o sistema passa a saber **quem autorizou**; o registro de atividades grava "autorizado por <nome>". O limite de desconto sem liberação passou a ser **por pessoa** (o do vendedor da venda), no PDV e no Pedido de Venda (que não tinha limite). O pacote do gerente na promoção: o preço promocional fora da promoção só com quem tem a permissão (o gerente), e o botão **"Aplicar preço promocional no excedente"**, que divide a linha e libera N peças pelo preço da promoção sem consumir a cota do cliente. A ficha do vendedor virou ponte para o usuário vinculado. Detalhe técnico no §14.111; o plano em [docs/plano-usuarios-entrega-2.md](docs/plano-usuarios-entrega-2.md). Selo: 67 suítes e 9.564 asserções, provado nos dois sentidos com 4 defeitos de propósito; só `teste_cpd.py` reprova, e é de antes (item 13 da revisão geral). **O que conferir:**
+- Excluir um cliente: <http://localhost:3000/cadastros/pagina-cadastros-clientes.html>. O modal pede o "Código de autorização": 9999 dá "Código inválido.", 3456 (Marina) dá "Esse código não libera esta ação." e 1234 libera.
+- O registro: <http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html>. A linha da exclusão mostra "autorizado por Administrador Desk".
+- O PDV: <http://localhost:3000/vendas/pagina-vendas-pdv.html>. Com a Marina de vendedora, desconto de 19% na venda: o aviso diz "limite de Marina Costa" (18%). A Juliana Prado com 5 do Kit Papelaria: 2 pela promoção e 3 pelo preço de venda, e na linha dos 3 o botão do excedente pede o 2468 (Carlos, gerente) ou o 1234.
+- Os códigos de exemplo: 1234 Administrador Desk, 2468 Carlos Mendes, 3456 Marina Costa, 4567 Ana Souza; o Rafael Andrade (5678) está bloqueado, e a Bianca Furtado e a Fernanda Lima não têm código.
+
 ### Usuários do sistema e Permissões de usuários, entrega 1 (10-11/nov/2026) — testada pelo usuário em 11/nov ("os testes passaram")
 
 Quatro telas novas em Configurações (as duas listas abrem pelo hub, aba Geral). O detalhe está no §14.110; a suíte `teste_usuarios.py` tem 345 asserções. **O que conferir:**

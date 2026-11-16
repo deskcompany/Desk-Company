@@ -8,15 +8,10 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Usuários do sistema e Permissões de usuários, entrega 2: implementada em 12/nov e fechada em 16/nov/2026 (selo verde, menos o item 13 da revisão geral, que é de antes), esperando o teste dele.**
-O código de autorização entrou no lugar da senha mocada nas 95 telas que têm o envelope da senha: quem libera digita o **código dele**
-(4 a 6 números) e o sistema passa a saber **quem autorizou** — o registro de atividades grava "autorizado por <nome>". O limite de desconto
-sem liberação passou a ser **por pessoa** (o do vendedor da venda), no PDV e no Pedido de Venda (que não tinha limite). O pacote do gerente
-na promoção: o preço promocional fora da promoção só com quem tem a permissão (o gerente), e o botão **"Aplicar preço promocional no
-excedente"**, que divide a linha e libera N peças pelo preço da promoção sem consumir a cota do cliente. A ficha do vendedor virou ponte
-para o usuário vinculado. Detalhe técnico no §14.111; o plano da entrega em [docs/plano-usuarios-entrega-2.md](docs/plano-usuarios-entrega-2.md).
-**Para testar, os códigos de exemplo:** 1234 do Administrador Desk (Owner, libera tudo), 2468 do Carlos Mendes (Gerente), 3456 da Marina
-Costa, 4567 da Ana Souza; o Rafael Andrade (5678) está bloqueado, e a Bianca Furtado e a Fernanda Lima não têm código.
+**Usuários do sistema e Permissões de usuários, entrega 2: testada por ele em 16/nov/2026** ("os demais testes passaram"). O que ele
+pediu no teste ficou para a revisão geral (itens 14 a 18). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.111.
+**Os códigos de exemplo:** 1234 do Administrador Desk (Owner, libera tudo), 2468 do Carlos Mendes (Gerente), 3456 da Marina Costa,
+4567 da Ana Souza; o Rafael Andrade (5678) está bloqueado, e a Bianca Furtado e a Fernanda Lima não têm código.
 
 **Usuários do sistema e Permissões de usuários, entrega 1: testada por ele em 11/nov/2026** ("os testes passaram"). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.110. O resto do módulo é a entrega 2, o primeiro da fila.
 
@@ -203,7 +198,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
   (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem
   refeitas na produção, ou antes se alguém trabalhar em 1280 todo dia. A suíte `teste_barra_tabelas.py` segura as três
-  como estão.
+  como estão. **Reaberta por ele em 16/nov/2026:** tirar a barra virou o item 17 da revisão geral.
 
 ## Para a próxima revisão geral
 
@@ -262,6 +257,32 @@ Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
     passava em 09/nov e reprova desde então, inclusive nas telas do commit de 11/nov, antes da entrega 2 de Usuários. O jeito
     é de teste preso à data de hoje (a conta parcelada tem parcelas que vencem com o tempo). Conferir se a conta de exemplo
     mudou de situação com a data ou se o "Excluir" do grupo deixou de perguntar o escopo.
+
+Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
+
+14. **Menu no fim da página abre para cima.** No PDV, o "Adicionar recebimento (F4)" fica no pé da tela e a lista abre
+    para baixo, saindo da tela (bug visual). Quando não houver espaço embaixo, o menu abre para cima. Corrigir no bloco
+    comum do menu e conferir os outros que ficam no fim da página ("Mais ações", os seletores do rodapé).
+15. **Registro de atividades: clicar na ação abre o painel lateral** (o padrão da casa), com tudo o que não cabe na
+    linha: o texto inteiro que a pessoa confirmou, quem fez, quem autorizou, onde, quando e o registro. Com o painel, a
+    coluna "Ação" diminui e corta o texto com reticências.
+16. **Registro de atividades: tirar a barra de rolagem lateral.** Com o registro cheio (126 linhas no navegador dele), a
+    coluna "Ação" e o "autorizado por <nome>" da coluna "Quem" alargam a tabela, e a coluna "Confirmação" sai da caixa.
+    `teste_barra_tabelas.py` não pegou porque mede a tela como ela abre, e no navegador do teste o registro abre vazio:
+    a suíte passa a medir esta tela com o registro cheio.
+17. **As outras telas com barra de rolagem lateral** (a regra é evitar ao máximo). A varredura de 16/nov, nas 96 telas
+    como abrem, achou três a 1280px de largura: Necessidades de Compra (+97px), CRM (+94px) e Metas (+158px). São as
+    três que ele tinha deixado com barra em 19/out (em "Decidido", "A barra que ficou"); o pedido de agora reabre
+    essa decisão. A 1440px nenhuma tela rola.
+18. **Título de coluna quebrando em duas linhas.** Em Usuários, "Desconto sem senha" quebra (a coluna tem 78px e a de
+    "Usuário" tem 251px): diminuir "Usuário", que já abre o painel ao clicar, e acertar as outras para os títulos
+    ficarem numa linha só. Desde a entrega 2 a liberação é por código, então o título pode virar "Desconto sem
+    liberação"; decidir na revisão. A mesma varredura achou títulos quebrando (quase sempre a setinha de ordenar caindo
+    para a linha de baixo) em 20 telas a 1280px e em 8 a 1440px: Perfis de usuário, Usuários, Giro de Estoque,
+    Necessidades de Compra, Ordem de Compra (itens), Custos do E-commerce, Pedido de Venda (itens) e Promoção (detalhe)
+    quebram nas duas larguras; só a 1280, Formas de Recebimento, Conferência de Entrada, Controle de Estoques,
+    Endereçamento, Entrada de Notas, Itens Bloqueados, Comissões, Conferência de Saída, Expedição, Rastreamento,
+    Separação, Pedidos de Venda e Promoções.
 
 ## Esperando decisão do usuário
 
