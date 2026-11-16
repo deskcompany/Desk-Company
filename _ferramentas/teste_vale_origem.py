@@ -111,7 +111,7 @@ with sync_playwright() as p:
     def confirmar():
         """Confirma o painel aberto, com a senha quando ele pede, e espera o resultado."""
         if pg.evaluate("(() => { const r = document.getElementById('campoSenhaModal'); return !!r && r.classList.contains('on'); })()"):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
     def fechar_modal():

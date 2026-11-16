@@ -109,7 +109,7 @@ with sync_playwright() as p:
     def confirmar():
         """Confirma o painel aberto, com a senha quando ele pede, e espera o resultado."""
         if pg.evaluate("(() => { const r = document.getElementById('campoSenhaModal'); return !!r && r.classList.contains('on'); })()"):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
     def cancelar_modal():
@@ -626,7 +626,7 @@ with sync_playwright() as p:
                'excluir pede senha e diz que a conta financeira sai junto: %s' % m[:90])
             pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(250)
             ok(len(gws()) == 6 and pg.evaluate("document.getElementById('campoSenhaModal').classList.contains('has-error')"), 'confirmar sem a senha é barrado, e nada sai')
-            pg.fill('#inputSenhaModal', 'x'); clic('#btnConfirmModalConfirmar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+            pg.fill('#inputSenhaModal', '1234'); clic('#btnConfirmModalConfirmar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
             ok(len(gws()) == 5 and all(x['id'] != 6 for x in gws()) and pg.url.endswith('pagina-integracoes-gateways.html'), 'com a senha o gateway sai e a página volta para a lista')
             ok(any(e['chave'] == 'gatewayExcluir' and e['senha'] for e in log()), 'a exclusão entra no registro, com senha')
             ir(DET, '?id=6')

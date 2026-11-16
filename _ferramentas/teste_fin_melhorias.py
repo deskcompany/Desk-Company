@@ -198,7 +198,7 @@ with sync_playwright() as p:
         linha(alvo)
         pg.evaluate("document.getElementById('btnBaixarDaConta').click()"); pg.wait_for_timeout(300)
         pg.evaluate("document.getElementById('btnConfirmarRecebimento').click()"); pg.wait_for_timeout(300)
-        pg.evaluate("(() => { const m = document.getElementById('confirmModal'); if (m && m.classList.contains('open')) { const s = document.getElementById('inputSenhaModal'); if (s && s.offsetParent) s.value = 'senha-de-teste'; document.getElementById('btnConfirmModalConfirmar').click(); } })()")
+        pg.evaluate("(() => { const m = document.getElementById('confirmModal'); if (m && m.classList.contains('open')) { const s = document.getElementById('inputSenhaModal'); if (s && s.offsetParent) s.value = '1234'; document.getElementById('btnConfirmModalConfirmar').click(); } })()")
         pg.wait_for_timeout(450)
         ok(pg.evaluate("(id) => saldoDe(titDe(id)) === 0", alvo), 'recebendo uma conta pelo painel, ela fica quitada')
         ir(CAIXA)

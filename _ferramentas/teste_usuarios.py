@@ -23,6 +23,7 @@
 #   [9]  A lista de perfis: excluir so perfil sem usuario, clonar, o Owner
 #   [10] Bloquear e ativar; so o Owner altera; o Registro de atividades
 #   [11] Os dois temas, em 1280 e 1440: sem barra para o lado e o menu abre para baixo
+#   [12] O codigo de autorizacao (entrega 2): o bloco novo nas 95 telas, o campo do modal, o codigo conferido de verdade e as duas fabricas
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, re, sys, shutil, tempfile
 import localiza
@@ -435,7 +436,7 @@ with sync_playwright() as p:
            'trocar o perfil de quem já existe pede a senha (usuarioPermissoes), dizendo de qual perfil para qual')
         confirmar('')
         ok([u for u in usuarios() if u['id'] == 8][0]['perfilId'] == 4, 'senha vazia: o perfil não troca')
-        confirmar('qualquer')
+        confirmar('1234')
         ok([u for u in usuarios() if u['id'] == 8][0]['perfilId'] == 6 and len(log('usuarioPermissoes')) == 1 and log('usuarioPermissoes')[0]['senha'] is True, 'com a senha, troca e registra a ação usuarioPermissoes com senha')
         # a rodape de salvar conta o que mudou
         ir(DU, '?id=8')
@@ -559,7 +560,7 @@ with sync_playwright() as p:
         ok(modal_aberto() and ev("document.getElementById('campoSenhaModal').classList.contains('on')") and 'Alterar as permissões do perfil "Gerente geral"' in ev("document.getElementById('confirmModalTexto').textContent"), 'mudar a grade do perfil pede a senha (perfilPermissoes)')
         confirmar('')
         ok(modal_aberto() and [x for x in perfis() if x['id'] == 2][0]['descricao'] != 'Descrição nova', 'sem a senha não grava')
-        confirmar('minha')
+        confirmar('1234')
         pg.wait_for_timeout(300)
         g = [x for x in perfis() if x['id'] == 2][0]
         ok(g['descricao'] == 'Descrição nova' and 'caixa.fecharPeriodo' not in g['perms'] and 'caixa' in g['perms'] and len(log('perfilPermissoes')) == 1 and log('perfilPermissoes')[0]['senha'] is True, 'com a senha grava a grade nova e registra a ação perfilPermissoes, com senha')
@@ -579,7 +580,7 @@ with sync_playwright() as p:
         abrir_aba('financas'); marcar_grade('contasPagar.pagar'); marcar_grade('contasReceber')
         clica('#btnSalvar')
         ok(modal_aberto(), 'perfil novo com permissões também pede a senha')
-        confirmar('x'); pg.wait_for_timeout(300)
+        confirmar('1234'); pg.wait_for_timeout(300)
         novo = [x for x in perfis() if x['nome'] == 'Financeiro'][0]
         ok(novo['id'] == 7 and sorted(novo['perms']) == ['contasPagar', 'contasPagar.pagar', 'contasReceber'] and novo['descontoPct'] == 0, 'o perfil novo gravou com as chaves da grade e o desconto 0: %s' % novo['perms'])
         ok(localiza.nome(pg.url) == LP + '?salvo=7&novo=1' and len(log('perfilInclui')) == 1, 'volta para a lista e o registro diz que incluiu')
@@ -620,7 +621,7 @@ with sync_playwright() as p:
         clica('#btnSalvarAvulsas')
         ok(modal_aberto() and 'Alterar as permissões avulsas de Ana Souza' in ev("document.getElementById('confirmModalTexto').textContent") and ev("document.getElementById('campoSenhaModal').classList.contains('on')"), 'salvar as avulsas pede a senha (usuarioPermissoes)')
         ok([u for u in usuarios() or [] if u['id'] == 4] == [] or [u for u in usuarios() if u['id'] == 4][0]['perms'] == [], 'antes da senha nada grava')
-        confirmar('ok'); pg.wait_for_timeout(200)
+        confirmar('1234'); pg.wait_for_timeout(200)
         ana = [u for u in usuarios() if u['id'] == 4][0]
         ok(set(ana['perms']) >= {'controleEstoques', 'controleEstoques.exportar', '@pdvDescontoAcima'} and not (set(ana['perms']) & set(do_perfil)), 'gravou só o que o perfil não dá: %s' % sorted(ana['perms'])[:6])
         ok(len(log('usuarioPermissoes')) == 1 and log('usuarioPermissoes')[0]['senha'] is True, 'e registrou a ação com senha')
@@ -637,7 +638,7 @@ with sync_playwright() as p:
         ok(not modal_aberto() and len(log('usuarioPermissoes')) == 1, 'salvar sem mudar nada não pede senha nem registra')
         ir(DU, '?id=4'); clica('#btnEditarAvulsas'); abrir_aba('estoque'); marcar_grade('controleEstoques', False)
         ok(not ev("document.querySelector('#gradeAvulsas .pg-chk[data-chave=\"controleEstoques.exportar\"]').checked"), 'tirar a tela avulsa tira as funções avulsas dela')
-        clica('#btnSalvarAvulsas'); confirmar('x'); pg.wait_for_timeout(200)
+        clica('#btnSalvarAvulsas'); confirmar('1234'); pg.wait_for_timeout(200)
         ok('controleEstoques' not in [u for u in usuarios() if u['id'] == 4][0]['perms'], 'e grava a retirada')
         # o perfil trocado: o que o novo perfil dá nao fica duplicado nas avulsas
         ir(DU, '?id=1')
@@ -654,7 +655,7 @@ with sync_playwright() as p:
         kp = ev("Array.from(document.querySelectorAll('#indicadoresPerfis .kpi-card')).map(c => [c.querySelector('.kpi-label').textContent.trim(), c.querySelector('.kpi-value').textContent.trim()])")
         ok(kp == [['Perfis', '6'], ['Usuários com perfil', '7'], ['Perfis sem usuário', '0']], 'indicadores: perfis, usuários com perfil, perfis sem usuário: %s' % kp)
         # a lista de perfis nao tem perfil sem usuario ainda: o Financeiro nasce sem
-        ir(DP, '?novo=1'); preenche('#inputNome', 'Separador'); preenche('#inputDesconto', '5'); abrir_aba('logistica'); marcar_grade('separacao.separar'); clica('#btnSalvar'); confirmar('x'); pg.wait_for_timeout(300)
+        ir(DP, '?novo=1'); preenche('#inputNome', 'Separador'); preenche('#inputDesconto', '5'); abrir_aba('logistica'); marcar_grade('separacao.separar'); clica('#btnSalvar'); confirmar('1234'); pg.wait_for_timeout(300)
         ir(LP)
         ok(ev("document.querySelector('#indicadoresPerfis [data-kpi=\"semUsuario\"] .kpi-value').textContent") == '1', 'o perfil novo, sem ninguém, entra em "Perfis sem usuário"')
         ok(ev("document.querySelector('#indicadoresPerfis [data-kpi=\"semUsuario\"]').click(), Array.from(document.querySelectorAll('#corpoTabela tr .up-nome')).map(e => e.textContent.trim())") == ['Separador'], 'o indicador filtra só os perfis sem usuário')
@@ -786,6 +787,58 @@ with sync_playwright() as p:
         ok(all(r), 'e em 1280')
         pg.set_viewport_size({'width': 1440, 'height': 900})
         ok(not [e for e in erros if 'ERR_' not in e and 'Failed to load' not in e], 'nenhum erro de JavaScript em toda a rodada: %s' % erros[:2])
+    # ------------------------------------------------------------------------------------------------
+    if secao(12, 'O codigo de autorizacao no lugar da senha mocada (entrega 2)'):
+        INI = '  // ===== AUTORIZACAO: O CODIGO (bloco comum, 12/nov/2026) ====='
+        FIM = '  // ===== FIM DO BLOCO AUTORIZACAO ====='
+        blocos, com_envelope, sem_bloco = {}, 0, []
+        for c in sorted(localiza.caminhos()):
+            t2 = open(c, encoding='utf-8').read()
+            if '===== REGISTRO DE ATIVIDADES =====' not in t2: continue
+            com_envelope += 1
+            if INI not in t2:
+                sem_bloco.append(_os.path.basename(c)); continue
+            i = t2.index(INI); j = t2.index(FIM, i) + len(FIM)
+            blocos.setdefault(t2[i:j].replace(chr(13) + chr(10), chr(10)), []).append(_os.path.basename(c))
+        ok(not sem_bloco, 'as %d telas com o envelope da senha tem o bloco do codigo: %s' % (com_envelope, sem_bloco[:4]))
+        ok(len(blocos) == 1 and len(list(blocos.values())[0]) == com_envelope, 'o bloco e IDENTICO nas %d telas' % com_envelope)
+        # o campo do modal pede o codigo, e nao a senha
+        CLIENTES = 'pagina-cadastros-clientes.html'
+        ir(CLIENTES)
+        ok(ev("document.querySelector('#campoSenhaModal label').textContent.trim()") == 'Código de autorização', 'o campo do modal pede o código de autorização')
+        ok(ev("document.getElementById('inputSenhaModal').placeholder") == 'Informe o código de quem autoriza', 'e o placeholder diz de quem é o código')
+        # um codigo que nao e de ninguem nao libera
+        ev("""() => { window.__ran = false; confirmarAcao('clientesExclui', 'Confirma esta exclusao?', () => { window.__ran = true; }); }""")
+        ok(modal_aberto(), 'a confirmacao abre com o campo do codigo')
+        preenche('#inputSenhaModal', '9999'); clica('#btnConfirmModalConfirmar'); pg.wait_for_timeout(200)
+        ok(not ev("window.__ran") and modal_aberto(), 'um codigo que nao e de ninguem nao libera, e a acao nao acontece')
+        ok(ev("document.getElementById('campoSenhaModal').classList.contains('has-error')"), 'e o campo fica no estado de erro')
+        msg = ev("document.querySelector('#campoSenhaModal .confirm-senha-erro').textContent")
+        ok('inválido' in msg, 'a mensagem diz que o codigo e invalido: %s' % msg)
+        # um codigo que existe, mas de quem nao tem a permissao da acao
+        preenche('#inputSenhaModal', '3456'); clica('#btnConfirmModalConfirmar'); pg.wait_for_timeout(200)
+        ok(not ev("window.__ran") and modal_aberto(), 'o codigo da Marina (3456) nao libera uma acao de Cadastros: ela nao tem essa permissao')
+        msg = ev("document.querySelector('#campoSenhaModal .confirm-senha-erro').textContent")
+        ok('não libera esta ação' in msg, 'e a mensagem diz que esse codigo nao libera esta acao: %s' % msg)
+        # o codigo de quem tem a permissao libera, e o registro guarda QUEM
+        preenche('#inputSenhaModal', '1234'); clica('#btnConfirmModalConfirmar'); pg.wait_for_timeout(300)
+        ok(ev("window.__ran"), 'o codigo 1234 (Administrador Desk, Owner) libera a acao')
+        lg = log('clientesExclui')
+        ok(lg and lg[0]['autorizadoPor'] == 'Administrador Desk', 'o registro de atividades guarda QUEM autorizou: %s' % (lg[:1],))
+        ok(lg and lg[0]['senha'] is True, 'e continua guardando que houve confirmacao')
+        # o Registro de atividades mostra quem autorizou
+        ir(REG)
+        ok('autorizado por Administrador Desk' in ev("document.getElementById('corpoTabela').textContent"), 'a tela do Registro de atividades mostra quem autorizou')
+        # as duas fabricas nao divergem
+        ev("localStorage.clear()"); ir(LU); pg.wait_for_timeout(200)
+        r = ev("""() => { const u = autoUsuarios(), p = autoPerfis(), uf = UP_USUARIOS_FABRICA, pf = UP_PERFIS_FABRICA, dif = [], difP = [];
+            uf.forEach(x => { const y = u.filter(z => z.id === x.id)[0]; if (!y) { dif.push(x.nome + ' sumiu'); return; }
+                ['id','nome','login','situacao','perfilId','perms','descontoPct','vendedorId','codigoHash'].forEach(c => { if (JSON.stringify(x[c] === undefined ? null : x[c]) !== JSON.stringify(y[c] === undefined ? null : y[c])) dif.push(x.nome + '.' + c); }); });
+            pf.forEach(x => { const y = p.filter(z => z.id === x.id)[0]; if (!y) { difP.push(x.nome + ' sumiu'); return; }
+                ['id','nome','descontoPct','perms'].forEach(c => { if (JSON.stringify(x[c] === undefined ? null : x[c]) !== JSON.stringify(y[c] === undefined ? null : y[c])) difP.push(x.nome + '.' + c); }); });
+            return [dif, difP]; }""")
+        ok(not r[0] and not r[1], 'as duas fabricas (a do bloco novo e a da entrega 1) nao divergem: %s %s' % (r[0], r[1]))
+
     nav.close()
 
 print('\n%d asserções' % total[0])

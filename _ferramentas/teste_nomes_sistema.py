@@ -97,7 +97,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(500)
     ok(pg.locator('#confirmModal.open').count() == 1, 'o modal de confirmacao abriu')
     ok(pg.locator('#campoSenhaModal').is_visible(), 'e com o campo de senha, porque exigePadrao e true')
-    pg.fill('#inputSenhaModal', 'seiasenha')
+    pg.fill('#inputSenhaModal', '1234')
     clicar(pg, '#btnConfirmModalConfirmar')
     pg.wait_for_timeout(600)
 
@@ -123,7 +123,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(200)
     clicar(pg, '#btnSalvarNomes'); pg.wait_for_timeout(500)
     if pg.locator('#campoSenhaModal').is_visible():
-        pg.fill('#inputSenhaModal', 'seiasenha')
+        pg.fill('#inputSenhaModal', '1234')
     clicar(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(500)
     pg.goto(localiza.http('pagina-configuracoes-motivos-devolucao.html'))
     pg.wait_for_load_state('load'); pg.wait_for_timeout(800)
@@ -145,7 +145,7 @@ with sync_playwright() as p:
     clicar(pg, '#btnSalvarNomes')
     pg.wait_for_timeout(500)
     if pg.locator('#campoSenhaModal').is_visible():
-        pg.fill('#inputSenhaModal', 'seiasenha')
+        pg.fill('#inputSenhaModal', '1234')
     clicar(pg, '#btnConfirmModalConfirmar')
     pg.wait_for_timeout(500)
 

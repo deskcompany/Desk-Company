@@ -31,44 +31,51 @@ autoriza, em vez de uma senha qualquer. O sistema passa a saber **quem** autoriz
   binário/texto com `newline=''` (a regra do §14.109: script em massa não troca CRLF por LF).
 - O bloco **não** repete o `PERMISSOES: O CATALOGO` (que fica nas 4 telas de usuários). Ele
   guarda só o que a autorização precisa:
-  - `autoHash(texto, sal)`: **a mesma** FNV-1a de 32 bits com o login como sal do `upHash`
-    (mesmo resultado, prefixo `fnv1a:`). Nome novo, para não colidir com `upHash` nas 5 telas
+  - `autoHash(texto, sal)`: **a mesma** FNV-1a de 32 bits do `upHash` (prefixo `fnv1a:`, 8 hex),
+    com o sal do jeito que o produto grava: `upHash(novo, 'codigo|' + U.login)`. **O sal é
+    `'codigo|' + login`** — o mesmo `upHash` calcula `sal + '|' + texto`, ou seja
+    `'codigo|administrador@desk|1234'`. Nome novo (`autoHash`), para não colidir com `upHash` nas 5 telas
     que já têm o bloco `USUARIOS E PERFIS`.
   - `autoUsuarios()` / `autoPerfis()`: leem `deskUsuarios` e `deskPerfis` do navegador; se
     não houver nada gravado, usam a **fábrica** (a mesma da entrega 1, ver abaixo). O Owner
     nunca vem do armazenamento: o que estiver gravado para o perfil 1 é ignorado e ele volta
     como de fábrica (`perms: ['*']`, sem limite de desconto).
-  - `autoAcoesDo(perms)`: expande atalhos **só para chaves de ação** (`@chave`), porque é só
-    isso que a autorização precisa: `*` (todas), `@grupo:X` (as ações do grupo X),
-    `modulo:y` (as ações cujo grupo pertence ao módulo y) e `@chave` explícita. O universo de
-    ações é o mesmo de `permAcoes()`: `ACOES_SENHA.filter(a => a.pronto && a.ligado &&
-    exigeSenha(a.chave))`. O mapa grupo → módulo é o mesmo de `PERM_GRUPO_MODULO` (8 grupos,
-    com `Operacional` caindo em `configuracoes`).
   - `autoAutorizado(codigo, acaoChave)`: devolve `{ ok, usuario, mensagem }`.
     1. O código precisa ter de 4 a 6 números (só números).
     2. Acha o usuário **ativo**, com código definido, cujo `codigoHash` bate com
-       `autoHash(codigo, usuario.login)`.
-    3. Esse usuário precisa ter a ação na permissão efetiva (perfil + avulsas).
+       `autoHash(codigo, 'codigo|' + usuario.login)`.
+    3. Esse usuário precisa ter a ação na permissão efetiva (perfil + avulsas). A ação está
+       liberada quando as permissões efetivas têm `'*'` (Owner), `'@' + acaoChave` (avulsa
+       exata) ou `'@grupo:' + grupoDaAcao`, onde `grupoDaAcao` é o `grupo` da ação no
+       `ACOES_SENHA` **da tela onde o código está sendo pedido**. **`modulo:` NÃO concede
+       ação** — como na grade de Permissões, `modulo:` dá acesso às telas do módulo e as ações
+       vêm de `@grupo:` (é assim que o perfil Gerente libera ação: `@grupo:Vendas` etc.).
+       Ação que não existe no `ACOES_SENHA` da tela não tem grupo: só `'*'` ou `'@chave'`.
     4. `ok: true` devolve o usuário (o log passa a guardar **quem** autorizou).
-- **Sem usuário nenhum cadastrado** (nem na fábrica, nem gravado): o modal segue aceitando
-  qualquer código não vazio, como antes. Comente no código com a forma
-  `shortcut: <o limite>, <quando subir>`: sem pessoas cadastradas, não há quem autorize.
+  - **Não existe o atalho "sem usuário nenhum cadastrado"**: o bloco traz a fábrica, e o
+    `localStorage` vazio cai nela — sempre há alguém. O caminho "aceita qualquer código" é
+    código morto e não se implementa.
 - **A fábrica dentro do bloco:** os 7 usuários e os 6 perfis da entrega 1, com os mesmos
   campos. Cuidado com os hashes: a entrega 1 gravou *placeholders* (`'fnv1a:1c2f8a90'`), que
   ninguém pode digitar. **Troque pelos hashes reais dos códigos de exemplo**, calculados com
-  a mesma FNV-1a (`autoHash(codigo, login)`), para que o protótipo possa ser testado:
-  - Administrador Desk (Owner, perfil 1) — código **1234**
-  - Carlos Mendes (Gerente, perfil 2) — código **2468**
-  - Marina Costa (Supervisor, perfil 3) — código **3456**
-  - Ana Souza (Vendedor interno, perfil 4) — código **4567**
-  - Bianca Furtado, Fernanda Lima e Rafael Andrade (bloqueado): os três **sem código** — são
-    os que a entrega 1 já deixou sem código; deixe-os sem código (`codigoHash: null`).
+  a mesma FNV-1a e o sal `'codigo|' + login` (ver `autoHash` acima):
+  - Administrador Desk (Owner, perfil 1) — código **1234** → `fnv1a:805464f4`
+  - Carlos Mendes (Gerente, perfil 2) — código **2468** → `fnv1a:29085c4f`
+  - Marina Costa (Supervisor, perfil 3) — código **3456** → `fnv1a:35a61599`
+  - Ana Souza (Vendedor interno, perfil 4) — código **4567** → `fnv1a:fe7ed2a1`
+  - Rafael Andrade (Representante externo, perfil 6) — código **5678** → `fnv1a:10e9bbf5`.
+    Ele está **bloqueado**, então não autoriza mesmo.
+  - **Bianca Furtado e Fernanda Lima continuam sem código** (`codigoHash: null`). São os dois
+    que a entrega 1 já deixou sem código, e é o que o painel de Usuários mostra
+    ("Sem código de autorização: 2" e a lista de quem é). **Rafael Andrade tem código e
+    está bloqueado** — não confundir: "sem código" e "bloqueado" são coisas diferentes.
   Os códigos de exemplo são dado de exemplo (§14.73): registre-os no HISTORICO.md e no
   PROGRESSO.md ("para testar: 1234 do Administrador Desk, 2468 do Carlos Mendes").
 - **A fábrica da entrega 1** (`UP_USUARIOS_FABRICA` / `UP_PERFIS_FABRICA`, nas 5 telas que têm
   `USUARIOS E PERFIS`) **precisa ficar igual** à do bloco novo, nos campos que importam
-  (id, nome, login, situacao, perfilId, perms, descontoPct, vendedorId, codigoHash). A suíte
-  compara as duas fábricas; se divergirem, o selo reprova.
+  (id, nome, login, situacao, perfilId, perms, descontoPct, vendedorId, codigoHash) — e os
+  `codigoHash` placeholder de lá também viram os hashes reais, senão as duas fábricas
+  divergem. A suíte compara as duas fábricas; se divergirem, o selo reprova.
 - **O modal (markup das 95 telas):** o rótulo "Sua senha" vira **"Código de autorização"**; o
   placeholder "Informe sua senha para confirmar" vira **"Informe o código de quem autoriza"**;
   o texto de erro ("Informe sua senha para confirmar esta exclusão." / "…esta ação.") vira
@@ -94,11 +101,39 @@ autoriza, em vez de uma senha qualquer. O sistema passa a saber **quem** autoriz
   Confirmações por senha), a assinatura do `abrirModalConfirmacao` (3 assinaturas no sistema),
   o `confirmarAcao`, o catálogo ACOES_SENHA e a tela de Confirmações por senha.
 
+### As suítes que o código de verdade quebra (achado na auditoria, 12/nov)
+
+Com o código conferido de verdade, **preencher o campo com uma senha qualquer deixa de
+autorizar**. São ~42 pontos em 28 arquivos de suíte que hoje preenchem `'senha-de-teste'`,
+`'senha'`, `'senha123'`, `'seiasenha'`, `'x'`, `'123456'` e `'1234'`. Sem mexer neles, o selo
+reprova em 28 arquivos — e a peça A não fecha.
+
+A troca é pelo **código 1234** (Administrador Desk, perfil Owner, `perms: ['*']` — libera
+qualquer ação, inclusive as chaves de teste que não estão no catálogo). Regras:
+
+- o caso em que o teste preenche **vazio** e espera que a ação seja barrada
+  (`teste_vale_compra.py`, linha ~149) **continua vazio**;
+- `'x'` vira `'1234'` onde o teste espera que a ação **aconteça** (`teste_gateways.py`,
+  `teste_vale_uso.py`);
+- onde o valor vem de uma variável (`senha`), troca-se a atribuição;
+- `teste_confirma_senha.py` usa a chave `'__teste_qa__'`, que não existe no catálogo: o
+  código 1234 (Owner) libera, e a asserção do registro (`log.chave == '__teste_qa__'`)
+  continua válida.
+
+Nenhum teste pode ser **enfraquecido** para passar: só o valor do código muda.
+
 ## Decisão 2 — o limite de desconto por pessoa (PDV e Pedido de Venda)
 
 - **Quem é a pessoa:** o **vendedor da venda** (PDV: `venda.vendedorId`; Pedido de Venda: o
   vendedor do pedido). O usuário do sistema é encontrado pelo `vendedorId` do usuário (o
   vínculo que a entrega 1 já gravou).
+  - **Atenção ao espelho (achado na auditoria, 12/nov):** o PDV tem a lista própria
+    `VENDEDORES` (ids 1 Marina, 5 Rafael Tenório, 6 Bianca, 2 Ponto, 3 Rafael Andrade) e o
+    Pedido tem `VENDEDORES_C` (ids 1, 2, 3). O vínculo com o usuário é pelo **nome do
+    vendedor**, não pelo id: `UP_VENDEDORES` (o espelho de Cadastros → Vendedores, ids 1
+    Marina, 2 Ponto, 3 Rafael Andrade) é a única lista que casa com o `vendedorId` gravado
+    no usuário. Rafael Tenório e Bianca no PDV (ids 5 e 6) **não têm usuário vinculado** —
+    caem no limite do sistema, como o texto já diz.
 - **O limite:** o **próprio** da pessoa (`descontoPct`), se tiver; senão o do **perfil**; senão
   o de **Configurações → PDV** (`pdvDescontoMaximoPct`, hoje 10%). O **Owner não tem limite**.
   A ordem é a mesma de `upDesconto` da entrega 1, com o parâmetro do PDV como último recurso.
@@ -175,6 +210,7 @@ autoriza, em vez de uma senha qualquer. O sistema passa a saber **quem** autoriz
 | as 29 telas que já têm `promocaoNaHora` no catálogo | a ação `promocaoExcedente` no `ACOES_ESPECIFICAS` |
 | `_ferramentas/teste_usuarios.py` | seções novas: o código de autorização e o limite por pessoa |
 | `_ferramentas/teste_promocoes.py` | seção nova: o excedente e o limite por pessoa |
+| as 28 suítes que preenchem o campo de senha (bloqueados, caixa, comissões, compra_giro, conferência_saida, confirma_senha, crm, devolução, embalagem_pedido, expedicao, fin_melhorias, formas_recebimento, gateway_uso, gateways, metas, nomes_sistema, pdv, pedidos, perdas_baixa, promoções, rastreamento, retorno, transf_conferencia, transportadoras, usuários, vale_compra, vale_origem, vale_uso) | o valor preenchido vira o código 1234 (fora o caso vazio, que continua vazio) |
 | `_ferramentas/auditoria.py` | as chaves `deskUsuarios` e `deskPerfis` já estão na lista de chaves permitidas (a entrega 1 já as colocou — confira e não duplique) |
 | `docs/design-system-oficial-desk-company.md` | §14.111 (o texto técnico da entrega) |
 | `PROGRESSO.md`, `HISTORICO.md` | o estado de hoje e o texto da entrega (ver "Fim") |

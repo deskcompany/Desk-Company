@@ -1216,9 +1216,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     Estou ciente destas ações e desejo continuar.
   </label>
   <div class="confirm-senha-row" id="campoSenhaModal">
-    <label>Sua senha</label>
-    <input type="password" id="inputSenhaModal" placeholder="Informe sua senha para confirmar">
-    <div class="confirm-senha-erro">Informe sua senha para confirmar esta exclusão.</div>
+    <label>Código de autorização</label>
+    <input type="password" id="inputSenhaModal" placeholder="Informe o código de quem autoriza">
+    <div class="confirm-senha-erro">Informe o código de autorização para confirmar esta exclusão.</div>
   </div>
   <div class="confirm-acoes">
     <button class="btn-danger" id="btnConfirmModalConfirmar">Confirmar</button>
@@ -1414,7 +1414,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const row = document.getElementById('campoSenhaModal');
       if (row) {
         row.classList.toggle('on', !!_senhaAtiva);
-        row.classList.remove('has-error');
+        autoLimpaErro();
+        _autorizadoPor = '';
         const inp = document.getElementById('inputSenhaModal');
         if (inp) inp.value = '';
       }
@@ -1429,6 +1430,118 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     Object.defineProperty(_envelopeSenha, 'length', { value: _abrirOriginal.length, configurable: true });
     abrirModalConfirmacao = _envelopeSenha;
   }
+  // ===== AUTORIZACAO: O CODIGO (bloco comum, 12/nov/2026) =====
+  // O codigo de autorizacao no lugar da senha mocada: quem libera digita o codigo DELE, e o registro de atividades passa a guardar QUEM autorizou.
+  // O codigo tem de 4 a 6 numeros e e guardado so como resumo (FNV-1a de 32 bits, sal 'codigo|<login>'): nunca em texto puro no navegador.
+  // O Owner nunca vem do armazenamento: o que estiver gravado para o perfil 1 e ignorado e ele volta como de fabrica (tudo liberado, sem limite).
+  // Este bloco e IDENTICO nas 95 telas que tem o envelope da senha; o teste_usuarios.py compara.
+  const AUTO_PERFIS_FABRICA = [
+    { id: 1, nome: 'Owner', descontoPct: null, fixo: true, perms: ['*'] },
+    { id: 2, nome: 'Gerente', descontoPct: 20, fixo: false, perms: ['modulo:inicio', 'modulo:cadastros', 'modulo:estoque', 'modulo:vendas', 'modulo:logistica', 'modulo:financas', 'gateways', 'hub', 'registroAtividades',
+              '@grupo:Cadastros', '@grupo:Estoque', '@grupo:Vendas', '@grupo:Logística', '@grupo:Finanças'] },
+    { id: 3, nome: 'Supervisor de vendas', descontoPct: 15, fixo: false, perms: ['boasVindas', 'dashboardKpis', 'agenda.*', 'minhaConta', 'clientes.*', 'vendedores', 'produtos', 'crm.*', 'pedidos.*', 'promocoes', 'metas.*', 'rastreamento', 'devolucao', 'comissoes'] },
+    { id: 4, nome: 'Vendedor interno', descontoPct: 10, fixo: false, perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'crm.encerrar',
+              'pedidos.incluir', 'pedidos.alterar', 'pedidos.imprimir', 'promocoes', 'rastreamento'] },
+    { id: 5, nome: 'Caixa / vendedor de balcão', descontoPct: 10, fixo: false, perms: ['boasVindas', 'agenda.*', 'minhaConta', 'clientes.incluir', 'produtos', 'controleEstoques', 'pdv.abrirCaixa', 'pdv.fecharCaixa', 'pdv.relatorio', 'pdv.sangria', 'pdv.reforco', 'pdv.cancelarVenda'] },
+    { id: 6, nome: 'Representante externo', descontoPct: 10, fixo: false, perms: ['boasVindas', 'minhaConta', 'clientes.incluir', 'clientes.alterar', 'produtos', 'crm.incluir', 'crm.alterar', 'crm.acao', 'pedidos.incluir', 'pedidos.alterar', 'rastreamento'] }
+  ];
+  // As pessoas que ja existem no sistema. Os codigos de exemplo sao dado de exemplo (§14.73): 1234 do Administrador Desk, 2468 do Carlos Mendes, 3456 da Marina Costa, 4567 da Ana Souza e 5678 do Rafael Andrade (que esta bloqueado: mesmo com codigo, nao autoriza).
+  // Bianca Furtado e Fernanda Lima nao tem codigo: sao as duas que o painel de Usuarios mostra como "sem codigo de autorizacao".
+  const AUTO_USUARIOS_FABRICA = [
+    { id: 1, nome: 'Administrador Desk', login: 'administrador@desk', situacao: 'ativo', perfilId: 1, perms: [], descontoPct: null, vendedorId: null, codigoHash: 'fnv1a:805464f4' },
+    { id: 2, nome: 'Carlos Mendes', login: 'carlos.mendes@desk', situacao: 'ativo', perfilId: 2, perms: [], descontoPct: null, vendedorId: null, codigoHash: 'fnv1a:29085c4f' },
+    { id: 3, nome: 'Marina Costa', login: 'marina.costa@desk', situacao: 'ativo', perfilId: 3, perms: [], descontoPct: 18, vendedorId: 1, codigoHash: 'fnv1a:35a61599' },
+    { id: 4, nome: 'Ana Souza', login: 'ana.souza@desk', situacao: 'ativo', perfilId: 4, perms: [], descontoPct: null, vendedorId: null, codigoHash: 'fnv1a:fe7ed2a1' },
+    { id: 5, nome: 'Bianca Furtado', login: 'bianca.furtado@desk', situacao: 'ativo', perfilId: 4, perms: [], descontoPct: null, vendedorId: null, codigoHash: null },
+    { id: 6, nome: 'Fernanda Lima', login: 'fernanda.lima@desk', situacao: 'ativo', perfilId: 5, perms: [], descontoPct: null, vendedorId: null, codigoHash: null },
+    { id: 7, nome: 'Rafael Andrade', login: 'rafael.andrade@desk', situacao: 'bloqueado', perfilId: 6, perms: [], descontoPct: null, vendedorId: 3, codigoHash: 'fnv1a:10e9bbf5' }
+  ];
+  // O resumo do codigo: FNV-1a de 32 bits, com o sal do jeito que o produto grava ('codigo|' + login).
+  function autoHash(texto, sal) {
+    let h = 0x811c9dc5; const s = String(sal || '') + '|' + String(texto);
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return 'fnv1a:' + h.toString(16).padStart(8, '0');
+  }
+  // Os codigos gravados antes desta entrega usavam um resumo de exemplo que ninguem pode digitar. Quem tem esse resumo guardado volta ao codigo de exemplo do cadastro; quem trocou o codigo de verdade fica com ele.
+  const AUTO_HASH_EXEMPLO = {
+    'administrador@desk': 'fnv1a:1c2f8a90', 'carlos.mendes@desk': 'fnv1a:93be5521', 'marina.costa@desk': 'fnv1a:b04d7e13',
+    'ana.souza@desk': 'fnv1a:48f1d6ea', 'rafael.andrade@desk': 'fnv1a:d9a7340c'
+  };
+  function autoLer(chave, fabrica) {
+    try { const b = localStorage.getItem(chave); if (b) { const v = JSON.parse(b); if (Array.isArray(v) && v.length) return v; } } catch (e) {}
+    return JSON.parse(JSON.stringify(fabrica));
+  }
+  function autoUsuarios() {
+    const salvos = autoLer('deskUsuarios', AUTO_USUARIOS_FABRICA).filter(u => u && u.perfilId !== 1);
+    return [AUTO_USUARIOS_FABRICA[0]].concat(salvos.map(u => {
+      const deFabrica = (u.codigoHash && AUTO_HASH_EXEMPLO[u.login] === u.codigoHash) ? AUTO_USUARIOS_FABRICA.filter(x => x.login === u.login)[0] : null;
+      return deFabrica ? Object.assign({}, u, { codigoHash: deFabrica.codigoHash }) : u;
+    }));
+  }
+  function autoPerfis() {
+    const salvos = autoLer('deskPerfis', AUTO_PERFIS_FABRICA).filter(p => p && p.id !== 1);
+    return [AUTO_PERFIS_FABRICA[0]].concat(salvos);
+  }
+  // As permissoes efetivas da pessoa: as do perfil mais as avulsas dela.
+  function autoPermissoes(u) {
+    const perfil = autoPerfis().filter(p => p.id === u.perfilId)[0] || null;
+    return ((perfil && perfil.perms) ? perfil.perms : []).concat((u && u.perms) ? u.perms : []);
+  }
+  // A acao esta liberada com '*' (o Owner), com a avulsa exata ('@<chave>') ou com o grupo da acao ('@grupo:<grupo>').
+  // 'modulo:' NAO concede acao: da acesso as telas do modulo; as acoes vem de '@grupo:', como na grade de Permissoes.
+  function autoLibera(perms, acaoChave) {
+    if (!acaoChave) return false;
+    if (perms.indexOf('*') >= 0) return true;
+    if (perms.indexOf('@' + acaoChave) >= 0) return true;
+    const a = ACOES_SENHA.filter(x => x.chave === acaoChave)[0];
+    if (a && a.grupo && perms.indexOf('@grupo:' + a.grupo) >= 0) return true;
+    return false;
+  }
+  // Confere o codigo: existe, a pessoa esta ativa e tem a permissao da acao que esta sendo liberada.
+  function autoAutorizado(codigo, acaoChave) {
+    const c = String(codigo || '').trim();
+    if (!/^[0-9]{4,6}$/.test(c)) return { ok: false, usuario: null, mensagem: 'Código inválido.' };
+    let pessoa = null;
+    const usuarios = autoUsuarios();
+    for (let i = 0; i < usuarios.length && !pessoa; i++) {
+      const u = usuarios[i];
+      if (!u || u.situacao !== 'ativo' || !u.codigoHash || !u.login) continue;
+      if (u.codigoHash === autoHash(c, 'codigo|' + u.login)) pessoa = u;
+    }
+    if (!pessoa) return { ok: false, usuario: null, mensagem: 'Código inválido.' };
+    if (!autoLibera(autoPermissoes(pessoa), acaoChave)) return { ok: false, usuario: pessoa, mensagem: 'Esse código não libera esta ação.' };
+    return { ok: true, usuario: pessoa, mensagem: '' };
+  }
+  // O texto de erro do campo: o padrao da tela (o de exclusao, o de acao) volta quando o modal abre de novo.
+  const AUTO_ERRO_PADRAO = (function () {
+    const el = document.getElementById('campoSenhaModal');
+    const erro = el ? el.querySelector('.confirm-senha-erro') : null;
+    return erro ? erro.textContent : 'Informe o código de autorização para confirmar esta ação.';
+  })();
+  function autoMostraErro(mensagem) {
+    const el = document.getElementById('campoSenhaModal');
+    if (!el) return;
+    const erro = el.querySelector('.confirm-senha-erro');
+    if (erro) erro.textContent = mensagem;
+    el.classList.add('has-error');
+  }
+  function autoLimpaErro() {
+    const el = document.getElementById('campoSenhaModal');
+    if (!el) return;
+    const erro = el.querySelector('.confirm-senha-erro');
+    if (erro) erro.textContent = AUTO_ERRO_PADRAO;
+    el.classList.remove('has-error');
+  }
+  // Quem autorizou a acao que o registro de atividades vai guardar.
+  let _autorizadoPor = '';
+  // O nome de quem autorizou a acao que esta sendo liberada agora (o que digitou o codigo).
+  function autoAutorizador() { return _autorizadoPor; }
+  // Quem pode liberar a acao: o usuario da sessao, pelas permissoes efetivas dele (perfil + avulsas).
+  function autoPodeLiberar(acaoChave) {
+    const u = autoUsuarios().filter(x => x.nome === USUARIO_SESSAO.nome)[0];
+    return !!u && autoLibera(autoPermissoes(u), acaoChave);
+  }
+  // ===== FIM DO BLOCO AUTORIZACAO =====
   // ===== REGISTRO DE ATIVIDADES =====
   // Toda acao do catalogo grava aqui — com ou sem senha. O catalogo deixa de ser
   // "a lista do que pede senha" e vira "a lista do que e auditavel"; a senha
@@ -1445,7 +1558,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     try { const b = localStorage.getItem('deskLog'); return b ? JSON.parse(b) : []; }
     catch (e) { return []; }
   }
-  function registrarLog(chave, detalhe, comSenha) {
+  function registrarLog(chave, detalhe, comSenha, autorizadoPor) {
     if (!chave) return;
     const a = ACOES_SENHA.filter(x => x.chave === chave)[0];
     try {
@@ -1454,7 +1567,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         ts: Date.now(), chave: chave,
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
-        senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180)
+        senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
+        detalhe: String(detalhe || '').slice(0, 180)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -1488,19 +1602,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     btn.addEventListener('click', (e) => {
       if (_senhaAtiva) {
         const inp = document.getElementById('inputSenhaModal');
-        if (inp && !inp.value.trim()) {
+        const checagem = autoAutorizado(inp ? inp.value : '', _senhaAtiva);
+        if (!checagem.ok) {
           e.stopImmediatePropagation();
           e.preventDefault();
-          document.getElementById('campoSenhaModal').classList.add('has-error');
+          autoMostraErro(checagem.mensagem);
           return;
         }
+        _autorizadoPor = checagem.usuario ? checagem.usuario.nome : '';
       }
       // Passou: a acao vai acontecer. Registra aqui, num lugar so, em vez de em
       // cada uma das 24 telas — e por isso nenhuma delas precisou saber que o
       // registro de atividades existe.
       if (_acaoAtiva) {
         const txt = document.getElementById('confirmModalTexto');
-        registrarLog(_acaoAtiva, txt ? txt.textContent : '', !!_senhaAtiva);
+        registrarLog(_acaoAtiva, txt ? txt.textContent : '', !!_senhaAtiva, _autorizadoPor);
         _acaoAtiva = null;
       }
     }, true);

@@ -63,7 +63,7 @@ with sync_playwright() as p:
         r2 = pg.evaluate("({erro:document.getElementById('campoSenhaModal').classList.contains('has-error'),"
                          " rodou:window.__ran, aberto:document.getElementById('confirmModal').classList.contains('open')})")
         ok(r2['erro'] and not r2['rodou'] and r2['aberto'], f'{n}: senha vazia trava e nao executa')
-        pg.fill('#inputSenhaModal', '123456'); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)
+        pg.fill('#inputSenhaModal', '1234'); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)
         r3 = pg.evaluate("({rodou:window.__ran, aberto:document.getElementById('confirmModal').classList.contains('open'),"
                          " log:(JSON.parse(localStorage.getItem('deskLog')||'[]')[0]||{}).chave})")
         ok(r3['rodou'], f'{n}: com senha, a acao executa')
@@ -114,7 +114,7 @@ with sync_playwright() as p:
             pg.goto(localiza.uri(n)); pg.wait_for_timeout(250)
             ar = pg.evaluate("abrirModalConfirmacao.length")
             pg.evaluate("() => { window.__ran=false; confirmarAcao('__qa__','t',()=>{window.__ran=true;}); }")
-            pg.fill('#inputSenhaModal', '123456'); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)
+            pg.fill('#inputSenhaModal', '1234'); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(150)
             ok(pg.evaluate("window.__ran") and ar == k,
                f'{n}: assinatura de {k} args — .length={ar}, callback disparou')
     b.close()

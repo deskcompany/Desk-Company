@@ -90,7 +90,7 @@ with sync_playwright() as p:
         dito = pg.inner_text('#confirmModalTexto') if pg.locator('#confirmModal.open').count() else ''
         if pg.locator('#confirmModal.open').count():
             if visivel('#campoSenhaModal'):
-                pg.fill('#inputSenhaModal', 'senha-de-teste')
+                pg.fill('#inputSenhaModal', '1234')
             clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
         return dito
 

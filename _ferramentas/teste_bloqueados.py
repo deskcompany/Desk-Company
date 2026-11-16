@@ -88,7 +88,7 @@ def confirmar(pg):
     if pg.locator('#confirmModal.open').count():
         pg.evaluate("() => { const c = document.querySelector('#confirmModal input[type=checkbox]'); if (c && c.offsetParent !== null && !c.checked) c.click(); }")
         if visivel(pg, '#campoSenhaModal'):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
 

@@ -159,7 +159,7 @@ with sync_playwright() as p:
     def confirmar(senha=True):
         if pg.locator('#confirmModal.open').count():
             if senha and senha_pedida():
-                pg.fill('#inputSenhaModal', 'senha-de-teste')
+                pg.fill('#inputSenhaModal', '1234')
             clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
     def cancelar():

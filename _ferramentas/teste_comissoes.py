@@ -127,7 +127,7 @@ with sync_playwright() as p:
         pg.wait_for_timeout(250)
         senha = pg.evaluate("(() => { const c = document.getElementById('campoSenhaModal'); return !!c && getComputedStyle(c).display !== 'none' && c.getClientRects().length > 0; })()")
         if senha:
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         pg.evaluate("document.getElementById('btnConfirmModalConfirmar').click()"); pg.wait_for_timeout(350)
         return senha
 

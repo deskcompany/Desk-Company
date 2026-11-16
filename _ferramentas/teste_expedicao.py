@@ -267,7 +267,7 @@ with sync_playwright() as pw:
     pg2.click('#btnConfirmModalConfirmar'); pg2.wait_for_timeout(300)
     ok(pg2.locator('#campoSenhaModal').evaluate("el => el.classList.contains('has-error')"),
        'confirmar sem senha nao reabre')
-    pg2.fill('#inputSenhaModal', 'senha')
+    pg2.fill('#inputSenhaModal', '1234')
     confirmar(pg2)
     pg2.click('#btnConfirmModalConfirmar'); pg2.wait_for_timeout(300)
     ok(pg2.evaluate("() => ROM.situacao") == 'conferindo', 'com senha, reabre')

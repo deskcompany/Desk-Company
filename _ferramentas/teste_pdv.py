@@ -80,7 +80,7 @@ def escolher(pg, raiz, valor):
 def confirmar(pg, senha=True):
     if pg.locator('#confirmModal.open').count():
         if senha and visivel(pg, '#campoSenhaModal'):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic(pg, '#btnConfirmModalConfirmar')
         pg.wait_for_timeout(400)
 
@@ -709,6 +709,33 @@ with sync_playwright() as p:
         pg.wait_for_timeout(220)
         ok(pg.evaluate('document.documentElement.scrollWidth') <= 1440, 'tema %s: nao estoura em 1440' % tema)
     ok(not erros and not e2, 'sem erro de JS: %s' % (erros + e2)[:2])
+
+    print('\n[13] O limite de desconto por pessoa (entrega 2 de Usuarios)')
+    # O limite vem da PESSOA que vende: o proprio dela, o do perfil, ou o do sistema.
+    lim = pg.evaluate("""() => {
+        const nomes = ['Marina Costa', 'Ponto Parceiro Vila Mariana', 'Rafael Tenorio', 'Rafael Andrade', ''];
+        return nomes.map(n => { const l = autoLimiteDesconto(n || null); return [n, l.pct, l.origem, autoTextoLimite(l)]; }); }""")
+    ok(lim[0][1] == 18 and lim[0][2] == 'proprio' and 'Marina Costa' in lim[0][3], 'a Marina tem limite proprio de 18: ' + str(lim[0]))
+    ok(lim[1][1] == 10 and lim[1][2] == 'sistema' and 'Configurações → PDV' in lim[1][3], 'o Ponto nao tem usuario: cai no limite do sistema (10): ' + str(lim[1]))
+    ok(lim[2][1] == 10 and lim[2][2] == 'sistema', 'o Rafael Tenorio (que so existe no PDV) nao tem usuario: cai no do sistema: ' + str(lim[2]))
+    ok(lim[3][1] == 10 and lim[3][2] == 'perfil', 'o Rafael Andrade tem usuario, e o limite vem do perfil: ' + str(lim[3]))
+    # Na venda: 15 nao passa do limite da Marina (18); 19 passa.
+    zerar(pg); abrir_caixa(pg, 1, '0')
+    pg.evaluate("venda.vendedorId = 1")
+    adicionar(pg, 'CAR-33W-01', '1')
+    clic(pg, '#btnContinuar'); pg.wait_for_timeout(350)
+    pg.fill('#finDesconto', '15%'); pg.locator('#finDesconto').blur(); pg.wait_for_timeout(300)
+    ok(not visivel(pg, '#notaFinDesconto'), '15 nao passa do limite da Marina (18)')
+    pg.fill('#finDesconto', '19%'); pg.locator('#finDesconto').blur(); pg.wait_for_timeout(300)
+    ok(visivel(pg, '#notaFinDesconto'), '19 passa do limite da Marina')
+    ok('limite de Marina Costa' in pg.inner_text('#notaFinDesconto'), 'e a tela diz o limite de quem vende: ' + pg.inner_text('#notaFinDesconto')[:90])
+    # Finalizar com desconto acima do limite pede o codigo de quem libera.
+    receber(pg, 'dinheiro')
+    clic(pg, '#btnFinalizar'); pg.wait_for_timeout(400)
+    ok(pg.locator('#confirmModal.open').count() == 1 and visivel(pg, '#campoSenhaModal') and 'venda inteira' in pg.inner_text('#confirmModalTexto'),
+       'desconto na venda inteira acima do limite da pessoa pede o codigo para finalizar')
+    pg.fill('#inputSenhaModal', '1234'); clic(pg, '#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
+    ok(pg.evaluate('momento') == 'concluida', 'com o codigo de quem libera, a venda finaliza')
 
     nav.close()
 

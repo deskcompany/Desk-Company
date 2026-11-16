@@ -74,7 +74,7 @@ with sync_playwright() as p:
         if pg.locator('#confirmModal.open').count():
             pg.evaluate("() => { const c = document.querySelector('#confirmModal input[type=checkbox]'); if (c && c.offsetParent !== null && !c.checked) c.click(); }")
             if pg.evaluate("(() => { const e = document.getElementById('campoSenhaModal'); return !!e && e.offsetParent !== null; })()"):
-                pg.fill('#inputSenhaModal', 'senha-de-teste')
+                pg.fill('#inputSenhaModal', '1234')
             clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(400)
 
     def fechar_aviso():

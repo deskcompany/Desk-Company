@@ -63,7 +63,7 @@ def escolher(pg, raiz, valor):
 def confirmar(pg):
     if pg.locator('#confirmModal.open').count():
         if pg.locator('#campoSenhaModal').count() and pg.locator('#campoSenhaModal').is_visible():
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic(pg, '#btnConfirmModalConfirmar')
         pg.wait_for_timeout(500)
     # o aviso de "gravado" abre em seguida, no mesmo modal

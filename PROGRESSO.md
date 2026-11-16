@@ -1,4 +1,4 @@
-*Atualizado em 11/nov/2026: a entrega 1 de Usuários do sistema e Permissões de usuários foi testada por ele e passou (§14.110). O próximo da fila é a entrega 2, o pacote do gerente na promoção; depois, o preço de atacado.*
+*Atualizado em 12/nov/2026: a entrega 2 de Usuários do sistema (o código de autorização no lugar da senha mocada, o limite de desconto por pessoa e o pacote do gerente na promoção) foi implementada e está esperando o teste dele. O próximo da fila é o preço de atacado.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -8,10 +8,15 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Usuários do sistema e Permissões de usuários, entrega 2: o plano está escrito, a implementação não começou (pausa em 11/nov/2026).**
-O plano da entrega está em [docs/plano-usuarios-entrega-2.md](docs/plano-usuarios-entrega-2.md) (o que muda em cada tela, as regras
-já decididas e a ordem das peças A a E). Nada foi implementado: a árvore do git está como o commit da entrega 1. A entrega 2 é o
-primeiro da fila, e o próximo dela é o preço de atacado.
+**Usuários do sistema e Permissões de usuários, entrega 2: implementada em 12/nov/2026, esperando o teste dele.**
+O código de autorização entrou no lugar da senha mocada nas 95 telas que têm o envelope da senha: quem libera digita o **código dele**
+(4 a 6 números) e o sistema passa a saber **quem autorizou** — o registro de atividades grava "autorizado por <nome>". O limite de desconto
+sem liberação passou a ser **por pessoa** (o do vendedor da venda), no PDV e no Pedido de Venda (que não tinha limite). O pacote do gerente
+na promoção: o preço promocional fora da promoção só com quem tem a permissão (o gerente), e o botão **"Aplicar preço promocional no
+excedente"**, que divide a linha e libera N peças pelo preço da promoção sem consumir a cota do cliente. A ficha do vendedor virou ponte
+para o usuário vinculado. Detalhe técnico no §14.111; o plano da entrega em [docs/plano-usuarios-entrega-2.md](docs/plano-usuarios-entrega-2.md).
+**Para testar, os códigos de exemplo:** 1234 do Administrador Desk (Owner, libera tudo), 2468 do Carlos Mendes (Gerente), 3456 da Marina
+Costa, 4567 da Ana Souza; o Rafael Andrade (5678) está bloqueado, e a Bianca Furtado e a Fernanda Lima não têm código.
 
 **Usuários do sistema e Permissões de usuários, entrega 1: testada por ele em 11/nov/2026** ("os testes passaram"). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.110. O resto do módulo é a entrega 2, o primeiro da fila.
 
@@ -70,23 +75,21 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **Usuários do sistema e Permissões de usuários, entrega 2: o pacote do gerente na promoção**, lendo as permissões de verdade (as regras estão em "Decidido"): o código de autorização de cada pessoa valendo no lugar da senha mocada das outras telas (quem autoriza digita o código dele e o sistema sabe quem foi), e a permissão do preço promocional na hora saindo da ficha do vendedor para o perfil do gerente; o preço promocional fora
-   da promoção só com o gerente; o botão do gerente no excedente do limite; o limite de desconto por pessoa no PDV e no Pedido.
-2. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
+1. **O preço de atacado** (mapa dos canais): na ficha do produto, aba Preços, o campo "Preço de atacado" com "a partir de N
    unidades"; no Pedido de Venda, a linha que chega à quantidade mínima troca o preço sozinha. Vale para empresa e para pessoa
    física que assuma os impostos (como o imposto entra na nota fica para Notas Fiscais, com o contador). Passa pela trava do mínimo.
-3. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
-4. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
-5. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-6. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+2. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
+3. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+4. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+5. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-7. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-8. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-9. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+6. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+7. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+8. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -106,19 +109,24 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   - **A exceção na hora:** fora de promoção, o botão "Aplicar preço promocional" no item do PDV e do Pedido de Venda pede senha, e só
     quem tem a permissão no cadastro dele aplica; vai para Confirmações por senha e para o Registro de atividades, e respeita a trava do mínimo. *(Feito na entrega 2.)*
     **Muda (resposta dele em 10/nov):** a permissão é **do gerente**, não do vendedor. O vendedor só tem os preços das promoções e
-    encartes ativos; fora disso, preço promocional ou desconto acima do limite dele pede a autorização do gerente. **Vem no pacote do
-    gerente (item 3 da fila)**, depois de Permissões de Usuários; até lá fica a permissão no cadastro do vendedor.
+    encartes ativos; fora disso, preço promocional ou desconto acima do limite dele pede a autorização do gerente. *(Feito na entrega 2
+    de Usuários: quem libera é quem tem a ação `promocaoNaHora` na permissão efetiva — o perfil Gerente —, e o pedido é feito com o
+    código de autorização dele; a linha passa a mostrar o nome de quem autorizou.)*
   - **Desconto por cima:** o preço promocional não conta como desconto; o desconto máximo do PDV (hoje 10%) vale sobre o promocional,
     com a mesma liberação de hoje. *(Feito na entrega 2.)*
   - **Desconto sem senha, por pessoa** (resposta dele em 10/nov, opção b): o PDV continua dando até 10% sem senha e o gerente libera
     acima disso. O parâmetro já existe (Configurações → PDV, `pdvDescontoMaximoPct`). O limite passa a ser **por pessoa**, num
     campo "desconto máximo sem senha" que só o Owner altera; quem não tem o seu fica com o de Configurações → PDV, e vale
-    igual no PDV e no Pedido de Venda (hoje o Pedido não tem limite). **Vem com Permissões de Usuários e o pacote do gerente.**
+    igual no PDV e no Pedido de Venda (hoje o Pedido não tem limite). *(Feito na entrega 2 de Usuários: o limite do PDV e do Pedido de
+    Venda passa a ser o do vendedor da venda — o próprio da pessoa, o do perfil, ou o de Configurações → PDV — e a liberação é pelo
+    código do gerente.)*
   - **O excedente do limite por cliente** (resposta dele em 10/nov): continua automático, numa linha a parte pelo preço de venda. Na
     linha, o botão "Aplicar preço promocional no excedente": o gerente põe a senha e diz quantas peças recebem o promocional (todas
     ou uma parte), e a linha se divide. Exemplo dele: o cliente pede 5, o máximo é 2, o gerente negocia e libera mais 2. A peça
     liberada **conta no limite total** da promoção e não passa dele. Vai para o Registro de atividades com quem e quantas.
-    **Vem no pacote do gerente.**
+    *(Feito na entrega 2 de Usuários: o botão "Aplicar preço promocional no excedente" aparece na linha que passou do limite por
+    cliente, só para quem pode liberar; o gerente diz quantas peças recebem o promocional, a linha se divide e a peça liberada não
+    consome a cota do cliente.)*
   - **O exemplo da nº 1 abre com zero vendido** (resposta dele em 10/nov: "deixa como está"). Os pedidos de exemplo 3 e 8 venderam
     pelo preço de venda e não são refeitos.
   - **Prazos:** 7 dias, até uma data, ou até acabar o estoque (este com limite de 30 dias, em Parâmetros de vendas); e, por produto, um limite de unidades.
@@ -145,7 +153,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   - **Os perfis de partida** são os do mapa dos canais: Owner (não se edita), Gerente, Supervisor de vendas, Vendedor interno,
     Caixa / vendedor de balcão, Representante externo.
   - **Fora do protótipo:** a confirmação da troca de senha por código no e-mail (só o aviso) e as integrações próprias do Olist.
-  - **Entrega 2 (não feita):** o código de autorização valendo no lugar da senha mocada nas outras telas, e o PDV e o Pedido de Venda lendo o limite de desconto da pessoa.
+  - **Entrega 2 (feita em 12/nov/2026, esperando o teste dele):** o código de autorização valendo no lugar da senha mocada nas
+    outras telas (quem autoriza digita o código dele e o sistema sabe quem foi), e o PDV e o Pedido de Venda lendo o limite de desconto
+    da pessoa. Ver §14.111.
 - **Promoções e Encartes** (barganha de 04 e 09/nov/2026; a entrega 1 fez o que está marcado como feito):
   - **Quem:** o gerente e quem tiver a permissão no perfil cria; aprovar pede senha (Confirmações por senha). *(A permissão é mocada, como o resto, até Permissões de Usuários existir.)*
   - **A promoção nasce de UMA loja** (o encarte sai com a marca dela); produtos de outra loja não entram (09/nov).

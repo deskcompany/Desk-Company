@@ -224,7 +224,7 @@ with sync_playwright() as pw:
        'e a folha diz o nome do que vai ser criado')
     ok(pg2.locator('#campoSenhaModal').evaluate("el => el.classList.contains('on')"),
        'com a trava ligada, o campo de senha aparece')
-    pg2.fill('#inputSenhaModal', 'senha')
+    pg2.fill('#inputSenhaModal', '1234')
     confirmar(pg2)
     pg2.fill('#campoBusca', 'Carga Leste'); pg2.wait_for_timeout(300)
     ok(pg2.locator('.transp-card', has_text='Carga Leste').count() == 1, 'confirmada, a transportadora entra')
@@ -282,7 +282,7 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(300)
     ok(pg.locator('#campoSenhaModal').evaluate("el => el.classList.contains('has-error')"),
        'confirmar sem senha nao exclui: a trava reclama')
-    pg.fill('#inputSenhaModal', 'senha')
+    pg.fill('#inputSenhaModal', '1234')
     confirmar(pg)
     ok(pg.locator('.transp-card', has_text='Entrega Já Expressa').count() == 0, 'com senha, exclui')
 

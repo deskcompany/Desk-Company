@@ -277,7 +277,7 @@ with sync_playwright() as pw:
     ok(pgc.evaluate("() => document.getElementById('campoSenhaModal').classList.contains('on')"),
        'e pede senha — e a mudanca que apaga um controle, nao que ajusta um padrao')
     pgc.evaluate('() => window.scrollTo(0, 0)')
-    pgc.fill('#inputSenhaModal', 'senha-de-teste')
+    pgc.fill('#inputSenhaModal', '1234')
     pgc.click('#btnConfirmModalConfirmar'); pgc.wait_for_timeout(350)
     ok(pgc.evaluate("() => PARAM.conferenciaSaidaCega") is False, 'e so entao o valor muda')
     chaves = pgc.evaluate("() => JSON.parse(localStorage.getItem('deskLog')||'[]').map(x => x.chave)")

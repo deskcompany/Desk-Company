@@ -81,7 +81,7 @@ def visivel(pg, sel):
 def confirmar(pg, senha=True):
     if pg.locator('#confirmModal.open').count():
         if senha and visivel(pg, '#campoSenhaModal'):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         clic(pg, '#btnConfirmModalConfirmar')
         pg.wait_for_timeout(450)
     if pg.locator('#confirmModal.open').count():      # aviso de "gravado", quando a tela mostra

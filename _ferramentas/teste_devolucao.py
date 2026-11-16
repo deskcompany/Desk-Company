@@ -271,7 +271,7 @@ with sync_playwright() as pw:
 
     clicarId(pg, 'revConfirmar'); pg.wait_for_timeout(700)
     if pg.locator('#campoSenhaModal').count() and pg.locator('#campoSenhaModal').is_visible():
-        pg.fill('#inputSenhaModal', 'senha-de-teste')
+        pg.fill('#inputSenhaModal', '1234')
     if pg.locator('#btnConfirmModalConfirmar').count():
         clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
     r = pg.evaluate("DEV.reversa")
@@ -362,7 +362,7 @@ with sync_playwright() as pw:
     pg.fill('#inputFreteReal', '31,70'); pg.fill('#inputPesoReal', '4,1'); pg.wait_for_timeout(200)
     clicarId(pg, 'btnFreteReal'); pg.wait_for_timeout(700)
     if pg.locator('#campoSenhaModal').count() and pg.locator('#campoSenhaModal').is_visible():
-        pg.fill('#inputSenhaModal', 'senha-de-teste')
+        pg.fill('#inputSenhaModal', '1234')
     if pg.locator('#confirmModal.open').count():
         clicarId(pg, 'btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
     ok(abs(pg.evaluate("DEV.reversa.real") - 31.70) < 0.01, 'a cobranca real e gravada')
@@ -572,7 +572,7 @@ with sync_playwright() as pw:
         p8.wait_for_timeout(250)
         if p8.evaluate("document.getElementById('confirmModal').classList.contains('open')"):
             if p8.locator('#campoSenhaModal').count() and p8.locator('#campoSenhaModal').is_visible():
-                p8.fill('#inputSenhaModal', 'senha-de-teste')
+                p8.fill('#inputSenhaModal', '1234')
             clicarId(p8, 'btnConfirmModalConfirmar'); p8.wait_for_timeout(450)
 
     def fecha8():

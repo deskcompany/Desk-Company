@@ -151,7 +151,7 @@ with sync_playwright() as p:
     ok('reserva de estoque volta' in pg.inner_text('#confirmModalTexto'), 'o texto diz que a reserva volta')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(250)
     ok(pg.evaluate("PEDIDOS.length") == antes, 'sem senha não exclui')
-    pg.fill('#inputSenhaModal', 'senha123')
+    pg.fill('#inputSenhaModal', '1234')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(350)
     ok(pg.evaluate("PEDIDOS.length") == antes - 1, 'com senha exclui')
     ok(pg.evaluate("(JSON.parse(localStorage.getItem('deskLog') || '[]')[0] || {}).chave") == 'pedidosExclui',

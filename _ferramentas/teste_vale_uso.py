@@ -316,7 +316,7 @@ with sync_playwright() as p:
 
     # ================================================================== [4] Pedido de Venda
     if secao(4, 'Pedido de Venda: o quadro, as parcelas pelo que falta, salvar desce, editar refaz e cancelar devolve'):
-        def salvar(senha='x'):
+        def salvar(senha='1234'):
             """Clica em Salvar. Sem senha (o padrao de criar) o pedido salva direto e o modal e o aviso de salvo; com senha, aparece a confirmacao primeiro.
             Devolve (texto da confirmacao ou '', texto do modal de depois)."""
             clic('#btnSalvar'); pg.wait_for_timeout(450)
@@ -437,7 +437,7 @@ with sync_playwright() as p:
         # --- excluir o pedido e mudar a situacao a mao para Cancelado tambem devolvem o vale (como o botao Cancelar)
         def confirma_modal():
             if visivel('#campoSenhaModal'):
-                pg.fill('#inputSenhaModal', 'x')
+                pg.fill('#inputSenhaModal', '1234')
             clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
         limpar(True); ir(PED_D, '?id=3')
@@ -497,7 +497,7 @@ with sync_playwright() as p:
             if pg.evaluate("document.getElementById('confirmCienteRow').style.display") != 'none':
                 clic('#confirmCienteCheckbox')
             if visivel('#campoSenhaModal'):
-                pg.fill('#inputSenhaModal', 'x')
+                pg.fill('#inputSenhaModal', '1234')
             clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
 
         def seleciona(ids):

@@ -395,7 +395,7 @@ with sync_playwright() as p:
     print('\n[24] A data alterada vira evento, e o cliente ve')
     # A acao exige senha por catalogo: confirmar e preencher e clicar, como no
     # resto do sistema. O prototipo aceita qualquer senha nao vazia.
-    pg.fill('#inputSenhaModal', 'senha-de-teste')
+    pg.fill('#inputSenhaModal', '1234')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
     agora = pg.evaluate("PEDIDOS.filter(p => p.id === %d)[0].volumes[0].previsao" % alvoD)
     ok(agora == '2026-12-20', 'confirmado, a data grava: %s' % agora)
@@ -467,7 +467,7 @@ with sync_playwright() as p:
     ok('data inv' not in corpoM,
        'a tela NAO recusa a data que ela mesma ofereceu no calendario')
     ok(pg.locator('#confirmModal.open').count() == 1, 'ela segue para a confirmacao')
-    pg.fill('#inputSenhaModal', 'senha-de-teste')
+    pg.fill('#inputSenhaModal', '1234')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(600)
     gravadaC = pg.evaluate("PEDIDO.volumes[0].previsao")
     ok(gravadaC == isoEscolhido, 'e grava exatamente o dia clicado: %s' % gravadaC)

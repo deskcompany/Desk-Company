@@ -237,7 +237,7 @@ with sync_playwright() as p:
         pg.click('#listaEmbalagens .embalagens-card'); pg.wait_for_timeout(300)
         pg.click('#linkExcluirEmbalagem'); pg.wait_for_timeout(300)
         if pg.evaluate("document.getElementById('campoSenhaModal').classList.contains('on')"):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(300)
         ok(not [e for e in ls(pg, 'deskEmbalagens') if e['nome'] == 'Etiqueta de teste'] and len(ls(pg, 'deskEmbalagens')) == 14, 'excluir também persiste')
         # a ficha da Separacao e a da Conferencia leem o cadastro (o "cabe ate" novo da Flex M manda na sugestao)
@@ -327,7 +327,7 @@ with sync_playwright() as p:
         pg.click('#menuMaisAcoes .dropdown-select-btn'); pg.wait_for_timeout(150)
         pg.click('#menuMaisAcoes .dropdown-select-item[data-acao="devolver"]'); pg.wait_for_timeout(300)
         if pg.evaluate("document.getElementById('campoSenhaModal').classList.contains('on')"):
-            pg.fill('#inputSenhaModal', 'senha-de-teste')
+            pg.fill('#inputSenhaModal', '1234')
         pg.click('#btnConfirmModalConfirmar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(450)
         ok(reg(pg) is None, '"Devolver para a fila" apaga o registro de embalagem')
         # rascunho que e a sugestao pura continua acompanhando a falta

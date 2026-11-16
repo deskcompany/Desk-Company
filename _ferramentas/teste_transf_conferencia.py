@@ -87,7 +87,7 @@ with sync_playwright() as p:
     def celulas(i):
         return pg.evaluate("(i) => [document.querySelector('.cel-nota[data-i=\"' + i + '\"]').textContent.trim(), document.querySelector('.cel-dif[data-i=\"' + i + '\"]').textContent.trim()]", i)
 
-    def confirmar_modal(senha='senha'):
+    def confirmar_modal(senha='1234'):
         if pg.evaluate("document.getElementById('campoSenhaModal').classList.contains('on')"):
             pg.fill('#inputSenhaModal', senha)
         clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(350)
@@ -106,7 +106,7 @@ with sync_playwright() as p:
         clic('#btnFinalizar'); pg.wait_for_timeout(400)
         return pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')")
 
-    def fechar(resto=None, senha='senha'):
+    def fechar(resto=None, senha='1234'):
         """Do painel de fechamento ate a volta para a lista de transferencias."""
         if resto:
             clic('#selResto .dropdown-select-btn'); pg.wait_for_timeout(120)
@@ -304,7 +304,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.getElementById('campoSenhaModal').classList.contains('on')"), 'fechar a conferencia da transferencia pede a senha do recebimento')
         clic('#btnConfirmModalConfirmar'); pg.wait_for_timeout(400)
         ok(CONF in pg.url and guardado() == {}, 'sem senha, nada e gravado e a pessoa continua na contagem')
-        pg.fill('#inputSenhaModal', 'senha'); clic('#btnConfirmModalConfirmar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+        pg.fill('#inputSenhaModal', '1234'); clic('#btnConfirmModalConfirmar'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
         ok(pg.url.endswith(TRANSF + '?conferida=TR-0101') and 'TR-0101' in guardado(), 'com a senha, fecha')
         registro = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(l => l.chave === 'transfRecebe').length")
         ok(registro == 1, 'e a acao fica no registro de atividades')

@@ -132,7 +132,7 @@ with sync_playwright() as p:
     ok(pg.eval_on_selector('#campoSenhaModal', "e => e.classList.contains('on')"), 'fechar periodo exige SENHA por padrao')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(250)
     ok(pg.eval_on_selector('#confirmModal', "e => e.classList.contains('open')"), 'sem senha nao fecha')
-    pg.fill('#inputSenhaModal', 'senha123')
+    pg.fill('#inputSenhaModal', '1234')
     pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
     ok(pg.evaluate("lerFechamento()") != '', 'fechamento gravado: %s' % pg.evaluate("lerFechamento()"))
     ok('financeiro fechado' in pg.text_content('#barraTotais'), 'rodape mostra o estado do fechamento')
