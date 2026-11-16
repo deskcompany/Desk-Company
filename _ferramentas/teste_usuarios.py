@@ -304,9 +304,9 @@ with sync_playwright() as p:
         ok(adm[5] == 'Sem limite', 'o Owner mostra "Sem limite"')
         ok(ev("document.querySelector('#corpoTabela tr .up-av').textContent") == 'AD', 'a inicial vai em círculo')
         kpis = ev("Array.from(document.querySelectorAll('#indicadoresUsuarios .kpi-card')).map(c => [c.querySelector('.kpi-label').textContent.trim(), c.querySelector('.kpi-value').textContent.trim()])")
-        ok(kpis == [['Ativos', '6'], ['Bloqueados', '1'], ['Autorizam', '3'], ['Sem código de autorização', '2']], 'indicadores: Ativos, Bloqueados, Autorizam e Sem código de autorização: %s' % kpis)
+        ok(kpis == [['Ativos', '6'], ['Bloqueados', '1'], ['Autorizam', '2'], ['Sem código de autorização', '2']], 'indicadores: Ativos, Bloqueados, Autorizam e Sem código de autorização: %s' % kpis)
         esperado = {'ativos': ['Administrador Desk', 'Ana Souza', 'Bianca Furtado', 'Carlos Mendes', 'Fernanda Lima', 'Marina Costa'], 'bloqueados': ['Rafael Andrade'],
-                    'autorizam': ['Administrador Desk', 'Carlos Mendes', 'Marina Costa'], 'semCodigo': ['Bianca Furtado', 'Fernanda Lima']}
+                    'autorizam': ['Administrador Desk', 'Carlos Mendes'], 'semCodigo': ['Bianca Furtado', 'Fernanda Lima']}
         for k, quem in esperado.items():
             clica('#indicadoresUsuarios [data-kpi="%s"]' % k)
             ok(nomes_lista() == quem and ev("document.querySelector('#indicadoresUsuarios [data-kpi=\"%s\"]').getAttribute('aria-pressed')" % k) == 'true',
@@ -343,7 +343,7 @@ with sync_playwright() as p:
         ir(LU); clica('#corpoTabela tr[data-id="3"]')
         ok(ev("document.getElementById('eventDrawer').classList.contains('open')") and 'Marina Costa' in ev("document.getElementById('drawerCorpo').textContent"), 'clicar na linha abre o painel do usuário')
         pn = ev("document.getElementById('drawerCorpo').textContent.replace(/\\s+/g, ' ')")
-        ok('18% (o dele)' in pn and 'Definido em 15/10/2026' in pn and '1 permissão a mais' in pn and 'Autoriza' in pn, 'o painel mostra o desconto próprio, o código "definido em", as permissões avulsas e quanto autoriza')
+        ok('18% (o dele)' in pn and 'Definido em 15/10/2026' in pn and 'Permissões avulsasNenhuma' in pn and 'AutorizaNenhuma' in pn, 'o painel mostra o desconto próprio, o código "definido em", as permissões avulsas e quanto autoriza (a Marina não autoriza: a permissão é do gerente)')
         ok(ev("Array.from(document.querySelectorAll('#drawerCorpo .drawer-footer > *')).map(e => e.textContent.trim())") == ['Abrir usuário', 'Alterar senha', 'Alterar código de autorização', 'Bloquear usuário', 'Fechar'], 'o painel tem abrir, alterar senha, alterar código e bloquear')
         clica('#btnAlterarSenha'); pg.wait_for_timeout(500)
         ok(localiza.nome(pg.url) == DU + '?id=3&senha=1' and ev("document.getElementById('painelSenha').style.display") == '' and ev("document.getElementById('eventDrawer').classList.contains('open')"), '"Alterar senha" do painel abre a página já com o painel da senha')
@@ -365,7 +365,7 @@ with sync_playwright() as p:
         ok(ev("document.getElementById('inputVendedor').getAttribute('data-value')") == '1' and ev("document.getElementById('inputPerfil').getAttribute('data-value')") == '3', 'o vendedor vinculado e o perfil')
         ok(v('inputDesconto') == '18' and 'Definido em 15/10/2026' in ev("document.getElementById('codigoStatus').textContent") and 'alterada pela última vez em 15/10/2026' in ev("document.getElementById('senhaStatus').textContent"), 'o desconto próprio, o código "definido em" e a senha "alterada em"')
         ok(ev("document.getElementById('perfilResumo').textContent").startswith('Supervisor de vendas') and ev("document.querySelectorAll('#perfilChips .up-chip').length") >= 5, 'o perfil, o que ele dá em resumo e os módulos')
-        ok(ev("document.getElementById('avulsasResumo').textContent").startswith('1 permissão a mais'), 'as permissões avulsas dela: 1 permissão a mais (a ação do preço promocional)')
+        ok(ev("document.getElementById('avulsasResumo').textContent").startswith('Nenhuma'), 'as permissões avulsas dela: nenhuma (desde a entrega 2, o preço promocional fora da promoção é do gerente)')
         secoes = ev("Array.from(document.querySelectorAll('.up-card > .section-title')).map(t => t.textContent.trim())")
         ok(secoes == ['Acesso à conta', 'Perfil e permissões', 'Limites e autorização', 'Senha de acesso', 'Restrições de acesso'], 'as seções da página: %s' % secoes)
         ok(ev("document.getElementById('btnVoltarLista').textContent.trim()") == 'Voltar para Usuários do sistema' and ev("document.querySelector('.header-acoes').firstElementChild.id") == 'btnVoltarLista', 'o "Voltar" é o primeiro do cabeçalho')
@@ -828,7 +828,7 @@ with sync_playwright() as p:
         ok(lg and lg[0]['senha'] is True, 'e continua guardando que houve confirmacao')
         # o Registro de atividades mostra quem autorizou
         ir(REG)
-        ok('autorizado por Administrador Desk' in ev("document.getElementById('corpoTabela').textContent"), 'a tela do Registro de atividades mostra quem autorizou')
+        ok('autorizado por Administrador Desk' in ev("document.getElementById('listaLog').textContent"), 'a tela do Registro de atividades mostra quem autorizou')
         # as duas fabricas nao divergem
         ev("localStorage.clear()"); ir(LU); pg.wait_for_timeout(200)
         r = ev("""() => { const u = autoUsuarios(), p = autoPerfis(), uf = UP_USUARIOS_FABRICA, pf = UP_PERFIS_FABRICA, dif = [], difP = [];

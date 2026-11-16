@@ -2517,12 +2517,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       vendas.push({ pedido: 900000 + Number(v.numero), numero: 'PDV-' + String(v.numero).padStart(4, '0'), data: isNaN(q) ? promoHoje() : promoIso(q), loja: Number(v.lojaId), canal: 'pdv',
         situacao: v.situacao || 'entregue', cliente: v.clienteId ? promoChaveCliente(v.clienteNome) : '',
         // O preco e o que o item rendeu, com o desconto dele (o `total` da linha), como o Pedido de Venda grava.
-        itens: (v.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: i.total !== undefined && Number(i.qtd) ? Number(i.total) / Number(i.qtd) : Number(i.preco) || 0, promocao: i.promocao || null })) });
+        itens: (v.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: i.total !== undefined && Number(i.qtd) ? Number(i.total) / Number(i.qtd) : Number(i.preco) || 0, promocao: i.promocao || null, excedente: !!i.excedente })) });
     });
     // O que o Pedido de Venda salvou com o preco da promocao: { numero: { pedido (id na lista, ou null), data, loja, cliente, itens } }.
     const u = promoLerJson('deskPromoUsos', {}) || {};
     Object.keys(u).forEach(n => { const r = u[n]; vendas.push({ pedido: r.pedido || null, numero: String(n), data: r.data, loja: Number(r.loja), canal: 'vendedores', situacao: 'aberto',
-      cliente: r.cliente || '', itens: (r.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: Number(i.preco) || 0, promocao: i.promocao || null })) }); });
+      cliente: r.cliente || '', itens: (r.itens || []).map(i => ({ sku: i.sku, qtd: Number(i.qtd) || 0, preco: Number(i.preco) || 0, promocao: i.promocao || null, excedente: !!i.excedente })) }); });
     return vendas;
   }
   // Quanto a promocao vendeu: so o item vendido com o preco dela (`promocao` = o id dela), na loja dela, nos lugares onde ela vale, do inicio ate o fim

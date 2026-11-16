@@ -571,12 +571,12 @@ with sync_playwright() as p:
         ok(not botao(), 'no item que já está na promoção, não aparece'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
         pdv_add('PAP-3001'); clica('#listaItens tbody tr[data-item="3"] td:nth-child(2)')
         ok(not botao(), 'no produto sem promocional no cadastro (Caderno), não aparece'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
-        # sem permissao
+        # a vendedora pede; quem libera e o codigo de quem tem a permissao (nao barra mais pelo cadastro dela)
         escolhe('selVendedor', 6)
         clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); clica('#btnAplicarPromo')
-        ok(not modal_aberto() and 'Bianca Furtado não tem a permissão' in pg.inner_text('#erroItem') and ev("venda.itens[1].preco") == 45,
-           'vendedora sem a permissão no cadastro (Bianca Furtado): não aplica e diz onde a permissão mora')
-        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+        ok(modal_aberto() and ev("venda.itens[1].preco") == 45 and 'Quem libera precisa do código' in ev("document.getElementById('confirmModalTexto').textContent"),
+           'a vendedora sem a permissão (Bianca Furtado) pede, e a liberação vai para o código do gerente')
+        clica('#btnConfirmModalCancelar'); pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
         # abaixo do minimo: o promocional do cadastro abaixo da conta da calculadora
         ev("localStorage.setItem('deskPrecoProduto', JSON.stringify({ 11: { promocional: 39.90 } }))")
         escolhe('selVendedor', 1)
@@ -587,14 +587,14 @@ with sync_playwright() as p:
         ev("localStorage.removeItem('deskPrecoProduto')")
         # com permissao: pede senha; sem senha nao aplica
         clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); clica('#btnAplicarPromo')
-        ok(modal_aberto() and ev("document.getElementById('campoSenhaModal').classList.contains('on')") and 'Quem aplica: Marina Costa' in ev("document.getElementById('confirmModalTexto').textContent"),
-           'Marina Costa (com a permissão): abre a confirmação, com o campo de senha')
+        ok(modal_aberto() and ev("document.getElementById('campoSenhaModal').classList.contains('on')") and 'Quem libera precisa do código' in ev("document.getElementById('confirmModalTexto').textContent"),
+           'pedir o preço promocional fora da promoção abre a confirmação do código de quem libera')
         confirmar('')
-        ok(modal_aberto() and ev("venda.itens[1].preco") == 45, 'sem a senha, não aplica')
+        ok(modal_aberto() and ev("venda.itens[1].preco") == 45, 'sem o código, não aplica')
         confirmar('1234')
-        ok(not modal_aberto() and ev("venda.itens[1].preco") == 42.9 and ev("venda.itens[1].naHora.por") == 'Marina Costa', 'com a senha, o item passa a R$ 42,90, com quem aplicou')
+        ok(not modal_aberto() and ev("venda.itens[1].preco") == 42.9 and ev("venda.itens[1].naHora.por") == 'Administrador Desk', 'com o código 1234 (Owner), o item passa a R$ 42,90, com quem autorizou')
         l = log('promocaoNaHora')
-        ok(len(l) == 1 and l[0]['senha'] is True and 'Carregador USB-C 20W' in l[0]['detalhe'] and 'Marina Costa' in l[0]['detalhe'], 'e vai para o Registro de atividades, com senha: %s' % (l[:1],))
+        ok(len(l) == 1 and l[0]['senha'] is True and 'Carregador USB-C 20W' in l[0]['detalhe'] and l[0]['autorizadoPor'] == 'Administrador Desk', 'e vai para o Registro de atividades, com quem autorizou: %s' % (l[:1],))
         ok('aplicado com senha' in ev("document.querySelectorAll('#listaItens tbody tr')[1].textContent"), 'a linha mostra que o promocional foi aplicado com senha')
         # o minimo e a mesma conta da pagina da promocao (bloco PRECO MINIMO)
         m_pdv = ev("PROMO_PRODUTOS.map(p => promoMinimoCent(p))")
@@ -660,15 +660,17 @@ with sync_playwright() as p:
         limpar()
         ped_novo(1); ped_add('ELE-1004', '1')
         escolhe('inputVendedor', 'Rafael Andrade'); clica('#corpoItens [data-editar="0"]'); clica('#btnAplicarPromoItem')
-        ok(not modal_aberto() and 'Rafael Andrade não tem a permissão' in pg.inner_text('#erroPromoItem') and ev("ITENS[0].precoLista") == 45, 'Pedido: sem a permissão, não aplica')
-        clica('#btnCancelarItem'); escolhe('inputVendedor', 'Marina Costa'); clica('#corpoItens [data-editar="0"]'); clica('#btnAplicarPromoItem'); confirmar('1234')
-        ok(ev("ITENS[0].precoLista") == 42.9 and ev("ITENS[0].naHora.por") == 'Marina Costa' and len(log('promocaoNaHora')) == 1, 'com a permissão e a senha, aplica e registra')
+        ok(modal_aberto() and ev("ITENS[0].precoLista") == 45, 'Pedido: o vendedor pede, e quem libera é o código')
+        confirmar('3456')
+        ok(modal_aberto() and ev("ITENS[0].precoLista") == 45 and 'não libera esta ação' in pg.inner_text('#campoSenhaModal .confirm-senha-erro'), 'o código da Marina (Supervisor) não libera: ela não tem a permissão')
+        confirmar('2468')
+        ok(not modal_aberto() and ev("ITENS[0].precoLista") == 42.9 and ev("ITENS[0].naHora.por") == 'Carlos Mendes' and len(log('promocaoNaHora')) == 1, 'com o código do Carlos (Gerente), aplica e registra quem autorizou')
         # salvar grava o uso; o painel da promocao conta
         ped_add('PAP-3002', '2')
         pg.fill('#inputCliente', 'Juliana Prado'); ev("document.getElementById('inputCliente').dispatchEvent(new Event('input'))")
         ev("PARAM.bloquearPedidoAtrasoDias = 0"); clica('#btnSalvar'); pg.wait_for_timeout(250); fecha_aviso(); pg.wait_for_timeout(200)
         uso = ev("JSON.parse(localStorage.getItem('deskPromoUsos') || '{}')")
-        ok(len(uso) == 1 and list(uso.values())[0]['itens'] == [{'sku': 'PAP-3002', 'qtd': 2, 'preco': 59.9, 'promocao': 1}] and list(uso.values())[0]['cliente'] == 'juliana prado',
+        ok(len(uso) == 1 and list(uso.values())[0]['itens'] == [{'sku': 'PAP-3002', 'qtd': 2, 'preco': 59.9, 'promocao': 1, 'excedente': False}] and list(uso.values())[0]['cliente'] == 'juliana prado',
            'salvar grava o que saiu com o preço da promoção (e só isso; o Carregador aplicado na hora não conta): %s' % uso)
         ir(LISTA); clica('.aba-sit[data-sit="todos"]'); clica('#corpoTabela tr[data-id="1"]')
         ok(pg.inner_text('#prVendidoQtd').startswith('2 de 62') and pg.inner_text('#prVendidoValor') == 'R$ 119,80' and 'Pedido de Venda nº' in pg.inner_text('#prPedidos'),
@@ -677,13 +679,15 @@ with sync_playwright() as p:
         ok('2 unidades, R$ 119,80, com o preço dela' in pg.inner_text('#faixaTexto') and 'Pedido de Venda nº' in pg.inner_text('#prFaixaVendas'), 'a página da promoção diz quanto vendeu com o preço dela, e em qual pedido: "%s"' % pg.inner_text('#faixaTexto')[:160])
         ped_novo(1); pg.fill('#inputCliente', 'Juliana Prado'); ev("document.getElementById('inputCliente').dispatchEvent(new Event('input'))"); ped_add('PAP-3002', '1')
         ok(itens_ped() == [['PAP-3002', 1, 64.9, None]], 'a mesma cliente, em outro pedido, já levou as 2: preço de venda')
-        # --- a permissao mora no cadastro do vendedor
+        # --- a permissao mora no usuario vinculado (perfil + avulsas); a ficha do vendedor so mostra
         ir(VEND, '?id=1')
-        ok(ev("PODE_CONFIRMAR.promocaoNaHora") is True, 'o perfil da Marina Costa pode confirmar a ação')
-        nomes = ev("PODE_NA_HORA_IDS.map(i => REGISTROS.filter(r => r.id === i)[0].nome)")
-        ir(VEND, '?id=3'); sem_perm = ev("PODE_CONFIRMAR.promocaoNaHora")
-        ir(PDV); esp_pdv = ev("PROMO_PODE_NA_HORA")
-        ok(sem_perm is False and nomes == esp_pdv == ['Marina Costa'], 'o do Rafael Andrade não; e o PDV e o Pedido leem o espelho do cadastro: %s' % esp_pdv)
+        ok(ev("PODE_CONFIRMAR('promocaoNaHora')") is False, 'a Marina Costa (Supervisor) não libera mais: a permissão é do gerente')
+        ev("(() => { const u = lerUsuarios(); u.filter(x => x.id === 3)[0].perms = ['@promocaoNaHora']; gravarUsuarios(u); })()")
+        ir(VEND, '?id=1'); com_avulsa = ev("PODE_CONFIRMAR('promocaoNaHora')")
+        ir(VEND, '?id=3'); sem_perm = ev("PODE_CONFIRMAR('promocaoNaHora')")
+        ev("localStorage.removeItem('deskUsuarios')")
+        ok(com_avulsa is True and sem_perm is False, 'dada a permissão avulsa à Marina em Usuários, a ficha dela mostra; a do Rafael Andrade não')
+        ir(PDV); ok(ev("typeof PROMO_PODE_NA_HORA") == 'undefined', 'o PDV não tem mais a lista de nomes mocada')
         cat = ev("PROMO_PRODUTOS.filter(p => CATALOGO.some(c => c.sku === p.sku)).map(p => { const c = CATALOGO.filter(x => x.sku === p.sku)[0]; return [p.sku, c.nome === p.nome, c.loja === p.loja, c.preco === p.preco, Object.values(c.saldo).reduce((s, n) => s + n, 0) === p.estoque]; })")
         ok(len(cat) == 8 and all(all(x[1:]) for x in cat), 'os produtos do cadastro no catálogo do PDV têm o nome, a loja, o preço e o estoque da ficha: %s' % [x for x in cat if not all(x[1:])])
         # --- PDV e Pedido nos dois temas, 1280 e 1440
@@ -702,6 +706,40 @@ with sync_playwright() as p:
         limpar()
 
     limpar()
+    # ------------------------------------------------------------------------------------------------
+    if secao(12, 'O pacote do gerente: o botão do excedente do limite por cliente'):
+        limpar()
+        # A nº 1 (Volta às aulas) tem limite de 2 por cliente no PAP-3002.
+        pdv_abre(1)
+        pdv_cliente('Juliana Prado')
+        pdv_add('PAP-3002', '5'); fecha_aviso()
+        linhas = ev("venda.itens.map(i => [i.qtd, i.preco, i.promocao || null, i.foraPromo || null])")
+        ok(len(linhas) == 2 and linhas[0][0] == 2 and linhas[0][2] == 1 and linhas[1][0] == 3 and linhas[1][3] and 'por cliente' in linhas[1][3],
+           'o cliente passou do limite: 2 pelo preço da promoção e 3 pelo de venda, com o motivo: %s' % linhas)
+        clica('#listaItens tbody tr[data-item="1"] td:nth-child(2)'); pg.wait_for_timeout(250)
+        ok(ev("document.getElementById('itemExcedente').offsetParent !== null"), 'a linha do excedente mostra o botão do gerente (o Owner pode liberar)')
+        pg.fill('#itemExcedenteQtd', '2'); clica('#btnAplicarPromoExcedente'); pg.wait_for_timeout(250)
+        ok(modal_aberto() and 'no excedente do limite por cliente' in ev("document.getElementById('confirmModalTexto').textContent"), 'o botão abre a confirmação do código')
+        confirmar('')
+        ok(modal_aberto() and len(ev("venda.itens")) == 2, 'sem o código, nada é liberado')
+        confirmar('1234'); fecha_aviso()
+        linhas = ev("venda.itens.map(i => [i.qtd, i.preco, i.promocao || null, !!i.excedente, i.excedentePor || null])")
+        ok(len(linhas) == 3 and linhas[1][:2] == [2, 59.9] and linhas[1][3] is True and linhas[1][4] == 'Administrador Desk',
+           'as 2 peças liberadas entram no preço da promoção, com quem liberou: %s' % linhas)
+        ok(linhas[2][0] == 1 and linhas[2][1] == 64.9 and linhas[2][2] is None, 'e a peça que sobrou continua pelo preço de venda: %s' % linhas[2:])
+        l = log('promocaoExcedente')
+        ok(len(l) == 1 and l[0]['autorizadoPor'] == 'Administrador Desk' and '2 un.' in l[0]['detalhe'], 'o registro guarda quem liberou e quantas: %s' % (l[:1],))
+        # a peça liberada conta no total da promoção, e não na cota do cliente
+        v = ev("""(() => { const pr = lerPromocoes().filter(p => p.id === 1)[0], a = promoNaVenda('PAP-3002', 1, 'pdv');
+            const n = venda.itens.filter(i => i.promocao === 1 && !i.excedente).reduce((s, i) => s + i.qtd, 0), x = venda.itens.filter(i => i.excedente).reduce((s, i) => s + i.qtd, 0);
+            const com = promoCabe(a, chaveClienteDaVenda(), n, null, x), sem = promoCabe(a, chaveClienteDaVenda(), n, null, 0); return [sem.total - com.total, com.cabe]; })()""")
+        ok(v[0] == 2 and v[1] == 0, 'as 2 peças de excedente descontam do limite total, e a cota do cliente continua cheia: %s' % v)
+        # quem não pode liberar vê a linha e o motivo, sem o botão
+        ev("USUARIO_SESSAO.nome = 'Ana Souza'; USUARIO_SESSAO.perfil = 'Vendedor interno'")
+        clica('#listaItens tbody tr[data-item="2"] td:nth-child(2)'); pg.wait_for_timeout(250)
+        ok(ev("document.getElementById('itemExcedente').offsetParent === null"), 'quem não tem a permissão (a Ana, vendedora) não vê o botão')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
+
     reais = [e for e in erros if 'ERR_' not in e]
     ok(not reais, 'nenhum erro de JavaScript em toda a suíte: %s' % reais[:3])
     nav.close()

@@ -8,7 +8,7 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Usuários do sistema e Permissões de usuários, entrega 2: implementada em 12/nov/2026, esperando o teste dele.**
+**Usuários do sistema e Permissões de usuários, entrega 2: implementada em 12/nov e fechada em 16/nov/2026 (selo verde, menos o item 13 da revisão geral, que é de antes), esperando o teste dele.**
 O código de autorização entrou no lugar da senha mocada nas 95 telas que têm o envelope da senha: quem libera digita o **código dele**
 (4 a 6 números) e o sistema passa a saber **quem autorizou** — o registro de atividades grava "autorizado por <nome>". O limite de desconto
 sem liberação passou a ser **por pessoa** (o do vendedor da venda), no PDV e no Pedido de Venda (que não tinha limite). O pacote do gerente
@@ -255,6 +255,13 @@ Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "
     "Desconto / Acréscimo" e "Valor fixo / Porcentagem" do PDV, a bolinha não fica centralizada no texto nem na caixa, e
     cada cartão a mostra num lugar diferente. Medir nos dois temas e procurar o mesmo marcador e a mesma opção nas outras
     telas, para corrigir num bloco comum.
+
+Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
+
+13. **Contas a Pagar, a página da conta: o "escopo antes de excluir" não abre na conta nº 110.** `teste_cpd.py` (passo 15)
+    passava em 09/nov e reprova desde então, inclusive nas telas do commit de 11/nov, antes da entrega 2 de Usuários. O jeito
+    é de teste preso à data de hoje (a conta parcelada tem parcelas que vencem com o tempo). Conferir se a conta de exemplo
+    mudou de situação com a data ou se o "Excluir" do grupo deixou de perguntar o escopo.
 
 ## Esperando decisão do usuário
 

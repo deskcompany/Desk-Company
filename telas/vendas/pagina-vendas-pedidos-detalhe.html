@@ -4345,7 +4345,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="field-hint">Preço de lista menos o desconto do item.</div></div>' +
         (it.foraPromo && promoNaVenda(it.sku, lojaAtual(), 'vendedores') && autoPodeLiberar('promocaoExcedente')
           ? '<div class="form-field"><label>Peças no preço promocional (excedente)</label>' +
-              '<input type="number" id="itExcedenteQtd" min="1" step="1" value="' + (it.qtd || 1) + '">' +
+              '<input type="text" id="itExcedenteQtd" inputmode="numeric" value="' + (it.qtd || 1) + '">' +
               '<div class="field-hint">Esta linha entrou pelo preço de venda: ' + it.foraPromo + '.</div>' +
               '<button type="button" class="btn-secundario item-btn-promo" id="btnAplicarPromoExcedente">Aplicar preço promocional no excedente</button></div>'
           : '') +
