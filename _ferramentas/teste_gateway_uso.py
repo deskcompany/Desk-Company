@@ -562,8 +562,8 @@ with sync_playwright() as p:
         ok(c['historico'] == 'Cartão de crédito · American Express · 3x · Stone — maquininha da loja', 'e o historico do titulo diz forma, bandeira, vezes e maquininha: %s' % c['historico'])
         ok(v['recebimentos'][0]['gatewayId'] is None and v['recebimentos'][0]['historico'] is None and v['recebimentos'][0]['contaId'] == 1, 'o dinheiro continua sem gateway e entra na conta Caixa')
         g = pg.inner_text('#concGerado')
-        ok('1 título em Contas a Receber, somando R$ 149,90 (Cartão de crédito em 3x)' in g and 'a receber de Stone — maquininha da loja' in g and 'Maquininha Stone — maquininha da loja, bandeira American Express' in g and ('Vencimento em ' + br(venc)) in g,
-           'a tela da venda concluida diz titulo, conta do gateway, maquininha, bandeira e vencimento: %s' % [l for l in g.split(chr(10)) if 'título' in l][:1])
+        ok('1 título em Contas a Receber, somando R$ 149,90 (Cartão de crédito em 3x)' in g and 'a receber da operadora' in g and 'Stone' not in g and 'American Express' not in g and ('Vencimento em ' + br(venc)) in g,
+           'a tela da venda concluida diz titulo, a receber da operadora (sem maquininha nem bandeira, item 10) e vencimento: %s' % [l for l in g.split(chr(10)) if 'título' in l][:1])
         ok('Taxa de R$ 8,99 em Cartão de crédito' in g and 'descontada no dia seguinte' in g, 'e a taxa, descontada quando o gateway diz (dia seguinte, o da Stone)')
         # o caixa: cartao nao entra na gaveta
         ok(pg.evaluate('dinheiroNaGaveta(turno)') == 250 and pg.evaluate('recebidoNaForma(turno, "credito")') == 149.9 and pg.evaluate('recebidoNaForma(turno, "dinheiro")') == 100,
@@ -582,7 +582,7 @@ with sync_playwright() as p:
         ok(rec()['parcelas'] == [dict(dias=(mais_uteis(HOJE, 2) - HOJE).days, valor=97.55)] and pg.evaluate('taxaDe(venda.recebimentos[0])') == 2, 'o debito vence em 2 dias uteis, com tarifa de R$ 2,00, qualquer que seja a bandeira (a bancada tem uma linha so de debito)')
         clic('#btnFinalizar'); pg.wait_for_timeout(500)
         g = pg.inner_text('#concGerado')
-        ok('Taxa de R$ 2,00 em Cartão de débito' in g and 'bandeira Visa' in g and ('Vencimento em ' + br(mais_uteis(HOJE, 2))) in g, 'o titulo do debito: tarifa de R$ 2,00, bandeira Visa, vencimento em 2 dias uteis')
+        ok('Taxa de R$ 2,00 em Cartão de débito' in g and 'bandeira' not in g and ('Vencimento em ' + br(mais_uteis(HOJE, 2))) in g, 'o titulo do debito: tarifa de R$ 2,00, sem bandeira no resumo, vencimento em 2 dias uteis')
         # o recibo segue sem vencimento de cartao
         clic('#btnRecibo'); pg.wait_for_timeout(250)
         r = pg.evaluate("document.getElementById('folhaImpressao').innerText")
@@ -675,7 +675,7 @@ with sync_playwright() as p:
            'a venda mostra a linha "Desconto Pix/dinheiro (3,15%%) − R$ 7,87" e o total a pagar 242,03: %s | %s' % (txt('#finDescAVista'), txt('#finTotal')))
         ok('Quita R$ 249,90' in lista() and 'o cliente paga R$ 242,03' in lista() and 'desconto à vista de 3,15%' in lista(), 'o recebimento diz o que quita e o que o cliente paga com o desconto')
         ok('Pode finalizar' in pend(), 'os recebimentos fecham com o total ja descontado: pode finalizar')
-        ok(visivel('#avisoAVista') and 'InfinitePay Maquininha — Bronze' in txt('#avisoAVista') and 'Visa' in txt('#avisoAVista') and visivel('#btnTirarDescAVista'), 'o aviso diz de onde vem o percentual (maquininha e bandeira) e oferece tirar o desconto')
+        ok(visivel('#avisoAVista') and 'InfinitePay Maquininha — Bronze' in pg.evaluate('descontoDeReferencia().gateway.descricao') and 'a taxa do crédito à vista)' in txt('#avisoAVista') and 'InfinitePay' not in txt('#avisoAVista') and 'Bronze' not in txt('#avisoAVista') and 'Visa' not in txt('#avisoAVista') and visivel('#btnTirarDescAVista'), 'o aviso traz a porcentagem, as formas, o valor e o botao, sem o nome da maquininha, o nivel nem a bandeira (item 11, 16/nov/2026); a referencia segue a Bronze')
         ok(pg.evaluate('pagoAVista(100, 3.15)') == 96.85, 'R$ 100,00 em Pix: o cliente paga R$ 96,85')
         clic('#btnFinalizar'); pg.wait_for_timeout(500)
         v = pg.evaluate('ultimaVenda')
@@ -731,10 +731,10 @@ with sync_playwright() as p:
         ok(pg.evaluate('descontoAVistaPct()') == 0 and not visivel('#finDescAVistaLinha') and 'o cliente paga' not in lista(), 'com o interruptor desligado em Configuracoes > PDV, o Pix paga o valor cheio')
         # subir de nivel: o desconto acompanha
         com_desconto(); gateway(2, situacao='desabilitado'); gateway(3, situacao='habilitado'); receber('pix')
-        ok(pg.evaluate('descontoAVistaPct()') == 2.89 and 'InfinitePay Maquininha — Prata' in txt('#avisoAVista') and txt('#finTotal') == rs(pago_avista(249.9, 2.89)),
+        ok(pg.evaluate('descontoAVistaPct()') == 2.89 and 'InfinitePay Maquininha — Prata' in pg.evaluate('descontoDeReferencia().gateway.descricao') and txt('#finTotal') == rs(pago_avista(249.9, 2.89)),
            'a loja sobe da Bronze para a Prata: o desconto passa a 2,89%% sozinho (Pix de 249,90 paga %s)' % rs(pago_avista(249.9, 2.89)))
         com_desconto(); gateway(4, situacao='habilitado'); param(pdvDescontoAVista=True, formaGatewayPadrao=dict(credito=4)); receber('pix')
-        ok(pg.evaluate('descontoAVistaPct()') == 2.79 and 'InfinitePay Maquininha — Ouro' in txt('#avisoAVista'), 'o gateway padrao do credito em Formas (Ouro) e o que vale: 2,79%')
+        ok(pg.evaluate('descontoAVistaPct()') == 2.79 and 'InfinitePay Maquininha — Ouro' in pg.evaluate('descontoDeReferencia().gateway.descricao'), 'o gateway padrao do credito em Formas (Ouro) e o que vale: 2,79%')
         gateway(4, lojas=[2]); repintar()
         ok(pg.evaluate('descontoAVistaPct()') == 3.15, 'padrao de Formas que nao e da loja nao vale: cai na primeira maquininha da loja (Bronze, 3,15%)')
         # tirar o desconto da venda: com senha

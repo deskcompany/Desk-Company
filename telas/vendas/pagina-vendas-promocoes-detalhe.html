@@ -1761,7 +1761,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -2758,7 +2758,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const v = promoVendido(E).porSku[i.sku] || { qtd: 0, valor: 0 };
       return '<span class="pr-vendido">Vendeu ' + fmtUn(v.qtd) + ' de ' + fmtUn(promoLimite(i)) + '</span>' + (i.encerrado ? '<div class="pr-sub">encerrado em ' + promoData(i.encerrado.em) + ' por ' + i.encerrado.por + ', na ficha do produto</div>' : '');
     }
-    return r.motivos.length ? '<span class="pr-fora">Fora</span><div class="pr-motivo">' + r.motivos.join(' · ') + '</div>' : '<span class="pr-ok">Ok</span>';
+    return r.motivos.length ? '<span class="pr-fora">Corrigir</span><div class="pr-motivo">' + r.motivos.join(' · ') + '</div>' : '<span class="pr-ok">Pronto</span>';
   }
   function dicaPreco(i, r) {
     if (!r.pr) return '';
@@ -2811,8 +2811,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const c = contagem(), el = document.getElementById('resumoRevisao');
     if (!editavel() || !c.total) { el.textContent = ''; el.className = 'pr-resumo'; pintarBotoes(); return; }
     el.className = 'pr-resumo' + (c.fora ? ' pr-resumo-fora' : ' pr-resumo-ok');
-    el.textContent = c.fora ? plural(c.total - c.fora, 'produto ok', 'produtos ok') + ' e ' + plural(c.fora, 'fora', 'fora') + ': corrija ou tire as linhas fora antes de aprovar.'
-      : 'Todos os ' + plural(c.total, 'produto está ok', 'produtos estão ok') + (situacao() === 'revisao' ? ': pode aprovar.' : ': clique em Revisar para mandar para a aprovação.');
+    el.textContent = c.fora ? plural(c.total - c.fora, 'pronto', 'prontos') + ' e ' + c.fora + ' para corrigir: corrija ou tire as linhas marcadas Corrigir antes de aprovar.'
+      : 'Todos os ' + plural(c.total, 'produto está pronto', 'produtos estão prontos') + (situacao() === 'revisao' ? ': pode aprovar.' : ': clique em Revisar para mandar para a aprovação.');
     pintarBotoes();
   }
 
@@ -2955,7 +2955,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     renderItens(); marcarPendente();
     const c = contagem();
     avisar(plural(r.linhas.length, 'linha lida', 'linhas lidas') + ' da planilha: ' + plural(novos, 'produto novo', 'produtos novos') + (trocados ? ', ' + plural(trocados, 'já estava', 'já estavam') + ' e ' + (trocados === 1 ? 'foi atualizado' : 'foram atualizados') : '') +
-      (r.semSku ? '; ' + plural(r.semSku, 'linha sem SKU foi ignorada', 'linhas sem SKU foram ignoradas') : '') + '. Na revisão: ' + (c.total - c.fora) + ' ok e ' + c.fora + ' fora.');
+      (r.semSku ? '; ' + plural(r.semSku, 'linha sem SKU foi ignorada', 'linhas sem SKU foram ignoradas') : '') + '. Na revisão: ' + plural(c.total - c.fora, 'pronto', 'prontos') + ' e ' + c.fora + ' para corrigir.');
   }
   document.getElementById('arquivoPlanilha').addEventListener('change', (e) => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
@@ -2973,7 +2973,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     renderItens(); marcarPendente();
     const fora = alvo.filter(i => revisar(i).motivos.length).length;
     document.getElementById('infoPct').className = 'pr-pct-info' + (fora ? ' pr-fora-txt' : '');
-    document.getElementById('infoPct').textContent = String(pct).replace('.', ',') + '% aplicado em ' + plural(alvo.length, 'produto', 'produtos') + (fora ? ': ' + plural(fora, 'ficou fora', 'ficaram fora') + ' na revisão.' : '.');
+    document.getElementById('infoPct').textContent = String(pct).replace('.', ',') + '% aplicado em ' + plural(alvo.length, 'produto', 'produtos') + (fora ? ': ' + plural(fora, 'ficou para corrigir', 'ficaram para corrigir') + ' na revisão.' : '.');
   });
 
   // ===== MODAL =====
@@ -3278,8 +3278,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     else {
       const v = promoAprovada(E) ? promoVendido(E) : null, vend = v ? ' Vendeu ' + plural(v.qtd, 'unidade', 'unidades') + ', ' + promoMoeda(v.valor) + ', com o preço dela, nos Pedidos de Venda e no PDV' +
         (v.pedidos.length ? ': <span id="prFaixaVendas">' + v.pedidos.map(promoLinkVenda).join(', ') + '</span>.' : '.') : '';
-      if (s === 'rascunho') texto = '<b>Rascunho.</b> Monte os produtos e clique em Revisar: a revisão diz, linha por linha, o que fica de fora.';
-      if (s === 'revisao') texto = '<b>Em revisão.</b> Corrija ou tire as linhas fora; com todas ok, aprove com a sua senha. Aprovada, ela começa e termina sozinha.';
+      if (s === 'rascunho') texto = '<b>Rascunho.</b> Monte os produtos e clique em Revisar: a revisão diz, linha por linha, o que está pronto e o que precisa de correção.';
+      if (s === 'revisao') texto = '<b>Em revisão.</b> Corrija ou tire as linhas marcadas Corrigir; com todas prontas, aprove com a sua senha. Aprovada, ela começa e termina sozinha.';
       if (s === 'agendada') { texto = '<b>Agendada.</b> Aprovada por ' + E.aprovadaPor + ' em ' + promoData(E.aprovadaEm.slice(0, 10)) + ', com senha. Começa sozinha em ' + promoData(E.inicio) + ' e termina em ' + promoData(E.fim) + '. Antes de começar, preço e produtos ainda podem mudar: ela volta para a revisão.';
         botoes = bAntecipar + bProrrogar + bAlterar + bEncerrar; }
       if (s === 'ativa') { texto = '<b>Ativa</b> desde ' + promoData(E.inicio) + ', termina sozinha em ' + promoData(E.fim) + '. Depois de começar, só dá para prorrogar ou encerrar.' + vend;
@@ -3331,9 +3331,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnRevisar').addEventListener('click', () => {
     if (!validar(true)) { avisar('Para revisar, a promoção precisa de título, loja, início de hoje em diante, fim, onde vale e ao menos um produto. Os campos que faltam estão marcados.'); return; }
     const c = contagem();
-    confirmarAcao('promocaoSalva', 'Revisar a promoção "' + E.nome.trim() + '": ' + (c.total - c.fora) + ' ok e ' + c.fora + ' fora.', () => {
-      E.nome = E.nome.trim(); E.situacao = 'revisao'; promoRegistrar(E, 'Revisou: ' + (c.total - c.fora) + ' ok e ' + c.fora + ' fora.'); gravar(); pintarTudo();
-      avisar(c.fora ? 'Revisada: ' + plural(c.fora, 'linha ficou fora', 'linhas ficaram fora') + ', com o motivo na coluna Revisão. Corrija ou tire essas linhas para poder aprovar.' : 'Revisada: todas as linhas estão ok. Pode aprovar com a sua senha.');
+    confirmarAcao('promocaoSalva', 'Revisar a promoção "' + E.nome.trim() + '": ' + plural(c.total - c.fora, 'pronto', 'prontos') + ' e ' + c.fora + ' para corrigir.', () => {
+      E.nome = E.nome.trim(); E.situacao = 'revisao'; promoRegistrar(E, 'Revisou: ' + plural(c.total - c.fora, 'pronto', 'prontos') + ' e ' + c.fora + ' para corrigir.'); gravar(); pintarTudo();
+      avisar(c.fora ? 'Revisada: ' + plural(c.fora, 'linha ficou para corrigir', 'linhas ficaram para corrigir') + ', com o motivo na coluna Revisão. Corrija ou tire essas linhas para poder aprovar.' : 'Revisada: todas as linhas estão prontas. Pode aprovar com a sua senha.');
     });
   });
   // Aprovar pede senha (Confirmacoes por senha, acao promocaoAprova). O preco promocional diferente do cadastro entra no cadastro, com o historico.
@@ -3341,7 +3341,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (document.getElementById('btnAprovar').disabled) return;
     if (!validar(true)) { avisar('Falta informação para aprovar: os campos estão marcados.'); return; }
     const c = contagem();
-    if (c.fora) { avisar('Para aprovar, todas as linhas têm de estar ok: ' + plural(c.fora, 'está fora', 'estão fora') + '.'); return; }
+    if (c.fora) { avisar('Para aprovar, todas as linhas têm de estar prontas: ' + plural(c.fora, 'precisa de correção', 'precisam de correção') + '.'); return; }
     const mudam = E.itens.filter(i => { const pr = promoProduto(i.sku), cad = promoPrecos(pr.id).promocional; return i.preco !== null && (cad === null || Math.abs(cad - i.preco) >= 0.005); });
     const texto = 'Aprovar a promoção "' + E.nome.trim() + '" (' + PROMO_LOJAS[E.loja] + '), de ' + promoData(E.inicio) + ' a ' + promoData(E.fim) + ', com ' + plural(E.itens.length, 'produto', 'produtos') +
       ', valendo em ' + E.onde.map(o => PROMO_ONDE[o]).join(', ') + '.' + (mudam.length ? ' ' + plural(mudam.length, 'preço promocional novo entra', 'preços promocionais novos entram') + ' no cadastro do produto.' : '');

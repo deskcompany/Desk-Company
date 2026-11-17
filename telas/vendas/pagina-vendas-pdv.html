@@ -2197,7 +2197,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -4542,7 +4542,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (PARAM.pdvDescontoAVista && ref.pct > 0 && temAVista) {
       av = venda.semDescontoAVista
         ? 'O desconto à vista de <b>' + fmtNum(ref.pct) + '%</b> foi tirado desta venda: o Pix e o dinheiro valem o valor cheio.'
-        : 'Desconto à vista de <b>' + fmtNum(ref.pct) + '%</b> no Pix e no dinheiro (a taxa do crédito à vista de ' + esc(ref.gateway.descricao) + ', ' + esc(GWL_BANDEIRAS[ref.bandeira]) + '): <b>− ' + moeda(descontosAVista()) +
+        : 'Desconto à vista de <b>' + fmtNum(ref.pct) + '%</b> no Pix e no dinheiro (a taxa do crédito à vista): <b>− ' + moeda(descontosAVista()) +
           '</b>. <button type="button" class="btn-secundario" id="btnTirarDescAVista">Tirar o desconto desta venda</button>';
     }
     mostrar('avisoAVista', !!av); html('avisoAVista', av);
@@ -4813,8 +4813,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
         g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), ' +
           // No prazo fixo quem deve e a operadora: o titulo e a receber dela, com ou sem cliente na venda.
-          (r.prazoFixo && conta ? 'a receber de ' + esc(conta.nome) : 'em nome de ' + esc(v.clienteNome)) + '. ' +
-          (r.gatewayNome ? 'Maquininha ' + esc(r.gatewayNome) + (r.bandeiraNome ? ', bandeira ' + esc(r.bandeiraNome) : '') + '. ' : '') +
+          (r.prazoFixo && conta ? 'a receber da operadora' : 'em nome de ' + esc(v.clienteNome)) + '. ' +   // sem o nome da maquininha, o nivel nem a bandeira (usuario, 16/nov/2026)
           (r.parcelas.length === 1 ? 'Vencimento' : 'Primeiro vencimento') + ' em ' + primeiro + '.' +
           (cob > r.valor ? ' Inclui ' + moeda(arred(cob - r.valor)) + ' de taxa repassada ao cliente.' : ''));
       }

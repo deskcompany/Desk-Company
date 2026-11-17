@@ -543,6 +543,8 @@
   .header-acoes { display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap; max-width:100%; margin-left:auto; }
   /* a coluna do titulo nunca e espremida pelos botoes: se nao couber, os botoes descem, alinhados a direita */
   .page-header > :first-child { flex:1 1 380px; min-width:0; }
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo { display:flex; align-items:center; gap:7px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text-heading); background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:9px 16px; cursor:pointer; white-space:nowrap; }
   .btn-secundario-topo:hover { background: rgba(120,120,140,0.08); }
   .btn-secundario-topo svg { width:14px; height:14px; }
@@ -1053,19 +1055,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <!-- ABA: DADOS COMPLEMENTARES -->
   <div class="tab-panel" id="tab-complementares">
     <div class="section-title">Categorização</div>
-    <div class="form-field" id="campoLojaDesk">
-      <label>Loja Desk</label>
-      <div class="dropdown-select" id="inputLojaDesk" data-value="">
-        <button type="button" class="dropdown-select-btn form-style">
-          <span class="dropdown-select-label">Selecionar Loja</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="dropdown-select-menu" id="menuLojaDesk"></div>
-      </div>
-      <div class="field-hint">Lista vem do cadastro de Lojas Desk (ainda não construído, aqui é mock). Cada produto pertence a uma única loja — se precisar existir em mais de uma, crie um cadastro separado pra cada uma.</div>
-    </div>
-
     <div class="form-row">
+      <div class="form-field" id="campoLojaDesk">
+        <label>Loja Desk</label>
+        <div class="dropdown-select" id="inputLojaDesk" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Selecionar Loja</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu" id="menuLojaDesk"></div>
+        </div>
+        <div class="field-hint">Lista vem do cadastro de Lojas Desk (ainda não construído, aqui é mock). Cada produto pertence a uma única loja — se precisar existir em mais de uma, crie um cadastro separado pra cada uma.</div>
+      </div>
+
       <div class="form-field">
         <label>Categoria</label>
         <div class="dropdown-select" id="inputCategoria" data-value="">
@@ -1077,6 +1079,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
         <div class="field-hint">Puxa da tabela Categorias (tipo = Produtos), já existente em Cadastros.</div>
       </div>
+    </div>
+
+    <div class="form-row">
       <div class="form-field">
         <label>Departamento</label>
         <div class="dropdown-select disabled" id="inputDepartamento" data-value="">
@@ -1935,7 +1940,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }

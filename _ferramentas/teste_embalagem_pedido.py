@@ -845,7 +845,7 @@ with sync_playwright() as p:
         ok(r and r['situacao'] == 'confirmada' and r['trocas'] == ['− 299 Caixa de Encomenda CE-02'] and [(i['id'], i['qtd'], i['custo']) for i in r['itens']] == [(5, 1, 6.3), (12, 1, 0.6), (13, 1, 0.3)],
            'o registro grava uma troca só e 1 caixa: %s' % (r and r['trocas']))
         log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(x => x.chave === 'confSaidaFecha')")
-        ok(len(log) == 1 and '− 299 Caixa de Encomenda CE-02' in log[0]['detalhe'] and len(log[0]['detalhe']) <= 180, 'e a troca cabe inteira nos 180 caracteres do Registro de atividades (%d): %s' % (len(log[0]['detalhe']), log[0]['detalhe']))
+        ok(len(log) == 1 and '− 299 Caixa de Encomenda CE-02' in log[0]['detalhe'] and len(log[0]['detalhe']) <= 1000, 'e a troca cabe inteira nos 1000 caracteres do Registro de atividades (%d): %s' % (len(log[0]['detalhe']), log[0]['detalhe']))
         ir(pg, CONF_F, '?id=4')
         ok(not pg.locator('#campoTotalVolumes').is_visible() and not pg.locator('#inputTotalVolumes').is_visible() and not pg.locator('#btnAddVolume').is_visible(), 'com a conferência fechada o campo Total de volumes não aparece (nem o Adicionar volume)')
         pg.context.close()

@@ -382,7 +382,7 @@
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
   html:has(.drawer-backdrop.open) { overflow:hidden; }   /* painel lateral aberto: a pagina de tras nao rola e volta ao mesmo ponto ao fechar */
-  .event-drawer { position:fixed; top:0; right:-560px; width:540px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
+  .event-drawer { position:fixed; top:0; right:-620px; width:600px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
   .event-drawer.open { right:0; }
   .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
   .drawer-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--text-heading); }
@@ -437,7 +437,8 @@
   .entrada-previa.vazia { font-weight:600; color:var(--text); }
   .dimensoes-diagrama-row { display:flex; align-items:flex-end; gap:20px; margin-bottom:18px; flex-wrap:wrap; }
   .dimensoes-campos { display:flex; gap:12px; flex:1; min-width:220px; }
-  .dimensoes-campos .form-field { flex:1; margin-bottom:0; }
+  .dimensoes-campos .form-field { flex:1; min-width:0; margin-bottom:0; }
+  .dimensoes-campos .form-field label { white-space:nowrap; }   /* o nome do campo fica numa linha so (usuario, 16/nov/2026); o painel alarga para caber */
   .dimensoes-svg-wrap { flex-shrink:0; width:120px; height:96px; display:flex; align-items:center; justify-content:center; color:var(--text); }
   .dimensoes-svg-wrap svg { width:100%; height:100%; }
   .tipo-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
@@ -1311,7 +1312,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }

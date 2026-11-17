@@ -315,6 +315,7 @@
   .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
+  .menu-linha { height:1px; background:var(--border); margin:5px 4px; }
   /* Excecao a regra "dropdown abre para baixo" (usuario, 02/nov/2026): o "Por pagina" do rodape abre SEMPRE para cima, em qualquer posicao da pagina. */
   .paginacao-info .dropdown-select-menu { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
@@ -908,7 +909,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="nota-reservado">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-    <span><b>Cada promoção é de uma loja só</b> e passa pela revisão antes de ser aprovada com senha: produto abaixo do preço mínimo, sem preço promocional, com o preço de venda subindo nos últimos <b id="notaRiscado">30 dias</b> ou já em outra promoção fica de fora. Aprovada, ela <b>começa e termina sozinha</b>; depois de começar, só dá para antecipar, prorrogar ou encerrar.</span>
+    <span><b>Cada promoção é de uma loja só</b> e passa pela revisão antes de ser aprovada com senha: produto abaixo do preço mínimo, sem preço promocional, com o preço de venda subindo nos últimos <b id="notaRiscado">30 dias</b> ou já em outra promoção fica marcado para corrigir. Aprovada, ela <b>começa e termina sozinha</b>; depois de começar, só dá para antecipar, prorrogar ou encerrar.</span>
   </div>
 
   <!-- Indicadores: o que espera alguem e o que esta valendo. Clicar filtra a lista; clicar de novo desfaz. -->
@@ -1522,7 +1523,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -2339,19 +2340,34 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         (promoAprovada(p) ? '<div class="mov-qtd">' + fmtUn(vi.qtd) + ' de ' + fmtUn(promoLimite(i)) + '</div>' : '') + '</div>';
     });
     // As acoes da situacao (decisao de 09/nov/2026): antes de comecar, antecipar; agendada ou ativa, prorrogar e encerrar; qualquer uma, clonar.
-    const botoes = [];
-    // Rascunho e em revisao: o principal e abrir a pagina para continuar; nas outras, abrir fica por ultimo.
+    // Item 6 (16/nov/2026): embaixo, o principal em azul ("Abrir promocao completa") e um "Mais acoes" com Antecipar, Prorrogar, Clonar, uma linha e Encerrar
+    // agora; o "fechar" fica no alto, como nos outros paineis. Cada acao so aparece quando vale hoje.
     const antes = s === 'rascunho' || s === 'revisao';
-    const abrir = '<button class="' + (antes ? 'btn-primary' : 'btn-secundario') + '" id="btnPrAbrir">' + (s === 'rascunho' ? 'Continuar montando' : s === 'revisao' ? 'Revisar e aprovar' : 'Abrir promoção completa') + '</button>';
-    if (antes) botoes.push(abrir);
-    if (s === 'agendada') botoes.push('<button class="btn-primary" id="btnPrAntecipar">Antecipar para hoje</button>');
-    if (s === 'agendada' || s === 'ativa') botoes.push('<button class="' + (s === 'ativa' ? 'btn-primary' : 'btn-secundario') + '" id="btnPrProrrogar">Prorrogar</button>', '<button class="btn-secundario" id="btnPrEncerrar">Encerrar agora</button>');
-    botoes.push('<button class="btn-secundario" id="btnPrClonar">Clonar</button>');
-    if (!antes) botoes.push(abrir);
-    html += '<div class="drawer-footer">' + botoes.join('') + '<div class="drawer-link" id="btnFecharPreview">Fechar</div></div>';
+    const abrir = '<button class="btn-primary" id="btnPrAbrir">' + (s === 'rascunho' ? 'Continuar montando' : s === 'revisao' ? 'Revisar e aprovar' : 'Abrir promoção completa') + '</button>';
+    const itens = [];
+    if (s === 'agendada') itens.push('<div class="dropdown-select-item" id="btnPrAntecipar">Antecipar para hoje</div>');
+    if (s === 'agendada' || s === 'ativa') itens.push('<div class="dropdown-select-item" id="btnPrProrrogar">Prorrogar</div>');
+    itens.push('<div class="dropdown-select-item" id="btnPrClonar">Clonar</div>');
+    if (s === 'agendada' || s === 'ativa') itens.push('<div class="menu-linha" id="prMenuLinha"></div><div class="dropdown-select-item" id="btnPrEncerrar" style="color:var(--danger);">Encerrar agora</div>');
+    const mais = '<div class="dropdown-select" id="prMaisAcoes"><button type="button" class="btn-ghost dropdown-select-btn" id="btnPrMais"><span class="dropdown-select-label">Mais ações</span>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="dropdown-select-menu" style="min-width:210px; white-space:nowrap;">' + itens.join('') + '</div></div>';
+    html += '<div class="drawer-footer">' + abrir + mais + '</div>';
     document.getElementById('drawerCorpo').innerHTML = html;
     const liga = (b, fn) => { if (b) b.addEventListener('click', fn); };
-    liga(document.getElementById('btnFecharPreview'), fecharDrawer);
+    // O menu abre para baixo; sem espaco embaixo na janela, abre para cima (o rodape do painel fica no pe da tela).
+    (function () {
+      const raiz = document.getElementById('prMaisAcoes'), btn = document.getElementById('btnPrMais'), menu = raiz.querySelector('.dropdown-select-menu');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!menu.classList.contains('open')) {
+          menu.style.visibility = 'hidden'; menu.style.display = 'block'; const h = menu.offsetHeight; menu.style.display = ''; menu.style.visibility = '';
+          const r = btn.getBoundingClientRect();
+          menu.classList.toggle('abrir-para-cima', window.innerHeight - r.bottom < h + 12 && r.top > h + 12);
+        }
+        menu.classList.toggle('open');
+      });
+      menu.addEventListener('click', () => menu.classList.remove('open'));
+    })();
     liga(document.getElementById('btnPrAbrir'), () => { fecharDrawer(); window.location.href = PAGINA + '?id=' + p.id; });
     liga(document.getElementById('btnPrProrrogar'), () => { fecharDrawer(); window.location.href = PAGINA + '?id=' + p.id + '&acao=prorrogar'; });
     liga(document.getElementById('btnPrAntecipar'), () => {

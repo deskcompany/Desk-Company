@@ -478,7 +478,7 @@
   .estoque-table th.ordenavel { cursor:pointer; }
   .estoque-table th.ordenavel:hover { color:var(--text-heading); }
   .estoque-table th .seta { display:inline-block; margin-left:4px; opacity:0.35; font-size:9px; }
-  .estoque-table th.ordenado .seta { opacity:1; color:var(--active-text); }
+  .estoque-table th.ordenado .seta, .estoque-table th.ordem-ativa .seta { opacity:1; color:var(--active-text); }
   .estoque-table th.ordenado { color:var(--text-heading); }
   .estoque-table td { padding:13px 6px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; }
   .estoque-table td.col-texto { text-align:left; }
@@ -1505,7 +1505,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }

@@ -8,6 +8,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Revisão geral, pacote C (16/nov/2026), esperando o teste dele:** as telas, uma a uma (itens 15, 19, 6, 7, 8, 9, 10, 11 e 1). [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (clicar na linha abre o painel), [Produtos](http://localhost:3000/cadastros/pagina-cadastros-produtos.html) (clicar numa linha: o preview com os quatro blocos), [painel da promoção](http://localhost:3000/vendas/pagina-vendas-promocoes.html) (botão azul e "Mais ações"), a ficha do produto ([Dados Complementares](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1) e o "Encerrar antes para este produto" na aba Preços), a revisão da promoção ("Pronto" e "Corrigir"), o [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html) (o resumo e o "Desconto à vista" sem maquininha) e [Embalagens](http://localhost:3000/cadastros/pagina-cadastros-embalagens.html) (campos de tamanho numa linha). Detalhe no §14.115.
+
 **Revisão geral, pacote B (16/nov/2026), esperando o teste dele:** as tabelas (itens 16, 17, 18 e 4). Nenhuma tabela rola na horizontal a 1280 px e o título da coluna fica numa linha só: [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (a coluna "Ação" estreita, com reticências; faça algumas ações para encher o registro), [Necessidades de Compra](http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html) (o fornecedor foi para baixo do produto), [CRM](http://localhost:3000/vendas/pagina-vendas-crm.html), [Metas](http://localhost:3000/vendas/pagina-vendas-metas.html), [Usuários](http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html) ("Desconto sem liberação") e os títulos encurtados em Giro, Controle de Estoques, Expedição e Custos do E-commerce; o texto solto "De" e "Mínimo" da [promoção](http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=1) e o "Total" da Ordem de Compra e da Entrada de Notas alinhados com os campos. Detalhe no §14.114.
 
 **Revisão geral, pacote A (16/nov/2026), esperando o teste dele:** o mínimo do detalhe da promoção lê o custo da aba Custos; o menu abre para cima quando não cabe embaixo (item 14: PDV, [cobrança](http://localhost:3000/vendas/pagina-vendas-pdv.html), venda com um item, "Adicionar recebimento (F4)"); o painel lateral aberto trava a página de trás (item 5, qualquer lista, ex. [Pedidos](http://localhost:3000/vendas/pagina-vendas-pedidos.html)); a bolinha centralizada (item 12, "Desconto / Acréscimo" e "O que esta venda gerou" no PDV). Detalhe no §14.113.
@@ -214,11 +216,6 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). Ficou um item dela,
 e entrou uma decisão:
 
-1. **Os campos de tamanho de Embalagens continuam desalinhados** (03/nov, com print no tema claro, editando a caixa
-   Flex P). O item 16 da revisão passada alargou o painel lateral de 400 para 540 px e mediu certo a 1280 e 1440, mas
-   na janela dele "Comprimento (cm)" ainda quebra em duas linhas e a caixa desce. O usuário repetiu: pode aumentar a
-   largura do painel lateral até caber. Medir na largura real da janela dele (menor que 1280, ou com zoom), nos dois
-   temas, no cadastro novo e na edição, e o mesmo nos outros tipos (envelope, rolo).
 2. **Contas a Pagar: a aba "atrasadas" ignora o período** (aprovado pelo usuário em 03/nov). A lista abre no período
    "mês" (decisão de 23/set), e por isso em 02/11 o card "Vencidas" dizia 8 e a aba "atrasadas" dizia 2. Conta vencida
    em outubro continua atrasada em novembro. Conferir se Contas a Receber tem a mesma aba e o mesmo defeito.
@@ -229,26 +226,7 @@ e entrou uma decisão:
 
 Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
 
-6. **Painel da promoção: organizar os botões** "Antecipar para hoje", "Prorrogar", "Encerrar agora", "Clonar",
-   "Abrir promoção completa" e "Fechar". Hoje são seis pílulas soltas em três linhas, sem hierarquia. Propor a
-   organização (a principal em destaque, as outras agrupadas) antes de mexer, seguindo os painéis das telas prontas.
-7. **Ficha do produto, aba Dados Complementares: alinhamento.** "Loja Desk" e "Selecionar Loja" ficam colados na
-   Categoria, os nomes não seguem a grade das outras linhas, e os valores aparecem no meio. Alinhar à grade da aba Dados Gerais.
-8. **Ficha do produto, aba Preços: o botão "Encerrar antes para este produto" está fora do padrão** (saiu com cara de
-   botão nativo: a classe `btn-secundario` não tem CSS nessa tela, porque entra pelo JS). Trocar pelo botão do design
-   system e procurar, nas 92 telas, outra classe que só aparece em string do JS sem CSS na tela. A regra entrou na skill
-   `desk-company-page-qa` (checklist manual, "Interação de verdade") em 09/nov.
-9. **Promoção, revisão: "fora" vira "Corrigir"** (escolha dele em 09/nov/2026, entre as sugestões). A linha boa vira
-   "Pronto" e a com problema "Corrigir", na etiqueta, no filtro e na frase embaixo da tabela ("3 prontos e 2 para
-   corrigir"). Trocar também nos textos de ajuda, na suíte `teste_promocoes.py` e no §14.108.
-
 Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "vamos avaliar depois"):
-
-10. **PDV, "O que esta venda gerou": menos detalhe para quem está no caixa.** Ficam o título a receber, a taxa da
-    maquininha (R$ 4,51), o valor total e a forma de pagamento. Saem o nome da maquininha, o nível da taxa (Bronze) e a
-    bandeira do cartão (Visa). Avaliar com ele, antes de mexer, se o mesmo vale para o resumo do Pedido de Venda.
-11. **PDV, caixa "Desconto à vista": tirar a maquininha, o nível (Bronze) e a bandeira** da frase ("a taxa do crédito à
-    vista de InfinitePay Maquininha — Bronze, Visa"). Ficam a porcentagem, as formas (Pix e dinheiro), o valor e o botão.
 
 Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
 
@@ -258,14 +236,6 @@ Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
     mudou de situação com a data ou se o "Excluir" do grupo deixou de perguntar o escopo.
 
 Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
-
-15. **Registro de atividades: clicar na ação abre o painel lateral** (o padrão da casa), com tudo o que não cabe na
-    linha: o texto inteiro que a pessoa confirmou, quem fez, quem autorizou, onde, quando e o registro. Com o painel, a
-    coluna "Ação" diminui e corta o texto com reticências.
-19. **Preview do Produto (lista de Produtos) com mais informação** (pedido dele em 16/nov, com print). Hoje mostra
-    só situação, SKU, preço de venda e estoque. Ganha os quatro blocos que ele marcou: Preços (venda, promocional,
-    atacado "a partir de N un." e a promoção ativa), Custo e margem (custo médio, margem e o mínimo da calculadora),
-    Estoque (físico, disponível, mínimo e por depósito) e Cadastro (loja, marca, fornecedor padrão e embalagem).
 
 O plano da revisão, com as escolhas dele de 16/nov para os itens 6, 10, 11, 18 e 19, está em
 [docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md).

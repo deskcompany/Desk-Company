@@ -1545,7 +1545,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -2050,7 +2050,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function upRegistrar(chave, acao, onde, detalhe, comSenha) {
     try {
       const b = localStorage.getItem('deskLog'), log = b ? JSON.parse(b) : [];
-      log.unshift({ ts: Date.now(), chave: chave, acao: acao, onde: onde, modulo: 'Configurações', usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil, senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 180) });
+      log.unshift({ ts: Date.now(), chave: chave, acao: acao, onde: onde, modulo: 'Configurações', usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil, senha: !!comSenha, detalhe: String(detalhe || '').slice(0, 1000) });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
   }

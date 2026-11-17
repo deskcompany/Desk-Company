@@ -1185,6 +1185,11 @@
   .log-selo.com { background:rgba(45,125,246,0.14); color:var(--active-text); }
   .log-selo.sem { background:rgba(120,120,140,0.14); color:var(--text); }
 
+  /* Painel da linha (item 15): o texto inteiro que a pessoa confirmou e o resto que nao cabe na linha. */
+  .log-texto-inteiro { font-size:13px; line-height:1.5; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin:6px 0 4px; overflow-wrap:anywhere; }
+  #eventDrawer a.painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
+  #eventDrawer a.painel-link:hover { text-decoration:underline; }
+  #eventDrawer .extrato-valor { text-align:right; overflow-wrap:anywhere; }
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
 </style>
 </head>
@@ -1471,6 +1476,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
 </div>
 
+<!-- PAINEL LATERAL: a atividade inteira -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="event-drawer" id="eventDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Atividade</div>
+    <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar <span class="esc-hint">ESC</span></div>
+  </div>
+  <div id="drawerCorpo"></div>
+</div>
+
 <!-- MODAL: aviso (telas ainda não construídas) -->
 <div class="drawer-backdrop" id="avisoBackdrop"></div>
 <div class="modal-card" id="avisoModal">
@@ -1505,6 +1520,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 </div>
 
 <script>
+  // ===== ESC FECHA O PAINEL LATERAL (correcao de COMPONENTE, nao de tela — 13/out/2026) =====
+  // O painel mostra "ESC" ao lado de fechar, mas em 42 paineis o Esc so fechava o modal de confirmacao:
+  // cada tela escrevia o seu tratamento de tecla, e a maioria esqueceu o painel. Aqui o Esc vale como
+  // clicar no "fechar" do painel aberto, entao cada tela continua dona do proprio fechamento. Roda na
+  // captura e vem ANTES do bloco do dropdown: com menu, calendario, sugestao ou modal por cima, nao faz
+  // nada, porque o que esta por cima fecha primeiro.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.querySelector('.dropdown-select-menu.open, .store-menu.open, .modal-card.open, .sugestoes.open, .date-pop.open, .periodo-menu.open, .auto-menu.open, .multiselect-menu.open, .mais-acoes-menu.open')) return;
+    const abertos = document.querySelectorAll('.event-drawer.open');
+    // Com dois paineis abertos, o de cima e o ultimo da pagina.
+    const fechar = abertos.length ? abertos[abertos.length - 1].querySelector('.drawer-close') : null;
+    if (!fechar) return;
+    fechar.click();
+    e.stopPropagation();
+  }, true);
+
   // ===== ESC FECHA O DROPDOWN ABERTO (correcao de COMPONENTE, nao de tela — §13) =====
   // Faltava desde sempre: Esc fechava modal e drawer, nunca o menu do dropdown — e
   // menu aberto intercepta o clique seguinte. Roda na FASE DE CAPTURA e so engole o
@@ -1966,7 +1998,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         acao: a ? a.nome : chave, onde: a ? a.onde : '', modulo: a ? a.modulo : '',
         usuario: USUARIO_SESSAO.nome, perfil: USUARIO_SESSAO.perfil,
         senha: !!comSenha, autorizadoPor: String(autorizadoPor || ''),
-        detalhe: String(detalhe || '').slice(0, 180)
+        detalhe: String(detalhe || '').slice(0, 1000)
       });
       localStorage.setItem('deskLog', JSON.stringify(log.slice(0, LOG_MAX)));
     } catch (e) { /* armazenamento bloqueado: a acao acontece, so nao fica registrada */ }
@@ -2381,6 +2413,55 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     );
   }
 
+  // ===== PAINEL LATERAL: a atividade inteira (item 15) =====
+  let listaAtual = [];
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  const eventDrawer = document.getElementById('eventDrawer');
+  function fecharDrawer() { drawerBackdrop.classList.remove('open'); eventDrawer.classList.remove('open'); }
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const linhaLog = (rot, val, id) => '<div class="extrato-linha"><span class="extrato-rotulo">' + rot + '</span><span class="extrato-valor"' + (id ? ' id="' + id + '"' : '') + '>' + val + '</span></div>';
+  // O "onde" vira link quando o ultimo trecho (depois da seta) casa com um item do menu lateral desta tela.
+  function linkDaTela(onde) {
+    const nome = String(onde || '').split('\u2192').pop().trim();
+    const itens = Array.prototype.slice.call(document.querySelectorAll('.flyout-item[data-href]')), n = semAcento(nome);
+    // shortcut: casa pelo nome do menu (igual, ou o nome do menu começa com o do catálogo); sem casar, vira texto sem link.
+    const it = itens.filter(x => semAcento(x.getAttribute('data-label')) === n)[0] || itens.filter(x => semAcento(x.getAttribute('data-label')).indexOf(n) === 0)[0];
+    return it ? '<a class="painel-link" id="logOndeLink" href="' + it.getAttribute('data-href') + '">' + esc(onde) + '</a>' : esc(onde || '\u2014');
+  }
+  function abrirAtividade(i) {
+    const e = listaAtual[i];
+    if (!e) return;
+    const dh = dataHora(e.ts);
+    document.getElementById('drawerCorpo').innerHTML =
+      '<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:15px;color:var(--text-heading);" id="logAcaoTitulo">' + esc(e.acao) + '</div>' +
+      '<div class="extrato-bloco-titulo" style="margin-top:14px;">O que a pessoa confirmou</div>' +
+      '<div class="log-texto-inteiro" id="logTextoInteiro">' + (e.detalhe ? esc(e.detalhe) : 'Sem texto de confirma\u00e7\u00e3o: a a\u00e7\u00e3o n\u00e3o pediu mensagem.') + '</div>' +
+      '<div class="extrato-bloco-titulo">Quem e quando</div>' +
+      linhaLog('Quem fez', esc(e.usuario) + ' \u00b7 ' + esc(e.perfil), 'logQuem') +
+      linhaLog('Quem autorizou', e.autorizadoPor ? esc(e.autorizadoPor) : (e.senha ? 'a pr\u00f3pria pessoa' : 'sem c\u00f3digo de autoriza\u00e7\u00e3o'), 'logAutorizou') +
+      linhaLog('Onde', linkDaTela(e.onde), 'logOnde') +
+      linhaLog('Quando', dh.dia + ' \u00e0s ' + dh.hora, 'logQuando') +
+      '<div class="extrato-bloco-titulo">Registro</div>' +
+      linhaLog('Confirma\u00e7\u00e3o', e.senha ? 'com senha' : 'sem senha') +
+      linhaLog('M\u00f3dulo', esc(e.modulo || '\u2014')) +
+      linhaLog('C\u00f3digo da a\u00e7\u00e3o', esc(e.chave), 'logChave') +
+      '<div class="drawer-footer"><div class="drawer-link" id="btnFecharPreview">Fechar</div></div>';
+    document.getElementById('btnFecharPreview').addEventListener('click', fecharDrawer);
+    drawerBackdrop.classList.add('open');
+    eventDrawer.classList.add('open');
+  }
+  document.getElementById('drawerClose').addEventListener('click', fecharDrawer);
+  drawerBackdrop.addEventListener('click', fecharDrawer);
+  document.getElementById('listaLog').addEventListener('click', (ev) => {
+    const tr = ev.target.closest('tr[data-i]');
+    if (tr) abrirAtividade(Number(tr.getAttribute('data-i')));
+  });
+  document.getElementById('listaLog').addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter') return;
+    const tr = ev.target.closest && ev.target.closest('tr[data-i]');
+    if (tr) abrirAtividade(Number(tr.getAttribute('data-i')));
+  });
+
   function render() {
     const lista = filtrados();
     const total = lista.length;
@@ -2414,9 +2495,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<th class="col-texto" style="width:200px;">Onde</th>' +
         '<th class="col-texto" style="width:120px;">Confirma\u00e7\u00e3o</th>' +
       '</tr></thead><tbody>' +
-      pagina.map(e => {
+      pagina.map((e, idx) => {
         const dh = dataHora(e.ts);
-        return '<tr>' +
+        return '<tr data-i="' + (inicio + idx) + '" tabindex="0">' +
           '<td class="col-texto log-quando">' + dh.dia + '<span class="log-hora">' + dh.hora + '</span></td>' +
           '<td class="col-texto"><span class="log-usuario">' + e.usuario + '</span><span class="log-perfil">' + e.perfil + '</span>' +
             (e.autorizadoPor ? '<span class="log-autorizado">autorizado por ' + e.autorizadoPor + '</span>' : '') + '</td>' +
@@ -2428,6 +2509,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '</tr>';
       }).join('') +
       '</tbody></table></div>';
+    listaAtual = lista;
 
     document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (inicio + 1) + '\u2013' + fim + ' de ' + total;
     document.getElementById('paginacaoPaginas').textContent = 'P\u00e1gina ' + paginaAtual + ' de ' + totalPaginas;

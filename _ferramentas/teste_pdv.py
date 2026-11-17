@@ -427,7 +427,7 @@ with sync_playwright() as p:
     ok('R$ 300,00 entram na hora em Caixa' in g, 'o dinheiro entra direto na conta, sem titulo')
     ok('1 título em Contas a Receber, somando R$ 265,98 (Cartão de crédito em 3x)' in g and ('Vencimento em ' + util) in g and 'Inclui R$ 16,28 de taxa repassada' in g,
        'o cartao gerou UM titulo, no valor cobrado, vencendo pelo prazo do gateway: %s' % [l for l in g.split(chr(10)) if 'Cartão' in l][:1])
-    ok('a receber de InfinitePay Maquininha — Bronze' in g and 'Maquininha InfinitePay Maquininha — Bronze, bandeira Visa' in g, 'a receber da conta do gateway, com a maquininha e a bandeira no titulo')
+    ok('a receber da operadora' in g and 'InfinitePay' not in g and 'Bronze' not in g and 'Visa' not in g and 'bandeira' not in g, 'o resumo "O que esta venda gerou" diz so "a receber da operadora": sem o nome da maquininha, o nivel nem a bandeira (item 10, 16/nov/2026)')
     ok('Taxa de R$ 16,28 em Cartão de crédito' in g and 'Entra líquido: R$ 249,70' in g, 'com a taxa e o liquido, que e o valor cheio da venda no cartao')
     ok('2 títulos em Contas a Receber, somando R$ 200,00 (Boleto)' in g and 'Distribuidora Nordeste' in g and 'Taxa de R$ 2,90 em Boleto' in g,
        'o boleto gerou os dois titulos combinados, em nome do cliente')
@@ -659,7 +659,7 @@ with sync_playwright() as p:
     ok('cartão' in pg.inner_text('#docClienteFin').lower() and 'Boleto' in pg.inner_text('#docClienteFin'), 'e a tela diz o que vale sem cliente e o que pede cliente')
     clic(pg, '#btnFinalizar'); pg.wait_for_timeout(450)
     g = pg.inner_text('#concGerado')
-    ok(pg.evaluate('momento') == 'concluida' and '1 título em Contas a Receber' in g and 'a receber de InfinitePay Maquininha — Bronze' in g and 'em nome de Consumidor final' not in g,
+    ok(pg.evaluate('momento') == 'concluida' and '1 título em Contas a Receber' in g and 'a receber da operadora' in g and 'em nome de Consumidor final' not in g,
        'a venda finaliza e o titulo nasce a receber da operadora: %s' % [l for l in g.split(chr(10)) if 'título' in l][:1])
     acoes = pg.evaluate("ACOES_SENHA.filter(a => a.chave.indexOf('pdv') === 0).map(a => a.chave + '/' + a.exigePadrao)")
     ok(sorted(acoes) == ['pdvDescontoAVistaTira/true', 'pdvDescontoAcima/true', 'pdvFechaComDiferenca/true', 'pdvReforco/false', 'pdvRepasseTaxa/true', 'pdvSangria/true'], 'as seis do PDV, com o padrao de cada: %s' % sorted(acoes))

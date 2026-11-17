@@ -102,7 +102,7 @@ with sync_playwright() as p:
         return ev("document.getElementById('confirmModal').classList.contains('open')")
 
     def linhas_itens():
-        return ev("Array.from(document.querySelectorAll('#corpoItens tr')).map(t => ({ sku: t.getAttribute('data-sku'), rev: (c => c.querySelector('.pr-ok') ? 'Ok' : c.querySelector('.pr-fora') ? 'Fora: ' + c.querySelector('.pr-motivo').textContent : c.textContent.replace(/\\s+/g, ' ').trim())(t.querySelector('.pr-cel-revisao')), min: t.querySelector('.pr-cel-min').textContent.trim() }))")
+        return ev("Array.from(document.querySelectorAll('#corpoItens tr')).map(t => ({ sku: t.getAttribute('data-sku'), rev: (c => c.querySelector('.pr-ok') ? c.querySelector('.pr-ok').textContent : c.querySelector('.pr-fora') ? c.querySelector('.pr-fora').textContent + ': ' + c.querySelector('.pr-motivo').textContent : c.textContent.replace(/\\s+/g, ' ').trim())(t.querySelector('.pr-cel-revisao')), min: t.querySelector('.pr-cel-min').textContent.trim() }))")
 
     def rev(sku):
         return [l['rev'] for l in linhas_itens() if l['sku'] == sku][0]
@@ -123,16 +123,16 @@ with sync_playwright() as p:
     # ------------------------------------------------------------------------------------------------
     if secao(1, 'As cópias e os espelhos'):
         PI, PF = '  // ===== PROMOCOES: DADOS E LEITURA', '  // ===== FIM DO BLOCO PROMOCOES ====='
-        cop = [bloco(fonte(n), PI, PF) for n in (LISTA, PAG, PROD, PDV, PEDD)]
-        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PROMOCOES é idêntico na lista, na página da promoção, na ficha do produto, no PDV e no Pedido de Venda')
+        cop = [bloco(fonte(n), PI, PF) for n in (LISTA, PAG, PROD, PDV, PEDD, PRODS)]
+        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PROMOCOES é idêntico na lista, na página da promoção, na ficha do produto, no PDV, no Pedido de Venda e na lista de Produtos (preview)')
         NI, NF = '  // ===== PROMOCOES: NA VENDA', '  // ===== FIM DO BLOCO PROMOCOES: NA VENDA ====='
         nv = [bloco(fonte(n), NI, NF) for n in (PDV, PEDD)]
         ok(nv[0] and nv[0] == nv[1], 'o bloco PROMOCOES: NA VENDA é idêntico no PDV e no Pedido de Venda')
         ok(bloco(fonte(PDV), '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====') == bloco(fonte(PAG), '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='),
            'o PDV leva o bloco EMBALAGENS: LEITURA igual ao da página da promoção (a trava do mínimo precisa dele)')
         MI, MF = '  // ===== PRECO MINIMO: A CONTA DA CALCULADORA', '  // ===== FIM DO BLOCO PRECO MINIMO ====='
-        cop = [bloco(fonte(n), MI, MF) for n in (PAG, PROD, PDV, PEDD)]
-        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PRECO MINIMO é idêntico na página da promoção, na ficha do produto (a calculadora), no PDV e no Pedido de Venda')
+        cop = [bloco(fonte(n), MI, MF) for n in (PAG, PROD, PDV, PEDD, PRODS)]
+        ok(cop[0] and all(c == cop[0] for c in cop), 'o bloco PRECO MINIMO é idêntico na página da promoção, na ficha do produto (a calculadora), no PDV, no Pedido de Venda e na lista de Produtos (preview)')
         calc = bloco(fonte(PROD), '  // ===== CALCULADORA DE PRECO (aprovada', '  // ===== ABA PRECOS')
         ok(calc and 'precoPiso(custoTotal' in calc and '10000 - mg - b.tBp' not in calc and 'const parametros = precoParametros' in calc,
            'a calculadora usa a conta do bloco (precoPiso e precoParametros), sem uma cópia da fórmula dentro dela')
@@ -206,12 +206,12 @@ with sync_playwright() as p:
            'o painel da nº 1 diz quanto vendeu, igual à conta feita nos Pedidos: %s un., %s (%s; %s)' % (esperado[0], fmt(esperado[1]), pg.inner_text('#prVendidoQtd'), pg.inner_text('#prVendidoValor')))
         ok(esperado == [0, 0] and not ev("!!document.getElementById('prPedidos')") and 'só o que saiu com o preço da promoção' in pg.inner_text('#drawerCorpo'),
            'os pedidos 3 e 8 venderam os produtos pelo preço de venda (vitrine): não contam, e o painel diz que só conta o preço da promoção')
-        ok(ev(TXT('#drawerCorpo .drawer-footer button')) == ['Prorrogar', 'Encerrar agora', 'Clonar', 'Abrir promoção completa'], 'ativa: prorrogar, encerrar, clonar e abrir')
+        ok(ev(TXT('#drawerCorpo .drawer-footer > button, #drawerCorpo .drawer-footer .dropdown-select-item')) == ['Abrir promoção completa', 'Prorrogar', 'Clonar', 'Encerrar agora'], 'ativa: abrir em azul, e no Mais ações prorrogar, clonar e encerrar')
         ok(ev("Array.from(document.querySelectorAll('#drawerCorpo .mov-tipo a')).map(a => a.getAttribute('href'))")[0] == '../cadastros/pagina-cadastros-produtos-detalhe.html?id=9', 'o produto do painel leva à ficha dele')
         clica('#drawerClose'); clica('#corpoTabela tr[data-id="2"]')
-        ok(ev(TXT('#drawerCorpo .drawer-footer button'))[:3] == ['Antecipar para hoje', 'Prorrogar', 'Encerrar agora'], 'agendada: antecipar, prorrogar e encerrar')
+        ok(ev(TXT('#drawerCorpo .drawer-footer > button, #drawerCorpo .drawer-footer .dropdown-select-item'))[1:4] == ['Antecipar para hoje', 'Prorrogar', 'Clonar'], 'agendada: antecipar, prorrogar e clonar no Mais ações')
         clica('#drawerClose'); clica('#corpoTabela tr[data-id="3"]')
-        ok(ev(TXT('#drawerCorpo .drawer-footer button')) == ['Revisar e aprovar', 'Clonar'] and not ev("!!document.getElementById('prVendidoQtd')"), 'em revisão: revisar e aprovar, e clonar; sem "quanto vendeu"')
+        ok(ev(TXT('#drawerCorpo .drawer-footer > button, #drawerCorpo .drawer-footer .dropdown-select-item')) == ['Revisar e aprovar', 'Clonar'] and not ev("!!document.getElementById('prVendidoQtd')"), 'em revisão: revisar e aprovar, e clonar; sem "quanto vendeu"')
         clica('#drawerClose')
         # Indicadores: o card deixa na lista exatamente o que ele somou.
         for k, ids in (('aprovar', [3, 8]), ('ativas', [1, 7]), ('comecam', [2])):
@@ -237,13 +237,13 @@ with sync_playwright() as p:
     if secao(4, 'A revisão e a aprovação com senha'):
         limpar(); ir(PAG, '?id=3')
         ok(pg.inner_text('#tituloPromo') == 'Promoção nº 3' and ev("document.getElementById('inputTitulo').value") == 'Black Friday Desk Shope', 'o ?id= abre a promoção clicada (nº 3)')
-        esperados = {'PAP-3002': 'Ok', 'MOB-4001': 'Ok', 'ELE-1003': 'abaixo do mínimo', 'MOB-4002': 'subiu', 'PAP-3001': 'sem preço promocional', 'ELE-9999': 'SKU não encontrado',
+        esperados = {'PAP-3002': 'Pronto', 'MOB-4001': 'Pronto', 'ELE-1003': 'abaixo do mínimo', 'MOB-4002': 'subiu', 'PAP-3001': 'sem preço promocional', 'ELE-9999': 'SKU não encontrado',
                      'VES-2001': 'é da Desk Brands', 'ELE-1004': 'já está na promoção Semana do escritório'}
         for sku, txt in esperados.items():
             r = rev(sku)
-            ok(txt in r and (txt == 'Ok') == r.startswith('Ok'), '%s: %s (%s)' % (sku, txt, r))
-        ok(rev('VES-2001') == 'Fora: é da Desk Brands, não da loja da promoção', 'o de outra loja tem só esse motivo')
-        ok(ev("document.getElementById('btnAprovar').disabled") and '6 fora' in pg.inner_text('#resumoRevisao'), 'com linhas fora, aprovar fica travado e o resumo diz "6 fora"')
+            ok(txt in r and (txt == 'Pronto') == r.startswith('Pronto'), '%s: %s (%s)' % (sku, txt, r))
+        ok(rev('VES-2001') == 'Corrigir: é da Desk Brands, não da loja da promoção', 'o de outra loja tem só esse motivo')
+        ok(ev("document.getElementById('btnAprovar').disabled") and '2 prontos e 6 para corrigir' in pg.inner_text('#resumoRevisao'), 'com linhas para corrigir, aprovar fica travado e o resumo diz "2 prontos e 6 para corrigir"')
         dicas = ev("Array.from(document.querySelectorAll('#corpoItens tr[data-sku=\"MOB-4001\"] .pr-sub')).map(e => e.textContent)")
         ok(any('no cadastro: R$ 319,90' in d for d in dicas) and ev("document.querySelector('#corpoItens tr[data-sku=\"MOB-4001\"] .pr-diferente').title").startswith('Ao aprovar, este preço entra no cadastro'), 'o preço da planilha diferente do cadastro mostra os dois: %s' % dicas)
         # O minimo e o da calculadora: a ficha do produto 1 e a pagina da promocao 2 dizem o mesmo numero, e mudam juntas.
@@ -259,7 +259,7 @@ with sync_playwright() as p:
         for s in ('ELE-9999', 'VES-2001', 'ELE-1004', 'MOB-4002'):
             tirar(s)
         digitar('ELE-1003', 'pr-in-preco', '54,90'); digitar('PAP-3001', 'pr-in-preco', '18,49')
-        ok(rev('ELE-1003') == 'Ok' and rev('PAP-3001') == 'Ok', 'corrigido o preço, a linha vira ok na hora (54,90 no Mouse; 18,49 no Caderno, acima do mínimo de 18,47)')
+        ok(rev('ELE-1003') == 'Pronto' and rev('PAP-3001') == 'Pronto', 'corrigido o preço, a linha vira ok na hora (54,90 no Mouse; 18,49 no Caderno, acima do mínimo de 18,47)')
         digitar('PAP-3001', 'pr-in-preco', '18,46')
         ok('abaixo do mínimo de R$ 18,47' in rev('PAP-3001'), 'um centavo abaixo do mínimo, fora de novo')
         digitar('PAP-3001', 'pr-in-preco', '18,50')
@@ -294,10 +294,10 @@ with sync_playwright() as p:
         pg.fill('#buscaProduto', '')
         clica('#checkTodosItens'); pg.fill('#inputPct', '10'); clica('#btnAplicarPct')
         precos = ev("E.itens.map(i => i.preco)")
-        ok(precos == [116.91, 314.91] and rev('ELE-1001') == 'Ok' and rev('MOB-4001') == 'Ok', '10%% sobre o preço de venda: 116,91 e 314,91, os dois ok: %s' % precos)
+        ok(precos == [116.91, 314.91] and rev('ELE-1001') == 'Pronto' and rev('MOB-4001') == 'Pronto', '10%% sobre o preço de venda: 116,91 e 314,91, os dois ok: %s' % precos)
         pg.fill('#inputPct', '50'); clica('#btnAplicarPct')
-        ok(ev("E.itens.map(i => i.preco)") == [64.95, 174.95] and 'abaixo do mínimo' in rev('ELE-1001') and 'abaixo do mínimo' in rev('MOB-4001') and 'ficaram fora' in pg.inner_text('#infoPct'),
-           '50%: 64,95 e 174,95, os dois abaixo do mínimo, e a barra diz que ficaram fora')
+        ok(ev("E.itens.map(i => i.preco)") == [64.95, 174.95] and 'abaixo do mínimo' in rev('ELE-1001') and 'abaixo do mínimo' in rev('MOB-4001') and 'ficaram para corrigir' in pg.inner_text('#infoPct'),
+           '50%: 64,95 e 174,95, os dois abaixo do mínimo, e a barra diz que ficaram para corrigir')
         clica('#checkTodosItens'); clica('#corpoItens tr[data-sku="ELE-1001"] .pr-marca'); pg.fill('#inputPct', '20'); clica('#btnAplicarPct')
         ok(ev("E.itens.map(i => i.preco)") == [103.92, 174.95], 'só o marcado recebe o desconto')
         pg.fill('#inputPct', '120'); clica('#btnAplicarPct')
@@ -307,7 +307,7 @@ with sync_playwright() as p:
         digitar('ELE-1001', 'pr-in-limite', 'estoque'); digitar('ELE-1001', 'pr-in-cliente', '0')
         ok(ev("E.itens[0].limite") == 'ESTOQUE' and 'limite por cliente inválido' in rev('ELE-1001'), '"estoque" vale ESTOQUE; limite por cliente zero é inválido')
         digitar('ELE-1001', 'pr-in-cliente', '2'); digitar('ELE-1001', 'pr-in-limite', '15')
-        ok(rev('ELE-1001') == 'Ok' and ev("E.itens[0].limite") == 15 and ev("E.itens[0].cliente") == 2, 'limite 15 e 2 por cliente: ok')
+        ok(rev('ELE-1001') == 'Pronto' and ev("E.itens[0].limite") == 15 and ev("E.itens[0].cliente") == 2, 'limite 15 e 2 por cliente: ok')
         pg.fill('#inputTitulo', 'Teste'); ev("document.getElementById('inputTitulo').dispatchEvent(new Event('input'))")
         clica('#btnSalvar')
         ok(pg.url.split('/')[-1].startswith(LISTA + '?salva=') and promo(9)['itens'][0]['cliente'] == 2 and promo(9)['situacao'] == 'rascunho', 'salvar o rascunho grava a promoção nº 9 e volta para a lista, na aba Rascunho')
@@ -329,7 +329,7 @@ with sync_playwright() as p:
         confirmar()
         ok([l['sku'] for l in linhas_itens()] == ['ELE-1002', 'TEC-0000'] and ev("E.itens[0].limite") == 'ESTOQUE' and ev("E.itens[0].preco") is None and ev("E.itens[0].planilha"),
            'a linha repetida atualiza a de antes (ESTOQUE, preço vazio), e as linhas da planilha ficam marcadas')
-        ok(rev('TEC-0000') == 'Fora: SKU não encontrado', 'SKU que não existe fica fora')
+        ok(rev('TEC-0000') == 'Corrigir: SKU não encontrado', 'SKU que não existe fica fora')
         ok('sem preço promocional' in rev('ELE-1002'), 'preço vazio e cadastro sem promocional: fora')
         digitar('ELE-1002', 'pr-in-preco', '79,90')
         ok('sem custo no cadastro' in rev('ELE-1002'), 'produto sem custo: o mínimo não tem como ser conferido, fica fora')
@@ -383,7 +383,7 @@ with sync_playwright() as p:
         ok('não entra em promoção' in pg.inner_text('#historicoPrecoTrava'), 'e avisa que o produto não entra em promoção até passar a trava')
         ir(PARV); pg.fill('#promoRiscado', '10'); clica('#btnSalvarParam'); pg.keyboard.press('Escape')
         ir(PAG, '?id=3')
-        ok('subiu' not in rev('MOB-4002') and rev('MOB-4002') == 'Ok', 'com a trava em 10 dias (Parâmetros de vendas), a subida de 12 dias atrás não pesa mais')
+        ok('subiu' not in rev('MOB-4002') and rev('MOB-4002') == 'Pronto', 'com a trava em 10 dias (Parâmetros de vendas), a subida de 12 dias atrás não pesa mais')
         ir(PARV); pg.fill('#promoRiscado', '30'); clica('#btnSalvarParam'); pg.keyboard.press('Escape')
         # Subir o preco de venda na ficha: entra no historico, e a revisao passa a deixar o produto fora.
         ir(PROD, '?id=9'); clica('#btnEditarCadastro') if ev("!!document.getElementById('btnEditarCadastro')") else None
