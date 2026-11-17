@@ -161,7 +161,7 @@ with sync_playwright() as p:
         ir(pg, CUSTOS, q)
 
     def linha_pedido(pg, n):
-        cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => th.textContent.replace(/[▲▼]/g, '').replace(/\\s+/g, ' ').trim())")
+        cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => (th.dataset.nome || th.textContent).replace(/[▲▼]/g, '').replace(/\\s+/g, ' ').trim())")
         cel = pg.evaluate("(n) => { const tr = document.querySelector('#corpoTabela tr[data-id=\"' + n + '\"]'); return tr ? Array.from(tr.children).filter(td => getComputedStyle(td).display !== 'none').map(td => td.innerText.replace(/\\s+/g, ' ').trim()) : null; }", n)
         return dict(zip(cab, cel)) if cel else None
 
@@ -482,7 +482,7 @@ with sync_playwright() as p:
             r = dict(ors)
             r[4] = oraculo(next(x for x in online if x['id'] == 4), confirmadas={**EMB_CONFIRMADA, 4: conf4})
             return r
-        cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => th.textContent.replace(/[▲▼]/g, '').trim())")
+        cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none').map(th => (th.dataset.nome || th.textContent).replace(/[▲▼]/g, '').trim())")
         l = {n: linha_pedido(pg, n) for n in (1, 3, 4, 8, 9, 11, 12, 16)}
         quer_emb = {1: ('R$ 6,60', True), 3: ('R$ 1,80', True), 4: ('R$ 7,20', True), 8: ('R$ 7,00', False), 9: ('R$ 6,80', False), 11: ('R$ 5,40', False), 12: ('R$ 7,20', False), 16: ('R$ 12,60', False)}
         ok(all(l[n]['Embalagem'] == v + (' estimada' if est else '') for n, (v, est) in quer_emb.items()), 'a coluna Embalagem: 1, 3 e 4 estimados (a marca "estimada"), 8, 9, 11, 12 e 16 confirmados: %s' % {n: l[n]['Embalagem'] for n in l})

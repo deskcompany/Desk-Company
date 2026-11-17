@@ -504,6 +504,11 @@
   /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  /* Sem barra na horizontal a 1280px (usuario, 16/nov/2026): a tabela encolhe, o texto quebra, o titulo fica numa linha so. */
+  .main .estoque-table { min-width:0; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
+  .main .estoque-table td.col-texto { white-space:normal; }
+  .main .estoque-table .vol-sub { white-space:normal; }
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
   .estoque-table th.ordenavel { cursor:pointer; }
@@ -793,7 +798,7 @@
 
 
   /* ===== VENDAS > METAS ===== */
-  .ating { display:flex; align-items:center; gap:9px; min-width:150px; }
+  .ating { display:flex; align-items:center; gap:9px; min-width:100px; }
   .ating-trilho { flex:1; height:7px; border-radius:6px; background:rgba(120,120,140,0.18); overflow:hidden; }
   .ating-barra { display:block; height:100%; border-radius:6px; }
   .ating-pct { font-size:12.5px; font-weight:800; color:var(--text-heading); min-width:42px; text-align:right; font-variant-numeric:tabular-nums; }
@@ -1186,9 +1191,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th class="ordenavel" data-ordem="meta">Meta <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="real" title="Pedidos de venda a partir de Faturado. Cancelado não entra.">Realizado <span class="seta">▲</span></th>
             <th class="col-texto ordenavel" data-ordem="pct">Atingimento <span class="seta">▲</span></th>
-            <th title="Quanto já deveria estar vendido até hoje, em dias corridos">Ritmo até hoje</th>
+            <th title="Quanto já deveria estar vendido até hoje, em dias corridos" data-nome="Ritmo até hoje">Ritmo</th>
             <th class="ordenavel" data-ordem="vendas" title="Pedidos a partir de Faturado, e o valor médio de cada um">Vendas <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="taxaDev" title="Quanto do que foi vendido no mês voltou">Devolução <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="taxaDev" title="Devolução: quanto do que foi vendido no mês voltou" data-nome="Devolução">Devol. <span class="seta">▲</span></th>
             <th class="col-texto">Situação</th>
           </tr>
         </thead>
@@ -2975,7 +2980,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

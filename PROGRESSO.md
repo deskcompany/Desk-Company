@@ -8,6 +8,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Revisão geral, pacote B (16/nov/2026), esperando o teste dele:** as tabelas (itens 16, 17, 18 e 4). Nenhuma tabela rola na horizontal a 1280 px e o título da coluna fica numa linha só: [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (a coluna "Ação" estreita, com reticências; faça algumas ações para encher o registro), [Necessidades de Compra](http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html) (o fornecedor foi para baixo do produto), [CRM](http://localhost:3000/vendas/pagina-vendas-crm.html), [Metas](http://localhost:3000/vendas/pagina-vendas-metas.html), [Usuários](http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html) ("Desconto sem liberação") e os títulos encurtados em Giro, Controle de Estoques, Expedição e Custos do E-commerce; o texto solto "De" e "Mínimo" da [promoção](http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=1) e o "Total" da Ordem de Compra e da Entrada de Notas alinhados com os campos. Detalhe no §14.114.
+
 **Revisão geral, pacote A (16/nov/2026), esperando o teste dele:** o mínimo do detalhe da promoção lê o custo da aba Custos; o menu abre para cima quando não cabe embaixo (item 14: PDV, [cobrança](http://localhost:3000/vendas/pagina-vendas-pdv.html), venda com um item, "Adicionar recebimento (F4)"); o painel lateral aberto trava a página de trás (item 5, qualquer lista, ex. [Pedidos](http://localhost:3000/vendas/pagina-vendas-pedidos.html)); a bolinha centralizada (item 12, "Desconto / Acréscimo" e "O que esta venda gerou" no PDV). Detalhe no §14.113.
 
 **O preço de atacado: implementado em 16/nov/2026, esperando o teste dele.** A ficha do produto ganhou, na aba Preços, o "Preço de atacado" e o "A partir de N unidades" (saiu a
@@ -205,11 +207,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
   preço (`casasPreco`, hoje 2), mas a digitação a partir dos centavos (§14.105) fixa 2 casas nos campos de preço. Quando
   alguém precisar de mais casas, o campo passa a ler o parâmetro.
 - **Taxas reais da loja virtual:** na integração da API da InfinitePay, pesquisar se o Checkout Integrado cobra a tabela do Link ou a da maquininha; o protótipo usa a Bronze (decisão do usuário). A vitrine dá o mesmo desconto Pix.
-- **A barra que ficou** (usuário, 19/out/2026, depois de ouvir o custo): Necessidades de Compra, CRM e Metas seguem com
-  barra em 1280 (de 95 a 160px), e os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido
-  (SKU, GTIN) cortando alguns caracteres em 1280. De 1440 para cima nada disso acontece. Volta quando as telas forem
-  refeitas na produção, ou antes se alguém trabalhar em 1280 todo dia. A suíte `teste_barra_tabelas.py` segura as três
-  como estão. **Reaberta por ele em 16/nov/2026:** tirar a barra virou o item 17 da revisão geral.
+- **A barra que ficou: caiu em 16/nov/2026.** A decisão de 19/out (Necessidades de Compra, CRM e Metas com barra em 1280) foi reaberta por ele; as três passaram a caber sem barra e a suíte `teste_barra_tabelas.py` passou a exigir isso (`PENDENTES` vazio). Os itens da Ordem de Compra e do Pedido de Venda seguem sem barra, com o código comprido (SKU, GTIN) cortando alguns caracteres em 1280. Detalhe no §14.114.
 
 ## Para a próxima revisão geral
 
@@ -231,11 +229,6 @@ e entrou uma decisão:
 
 Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
 
-4. **Promoção, tabela de produtos: os números desalinhados com os campos de digitação.** "De" e "Mínimo" (texto) não
-   ficam na mesma linha nem na mesma borda dos campos "Por", "Limite" e "Por cliente" (caixas). Alinhar texto e caixa
-   na mesma altura e no mesmo lado; ver se o mesmo acontece nas outras tabelas editáveis (Ordem de Compra, Entrada de Notas).
-   principal por trás do painel. Com o painel da direita aberto, a rolagem mexe só nele; ao fechar, a página volta a rolar
-   do ponto em que estava. Todas as telas com painel lateral, num bloco comum.
 6. **Painel da promoção: organizar os botões** "Antecipar para hoje", "Prorrogar", "Encerrar agora", "Clonar",
    "Abrir promoção completa" e "Fechar". Hoje são seis pílulas soltas em três linhas, sem hierarquia. Propor a
    organização (a principal em destaque, as outras agrupadas) antes de mexer, seguindo os painéis das telas prontas.
@@ -269,23 +262,6 @@ Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
 15. **Registro de atividades: clicar na ação abre o painel lateral** (o padrão da casa), com tudo o que não cabe na
     linha: o texto inteiro que a pessoa confirmou, quem fez, quem autorizou, onde, quando e o registro. Com o painel, a
     coluna "Ação" diminui e corta o texto com reticências.
-16. **Registro de atividades: tirar a barra de rolagem lateral.** Com o registro cheio (126 linhas no navegador dele), a
-    coluna "Ação" e o "autorizado por <nome>" da coluna "Quem" alargam a tabela, e a coluna "Confirmação" sai da caixa.
-    `teste_barra_tabelas.py` não pegou porque mede a tela como ela abre, e no navegador do teste o registro abre vazio:
-    a suíte passa a medir esta tela com o registro cheio.
-17. **As outras telas com barra de rolagem lateral** (a regra é evitar ao máximo). A varredura de 16/nov, nas 96 telas
-    como abrem, achou três a 1280px de largura: Necessidades de Compra (+97px), CRM (+94px) e Metas (+158px). São as
-    três que ele tinha deixado com barra em 19/out (em "Decidido", "A barra que ficou"); o pedido de agora reabre
-    essa decisão. A 1440px nenhuma tela rola.
-18. **Título de coluna quebrando em duas linhas.** Em Usuários, "Desconto sem senha" quebra (a coluna tem 78px e a de
-    "Usuário" tem 251px): diminuir "Usuário", que já abre o painel ao clicar, e acertar as outras para os títulos
-    ficarem numa linha só. Desde a entrega 2 a liberação é por código, então o título pode virar "Desconto sem
-    liberação"; decidir na revisão. A mesma varredura achou títulos quebrando (quase sempre a setinha de ordenar caindo
-    para a linha de baixo) em 20 telas a 1280px e em 8 a 1440px: Perfis de usuário, Usuários, Giro de Estoque,
-    Necessidades de Compra, Ordem de Compra (itens), Custos do E-commerce, Pedido de Venda (itens) e Promoção (detalhe)
-    quebram nas duas larguras; só a 1280, Formas de Recebimento, Conferência de Entrada, Controle de Estoques,
-    Endereçamento, Entrada de Notas, Itens Bloqueados, Comissões, Conferência de Saída, Expedição, Rastreamento,
-    Separação, Pedidos de Venda e Promoções.
 19. **Preview do Produto (lista de Produtos) com mais informação** (pedido dele em 16/nov, com print). Hoje mostra
     só situação, SKU, preço de venda e estoque. Ganha os quatro blocos que ele marcou: Preços (venda, promocional,
     atacado "a partir de N un." e a promoção ativa), Custo e margem (custo médio, margem e o mínimo da calculadora),

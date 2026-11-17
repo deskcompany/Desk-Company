@@ -1171,7 +1171,12 @@
      ele empurra as colunas Onde e Confirmacao para fora do cartao — o selo de
      senha, que e a informacao mais importante da linha, sumia na rolagem. */
   .log-detalhe { display:block; font-size:11.5px; color:var(--text); margin-top:2px;
-                 max-width:430px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+                 max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* Sem barra na horizontal com o registro cheio (usuario, 16/nov/2026): colunas de largura fixa e a Acao, estreita, fica com o resto
+     e corta o texto com reticencias (o texto inteiro vai para o painel da linha, item 15). */
+  .main .estoque-table { min-width:0; table-layout:fixed; }
+  .main .estoque-table td { overflow:hidden; text-overflow:ellipsis; }
+  .log-acao, .log-usuario, .log-autorizado { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .log-usuario { font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-heading); }
   .log-perfil { display:block; font-size:11.5px; color:var(--text); }
   /* Quem autorizou: a linha mostra o nome de quem digitou o codigo, quando houve. */
@@ -2406,8 +2411,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<th class="col-texto" style="width:150px;">Quando</th>' +
         '<th class="col-texto" style="width:190px;">Quem</th>' +
         '<th class="col-texto">A\u00e7\u00e3o</th>' +
-        '<th class="col-texto" style="width:230px;">Onde</th>' +
-        '<th class="col-texto" style="width:130px;">Confirma\u00e7\u00e3o</th>' +
+        '<th class="col-texto" style="width:200px;">Onde</th>' +
+        '<th class="col-texto" style="width:120px;">Confirma\u00e7\u00e3o</th>' +
       '</tr></thead><tbody>' +
       pagina.map(e => {
         const dh = dataHora(e.ts);

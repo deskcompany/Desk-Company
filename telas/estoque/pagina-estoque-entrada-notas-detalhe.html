@@ -555,6 +555,9 @@
   .itens-table th.col-texto { text-align:left; }
   .itens-table td { padding:9px 8px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-heading); text-align:right; white-space:nowrap; vertical-align:middle; }
   .itens-table td.col-texto { text-align:left; }
+  /* Item 4 (16/nov/2026): o texto solto fica na mesma linha e na mesma borda do texto dos campos vizinhos (borda 1px + respiro 8px do campo). */
+  .itens-table th:nth-child(6), .itens-table td:nth-child(6) { padding-right:17px; }
+  #tabelaItens td:nth-child(6) { padding-top:19px; }
   .itens-table tbody tr:last-child td { border-bottom:none; }
   .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
   .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
@@ -2651,7 +2654,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

@@ -622,7 +622,7 @@
      1280px. O CSS comum fixa 880px de largura minima, e abaixo de 1334px de janela isso vira barra; aqui a tabela encolhe, a
      coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
   .main .itens-table { min-width:0; }
-  .main .itens-table th { white-space:normal; vertical-align:bottom; }
+  .main .itens-table th { white-space:nowrap; vertical-align:bottom; }
   .main .itens-table td.col-texto { white-space:normal; }
   /* Sem largura, o campo da descricao ficava do tamanho dos outros e cortava o nome do produto (ate em 1440). Em 1280
      o codigo comprido ainda corta: pendente de decisao do usuario (barra ou corte), PROGRESSO e 14.88. */
@@ -1331,7 +1331,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
               <th>Qtde</th>
               <th class="col-texto">UN</th>
               <th>Preço un</th>
-              <th>Preço total</th>
+              <th title="Preço total" data-nome="Preço total">Total</th>
               <th class="col-texto"></th>
             </tr>
           </thead>
@@ -5671,7 +5671,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

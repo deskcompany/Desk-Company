@@ -133,7 +133,7 @@ with sync_playwright() as p:
 
     def cabecalho():
         return pg.evaluate("""Array.from(document.querySelectorAll('#tabelaCustos thead th')).filter(th => getComputedStyle(th).display !== 'none')
-            .map(th => th.textContent.replace(/[▲▼]/g, '').replace(/\\s+/g, ' ').trim())""")
+            .map(th => (th.dataset.nome || th.textContent).replace(/[▲▼]/g, '').replace(/\\s+/g, ' ').trim())""")
 
     def numeros():
         return [int(re.search(r'nº (\d+)', l[0]).group(1)) for l in linhas()]

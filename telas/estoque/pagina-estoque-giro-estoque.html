@@ -469,7 +469,7 @@
      1280px. O CSS comum fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a
      coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
   .main .estoque-table { min-width:0; }
-  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
   .main .estoque-table td.col-texto { white-space:normal; }
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
@@ -801,8 +801,8 @@
   .cg-total { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:800; }
   .event-drawer .drawer-footer { flex-wrap:wrap; }
   .estoque-toolbar .dropdown-select-btn.pill { white-space:nowrap; }
-  /* Cabecalho em duas linhas, como no print: e o que faz a tabela caber no card a 1440px. */
-  #painelCompra .estoque-table th, #painelGiro .estoque-table th { white-space:normal; vertical-align:bottom; line-height:1.35; }
+  /* Titulo numa linha so (usuario, 16/nov/2026); a tabela cabe com os nomes curtos. */
+  #painelCompra .estoque-table th, #painelGiro .estoque-table th { white-space:nowrap; vertical-align:bottom; line-height:1.35; }
   #painelCompra .estoque-table th .seta, #painelGiro .estoque-table th .seta { margin-left:2px; }
   #painelCompra .estoque-table td.col-texto, #painelGiro .estoque-table td.col-texto { white-space:normal; }
   #painelCompra .estoque-table td.col-texto .prod-sku, #painelGiro .estoque-table td.col-texto .prod-sku { white-space:nowrap; }
@@ -871,7 +871,7 @@
   /* Giro de Estoque */
   .gi-faixas { margin-bottom:18px; }
   /* O nome do produto cabe numa linha: sobra largura nesta tabela, e sem isto o navegador quebrava "Camiseta Desk Brands · P" em duas. */
-  #painelGiro .estoque-table th:first-child { min-width:200px; }
+  #painelGiro .estoque-table th:first-child { min-width:150px; }
   .gi-faixas-topo { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .gi-faixas-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; color:var(--text-heading); }
   .gi-faixas-sub { font-size:12px; color:var(--text); }
@@ -1231,13 +1231,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <thead>
           <tr>
             <th class="col-texto ordenavel" data-ordem="nome">Produto <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="classe">Classificação <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="medio" title="Média entre o estoque no início e no fim do período">Estoque médio <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="vendas">Total de vendas <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="giro" title="Total de vendas dividido pelo estoque médio">Giro de estoque <span class="seta">▲</span></th>
+            <th class="col-texto ordenavel" data-ordem="classe" data-nome="Classificação">Classe <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="medio" title="Estoque médio: média entre o estoque no início e no fim do período" data-nome="Estoque médio">Est. médio <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="vendas" title="Total de vendas" data-nome="Total de vendas">Vendas <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="giro" title="Giro de estoque: total de vendas dividido pelo estoque médio" data-nome="Giro de estoque">Giro <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="dsi" title="Em quantos dias o estoque médio se vende, no ritmo do período">DSI <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="final">Estoque final <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="parado" title="Estoque final vezes o custo médio">Custo em estoque <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="final" title="Estoque final" data-nome="Estoque final">Est. final <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="parado" title="Custo em estoque: estoque final vezes o custo médio" data-nome="Custo em estoque">Custo estq. <span class="seta">▲</span></th>
           </tr>
         </thead>
         <tbody id="corpoTabela"></tbody>

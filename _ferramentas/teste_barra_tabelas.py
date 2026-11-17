@@ -31,7 +31,7 @@ MOLDE = 'pagina-molde-referencia.html'   # dois documentos no mesmo arquivo, de 
 # Telas que o bloco comum nao basta para encolher e que esperam decisao do usuario (§14.88, 19/out): o que as faz rolar nao e
 # largura minima e sim texto que nao quebra (selo, chip, linha de apoio, SKU). Ficam fora da regra, e a suite exige que CONTINUEM
 # rolando: no dia em que uma passar, ela reprova ate a tela sair desta lista, para a excecao nao ficar esquecida.
-PENDENTES = {'pagina-estoque-necessidades-compra.html', 'pagina-vendas-crm.html', 'pagina-vendas-metas.html'}
+PENDENTES = set()   # 16/nov/2026: Necessidades de Compra, CRM e Metas passaram a caber sem barra (item 17 da revisao geral)
 LARGURAS = (1280, 1440)
 # Telas de detalhe: aberta sem ?id= elas dizem "nao encontrado" e escondem a tabela, entao tambem se mede com o registro aberto.
 COM_REGISTRO = ['pagina-estoque-ordens-compra-detalhe.html', 'pagina-vendas-pedidos-detalhe.html', 'pagina-logistica-rastreamento-detalhe.html',
@@ -49,6 +49,13 @@ MEDE = """(cortes) => {
   // 19/out: encolher a tabela nao pode cortar o texto do campo de item (o valor nao cabe na caixa).
   if (cortes) document.querySelectorAll('.itens-table tbody input[type=text]').forEach(i => {
     if (vis(i) && i.scrollWidth > i.clientWidth + 1) r.push('campo cortado: ' + i.value + ' ' + i.clientWidth + ' < ' + i.scrollWidth);
+  });
+  // 16/nov: o titulo de coluna fica numa linha so (a setinha de ordenar junto do nome).
+  document.querySelectorAll('.estoque-table th, .itens-table th, .contatos-table th').forEach(h => {
+    if (!vis(h) || !h.innerText.trim() || h.closest('.drawer, .event-drawer, [role=dialog], .modal')) return;
+    const lh = parseFloat(getComputedStyle(h).lineHeight) || 16, rg = document.createRange();
+    rg.selectNodeContents(h);
+    if (rg.getBoundingClientRect().height > lh * 1.6) r.push('titulo quebra: ' + h.innerText.trim().replace(/\\s+/g, ' '));
   });
   if (document.documentElement.scrollWidth > document.documentElement.clientWidth + 1) r.push('a pagina rola');
   return r;
@@ -92,6 +99,62 @@ with sync_playwright() as p:
         else:
             ok(not com_barra, '%s: nenhuma tabela rola na horizontal e a página não rola%s' % (nome, (': ' + '; '.join(com_barra)) if com_barra else ''))
         ctx.close()
+    b.close()
+
+REGISTRO = 'pagina-configuracoes-registro-atividades.html'
+# 16/nov: o Registro de atividades abre vazio no navegador do teste; aqui ele e semeado com 130 linhas compridas
+# (acao, texto confirmado e "autorizado por" longos) e medido cheio, a 1280 e a 1440, com 200 linhas por pagina.
+SEMEIA = '''() => { const l = []; for (let i = 0; i < 130; i++) l.push({ ts: Date.now() - i * 3600000, chave: 'x' + i,
+  acao: 'Excluir a marca com um nome bem comprido para ocupar a coluna ' + i, onde: 'Cadastros \\u2192 Marcas de produto', modulo: 'Cadastros',
+  usuario: 'Administrador Desk', perfil: 'Owner', senha: i % 2 === 0, autorizadoPor: 'Fernanda Albuquerque de Souza Lima',
+  detalhe: 'Voce confirmou excluir a marca e todos os vinculos dela, texto longo da mensagem inteira do modal para nao caber na linha ' + i });
+  localStorage.setItem('deskLog', JSON.stringify(l)); }'''
+if REGISTRO in nomes:
+    with sync_playwright() as p:
+        b = p.chromium.launch(executable_path=CHROME)
+        ctx = b.new_context(viewport={'width': 1280, 'height': 900}); pg = ctx.new_page()
+        pg.goto(localiza.uri(REGISTRO)); pg.evaluate(SEMEIA); pg.reload(); pg.wait_for_load_state('load')
+        pg.evaluate('itensPorPaginaAtual = 200; render()')
+        ok(pg.locator('#listaLog tbody tr').count() == 130, 'Registro de atividades cheio: 130 linhas na tabela')
+        res = []
+        for largura in LARGURAS:
+            pg.set_viewport_size({'width': largura, 'height': 900}); pg.wait_for_timeout(350)
+            res += ['%dpx %s' % (largura, i) for i in pg.evaluate(MEDE, False)]
+        ok(not res, 'Registro de atividades com o registro cheio (130 linhas, textos compridos): sem barra e com o titulo numa linha%s' % ((': ' + '; '.join(res)) if res else ''))
+        ok(pg.evaluate("(() => { const a = document.querySelector('.log-acao'); return getComputedStyle(a).textOverflow === 'ellipsis' && a.scrollWidth > a.clientWidth; })()"),
+           'a coluna Ação é estreita e corta o texto com reticências')
+        b.close()
+
+# Item 4 (16/nov): nas tabelas editaveis o texto solto (De e Minimo da Promocao, Total da Ordem de Compra e da Entrada de Notas)
+# fica na mesma linha e na mesma borda do texto dos campos da linha: a folga ate a borda da celula e a mesma, e a altura tambem.
+ALINHA = '''(sel) => {
+  const tr = document.querySelector(sel + ' tbody tr'); if (!tr) return 'sem linha';
+  const inp = [...tr.querySelectorAll('input[type=text]')].find(i => i.offsetParent && getComputedStyle(i).textAlign === 'right');
+  const ir = inp.getBoundingClientRect(), cs = getComputedStyle(inp);
+  const folga = inp.closest('td').getBoundingClientRect().right - (ir.right - parseFloat(cs.paddingRight) - parseFloat(cs.borderRightWidth));
+  const yTxt = ir.top + parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop), r = [];
+  tr.querySelectorAll('td.alinha-me, td').forEach(td => {
+    if (td.classList.contains('col-texto') || td.querySelector('input,button,.item-remover')) return;
+    const rg = document.createRange(); rg.selectNodeContents(td); const b = rg.getBoundingClientRect(); if (!b.width) return;
+    const dx = Math.round((td.getBoundingClientRect().right - b.right) - folga), dy = Math.round(b.top - yTxt);
+    if (dx !== 0 || dy !== 0) r.push(td.innerText.trim() + ' dx=' + dx + ' dy=' + dy);
+  });
+  return r.join('; ');
+}'''
+CASOS_ALINHA = [('pagina-vendas-promocoes-detalhe.html', '?id=1', '.pr-itens', 'Promoção (De e Mínimo)'),
+                ('pagina-estoque-ordens-compra-detalhe.html', '?id=1', '.itens-table', 'Ordem de Compra (Preço total)'),
+                ('pagina-estoque-entrada-notas-detalhe.html', '', '.itens-table', 'Entrada de Notas (Total)')]
+with sync_playwright() as p:
+    b = p.chromium.launch(executable_path=CHROME)
+    for tela, q, sel, rotulo in CASOS_ALINHA:
+        if tela not in nomes:
+            continue
+        pg = b.new_context(viewport={'width': 1280, 'height': 900}).new_page()
+        pg.goto(localiza.uri(tela) + q); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
+        if tela == 'pagina-estoque-entrada-notas-detalhe.html':
+            pg.click('#btnAdicionarItem'); pg.wait_for_timeout(200)
+        res = pg.evaluate(ALINHA, sel)
+        ok(res == '', '%s: o texto solto fica na mesma linha e na mesma borda dos campos%s' % (rotulo, (': ' + res) if res else ''))
     b.close()
 
 print('\n%d asserções · FALHAS: %d' % (total[0], len(falhas)))

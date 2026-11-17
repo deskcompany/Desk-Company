@@ -224,7 +224,7 @@ with sync_playwright() as p:
     citam = [n for n in localiza.nomes() if PERF in open(localiza.onde(n), encoding='utf-8').read()]
     ok(not citam, 'e nenhuma tela aponta mais para ela: %s' % citam[:3])
     ok(pg.locator('#visaoModulo').count() == 0 and pg.locator('#filtroVisao').count() == 0, 'nao ha seletor de visao: a pagina mostra uma coisa so')
-    cab = [c.replace('▲', '').strip().upper() for c in pg.evaluate("Array.from(document.querySelectorAll('.estoque-table th')).map(t => t.textContent)")]
+    cab = [c.replace('▲', '').strip().upper() for c in pg.evaluate("Array.from(document.querySelectorAll('.estoque-table th')).map(t => t.dataset.nome || t.textContent)")]
     ok(cab == ['LOJA', 'META', 'REALIZADO', 'ATINGIMENTO', 'RITMO ATÉ HOJE', 'VENDAS', 'DEVOLUÇÃO', 'SITUAÇÃO'], 'as colunas das duas telas numa lista: %s' % cab)
 
     print('\n[10] Os numeros da venda saem da mesma base da meta')

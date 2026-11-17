@@ -294,7 +294,7 @@ with sync_playwright() as p:
         limpo(LU)
         ok(nomes_lista() == ['Administrador Desk', 'Ana Souza', 'Bianca Furtado', 'Carlos Mendes', 'Fernanda Lima', 'Marina Costa', 'Rafael Andrade'], 'abre com os 7 usuários, em ordem de nome: %s' % nomes_lista())
         cabec = ev("Array.from(document.querySelectorAll('.estoque-table thead th')).map(t => t.textContent.replace(/[▲▼]/g, '').trim())")
-        ok(cabec == ['Usuário', 'Login', 'Perfil', 'Lojas', 'Vendedor', 'Desconto sem senha', 'Situação'], 'colunas: nome, login, perfil, lojas, vendedor, desconto sem senha e situação')
+        ok(cabec == ['Usuário', 'Login', 'Perfil', 'Lojas', 'Vendedor', 'Desconto sem liberação', 'Situação'], 'colunas: nome, login, perfil, lojas, vendedor, desconto sem senha e situação')
         linhas = ev("Array.from(document.querySelectorAll('#corpoTabela tr')).map(tr => Array.from(tr.children).map(c => c.textContent.replace(/\\s+/g, ' ').trim()))")
         marina = [l for l in linhas if 'Marina Costa' in l[0]][0]
         ok(marina[1] == 'marina.costa@desk' and marina[2] == 'Supervisor de vendas' and marina[3] == 'Desk Shope, Desk Brands' and marina[4] == 'Marina Costa' and marina[5] == '18%' and 'Ativo' in marina[6], 'Marina: login, perfil, lojas, vendedor vinculado, o desconto próprio (18%%) e a situação: %s' % marina)

@@ -471,7 +471,7 @@
      1280px. O CSS comum fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a
      coluna de texto quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
   .main .estoque-table { min-width:0; }
-  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
   .main .estoque-table td.col-texto { white-space:normal; }
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 6px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
@@ -977,8 +977,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <tr>
             <th class="col-texto ordenavel" data-ordem="nome">Produto <span class="seta">▲</span></th>
             <th class="col-texto ordenavel" data-ordem="sku" title="Código (SKU) do produto">SKU <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="custoMedio">Custo médio <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="fisico" title="a endereçar + disponível + reservado + bloqueado">Estoque físico <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="custoMedio" title="Custo médio" data-nome="Custo médio">Custo <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="fisico" title="Estoque físico: a endereçar + disponível + reservado + bloqueado" data-nome="Estoque físico">Físico <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="minimo">Mínimo <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="aEnderecar" title="Conferido, sem endereço — não vende até ser endereçado">A endereçar <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="bloqueado" title="Avaria, quarentena ou excedente sem nota">Bloqueado <span class="seta">▲</span></th>
@@ -2308,7 +2308,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

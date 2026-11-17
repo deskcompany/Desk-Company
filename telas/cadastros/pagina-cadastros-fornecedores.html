@@ -1961,7 +1961,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

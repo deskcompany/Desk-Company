@@ -504,6 +504,12 @@
   /* ===== Tabela de estoque (segue .historico-table/.custos-table ja usados no sistema) ===== */
   .estoque-table-wrap { overflow-x:auto; overflow-y:visible; }
   .estoque-table { width:100%; border-collapse:collapse; min-width:920px; }
+  /* Sem barra na horizontal a 1280px (usuario, 16/nov/2026): a tabela encolhe, o texto quebra, o titulo fica numa linha so. */
+  .main .estoque-table { min-width:0; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
+  .main .estoque-table td.col-texto { white-space:normal; }
+  .main .estoque-table th, .main .estoque-table td { padding-left:5px; padding-right:5px; }
+  .main .estoque-table .crm-chip { white-space:normal; border-radius:10px; }
   .estoque-table th { text-align:right; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--text); padding:0 8px 12px; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none; }
   .estoque-table th.col-texto { text-align:left; }
   .estoque-table th.ordenavel { cursor:pointer; }
@@ -2723,7 +2729,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('emptyState').style.display = completa.length === 0 ? 'flex' : 'none';
     html('listaCrm', completa.length === 0 ? '' :
       '<div class="estoque-table-wrap"><table class="estoque-table"><thead><tr><th></th><th></th><th></th>' +
-      '<th class="col-texto">Cliente</th><th class="col-texto">Assunto</th><th class="col-texto">Estágio</th><th class="col-texto">Próxima ação</th>' +
+      '<th class="col-texto">Cliente</th><th class="col-texto">Assunto</th><th class="col-texto">Estágio</th><th class="col-texto" title="Próxima ação" data-nome="Próxima ação">Próx. ação</th>' +
       '<th class="col-texto">Quando</th><th class="col-texto">Proposta</th></tr></thead><tbody>' +
       pagina.map(linhaHtml).join('') + '</tbody></table></div>');
     texto('paginacaoResumo', completa.length === 0 ? 'Mostrando 0 de 0' : 'Mostrando ' + (inicio + 1) + '–' + fim + ' de ' + completa.length);

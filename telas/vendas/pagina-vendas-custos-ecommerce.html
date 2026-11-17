@@ -883,7 +883,7 @@
      fixa 920px de largura minima, e abaixo de 1374px de janela isso vira barra; aqui a tabela encolhe, a coluna de texto
      quebra linha, o cabecalho tambem, e o numero fica numa linha so. */
   .main .estoque-table { min-width:0; }
-  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
   .main .estoque-table td.col-texto { white-space:normal; }
   /* ===== Campo de data com calendario (componente compartilhado, igual ao de Movimentacao de Estoque) ===== */
   .date-field { position:relative; }
@@ -1012,13 +1012,13 @@
   .form-field .ce-cfg-linha { display:flex; align-items:center; gap:10px; margin-bottom:0; font-size:13px; font-weight:600; color:var(--text-heading); cursor:pointer; }
   .sem-mkt .col-mkt, .sem-cort .col-cort, .sem-dev .col-dev, .agrupado .col-loja { display:none; }   /* a coluna so aparece quando algum pedido da lista tiver valor */
   .rt-linha.sub { padding-left:16px; }
-  #wrapCustos .estoque-table td { font-size:11.5px; padding:12px 3px; }
-  #wrapCustos .estoque-table th { padding:0 3px 12px; font-size:9.5px; letter-spacing:0; }
+  #wrapCustos .estoque-table td { font-size:11.5px; padding:12px 2px; }
+  #wrapCustos .estoque-table th { padding:0 2px 12px; font-size:9.5px; letter-spacing:0; }
   #wrapCustos .estoque-table th .seta { margin-left:2px; }
   #wrapCustos .estoque-table .col-loja { white-space:nowrap; font-size:10.5px; }
   #wrapCustos .estoque-table .vol-nome { white-space:nowrap; }
   .main .estoque-table { min-width:0; }
-  .main .estoque-table th { white-space:normal; vertical-align:bottom; }
+  .main .estoque-table th { white-space:nowrap; vertical-align:bottom; }
   .main .estoque-table td.col-texto { white-space:normal; }
   /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
      A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
@@ -1405,15 +1405,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <th class="col-texto ordenavel" data-ordem="pedido" id="thPedido">Pedido <span class="seta">▲</span></th>
             <th class="col-texto col-loja ordenavel" data-ordem="loja" id="thLoja">Loja <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="venda" title="O total do pedido menos o frete cobrado do cliente e o vale de cortesia">Venda <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="frete" title="O frete que o cliente pagou. Não entra na venda">Frete cobrado <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="frete" title="Frete cobrado: o frete que o cliente pagou. Não entra na venda" data-nome="Frete cobrado">Frete <span class="seta">▲</span></th>
             <th class="ordenavel col-cort" data-ordem="cort" title="O que o pedido pagou com vale-compra de cortesia: presente da loja, já fora da venda. Só aparece quando algum pedido tiver valor">Cortesia <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="dif" title="O frete que a loja pagou menos o que cobrou do cliente. Negativo: a loja ganhou no frete">Dif. de frete <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="dif" title="Diferencial de frete: o frete que a loja pagou menos o que cobrou do cliente. Negativo: a loja ganhou no frete" data-nome="Dif. de frete">Dif. frete <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="taxa" title="A taxa do gateway da loja virtual sobre o total do pedido, na condição do pagamento">Taxa <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="comissao" title="A comissão de venda do pedido (vendedor e afiliado), pela regra de Comissões Afiliados">Comissão <span class="seta">▲</span></th>
             <th class="ordenavel col-mkt" data-ordem="mkt" title="Comissão do marketplace. Só aparece quando algum pedido tiver valor">Com. marketplace <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="embalagem" title="A embalagem que a Conferência de Saída confirmou, com o custo do dia; até lá, uma estimativa pelo cadastro de Embalagens (a caixa que cabe e os insumos automáticos), uma por pedido">Embalagem <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="embalagem" title="A embalagem que a Conferência de Saída confirmou, com o custo do dia; até lá, uma estimativa pelo cadastro de Embalagens (a caixa que cabe e os insumos automáticos), uma por pedido" data-nome="Embalagem">Emb. <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="custo" title="O custo dos produtos, da compra ou o custo médio, conforme a configuração">Custo <span class="seta">▲</span></th>
-            <th class="ordenavel col-dev" data-ordem="dev" title="A devolução aceita: o valor devolvido, menos o custo do item que voltou revendável, mais o frete da volta pago pela loja. Só aparece quando algum pedido tiver valor">Devolução <span class="seta">▲</span></th>
+            <th class="ordenavel col-dev" data-ordem="dev" title="A devolução aceita: o valor devolvido, menos o custo do item que voltou revendável, mais o frete da volta pago pela loja. Só aparece quando algum pedido tiver valor" data-nome="Devolução">Devol. <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="lucro" title="Venda menos o diferencial de frete, a taxa, a comissão, a embalagem, o custo e a devolução">Lucro <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="margem" title="Lucro sobre a venda">Margem <span class="seta">▲</span></th>
           </tr>
@@ -4028,7 +4028,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
     const ths = Array.from(tabela.querySelectorAll('thead th'));
     const cols = ths.map((th, i) => (getComputedStyle(th).display !== 'none' ? i : -1)).filter(i => i >= 0);
-    return { cabecalho: cols.map(i => limpa(ths[i])),
+    return { cabecalho: cols.map(i => ths[i].dataset.nome || limpa(ths[i])),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => cols.map(i => limpa(tr.children[i]))) };
   }
   // Redesenha a lista com todas as paginas, faz o que foi pedido e devolve a pagina como estava.
@@ -4045,7 +4045,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
     if (!tabela) return null;
     const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
-    const titulos = Array.from(tabela.querySelectorAll('thead th')).map(limpa);
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
     const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
     return { cabecalho: usar.map(i => titulos[i]),
              linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };

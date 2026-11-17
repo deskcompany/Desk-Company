@@ -809,11 +809,12 @@
   .cg-total { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:800; }
   .event-drawer .drawer-footer { flex-wrap:wrap; }
   .estoque-toolbar .dropdown-select-btn.pill { white-space:nowrap; }
-  /* Cabecalho em duas linhas, como no print: e o que faz a tabela caber no card a 1440px. */
-  #painelCompra .estoque-table th, #painelGiro .estoque-table th { white-space:normal; vertical-align:bottom; line-height:1.35; }
+  /* Titulo numa linha so (usuario, 16/nov/2026); a tabela cabe com os nomes curtos. */
+  #painelCompra .estoque-table th, #painelGiro .estoque-table th { white-space:nowrap; vertical-align:bottom; line-height:1.35; }
   #painelCompra .estoque-table th .seta, #painelGiro .estoque-table th .seta { margin-left:2px; }
   #painelCompra .estoque-table td.col-texto, #painelGiro .estoque-table td.col-texto { white-space:normal; }
-  #painelCompra .estoque-table td.col-texto .prod-sku, #painelGiro .estoque-table td.col-texto .prod-sku { white-space:nowrap; }
+  /* SKU e GTIN quebram na linha de baixo quando falta largura: a tabela cabe a 1280px sem barra (16/nov/2026). */
+  #painelCompra .estoque-table { min-width:0; }
   .cg-etq { white-space:nowrap; }
   .cg-link { color:var(--active-text); font-weight:700; text-decoration:none; }
   .cg-link:hover { text-decoration:underline; }
@@ -1172,12 +1173,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <tr>
             <th class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" id="checkSelecionarTodos" aria-label="Selecionar todos os produtos desta página"></th>
             <th class="col-texto ordenavel" data-ordem="nome">Produto <span class="seta">▲</span></th>
-            <th class="col-texto ordenavel" data-ordem="fornecedor">Fornecedor padrão <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="custo">Custo médio <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="vendavel" title="Disponível mais o que aguarda endereço. Reservado e bloqueado ficam de fora">Vendável <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="chegando" title="Em conferência, a receber de ordens de compra e em trânsito entre depósitos">Chegando <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="custo" title="Custo médio" data-nome="Custo médio">Custo <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="vendavel" title="Vendável: disponível mais o que aguarda endereço. Reservado e bloqueado ficam de fora" data-nome="Vendável">Vend. <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="chegando" title="Em conferência, a receber de ordens de compra e em trânsito entre depósitos" data-nome="Chegando">Chega <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="saidas" title="Pedidos de venda que ainda vão sair do estoque">Saídas <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="projetado" title="Vendável, mais o que chega, menos o que vai sair">Projetado <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="projetado" title="Projetado: vendável, mais o que chega, menos o que vai sair" data-nome="Projetado">Proj. <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="colA"><span id="rotColA">Mínimo</span> <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="colB"><span id="rotColB">Máximo</span> <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="comprar" title="Quantidade sugerida. Pode ser alterada antes de gerar a ordem">Comprar <span class="seta">▲</span></th>
@@ -2796,9 +2796,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       tr.setAttribute('data-sku', p.sku);
       tr.innerHTML =
         '<td class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" data-sku="' + esc(p.sku) + '" aria-label="Selecionar ' + esc(p.nome) + '"' + (selecionados.has(p.sku) ? ' checked' : '') + '></td>' +
-        '<td class="col-texto"><div class="prod-nome">' + esc(p.nome) + etq + '</div><div class="prod-sku">' + esc(p.sku) + ' · ' + esc(p.gtin) + '</div></td>' +
-        '<td class="col-texto">' + (forn ? esc(forn) : '<span class="col-localizacao-vazia">sem fornecedor padrão</span>') +
-          (OPC.codForn && r.f.codForn ? '<div class="prod-sku">cód. ' + esc(r.f.codForn) + '</div>' : '') + '</td>' +
+        '<td class="col-texto"><div class="prod-nome">' + esc(p.nome) + etq + '</div><div class="prod-sku">' + esc(p.sku) + ' · ' + esc(p.gtin) + '</div><div class="prod-sku">' + (forn ? esc(forn) : '<span class="col-localizacao-vazia">sem fornecedor padrão</span>') +
+          (OPC.codForn && r.f.codForn ? ' · cód. ' + esc(r.f.codForn) : '') + '</div></td>' +
         '<td>' + moeda(p.custoMedio) + '</td>' +
         '<td>' + vendavel + '</td>' +
         '<td>' + qtdOuTraco(r.chegando, un) + '</td>' +
