@@ -2361,11 +2361,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // anunciava "em aberto 07" enquanto a tela mostrava zero: o numero era do ano
   // todo, a lista era do mes. Contador que discorda da lista e pior que contador
   // nenhum — e este so aparecia em certas datas, quando o vencimento virava.
-  function listaSemAba() {
+  function listaSemAba(ignoraPeriodo) {
     const b = semAcento(buscaAtual);
     return TITULOS.filter(t => {
       if (soEmAberto && !emAberto(t)) return false;   // indicador de total: so o que ainda se deve
-      if (!dentroDoPeriodo(t)) return false;
+      if (!ignoraPeriodo && !dentroDoPeriodo(t)) return false;
       if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
       if (b !== '' && semAcento(fornDe(t.fornId).nome + ' ' + t.doc + ' ' + t.hist + ' ' + catDe(t.catId).nome).indexOf(b) === -1) return false;
       return true;
@@ -2377,7 +2377,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return TITULOS.filter(t => {
       if (soEmAberto && !emAberto(t)) return false;   // indicador de total: so o que ainda se deve
       if (abaAtual !== 'todas' && situacaoDe(t) !== abaAtual) return false;
-      if (!dentroDoPeriodo(t)) return false;
+      if (abaAtual !== 'atrasada' && !dentroDoPeriodo(t)) return false;   // atrasada ignora o periodo: conta vencida em outubro segue atrasada em novembro
       if (filtroCatAtual !== 'todos' && String(t.catId) !== String(filtroCatAtual)) return false;
       if (b !== '' && semAcento(fornDe(t.fornId).nome + ' ' + t.doc + ' ' + t.hist + ' ' + catDe(t.catId).nome).indexOf(b) === -1) return false;
       return true;
@@ -2409,7 +2409,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function renderAbas() {
     document.getElementById('sitTabs').innerHTML = ABAS.map(a => {
-      const base = listaSemAba();
+      const base = listaSemAba(a.id === 'atrasada');
       const n = a.id === 'todas' ? base.length : base.filter(t => situacaoDe(t) === a.id).length;
       return '<button type="button" class="sit-tab' + (abaAtual === a.id ? ' on' : '') + '" data-aba="' + a.id + '">' +
              (a.id === 'todas' ? '' : '<span class="sit-bola ' + a.id + '"></span>') +

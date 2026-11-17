@@ -207,7 +207,10 @@ with sync_playwright() as p:
     ok(20 in [m['catId'] for m in movs], 'o juros na categoria propria')
 
     print('15. exclusao em grupo tambem pergunta o escopo')
-    pg.goto(ARQ + '?id=110'); pg.wait_for_timeout(500)
+    # conta do grupo ainda sem pagamento, escolhida pela situacao (a conta paga nao se exclui; o dia de hoje muda quais estao pagas)
+    pg.goto(ARQ + '?id=100'); pg.wait_for_timeout(300)
+    id_aberta = pg.evaluate("TITULOS.find(x => x.grupo === 'REC-1' && !x.pago && !x.cancelado).id")
+    pg.goto(ARQ + '?id=%d' % id_aberta); pg.wait_for_timeout(500)
     abrir_mais_acoes(pg)
     pg.click('#linkExcluirConta'); pg.wait_for_timeout(350)
     ok(pg.eval_on_selector('#modalEscopo', "e => e.classList.contains('open')"), 'escopo antes de excluir')

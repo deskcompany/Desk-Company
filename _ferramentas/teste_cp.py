@@ -206,6 +206,22 @@ with sync_playwright() as p:
     ok(doc[0] <= doc[1] + 1, 'pagina nao estoura em 1440: %s' % doc)
     ok(not erros, 'nenhum erro de JS no caminho todo: %s' % erros[:4])
     pg.screenshot(path=_os.path.join(_tempfile.gettempdir(), 'qa-contas-pagar.png'))  # no temp: a raiz do projeto nao e deposito de artefato
+
+    print('11. a aba atrasadas ignora o periodo: card, aba e lista dao o mesmo numero (revisao 16/nov, item 2)')
+    for tela in ('pagina-financas-contas-pagar.html', 'pagina-financas-contas-receber.html'):
+        pg.goto(localiza.uri(tela)); pg.wait_for_timeout(500)
+        # "proximos 7 dias": toda atrasada fica FORA do periodo, entao so passa se a aba ignora o periodo
+        pg.click('#filtroPeriodo .dropdown-select-btn'); pg.wait_for_timeout(200)
+        pg.click('#filtroPeriodo .dropdown-select-item[data-value="7"]'); pg.wait_for_timeout(300)
+        total = pg.evaluate("TITULOS.filter(t => situacaoDe(t) === 'atrasada').length")
+        fora = pg.evaluate("TITULOS.filter(t => situacaoDe(t) === 'atrasada' && !dentroDoPeriodo(t)).length")
+        card = pg.text_content('.cp-kpis [data-kpi="vencidas"] .kpi-delta')
+        aba = pg.text_content('.sit-tab[data-aba="atrasada"]')
+        pg.click('.sit-tab[data-aba="atrasada"]'); pg.wait_for_timeout(300)
+        linhas = pg.eval_on_selector_all('tbody tr[data-id]', 'e => e.length')
+        ok(total > 0 and fora == total, '%s: as %d atrasadas estao todas fora do periodo escolhido (%d)' % (tela, total, fora))
+        ok(card.startswith('%d conta' % total), '%s: card "%s" = %d atrasadas' % (tela, card, total))
+        ok([int(n) for n in re.findall(r'\d+', aba)[-1:]] == [total] and linhas == total, '%s: aba "%s" e %d linhas = %d' % (tela, aba.strip(), linhas, total))
     b.close()
 
 print(); print('FALHAS: %d' % len(falhas))

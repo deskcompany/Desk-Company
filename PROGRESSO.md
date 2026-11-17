@@ -8,6 +8,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Revisão geral, pacote D (17/nov/2026), esperando o teste dele:** Finanças (itens 2 e 13). Em [Contas a Pagar](http://localhost:3000/financas/pagina-financas-contas-pagar.html) e em [Contas a Receber](http://localhost:3000/financas/pagina-financas-contas-receber.html), a aba "atrasadas" mostra toda conta vencida, fora do período, e dá o mesmo número do card "Vencidas". O teste da página da conta deixou de depender da data, e o selo inteiro ficou verde. Detalhe no §14.116.
+
 **Revisão geral, pacote C (16/nov/2026), esperando o teste dele:** as telas, uma a uma (itens 15, 19, 6, 7, 8, 9, 10, 11 e 1). [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (clicar na linha abre o painel), [Produtos](http://localhost:3000/cadastros/pagina-cadastros-produtos.html) (clicar numa linha: o preview com os quatro blocos), [painel da promoção](http://localhost:3000/vendas/pagina-vendas-promocoes.html) (botão azul e "Mais ações"), a ficha do produto ([Dados Complementares](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1) e o "Encerrar antes para este produto" na aba Preços), a revisão da promoção ("Pronto" e "Corrigir"), o [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html) (o resumo e o "Desconto à vista" sem maquininha) e [Embalagens](http://localhost:3000/cadastros/pagina-cadastros-embalagens.html) (campos de tamanho numa linha). Detalhe no §14.115.
 
 **Revisão geral, pacote B (16/nov/2026), esperando o teste dele:** as tabelas (itens 16, 17, 18 e 4). Nenhuma tabela rola na horizontal a 1280 px e o título da coluna fica numa linha só: [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (a coluna "Ação" estreita, com reticências; faça algumas ações para encher o registro), [Necessidades de Compra](http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html) (o fornecedor foi para baixo do produto), [CRM](http://localhost:3000/vendas/pagina-vendas-crm.html), [Metas](http://localhost:3000/vendas/pagina-vendas-metas.html), [Usuários](http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html) ("Desconto sem liberação") e os títulos encurtados em Giro, Controle de Estoques, Expedição e Custos do E-commerce; o texto solto "De" e "Mínimo" da [promoção](http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=1) e o "Total" da Ordem de Compra e da Entrada de Notas alinhados com os campos. Detalhe no §14.114.
@@ -213,12 +215,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). Ficou um item dela,
-e entrou uma decisão:
+A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). O item 2 dela saiu no
+pacote D de 16/nov (§14.116); ficou este pedido:
 
-2. **Contas a Pagar: a aba "atrasadas" ignora o período** (aprovado pelo usuário em 03/nov). A lista abre no período
-   "mês" (decisão de 23/set), e por isso em 02/11 o card "Vencidas" dizia 8 e a aba "atrasadas" dizia 2. Conta vencida
-   em outubro continua atrasada em novembro. Conferir se Contas a Receber tem a mesma aba e o mesmo defeito.
 3. **Calculadora de preço: mais de uma embalagem** (pedido dele em 04/nov, no teste da calculadora). O campo "Caixa" vira uma lista com caixa de
    seleção: marcar a caixa e o saquinho da loja (ou mais de uma), só entre as embalagens ativas com estoque. Exemplo dele: a garrafa térmica vai numa
    caixa e dentro de um saquinho da loja. Os insumos que entram sozinhos continuam entrando. (A conta do mínimo agora é um bloco comum com
@@ -227,13 +226,6 @@ e entrou uma decisão:
 Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
 
 Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "vamos avaliar depois"):
-
-Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
-
-13. **Contas a Pagar, a página da conta: o "escopo antes de excluir" não abre na conta nº 110.** `teste_cpd.py` (passo 15)
-    passava em 09/nov e reprova desde então, inclusive nas telas do commit de 11/nov, antes da entrega 2 de Usuários. O jeito
-    é de teste preso à data de hoje (a conta parcelada tem parcelas que vencem com o tempo). Conferir se a conta de exemplo
-    mudou de situação com a data ou se o "Excluir" do grupo deixou de perguntar o escopo.
 
 Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
 
