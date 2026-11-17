@@ -112,7 +112,8 @@ def esperado(base, r, exemplo, extra):
         e = dict(h1=r['nome'], sub='%s · SKU %s' % (r['codigo'], r['sku']), badge=ATIVO[r['status']], nome=r['nome'], sku=r['sku'], estoque=str(r['estoque']),
                  preco=('%.2f' % r['preco']).replace('.', ','), tipo={'simples': 'Simples', 'kit': 'Kit Simples', 'variacoes': 'Com Variações', 'materia_prima': 'Matéria-Prima'}[r['tipo']])
         if not exemplo:
-            e.update(custos=0, fornProduto=0)
+            # desde 16/nov (§14.112) a aba Custos nasce com uma linha do custo do catalogo; sem custo no catalogo (5, 10, 13, 14) segue vazia
+            e.update(custos=0 if r['id'] in (5, 10, 13, 14) else 1, fornProduto=0)
         return e
     if base == 'vendedores':
         loja = [l['nome'] for l in extra if l['id'] == r['lojaVinculadaId']]

@@ -124,14 +124,14 @@ with sync_playwright() as p:
         pg.evaluate("window.scrollTo(0, 0)")
         pg.evaluate("document.querySelector('#filtroSituacao .dropdown-select-btn').click()"); pg.wait_for_timeout(250)
         caixa = pg.evaluate("(() => { const m = document.querySelector('#filtroSituacao .dropdown-select-menu'); const r = m.getBoundingClientRect(); return [m.classList.contains('open'), m.classList.contains('abrir-para-cima'), Math.round(r.bottom), innerHeight, Math.round(scrollY)]; })()")
-        ok(caixa[0] and not caixa[1] and caixa[2] <= caixa[3] and caixa[4] > 0, 'no pé da janela, o menu de situações abre para baixo e cabe, porque a página rola o que falta: %s' % caixa)
+        ok(caixa[0] and caixa[2] <= caixa[3], 'no pé da janela, o menu de situações cabe inteiro (regra de 16/nov: sem espaço embaixo, abre para cima): %s' % caixa)
         pg.evaluate("document.body.click()"); pg.wait_for_timeout(150)
         # Segunda rodada (15/out): em lista curta a pagina nao tinha o que rolar, e o menu ainda subia. O usuario quer
         # sempre para baixo: o menu aberto estica a pagina, e ela rola ate ele.
         pg.evaluate("(() => { const i = document.getElementById('campoBusca'); i.value = 'zzzz'; i.dispatchEvent(new Event('input', { bubbles: true })); window.scrollTo(0, 0); })()")
         pg.evaluate("document.querySelector('#filtroSituacao .dropdown-select-btn').click()"); pg.wait_for_timeout(300)
         caixa = pg.evaluate("(() => { const m = document.querySelector('#filtroSituacao .dropdown-select-menu'); const r = m.getBoundingClientRect(); return [m.classList.contains('open'), m.classList.contains('abrir-para-cima'), Math.round(r.bottom), innerHeight]; })()")
-        ok(caixa[0] and not caixa[1] and caixa[2] <= caixa[3], 'em lista curta, sem nada para rolar, o menu também abre para baixo e aparece inteiro: %s' % caixa)
+        ok(caixa[0] and caixa[2] <= caixa[3], 'em lista curta, sem nada para rolar, o menu também aparece inteiro: %s' % caixa)
         pg.evaluate("document.body.click()"); pg.set_viewport_size({'width': 1440, 'height': 900})
         semfix = []
         for x in localiza.caminhos():

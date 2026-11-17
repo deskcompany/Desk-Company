@@ -419,6 +419,7 @@
   /* ===== PAINEL LATERAL: nova/editar ===== */
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+  html:has(.drawer-backdrop.open) { overflow:hidden; }   /* painel lateral aberto: a pagina de tras nao rola e volta ao mesmo ponto ao fechar */
   .event-drawer { position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100vh; background:var(--card-bg); border-left:1px solid var(--border); box-shadow:-8px 0 28px rgba(0,0,0,0.28); z-index:50; padding:26px; overflow-y:auto; transition:right .25s ease; }
   .event-drawer.open { right:0; }
   .drawer-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
@@ -2290,7 +2291,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           let _fixo = btn; while (_fixo && getComputedStyle(_fixo).position !== 'fixed') _fixo = _fixo.parentElement;
           if (!_fixo) requestAnimationFrame(() => menu.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
           const espacoAbaixo = window.innerHeight - btn.getBoundingClientRect().bottom;
-          menu.classList.toggle('abrir-para-cima', !!_fixo && espacoAbaixo < alturaMenu + 12);   // para cima so em painel fixo, que nao rola
+          menu.classList.toggle('abrir-para-cima', espacoAbaixo < alturaMenu + 12 && btn.getBoundingClientRect().top > alturaMenu + 12);   // sem espaco embaixo na janela, abre para cima (16/nov/2026); se tambem nao cabe em cima, abre para baixo e a pagina rola
         }
         menu.classList.toggle('open');
       });

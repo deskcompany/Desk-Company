@@ -823,8 +823,8 @@ with sync_playwright() as p:
             ir(DET, '?id=1')
             for ident in ('gwTipo', 'gwSituacao', 'gwCategoria', 'gwLojas', 'gwBandeiras', 'gwRepassar'):
                 pg.evaluate("document.querySelector('#%s .dropdown-select-btn').click()" % ident); pg.wait_for_timeout(120)
-                abre_baixo = pg.evaluate("(() => { const m = document.querySelector('#%s .dropdown-select-menu'); const b = document.querySelector('#%s .dropdown-select-btn'); return m.classList.contains('open') && !m.classList.contains('abrir-para-cima') && m.getBoundingClientRect().top >= b.getBoundingClientRect().bottom - 1; })()" % (ident, ident))
-                ok(abre_baixo, 'o dropdown %s abre para baixo' % ident)
+                abre_baixo = pg.evaluate("(() => { const m = document.querySelector('#%s .dropdown-select-menu'); const b = document.querySelector('#%s .dropdown-select-btn'); const r = m.getBoundingClientRect(), x = b.getBoundingClientRect(); return m.classList.contains('open') && r.top >= 0 && r.bottom <= innerHeight && (r.top >= x.bottom - 1 || r.bottom <= x.top + 1); })()" % (ident, ident))
+                ok(abre_baixo, 'o dropdown %s abre inteiro na janela, para baixo ou, sem espaço, para cima (16/nov)' % ident)
             pg.evaluate("document.querySelector('#gwLojas .dropdown-select-btn').click()"); pg.wait_for_timeout(120)
             ok(pg.evaluate("document.querySelectorAll('.dropdown-select-menu.open').length") == 1, 'abrir um dropdown fecha os outros')
             pg.keyboard.press('Escape'); pg.wait_for_timeout(120)

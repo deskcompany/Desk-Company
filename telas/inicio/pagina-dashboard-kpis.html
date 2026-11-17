@@ -335,6 +335,7 @@
   }
   .drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .drawer-backdrop.open { opacity:1; pointer-events:auto; }
+  html:has(.drawer-backdrop.open) { overflow:hidden; }   /* painel lateral aberto: a pagina de tras nao rola e volta ao mesmo ponto ao fechar */
   .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
   .modal-card.open { transform:translateY(0); }
   .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }

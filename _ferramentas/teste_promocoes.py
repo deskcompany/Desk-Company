@@ -740,6 +740,16 @@ with sync_playwright() as p:
         ok(ev("document.getElementById('itemExcedente').offsetParent === null"), 'quem não tem a permissão (a Ana, vendedora) não vê o botão')
         pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
 
+    if secao(13, 'O mínimo do detalhe da promoção lê o custo da aba Custos da ficha'):
+        limpar(); ir(PAG, '?nova=1')
+        v = ev("""(() => { const pr = promoProduto('PAP-3002'); const a = minimoDe(pr);
+            const base = precoParametros().custoBase, campo = base === 'medio' ? 'custoMedio' : 'precoCusto';
+            const l = { data: '01/01/2020', precoCusto: '10,00', custoMedio: '10,00' }, n = { data: '15/11/2026', precoCusto: '50,00', custoMedio: '50,00' };
+            l[campo] = '10,00'; n[campo] = '50,00';
+            localStorage.setItem('deskCustoProduto', JSON.stringify({ [pr.id]: [n, l] })); const b = minimoDe(pr);
+            localStorage.removeItem('deskCustoProduto'); const c = minimoDe(pr); return [a, b, c]; })()""")
+        ok(v[1] is not None and v[0] is not None and v[1] > v[0] and v[2] == v[0], 'o mínimo sobe com o custo gravado (a linha mais recente) e volta ao do catálogo sem nada gravado: %s' % v)
+
     reais = [e for e in erros if 'ERR_' not in e]
     ok(not reais, 'nenhum erro de JavaScript em toda a suíte: %s' % reais[:3])
     nav.close()

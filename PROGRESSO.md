@@ -8,6 +8,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Revisão geral, pacote A (16/nov/2026), esperando o teste dele:** o mínimo do detalhe da promoção lê o custo da aba Custos; o menu abre para cima quando não cabe embaixo (item 14: PDV, [cobrança](http://localhost:3000/vendas/pagina-vendas-pdv.html), venda com um item, "Adicionar recebimento (F4)"); o painel lateral aberto trava a página de trás (item 5, qualquer lista, ex. [Pedidos](http://localhost:3000/vendas/pagina-vendas-pedidos.html)); a bolinha centralizada (item 12, "Desconto / Acréscimo" e "O que esta venda gerou" no PDV). Detalhe no §14.113.
+
 **O preço de atacado: implementado em 16/nov/2026, esperando o teste dele.** A ficha do produto ganhou, na aba Preços, o "Preço de atacado" e o "A partir de N unidades" (saiu a
 seção "Preço por lista"); no PDV e no Pedido de Venda, chegou à quantidade mínima, a linha vira o preço de atacado sozinha (a soma do produto na venda inteira decide, a promoção
 não divide e não conta uso), e antes do mínimo a linha avisa "faltam N para o atacado (R$ X cada)". O atacado não é desconto. A aba Custos da ficha passou a gravar (o mínimo do atacado usa o custo dela). O detalhe está no §14.112 e o plano em `docs/plano-preco-atacado.md`.
@@ -232,7 +234,6 @@ Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
 4. **Promoção, tabela de produtos: os números desalinhados com os campos de digitação.** "De" e "Mínimo" (texto) não
    ficam na mesma linha nem na mesma borda dos campos "Por", "Limite" e "Por cliente" (caixas). Alinhar texto e caixa
    na mesma altura e no mesmo lado; ver se o mesmo acontece nas outras tabelas editáveis (Ordem de Compra, Entrada de Notas).
-5. **Painel lateral aberto: a página de trás não rola** (vale para o sistema todo). Hoje a rolagem desce a página
    principal por trás do painel. Com o painel da direita aberto, a rolagem mexe só nele; ao fechar, a página volta a rolar
    do ponto em que estava. Todas as telas com painel lateral, num bloco comum.
 6. **Painel da promoção: organizar os botões** "Antecipar para hoje", "Prorrogar", "Encerrar agora", "Clonar",
@@ -255,10 +256,6 @@ Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "
     bandeira do cartão (Visa). Avaliar com ele, antes de mexer, se o mesmo vale para o resumo do Pedido de Venda.
 11. **PDV, caixa "Desconto à vista": tirar a maquininha, o nível (Bronze) e a bandeira** da frase ("a taxa do crédito à
     vista de InfinitePay Maquininha — Bronze, Visa"). Ficam a porcentagem, as formas (Pix e dinheiro), o valor e o botão.
-12. **A bolinha azul dos itens de lista e das opções de marcar está torta.** Na lista "O que esta venda gerou" e nas opções
-    "Desconto / Acréscimo" e "Valor fixo / Porcentagem" do PDV, a bolinha não fica centralizada no texto nem na caixa, e
-    cada cartão a mostra num lugar diferente. Medir nos dois temas e procurar o mesmo marcador e a mesma opção nas outras
-    telas, para corrigir num bloco comum.
 
 Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
 
@@ -269,9 +266,6 @@ Achado pelo selo em 16/nov/2026 (não é de nenhuma entrega recente):
 
 Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
 
-14. **Menu no fim da página abre para cima.** No PDV, o "Adicionar recebimento (F4)" fica no pé da tela e a lista abre
-    para baixo, saindo da tela (bug visual). Quando não houver espaço embaixo, o menu abre para cima. Corrigir no bloco
-    comum do menu e conferir os outros que ficam no fim da página ("Mais ações", os seletores do rodapé).
 15. **Registro de atividades: clicar na ação abre o painel lateral** (o padrão da casa), com tudo o que não cabe na
     linha: o texto inteiro que a pessoa confirmou, quem fez, quem autorizou, onde, quando e o registro. Com o painel, a
     coluna "Ação" diminui e corta o texto com reticências.
