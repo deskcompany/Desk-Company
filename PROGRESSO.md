@@ -10,7 +10,7 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 **O preço de atacado: implementado em 16/nov/2026, esperando o teste dele.** A ficha do produto ganhou, na aba Preços, o "Preço de atacado" e o "A partir de N unidades" (saiu a
 seção "Preço por lista"); no PDV e no Pedido de Venda, chegou à quantidade mínima, a linha vira o preço de atacado sozinha (a soma do produto na venda inteira decide, a promoção
-não divide e não conta uso), e antes do mínimo a linha avisa "faltam N para o atacado (R$ X cada)". O atacado não é desconto. O detalhe está no §14.112 e o plano em `docs/plano-preco-atacado.md`.
+não divide e não conta uso), e antes do mínimo a linha avisa "faltam N para o atacado (R$ X cada)". O atacado não é desconto. A aba Custos da ficha passou a gravar (o mínimo do atacado usa o custo dela). O detalhe está no §14.112 e o plano em `docs/plano-preco-atacado.md`.
 O que conferir (a Luminária de Mesa LED já tem atacado de exemplo: R$ 72,90 a partir de 6, com o preço de venda em R$ 79,90; o Kit Papelaria, R$ 59,50 a partir de 10; os códigos de exemplo: 1234 do Administrador, 2468 do Carlos):
 - A ficha, aba Preços: [Luminária, com o atacado de exemplo](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=8) e
   [Fone de Ouvido, para testar as travas](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1): só o preço sem a quantidade, quantidade 1, preço igual
@@ -292,6 +292,13 @@ Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
     quebram nas duas larguras; só a 1280, Formas de Recebimento, Conferência de Entrada, Controle de Estoques,
     Endereçamento, Entrada de Notas, Itens Bloqueados, Comissões, Conferência de Saída, Expedição, Rastreamento,
     Separação, Pedidos de Venda e Promoções.
+19. **Preview do Produto (lista de Produtos) com mais informação** (pedido dele em 16/nov, com print). Hoje mostra
+    só situação, SKU, preço de venda e estoque. Ganha os quatro blocos que ele marcou: Preços (venda, promocional,
+    atacado "a partir de N un." e a promoção ativa), Custo e margem (custo médio, margem e o mínimo da calculadora),
+    Estoque (físico, disponível, mínimo e por depósito) e Cadastro (loja, marca, fornecedor padrão e embalagem).
+
+O plano da revisão, com as escolhas dele de 16/nov para os itens 6, 10, 11, 18 e 19, está em
+[docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md).
 
 ## Esperando decisão do usuário
 

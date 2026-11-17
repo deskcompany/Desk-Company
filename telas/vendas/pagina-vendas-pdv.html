@@ -3340,7 +3340,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function promoMinimoCent(pr) {
     let salvo = null;
     try { const s = (JSON.parse(localStorage.getItem('deskCalculoPreco') || '{}') || {})[pr.id]; salvo = s && isFinite(Number(s.preco)) && Number(s.preco) > 0 ? s : null; } catch (e) { salvo = null; }
-    return precoMinimo({ lojaId: pr.loja, custo: precoParametros().custoBase === 'medio' ? pr.custoMedio : pr.custo, caixaId: pr.caixa }, salvo);
+    // O custo e o da aba Custos da ficha (`deskCustoProduto`: a linha mais recente) quando ela gravou algum; sem nada gravado, o do catalogo.
+    let custo = precoParametros().custoBase === 'medio' ? pr.custoMedio : pr.custo;
+    try {
+      const linhas = (JSON.parse(localStorage.getItem('deskCustoProduto') || '{}') || {})[pr.id];
+      if (Array.isArray(linhas) && linhas.length) {
+        const chave = (d) => { const m = /(\d+)\/(\d+)\/(\d+)/.exec(d || ''); return m ? (+m[3]) * 10000 + (+m[2]) * 100 + (+m[1]) : 0; };
+        let ult = linhas[0];
+        linhas.forEach(l => { if (chave(l.data) >= chave(ult.data)) ult = l; });
+        custo = parseFloat(String(precoParametros().custoBase === 'medio' ? ult.custoMedio : ult.precoCusto).replace(/\./g, '').replace(',', '.')) || 0;
+      }
+    } catch (e) { /* ilegivel: vale o do catalogo */ }
+    return precoMinimo({ lojaId: pr.loja, custo: custo, caixaId: pr.caixa }, salvo);
   }
   // O preco de atacado (16/nov/2026): a partir de `min` unidades do produto na venda INTEIRA (a soma de todas as linhas do mesmo SKU), cada peca sai
   // pelo preco de atacado. Atacado e atacado: a promocao nao encosta nele, e ele nao e desconto (nao dispara a liberacao de desconto acima do maximo).

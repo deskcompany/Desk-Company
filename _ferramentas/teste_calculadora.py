@@ -554,8 +554,8 @@ with sync_playwright() as p:
         pg.context.close()
         # um produto da lista que nao tem custo cadastrado
         pg = nova()
-        editar(pg, q_='&id=3', loja='Desk Shope'); abrir(pg)
-        ok(pg.input_value('#calcCusto') == '' and visivel(pg, '#calcAvisoCusto') and txt(pg, '#calcHoje') == '', 'o produto 3 (sem custo no cadastro): campo vazio, aviso e nenhuma margem de hoje')
+        editar(pg, q_='&id=5', loja='Desk Shope'); abrir(pg)
+        ok(pg.input_value('#calcCusto') == '' and visivel(pg, '#calcAvisoCusto') and txt(pg, '#calcHoje') == '', 'o produto 5 (Filamento, sem custo no cadastro): campo vazio, aviso e nenhuma margem de hoje')
         pg.context.close()
 
     # ================================================================ 9. Aplicar

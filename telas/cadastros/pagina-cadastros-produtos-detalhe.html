@@ -3691,6 +3691,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Guarda o calculo em `deskCalculoPreco`, por id do produto: { preco, markup, frete, caixaId, embalagemManual, freteLoja, margem, parcelas, imposto, comissao, escolhida, em }.
   // Reabrir ou recarregar repoe preco, lista Padrao e Markup do calculo guardado; o custo do produto e o da embalagem sao lidos de novo, para refazer com o custo de hoje.
   // shortcut: a lista de produtos, o PDV e os pedidos seguem com o preco do exemplo (so este cadastro le o calculo guardado); trocar quando houver banco.
+  // ===== ABA CUSTOS: O QUE FICA GRAVADO (16/nov/2026) =====
+  // Salvar grava as linhas da aba (na ordem da tela) em `deskCustoProduto[id]`; abrir a ficha le de la. Produto sem nada gravado abre com uma linha
+  // montada do catalogo do bloco PROMOCOES (custo, custo medio, preco de venda de hoje); o produto 1 segue com a semente da aba e o sem custo, sem linha.
+  // PDV e Pedido de Venda leem a mesma fonte para o preco minimo (promoMinimoCent).
+  function lerCustosGravados() { try { const g = (JSON.parse(localStorage.getItem('deskCustoProduto') || '{}') || {})[REGISTRO.id]; return Array.isArray(g) ? g : null; } catch (e) { return null; } }
+  function gravarCustosDaAba() {
+    if (!REGISTRO) return;
+    const linhas = Array.from(document.querySelectorAll('#tabelaCustos tr')).map(tr => {
+      const i = tr.querySelectorAll('input');
+      return { data: tr.children[0].textContent.trim(), saldoAtual: i[0].value, saldoAnterior: i[1].value, impostos: i[2].value, precoCusto: i[3].value, custoMedio: i[4].value, precoVenda: i[5].value };
+    });
+    try { const t = JSON.parse(localStorage.getItem('deskCustoProduto') || '{}') || {}; t[REGISTRO.id] = linhas; localStorage.setItem('deskCustoProduto', JSON.stringify(t)); } catch (e) { /* bloqueado: vale ate recarregar */ }
+  }
+  (function abrirCustos() {
+    if (!REGISTRO) return;
+    const g = lerCustosGravados(), c = promoProdutoId(REGISTRO.id);
+    if (g) custosProduto = g;
+    else if (REGISTRO.id !== ID_DO_EXEMPLO && c && c.custo !== null) {
+      const f = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      custosProduto = [{ data: new Intl.DateTimeFormat('pt-BR').format(new Date()), saldoAtual: '0,00', saldoAnterior: '0,00', impostos: '0,00', precoCusto: f(c.custo), custoMedio: f(c.custoMedio), precoVenda: f(promoPrecos(c.id).venda) }];
+    }
+    renderCustos();
+  })();
+
   const CALC = (function calculadoraDePreco() {
     const $ = (id) => document.getElementById(id);
     const CHAVE = 'deskCalculoPreco';
@@ -4048,6 +4072,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       return;
     }
     gravarPrecoAoSalvar();
+    gravarCustosDaAba();
   }, true);
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====

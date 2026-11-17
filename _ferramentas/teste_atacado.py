@@ -207,7 +207,7 @@ with sync_playwright() as p:
         tenta('129,90', '10', 'precisa ficar abaixo do preço de venda (R$ 129,90)', 'preço igual ao de venda')
         tenta('150,00', '10', 'precisa ficar abaixo do preço de venda', 'preço acima do de venda')
         tenta('70,00', '10', 'abaixo do mínimo da calculadora (R$ 79,28)', 'preço abaixo do mínimo')
-        tenta('15,00', '10', 'não tem custo no cadastro', 'produto sem custo no cadastro (o Luminária, id 3)', 3)
+        tenta('15,00', '10', 'não tem custo no cadastro', 'produto sem custo no catálogo (o Filamento, id 5)', 5)
         ok(ev("document.getElementById('campoPrecoAtacado').classList.contains('has-error')"), 'o campo fica com a borda de erro')
         digita('#inputPrecoAtacado', '90,00')
         ok(erro_ficha() == '', 'digitar de novo limpa o erro')
@@ -243,6 +243,26 @@ with sync_playwright() as p:
         ok(PRODS in pg.url and erro_ficha() == '' if False else PRODS in pg.url, 'salvar a ficha do Luminária sem mexer no atacado não é travado (o produto não tem custo na aba Custos)')
         ficha(8); digita('#inputPrecoAtacado', ''); digita('#inputAtacadoMin', ''); salva_ficha()
         ok(pp(8)['atacado'] is None and ev("promoAtacado('MOB-4002')") is None, 'apagar o de semente também vale (null gravado ganha da semente)')
+
+        # --- a aba Custos grava (16/nov): a Luminaria abre com o custo do catalogo, e o minimo e um so, na ficha e no PDV
+        limpar(); ficha(8)
+        cus = ev("Array.from(document.querySelectorAll('#tabelaCustos tr')).map(tr => Array.from(tr.querySelectorAll('input')).map(i => i.value))")
+        ok(len(cus) == 1 and cus[0][3] == '47,06' and cus[0][4] == '46,08' and cus[0][5] == '79,90', 'a Luminária abre a aba Custos com o custo do catálogo (custo 47,06, custo médio 46,08, venda 79,90): %s' % cus)
+        ok(ev("CALC.minimo()") == 6992 and pp(8) is not None and ev("promoMinimoCent(promoProdutoId(8))") == 6992, 'a ficha e o PDV dão o mesmo mínimo, R$ 69,92, sem nada gravado')
+        ficha(5)
+        ok(ev("document.querySelectorAll('#tabelaCustos tr').length") == 0, 'produto sem custo no catálogo (Filamento) segue sem linha')
+        ficha(8); digita('#inputPrecoAtacado', '72,90'); digita('#inputAtacadoMin', '7'); salva_ficha()
+        ok(PRODS in pg.url and (ls('deskPrecoProduto') or {}).get('8', {}).get('atacadoMin') == 7, 'o atacado da Luminária salva, sem "não tem custo"')
+        ficha(8); clica('.tab-item[data-tab="custos"]')
+        pg.evaluate("() => 0")
+        ev("(() => { const i = document.querySelectorAll('#tabelaCustos tr input'); i[3].value = '60,00'; i[4].value = '55,00'; })()")
+        salva_ficha()
+        ficha(8)
+        cus = ev("Array.from(document.querySelectorAll('#tabelaCustos tr')).map(tr => Array.from(tr.querySelectorAll('input')).map(i => i.value))")
+        ok(cus[0][3] == '60,00' and cus[0][4] == '55,00' and (ls('deskCustoProduto') or {}).get('8', [{}])[0].get('custoMedio') == '55,00', 'mudar o custo, salvar e recarregar mantém o valor: %s' % cus)
+        m = ev("CALC.minimo()")
+        ok(m > 6992 and pp(8) is not None and ev("promoMinimoCent(promoProdutoId(8))") == m, 'o mínimo do PDV muda junto com o custo gravado e continua igual ao da ficha (R$ %s)' % (m / 100.0))
+        ev("localStorage.removeItem('deskCustoProduto')")
 
     # ------------------------------------------------------------------------------------------------
     if secao(3, 'O PDV'):

@@ -228,6 +228,7 @@ def audita(caminho):
              'deskDevolucoes',   # 20/out: a devolucao inteira, por id, gravada pelo detalhe a cada acao; a lista le (a gravada vence a de exemplo)
              'deskEmbalagens',   # 30/out: o cadastro de Embalagens (com custo e insumo): a tela de Embalagens grava; a Separacao e a Conferencia de Saida leem
              'deskEmbalagensPedido',   # 30/out: a embalagem de cada pedido (rascunho, separada, confirmada, com o custo do dia): a Separacao e a Conferencia gravam; Custos e a pagina do pedido leem
+             'deskCustoProduto',   # 16/nov: as linhas da aba Custos da ficha, por id do produto: a ficha grava; o PDV e o Pedido leem para o preco minimo
              'deskCalculoPreco',   # 30/out: o calculo da calculadora de preco, por id do produto (preco, margem, parcelas, caixa...): so Cadastros > Produtos (a ficha) grava e le
              'deskUsuarios',   # 10/nov: Usuarios do sistema. A pagina do usuario e a lista gravam; a pagina do perfil, Vendedores (o usuario vinculado) e as outras telas de Usuarios e Perfis leem
              'deskPerfis',   # 10/nov: os perfis de usuario (menos o Owner, que nao se edita e volta sempre de fabrica): a pagina do perfil e a lista gravam; os usuarios leem
