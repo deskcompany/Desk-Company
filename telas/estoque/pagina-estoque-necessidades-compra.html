@@ -482,6 +482,9 @@
   #painelEmbalagens .estoque-table { min-width:0; }
   #painelEmbalagens .estoque-table tbody tr { cursor:default; }
   #painelEmbalagens .estoque-table th, #painelEmbalagens .estoque-table td { white-space:normal; }
+  /* 17/nov: os nomes inteiros voltaram (pedido dele); o respiro entre colunas aperta para caber a 1280 tambem no modo cobertura */
+  #painelCompra .estoque-table th, #painelCompra .estoque-table td { padding-left:5px; padding-right:5px; }
+  #painelCompra .estoque-table th { letter-spacing:0; }
   #painelEmbalagens .estoque-table td.col-texto { white-space:normal; }
   #painelEmbalagens .link-entrada { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); text-decoration:none; white-space:nowrap; }
   #painelEmbalagens .link-entrada:hover { text-decoration:underline; }
@@ -1173,13 +1176,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <tr>
             <th class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" id="checkSelecionarTodos" aria-label="Selecionar todos os produtos desta página"></th>
             <th class="col-texto ordenavel" data-ordem="nome">Produto <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="custo" title="Custo médio" data-nome="Custo médio">Custo <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="vendavel" title="Vendável: disponível mais o que aguarda endereço. Reservado e bloqueado ficam de fora" data-nome="Vendável">Vend. <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="chegando" title="Em conferência, a receber de ordens de compra e em trânsito entre depósitos" data-nome="Chegando">Chega <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="custo" title="Custo médio">Custo médio <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="vendavel" title="Vendável: disponível mais o que aguarda endereço. Reservado e bloqueado ficam de fora">Vendável <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="chegando" title="Em conferência, a receber de ordens de compra e em trânsito entre depósitos">Chegando <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="saidas" title="Pedidos de venda que ainda vão sair do estoque">Saídas <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="projetado" title="Projetado: vendável, mais o que chega, menos o que vai sair" data-nome="Projetado">Proj. <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="colA"><span id="rotColA">Mínimo</span> <span class="seta">▲</span></th>
-            <th class="ordenavel" data-ordem="colB"><span id="rotColB">Máximo</span> <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="projetado" title="Projetado: vendável, mais o que chega, menos o que vai sair">Projetado <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="colA" data-nome="Mínimo"><span id="rotColA">Mín.</span> <span class="seta">▲</span></th>
+            <th class="ordenavel" data-ordem="colB" data-nome="Máximo"><span id="rotColB">Máx.</span> <span class="seta">▲</span></th>
             <th class="ordenavel" data-ordem="comprar" title="Quantidade sugerida. Pode ser alterada antes de gerar a ordem">Comprar <span class="seta">▲</span></th>
           </tr>
         </thead>
@@ -2754,8 +2757,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     atualizarIndicadores(base);
     atualizarAviso();
     atualizarBotaoOpcoes();
-    document.getElementById('rotColA').textContent = cobertura ? 'Venda por dia' : 'Mínimo';
-    document.getElementById('rotColB').textContent = cobertura ? 'Cobertura' : 'Máximo';
+    document.getElementById('rotColA').textContent = cobertura ? 'Venda/dia' : 'Mín.';   // na tela o curto; na planilha o data-nome
+    document.getElementById('rotColA').parentNode.dataset.nome = cobertura ? 'Venda por dia' : 'Mínimo';
+    document.getElementById('rotColB').textContent = cobertura ? 'Dias' : 'Máx.';
+    document.getElementById('rotColB').parentNode.dataset.nome = cobertura ? 'Cobertura' : 'Máximo';
 
     document.getElementById('contagemItens').textContent = plural(completa.length, 'produto', 'produtos');
     const total = completa.reduce((s, r) => s + r.valor, 0);

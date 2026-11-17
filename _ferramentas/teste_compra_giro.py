@@ -347,14 +347,14 @@ with sync_playwright() as p:
        'o seletor "minimo e maximo / dias de cobertura" usa o visual do seletor de tema, mas nao troca o tema da tela')
     pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
     opcoes(pg, cod=False, modo='cobertura', cobertura=30)
-    ok(pg.text_content('#rotColA') == 'Venda por dia' and pg.text_content('#rotColB') == 'Cobertura' and 'dias de cobertura' in pg.inner_text('#avisoConta'),
+    ok(pg.text_content('#rotColA') == 'Venda/dia' and pg.text_content('#rotColB') == 'Dias' and 'dias de cobertura' in pg.inner_text('#avisoConta'),
        'por dias de cobertura, as colunas de minimo e maximo dao lugar a venda por dia e cobertura')
     ok(abas(pg)['comprar'] == 2 and conta(pg, 'FON-BLT-013')['comprar'] == 7 and conta(pg, 'CAM-DKB-012')['comprar'] == 8,
        'cobrir 30 dias: Fone 7 (4,5 de venda mais os 2 negativos) e Camiseta M 8')
     clic(pg, '#btnOpcoes'); pg.wait_for_timeout(250); pg.fill('#opCoberturaDias', '0'); clic(pg, '#btnAplicarOpcoes'); pg.wait_for_timeout(200)
     ok(pg.locator('#eventDrawer.open').count() == 1 and visivel(pg, '#erroCobertura'), 'cobertura de 0 dias nao passa: o painel fica aberto com o erro')
     clic(pg, '#btnPadraoOpcoes'); pg.wait_for_timeout(300)
-    ok(abas(pg)['comprar'] == 4 and pg.text_content('#rotColA') == 'Mínimo' and not visivel(pg, '#contOpcoes'), '"Voltar ao padrao" refaz a conta por minimo e maximo')
+    ok(abas(pg)['comprar'] == 4 and pg.text_content('#rotColA') == 'Mín.' and not visivel(pg, '#contOpcoes'), '"Voltar ao padrao" refaz a conta por minimo e maximo')
     opcoes(pg, tipo='materia_prima')
     ok(sorted(skus(pg)) == ['MAT-MDF-007', 'MAT-PAR-014', 'MAT-TEC-008'], 'tipo Materia-prima, no painel: 3 produtos')
     opcoes(pg, tipo='todos', marca='Desk Tech')
