@@ -8,6 +8,8 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
+**Revisão geral, pacote E (17/nov/2026), esperando o teste dele:** a calculadora com mais de uma embalagem (item 3). Na [ficha do produto](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1), aba Preços, "Calcular preço": o campo "Embalagens do produto" é uma lista com caixa de marcar; marque a Flex M e o Envelope de Segurança Pequeno (a garrafa térmica na caixa e no saquinho, o exemplo dele) e confira que a embalagem vira R$ 6,50 e o preço mínimo sobe de R$ 79,28 para R$ 80,86. O PDV, o Pedido de Venda e a promoção leem o mesmo mínimo. Detalhe no §14.117.
+
 **Revisão geral, pacote D (17/nov/2026), esperando o teste dele:** Finanças (itens 2 e 13). Em [Contas a Pagar](http://localhost:3000/financas/pagina-financas-contas-pagar.html) e em [Contas a Receber](http://localhost:3000/financas/pagina-financas-contas-receber.html), a aba "atrasadas" mostra toda conta vencida, fora do período, e dá o mesmo número do card "Vencidas". O teste da página da conta deixou de depender da data, e o selo inteiro ficou verde. Detalhe no §14.116.
 
 **Revisão geral, pacote C (16/nov/2026), esperando o teste dele:** as telas, uma a uma (itens 15, 19, 6, 7, 8, 9, 10, 11 e 1). [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (clicar na linha abre o painel), [Produtos](http://localhost:3000/cadastros/pagina-cadastros-produtos.html) (clicar numa linha: o preview com os quatro blocos), [painel da promoção](http://localhost:3000/vendas/pagina-vendas-promocoes.html) (botão azul e "Mais ações"), a ficha do produto ([Dados Complementares](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1) e o "Encerrar antes para este produto" na aba Preços), a revisão da promoção ("Pronto" e "Corrigir"), o [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html) (o resumo e o "Desconto à vista" sem maquininha) e [Embalagens](http://localhost:3000/cadastros/pagina-cadastros-embalagens.html) (campos de tamanho numa linha). Detalhe no §14.115.
@@ -216,12 +218,7 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 ## Para a próxima revisão geral
 
 A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). O item 2 dela saiu no
-pacote D de 16/nov (§14.116); ficou este pedido:
-
-3. **Calculadora de preço: mais de uma embalagem** (pedido dele em 04/nov, no teste da calculadora). O campo "Caixa" vira uma lista com caixa de
-   seleção: marcar a caixa e o saquinho da loja (ou mais de uma), só entre as embalagens ativas com estoque. Exemplo dele: a garrafa térmica vai numa
-   caixa e dentro de um saquinho da loja. Os insumos que entram sozinhos continuam entrando. (A conta do mínimo agora é um bloco comum com
-   Promoções e Encartes, §14.108: mudar a embalagem muda as duas telas juntas.)
+pacote D de 16/nov (§14.116) e o item 3 no pacote E de 17/nov (§14.117); não ficou pedido solto da revisão geral.
 
 Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
 

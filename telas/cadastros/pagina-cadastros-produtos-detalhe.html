@@ -580,6 +580,19 @@
   .calc-preco { font-family:'Nunito',sans-serif; font-weight:800; font-size:28px; color:var(--text-heading); margin:2px 0 12px; }
   .calc-lucro b { color:var(--success); }
   .calc-erro, .calc-aviso { color:var(--danger); font-size:12.5px; font-weight:700; padding:6px 0; display:none; }
+  /* lista com caixa de marcar do componente multi-selecao (§9.1): as embalagens da calculadora */
+  .dropdown-multi-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
+  .dropdown-multi-item:hover { background: rgba(120,120,140,0.08); }
+  .dropdown-multi-item input[type="checkbox"] {
+    appearance:none; -webkit-appearance:none; width:15px; height:15px; border-radius:4px;
+    border:1.5px solid var(--border); background:var(--page-bg); cursor:pointer; flex-shrink:0;
+    position:relative; transition:background .15s, border-color .15s;
+  }
+  .dropdown-multi-item input[type="checkbox"]:checked { background:var(--chart-2); border-color:var(--chart-2); }
+  .dropdown-multi-item input[type="checkbox"]:checked::after {
+    content:''; position:absolute; left:4px; top:1px; width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
   .calc-origem { font-size:11.5px; color:var(--text); margin-top:5px; line-height:1.35; }
   .calc-opcoes { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
   .calc-opcao { border:1px solid var(--border); border-radius:12px; padding:10px 12px; cursor:pointer; background:var(--panel-bg); user-select:none; }
@@ -1439,7 +1452,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   </div>
   <div class="form-row">
     <div class="form-field">
-      <label>Embalagem do produto</label>
+      <label>Embalagens do produto</label>
       <div class="dropdown-select" id="calcCaixa" data-value="">
         <button type="button" class="dropdown-select-btn form-style">
           <span class="dropdown-select-label"></span>
@@ -1447,7 +1460,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </button>
         <div class="dropdown-select-menu" id="calcCaixaMenu"></div>
       </div>
-      <div class="calc-origem">A do cadastro do produto. Conta o produto indo sozinho: junto com outro, a margem só melhora</div>
+      <div class="calc-origem">Marque a caixa e, se houver, o saquinho da loja: o custo é a soma. Só embalagens ativas com estoque. Conta o produto indo sozinho: junto com outro, a margem só melhora</div>
     </div>
   </div>
   <div class="form-row">
@@ -3371,12 +3384,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { tem: vezes.length > 0, vezes: vezes, cond: (n) => par(g && b ? gwlCondicao(g, 'credito', b, n) : null), pix: par(g ? gwlCondicao(g, 'pix') : null) };
   }
   const precoEhCaixa = (e) => e.status === 'ativo' && e.tipo !== 'insumo';
-  // A embalagem completa: a caixa + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro. O produto vai sozinho no pacote (1 peca).
-  function precoEmbalagem(lista, lojaId, caixaId) {
-    const cai = lista.filter((e) => e.id === caixaId && precoEhCaixa(e))[0] || null, cC = cai ? precoCent(embCustoUso(cai)) : 0;
+  // As embalagens marcadas no calculo guardado: `caixaIds` (a lista) ou, no calculo antigo, `caixaId` (uma so, lida como lista de uma). null = nada guardado.
+  function precoCaixasSalvas(lista, s) {
+    if (!s) return null;
+    const so = (ids) => lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
+    if (Array.isArray(s.caixaIds)) return so(s.caixaIds);
+    const v = s.caixaId !== undefined && s.caixaId !== null ? so([s.caixaId]) : [];
+    return v.length ? v : null;
+  }
+  // A embalagem completa: as caixas marcadas (uma ou mais, o custo e a soma) + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro.
+  // `caixaIds` e a lista de ids (um numero solto vale como lista de um). O produto vai sozinho no pacote (1 peca).
+  function precoEmbalagem(lista, lojaId, caixaIds) {
+    const ids = caixaIds === null || caixaIds === undefined ? [] : [].concat(caixaIds), cais = lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
     const brl = (c) => 'R$ ' + (Math.floor(c / 100) + '').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + ('0' + (c % 100)).slice(-2);
+    const cc = cais.map((e) => precoCent(embCustoUso(e))), cC = cc.reduce((s, c) => s + c, 0);
     const ins = insumosAutomaticos(lista, lojaId).map((i) => { const e = lista.filter((x) => x.id === i.id)[0]; return { nome: e.nome, c: precoCent(embCustoUso(e)) * i.qtd }; });
-    return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: (cai ? 'Caixa ' + brl(cC) : 'Sem caixa ativa no cadastro') + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
+    const txtCx = cais.length === 1 ? 'Caixa ' + brl(cC) : cais.length ? cais.map((e, k) => e.nome + ' ' + brl(cc[k])).join(' + ') : 'Nenhuma embalagem marcada';
+    return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: txtCx + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
   }
   // A parcela pedida, ou a maior que o gateway tem abaixo dela (ou a primeira).
   const precoLimitarParcelas = (n, vezes) => { if (!vezes.length) return 1; if (vezes.indexOf(n) >= 0) return n; const m = vezes.filter((v) => v <= n); return m.length ? m[m.length - 1] : vezes[0]; };
@@ -3387,17 +3411,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // O preco minimo de um produto (centavos), com a margem minima de Parametros de vendas: o mesmo "Preco minimo" que a calculadora mostra.
   // `o` = { lojaId, custo (reais, o do custoBase), caixaId (null = a sugerida para 1 peca) } e, se houver um calculo guardado na calculadora (`deskCalculoPreco`),
-  // o que ele guardou vale mais que o padrao: frete, freteLoja, embalagemManual, caixaId, parcelas, imposto e comissao. Sem custo, devolve null.
+  // o que ele guardou vale mais que o padrao: frete, freteLoja, embalagemManual, caixaIds (a lista; o antigo caixaId vale como lista de uma), parcelas, imposto e comissao. Sem custo, devolve null.
   function precoMinimo(o, salvo) {
     const par = precoParametros(), gw = precoGateway(o.lojaId), lista = embalagensLer(), s = salvo || null;
     const num = (v, d) => (v !== undefined && v !== null && isFinite(Number(v)) ? Number(v) : d);
     const custo = precoCent(Number(o.custo) || 0);
     if (custo <= 0) return null;
-    const caixaSalva = s && lista.filter((e) => e.id === s.caixaId && precoEhCaixa(e))[0];
-    const caixaCad = lista.filter((e) => e.id === o.caixaId && precoEhCaixa(e))[0];
-    const caixaId = caixaSalva ? caixaSalva.id : caixaCad ? caixaCad.id : (sugerirEmbalagem(lista, 1) || { id: null }).id;
+    const salvas = precoCaixasSalvas(lista, s), caixaCad = lista.filter((e) => e.id === o.caixaId && precoEhCaixa(e))[0];
+    const caixaIds = salvas ? salvas.map((e) => e.id) : [caixaCad ? caixaCad.id : (sugerirEmbalagem(lista, 1) || { id: null }).id];
     const manual = !!(s && s.embalagemManual !== null && s.embalagemManual !== undefined && isFinite(Number(s.embalagemManual)));
-    const emb = manual ? precoCent(Number(s.embalagemManual)) : precoEmbalagem(lista, o.lojaId, caixaId).total;
+    const emb = manual ? precoCent(Number(s.embalagemManual)) : precoEmbalagem(lista, o.lojaId, caixaIds).total;
     const custoTotal = custo + (s ? precoCent(num(s.frete, 0)) : 0) + emb + (s ? precoCent(num(s.freteLoja, 0)) : 0);
     const parcelas = precoLimitarParcelas(s ? num(s.parcelas, par.parcelas) : par.parcelas, gw.vezes), tx = gw.cond(parcelas);
     return precoPiso(custoTotal, precoCent(tx.tarifa), precoBp(par.minima), precoBp(tx.taxa), precoBp(s ? num(s.imposto, par.imposto) : par.imposto), precoBp(s ? num(s.comissao, par.comissao) : par.comissao));
@@ -3694,7 +3717,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Tudo entra por LEITURA, das mesmas fontes de Custos do E-commerce: a taxa e a tarifa do gateway da loja virtual da loja do produto (blocos GATEWAYS: LEITURA e
   // EMBALAGENS: LEITURA, acima), o desconto a vista (Pix) da loja, o custo da aba Custos (compra ou medio, como Custos do E-commerce le), e imposto, margem minima, comissao
   // e parcelas de `deskParametros` (Configuracoes > Parametros de vendas). A conta e toda em centavos e pontos-base inteiros (1% = 100), sem erro de ponto flutuante.
-  // Guarda o calculo em `deskCalculoPreco`, por id do produto: { preco, markup, frete, caixaId, embalagemManual, freteLoja, margem, parcelas, imposto, comissao, escolhida, em }.
+  // Guarda o calculo em `deskCalculoPreco`, por id do produto: { preco, markup, frete, caixaIds (a lista de embalagens marcadas; o calculo antigo tinha caixaId), embalagemManual, freteLoja, margem, parcelas, imposto, comissao, escolhida, em }.
   // Reabrir ou recarregar repoe preco, lista Padrao e Markup do calculo guardado; o custo do produto e o da embalagem sao lidos de novo, para refazer com o custo de hoje.
   // shortcut: a lista de produtos, o PDV e os pedidos seguem com o preco do exemplo (so este cadastro le o calculo guardado); trocar quando houver banco.
   // ===== ABA CUSTOS: O QUE FICA GRAVADO (16/nov/2026) =====
@@ -3764,7 +3787,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
     // A embalagem completa: a caixa + os insumos que entram sozinhos na loja, tudo a custo do cadastro. O produto vai sozinho no pacote (1 peca).
     // A embalagem completa (a caixa + os insumos automaticos da loja): bloco PRECO MINIMO.
-    const embalagemCompleta = (cx, caixaId) => precoEmbalagem(cx.lista, cx.lj.id, caixaId);
+    const embalagemCompleta = (cx, caixaIds) => precoEmbalagem(cx.lista, cx.lj.id, caixaIds);
     const limitarParcelas = precoLimitarParcelas;
 
     // ---------- o que esta guardado ----------
@@ -3783,9 +3806,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // O ponto de partida da calculadora: o guardado (se houver) ou os padroes; custo e embalagem sempre de hoje.
     function semente(cx) {
       const s = lerSalvo(), p = cx.par, num = (v, d) => (v !== undefined && v !== null && isFinite(Number(v)) ? Number(v) : d);
-      const caixaSalva = s && cx.lista.filter((e) => e.id === s.caixaId && ehCaixa(e))[0];
-      const caixaId = caixaSalva ? caixaSalva.id : caixaDoProduto(cx.lista), manual = !!(s && s.embalagemManual !== null && s.embalagemManual !== undefined && isFinite(Number(s.embalagemManual)));
-      return { custo: custoDoProduto(p), frete: s ? cent(num(s.frete, 0)) : 0, caixaId: caixaId, embManual: manual, emb: manual ? cent(Number(s.embalagemManual)) : embalagemCompleta(cx, caixaId).total,
+      const salvas = precoCaixasSalvas(cx.lista, s);
+      const caixaIds = salvas ? salvas.map((e) => e.id) : [caixaDoProduto(cx.lista)].filter((id) => id !== null), manual = !!(s && s.embalagemManual !== null && s.embalagemManual !== undefined && isFinite(Number(s.embalagemManual)));
+      return { custo: custoDoProduto(p), frete: s ? cent(num(s.frete, 0)) : 0, caixaIds: caixaIds, embManual: manual, emb: manual ? cent(Number(s.embalagemManual)) : embalagemCompleta(cx, caixaIds).total,
                freteLoja: s ? cent(num(s.freteLoja, 0)) : 0, margem: s ? num(s.margem, MARGEM_PEDIDA) : MARGEM_PEDIDA, imposto: s ? num(s.imposto, p.imposto) : p.imposto,
                comissao: s ? num(s.comissao, p.comissao) : p.comissao, parcelas: limitarParcelas(s ? num(s.parcelas, p.parcelas) : p.parcelas, cx.gw.vezes), escolhida: s && s.escolhida ? s.escolhida : 'varejo' };
     }
@@ -3849,10 +3872,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       raiz.setAttribute('data-value', atual ? String(atual.valor) : ''); label.textContent = atual ? atual.rotulo : rotuloVazio;
       raiz.classList.toggle('disabled', !!desabilitado); btn.disabled = !!desabilitado;
     }
+    // A lista com caixa de marcar: embalagens ativas com estoque (e as ja marcadas, para nunca sumir uma que esta na conta).
+    function pintarCaixas() {
+      const raiz = $('calcCaixa'), menu = raiz.querySelector('.dropdown-select-menu');
+      menu.innerHTML = '';
+      CX.lista.filter((e) => ehCaixa(e) && (Number(e.saldo) > 0 || ST.caixaIds.indexOf(e.id) >= 0)).forEach((e) => {
+        const l = document.createElement('label'), c = document.createElement('input');
+        l.className = 'dropdown-multi-item'; c.type = 'checkbox'; c.className = 'calc-cx-check'; c.value = e.id; c.checked = ST.caixaIds.indexOf(e.id) >= 0;
+        l.appendChild(c); l.appendChild(document.createTextNode(' ' + e.nome)); menu.appendChild(l);
+      });
+      pintarCaixasRotulo();
+    }
+    function pintarCaixasRotulo() {
+      const m = CX.lista.filter((e) => ST.caixaIds.indexOf(e.id) >= 0 && ehCaixa(e));
+      $('calcCaixa').querySelector('.dropdown-select-label').textContent = m.length === 1 ? m[0].nome : m.length ? m.length + ' embalagens marcadas' : 'Nenhuma embalagem marcada';
+    }
     function pintarMenus() {
       const gw = CX.gw;
       pintarMenu('calcParcelas', gw.vezes.map((n) => { const c = gw.cond(n); return { valor: n, rotulo: n + 'x · taxa ' + pctTxt(c.taxa) + (c.tarifa > 0 ? ' + ' + brl(cent(c.tarifa)) : '') }; }), ST.parcelas, !gw.tem, '—');
-      pintarMenu('calcCaixa', CX.lista.filter(ehCaixa).map((e) => ({ valor: e.id, rotulo: e.nome })), ST.caixaId, false, 'Nenhuma caixa ativa');
+      pintarCaixas();
       $('calcParcelasDica').textContent = !CX.lj.escolhida ? 'Sem loja escolhida: a conta usa a Desk Shope. Escolha a Loja Desk em Dados Complementares.'
         : !gw.tem ? 'Esta loja não tem gateway da loja virtual habilitado: a conta sai sem taxa.' : 'Taxa do gateway da loja, a mesma de Custos do E-commerce';
       $('calcCustoOrigem').textContent = 'O mesmo que Custos do E-commerce usa: ' + (CX.par.custoBase === 'medio' ? 'custo médio' : 'custo da compra');
@@ -3867,7 +3905,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       lerCampos();
       const b = base(ST, CX), cx = CX, gw = cx.gw, semCusto = ST.custo <= 0, erro = !semCusto && b.sobra <= 0;
       $('calcCustoTotal').textContent = brl(b.custoTotal);
-      $('calcEmbOrigem').textContent = ST.embManual ? 'Valor digitado à mão. Trocar a caixa refaz a conta do cadastro.' : embalagemCompleta(cx, ST.caixaId).texto;
+      $('calcEmbOrigem').textContent = ST.embManual ? 'Valor digitado à mão. Trocar a caixa refaz a conta do cadastro.' : embalagemCompleta(cx, ST.caixaIds).texto;
       document.querySelectorAll('.calc-chips .pill-btn-sm').forEach((c) => c.classList.toggle('active', +c.getAttribute('data-m') === ST.margem));
       $('calcAvisoCusto').style.display = semCusto ? 'block' : 'none';
       $('calcErro').style.display = erro ? 'block' : 'none';
@@ -3934,11 +3972,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       desenhar(); if (!RES) return;
       const preco = RES.r.c, antes = cent(lerNum($('inputPrecoVenda').value)), nome = $('inputNomeProduto').value.trim() || 'Produto novo';
       const texto = nome.slice(0, 100) + ': preço de ' + (antes > 0 ? brl(antes) : 'nenhum') + ' para ' + brl(preco) + ', margem de ' + pct1(RES.mg) + '.';
-      const reg = { preco: preco / 100, markup: Number(RES.markup.toFixed(5)), frete: ST.frete / 100, caixaId: ST.caixaId, embalagemManual: ST.embManual ? ST.emb / 100 : null, freteLoja: ST.freteLoja / 100,
+      const reg = { preco: preco / 100, markup: Number(RES.markup.toFixed(5)), frete: ST.frete / 100, caixaIds: ST.caixaIds, embalagemManual: ST.embManual ? ST.emb / 100 : null, freteLoja: ST.freteLoja / 100,
                     margem: ST.margem, parcelas: ST.parcelas, imposto: ST.imposto, comissao: ST.comissao, escolhida: ST.escolhida, em: new Date().toISOString() };
       const executar = () => {
         $('inputPrecoVenda').value = campo(preco); $('inputMarkup').value = reg.markup.toFixed(5).replace('.', ',');
-        if (ST.caixaId !== null) porNoDropdown('inputEmbalagem', ST.caixaId);
+        if (ST.caixaIds.length) porNoDropdown('inputEmbalagem', ST.caixaIds[0]);   // o cadastro do produto guarda uma so: a primeira marcada
         gravarSalvo(reg);
         fechar(); atualizarRodape();
       };
@@ -3964,7 +4002,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     // ---------- ligacoes ----------
     inicializarDropdownSelect($('calcParcelas'), (v) => { ST.parcelas = Number(v); desenhar(); });
-    inicializarDropdownSelect($('calcCaixa'), (v) => { ST.caixaId = Number(v); ST.embManual = false; ST.emb = embalagemCompleta(CX, ST.caixaId).total; $('calcEmbalagem').value = campo(ST.emb); desenhar(); });
+    // marcar ou desmarcar nao fecha o menu (o clique no menu nao sobe ao fechamento geral)
+    $('calcCaixa').querySelector('.dropdown-select-menu').addEventListener('click', (e) => e.stopPropagation());
+    $('calcCaixa').querySelector('.dropdown-select-menu').addEventListener('change', () => {
+      ST.caixaIds = Array.from($('calcCaixa').querySelectorAll('.calc-cx-check:checked')).map((c) => Number(c.value));
+      ST.embManual = false; ST.emb = embalagemCompleta(CX, ST.caixaIds).total; $('calcEmbalagem').value = campo(ST.emb); pintarCaixasRotulo(); desenhar();
+    });
     // o menu da gaveta abre sempre para baixo; a gaveta rola ate ele aparecer
     ['calcParcelas', 'calcCaixa'].forEach((id) => $(id).querySelector('.dropdown-select-btn').addEventListener('click', () => {
       const m = $(id).querySelector('.dropdown-select-menu'); requestAnimationFrame(() => { if (m.classList.contains('open')) m.scrollIntoView({ block: 'nearest', behavior: 'instant' }); });

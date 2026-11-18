@@ -254,6 +254,11 @@ with sync_playwright() as p:
         ir(PROD, '?id=1'); clica('#btnCalcularPreco'); piso2 = pg.inner_text('#calcPiso')
         ir(PAG, '?id=2'); minimo2 = [l['min'] for l in linhas_itens() if l['sku'] == 'ELE-1001'][0]
         ok(piso2 == minimo2 and piso2 != piso, 'com um cálculo guardado na calculadora (frete da loja e 6x), os dois mudam juntos: %s e %s' % (minimo2, piso2))
+        # duas embalagens marcadas (a caixa Flex M e o Envelope Pequeno): o minimo sobe, e a calculadora e a promocao seguem juntas; o cálculo antigo (caixaId so) acima ja abriu como lista de uma
+        ev("localStorage.setItem('deskCalculoPreco', JSON.stringify({ 1: { preco: 129.9, frete: 0, caixaIds: [2, 7], embalagemManual: null, freteLoja: 10, margem: 30, parcelas: 6, imposto: 4, comissao: 5, escolhida: 'varejo' } }))")
+        ir(PROD, '?id=1'); clica('#btnCalcularPreco'); piso3 = pg.inner_text('#calcPiso')
+        ir(PAG, '?id=2'); minimo3 = [l['min'] for l in linhas_itens() if l['sku'] == 'ELE-1001'][0]
+        ok(piso3 == minimo3 and int(''.join(c for c in piso3 if c.isdigit())) > int(''.join(c for c in piso2 if c.isdigit())), 'com duas embalagens marcadas, o mínimo da promoção sobe junto com o da calculadora: %s e %s (uma só dava %s)' % (minimo3, piso3, piso2))
         ev("localStorage.removeItem('deskCalculoPreco')")
         ir(PAG, '?id=3')
         for s in ('ELE-9999', 'VES-2001', 'ELE-1004', 'MOB-4002'):

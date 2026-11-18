@@ -3225,12 +3225,23 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { tem: vezes.length > 0, vezes: vezes, cond: (n) => par(g && b ? gwlCondicao(g, 'credito', b, n) : null), pix: par(g ? gwlCondicao(g, 'pix') : null) };
   }
   const precoEhCaixa = (e) => e.status === 'ativo' && e.tipo !== 'insumo';
-  // A embalagem completa: a caixa + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro. O produto vai sozinho no pacote (1 peca).
-  function precoEmbalagem(lista, lojaId, caixaId) {
-    const cai = lista.filter((e) => e.id === caixaId && precoEhCaixa(e))[0] || null, cC = cai ? precoCent(embCustoUso(cai)) : 0;
+  // As embalagens marcadas no calculo guardado: `caixaIds` (a lista) ou, no calculo antigo, `caixaId` (uma so, lida como lista de uma). null = nada guardado.
+  function precoCaixasSalvas(lista, s) {
+    if (!s) return null;
+    const so = (ids) => lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
+    if (Array.isArray(s.caixaIds)) return so(s.caixaIds);
+    const v = s.caixaId !== undefined && s.caixaId !== null ? so([s.caixaId]) : [];
+    return v.length ? v : null;
+  }
+  // A embalagem completa: as caixas marcadas (uma ou mais, o custo e a soma) + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro.
+  // `caixaIds` e a lista de ids (um numero solto vale como lista de um). O produto vai sozinho no pacote (1 peca).
+  function precoEmbalagem(lista, lojaId, caixaIds) {
+    const ids = caixaIds === null || caixaIds === undefined ? [] : [].concat(caixaIds), cais = lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
     const brl = (c) => 'R$ ' + (Math.floor(c / 100) + '').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + ('0' + (c % 100)).slice(-2);
+    const cc = cais.map((e) => precoCent(embCustoUso(e))), cC = cc.reduce((s, c) => s + c, 0);
     const ins = insumosAutomaticos(lista, lojaId).map((i) => { const e = lista.filter((x) => x.id === i.id)[0]; return { nome: e.nome, c: precoCent(embCustoUso(e)) * i.qtd }; });
-    return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: (cai ? 'Caixa ' + brl(cC) : 'Sem caixa ativa no cadastro') + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
+    const txtCx = cais.length === 1 ? 'Caixa ' + brl(cC) : cais.length ? cais.map((e, k) => e.nome + ' ' + brl(cc[k])).join(' + ') : 'Nenhuma embalagem marcada';
+    return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: txtCx + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
   }
   // A parcela pedida, ou a maior que o gateway tem abaixo dela (ou a primeira).
   const precoLimitarParcelas = (n, vezes) => { if (!vezes.length) return 1; if (vezes.indexOf(n) >= 0) return n; const m = vezes.filter((v) => v <= n); return m.length ? m[m.length - 1] : vezes[0]; };
@@ -3241,17 +3252,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // O preco minimo de um produto (centavos), com a margem minima de Parametros de vendas: o mesmo "Preco minimo" que a calculadora mostra.
   // `o` = { lojaId, custo (reais, o do custoBase), caixaId (null = a sugerida para 1 peca) } e, se houver um calculo guardado na calculadora (`deskCalculoPreco`),
-  // o que ele guardou vale mais que o padrao: frete, freteLoja, embalagemManual, caixaId, parcelas, imposto e comissao. Sem custo, devolve null.
+  // o que ele guardou vale mais que o padrao: frete, freteLoja, embalagemManual, caixaIds (a lista; o antigo caixaId vale como lista de uma), parcelas, imposto e comissao. Sem custo, devolve null.
   function precoMinimo(o, salvo) {
     const par = precoParametros(), gw = precoGateway(o.lojaId), lista = embalagensLer(), s = salvo || null;
     const num = (v, d) => (v !== undefined && v !== null && isFinite(Number(v)) ? Number(v) : d);
     const custo = precoCent(Number(o.custo) || 0);
     if (custo <= 0) return null;
-    const caixaSalva = s && lista.filter((e) => e.id === s.caixaId && precoEhCaixa(e))[0];
-    const caixaCad = lista.filter((e) => e.id === o.caixaId && precoEhCaixa(e))[0];
-    const caixaId = caixaSalva ? caixaSalva.id : caixaCad ? caixaCad.id : (sugerirEmbalagem(lista, 1) || { id: null }).id;
+    const salvas = precoCaixasSalvas(lista, s), caixaCad = lista.filter((e) => e.id === o.caixaId && precoEhCaixa(e))[0];
+    const caixaIds = salvas ? salvas.map((e) => e.id) : [caixaCad ? caixaCad.id : (sugerirEmbalagem(lista, 1) || { id: null }).id];
     const manual = !!(s && s.embalagemManual !== null && s.embalagemManual !== undefined && isFinite(Number(s.embalagemManual)));
-    const emb = manual ? precoCent(Number(s.embalagemManual)) : precoEmbalagem(lista, o.lojaId, caixaId).total;
+    const emb = manual ? precoCent(Number(s.embalagemManual)) : precoEmbalagem(lista, o.lojaId, caixaIds).total;
     const custoTotal = custo + (s ? precoCent(num(s.frete, 0)) : 0) + emb + (s ? precoCent(num(s.freteLoja, 0)) : 0);
     const parcelas = precoLimitarParcelas(s ? num(s.parcelas, par.parcelas) : par.parcelas, gw.vezes), tx = gw.cond(parcelas);
     return precoPiso(custoTotal, precoCent(tx.tarifa), precoBp(par.minima), precoBp(tx.taxa), precoBp(s ? num(s.imposto, par.imposto) : par.imposto), precoBp(s ? num(s.comissao, par.comissao) : par.comissao));

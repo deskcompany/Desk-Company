@@ -175,6 +175,14 @@ with sync_playwright() as p:
         pg.click(raiz + ' .dropdown-select-btn'); pg.wait_for_timeout(80)
         pg.click(raiz + ' .dropdown-select-item[data-value="%s"]' % valor); pg.wait_for_timeout(120)
 
+    def so_caixa(pg, *ids):
+        """Abre a lista de embalagens da calculadora e deixa marcadas so as de `ids` (a lista com caixa de marcar nao fecha ao marcar)."""
+        pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80)
+        for c in pg.query_selector_all('#calcCaixa .calc-cx-check'):
+            if c.is_checked() != (int(c.get_attribute('value')) in ids):
+                c.click(); pg.wait_for_timeout(60)
+        pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80)
+
     def trocar_loja(pg, loja):
         pg.click('.tab-item[data-tab="complementares"]')
         escolher(pg, '#inputLojaDesk', loja)
@@ -506,13 +514,13 @@ with sync_playwright() as p:
         ok(pg.input_value('#calcEmbalagem') == '6,95' and txt(pg, '#calcEmbOrigem') == 'Caixa R$ 6,00 + Tag Desk Shope R$ 0,40 + Fita adesiva R$ 0,55', 'mudar o custo no cadastro de Embalagens muda a embalagem completa: "%s"' % txt(pg, '#calcEmbOrigem'))
         confere_opcoes(pg, oraculo(D('6.95') + 50, 30, LINK[2], 0, 4, 5), 3, 'com a embalagem a 6,95')
         # trocar a caixa recalcula; a digitada a mao vale ate trocar
-        escolher(pg, '#calcCaixa', '1')
+        so_caixa(pg, 1)
         ok(pg.input_value('#calcEmbalagem') == '4,45' and txt(pg, '#calcCaixa .dropdown-select-label') == 'Caixa de Encomenda Flex P', 'trocar a caixa refaz a embalagem completa (Flex P 3,50 + Tag 0,40 + Fita 0,55 = 4,45): %s' % pg.input_value('#calcEmbalagem'))
         preencher(pg, emb='7,00')
         ok(txt(pg, '#calcCustoTotal') == brl(50 + D('7.00')) and 'digitado' in txt(pg, '#calcEmbOrigem'), 'a embalagem digitada a mao vale: custo total 57,00 e a origem diz "digitado"')
         preencher(pg, margem='35')
         ok(pg.input_value('#calcEmbalagem') == '7,00', 'e continua valendo ao mexer em outros campos')
-        escolher(pg, '#calcCaixa', '3')
+        so_caixa(pg, 3)
         ok(pg.input_value('#calcEmbalagem') == '6,85' and 'digitado' not in txt(pg, '#calcEmbOrigem'), 'trocar a caixa descarta o digitado e refaz a conta do cadastro (Flex G 5,90 + 0,40 + 0,55 = 6,85): %s' % pg.input_value('#calcEmbalagem'))
         fechar(pg)
         # "customizada": a calculadora usa a sugestao para 1 peca (a menor caixa em que cabe)
@@ -569,7 +577,7 @@ with sync_playwright() as p:
         ok(pg.input_value('#inputPrecoVenda') == '101,90' and pg.input_value('#inputMarkup') == '2,03800', 'Aplicar preenche o Preco de venda e o Markup: %s / %s' % (pg.input_value('#inputPrecoVenda'), pg.input_value('#inputMarkup')))
         ok(not pg.evaluate("document.getElementById('calcDrawer').classList.contains('open')"), 'e fecha a gaveta')
         sv = (ls(pg, 'deskCalculoPreco') or {}).get('1')
-        ok(sv and sv['preco'] == 101.9 and sv['markup'] == 2.038 and sv['margem'] == 30 and sv['parcelas'] == 3 and sv['imposto'] == 4 and sv['comissao'] == 5 and sv['frete'] == 0 and sv['freteLoja'] == 0 and sv['escolhida'] == 'varejo' and sv['caixaId'] == 2 and sv['embalagemManual'] is None and sv['em'],
+        ok(sv and sv['preco'] == 101.9 and sv['markup'] == 2.038 and sv['margem'] == 30 and sv['parcelas'] == 3 and sv['imposto'] == 4 and sv['comissao'] == 5 and sv['frete'] == 0 and sv['freteLoja'] == 0 and sv['escolhida'] == 'varejo' and sv['caixaIds'] == [2] and 'caixaId' not in sv and sv['embalagemManual'] is None and sv['em'],
            'o calculo fica guardado por id do produto: %s' % sv)
         ok(txt(pg, '#calcHoje') == 'Com o custo de hoje, R$ 101,90 dá margem de 30,5%', 'a margem de hoje passa a ser a do preco aplicado: "%s"' % txt(pg, '#calcHoje'))
         log = pg.evaluate("JSON.parse(localStorage.getItem('deskLog') || '[]').filter(e => e.chave === 'calculadoraPreco')")
@@ -624,7 +632,7 @@ with sync_playwright() as p:
         ls_set(pg, 'deskEmbalagens', lista)
         editar(pg, loja='Desk Shope'); abrir(pg)
         ok(pg.input_value('#calcEmbalagem') == '8,00' and 'digitado' in txt(pg, '#calcEmbOrigem'), 'a digitada vale mesmo com o cadastro mudado: %s' % pg.input_value('#calcEmbalagem'))
-        escolher(pg, '#calcCaixa', '2')
+        so_caixa(pg); so_caixa(pg, 2)   # a 2 ja estava marcada: desmarca e marca de novo
         ok(pg.input_value('#calcEmbalagem') == '4,70', 'e trocar a caixa volta ao cadastro (4,00 + 0,40 + 0,30 = 4,70): %s' % pg.input_value('#calcEmbalagem'))
         pg.click('#calcAplicar'); pg.wait_for_timeout(300)
         ok((ls(pg, 'deskCalculoPreco') or {})['1']['embalagemManual'] is None, 'aplicar sem digitar guarda embalagemManual nulo')
@@ -767,6 +775,50 @@ with sync_playwright() as p:
         pg.click('#btnConfirmModalCancelar'); pg.wait_for_timeout(200)
         ok(pg.input_value('#inputPrecoVenda') == '129,90' and ls(pg, 'deskCalculoPreco') is None, 'cancelar o modal nao aplica nem grava')
         pg.context.close()
+
+    # ================================================================ 15. mais de uma embalagem (pacote E, 17/nov/2026)
+    if secao(15, 'Mais de uma embalagem: a caixa e o saquinho marcados somam, o calculo antigo abre como lista de uma, e o minimo e o mesmo em todas as telas'):
+        pg = nova()
+        editar(pg, loja='Desk Shope'); abrir(pg)
+        piso1 = txt(pg, '#calcPiso')
+        itens = pg.evaluate("Array.from(document.querySelectorAll('#calcCaixa .calc-cx-check')).map(c => c.parentElement.textContent.trim())")
+        ok('Rolo para Tecido' not in itens and 'Tag Desk Shope' not in itens and 'Caixa de Encomenda Flex M' in itens and 'Envelope de Segurança Pequeno' in itens, 'a lista tem so embalagens ativas (sem insumo, sem inativa): %s' % itens)
+        ok(pg.evaluate("document.querySelectorAll('#calcCaixa .calc-cx-check:checked').length") == 1 and txt(pg, '#calcCaixa .dropdown-select-label') == 'Caixa de Encomenda Flex M', 'abre com a do cadastro do produto marcada')
+        pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80)
+        pg.click('#calcCaixa .calc-cx-check[value="7"]'); pg.wait_for_timeout(120)
+        ok(pg.evaluate("document.querySelector('#calcCaixa .dropdown-select-menu').classList.contains('open')"), 'marcar nao fecha a lista')
+        pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80)
+        ok(pg.input_value('#calcEmbalagem') == '6,50' and txt(pg, '#calcCustoTotal') == 'R$ 56,50', 'marcar a caixa (4,70) e o envelope (1,10) soma os custos: 4,70 + 1,10 + tag 0,40 + fita 0,30 = 6,50: %s' % pg.input_value('#calcEmbalagem'))
+        ok(txt(pg, '#calcEmbOrigem') == 'Caixa de Encomenda Flex M R$ 4,70 + Envelope de Segurança Pequeno R$ 1,10 + Tag Desk Shope R$ 0,40 + Fita adesiva R$ 0,30' and txt(pg, '#calcCaixa .dropdown-select-label') == '2 embalagens marcadas', 'a origem lista as duas: "%s"' % txt(pg, '#calcEmbOrigem'))
+        piso2 = txt(pg, '#calcPiso')
+        cent = lambda s: int(re.sub(r'\D', '', s))
+        ok(cent(piso2) > cent(piso1), 'o minimo sobe com a segunda embalagem: %s para %s' % (piso1, piso2))
+        pg.click('#calcAplicar'); pg.wait_for_timeout(300)
+        sv = (ls(pg, 'deskCalculoPreco') or {})['1']
+        ok(sv['caixaIds'] == [2, 7] and 'caixaId' not in sv, 'o calculo guarda a lista: %s' % sv.get('caixaIds'))
+        editar(pg, loja='Desk Shope'); abrir(pg)
+        ok(pg.input_value('#calcEmbalagem') == '6,50' and pg.evaluate("Array.from(document.querySelectorAll('#calcCaixa .calc-cx-check:checked')).map(c => +c.value)") == [2, 7] and txt(pg, '#calcPiso') == piso2, 'reabrir repoe as duas marcadas e o mesmo minimo')
+        # o minimo e bloco comum: PDV e Pedido leem a lista e dao o mesmo numero da calculadora
+        for tela in ('pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html'):
+            ir(pg, tela)
+            ok(pg.evaluate("promoMinimoCent(promoProdutoId(1))") == cent(piso2), '%s: o minimo do produto 1 e o da calculadora com as duas (%s)' % (tela, piso2))
+        # o calculo antigo (caixaId so) abre como lista de uma
+        sv.pop('caixaIds'); sv['caixaId'] = 2
+        ls_set(pg, 'deskCalculoPreco', {'1': sv})
+        for tela in ('pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html'):
+            ir(pg, tela)
+            ok(pg.evaluate("promoMinimoCent(promoProdutoId(1))") == cent(piso1), '%s: o calculo antigo (caixaId 2) vale como uma so: %s' % (tela, piso1))
+        editar(pg, loja='Desk Shope'); abrir(pg)
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#calcCaixa .calc-cx-check:checked')).map(c => +c.value)") == [2] and pg.input_value('#calcEmbalagem') == '5,40' and txt(pg, '#calcPiso') == piso1, 'a calculadora abre o calculo antigo com a lista de uma (5,40)')
+        so_caixa(pg)
+        ok(pg.input_value('#calcEmbalagem') == '0,70' and txt(pg, '#calcCaixa .dropdown-select-label') == 'Nenhuma embalagem marcada', 'sem nenhuma marcada, so os insumos que entram sozinhos (0,40 + 0,30): %s' % pg.input_value('#calcEmbalagem'))
+        pg.context.close()
+        for tema in ('light', 'dark'):
+            pg = nova(tema=tema)
+            editar(pg, loja='Desk Shope'); abrir(pg)
+            pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80); pg.click('#calcCaixa .calc-cx-check[value="7"]'); pg.wait_for_timeout(150)
+            if _os.environ.get('DESK_FOTOS'): pg.screenshot(path=_os.environ['DESK_FOTOS'] + '-' + tema + '.png')   # foto opcional, fora do projeto
+            pg.context.close()
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:5])
     nav.close()
