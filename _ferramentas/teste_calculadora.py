@@ -812,6 +812,26 @@ with sync_playwright() as p:
         ok(pg.evaluate("Array.from(document.querySelectorAll('#calcCaixa .calc-cx-check:checked')).map(c => +c.value)") == [2] and pg.input_value('#calcEmbalagem') == '5,40' and txt(pg, '#calcPiso') == piso1, 'a calculadora abre o calculo antigo com a lista de uma (5,40)')
         so_caixa(pg)
         ok(pg.input_value('#calcEmbalagem') == '0,70' and txt(pg, '#calcCaixa .dropdown-select-label') == 'Nenhuma embalagem marcada', 'sem nenhuma marcada, so os insumos que entram sozinhos (0,40 + 0,30): %s' % pg.input_value('#calcEmbalagem'))
+        # o insumo que nao entra sozinho (auto vazio) e marcavel; os automaticos nao
+        editar(pg, loja='Desk Shope'); abrir(pg)
+        itens = pg.evaluate("Array.from(document.querySelectorAll('#calcCaixa .calc-cx-check')).map(c => c.parentElement.textContent.trim())")
+        ok('Saco plástico' in itens and itens.index('Saco plástico') == len(itens) - 1 and 'Fita adesiva' not in itens and 'Tag Desk Shope' not in itens and 'Tag Desk Brands' not in itens, 'o Saco plastico aparece por ultimo; a Fita e as tags nao: %s' % itens)
+        so_caixa(pg, 2)
+        pg.click('#calcCaixa .dropdown-select-btn'); pg.wait_for_timeout(80); pg.click('#calcCaixa .calc-cx-check[value="14"]'); pg.wait_for_timeout(150)
+        ok(pg.input_value('#calcEmbalagem') == '5,65' and 'Saco plástico R$ 0,25' in txt(pg, '#calcEmbOrigem'), 'Flex M + Saco plastico: 4,70 + 0,25 + 0,40 + 0,30 = 5,65, e a origem diz o nome: "%s"' % txt(pg, '#calcEmbOrigem'))
+        piso3 = txt(pg, '#calcPiso')
+        ok(cent(piso3) > cent(piso1), 'o minimo sobe com o saco: %s para %s' % (piso1, piso3))
+        pg.click('#calcAplicar'); pg.wait_for_timeout(300)
+        for tela in ('pagina-vendas-pdv.html', 'pagina-vendas-pedidos-detalhe.html'):
+            ir(pg, tela)
+            ok(pg.evaluate("promoMinimoCent(promoProdutoId(1))") == cent(piso3), '%s: o minimo com o saco e o da calculadora (%s)' % (tela, piso3))
+        ir(pg, 'pagina-vendas-pedidos-detalhe.html')
+        ok(pg.evaluate("sugerirEmbalagem(embalagensLer(), 1)") is not None and pg.evaluate("embalagensLer().filter(e => e.id === sugerirEmbalagem(embalagensLer(), 1).id)[0].tipo") != 'insumo' and pg.evaluate("embalagensLer().filter(e => e.id === sugerirEmbalagem(embalagensLer(), 20).id)[0].tipo") != 'insumo', 'a sugestao de embalagem do Pedido segue sem insumo')
+        # so o saco marcado e aplicado: o campo Embalagem do cadastro nao muda
+        editar(pg, loja='Desk Shope'); abrir(pg)
+        antes = pg.evaluate("document.getElementById('inputEmbalagem').getAttribute('data-value')")
+        so_caixa(pg, 14); pg.click('#calcAplicar'); pg.wait_for_timeout(300)
+        ok(pg.evaluate("document.getElementById('inputEmbalagem').getAttribute('data-value')") == antes and (ls(pg, 'deskCalculoPreco') or {})['1']['caixaIds'] == [14], 'so o Saco plastico marcado: guarda [14] e o campo Embalagem do cadastro nao muda (%s)' % antes)
         pg.context.close()
         for tema in ('light', 'dark'):
             pg = nova(tema=tema)

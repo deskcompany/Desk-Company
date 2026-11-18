@@ -3384,10 +3384,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return { tem: vezes.length > 0, vezes: vezes, cond: (n) => par(g && b ? gwlCondicao(g, 'credito', b, n) : null), pix: par(g ? gwlCondicao(g, 'pix') : null) };
   }
   const precoEhCaixa = (e) => e.status === 'ativo' && e.tipo !== 'insumo';
+  // O que a calculadora deixa marcar: as embalagens e o insumo que NAO entra sozinho (auto vazio, como o Saco plastico). O automatico nunca e marcavel: ja entra por conta, e nao entra em dobro.
+  const precoEhMarcavel = (e) => precoEhCaixa(e) || (e.status === 'ativo' && e.tipo === 'insumo' && !e.auto);
   // As embalagens marcadas no calculo guardado: `caixaIds` (a lista) ou, no calculo antigo, `caixaId` (uma so, lida como lista de uma). null = nada guardado.
   function precoCaixasSalvas(lista, s) {
     if (!s) return null;
-    const so = (ids) => lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
+    const so = (ids) => lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhMarcavel(e));
     if (Array.isArray(s.caixaIds)) return so(s.caixaIds);
     const v = s.caixaId !== undefined && s.caixaId !== null ? so([s.caixaId]) : [];
     return v.length ? v : null;
@@ -3395,11 +3397,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // A embalagem completa: as caixas marcadas (uma ou mais, o custo e a soma) + os insumos que entram sozinhos na loja, tudo a custo por uso do cadastro.
   // `caixaIds` e a lista de ids (um numero solto vale como lista de um). O produto vai sozinho no pacote (1 peca).
   function precoEmbalagem(lista, lojaId, caixaIds) {
-    const ids = caixaIds === null || caixaIds === undefined ? [] : [].concat(caixaIds), cais = lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhCaixa(e));
+    const ids = caixaIds === null || caixaIds === undefined ? [] : [].concat(caixaIds), cais = lista.filter((e) => ids.indexOf(e.id) >= 0 && precoEhMarcavel(e));
     const brl = (c) => 'R$ ' + (Math.floor(c / 100) + '').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + ('0' + (c % 100)).slice(-2);
     const cc = cais.map((e) => precoCent(embCustoUso(e))), cC = cc.reduce((s, c) => s + c, 0);
     const ins = insumosAutomaticos(lista, lojaId).map((i) => { const e = lista.filter((x) => x.id === i.id)[0]; return { nome: e.nome, c: precoCent(embCustoUso(e)) * i.qtd }; });
-    const txtCx = cais.length === 1 ? 'Caixa ' + brl(cC) : cais.length ? cais.map((e, k) => e.nome + ' ' + brl(cc[k])).join(' + ') : 'Nenhuma embalagem marcada';
+    const txtCx = cais.length === 1 && precoEhCaixa(cais[0]) ? 'Caixa ' + brl(cC) : cais.length ? cais.map((e, k) => e.nome + ' ' + brl(cc[k])).join(' + ') : 'Nenhuma embalagem marcada';
     return { total: cC + ins.reduce((s, i) => s + i.c, 0), texto: txtCx + ins.map((i) => ' + ' + i.nome + ' ' + brl(i.c)).join('') };
   }
   // A parcela pedida, ou a maior que o gateway tem abaixo dela (ou a primeira).
@@ -3876,7 +3878,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     function pintarCaixas() {
       const raiz = $('calcCaixa'), menu = raiz.querySelector('.dropdown-select-menu');
       menu.innerHTML = '';
-      CX.lista.filter((e) => ehCaixa(e) && (Number(e.saldo) > 0 || ST.caixaIds.indexOf(e.id) >= 0)).forEach((e) => {
+      CX.lista.filter((e) => precoEhMarcavel(e) && (Number(e.saldo) > 0 || ST.caixaIds.indexOf(e.id) >= 0)).sort((a, b) => (a.tipo === 'insumo') - (b.tipo === 'insumo')).forEach((e) => {
         const l = document.createElement('label'), c = document.createElement('input');
         l.className = 'dropdown-multi-item'; c.type = 'checkbox'; c.className = 'calc-cx-check'; c.value = e.id; c.checked = ST.caixaIds.indexOf(e.id) >= 0;
         l.appendChild(c); l.appendChild(document.createTextNode(' ' + e.nome)); menu.appendChild(l);
@@ -3884,7 +3886,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       pintarCaixasRotulo();
     }
     function pintarCaixasRotulo() {
-      const m = CX.lista.filter((e) => ST.caixaIds.indexOf(e.id) >= 0 && ehCaixa(e));
+      const m = CX.lista.filter((e) => ST.caixaIds.indexOf(e.id) >= 0 && precoEhMarcavel(e));
       $('calcCaixa').querySelector('.dropdown-select-label').textContent = m.length === 1 ? m[0].nome : m.length ? m.length + ' embalagens marcadas' : 'Nenhuma embalagem marcada';
     }
     function pintarMenus() {
@@ -3976,7 +3978,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
                     margem: ST.margem, parcelas: ST.parcelas, imposto: ST.imposto, comissao: ST.comissao, escolhida: ST.escolhida, em: new Date().toISOString() };
       const executar = () => {
         $('inputPrecoVenda').value = campo(preco); $('inputMarkup').value = reg.markup.toFixed(5).replace('.', ',');
-        if (ST.caixaIds.length) porNoDropdown('inputEmbalagem', ST.caixaIds[0]);   // o cadastro do produto guarda uma so: a primeira marcada
+        const cx1 = CX.lista.filter((e) => ST.caixaIds.indexOf(e.id) >= 0 && precoEhCaixa(e))[0];
+        if (cx1) porNoDropdown('inputEmbalagem', cx1.id);   // o cadastro do produto guarda uma so: a primeira marcada que nao e insumo (so insumos marcados: o campo nao muda)
         gravarSalvo(reg);
         fechar(); atualizarRodape();
       };
