@@ -1,4 +1,4 @@
-*Atualizado em 16/nov/2026: o preço de atacado (ficha do produto, PDV e Pedido de Venda) foi implementado e está esperando o teste dele. O próximo da fila é a revisão geral.*
+*Atualizado em 18/nov/2026: a revisão geral de novembro (pacotes A a E) e o preço de atacado foram testados e aprovados por ele. O próximo da fila é a entrega 3 de Promoções e Encartes, "Gerar encarte".*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -8,27 +8,12 @@ As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do desig
 
 ## Onde paramos
 
-**Revisão geral, pacote E (17/nov/2026), esperando o teste dele:** a calculadora com mais de uma embalagem (item 3). Na [ficha do produto](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1), aba Preços, "Calcular preço": o campo "Embalagens do produto" é uma lista com caixa de marcar; marque a Flex M e o Envelope de Segurança Pequeno (a garrafa térmica na caixa e no saquinho, o exemplo dele) e confira que a embalagem vira R$ 6,50 e o preço mínimo sobe de R$ 79,28 para R$ 80,86. O PDV, o Pedido de Venda e a promoção leem o mesmo mínimo. O Saco plástico (insumo que não entra sozinho) também aparece na lista de marcar. Detalhe no §14.117.
+**Revisão geral de novembro (pacotes A a E, 16-18/nov/2026): testada e aprovada por ele em 17-18/nov** ("testei, passou").
+Os 19 itens da lista, mais o saco plástico como insumo marcável na calculadora (18/nov). O texto foi para o HISTORICO.md, e o
+detalhe está no §14.113 a §14.117.
 
-**Revisão geral, pacote D (17/nov/2026), esperando o teste dele:** Finanças (itens 2 e 13). Em [Contas a Pagar](http://localhost:3000/financas/pagina-financas-contas-pagar.html) e em [Contas a Receber](http://localhost:3000/financas/pagina-financas-contas-receber.html), a aba "atrasadas" mostra toda conta vencida, fora do período, e dá o mesmo número do card "Vencidas". O teste da página da conta deixou de depender da data, e o selo inteiro ficou verde. Detalhe no §14.116.
-
-**Revisão geral, pacote C (16/nov/2026), esperando o teste dele:** as telas, uma a uma (itens 15, 19, 6, 7, 8, 9, 10, 11 e 1). [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (clicar na linha abre o painel), [Produtos](http://localhost:3000/cadastros/pagina-cadastros-produtos.html) (clicar numa linha: o preview com os quatro blocos), [painel da promoção](http://localhost:3000/vendas/pagina-vendas-promocoes.html) (botão azul e "Mais ações"), a ficha do produto ([Dados Complementares](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1) e o "Encerrar antes para este produto" na aba Preços), a revisão da promoção ("Pronto" e "Corrigir"), o [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html) (o resumo e o "Desconto à vista" sem maquininha) e [Embalagens](http://localhost:3000/cadastros/pagina-cadastros-embalagens.html) (campos de tamanho numa linha). Detalhe no §14.115.
-
-**Revisão geral, pacote B (16/nov/2026), esperando o teste dele:** as tabelas (itens 16, 17, 18 e 4). Nenhuma tabela rola na horizontal a 1280 px e o título da coluna fica numa linha só: [Registro de atividades](http://localhost:3000/configuracoes/pagina-configuracoes-registro-atividades.html) (a coluna "Ação" estreita, com reticências; faça algumas ações para encher o registro), [Necessidades de Compra](http://localhost:3000/estoque/pagina-estoque-necessidades-compra.html) (o fornecedor foi para baixo do produto), [CRM](http://localhost:3000/vendas/pagina-vendas-crm.html), [Metas](http://localhost:3000/vendas/pagina-vendas-metas.html), [Usuários](http://localhost:3000/configuracoes/pagina-configuracoes-usuarios.html) ("Desconto sem liberação") e os títulos encurtados em Giro, Controle de Estoques, Expedição e Custos do E-commerce; o texto solto "De" e "Mínimo" da [promoção](http://localhost:3000/vendas/pagina-vendas-promocoes-detalhe.html?id=1) e o "Total" da Ordem de Compra e da Entrada de Notas alinhados com os campos. Detalhe no §14.114.
-
-**Revisão geral, pacote A (16/nov/2026), esperando o teste dele:** o mínimo do detalhe da promoção lê o custo da aba Custos; o menu abre para cima quando não cabe embaixo (item 14: PDV, [cobrança](http://localhost:3000/vendas/pagina-vendas-pdv.html), venda com um item, "Adicionar recebimento (F4)"); o painel lateral aberto trava a página de trás (item 5, qualquer lista, ex. [Pedidos](http://localhost:3000/vendas/pagina-vendas-pedidos.html)); a bolinha centralizada (item 12, "Desconto / Acréscimo" e "O que esta venda gerou" no PDV). Detalhe no §14.113.
-
-**O preço de atacado: implementado em 16/nov/2026, esperando o teste dele.** A ficha do produto ganhou, na aba Preços, o "Preço de atacado" e o "A partir de N unidades" (saiu a
-seção "Preço por lista"); no PDV e no Pedido de Venda, chegou à quantidade mínima, a linha vira o preço de atacado sozinha (a soma do produto na venda inteira decide, a promoção
-não divide e não conta uso), e antes do mínimo a linha avisa "faltam N para o atacado (R$ X cada)". O atacado não é desconto. A aba Custos da ficha passou a gravar (o mínimo do atacado usa o custo dela). O detalhe está no §14.112 e o plano em `docs/plano-preco-atacado.md`.
-O que conferir (a Luminária de Mesa LED já tem atacado de exemplo: R$ 72,90 a partir de 6, com o preço de venda em R$ 79,90; o Kit Papelaria, R$ 59,50 a partir de 10; os códigos de exemplo: 1234 do Administrador, 2468 do Carlos):
-- A ficha, aba Preços: [Luminária, com o atacado de exemplo](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=8) e
-  [Fone de Ouvido, para testar as travas](http://localhost:3000/cadastros/pagina-cadastros-produtos-detalhe.html?editar=1&id=1): só o preço sem a quantidade, quantidade 1, preço igual
-  ao de venda e preço abaixo de R$ 79,28 (o mínimo da calculadora) recusam, com a mensagem no campo; salvar cria duas linhas no histórico do preço.
-- O PDV: [PDV](http://localhost:3000/vendas/pagina-vendas-pdv.html), abra o caixa na Desk Shope, ponha 5 Luminárias (a linha diz "faltam 1 para o atacado (R$ 72,90 cada)"), depois mais 1 (vira "Atacado, a partir de
-  6 un." a R$ 72,90; a prévia de "Adicionar produto" já mostra o atacado quando a soma chega a 6); o Kit Papelaria com 10 sai a R$ 59,50 mesmo com a promoção ativa.
-- O Pedido de Venda: [novo pedido](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html?novo=1), loja Desk Shope, o mesmo caminho (a conferência acontece ao sair do campo da
-  quantidade). Diminuir a quantidade abaixo do mínimo devolve o preço de venda.
+**O preço de atacado: testado por ele em 16/nov/2026** ("teste no PDV ok, passou"). O texto foi para o HISTORICO.md, e o detalhe
+está no §14.112.
 
 **Usuários do sistema e Permissões de usuários, entrega 2: testada por ele em 16/nov/2026** ("os demais testes passaram"). O que ele
 pediu no teste ficou para a revisão geral (itens 14 a 18). O texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.111.
@@ -43,7 +28,7 @@ estão na revisão geral (itens 10 a 12). O texto da entrega foi para o HISTORIC
 
 **Promoções e Encartes, entrega 1: testada por ele em 09/nov/2026.** Os ajustes que ele pediu estão na revisão geral (itens 4 a 9) e ficam para ela; o texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.108.
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 4 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 3 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
 **Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
@@ -92,18 +77,17 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **A revisão geral** (a lista "Para a próxima revisão geral", abaixo, com os ajustes dos testes das entregas 1 e 2), quando ele quiser.
-2. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
-3. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-4. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
+1. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+2. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
+3. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
    - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
    - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
    - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
    - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-5. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
-6. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
-7. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
+4. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
+6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
 
 **Saiu da fila, por decisão do usuário, e volta quando houver banco de dados:** os alinhamentos de
@@ -217,17 +201,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Para a próxima revisão geral
 
-A revisão geral de 02-03/nov/2026 foi feita: os 17 itens, em cinco pacotes (§14.102 a §14.106). O item 2 dela saiu no
-pacote D de 16/nov (§14.116) e o item 3 no pacote E de 17/nov (§14.117); não ficou pedido solto da revisão geral.
-
-Do teste dele na entrega 1 de Promoções e Encartes (09/nov/2026, com prints):
-
-Do teste dele na entrega 2 de Promoções e Encartes (10/nov/2026, com prints; "vamos avaliar depois"):
-
-Pedidos dele no teste da entrega 2 de Usuários (16/nov/2026, com prints):
-
-O plano da revisão, com as escolhas dele de 16/nov para os itens 6, 10, 11, 18 e 19, está em
-[docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md).
+Vazia. A revisão geral de 16-18/nov/2026 fez os 19 itens em cinco pacotes (§14.113 a §14.117; o plano em
+[docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md)) e foi aprovada por ele. O que ele pedir
+"para a próxima revisão" entra aqui.
 
 ## Esperando decisão do usuário
 
