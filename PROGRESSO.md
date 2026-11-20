@@ -1,4 +1,4 @@
-*Atualizado em 18/nov/2026: a revisão geral de novembro (pacotes A a E) e o preço de atacado foram testados e aprovados por ele. O "Gerar encarte" foi segurado por ele em 20/nov, para juntar informações; o próximo da fila é o protótipo da vitrine.*
+*Atualizado em 20/nov/2026: barganhados com ele e em construção, nesta ordem, o desconto da venda nossa e a rodada do estoque das embalagens (plano em `docs/plano-venda-nossa-e-embalagens.md`). O "Gerar encarte" segue segurado por ele.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -28,7 +28,7 @@ estão na revisão geral (itens 10 a 12). O texto da entrega foi para o HISTORIC
 
 **Promoções e Encartes, entrega 1: testada por ele em 09/nov/2026.** Os ajustes que ele pediu estão na revisão geral (itens 4 a 9) e ficam para ela; o texto da entrega foi para o HISTORICO.md, e o detalhe está no §14.108.
 
-**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 3 do "Próximo da fila". O que foi feito está no HISTORICO.md e o detalhe no §14.107.
+**Estoque das embalagens: feito em 03/nov/2026 e testado por ele em 03-04/nov.** Ele pediu para segurar como está; a rodada de correção é o item 2 do "Próximo da fila", em construção desde 20/nov. O que foi feito está no HISTORICO.md e o detalhe no §14.107.
 
 **Calculadora de precificação: testada e aprovada por ele em 04/nov/2026** (HISTORICO.md, §14.101). A observação do teste, várias embalagens na calculadora, está na revisão geral (item 3).
 
@@ -77,15 +77,10 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). **Segurada por ele em 20/nov:** ele vai reunir mais informações (e prints de encartes) antes de continuar. A barganha começou em 18/nov; a proposta e as seis perguntas em aberto estão em [docs/rascunho-barganha-encarte.md](docs/rascunho-barganha-encarte.md). Volta quando ele avisar.
-2. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
-3. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
-   - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
-   - **Prejuízo pelo motivo:** o acerto para menos por avaria, quantidade errada etc. gera prejuízo, conforme o motivo, como a perda de produto em Tratamento de Perdas.
-   - **Inventário geral:** as embalagens (caixas, envelopes, sacolas, insumos) aparecem no Inventário para serem contadas.
-   - **Ordem de compra:** em Necessidades de Compra, o bloco das embalagens gera ordem de compra, e não "Dar entrada", para seguir o fluxo normal (ordem → nota → entrada). A decidir: a embalagem entra na Ordem de Compra sem SKU de produto?
-   - **Movimentação:** entrada, baixa e acerto de embalagem aparecem em Estoque → Movimentação de Estoque, e não só no Registro de atividades.
-4. **Desconto da venda nossa na hora da venda** (ideia dele em 30/out, opcional): a venda sem ninguém recebendo comissão e paga no Pix pode somar o desconto da comissão ao do Pix. A calculadora já mostra até onde dá; falta a opção no PDV e no Pedido de Venda, e a vitrine depende do protótipo dela.
+1. **Desconto da venda nossa (em construção, barganha de 20/nov):** no PDV e no Pedido de Venda, a venda sem vendedor (e sem indicação) paga no Pix ou no dinheiro ganha a opção "Dar o desconto da venda nossa" (a comissão padrão de Parâmetros de vendas, hoje 5%), que nunca leva um produto abaixo do preço mínimo da calculadora. Plano em `docs/plano-venda-nossa-e-embalagens.md`.
+2. **Rodada do estoque das embalagens (em construção, barganha de 20/nov), em dois pacotes:** o código EMB-001, os motivos de Motivos de Perda no acerto, o prejuízo (na Movimentação e num card), a Movimentação com as embalagens, a ordem de compra pelas Necessidades de Compra, a entrada pela nota (e a "entrada sem nota"), a baixa no pedido e o Inventário com "Produtos / Embalagens". Plano no mesmo documento.
+3. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). **Segurada por ele em 20/nov:** ele vai reunir mais informações (e prints de encartes) antes de continuar. A barganha começou em 18/nov; a proposta e as seis perguntas em aberto estão em [docs/rascunho-barganha-encarte.md](docs/rascunho-barganha-encarte.md). Volta quando ele avisar.
+4. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
 5. **Começar a produção, F0** (a decidir; conta nova só com o pedido dele).
 6. **Os outros itens pós-MVP** (Margem de Contribuição, Relatórios, Notas Fiscais, Integrações). Módulo novo começa pela
    barganha, com os prints, e já nasce com o exemplo no padrão (§14.73).
@@ -97,6 +92,8 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 
 ## Decidido, e ainda não feito de propósito
 
+- **Desconto da venda nossa** (barganha de 20/nov/2026): é uma opção que se aplica, não automática; só sem vendedor (e sem indicação, no Pedido); no Pix e no dinheiro; o percentual é a comissão padrão de Parâmetros de vendas; nunca abaixo do preço mínimo da calculadora (em promoção ou atacado soma até o mínimo, e o resto é cortado com aviso); não pede código nem conta no limite de desconto; vendedor escolhido depois tira o desconto, com aviso.
+- **Estoque das embalagens** (barganha de 20/nov/2026): o motivo do acerto sai de Motivos de Perda, com a marca "vale para embalagens" (de fábrica: avaria, perda, furto, extravio, consumo próprio, sobra, correção e contagem física), sem fila fiscal; o acerto para menos é prejuízo (quantidade × custo médio), mostrado na Movimentação e num card na tela de Embalagens; as embalagens entram no Inventário ("Produtos / Embalagens"); a embalagem ganha o código EMB-001 e segue ordem → nota → entrada; o "Dar entrada" vira "Dar entrada sem nota"; a Movimentação mostra entradas, baixas no pedido, acertos e contagens.
 - **Preço promocional** (barganhado com o usuário em 04/nov/2026; mora em Promoções e Encartes, em Vendas).
   O preço tem um dono só, o sistema: o promocional é cadastrado na aba Preços do produto (ou chega pela planilha da promoção e entra no
   cadastro quando ela é aprovada). O painel da vitrine não cadastra nem muda preço: mostra os produtos da loja e manda pedidos ao
