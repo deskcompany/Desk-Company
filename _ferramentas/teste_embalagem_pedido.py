@@ -979,7 +979,7 @@ with sync_playwright() as p:
            'salvar soma a quantidade ao saldo (8 → 10), grava o custo médio (15,40) no cadastro, mantém o rende e fecha o painel: %s' % f)
         ok(meta(pg, 13) == 'R$ 15,40 a unidade · rende 50 (R$ 0,31 por pedido) · entra sozinho: todas as lojas · Saldo 10 · mín. 4', 'a lista mostra o saldo novo e o custo por pedido (15,40 ÷ 50): %s' % meta(pg, 13))
         lg = log_edita(pg)
-        ok(len(lg) == 1 and lg[0]['acao'] == 'Editar · Embalagens' and lg[0]['senha'] is False and 'Entrada de 2 Fita adesiva a R$ 17,00 a unidade.' in lg[0]['detalhe'] and 'Fornecedor: Papelaria Central.' in lg[0]['detalhe'] and 'Nota: NF 1234.' in lg[0]['detalhe']
+        ok(len(lg) == 1 and lg[0]['acao'] == 'Editar · Embalagens' and lg[0]['senha'] is False and 'Entrada sem nota de 2 Fita adesiva a R$ 17,00 a unidade.' in lg[0]['detalhe'] and 'Fornecedor: Papelaria Central.' in lg[0]['detalhe'] and 'Comprovante: NF 1234.' in lg[0]['detalhe']
            and 'Saldo 8 → 10' in lg[0]['detalhe'] and 'R$ 15,00 → R$ 15,40' in lg[0]['detalhe'], 'a entrada vai para o Registro de atividades como "Editar · Embalagens", com quantidade, custo, fornecedor, nota e o antes e depois: %s' % (lg and lg[0]['detalhe']))
         # a segunda entrada pondera de novo: (10 x 15,40 + 10 x 20,00) / 20 = 17,70
         pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
@@ -987,7 +987,7 @@ with sync_playwright() as p:
         escolher(pg, '#entradaEmb', 13); preencher_entrada(pg, '10', '20,00')
         pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
         f = emb(pg, 13)
-        ok(f['saldo'] == 20 and perto(f['custo'], 17.70) and len(log_edita(pg)) == 2 and 'Fornecedor' not in log_edita(pg)[0]['detalhe'] and 'Nota' not in log_edita(pg)[0]['detalhe'], 'a segunda entrada pondera o custo (17,70) e, sem fornecedor nem nota, o registro não os cita: %s' % f)
+        ok(f['saldo'] == 20 and perto(f['custo'], 17.70) and len(log_edita(pg)) == 2 and 'Fornecedor' not in log_edita(pg)[0]['detalhe'] and 'Comprovante' not in log_edita(pg)[0]['detalhe'], 'a segunda entrada pondera o custo (17,70) e, sem fornecedor nem comprovante, o registro não os cita: %s' % f)
         pg.context.close()
 
         # ---- 13b. saldo zerado ou negativo nao pesa no custo: vale so o custo da entrada
@@ -1045,22 +1045,24 @@ with sync_playwright() as p:
         # acerto de saldo
         pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(350)
         pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(150)
-        ok(vis('blocoAcerto') and vis('inputNovoSaldo') and vis('inputMotivoAcerto') and vis('btnAplicarAcerto') and 'Aplicar acerto' in pg.inner_text('#btnAplicarAcerto'), 'o link "Acertar saldo" abre ali mesmo "Novo saldo", "Motivo" e o botão "Aplicar acerto"')
+        ok(vis('blocoAcerto') and vis('inputNovoSaldo') and vis('acertoMotivo') and vis('inputObsAcerto') and vis('btnAplicarAcerto') and 'Aplicar acerto' in pg.inner_text('#btnAplicarAcerto'), 'o link "Acertar saldo" abre ali mesmo "Novo saldo", "Motivo" (a lista), "Observação" e o botão "Aplicar acerto"')
         n_log = len(log_edita(pg))
-        pg.fill('#inputNovoSaldo', '5'); pg.fill('#inputMotivoAcerto', ''); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
+        pg.fill('#inputNovoSaldo', '5'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
         ok(mostra(pg, '#erroMotivoAcerto') and emb(pg, 13)['saldo'] == 8 and len(log_edita(pg)) == n_log, 'sem motivo o acerto não vale: o saldo segue 8 e nada vai para o registro')
-        pg.fill('#inputNovoSaldo', 'abc'); pg.fill('#inputMotivoAcerto', 'contagem do galpão'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
+        escolher(pg, '#acertoMotivo', 2)
+        pg.fill('#inputNovoSaldo', 'abc'); pg.fill('#inputObsAcerto', 'contagem do galpão'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(150)
         ok(mostra(pg, '#erroNovoSaldo') and emb(pg, 13)['saldo'] == 8, 'saldo que não é número também não vale')
         pg.fill('#inputNovoSaldo', '5'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
         lg = log_edita(pg)
-        ok(emb(pg, 13)['saldo'] == 5 and len(lg) == n_log + 1 and lg[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 8 para 5. Motivo: contagem do galpão' and lg[0]['acao'] == 'Editar · Embalagens',
-           'o acerto grava o saldo (5) e vai para o deskLog: "%s"' % (lg and lg[0]['detalhe']))
+        ok(emb(pg, 13)['saldo'] == 5 and len(lg) == n_log + 1 and lg[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 8 para 5. Motivo: Perda (contagem do galpão). Prejuízo de R$ 45,00 (3 × R$ 15,00).' and lg[0]['acao'] == 'Editar · Embalagens',
+           'o acerto grava o saldo (5) e vai para o deskLog, com o motivo e o prejuízo: "%s"' % (lg and lg[0]['detalhe']))
         ok(pg.inner_text('#saldoAtual') == '5' and not vis('blocoAcerto') and pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')") and 'Saldo 5 · mín. 6' in meta(pg, 13) and 'Abaixo do mínimo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="13"]'),
            'o painel mostra o saldo novo, o acerto fecha, e a lista já avisa "Abaixo do mínimo" (5 < 6)')
         # saldo negativo e fracionario no acerto
         pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(150)
-        pg.fill('#inputNovoSaldo', '-1,5'); pg.fill('#inputMotivoAcerto', 'perda'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
-        ok(emb(pg, 13)['saldo'] == -1.5 and log_edita(pg)[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 5 para −1,5. Motivo: perda' and 'Saldo negativo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="13"]'), 'o acerto aceita negativo e fração: −1,5 e o selo vira "Saldo negativo"')
+        escolher(pg, '#acertoMotivo', 5)
+        pg.fill('#inputNovoSaldo', '-1,5'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
+        ok(emb(pg, 13)['saldo'] == -1.5 and log_edita(pg)[0]['detalhe'] == 'Saldo de Fita adesiva acertado de 5 para −1,5. Motivo: Consumo próprio. Prejuízo de R$ 97,50 (6,5 × R$ 15,00).' and 'Saldo negativo' in pg.text_content('#listaEmbalagens .embalagens-card[data-id="13"]'), 'o acerto aceita negativo e fração: −1,5 e o selo vira "Saldo negativo"')
         # embalagem nova: saldo 0, minimo 0, rende 1; sem acerto
         pg.click('#drawerClose'); pg.wait_for_timeout(300)
         pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
@@ -1230,7 +1232,7 @@ with sync_playwright() as p:
                 pg.evaluate("document.querySelector('#listaEmbalagens .embalagens-card[data-id=\"13\"]').click()"); pg.wait_for_timeout(450)
                 pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(200)
                 m = pg.evaluate(MEDE, 'eventDrawer')
-                topos = pg.evaluate("['inputMinimo', 'saldoAtual'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)).concat(['inputNovoSaldo', 'inputMotivoAcerto'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)))")
+                topos = pg.evaluate("['inputMinimo', 'saldoAtual'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)).concat(['inputNovoSaldo', 'acertoMotivo'].map(i => Math.round(document.getElementById(i).getBoundingClientRect().top)))")
                 ok(max(m['rotulos']) < 20 and m['fora'] == 0 and m['lateral'] <= 0 and m['pagina'] <= 0 and topos[0] == topos[1] and topos[2] == topos[3], 'a %d px, tema %s, edição do insumo (Rende, Estoque, acerto): rótulos numa linha, pares no mesmo topo, nada passa da borda: %s %s' % (w, tema, m, topos))
                 pg.context.close()
 

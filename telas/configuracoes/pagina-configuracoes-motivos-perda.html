@@ -356,6 +356,7 @@
   .motivo-info { flex:1; min-width:0; }
   .motivo-nome-row { display:flex; align-items:center; gap:8px; }
   .motivo-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
+  .marca-embalagem { flex-shrink:0; }   /* a marca "Embalagens" ao lado do movimento do motivo (20/nov/2026) */
   .motivo-meta { font-size:12px; color:var(--text); margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
   .motivo-meta .sep-ponto { opacity:0.55; }
   /* Numero em coluna de lista alinha por tabela, nao por fonte monoespacada:
@@ -863,6 +864,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       Exigir que escrevam o que houve
     </label>
     <div class="field-hint" style="margin:-6px 0 18px;">Para motivos genéricos como "Outro". Sem o texto, a devolução não salva — e seis meses depois ninguém sabe o que aconteceu.</div>
+
+    <label class="motivo-check-row">
+      <input type="checkbox" class="item-checkbox" id="inputEmbalagem">
+      Vale para embalagens
+    </label>
+    <div class="field-hint" style="margin:-6px 0 18px;">O acerto de saldo de Cadastros &gt; Embalagens só oferece os motivos marcados aqui. Embalagem é material de uso, não mercadoria: o tratamento fiscal do motivo não vale para ela.</div>
 
     <div class="form-secao">Observações e situação</div>
 
@@ -1704,6 +1711,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       g.forEach(m => MOTIVOS.push(m));
     } catch (e) { /* guardado ilegivel: vale o exemplo */ }
   })();
+  // Vale para embalagens (20/nov/2026): de fabrica, quebra ou avaria, perda, furto, extravio, consumo proprio, sobra de contagem, correcao de lancamento e contagem fisica.
+  // Um motivo guardado sem o campo usa o de fabrica, pelo id; um motivo novo nasce desmarcado (o id dele nunca esta na lista).
+  const MOTIVOS_EMBALAGEM_FABRICA = [1, 2, 3, 4, 5, 7, 8, 10];
+  MOTIVOS.forEach(m => { if (!('embalagem' in m)) m.embalagem = MOTIVOS_EMBALAGEM_FABRICA.indexOf(m.id) >= 0; });
   function guardarMotivos() {
     try { localStorage.setItem(CHAVE_MOTIVOS, JSON.stringify(MOTIVOS)); } catch (e) { /* armazenamento bloqueado: vale ate recarregar */ }
   }
@@ -1776,6 +1787,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             '<span class="status-dot" style="background:' + corStatus + ';"></span>' +
             '<span class="motivo-nome">' + t.nome + '</span>' +
             '<span class="tipo-badge" style="background:' + grupo.cor + ';">' + grupo.rotulo + '</span>' +
+            (t.embalagem ? '<span class="tipo-badge marca-embalagem" style="background:var(--chart-2);">Embalagens</span>' : '') +
           '</div>' +
           '<div class="motivo-meta motivo-num">' + meta + '</div>' +
         '</div>' +
@@ -1997,6 +2009,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputNomeMotivo').value = '';
     document.getElementById('inputObs').value = '';
     document.getElementById('inputExigeObs').checked = false;
+    document.getElementById('inputEmbalagem').checked = false;
     limparErros();
   }
 
@@ -2022,6 +2035,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputNomeMotivo').value = m.nome;
     document.getElementById('inputObs').value = m.obs || '';
     document.getElementById('inputExigeObs').checked = !!m.exigeObs;
+    document.getElementById('inputEmbalagem').checked = !!m.embalagem;
     setDropdownValor('inputGrupo', m.grupo);
     setDropdownValor('inputOperacao', OPERACOES[m.operacao] ? m.operacao : 'todas');
     setDropdownValor('inputDestino', m.destino);
@@ -2118,6 +2132,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       operacao: document.getElementById('inputOperacao').getAttribute('data-value'),
       destino: document.getElementById('inputDestino').getAttribute('data-value'),
       exigeObs: document.getElementById('inputExigeObs').checked,
+      embalagem: document.getElementById('inputEmbalagem').checked,
       obs: document.getElementById('inputObs').value.trim(),
       status: document.getElementById('inputSituacao').getAttribute('data-value')
     };

@@ -423,8 +423,8 @@ with sync_playwright() as p:
         antes = pg.evaluate("JSON.stringify(Object.keys(localStorage).sort().map(k => [k, localStorage.getItem(k)]))")
         buscar('TEC-MEC-006', de='tudo')
         botoes = pg.evaluate("Array.from(document.querySelectorAll('.main button, .main .drawer-link')).filter(b => b.offsetParent !== null && !b.closest('.dropdown-select') && !b.closest('.date-field') && !b.closest('.paginacao-nav') && !b.closest('.modal-card') && !b.closest('.event-drawer')).map(b => b.textContent.trim() || b.getAttribute('aria-label'))")
-        ok(botoes == ['Tirar o produto e pesquisar outro', 'Buscar', 'Limpar', 'Resumo por tipo', 'Imprimir lista', 'Baixar planilha'],
-           'os botões da tela são o x do produto, buscar, limpar, resumir, imprimir e baixar, cada um com um nome só: %s' % botoes)
+        ok(botoes == ['Produtos', 'Embalagens', 'Tirar o produto e pesquisar outro', 'Buscar', 'Limpar', 'Resumo por tipo', 'Imprimir lista', 'Baixar planilha'],
+           'os botões da tela são a escolha Produtos / Embalagens, o x do produto, buscar, limpar, resumir, imprimir e baixar, cada um com um nome só: %s' % botoes)
         ok(pg.evaluate("document.querySelectorAll('#painelResultado input, #painelFiltros input[type=\"checkbox\"], #menuMaisAcoes, .selecao-bar').length") == 0, 'sem seleção, sem menu de ações e sem campo de digitar na lista')
         esperado = pg.evaluate("linhasDaConsulta().lista.length")
         with pg.expect_download(timeout=5000) as d:

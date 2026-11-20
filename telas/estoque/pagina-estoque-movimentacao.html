@@ -931,6 +931,14 @@
   .mv-pe .field-hint { margin-top:0; }
   .mv-pe .field-error-msg { margin:0 0 4px; }
   .mv-acoes { display:flex; align-items:center; gap:16px; }
+  /* Produtos / Embalagens (20/nov/2026): a escolha fica no topo do filtro, junto da busca. */
+  .mv-modo { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .mv-modo .mv-modo-rotulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-right:4px; }
+  .kpi-so-emb { display:none; }
+  #painelResultado.modo-emb .kpi-so-emb { display:block; }
+  #painelResultado.modo-emb .kpi-so-prod, #painelResultado.modo-emb #btnResumo { display:none; }
+  #painelResultado.modo-emb .mv-kpis { grid-template-columns:repeat(4, minmax(0, 1fr)); }
+  #painelMov .estoque-table tbody tr.sem-doc { cursor:default; }
   .mv-produto { margin-bottom:18px; }
   .mv-ficha { margin-top:12px; font-size:12.5px; color:var(--text); line-height:1.7; }
   .mv-ficha b { color:var(--text-heading); font-weight:700; }
@@ -1178,11 +1186,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="page-header">
     <div>
       <h1>Movimentação de Estoque</h1>
-      <div class="subtitle">O histórico de cada produto, movimento por movimento: o saldo de antes, o que entrou ou saiu e o saldo que ficou. É só consulta: nada aqui gera ou altera movimento</div>
+      <div class="subtitle">O histórico de cada produto ou embalagem, movimento por movimento: o saldo de antes, o que entrou ou saiu e o saldo que ficou. É só consulta: nada aqui gera ou altera movimento</div>
     </div>
   </div>
 
   <div class="card mv-filtros" id="painelFiltros">
+    <div class="mv-modo" id="modoMov" role="group" aria-label="O que consultar">
+      <span class="mv-modo-rotulo">Consultar</span>
+      <button type="button" class="pill-btn active" data-modo="produtos">Produtos</button>
+      <button type="button" class="pill-btn" data-modo="embalagens">Embalagens</button>
+    </div>
     <div class="mv-campos">
       <div class="form-field mv-c-fixo">
         <label>Depósito</label>
@@ -1235,7 +1248,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="mv-pe">
       <div>
         <div class="field-error-msg" id="erroBusca"></div>
-        <div class="field-hint">A busca pede o produto e o período. As datas abrem no mês atual: para ver mais, mude a data inicial. O exemplo guarda 12 meses de movimento.</div>
+        <div class="field-hint" id="dicaBusca">A busca pede o produto e o período. As datas abrem no mês atual: para ver mais, mude a data inicial. O exemplo guarda 12 meses de movimento.</div>
       </div>
       <div class="mv-acoes">
         <button type="button" class="btn-primary" id="btnBuscar">
@@ -1264,12 +1277,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="kpi-value" id="kpiAtual">0</div>
         <div class="kpi-delta neutral" id="kpiAtualSub">—</div>
       </div>
-      <div class="card kpi-card" style="border-left-color:var(--border)">
+      <div class="card kpi-card kpi-so-prod" style="border-left-color:var(--border)">
         <div class="kpi-label">Reservado</div>
         <div class="kpi-value" id="kpiReservado">0</div>
         <div class="kpi-delta neutral" id="kpiReservadoSub">—</div>
       </div>
-      <div class="card kpi-card" style="border-left-color:var(--success)">
+      <div class="card kpi-card kpi-so-prod" style="border-left-color:var(--success)">
         <div class="kpi-label">Disponível</div>
         <div class="kpi-value" id="kpiDisponivel">0</div>
         <div class="kpi-delta neutral" id="kpiDisponivelSub">—</div>
@@ -1283,6 +1296,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="kpi-label">Valor em estoque</div>
         <div class="kpi-value" id="kpiValor">R$ 0,00</div>
         <div class="kpi-delta neutral" id="kpiValorSub">—</div>
+      </div>
+      <div class="card kpi-card kpi-so-emb" style="border-left-color:var(--danger-solid)">
+        <div class="kpi-label">Prejuízo no período</div>
+        <div class="kpi-value" id="kpiPrejuizoMov">R$ 0,00</div>
+        <div class="kpi-delta neutral" id="kpiPrejuizoMovSub">nenhum prejuízo no período</div>
       </div>
     </div>
 
@@ -2520,6 +2538,171 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }));
   }
 
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 10 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
+  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma), as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
+  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado, a ficha do produto (a calculadora
+  // de preco le o custo da caixa e dos insumos) e Necessidades de Compra (lista as abaixo do minimo); teste_embalagem_pedido.py compara as copias.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  //   saldo                 quanto ha em estoque, na UNIDADE DE COMPRA (a caixa, o rolo de fita): pode ser fracionario e negativo (a expedicao nunca trava por falta de saldo).
+  //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
+  //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
+  //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
+        // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
+        g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        return g;
+      }
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // Quantos pedidos uma unidade atende: so o insumo tem `rende`; caixa, envelope e rolo gastam uma unidade por uso.
+  function embRende(e) { return e && e.tipo === 'insumo' ? Math.max(1, Math.floor(Number(e.rende)) || 1) : 1; }
+  // O custo que UM pedido consome: um rolo de fita de R$ 15,00 que rende 50 custa R$ 0,30 por pedido. E este, e nao o `custo` do cadastro, que os pedidos e a calculadora leem.
+  function embCustoUso(e) { return (Number(e && e.custo) || 0) / embRende(e); }
+  // A baixa do estoque, quando a Conferencia de Saida fecha: `itens` = [{ id, qtd }]. Subtrai qtd / rende do saldo (4 casas) e devolve os avisos das que ficaram negativas ou abaixo do minimo.
+  // Falta de saldo nunca trava: so avisa. Quem chama garante que o pedido ainda nao tinha sido confirmado (senao baixaria duas vezes).
+  // Cada embalagem baixada grava UM movimento 'baixa_pedido' (embMovRegistrar), com o numero do pedido em `ref` ({ numero, texto }) e `quem` de quem chama. Sem `ref`, o movimento sai sem pedido.
+  function embBaixar(itens, ref, quem) {
+    const lista = embalagensLer(), ids = [], tirou = {};
+    itens.forEach(i => {
+      const e = lista.filter(x => x.id === i.id)[0];
+      if (!e) return;
+      const q = (Number(i.qtd) || 0) / embRende(e);
+      e.saldo = Math.round(((Number(e.saldo) || 0) - q) * 10000) / 10000;
+      tirou[e.id] = (tirou[e.id] || 0) + q;
+      if (ids.indexOf(e.id) < 0) ids.push(e.id);
+    });
+    embalagensGravar(lista);
+    ids.forEach(id => {
+      const e = lista.filter(x => x.id === id)[0], custo = Number(e.custo) || 0;
+      embMovRegistrar({ embId: id, tipo: 'baixa_pedido', qtd: -tirou[id], custoUnit: custo, custoMedio: custo,
+        ref: { tipo: 'pedido', numero: ref && ref.numero != null ? ref.numero : '', texto: ref && ref.texto ? ref.texto : '' }, quem: quem });
+    });
+    return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
+      .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
+  }
+  // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
+  function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  // O CODIGO E O MOVIMENTO (20/nov/2026). Moram aqui porque o cadastro, a Conferencia de Saida e a Movimentacao de Estoque precisam dos mesmos.
+  //   codigo              "EMB-001": gravado na embalagem quando ela nasce (o cadastro da o proximo numero e nunca reaproveita um). Sem `codigo` (as de exemplo e as gravadas antes) vale o do id: id 1 = EMB-001
+  //   deskMovEmbalagens   a lista de movimentos: { em: 'AAAA-MM-DDTHH:MM:SS', embId, tipo, qtd, custoUnit, custoMedio, motivoId, motivo, obs, prejuizo, ref: { tipo, numero, texto }, fornecedor, quem }
+  //                       tipo: 'entrada_nota' | 'entrada_sem_nota' | 'baixa_pedido' | 'acerto' | 'contagem'. `qtd` tem sinal e 4 casas; `custoMedio` e o de DEPOIS do movimento; `prejuizo` e a falta vezes o custo (so acerto e contagem).
+  //                       O saldo de antes e o de depois NAO se gravam: a ficha da Movimentacao parte do saldo do cadastro e desfaz os movimentos de tras para a frente, e a primeira linha e o "Saldo de abertura".
+  //                       Assim a ficha nunca desmente o cadastro. Sem a chave vale o exemplo de fabrica, e o primeiro movimento gravado parte dele.
+  function embCodigo(e) { return !e ? '' : (typeof e.codigo === 'string' && e.codigo !== '' ? e.codigo : 'EMB-' + String(e.id).padStart(3, '0')); }
+  // Exemplo: [id da embalagem, [[dias atras, hora, tipo, qtd, ...]]]. n = entrada pela nota (custo da unidade, custo medio, nota), s = entrada sem nota (custo, custo medio, comprovante),
+  // p = baixa no pedido (pedido), a = acerto e c = contagem (id do motivo, motivo, observacao). O saldo de abertura de cada uma sai positivo com o cadastro de fabrica.
+  const EMB_MOV_EXEMPLO = [
+    [1, [[46, '08:40', 'n', 80, 3.4, 3.4, '8770'], [39, '15:20', 'p', -2, '2905'], [31, '11:05', 'p', -3, '2931'], [23, '16:30', 'p', -2, '2958'], [16, '10:12', 'p', -3, '2987'], [11, '09:30', 'n', 40, 3.5, 3.5, '8802'], [8, '14:48', 'p', -2, '3012'], [3, '17:10', 'p', -2, '3039']]],
+    [2, [[52, '09:05', 'n', 30, 4.6, 4.6, '8755'], [40, '14:10', 'p', -3, '2910'], [33, '10:40', 'p', -2, '2934'], [19, '09:50', 'n', 20, 4.7, 4.7, '8791'], [12, '15:15', 'p', -4, '2996'], [5, '11:25', 'p', -2, '3028'], [0, '09:15', 'a', -2, 1, 'Quebra ou avaria', 'Duas caixas amassadas na prateleira']]],
+    [3, [[50, '09:20', 'n', 20, 5.8, 5.8, '8760'], [44, '13:30', 'p', -4, '2914'], [27, '10:10', 'p', -3, '2950'], [18, '08:50', 'n', 15, 5.9, 5.9, '8788'], [6, '16:05', 'p', -3, '3021']]],
+    [5, [[35, '09:45', 'n', 20, 6.3, 6.3, '8772'], [28, '11:35', 'p', -4, '2943'], [14, '14:20', 'p', -3, '3001'], [2, '10:00', 'p', -2, '3050']]],
+    [6, [[27, '10:30', 's', 6, 12.5, 12.5, 'Recibo 118'], [13, '13:40', 'p', -1, '3003'], [3, '15:50', 'p', -1, '3041']]],
+    [7, [[48, '09:10', 'n', 200, 1.1, 1.1, '8765'], [39, '10:25', 'p', -25, '2907'], [26, '14:00', 'p', -30, '2955'], [13, '09:35', 'p', -20, '3004'], [5, '16:20', 'p', -22, '3029']]],
+    [11, [[44, '09:00', 'n', 500, 0.4, 0.4, '8768'], [31, '10:50', 'p', -40, '2932'], [19, '15:05', 'p', -35, '2977'], [8, '11:15', 'p', -45, '3013']]],
+    [12, [[42, '09:25', 'n', 100, 0.55, 0.55, '8769'], [30, '14:35', 'p', -20, '2940'], [20, '10:05', 'a', -4, 2, 'Perda', 'Caixa de tags molhada no depósito'], [16, '11:45', 'p', -15, '2985'], [9, '13:55', 'p', -18, '3018'], [7, '09:40', 'n', 100, 0.65, 0.6, '8799'], [1, '15:30', 'p', -12, '3053']]],
+    [13, [[30, '09:15', 'n', 6, 15, 15, '8780'], [22, '12:10', 'p', -0.02, '2960'], [4, '10:45', 'p', -0.02, '3036']]],
+    [14, [[40, '09:30', 'n', 300, 0.25, 0.25, '8775'], [35, '14:15', 'p', -10, '2937'], [25, '10:20', 'c', -6, 10, 'Contagem física', ''], [20, '16:00', 'p', -12, '2979'], [11, '11:30', 'p', -8, '3014'], [4, '13:25', 'p', -9, '3034']]]
+  ];
+  // Hoje, as 09:15; se a pagina abrir antes disso, 00:01, para o movimento nunca nascer no futuro.
+  function embMovExemplo() {
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0'), cedo = agora.getHours() * 60 + agora.getMinutes() < 9 * 60 + 15, lista = [];
+    const QUEM = { n: 'Carlos Mendes', s: 'Ana Souza', p: 'Marcos Vinícius', a: 'Ana Souza', c: 'Ana Souza' };
+    const TIPO = { n: 'entrada_nota', s: 'entrada_sem_nota', p: 'baixa_pedido', a: 'acerto', c: 'contagem' };
+    EMB_MOV_EXEMPLO.forEach(e => {
+      let medio = 0;
+      e[1].forEach(l => {
+        const t = l[2], d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - l[0]), entrada = t === 'n' || t === 's', ajuste = t === 'a' || t === 'c';
+        if (entrada) medio = l[5];
+        lista.push({ em: d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + (l[0] === 0 && cedo ? '00:01' : l[1]) + ':00', embId: e[0], tipo: TIPO[t], qtd: l[3],
+          custoUnit: entrada ? l[4] : medio, custoMedio: medio, motivoId: ajuste ? l[4] : null, motivo: ajuste ? l[5] : '', obs: ajuste ? l[6] : '',
+          prejuizo: ajuste && l[3] < 0 ? Math.round(-l[3] * medio * 100) / 100 : 0,
+          ref: t === 'n' ? { tipo: 'nota', numero: l[6], texto: 'nota nº ' + l[6] } : t === 's' ? { tipo: 'comprovante', numero: l[6], texto: 'comprovante ' + l[6] }
+            : t === 'p' ? { tipo: 'pedido', numero: l[4], texto: 'pedido nº ' + l[4] } : { tipo: '', numero: '', texto: '' },
+          fornecedor: t === 'n' ? 'Embalagens do Vale' : (t === 's' ? 'Papelaria Central' : ''), quem: QUEM[t] });
+      });
+    });
+    return lista.sort((a, b) => a.em < b.em ? -1 : (a.em > b.em ? 1 : 0));
+  }
+  function embMovLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskMovEmbalagens'));
+      if (Array.isArray(g)) return g.filter(m => m && typeof m.em === 'string' && typeof m.embId === 'number' && typeof m.tipo === 'string' && isFinite(Number(m.qtd)));
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no exemplo */ }
+    return embMovExemplo();
+  }
+  // Grava um movimento no fim da lista (a lista de fabrica, se a chave ainda nao existia). `quem` vem de quem chama; sem ele, "Sistema".
+  function embMovRegistrar(m) {
+    const z = (n) => String(n).padStart(2, '0'), d = new Date(), r = m.ref || {};
+    const reg = { em: m.em || d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()),
+      embId: Number(m.embId), tipo: m.tipo, qtd: Math.round((Number(m.qtd) || 0) * 10000) / 10000, custoUnit: Number(m.custoUnit) || 0, custoMedio: Number(m.custoMedio) || 0,
+      motivoId: m.motivoId == null ? null : m.motivoId, motivo: m.motivo || '', obs: m.obs || '', prejuizo: Math.round((Number(m.prejuizo) || 0) * 100) / 100,
+      ref: { tipo: r.tipo || '', numero: r.numero == null ? '' : String(r.numero), texto: r.texto || '' }, fornecedor: m.fornecedor || '', quem: m.quem || 'Sistema' };
+    const lista = embMovLer();
+    lista.push(reg);
+    try { localStorage.setItem('deskMovEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+    return reg;
+  }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
+
   // ===== MOVIMENTAÇÃO DE ESTOQUE =====
   // O historico de cada produto, movimento por movimento. E so consulta: nada aqui gera ou altera
   // movimento (decisao do usuario em 12/out/2026). O que sai da tela e papel e planilha.
@@ -2724,8 +2907,141 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return m.doc.parceiro || '—';
   }
 
+  // ---------- embalagens (20/nov/2026) ----------
+  // A mesma ficha para o material de uso. O saldo parte do cadastro (deskEmbalagens) e desfaz os movimentos (deskMovEmbalagens) de tras para a frente; a primeira linha e o "Saldo de abertura".
+  // Assim a ficha nunca desmente o cadastro. So le: quem grava o movimento e o cadastro de Embalagens, a Conferencia de Saida e (no pacote 2) a nota e o Inventario.
+  let modo = 'produtos';   // 'produtos' | 'embalagens'
+  const TIPOS_EMB = { entrada_nota: 'Entrada pela nota', entrada_sem_nota: 'Entrada sem nota', baixa_pedido: 'Baixa no pedido', acerto: 'Acerto de estoque', contagem: 'Contagem física' };
+  const TIPO_EMB_LABEL = { pacote: 'Pacote / Caixa', envelope: 'Envelope', rolo: 'Rolo / Cilindro', insumo: 'Insumo' };
+  const r4 = (n) => Math.round(n * 10000) / 10000;
+  const embDe = (id) => embalagensLer().filter(e => e.id === id)[0] || null;
+  const diaEmb = (l) => l.m.em.slice(0, 10);
+  // O que a coluna Movimento diz.
+  function embRotulo(m) {
+    if (m.tipo === 'entrada_nota') return m.ref && m.ref.numero ? 'Entrada pela nota nº ' + m.ref.numero : 'Entrada pela nota';
+    if (m.tipo === 'entrada_sem_nota') return 'Entrada sem nota';
+    if (m.tipo === 'baixa_pedido') return m.ref && m.ref.numero ? 'Baixa no pedido nº ' + m.ref.numero : 'Baixa no pedido';
+    if (m.tipo === 'acerto') return m.motivo ? 'Acerto: ' + m.motivo : 'Acerto de estoque';
+    return 'Contagem física';
+  }
+  // Os movimentos de uma embalagem, do mais antigo ao mais novo, cada um com o saldo de antes e o de depois; a primeira linha e o saldo de abertura.
+  function embHistorico(e) {
+    const movs = embMovLer().filter(m => m.embId === e.id).map((m, i) => ({ m: m, i: i })).sort((a, b) => a.m.em < b.m.em ? -1 : (a.m.em > b.m.em ? 1 : a.i - b.i)).map(x => x.m);
+    const abertura = r4((Number(e.saldo) || 0) - movs.reduce((s, m) => s + Number(m.qtd), 0));
+    const primeira = movs.length ? movs[0].em : iso(HOJE) + 'T00:00:00';
+    let saldo = abertura;
+    const linhas = [{ m: { tipo: 'abertura', em: primeira, qtd: 0 }, antes: null, depois: abertura, abertura: true }];
+    movs.forEach(m => { const antes = saldo; saldo = r4(saldo + Number(m.qtd)); linhas.push({ m: m, antes: antes, depois: saldo }); });
+    return { abertura: abertura, linhas: linhas };
+  }
+  function embLinhasDaConsulta() {
+    const c = consulta, h = embHistorico(c.e);
+    const anteriores = h.linhas.filter(l => diaEmb(l) < c.de);
+    const periodo = h.linhas.filter(l => diaEmb(l) >= c.de && diaEmb(l) <= c.ate);
+    const saldoAntes = anteriores.length ? anteriores[anteriores.length - 1].depois : h.abertura;
+    const lista = periodo.filter(l => c.tipo === 'todos' || (!l.abertura && l.m.tipo === c.tipo));
+    return { saldoAntes: saldoAntes, saldoFim: periodo.length ? periodo[periodo.length - 1].depois : saldoAntes, periodo: periodo, movimentos: periodo.filter(l => !l.abertura), lista: ordemAsc ? lista : lista.slice().reverse() };
+  }
+  function renderEmbalagem() {
+    const c = consulta, e = c.e, r = embLinhasDaConsulta(), custo = Number(e.custo) || 0, saldo = Number(e.saldo) || 0;
+    const campo = (rotulo, valor) => '<span>' + rotulo + ' <b>' + esc(valor) + '</b></span>';
+    document.getElementById('painelProduto').innerHTML =
+      '<div class="bq-topo"><div><div class="bq-nome">' + esc(e.nome) + '</div><div class="prod-sku">' + esc(embCodigo(e)) + ' · ' + esc(TIPO_EMB_LABEL[e.tipo] || e.tipo) + '</div></div>' +
+        '<span class="badge-situacao bq-neutro">Embalagens</span></div>' +
+      '<div class="mv-ficha">' + campo('Situação', e.status === 'ativo' ? 'Ativa' : 'Inativa') + campo('Estoque mínimo', embFmtSaldo(e.minimo)) + campo('Custo da unidade', moeda(custo)) + (e.tipo === 'insumo' ? campo('Rende', embRende(e) + ' pedidos por unidade') : '') + '</div>' +
+      '<div class="mv-ficha">' + campo('Período', fmtData(c.de) + ' a ' + fmtData(c.ate)) + campo('Tipo de movimento', c.tipo === 'todos' ? 'Todos' : TIPOS_EMB[c.tipo]) + '</div>' +
+      '<div class="mv-links"><a class="cg-link" href="../cadastros/pagina-cadastros-embalagens.html?busca=' + encodeURIComponent(embCodigo(e)) + '">Abrir a embalagem em Cadastros</a></div>';
+    document.getElementById('kpiAtual').textContent = embFmtSaldo(saldo);
+    document.getElementById('kpiAtualSub').textContent = 'o saldo do cadastro, na unidade de compra';
+    document.getElementById('kpiCusto').textContent = moeda(custo);
+    document.getElementById('kpiCustoSub').textContent = 'por unidade de compra, refeito a cada entrada';
+    document.getElementById('kpiValor').textContent = moeda(Math.max(0, saldo) * custo);
+    document.getElementById('kpiValorSub').textContent = 'estoque atual vezes o custo';
+    const perdas = r.movimentos.filter(l => Number(l.m.prejuizo) > 0);
+    document.getElementById('kpiPrejuizoMov').textContent = moeda(perdas.reduce((s, l) => s + Number(l.m.prejuizo), 0));
+    document.getElementById('kpiPrejuizoMovSub').textContent = perdas.length ? plural(perdas.length, 'acerto com prejuízo', 'acertos com prejuízo') + ' no período' : 'nenhum prejuízo no período';
+  }
+  function renderTabelaEmb() {
+    const c = consulta, r = embLinhasDaConsulta(), pag = paginaDe(r.lista), f = (n) => embFmtSaldo(n);
+    const corpo = document.getElementById('corpoTabela'), vazio = document.getElementById('emptyState'), wrap = document.querySelector('#painelMov .estoque-table-wrap');
+    corpo.innerHTML = '';
+    document.getElementById('avisoMov').innerHTML = 'Saldo antes de ' + fmtData(c.de) + ': <b>' + f(r.saldoAntes) + '</b>';
+    const entrou = r4(r.lista.reduce((s, l) => s + Math.max(0, Number(l.m.qtd)), 0)), saiu = r4(r.lista.reduce((s, l) => s + Math.max(0, -Number(l.m.qtd)), 0));
+    const movs = r.lista.filter(l => !l.abertura).length;
+    document.getElementById('contagemItens').textContent = plural(movs, 'movimentação', 'movimentações');
+    document.getElementById('totalLista').innerHTML = 'Entradas <b>+' + f(entrou) + '</b> · Saídas <b>−' + f(saiu) + '</b> · Saldo no fim do período <b>' + f(r.saldoFim) + '</b>';
+    document.querySelector('#painelMov th.ordenavel .seta').textContent = ordemAsc ? '▲' : '▼';
+    if (r.lista.length === 0) {
+      wrap.style.display = 'none';
+      vazio.style.display = 'flex';
+      document.getElementById('emptySub').textContent = r.movimentos.length
+        ? 'A embalagem teve ' + plural(r.movimentos.length, 'movimento', 'movimentos') + ' no período, mas nenhum deste tipo.'
+        : 'Neste período a embalagem não teve movimento. Para ver os anteriores, mude a data inicial.';
+      document.getElementById('paginacaoResumo').textContent = 'Mostrando 0 de 0';
+      document.getElementById('paginacaoPaginas').textContent = 'Página 1 de 1';
+      document.getElementById('btnPaginaAnterior').disabled = true;
+      document.getElementById('btnPaginaProxima').disabled = true;
+      return;
+    }
+    wrap.style.display = '';
+    vazio.style.display = 'none';
+    pag.lista.forEach(l => {
+      const m = l.m, tr = document.createElement('tr'), data = '<td class="col-texto">' + fmtData(diaEmb(l)) + '<div class="prod-sku">' + esc(m.em.slice(11, 16)) + '</div></td>';
+      tr.className = 'sem-doc';
+      if (l.abertura) {
+        tr.setAttribute('data-tipo', 'abertura');
+        tr.innerHTML = data + '<td class="col-texto"><div class="prod-nome">Saldo de abertura</div><div class="prod-sku">o saldo de hoje, desfeitos os movimentos</div></td><td class="col-texto">—</td><td>—</td><td>—</td>' +
+          '<td><b>' + f(l.depois) + '</b></td><td>—</td><td>—</td><td>—</td>';
+      } else {
+        const entra = Number(m.qtd) > 0, sub = (Number(m.prejuizo) > 0 ? '<span class="qtd-saida">prejuízo de ' + moeda(Number(m.prejuizo)) + '</span> · ' : '') + esc(m.quem || '—');
+        tr.setAttribute('data-tipo', m.tipo);
+        if (m.obs) tr.title = m.obs;
+        tr.innerHTML = data + '<td class="col-texto"><div class="prod-nome">' + esc(embRotulo(m)) + '</div><div class="prod-sku">' + sub + '</div></td>' +
+          '<td class="col-texto">' + esc(m.fornecedor || '—') + '</td>' +
+          '<td>' + f(l.antes) + '</td>' +
+          '<td><span class="' + (entra ? 'qtd-entrada' : 'qtd-saida') + '">' + (entra ? '+' : '−') + f(Math.abs(Number(m.qtd))) + '</span></td>' +
+          '<td>' + (l.depois < 0 ? '<span class="saldo-critico">' + f(l.depois) + '</span>' : '<b>' + f(l.depois) + '</b>') + '</td>' +
+          '<td>' + moeda(Number(m.custoUnit) || 0) + '</td><td>' + moeda(Number(m.custoMedio) || 0) + '</td><td>' + moeda(Math.max(0, l.depois) * (Number(m.custoMedio) || 0)) + '</td>';
+      }
+      corpo.appendChild(tr);
+    });
+    document.getElementById('paginacaoResumo').textContent = 'Mostrando ' + (pag.inicio + 1) + '-' + pag.fim + ' de ' + r.lista.length;
+    document.getElementById('paginacaoPaginas').textContent = 'Página ' + paginaAtual + ' de ' + pag.totalPaginas;
+    document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
+    document.getElementById('btnPaginaProxima').disabled = paginaAtual >= pag.totalPaginas;
+  }
+  function baixarPlanilhaEmb() {
+    baixarCsv('movimentacao-' + embCodigo(consulta.e).toLowerCase(),
+      ['Data', 'Hora', 'Movimento', 'Observação', 'Registrado por', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque', 'Prejuízo'],
+      embLinhasDaConsulta().lista.map(l => l.abertura
+        ? [fmtData(diaEmb(l)), l.m.em.slice(11, 16), 'Saldo de abertura', '', '', '', '', '', numCsv(l.depois), '', '', '', '']
+        : [fmtData(diaEmb(l)), l.m.em.slice(11, 16), embRotulo(l.m), l.m.obs || '', l.m.quem || '', l.m.fornecedor || '', numCsv(l.antes), numCsv(Number(l.m.qtd)), numCsv(l.depois),
+           numCsv(dinheiro(Number(l.m.custoUnit) || 0)), numCsv(dinheiro(Number(l.m.custoMedio) || 0)), numCsv(dinheiro(Math.max(0, l.depois) * (Number(l.m.custoMedio) || 0))), numCsv(Number(l.m.prejuizo) || 0)]));
+  }
+  // Produtos / Embalagens: troca o rotulo e a busca, esconde o deposito (embalagem nao tem), troca os tipos de movimento e volta a tela ao comeco.
+  function trocarModo(novo) {
+    modo = novo;
+    const emb = modo === 'embalagens';
+    document.querySelectorAll('#modoMov .pill-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-modo') === modo));
+    document.querySelector('#campoProduto label').textContent = emb ? 'Embalagem' : 'Produto';
+    campoBuscaProduto.placeholder = emb ? 'Pesquise por nome ou código (EMB-001)' : 'Pesquise por nome, código (SKU) ou GTIN/EAN';
+    document.querySelector('#painelFiltros .mv-c-fixo').style.display = emb ? 'none' : '';
+    document.getElementById('dicaBusca').textContent = emb
+      ? 'A busca pede a embalagem e o período. As datas abrem no mês atual: para ver mais, mude a data inicial. A ficha parte do saldo de hoje e desfaz os movimentos; a primeira linha é o saldo de abertura.'
+      : 'A busca pede o produto e o período. As datas abrem no mês atual: para ver mais, mude a data inicial. O exemplo guarda 12 meses de movimento.';
+    montarFiltro('filtroTipoMov', 'Todos os tipos', emb ? Object.keys(TIPOS_EMB).map(k => ({ v: k, t: TIPOS_EMB[k] })) : Object.keys(TIPOS_MOV).map(k => ({ v: k, t: TIPOS_MOV[k].rotulo })), () => {});
+    document.getElementById('filtroTipoMov').setAttribute('data-value', 'todos');
+    document.querySelector('#filtroTipoMov .dropdown-select-label').textContent = 'Todos os tipos';
+    document.getElementById('inicioTitulo').textContent = emb ? 'Escolha uma embalagem e clique em Buscar' : 'Escolha um produto e clique em Buscar';
+    document.getElementById('inicioSub').textContent = emb
+      ? 'Digite o nome ou o código (EMB-001) da embalagem. A lista mostra cada entrada, baixa e acerto do período em ordem de data.'
+      : 'Digite o nome, o código (SKU) ou o GTIN do produto. A lista mostra cada entrada e cada saída do período em ordem de data.';
+    limpar();
+  }
+
   // ---------- produto e indicadores ----------
   function renderProduto() {
+    if (consulta.modo === 'embalagens') return renderEmbalagem();
     const c = consulta, p = c.p, f = FICHA[p.sku] || {}, un = p.unidade, forn = FORNECEDORES[f.fornecedor];
     const q = (n) => fmtQtd(n, un) + ' ' + esc(un);
     const estagio = (e) => arred(p.saldos.reduce((s, x) => s + (x.estagio === e && (c.dep === 'todos' || String(x.dep) === c.dep) ? x.qtd : 0), 0));
@@ -2755,6 +3071,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ---------- lista ----------
   function renderTabela() {
+    if (consulta.modo === 'embalagens') return renderTabelaEmb();
     const c = consulta, un = c.p.unidade, r = linhasDaConsulta(), pag = paginaDe(r.lista);
     const q = (n) => fmtQtd(n, un) + ' ' + esc(un);
     const corpo = document.getElementById('corpoTabela');
@@ -2882,6 +3199,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ---------- planilha e impressao ----------
   function baixarPlanilha() {
+    if (consulta.modo === 'embalagens') return baixarPlanilhaEmb();
     baixarCsv('movimentacao-' + consulta.p.sku.toLowerCase(),
       ['Data', 'Hora', 'Movimento', 'Documento', 'Depósito', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque'],
       linhasDaConsulta().lista.map(l => [fmtData(dataHa(l.m.dias)), l.m.hora, TIPOS_MOV[l.m.tipo].rotulo, l.m.doc.numero, DEPOSITOS[l.m.dep], comQuem(l.m), numCsv(l.antes), numCsv(l.m.qtd),
@@ -2918,11 +3236,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function renderSugestoes(termo) {
     const t = termo.trim().toLowerCase();
     if (!t) { caixaSugestoes.classList.remove('open'); caixaSugestoes.innerHTML = ''; sugestoes = []; return; }
-    sugestoes = PRODUTOS.filter(p => p.nome.toLowerCase().includes(t) || p.sku.toLowerCase().includes(t) || p.gtin.includes(t)).slice(0, 8);
+    const emb = modo === 'embalagens';
+    sugestoes = emb ? embalagensLer().filter(e => e.nome.toLowerCase().includes(t) || embCodigo(e).toLowerCase().includes(t)).slice(0, 8)
+      : PRODUTOS.filter(p => p.nome.toLowerCase().includes(t) || p.sku.toLowerCase().includes(t) || p.gtin.includes(t)).slice(0, 8);
     caixaSugestoes.innerHTML = sugestoes.length
-      ? sugestoes.map((p, i) => '<div class="sugestao-item' + (i === 0 ? ' ativo' : '') + '" data-sku="' + esc(p.sku) + '"><div class="sugestao-nome">' + esc(p.nome) + '</div>' +
-          '<div class="sugestao-meta">' + esc(p.sku) + ' · ' + esc(p.gtin) + '</div></div>').join('')
-      : '<div class="sugestao-vazia">Nenhum produto encontrado para “' + esc(termo) + '”.</div>';
+      ? sugestoes.map((p, i) => emb
+          ? '<div class="sugestao-item' + (i === 0 ? ' ativo' : '') + '" data-emb="' + p.id + '"><div class="sugestao-nome">' + esc(p.nome) + '</div><div class="sugestao-meta">' + esc(embCodigo(p)) + ' · ' + esc(TIPO_EMB_LABEL[p.tipo] || p.tipo) + '</div></div>'
+          : '<div class="sugestao-item' + (i === 0 ? ' ativo' : '') + '" data-sku="' + esc(p.sku) + '"><div class="sugestao-nome">' + esc(p.nome) + '</div>' +
+            '<div class="sugestao-meta">' + esc(p.sku) + ' · ' + esc(p.gtin) + '</div></div>').join('')
+      : '<div class="sugestao-vazia">Nenhum' + (emb ? 'a embalagem encontrada' : ' produto encontrado') + ' para “' + esc(termo) + '”.</div>';
     caixaSugestoes.classList.add('open');
   }
   // O x do campo so aparece com texto: tira o produto e deixa o cursor pronto para o proximo (13/out/2026).
@@ -2952,7 +3274,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const de = campoDe.value.trim(), ate = campoAte.value.trim();
     const isoDe = lerDataBr(de), isoAte = lerDataBr(ate);
     const falhas = [];
-    if (!produtoEscolhido) falhas.push(campoBuscaProduto.value.trim() ? 'Escolha o produto na lista de sugestões.' : 'Escolha o produto.');
+    const alvo = modo === 'embalagens' ? 'a embalagem' : 'o produto';
+    if (!produtoEscolhido) falhas.push(campoBuscaProduto.value.trim() ? 'Escolha ' + alvo + ' na lista de sugestões.' : 'Escolha ' + alvo + '.');
     if (!de || !ate) falhas.push('Informe a data inicial e a data final.');
     else if (isoDe === null || isoAte === null) falhas.push('Use o formato dd/mm/aaaa nas datas.');
     else if (isoDe > isoAte) falhas.push('A data inicial é depois da final.');
@@ -2963,8 +3286,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     erro.textContent = falhas.join(' ');
     erro.classList.toggle('show', falhas.length > 0);
     if (falhas.length) return;
-    consulta = { p: produtoEscolhido, dep: document.getElementById('filtroDeposito').getAttribute('data-value'),
-                 tipo: document.getElementById('filtroTipoMov').getAttribute('data-value'), de: isoDe, ate: isoAte };
+    consulta = modo === 'embalagens'
+      ? { modo: 'embalagens', e: produtoEscolhido, tipo: document.getElementById('filtroTipoMov').getAttribute('data-value'), de: isoDe, ate: isoAte }
+      : { p: produtoEscolhido, dep: document.getElementById('filtroDeposito').getAttribute('data-value'),
+          tipo: document.getElementById('filtroTipoMov').getAttribute('data-value'), de: isoDe, ate: isoAte };
+    document.getElementById('painelResultado').classList.toggle('modo-emb', modo === 'embalagens');
     paginaAtual = 1;
     mostrarResultado(true);
     renderProduto();
@@ -2990,6 +3316,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnResumo').addEventListener('click', abrirResumo);
   document.getElementById('btnImprimir').addEventListener('click', imprimir);
   document.getElementById('btnPlanilha').addEventListener('click', baixarPlanilha);
+  document.querySelectorAll('#modoMov .pill-btn').forEach(b => b.addEventListener('click', () => { if (b.getAttribute('data-modo') !== modo) trocarModo(b.getAttribute('data-modo')); }));
 
   montarFiltro('filtroDeposito', 'Todos os depósitos', Object.keys(DEPOSITOS).map(k => ({ v: k, t: DEPOSITOS[k] })), () => {});
   montarFiltro('filtroTipoMov', 'Todos os tipos', Object.keys(TIPOS_MOV).map(k => ({ v: k, t: TIPOS_MOV[k].rotulo })), () => {});
@@ -3004,7 +3331,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   caixaSugestoes.addEventListener('click', (e) => {
     const item = e.target.closest('.sugestao-item');
-    if (item) escolherProduto(produtoDe(item.getAttribute('data-sku')));
+    if (item) escolherProduto(modo === 'embalagens' ? embDe(Number(item.getAttribute('data-emb'))) : produtoDe(item.getAttribute('data-sku')));
   });
   // Na fase de captura: os dropdowns e o calendario param a propagacao do clique, e sem isto as
   // sugestoes ficavam abertas por baixo do filtro vizinho.
@@ -3027,6 +3354,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   periodoPadrao();
   (function consultaDaUrl() {
     const termo = (new URLSearchParams(window.location.search).get('busca') || '').trim().toLowerCase();
+    // ?ver=embalagens abre a tela ja no modo Embalagens (o card "Prejuizo com embalagens no mes" leva para ca); com ?busca=, ja na embalagem.
+    if (new URLSearchParams(window.location.search).get('ver') === 'embalagens') {
+      trocarModo('embalagens');
+      if (!termo) return;
+      const lista = embalagensLer(), e = lista.filter(x => [embCodigo(x), x.nome].some(s => s.toLowerCase() === termo))[0] || lista.filter(x => [embCodigo(x), x.nome].some(s => s.toLowerCase().includes(termo)))[0];
+      if (!e) {
+        document.getElementById('inicioTitulo').textContent = 'Nenhuma embalagem com "' + termo + '"';
+        document.getElementById('inicioSub').textContent = 'Pesquise a embalagem no campo acima e clique em Buscar.';
+        return;
+      }
+      escolherProduto(e);
+      buscar();
+      return;
+    }
     if (!termo) return;
     const igual = (p) => [p.sku, p.gtin, p.nome].some(t => String(t).toLowerCase() === termo);
     const contem = (p) => [p.sku, p.gtin, p.nome].some(t => String(t).toLowerCase().includes(termo));

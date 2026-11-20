@@ -5,7 +5,7 @@ uma de cada vez (as duas mexem no PDV e no Pedido de Venda, e o selo não roda e
 
 1. **Entrega 1: o desconto da venda nossa** (PDV e Pedido de Venda). Pequena.
 2. **Entrega 2: a rodada do estoque das embalagens**, em dois pacotes: o pacote 1 (código, movimento, motivos, acerto,
-   prejuízo e Movimentação) e o pacote 2 (Necessidades de Compra, Ordem de Compra, nota, entrada sem nota, baixa no pedido e
+   prejuízo, Movimentação, entrada sem nota e baixa no pedido) e o pacote 2 (Necessidades de Compra, Ordem de Compra, nota e
    Inventário).
 
 ## Regras para todas
@@ -152,7 +152,11 @@ Defeitos injetados: (a) sem a trava; (b) sem a fatia; (c) sem a condição do ve
 - O Inventário (`telas/estoque/pagina-estoque-inventario.html`) trabalha por depósito, com três caminhos: gerar pelos
   filtros, planilha e coletor. Os dois últimos casam pelo código.
 
-### Pacote 1: código, movimento, motivos, acerto, prejuízo e Movimentação
+### Pacote 1: código, movimento, motivos, acerto, prejuízo, Movimentação, entrada sem nota e baixa no pedido
+
+**Mudança de escopo de 20/nov:** os itens 7 e 8 abaixo (a entrada sem nota e a baixa no pedido) eram os itens 4 e 5 do pacote 2 e
+vieram para cá. Motivo: sem eles, entre um pacote e outro a entrada e a baixa mudariam o saldo sem gravar movimento, e a ficha da
+Movimentação mostraria um saldo de abertura errado.
 
 1. **Código EMB.**
    - `embCodigo(e)` entra no bloco `EMBALAGENS: LEITURA`, em todas as cópias. A sequência é EMB-001, EMB-002...: as de
@@ -196,6 +200,14 @@ Defeitos injetados: (a) sem a trava; (b) sem a fatia; (c) sem a condição do ve
    - O Movimento diz "Entrada pela nota nº X", "Entrada sem nota", "Baixa no pedido nº X", "Acerto: <motivo>" ou "Contagem
      física". O prejuízo vai no Movimento, em vermelho: "prejuízo de R$ X".
    - O filtro de tipo de movimento vale para os dois. A frase "É só consulta" continua.
+7. **Embalagens: a entrada sem nota** (era o item 4 do pacote 2).
+   - "Dar entrada" vira "Dar entrada sem nota": o botão, o painel e os textos.
+   - O campo "Nota" vira "Comprovante (opcional)", com a dica de que compra com nota entra pela Entrada de Notas.
+   - Soma o saldo, recalcula o custo médio e grava o movimento `entrada_sem_nota`.
+8. **Conferência de Saída: a baixa no pedido** (era o item 5 do pacote 2).
+   - `embBaixar(itens, ref, quem)` (bloco comum, todas as cópias) grava um movimento `baixa_pedido` por embalagem, com o nº do
+     pedido.
+   - Só a Conferência passa o `ref`; e a baixa grava uma vez só (`jaConfirmada ? [] : embBaixar(...)` segue valendo).
 
 Asserções do pacote 1:
 - o código segue a sequência e não se repete;
@@ -206,11 +218,14 @@ Asserções do pacote 1:
 - o movimento grava os campos;
 - a ficha bate com o saldo atual, saldo de abertura incluído;
 - o card soma o mês;
+- a entrada sem nota soma o saldo, recalcula o custo médio e grava o movimento;
+- o fechamento da Conferência de Saída grava `baixa_pedido` com o número do pedido, uma vez só;
 - o bloco comum continua idêntico.
 
-Defeitos injetados: (a) o prejuízo sem o custo; (b) a direção desligada; (c) a ficha sem o saldo de abertura.
+Defeitos injetados: (a) o prejuízo sem o custo; (b) a direção desligada; (c) a ficha sem o saldo de abertura; (d) a entrada sem
+nota sem recalcular o custo médio.
 
-### Pacote 2: compra, nota, entrada sem nota, baixa no pedido e Inventário
+### Pacote 2: compra, nota e Inventário
 
 1. **Necessidades de Compra, o bloco das embalagens.**
    - Ganha a coluna Código e o "Chegando": o que as ordens geradas em aberto e em andamento ainda têm a receber
@@ -238,14 +253,9 @@ Defeitos injetados: (a) o prejuízo sem o custo; (b) a direção desligada; (c) 
    - O aviso diz quantas embalagens entraram no saldo: embalagem é material de uso e não passa pela conferência. Os produtos
      seguem para a Conferência de Entrada, como hoje.
    - Esta tela não tem o bloco das embalagens: entra a cópia dele.
-4. **Embalagens.**
-   - "Dar entrada" vira "Dar entrada sem nota": o botão, o painel e os textos.
-   - O campo "Nota" vira "Comprovante (opcional)", com a dica de que compra com nota entra pela Entrada de Notas.
-   - Grava o movimento `entrada_sem_nota`.
-5. **Conferência de Saída.**
-   - `embBaixar(itens, ref)` (bloco comum, todas as cópias) grava um movimento `baixa_pedido` por embalagem, com o nº do
-     pedido.
-   - Só a Conferência passa o `ref`.
+4. **Embalagens: a entrada sem nota.** Movido para o pacote 1 em 20/nov (item 7 dele): sem ele a entrada mudaria o saldo sem
+   movimento.
+5. **Conferência de Saída: a baixa no pedido.** Movido para o pacote 1 em 20/nov (item 8 dele), pelo mesmo motivo.
 6. **Inventário.**
    - Ao gerar, escolhe-se o que contar: "Produtos / Embalagens".
    - Embalagens não têm depósito. A lista traz as ativas, insumos inclusive, com código, nome, tipo, saldo da abertura,
@@ -261,8 +271,6 @@ Asserções do pacote 2:
 - a ordem nasce com o código, e o "chegando" desconta a sugestão;
 - a nota com embalagem soma o saldo, calcula o custo médio certo e marca a ordem;
 - a mesma nota não entra duas vezes;
-- a entrada sem nota grava o movimento;
-- a baixa da Conferência de Saída grava o movimento com o pedido;
 - o inventário de embalagens aplica a diferença contra a abertura e gera o prejuízo;
 - o coletor recusa o código de embalagem;
 - os blocos comuns continuam idênticos.

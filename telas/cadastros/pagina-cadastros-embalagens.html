@@ -444,6 +444,14 @@
   .tipo-badge { font-size:10px; font-weight:800; color:#fff; padding:2px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.3px; flex-shrink:0; white-space:nowrap; }
   /* Selo de estoque (Abaixo do minimo / Saldo negativo): o desenho e o do .tipo-badge; a cor vem da linha. */
   .selo-estoque { flex-shrink:0; }
+  /* Estoque, pacote 1 (20/nov/2026): o codigo EMB na lista, a fileira de tres cards e o motivo do acerto. */
+  .embalagens-codigo { font-family:'Nunito',sans-serif; font-weight:800; font-size:11.5px; color:var(--text); letter-spacing:0.3px; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .emb-kpis { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-bottom:18px; }
+  .emb-kpis .kpi-card { min-width:0; }
+  .emb-kpis .kpi-delta { line-height:1.35; }
+  a.emb-kpi { display:block; color:inherit; text-decoration:none; cursor:pointer; }
+  a.emb-kpi:hover { background:rgba(120,120,140,0.06); }
+  @media (max-width: 900px) { .emb-kpis { grid-template-columns:1fr; } }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
@@ -674,7 +682,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="header-actions">
       <button class="btn-secundario" id="btnDarEntrada">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v10"/><polyline points="7 10 12 15 17 10"/><line x1="5" y1="20" x2="19" y2="20"/></svg>
-        Dar entrada
+        Dar entrada sem nota
       </button>
       <button class="btn-primary" id="btnNovaEmbalagem">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -683,10 +691,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
   </div>
 
+  <div class="emb-kpis" id="kpisEmb">
+    <a class="card kpi-card emb-kpi" id="kpiPrejuizo" href="../estoque/pagina-estoque-movimentacao.html?ver=embalagens" style="border-left-color:var(--danger-solid)">
+      <div class="kpi-label">Prejuízo com embalagens no mês</div>
+      <div class="kpi-value" id="kpiPrejuizoValor">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiPrejuizoSub">nenhum acerto no mês</div>
+    </a>
+    <a class="card kpi-card emb-kpi" id="kpiMinimo" href="../estoque/pagina-estoque-necessidades-compra.html" style="border-left-color:var(--warning)">
+      <div class="kpi-label">Abaixo do mínimo</div>
+      <div class="kpi-value" id="kpiMinimoValor">0</div>
+      <div class="kpi-delta neutral" id="kpiMinimoSub">tudo em dia</div>
+    </a>
+    <div class="card kpi-card" id="kpiEstoque" style="border-left-color:var(--active-text)">
+      <div class="kpi-label">Valor em estoque</div>
+      <div class="kpi-value" id="kpiEstoqueValor">R$ 0,00</div>
+      <div class="kpi-delta neutral" id="kpiEstoqueSub">saldo vezes o custo</div>
+    </div>
+  </div>
+
   <div class="embalagens-toolbar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="campoBusca" placeholder="Buscar por nome...">
+      <input type="text" id="campoBusca" placeholder="Buscar por nome ou código...">
     </div>
     <div class="dropdown-select pill" id="filtroTipo" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
@@ -765,6 +791,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="drawer-header">
       <div class="drawer-title" id="drawerTitulo">Nova Embalagem</div>
       <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+    </div>
+
+    <div class="form-field" id="campoCodigoEmbalagem">
+      <label>Código</label>
+      <div class="saldo-leitura" id="codigoEmbalagem">EMB-001</div>
+      <div class="field-hint">Gerado pelo sistema.</div>
     </div>
 
     <div class="form-field" id="campoNomeEmbalagem">
@@ -867,7 +899,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="saldo-leitura" id="saldoAtual">0</div>
         </div>
       </div>
-      <div class="field-hint" style="margin:-8px 0 12px;">O saldo entra por "Dar entrada" e sai quando a Conferência de Saída fecha. Fica na unidade de compra (a caixa, o rolo de fita).</div>
+      <div class="field-hint" style="margin:-8px 0 12px;">O saldo entra por "Dar entrada sem nota" e sai quando a Conferência de Saída fecha. Fica na unidade de compra (a caixa, o rolo de fita).</div>
       <div class="link-acerto" id="linkAcertarSaldo">Acertar saldo</div>
       <div class="bloco-acerto" id="blocoAcerto" style="display:none;">
         <div class="form-row linha-estoque">
@@ -878,9 +910,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </div>
           <div class="form-field" id="campoMotivoAcerto">
             <label>Motivo</label>
-            <input type="text" id="inputMotivoAcerto" maxlength="80" placeholder="Ex: contagem do galpão">
-            <div class="field-error-msg" id="erroMotivoAcerto">Informe o motivo do acerto.</div>
+            <div class="dropdown-select" id="acertoMotivo" data-value="">
+              <button type="button" class="dropdown-select-btn form-style">
+                <span class="dropdown-select-label">Escolha o motivo</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="dropdown-select-menu"></div>
+            </div>
+            <div class="field-hint" id="dicaMotivoAcerto"></div>
+            <div class="field-error-msg" id="erroMotivoAcerto">Escolha o motivo do acerto.</div>
           </div>
+        </div>
+        <div class="form-field" id="campoObsAcerto">
+          <label id="rotuloObsAcerto">Observação (opcional)</label>
+          <input type="text" id="inputObsAcerto" maxlength="120" placeholder="Ex: contagem do galpão">
+          <div class="field-error-msg" id="erroObsAcerto">Este motivo pede a observação: escreva o que houve.</div>
         </div>
         <div class="form-field">
           <button class="btn-secundario" id="btnAplicarAcerto" type="button">Aplicar acerto</button>
@@ -903,7 +947,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="drawer-backdrop" id="entradaBackdrop"></div>
   <div class="event-drawer" id="entradaDrawer">
     <div class="drawer-header">
-      <div class="drawer-title">Dar entrada no estoque</div>
+      <div class="drawer-title">Dar entrada sem nota</div>
       <div class="drawer-close" id="entradaClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
     </div>
 
@@ -937,14 +981,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <input type="text" id="entradaFornecedor" maxlength="60" placeholder="Ex: Papelaria Central">
     </div>
     <div class="form-field">
-      <label>Nota (opcional)</label>
-      <input type="text" id="entradaNota" maxlength="40" placeholder="Ex: NF 12345">
+      <label>Comprovante (opcional)</label>
+      <input type="text" id="entradaNota" maxlength="40" placeholder="Ex: Recibo 118">
+      <div class="field-hint">Compra com nota fiscal entra pela <a class="link-acerto" style="margin:0;" href="../estoque/pagina-estoque-entrada-notas.html">Entrada de Notas</a>. Aqui fica só a compra sem nota.</div>
     </div>
 
     <div class="entrada-previa vazia" id="entradaPrevia">Escolha a embalagem e informe a quantidade e o custo para ver o saldo e o custo médio.</div>
 
     <div class="drawer-footer">
-      <button class="btn-primary" id="btnSalvarEntrada">Dar entrada</button>
+      <button class="btn-primary" id="btnSalvarEntrada">Dar entrada sem nota</button>
       <div class="drawer-link" id="btnCancelarEntrada">Cancelar</div>
     </div>
     <div class="field-hint" style="margin-top:18px;">Quem está abaixo do mínimo aparece em <a class="link-acerto" style="margin:0;" href="../estoque/pagina-estoque-necessidades-compra.html">Necessidades de Compra</a>.</div>
@@ -1663,20 +1708,88 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function embCustoUso(e) { return (Number(e && e.custo) || 0) / embRende(e); }
   // A baixa do estoque, quando a Conferencia de Saida fecha: `itens` = [{ id, qtd }]. Subtrai qtd / rende do saldo (4 casas) e devolve os avisos das que ficaram negativas ou abaixo do minimo.
   // Falta de saldo nunca trava: so avisa. Quem chama garante que o pedido ainda nao tinha sido confirmado (senao baixaria duas vezes).
-  function embBaixar(itens) {
-    const lista = embalagensLer(), ids = [];
+  // Cada embalagem baixada grava UM movimento 'baixa_pedido' (embMovRegistrar), com o numero do pedido em `ref` ({ numero, texto }) e `quem` de quem chama. Sem `ref`, o movimento sai sem pedido.
+  function embBaixar(itens, ref, quem) {
+    const lista = embalagensLer(), ids = [], tirou = {};
     itens.forEach(i => {
       const e = lista.filter(x => x.id === i.id)[0];
       if (!e) return;
-      e.saldo = Math.round(((Number(e.saldo) || 0) - (Number(i.qtd) || 0) / embRende(e)) * 10000) / 10000;
+      const q = (Number(i.qtd) || 0) / embRende(e);
+      e.saldo = Math.round(((Number(e.saldo) || 0) - q) * 10000) / 10000;
+      tirou[e.id] = (tirou[e.id] || 0) + q;
       if (ids.indexOf(e.id) < 0) ids.push(e.id);
     });
     embalagensGravar(lista);
+    ids.forEach(id => {
+      const e = lista.filter(x => x.id === id)[0], custo = Number(e.custo) || 0;
+      embMovRegistrar({ embId: id, tipo: 'baixa_pedido', qtd: -tirou[id], custoUnit: custo, custoMedio: custo,
+        ref: { tipo: 'pedido', numero: ref && ref.numero != null ? ref.numero : '', texto: ref && ref.texto ? ref.texto : '' }, quem: quem });
+    });
     return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
       .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
   }
   // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
   function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  // O CODIGO E O MOVIMENTO (20/nov/2026). Moram aqui porque o cadastro, a Conferencia de Saida e a Movimentacao de Estoque precisam dos mesmos.
+  //   codigo              "EMB-001": gravado na embalagem quando ela nasce (o cadastro da o proximo numero e nunca reaproveita um). Sem `codigo` (as de exemplo e as gravadas antes) vale o do id: id 1 = EMB-001
+  //   deskMovEmbalagens   a lista de movimentos: { em: 'AAAA-MM-DDTHH:MM:SS', embId, tipo, qtd, custoUnit, custoMedio, motivoId, motivo, obs, prejuizo, ref: { tipo, numero, texto }, fornecedor, quem }
+  //                       tipo: 'entrada_nota' | 'entrada_sem_nota' | 'baixa_pedido' | 'acerto' | 'contagem'. `qtd` tem sinal e 4 casas; `custoMedio` e o de DEPOIS do movimento; `prejuizo` e a falta vezes o custo (so acerto e contagem).
+  //                       O saldo de antes e o de depois NAO se gravam: a ficha da Movimentacao parte do saldo do cadastro e desfaz os movimentos de tras para a frente, e a primeira linha e o "Saldo de abertura".
+  //                       Assim a ficha nunca desmente o cadastro. Sem a chave vale o exemplo de fabrica, e o primeiro movimento gravado parte dele.
+  function embCodigo(e) { return !e ? '' : (typeof e.codigo === 'string' && e.codigo !== '' ? e.codigo : 'EMB-' + String(e.id).padStart(3, '0')); }
+  // Exemplo: [id da embalagem, [[dias atras, hora, tipo, qtd, ...]]]. n = entrada pela nota (custo da unidade, custo medio, nota), s = entrada sem nota (custo, custo medio, comprovante),
+  // p = baixa no pedido (pedido), a = acerto e c = contagem (id do motivo, motivo, observacao). O saldo de abertura de cada uma sai positivo com o cadastro de fabrica.
+  const EMB_MOV_EXEMPLO = [
+    [1, [[46, '08:40', 'n', 80, 3.4, 3.4, '8770'], [39, '15:20', 'p', -2, '2905'], [31, '11:05', 'p', -3, '2931'], [23, '16:30', 'p', -2, '2958'], [16, '10:12', 'p', -3, '2987'], [11, '09:30', 'n', 40, 3.5, 3.5, '8802'], [8, '14:48', 'p', -2, '3012'], [3, '17:10', 'p', -2, '3039']]],
+    [2, [[52, '09:05', 'n', 30, 4.6, 4.6, '8755'], [40, '14:10', 'p', -3, '2910'], [33, '10:40', 'p', -2, '2934'], [19, '09:50', 'n', 20, 4.7, 4.7, '8791'], [12, '15:15', 'p', -4, '2996'], [5, '11:25', 'p', -2, '3028'], [0, '09:15', 'a', -2, 1, 'Quebra ou avaria', 'Duas caixas amassadas na prateleira']]],
+    [3, [[50, '09:20', 'n', 20, 5.8, 5.8, '8760'], [44, '13:30', 'p', -4, '2914'], [27, '10:10', 'p', -3, '2950'], [18, '08:50', 'n', 15, 5.9, 5.9, '8788'], [6, '16:05', 'p', -3, '3021']]],
+    [5, [[35, '09:45', 'n', 20, 6.3, 6.3, '8772'], [28, '11:35', 'p', -4, '2943'], [14, '14:20', 'p', -3, '3001'], [2, '10:00', 'p', -2, '3050']]],
+    [6, [[27, '10:30', 's', 6, 12.5, 12.5, 'Recibo 118'], [13, '13:40', 'p', -1, '3003'], [3, '15:50', 'p', -1, '3041']]],
+    [7, [[48, '09:10', 'n', 200, 1.1, 1.1, '8765'], [39, '10:25', 'p', -25, '2907'], [26, '14:00', 'p', -30, '2955'], [13, '09:35', 'p', -20, '3004'], [5, '16:20', 'p', -22, '3029']]],
+    [11, [[44, '09:00', 'n', 500, 0.4, 0.4, '8768'], [31, '10:50', 'p', -40, '2932'], [19, '15:05', 'p', -35, '2977'], [8, '11:15', 'p', -45, '3013']]],
+    [12, [[42, '09:25', 'n', 100, 0.55, 0.55, '8769'], [30, '14:35', 'p', -20, '2940'], [20, '10:05', 'a', -4, 2, 'Perda', 'Caixa de tags molhada no depósito'], [16, '11:45', 'p', -15, '2985'], [9, '13:55', 'p', -18, '3018'], [7, '09:40', 'n', 100, 0.65, 0.6, '8799'], [1, '15:30', 'p', -12, '3053']]],
+    [13, [[30, '09:15', 'n', 6, 15, 15, '8780'], [22, '12:10', 'p', -0.02, '2960'], [4, '10:45', 'p', -0.02, '3036']]],
+    [14, [[40, '09:30', 'n', 300, 0.25, 0.25, '8775'], [35, '14:15', 'p', -10, '2937'], [25, '10:20', 'c', -6, 10, 'Contagem física', ''], [20, '16:00', 'p', -12, '2979'], [11, '11:30', 'p', -8, '3014'], [4, '13:25', 'p', -9, '3034']]]
+  ];
+  // Hoje, as 09:15; se a pagina abrir antes disso, 00:01, para o movimento nunca nascer no futuro.
+  function embMovExemplo() {
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0'), cedo = agora.getHours() * 60 + agora.getMinutes() < 9 * 60 + 15, lista = [];
+    const QUEM = { n: 'Carlos Mendes', s: 'Ana Souza', p: 'Marcos Vinícius', a: 'Ana Souza', c: 'Ana Souza' };
+    const TIPO = { n: 'entrada_nota', s: 'entrada_sem_nota', p: 'baixa_pedido', a: 'acerto', c: 'contagem' };
+    EMB_MOV_EXEMPLO.forEach(e => {
+      let medio = 0;
+      e[1].forEach(l => {
+        const t = l[2], d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - l[0]), entrada = t === 'n' || t === 's', ajuste = t === 'a' || t === 'c';
+        if (entrada) medio = l[5];
+        lista.push({ em: d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + (l[0] === 0 && cedo ? '00:01' : l[1]) + ':00', embId: e[0], tipo: TIPO[t], qtd: l[3],
+          custoUnit: entrada ? l[4] : medio, custoMedio: medio, motivoId: ajuste ? l[4] : null, motivo: ajuste ? l[5] : '', obs: ajuste ? l[6] : '',
+          prejuizo: ajuste && l[3] < 0 ? Math.round(-l[3] * medio * 100) / 100 : 0,
+          ref: t === 'n' ? { tipo: 'nota', numero: l[6], texto: 'nota nº ' + l[6] } : t === 's' ? { tipo: 'comprovante', numero: l[6], texto: 'comprovante ' + l[6] }
+            : t === 'p' ? { tipo: 'pedido', numero: l[4], texto: 'pedido nº ' + l[4] } : { tipo: '', numero: '', texto: '' },
+          fornecedor: t === 'n' ? 'Embalagens do Vale' : (t === 's' ? 'Papelaria Central' : ''), quem: QUEM[t] });
+      });
+    });
+    return lista.sort((a, b) => a.em < b.em ? -1 : (a.em > b.em ? 1 : 0));
+  }
+  function embMovLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskMovEmbalagens'));
+      if (Array.isArray(g)) return g.filter(m => m && typeof m.em === 'string' && typeof m.embId === 'number' && typeof m.tipo === 'string' && isFinite(Number(m.qtd)));
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no exemplo */ }
+    return embMovExemplo();
+  }
+  // Grava um movimento no fim da lista (a lista de fabrica, se a chave ainda nao existia). `quem` vem de quem chama; sem ele, "Sistema".
+  function embMovRegistrar(m) {
+    const z = (n) => String(n).padStart(2, '0'), d = new Date(), r = m.ref || {};
+    const reg = { em: m.em || d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()),
+      embId: Number(m.embId), tipo: m.tipo, qtd: Math.round((Number(m.qtd) || 0) * 10000) / 10000, custoUnit: Number(m.custoUnit) || 0, custoMedio: Number(m.custoMedio) || 0,
+      motivoId: m.motivoId == null ? null : m.motivoId, motivo: m.motivo || '', obs: m.obs || '', prejuizo: Math.round((Number(m.prejuizo) || 0) * 100) / 100,
+      ref: { tipo: r.tipo || '', numero: r.numero == null ? '' : String(r.numero), texto: r.texto || '' }, fornecedor: m.fornecedor || '', quem: m.quem || 'Sistema' };
+    const lista = embMovLer();
+    lista.push(reg);
+    try { localStorage.setItem('deskMovEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+    return reg;
+  }
   // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
 
   // ===== MOCK: tabela `embalagens` (a lista mora em `deskEmbalagens`; vazia, vale o padrao de fabrica do bloco acima) =====
@@ -1730,7 +1843,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function embalagensFiltradas() {
     const termo = document.getElementById('campoBusca').value.trim().toLowerCase();
     return EMBALAGENS.filter(e => {
-      const passaBusca = termo === '' || e.nome.toLowerCase().includes(termo);
+      const passaBusca = termo === '' || e.nome.toLowerCase().includes(termo) || embCodigo(e).toLowerCase().includes(termo);
       const passaTipo = filtroTipoAtual === 'todos' || e.tipo === filtroTipoAtual;
       const passaSituacao = filtroSituacaoAtual === 'todos' || e.status === filtroSituacaoAtual;
       return passaBusca && passaTipo && passaSituacao;
@@ -1747,6 +1860,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function renderEmbalagens() {
+    renderKpisEmb();
     const { listaCompleta, inicio, fim, totalPaginas, lista } = embalagensPagina();
     const container = document.getElementById('listaEmbalagens');
     const empty = document.getElementById('emptyState');
@@ -1759,7 +1873,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         return '<div class="embalagens-card" data-id="' + e.id + '">' +
           '<input type="checkbox" class="item-checkbox" data-id="' + e.id + '" ' + (itensSelecionados.has(e.id) ? 'checked' : '') + '>' +
           '<div class="embalagens-info">' +
-            '<div class="embalagens-nome-row"><span class="status-dot" style="background:' + corStatus + ';"></span><span class="embalagens-nome">' + e.nome + '</span>' +
+            '<div class="embalagens-nome-row"><span class="status-dot" style="background:' + corStatus + ';"></span><span class="embalagens-codigo">' + embCodigo(e) + '</span><span class="embalagens-nome">' + e.nome + '</span>' +
             '<span class="tipo-badge" style="background:' + TIPO_COR[e.tipo] + ';">' + TIPO_LABEL[e.tipo] + '</span>' + formatarSeloEstoque(e) + '</div>' +
             '<div class="embalagens-meta">' + formatarMeta(e) + '</div>' +
           '</div>' +
@@ -1949,6 +2063,54 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   inicializarDropdownSelect(document.getElementById('inputTipoEmbalagem'), (valor) => { renderDimensoes(valor); aplicarTipoNoForm(valor); });
 
+  // ===== O CODIGO, OS CARDS E OS MOTIVOS (20/nov/2026) =====
+  // O proximo numero nunca se reaproveita: o maior ja usado (as de exemplo, o cadastro, os movimentos e o contador guardado em `deskEmbalagensSeq`) mais um.
+  // O id e o codigo nascem juntos (id 15 = EMB-015), e o codigo fica gravado na embalagem. Sem o contador, excluir a ultima e criar outra repetiria o numero.
+  function proximoNumeroEmb() {
+    let guardado = 0;
+    try { guardado = Number(JSON.parse(localStorage.getItem('deskEmbalagensSeq'))) || 0; } catch (e) { /* sem armazenamento: vale o resto */ }
+    const nums = EMBALAGENS.map(e => { const m = /^EMB-(\d+)$/.exec(embCodigo(e)); return m ? Number(m[1]) : 0; });
+    return Math.max(guardado, ...EMBALAGENS_PADRAO.map(e => e.id), ...EMBALAGENS.map(e => e.id), ...nums, ...embMovLer().map(m => m.embId)) + 1;
+  }
+  // Os tres cards do topo: o prejuizo do mes (acertos e contagens), as abaixo do minimo e o valor em estoque (saldo x custo, so de quem tem saldo).
+  function renderKpisEmb() {
+    const agora = new Date(), mes = agora.getFullYear() + '-' + String(agora.getMonth() + 1).padStart(2, '0');
+    const doMes = embMovLer().filter(m => (m.tipo === 'acerto' || m.tipo === 'contagem') && Number(m.prejuizo) > 0 && m.em.slice(0, 7) === mes);
+    const por = {};
+    doMes.forEach(m => { por[m.embId] = (por[m.embId] || 0) + Number(m.prejuizo); });
+    let maior = null;
+    Object.keys(por).forEach(id => { if (maior === null || por[id] > por[maior]) maior = id; });
+    const total = doMes.reduce((s, m) => s + Number(m.prejuizo), 0), nomeMaior = maior === null ? '' : ((EMBALAGENS.find(e => e.id === Number(maior)) || {}).nome || embCodigo({ id: Number(maior) }));
+    document.getElementById('kpiPrejuizoValor').textContent = brl(Math.round(total * 100) / 100);
+    document.getElementById('kpiPrejuizoSub').textContent = doMes.length ? doMes.length + (doMes.length === 1 ? ' acerto' : ' acertos') + ' · o maior: ' + nomeMaior : 'nenhum acerto no mês';
+    const abaixo = EMBALAGENS.filter(e => e.status === 'ativo' && (Number(e.saldo) || 0) < (Number(e.minimo) || 0)).length;
+    document.getElementById('kpiMinimoValor').textContent = String(abaixo);
+    document.getElementById('kpiMinimoSub').textContent = abaixo ? (abaixo === 1 ? 'embalagem para repor: veja em Necessidades de Compra' : 'embalagens para repor: veja em Necessidades de Compra') : 'tudo em dia';
+    const comSaldo = EMBALAGENS.filter(e => (Number(e.saldo) || 0) > 0);
+    document.getElementById('kpiEstoqueValor').textContent = brl(Math.round(comSaldo.reduce((s, e) => s + e.saldo * (Number(e.custo) || 0), 0) * 100) / 100);
+    document.getElementById('kpiEstoqueSub').textContent = comSaldo.length ? 'saldo vezes o custo, de ' + comSaldo.length + (comSaldo.length === 1 ? ' embalagem' : ' embalagens') + ' com saldo' : 'nenhuma embalagem com saldo';
+  }
+  // Os motivos do acerto vem do cadastro de Motivos de Perda (`deskMotivosPerda`): so os ativos que valem para embalagens. Sem nada guardado vale o espelho de fabrica (os 8 marcados de fabrica);
+  // um motivo guardado sem o campo `embalagem` usa o de fabrica, pelo id. Embalagem e material de uso: o tratamento fiscal do motivo nao vale aqui.
+  const MOTIVOS_EMB_FABRICA = [
+    { id: 1, nome: 'Quebra ou avaria', grupo: 'saida', exigeObs: true, obs: 'Pedir foto antes do descarte. É a prova de que a mercadoria existia e deixou de existir.', status: 'ativo', embalagem: true },
+    { id: 2, nome: 'Perda', grupo: 'saida', exigeObs: true, obs: 'Genérico de propósito. Se cabe num motivo mais específico, use o específico — o relatório agradece.', status: 'ativo', embalagem: true },
+    { id: 3, nome: 'Furto ou roubo', grupo: 'saida', exigeObs: true, obs: 'Com boletim de ocorrência o estorno de crédito tem defesa. Sem ele, o fisco trata como saída sem nota.', status: 'ativo', embalagem: true },
+    { id: 4, nome: 'Extravio', grupo: 'saida', exigeObs: true, obs: 'Sumiu dentro de casa, sem sinal de furto. Quase sempre é endereçamento errado — vale conferir antes de baixar.', status: 'ativo', embalagem: true },
+    { id: 5, nome: 'Consumo próprio', grupo: 'saida', exigeObs: false, obs: 'Mercadoria que saiu do estoque para uso da empresa. Deixa de ser revenda e o crédito é estornado.', status: 'ativo', embalagem: true },
+    { id: 7, nome: 'Sobra de contagem', grupo: 'entrada', exigeObs: false, obs: 'Apareceu mais do que o saldo dizia. Entra sem obrigação fiscal, mas vale investigar de onde veio.', status: 'ativo', embalagem: true },
+    { id: 8, nome: 'Correção de lançamento', grupo: 'entrada', exigeObs: true, obs: 'Conserto de erro nosso de digitação. Escrever qual lançamento está sendo corrigido é o que torna a correção auditável.', status: 'ativo', embalagem: true },
+    { id: 10, nome: 'Contagem física', grupo: 'balanco', exigeObs: false, obs: 'O balanço vira entrada ou saída conforme a diferença. Se der falta, a obrigação segue o motivo da falta.', status: 'ativo', embalagem: true }
+  ];
+  function motivosParaEmbalagens() {
+    let g = null;
+    try { g = JSON.parse(localStorage.getItem('deskMotivosPerda') || 'null'); } catch (e) { g = null; }
+    if (!Array.isArray(g) || !g.length) g = MOTIVOS_EMB_FABRICA;
+    return g.filter(m => m && m.status === 'ativo' && typeof m.nome === 'string' && m.nome.trim() !== '' && ['entrada', 'saida', 'balanco'].indexOf(m.grupo) >= 0
+        && ('embalagem' in m ? !!m.embalagem : MOTIVOS_EMB_FABRICA.some(f => f.id === m.id)))
+      .map(m => ({ id: m.id, nome: m.nome.trim(), grupo: m.grupo, exigeObs: !!m.exigeObs, obs: m.obs || '' }));
+  }
+
   // ===== DRAWER: nova/editar embalagem =====
   function abrirDrawer() {
     document.getElementById('drawerBackdrop').classList.add('open');
@@ -2008,6 +2170,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     embalagemEmEdicaoId = null;
     document.getElementById('drawerTitulo').textContent = 'Nova Embalagem';
     limparFormulario();
+    document.getElementById('codigoEmbalagem').textContent = embCodigo({ id: proximoNumeroEmb() });
     setTipoDropdown('pacote');
     renderDimensoes('pacote');
     aplicarTipoNoForm('pacote');
@@ -2023,6 +2186,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     embalagemEmEdicaoId = id;
     document.getElementById('drawerTitulo').textContent = e.nome;
     limparFormulario();
+    document.getElementById('codigoEmbalagem').textContent = embCodigo(e);
     document.getElementById('inputNomeEmbalagem').value = e.nome;
     setTipoDropdown(e.tipo);
     renderDimensoes(e.tipo, { inputLargura: e.largura, inputAltura: e.altura, inputComprimento: e.comprimento, inputDiametro: e.diametro });
@@ -2103,9 +2267,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (tipo === 'insumo') dados.auto = document.getElementById('inputAuto').getAttribute('data-value');
 
     if (embalagemEmEdicaoId === null) {
-      const novoId = Math.max(0, ...EMBALAGENS.map(e => e.id)) + 1;
-      EMBALAGENS.push(Object.assign({ id: novoId }, dados));
+      // O id e o codigo nascem do mesmo numero e o codigo fica gravado; o contador guardado impede de repetir um numero ja usado.
+      const numero = proximoNumeroEmb();
+      EMBALAGENS.push(Object.assign({ id: numero, codigo: embCodigo({ id: numero }) }, dados));
+      try { localStorage.setItem('deskEmbalagensSeq', String(numero)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
     } else {
+      if (anterior && anterior.codigo) dados.codigo = anterior.codigo;
       // Troca o registro inteiro: mudar o tipo nao deixa medida, "cabe ate" nem "entra sozinho" do tipo antigo para tras.
       EMBALAGENS[EMBALAGENS.findIndex(x => x.id === embalagemEmEdicaoId)] = Object.assign({ id: embalagemEmEdicaoId }, dados);
     }
@@ -2143,44 +2310,96 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('inputRende').addEventListener('input', atualizarDicaRende);
   document.getElementById('inputCusto').addEventListener('input', atualizarDicaRende);
 
-  // Acerto de saldo: dois campos ali mesmo no painel de edicao; o motivo e obrigatorio.
+  // Acerto de saldo (20/nov/2026): o motivo vem da lista de Motivos de Perda (so os ativos que valem para embalagens) e a dica do motivo aparece embaixo; `exigeObs` pede a observacao.
+  // O grupo do motivo manda na direcao: saida pede saldo MENOR, entrada pede MAIOR, balanco aceita os dois. A falta com motivo de saida ou de balanco e prejuizo: quantidade x custo.
+  // O acerto grava o saldo e o movimento 'acerto' (embMovRegistrar); passa pelo confirmarAcao como antes, e o texto dele e o do Registro de atividades.
+  const ERRO_SALDO_PADRAO = 'Informe o saldo, como 12 ou -3.';
+  let acertoMotivos = [];
+  function limparErrosAcerto() {
+    ['campoNovoSaldo', 'campoMotivoAcerto', 'campoObsAcerto'].forEach(id => document.getElementById(id).classList.remove('has-error'));
+    ['erroNovoSaldo', 'erroMotivoAcerto', 'erroObsAcerto'].forEach(id => document.getElementById(id).classList.remove('show'));
+    document.getElementById('erroNovoSaldo').textContent = ERRO_SALDO_PADRAO;
+  }
+  function setAcertoMotivo(id) {
+    const m = acertoMotivos.filter(x => String(x.id) === String(id))[0] || null, raiz = document.getElementById('acertoMotivo'), dica = document.getElementById('dicaMotivoAcerto');
+    raiz.setAttribute('data-value', m ? String(m.id) : '');
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!m && it.getAttribute('data-value') === String(m.id)));
+    raiz.querySelector('.dropdown-select-label').textContent = m ? m.nome : (acertoMotivos.length ? 'Escolha o motivo' : 'Nenhum motivo disponível');
+    if (m) dica.textContent = m.obs;
+    else if (!acertoMotivos.length) dica.innerHTML = 'Nenhum motivo vale para embalagens. Marque "Vale para embalagens" em <a class="link-acerto" style="margin:0;" href="../configuracoes/pagina-configuracoes-motivos-perda.html">Motivos de Perda</a>.';
+    else dica.textContent = '';
+    document.getElementById('rotuloObsAcerto').textContent = m && m.exigeObs ? 'Observação (obrigatória)' : 'Observação (opcional)';
+    document.getElementById('campoMotivoAcerto').classList.remove('has-error'); document.getElementById('erroMotivoAcerto').classList.remove('show');
+    document.getElementById('campoObsAcerto').classList.remove('has-error'); document.getElementById('erroObsAcerto').classList.remove('show');
+  }
+  function montarMotivosAcerto() {
+    acertoMotivos = motivosParaEmbalagens();
+    const menu = document.querySelector('#acertoMotivo .dropdown-select-menu');
+    menu.innerHTML = '';
+    acertoMotivos.forEach(m => {
+      const it = document.createElement('div');
+      it.className = 'dropdown-select-item'; it.setAttribute('data-value', String(m.id)); it.textContent = m.nome;
+      menu.appendChild(it);
+    });
+    setAcertoMotivo(null);
+  }
+  inicializarDropdownSelect(document.getElementById('acertoMotivo'), (valor) => setAcertoMotivo(valor));
   function fecharAcerto() {
     document.getElementById('blocoAcerto').style.display = 'none';
     document.getElementById('inputNovoSaldo').value = '';
-    document.getElementById('inputMotivoAcerto').value = '';
-    ['campoNovoSaldo', 'campoMotivoAcerto'].forEach(id => document.getElementById(id).classList.remove('has-error'));
-    ['erroNovoSaldo', 'erroMotivoAcerto'].forEach(id => document.getElementById(id).classList.remove('show'));
+    document.getElementById('inputObsAcerto').value = '';
+    limparErrosAcerto();
+    setAcertoMotivo(null);
   }
   document.getElementById('linkAcertarSaldo').addEventListener('click', () => {
     const e = EMBALAGENS.find(x => x.id === embalagemEmEdicaoId);
     if (!e) return;
     fecharAcerto();
+    montarMotivosAcerto();
     document.getElementById('inputNovoSaldo').value = String(Number(e.saldo) || 0).replace('.', ',');
     document.getElementById('blocoAcerto').style.display = '';
   });
-  ['inputNovoSaldo', 'inputMotivoAcerto'].forEach(i => document.getElementById(i).addEventListener('input', () => {
-    const c = i === 'inputNovoSaldo' ? ['campoNovoSaldo', 'erroNovoSaldo'] : ['campoMotivoAcerto', 'erroMotivoAcerto'];
-    document.getElementById(c[0]).classList.remove('has-error'); document.getElementById(c[1]).classList.remove('show');
-  }));
+  document.getElementById('inputNovoSaldo').addEventListener('input', () => {
+    document.getElementById('campoNovoSaldo').classList.remove('has-error'); document.getElementById('erroNovoSaldo').classList.remove('show');
+    document.getElementById('erroNovoSaldo').textContent = ERRO_SALDO_PADRAO;
+  });
+  document.getElementById('inputObsAcerto').addEventListener('input', () => {
+    document.getElementById('campoObsAcerto').classList.remove('has-error'); document.getElementById('erroObsAcerto').classList.remove('show');
+  });
   document.getElementById('btnAplicarAcerto').addEventListener('click', () => {
     const e = EMBALAGENS.find(x => x.id === embalagemEmEdicaoId);
     if (!e) return;
-    const novo = lerNumero(document.getElementById('inputNovoSaldo').value, true), motivo = document.getElementById('inputMotivoAcerto').value.trim();
-    document.getElementById('campoNovoSaldo').classList.toggle('has-error', isNaN(novo));
-    document.getElementById('erroNovoSaldo').classList.toggle('show', isNaN(novo));
-    document.getElementById('campoMotivoAcerto').classList.toggle('has-error', motivo === '');
-    document.getElementById('erroMotivoAcerto').classList.toggle('show', motivo === '');
-    if (isNaN(novo) || motivo === '') return;
-    const texto = 'Saldo de ' + e.nome + ' acertado de ' + embFmtSaldo(e.saldo) + ' para ' + embFmtSaldo(novo) + '. Motivo: ' + motivo;
+    limparErrosAcerto();
+    const novo = lerNumero(document.getElementById('inputNovoSaldo').value, true), obs = document.getElementById('inputObsAcerto').value.trim();
+    const m = acertoMotivos.filter(x => String(x.id) === document.getElementById('acertoMotivo').getAttribute('data-value'))[0] || null, antes = Number(e.saldo) || 0;
+    let erroSaldo = isNaN(novo) ? ERRO_SALDO_PADRAO : '';
+    if (!erroSaldo && m) {
+      if (m.grupo === 'saida' && !(novo < antes)) erroSaldo = 'Este motivo é de saída: o novo saldo tem de ser menor que o atual (' + embFmtSaldo(antes) + ').';
+      else if (m.grupo === 'entrada' && !(novo > antes)) erroSaldo = 'Este motivo é de entrada: o novo saldo tem de ser maior que o atual (' + embFmtSaldo(antes) + ').';
+      else if (m.grupo === 'balanco' && novo === antes) erroSaldo = 'O novo saldo é igual ao atual (' + embFmtSaldo(antes) + '): não há o que acertar.';
+    }
+    document.getElementById('campoNovoSaldo').classList.toggle('has-error', erroSaldo !== '');
+    document.getElementById('erroNovoSaldo').textContent = erroSaldo || ERRO_SALDO_PADRAO;
+    document.getElementById('erroNovoSaldo').classList.toggle('show', erroSaldo !== '');
+    document.getElementById('campoMotivoAcerto').classList.toggle('has-error', !m); document.getElementById('erroMotivoAcerto').classList.toggle('show', !m);
+    const semObs = !!m && m.exigeObs && obs === '';
+    document.getElementById('campoObsAcerto').classList.toggle('has-error', semObs); document.getElementById('erroObsAcerto').classList.toggle('show', semObs);
+    if (erroSaldo || !m || semObs) return;
+    const qtd = arred(novo - antes, 4), custo = Number(e.custo) || 0;
+    const prejuizo = qtd < 0 && (m.grupo === 'saida' || m.grupo === 'balanco') ? arred(-qtd * custo, 2) : 0;
+    const texto = 'Saldo de ' + e.nome + ' acertado de ' + embFmtSaldo(antes) + ' para ' + embFmtSaldo(novo) + '. Motivo: ' + m.nome + (obs ? ' (' + obs + ')' : '') + '.' +
+      (prejuizo > 0 ? ' Prejuízo de ' + brl(prejuizo) + ' (' + embFmtSaldo(-qtd) + ' × ' + brl(custo) + ').' : '');
     confirmarAcao('embalagensEditar', texto, () => {
       e.saldo = arred(novo, 4);
       embalagensGravar(EMBALAGENS);
+      embMovRegistrar({ embId: e.id, tipo: 'acerto', qtd: qtd, custoUnit: custo, custoMedio: custo, motivoId: m.id, motivo: m.nome, obs: obs, prejuizo: prejuizo, quem: USUARIO_SESSAO.nome });
       document.getElementById('saldoAtual').textContent = embFmtSaldo(e.saldo);
       fecharAcerto(); renderEmbalagens();
     });
   });
 
-  // Dar entrada: Embalagem (so as ativas, insumos inclusive), Quantidade, Custo da unidade, Fornecedor e Nota. Mostra a previa e, ao salvar, recalcula o custo medio.
+  // Dar entrada sem nota: Embalagem (so as ativas, insumos inclusive), Quantidade, Custo da unidade, Fornecedor e Comprovante (opcional). Mostra a previa e, ao salvar, recalcula o custo medio
+  // e grava o movimento 'entrada_sem_nota'. A compra com nota fiscal entra pela Entrada de Notas.
   let entradaEmbId = null;
   function abrirEntradaDrawer() {
     document.getElementById('entradaBackdrop').classList.add('open');
@@ -2252,11 +2471,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoEntradaCusto').classList.toggle('has-error', semCusto); document.getElementById('erroEntradaCusto').classList.toggle('show', semCusto);
     if (!c.ok) return;
     const forn = document.getElementById('entradaFornecedor').value.trim(), nota = document.getElementById('entradaNota').value.trim();
-    const texto = 'Entrada de ' + embFmtSaldo(c.qtd) + ' ' + c.e.nome + ' a ' + brl(c.custoEnt) + ' a unidade.' + (forn ? ' Fornecedor: ' + forn + '.' : '') + (nota ? ' Nota: ' + nota + '.' : '') +
+    const texto = 'Entrada sem nota de ' + embFmtSaldo(c.qtd) + ' ' + c.e.nome + ' a ' + brl(c.custoEnt) + ' a unidade.' + (forn ? ' Fornecedor: ' + forn + '.' : '') + (nota ? ' Comprovante: ' + nota + '.' : '') +
       ' Saldo ' + embFmtSaldo(c.saldo) + ' → ' + embFmtSaldo(c.novoSaldo) + '; custo ' + brl(c.custoAtual) + ' → ' + brl(c.novoCusto) + '.';
     confirmarAcao('embalagensEditar', texto, () => {
       c.e.saldo = c.novoSaldo; c.e.custo = c.novoCusto;
       embalagensGravar(EMBALAGENS);
+      embMovRegistrar({ embId: c.e.id, tipo: 'entrada_sem_nota', qtd: c.qtd, custoUnit: c.custoEnt, custoMedio: c.novoCusto, ref: { tipo: 'comprovante', numero: nota, texto: nota ? 'comprovante ' + nota : '' }, fornecedor: forn, quem: USUARIO_SESSAO.nome });
       fecharEntradaDrawer(); renderEmbalagens();
     });
   });
