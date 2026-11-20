@@ -1027,6 +1027,8 @@
   /* O pedido da venda concluida e link (12/out/2026) */
   .pdv-link { color:var(--active-text); text-decoration:none; }
   .pdv-link:hover { text-decoration:underline; }
+  .pdv-link-btn { background:none; border:none; padding:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; }
+  .pdv-link-btn:hover { text-decoration:underline; }
   /* O link da venda no "quanto vendeu" do bloco PROMOCOES (10/nov/2026) */
   .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
   .painel-link:hover { text-decoration:underline; }
@@ -1358,6 +1360,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="pdv-linha"><span>Desconto na venda</span><b id="finDescontoValor">R$ 0,00</b></div>
           <div class="pdv-linha" id="finAcrescimoLinha" style="display:none;"><span>Acréscimo do cartão</span><b id="finAcrescimo">R$ 0,00</b></div>
           <div class="pdv-linha" id="finDescAVistaLinha" style="display:none;"><span id="finDescAVistaRotulo">Desconto Pix/dinheiro</span><b id="finDescAVista">− R$ 0,00</b></div>
+          <div class="pdv-linha" id="finVendaNossaLinha" style="display:none;"><span><span id="finVendaNossaRotulo">Desconto da venda nossa</span> · <button type="button" class="pdv-link-btn" id="btnTirarVendaNossa">tirar</button></span><b id="finVendaNossa">− R$ 0,00</b></div>
+          <div class="field-hint" id="finVendaNossaCorte" style="display:none;"></div>
+          <div class="pdv-linha" id="finVendaNossaOpcao" style="display:none;"><button type="button" class="pdv-link-btn" id="btnVendaNossa">Dar o desconto da venda nossa (5%)</button></div>
           <div class="pdv-linha forte"><span>Total</span><b id="finTotal">R$ 0,00</b></div>
         </div>
       </div>
@@ -3411,6 +3416,43 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return promoGravarJson('deskPromoUsos', tudo);
   }
   // ===== FIM DO BLOCO PROMOCOES: NA VENDA =====
+  // ===== VENDA NOSSA (bloco comum, 20/nov/2026) =====
+  // O desconto da venda nossa (barganha de 20/nov/2026): a venda SEM vendedor (e, no Pedido, sem indicacao) paga no Pix ou no dinheiro pode levar, por OPCAO de quem vende, o
+  // percentual de comissao de Parametros de vendas (`comissaoPadraoPct`, 5 de fabrica, o mesmo da calculadora) como desconto: ninguem ganha a comissao, entao o cliente ganha.
+  // O bloco e IDENTICO no PDV e no Pedido de Venda, e teste_venda_nossa.py compara as copias. Depende dos blocos PRECO MINIMO e PROMOCOES: NA VENDA, que vem antes dele.
+  // Trava: o desconto nunca leva um produto abaixo do preco minimo da calculadora; o que passa e cortado, e o aviso diz quanto foi cortado e em qual produto.
+  // Nao pede codigo e nao conta no limite de desconto de ninguem (o "Desconto sem liberacao"), como o desconto a vista. Tudo em centavos inteiros.
+  const VENDA_NOSSA_FORMAS = ['pix', 'dinheiro'];
+  const vendaNossaPct = () => precoParametros().comissao;
+  const vendaNossaSemComissao = (vendedor, indicacao) => !vendedor && !indicacao;
+  const vendaNossaPode = (vendedor, indicacao, fatia) => vendaNossaSemComissao(vendedor, indicacao) && fatia > 0;
+  // O minimo da calculadora do produto (centavos por unidade); null sem custo no cadastro ou fora do catalogo.
+  function vendaNossaMinimo(sku) { const pr = promoProduto(sku); return pr ? promoMinimoCent(pr) : null; }
+  // `linhas` = [{ nome, qtd, base (centavos, ja com promocao, atacado, preco digitado e a parte do desconto manual da venda), minimo (centavos por unidade, ou null) }];
+  // `fatia` = a parte da venda paga no Pix ou no dinheiro (0 a 1); `pct` = o percentual; `pctAVista` = o do desconto a vista (o Pedido nao tem: 0).
+  // Devolve { valor, cortado (centavos) e nomes (os produtos que chegaram ao minimo) }.
+  function vendaNossaConta(linhas, fatia, pct, pctAVista) {
+    const bp = precoBp(pct), avBp = precoBp(pctAVista || 0);
+    let valor = 0, desejadoTotal = 0;
+    const nomes = [];
+    linhas.forEach((l) => {
+      const base = Math.round(l.base);
+      const desejado = Math.round(base * fatia * bp / 10000);
+      const pagoSemEle = Math.round(base * (1 - fatia * avBp / 10000));
+      const folga = l.minimo === null ? Infinity : Math.max(0, pagoSemEle - Math.round(l.minimo * l.qtd));
+      const v = Math.min(desejado, folga);
+      valor += v; desejadoTotal += desejado;
+      if (v < desejado && nomes.indexOf(l.nome) < 0) nomes.push(l.nome);
+    });
+    return { valor: valor, cortado: desejadoTotal - valor, nomes: nomes };
+  }
+  // O percentual como se escreve: 5%, ou 3,5% quando for o caso.
+  const vendaNossaRotuloPct = (pct) => String(Math.round(pct * 100) / 100).replace('.', ',');
+  // Os avisos, com o formatador de dinheiro de cada tela (valores em reais).
+  const vendaNossaTextoCorte = (valor, cortado, nomes, fmt) => 'O desconto da venda nossa ficou em ' + fmt(valor) + ' (' + fmt(cortado) + ' cortados): ' + nomes.join(', ') +
+    (nomes.length === 1 ? ' chegou' : ' chegaram') + ' ao preço mínimo.';
+  const vendaNossaTextoSaiu = (quem) => 'O desconto da venda nossa saiu: a venda agora tem ' + quem + ', que recebe comissão.';
+  // ===== FIM DO BLOCO VENDA NOSSA =====
   // ===== DESCONTO: O LIMITE DA PESSOA (bloco comum, 12/nov/2026) =====
   // O limite de desconto sem liberacao e POR PESSOA: o do vendedor da venda. O do usuario (o proprio, o do perfil) e, na falta, o de
   // Configuracoes > PDV. O Owner nao tem limite. Vendedor sem usuario vinculado cai no limite do sistema.
@@ -3740,7 +3782,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function novaVenda() {
     const cat = CATEGORIAS.filter(c => c.padraoVenda)[0] || CATEGORIAS[0];
     return { itens: [], vendedorId: null, clienteId: null, depositoId: DEPOSITO_PADRAO_DA_LOJA[turno.lojaId],
-             categoriaId: cat.id, descontoTxt: '', recebimentos: [] };
+             categoriaId: cat.id, descontoTxt: '', recebimentos: [], vendaNossaPedida: false };
   }
 
   // ---------- paineis laterais ----------
@@ -4349,10 +4391,45 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return A_VISTA.indexOf(r.chave) >= 0 && r.valor > 0 && pct > 0 ? arred(r.valor - pagoAVista(r.valor, pct)) : 0;
   }
   // O que o cliente paga por um recebimento: no Pix e no dinheiro, o valor menos o desconto; no cartao, o que passa na maquininha.
-  const pagoDe = (r) => (A_VISTA.indexOf(r.chave) >= 0 ? arred((r.valor || 0) - descontoDe(r)) : cobradoDe(r));
+  const pagoDe = (r) => (A_VISTA.indexOf(r.chave) >= 0 ? arred((r.valor || 0) - descontoDe(r) - vendaNossaDe(r)) : cobradoDe(r));
   const descontosAVista = () => arred(venda.recebimentos.reduce((s, r) => s + descontoDe(r), 0));
-  // O total que o cliente paga: a venda, mais o repasse do cartao, menos o desconto a vista.
-  const totalAPagar = () => arred(totalVenda() + acrescimos() - descontosAVista());
+  // ----- o desconto da venda nossa (20/nov/2026): a conta e a do bloco VENDA NOSSA; aqui fica so o que e do PDV -----
+  // `venda.vendaNossaPedida` = o caixa deu o desconto. Ele cai nos recebimentos Pix e dinheiro na proporcao do `valor` de cada um (o centavo que sobra vai para o maior), como o a vista,
+  // e vem depois dele. So vale sem vendedor e com Pix ou dinheiro na venda; escolher o vendedor tira a opcao (no seletor, abaixo). Nao pede codigo e nao entra no limite de desconto.
+  function vendaNossaFatia() {
+    const t = Math.round(totalVenda() * 100);
+    const pd = Math.round(venda.recebimentos.filter(r => A_VISTA.indexOf(r.chave) >= 0).reduce((s, r) => s + (r.valor || 0), 0) * 100);
+    return t > 0 ? Math.min(1, pd / t) : 0;
+  }
+  function vendaNossaCalculo() {
+    const fatia = vendaNossaFatia(), pode = vendaNossaPode(venda.vendedorId, null, fatia), pct = vendaNossaPct();
+    const vazio = { pode: pode, ativo: false, pct: pct, c: 0, valor: 0, cortado: 0, nomes: [] };
+    if (!(pode && venda.vendaNossaPedida)) return vazio;
+    const sub = Math.round(subtotal() * 100), dg = Math.round((descontoGeral() || 0) * 100);
+    const linhas = venda.itens.map(it => { const t = Math.round(totalDoItem(it) * 100); return { nome: it.nome, qtd: it.qtd, base: sub > 0 ? t - dg * t / sub : t, minimo: vendaNossaMinimo(it.sku) }; });
+    const c = vendaNossaConta(linhas, fatia, pct, descontoAVistaPct());
+    return { pode: pode, ativo: true, pct: pct, c: c.valor, valor: c.valor / 100, cortado: c.cortado / 100, nomes: c.nomes };
+  }
+  // A parte de cada recebimento Pix ou dinheiro, em reais.
+  function vendaNossaDe(r) {
+    if (A_VISTA.indexOf(r.chave) < 0 || !(r.valor > 0)) return 0;
+    const total = vendaNossaCalculo().c;
+    if (!total) return 0;
+    const rs = venda.recebimentos.filter(x => A_VISTA.indexOf(x.chave) >= 0 && x.valor > 0).map(x => ({ chave: x.chave, c: Math.round(x.valor * 100) }));
+    const soma = rs.reduce((s, x) => s + x.c, 0);
+    const partes = rs.map(x => Math.floor(total * x.c / soma));
+    const maior = rs.reduce((m, x, i) => (x.c > rs[m].c ? i : m), 0);
+    partes[maior] += total - partes.reduce((s, p) => s + p, 0);
+    return partes[rs.findIndex(x => x.chave === r.chave)] / 100;
+  }
+  function darVendaNossa() {
+    venda.vendaNossaPedida = true;
+    pintarFinalizar(); gravar();
+    const vn = vendaNossaCalculo();
+    if (vn.cortado > 0) avisar(vendaNossaTextoCorte(vn.valor, vn.cortado, vn.nomes, moeda));
+  }
+  // O total que o cliente paga: a venda, mais o repasse do cartao, menos o desconto a vista e o da venda nossa.
+  const totalAPagar = () => arred(totalVenda() + acrescimos() - descontosAVista() - vendaNossaCalculo().valor);
   // O vencimento do cartao: hoje mais o prazo da condicao do gateway, em DIAS UTEIS (venda numa sexta com prazo de 1 dia util cai na segunda).
   function vencimentoDoCartao(r, hoje) {
     const c = condicaoDe(r);
@@ -4588,7 +4665,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="dropdown-select-menu">' + itens + '</div></div></div>';
       } else if (f.destino === 'titulo' && !fixo) corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
       corpo += '</div>';
-      if (descontoDe(r) > 0) corpo += '<div class="pdv-receb-info">Quita <b>' + moeda(r.valor) + '</b> · com o desconto à vista de <b>' + fmtNum(descontoAVistaPct()) + '%</b> o cliente paga <b>' + moeda(pagoDe(r)) + '</b>.</div>';
+      const dsc = [];
+      if (descontoDe(r) > 0) dsc.push('o desconto à vista de <b>' + fmtNum(descontoAVistaPct()) + '%</b>');
+      // Cortado no minimo, o percentual mentiria: a linha diz o valor.
+      if (vendaNossaDe(r) > 0) dsc.push('o desconto da venda nossa de <b>' + (vendaNossaCalculo().cortado > 0 ? moeda(vendaNossaDe(r)) : vendaNossaRotuloPct(vendaNossaPct()) + '%') + '</b>');
+      if (dsc.length) corpo += '<div class="pdv-receb-info">Quita <b>' + moeda(r.valor) + '</b> · com ' + dsc.join(' e ') + ' o cliente paga <b>' + moeda(pagoDe(r)) + '</b>.</div>';
       if (pronto) {
         const menu = (itens) => itens.map(x => '<div class="dropdown-select-item' + (x.v === x.atual ? ' active' : '') + '" data-value="' + x.v + '">' + esc(x.t) + '</div>').join('');
         const caixa = (rotulo, attr, valor, texto, itens) => '<div class="form-field"><label>' + rotulo + '</label><div class="dropdown-select" ' + attr + '="' + i + '" data-value="' + valor + '">' +
@@ -4649,9 +4730,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     el.classList.toggle('alerta', pend.length > 0 && venda.recebimentos.length > 0);
     el.classList.toggle('certo', pend.length === 0);
     // Taxa repassada entra por cima do total: o cliente paga a venda mais o acrescimo do cartao.
-    const acresc = acrescimos(), desc = descontosAVista();
+    const acresc = acrescimos(), desc = descontosAVista(), vn = vendaNossaCalculo();
     el.innerHTML = pend.length === 0
-      ? 'Recebimentos fecham com o total: <b>' + moeda(arred(soma + acresc - desc)) + '</b>. Pode finalizar.'
+      ? 'Recebimentos fecham com o total: <b>' + moeda(arred(soma + acresc - desc - vn.valor)) + '</b>. Pode finalizar.'
       : (venda.recebimentos.length === 0 ? 'Total a receber: <b>' + moeda(total) + '</b>. Escolha a forma de recebimento.' : pend.map(esc).join('<br>'));
     mostrar('finAcrescimoLinha', acresc > 0);
     texto('finAcrescimo', '+ ' + moeda(acresc));
@@ -4659,6 +4740,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     mostrar('finDescAVistaLinha', desc > 0);
     texto('finDescAVistaRotulo', 'Desconto Pix/dinheiro (' + fmtNum(descontoAVistaPct()) + '%)');
     texto('finDescAVista', '− ' + moeda(desc));
+    // O desconto da venda nossa: o link quando cabe (sem vendedor, com Pix ou dinheiro), a linha depois de dado.
+    mostrar('finVendaNossaOpcao', vn.pode && !vn.ativo);
+    texto('btnVendaNossa', 'Dar o desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)');
+    mostrar('finVendaNossaLinha', vn.ativo);
+    texto('finVendaNossaRotulo', 'Desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)');
+    texto('finVendaNossa', '− ' + moeda(vn.valor));
+    mostrar('finVendaNossaCorte', vn.ativo && vn.cortado > 0);
+    texto('finVendaNossaCorte', vn.cortado > 0 ? vendaNossaTextoCorte(vn.valor, vn.cortado, vn.nomes, moeda) : '');
     texto('totTroco', moeda(trocoTotal()));
     texto('totVendaFin', moeda(totalAPagar()));
     texto('finTotal', moeda(totalAPagar()));
@@ -4745,7 +4834,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       try { usosVale = usarVale(cli.id, turno.lojaId, rv.valor, { tipo: 'pdv', id: numeroVenda, rotulo: 'PDV-' + String(numeroVenda).padStart(4, '0') }); }
       catch (e) { avisar('Não foi possível usar o vale-compra: ' + e.message); return; }
     }
-    const descAV = descontosAVista(), pctAV = descontoAVistaPct(), refAV = descontoDeReferencia();
+    const descAV = descontosAVista(), pctAV = descontoAVistaPct(), refAV = descontoDeReferencia(), vn = vendaNossaCalculo();
     const registro = {
       numero: numeroVenda, quando: agora.toISOString(), lojaId: turno.lojaId, depositoId: venda.depositoId, categoriaId: venda.categoriaId,
       vendedorId: venda.vendedorId, vendedorNome: vend ? vend.nome : null, clienteId: venda.clienteId, clienteNome: cli ? cli.nome : 'Consumidor final',
@@ -4756,6 +4845,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // `total` e o que o cliente pagou: a venda mais a taxa de cartao repassada, menos o desconto a vista (Pix e dinheiro), quando ha. A comissao e a meta leem esse total.
       subtotal: subtotal(), desconto: descontoGeral() || 0, acrescimo: acrescimos(), total: totalAPagar(), troco: trocoTotal(),
       descontoAVista: descAV > 0 ? { pct: pctAV, valor: descAV, gatewayId: refAV.gateway ? refAV.gateway.id : null } : null, descontoAVistaTirado: !!venda.semDescontoAVista,
+      // O desconto da venda nossa (20/nov/2026): { pct, valor, cortado } quando o caixa deu; o `valor` ja esta fora do `total`.
+      vendaNossa: vn.ativo ? { pct: vn.pct, valor: vn.valor, cortado: vn.cortado } : null,
       // Os vales tocados e o que sobrou para o cliente nesta loja (so quando a venda usou vale).
       vale: usosVale.length ? { usos: usosVale, saldo: valeSaldoDoCliente(cli.id, turno.lojaId) } : null,
       recebimentos: venda.recebimentos.map(r => {
@@ -4764,7 +4855,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         // Cartao: a conta e a do gateway, e o titulo leva a maquininha, a bandeira e o vencimento (o que vira o historico em Contas a Receber).
         const cartao = ehCartao(f), gc = cartao ? gatewayDe(r) : null, nomeBand = cartao && r.bandeira ? GWL_BANDEIRAS[r.bandeira] : null;
         const venc = cartao ? vencimentoDoCartao(r, agora) : null;
-        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: cartao ? (gc ? gwlConta(gc).id : null) : f.contaId, valor: r.valor, cobrado: pagoDe(r), desconto: descontoDe(r), vezes: r.vezes || 1, prazoFixo: cartao,
+        return { chave: r.chave, nome: f.nome, destino: f.destino, contaId: cartao ? (gc ? gwlConta(gc).id : null) : f.contaId, valor: r.valor, cobrado: pagoDe(r), desconto: descontoDe(r), descontoVendaNossa: vendaNossaDe(r), vezes: r.vezes || 1, prazoFixo: cartao,
                  recebido: r.chave === 'dinheiro' ? (r.recebido === null ? pagoDe(r) : r.recebido) : null,
                  troco: trocoDe(r), taxa: taxaDe(r), tarifacao: cartao ? (gc ? gc.tarifacao || '' : '') : f.tarifacao, parcelas: r.parcelas.map(x => ({ dias: x.dias, valor: x.valor })),
                  gatewayId: gc ? gc.id : null, gatewayNome: gc ? gc.descricao : null, bandeira: cartao ? r.bandeira : null, bandeiraNome: nomeBand, repasse: cartao ? repasseDe(r).ativo : false,
@@ -4820,7 +4911,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         g.push('<b>' + moeda(r.valor) + '</b> pagos com vale-compra (' + vs.map(u => 'VC-' + u.n).join(' e ') + '); o saldo do vale fica em <b>' + moeda(v.vale ? v.vale.saldo : 0) + '</b>. Título já recebido em Contas a Receber, sem entrar no Caixa.');
         return;
       }
-      if (r.destino === 'conta') g.push('<b>' + moeda(cobradoNo(r)) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + (r.desconto > 0 ? ', já com o desconto à vista de ' + moeda(r.desconto) : '') + '). Aparece no Caixa de Finanças, sem título.');
+      if (r.destino === 'conta') g.push('<b>' + moeda(cobradoNo(r)) + '</b> entram na hora em ' + esc(conta ? conta.nome : 'conta financeira') + ' (' + esc(r.nome) + (r.desconto > 0 ? ', já com o desconto à vista de ' + moeda(r.desconto) : '') + (r.descontoVendaNossa > 0 ? ', já com o desconto da venda nossa de ' + moeda(r.descontoVendaNossa) : '') + '). Aparece no Caixa de Finanças, sem título.');
       else {
         const primeiro = r.parcelas.length ? dataBr(maisDias(new Date(v.quando), Math.min.apply(null, r.parcelas.map(x => x.dias)))) : '';
         g.push('<b>' + r.parcelas.length + (r.parcelas.length === 1 ? ' título' : ' títulos') + '</b> em Contas a Receber, somando ' + moeda(cob) + ' (' + esc(r.nome) + (r.vezes > 1 ? ' em ' + r.vezes + 'x' : '') + '), ' +
@@ -5080,7 +5171,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!paraTroca) {
       c += folhaLinha('Valor total', moeda(v.subtotal)) + folhaLinha('Desconto', moeda(v.desconto)) +
         (v.acrescimo > 0 ? folhaLinha('Acréscimo do cartão', moeda(v.acrescimo)) : '') +
-        (v.descontoAVista ? folhaLinha('Desconto Pix/dinheiro (' + fmtNum(v.descontoAVista.pct) + '%)', '− ' + moeda(v.descontoAVista.valor)) : '') + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
+        (v.descontoAVista ? folhaLinha('Desconto Pix/dinheiro (' + fmtNum(v.descontoAVista.pct) + '%)', '− ' + moeda(v.descontoAVista.valor)) : '') +
+        (v.vendaNossa ? folhaLinha('Desconto da venda nossa (' + vendaNossaRotuloPct(v.vendaNossa.pct) + '%)', '− ' + moeda(v.vendaNossa.valor)) : '') + folhaLinha('Valor a pagar', moeda(v.total), true) + '<div class="pdv-folha-sep"></div>' +
         // No cartao o cliente nao tem vencimento: o recibo diz em quantas vezes passou, nao quando a operadora paga a loja.
         v.recebimentos.map(r => r.prazoFixo ? folhaLinha(esc(r.nome) + (r.vezes > 1 ? ' · ' + r.vezes + 'x' : '') + ' · ' + dataBr(d), moeda(cobradoNo(r)))
           : r.destino === 'titulo'
@@ -5105,7 +5197,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // ---------- ligacoes (os dropdowns nascem com a TELA, nao na abertura do painel) ----------
   montar('menuAbrirLoja', LOJAS.map(l => ({ v: l.id, t: l.nome })));
   inicializarDropdownSelect(document.getElementById('abrirLoja'), pintarHintLoja);
-  inicializarDropdownSelect(document.getElementById('selVendedor'), (v) => { venda.vendedorId = v === '' ? null : Number(v); gravar(); });
+  inicializarDropdownSelect(document.getElementById('selVendedor'), (v) => {
+    venda.vendedorId = v === '' ? null : Number(v);
+    if (venda.vendaNossaPedida && !vendaNossaSemComissao(venda.vendedorId, null)) { venda.vendaNossaPedida = false; avisar(vendaNossaTextoSaiu('vendedor')); }
+    gravar();
+  });
   inicializarDropdownSelect(document.getElementById('finDeposito'), (v) => { venda.depositoId = Number(v); pintarFinalizar(); gravar(); });
   inicializarDropdownSelect(document.getElementById('finCategoria'), (v) => { venda.categoriaId = Number(v); gravar(); });
   inicializarDropdownSelect(document.getElementById('selAddReceb'), (v) => { if (v) adicionarRecebimento(v); });
@@ -5152,6 +5248,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnAplicarPromoExcedente').addEventListener('click', aplicarPromoExcedente);
   document.getElementById('btnRemoverItem').addEventListener('click', () => { const sku = venda.itens[itemEmEdicao].sku; venda.itens.splice(itemEmEdicao, 1); atacadoReconciliar(sku); fecharPaineis(); pintarVenda(); gravar(); });
   document.getElementById('btnContinuar').addEventListener('click', continuar);
+  document.getElementById('btnVendaNossa').addEventListener('click', darVendaNossa);
+  document.getElementById('btnTirarVendaNossa').addEventListener('click', () => { venda.vendaNossaPedida = false; pintarFinalizar(); gravar(); });
   document.getElementById('btnCancelarVenda').addEventListener('click', cancelarVenda);
   document.getElementById('finDesconto').addEventListener('change', (e) => { venda.descontoTxt = e.target.value.trim(); pintarFinalizar(); gravar(); });
   // O aviso do maximo acompanha a digitacao, como no item; gravar continua sendo no change.
