@@ -1,4 +1,4 @@
-*Atualizado em 18/nov/2026: a revisão geral de novembro (pacotes A a E) e o preço de atacado foram testados e aprovados por ele. O próximo da fila é a entrega 3 de Promoções e Encartes, "Gerar encarte".*
+*Atualizado em 18/nov/2026: a revisão geral de novembro (pacotes A a E) e o preço de atacado foram testados e aprovados por ele. O "Gerar encarte" foi segurado por ele em 20/nov, para juntar informações; o próximo da fila é o protótipo da vitrine.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -77,7 +77,7 @@ Refeita em 10/nov, depois do teste da entrega 2 de Promoções e Encartes e da b
 11 canais, a escada do preço, os 7 perfis (o dele se chama **Owner**; outros tipos de usuário virão, por isso o perfil é um
 cadastro), o preço de atacado no cadastro do produto e o aplicativo de vendas do representante, que vem na produção.
 
-1. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). Começa pela barganha, com prints de encartes que eles usam hoje, se houver.
+1. **Promoções e Encartes, entrega 3: "Gerar encarte"** (a peça com foto, "de… por…" e prazo, com a marca da loja, para imprimir ou mandar aos vendedores). **Segurada por ele em 20/nov:** ele vai reunir mais informações (e prints de encartes) antes de continuar. A barganha começou em 18/nov; a proposta e as seis perguntas em aberto estão em [docs/rascunho-barganha-encarte.md](docs/rascunho-barganha-encarte.md). Volta quando ele avisar.
 2. **O protótipo da vitrine** (Gateways de Pagamento e preço promocional): o preço de venda riscado e o promocional como o preço; o painel da vitrine não cadastra nem muda preço, manda pedidos ao sistema (auditoria de produto, revisão de preço); o "Ativar preço promocional" dele cria uma promoção só da vitrine, com as mesmas travas, na mesma lista de Promoções e Encartes.
 3. **Rodada de correção do estoque das embalagens** (pedido dele em 03/nov; começa pela barganha). **Segurada por ele em 04/nov:** a tela fica como está, e ele avisa quando voltar:
    - **Motivos de acerto:** o "Acertar saldo" passa a escolher o motivo de uma lista, em vez de texto solto. Ver se a lista é a de Configurações → Motivos de Perda, que já existe.
