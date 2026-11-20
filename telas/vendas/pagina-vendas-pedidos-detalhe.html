@@ -871,7 +871,10 @@
   body.modo-leitura #btnEditarItemHint { display:none; }
   /* A venda nossa (20/nov/2026): em leitura some o "tirar" e, sem o desconto dado, a caixa inteira (senao ficaria um card vazio) */
   body.modo-leitura #boxVendaNossa.vn-so-opcao, body.modo-leitura #btnTirarVendaNossa { display:none; }
-  .vn-valor { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .vn-valor { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; }
+  .vn-valor .total-valor { margin-top:0; }
+  /* Dar e tirar sao botoes de verdade (teste de 20/nov: o link solto nao se achava), no tamanho dos do quadro do desconto a vista do PDV */
+  .btn-secundario.vn-btn { padding:4px 11px; font-size:12px; }
   body.modo-leitura .itens-table input { pointer-events:none; opacity:0.85; border-color:transparent; background:transparent; }
 
   a[class^="btn-"], a[class*=" btn-"], a[class^="btn-"]:hover, a[class*=" btn-"]:hover { text-decoration:none; }
@@ -1364,11 +1367,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         <div class="total-item"><div class="total-rotulo">Total produtos</div><div class="total-valor" id="totProdutos">R$ 0,00</div></div>
         <div class="total-item"><div class="total-rotulo">Desconto do pedido</div><input data-mascara="valor-ou-pct" inputmode="decimal" type="text" id="inputDesconto" value="0" placeholder="Ex: 3,00 ou 10%"><div class="campo-leitura" data-leitura="inputDesconto"></div></div>
         <div class="total-item" id="boxVendaNossa" style="display:none;">
-          <div id="vnOpcao"><span class="acao-link" id="btnVendaNossa">Dar o desconto da venda nossa (5%)</span></div>
-          <div id="vnLinha" style="display:none;">
-            <div class="total-rotulo" id="vnRotulo">Desconto da venda nossa (5%)</div>
-            <div class="vn-valor"><div class="total-valor" id="totVendaNossa">− R$ 0,00</div><span class="acao-link" id="btnTirarVendaNossa">tirar</span></div>
-          </div>
+          <div class="total-rotulo" id="vnRotulo">Desconto da venda nossa (5%)</div>
+          <div class="vn-valor" id="vnOpcao"><button type="button" class="btn-secundario vn-btn" id="btnVendaNossa">Dar o desconto</button></div>
+          <div class="vn-valor" id="vnLinha" style="display:none;"><div class="total-valor" id="totVendaNossa">− R$ 0,00</div><button type="button" class="btn-secundario vn-btn" id="btnTirarVendaNossa">Tirar</button></div>
         </div>
         <div class="total-item"><div class="total-rotulo">Frete pago pelo cliente</div><input data-mascara="dinheiro" inputmode="decimal" type="text" id="inputFrete" value="0,00"><div class="campo-leitura" data-leitura="inputFrete"></div></div>
         <div class="total-item"><div class="total-rotulo">Frete pago pela loja</div><input data-mascara="dinheiro" inputmode="decimal" type="text" id="inputFretePagoLoja" value="" placeholder="Não informado"><div class="campo-leitura" data-leitura="inputFretePagoLoja"></div></div>
@@ -4375,7 +4376,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('boxVendaNossa').classList.toggle('vn-so-opcao', vn.pode && !vn.ativo);
     document.getElementById('vnOpcao').style.display = vn.pode && !vn.ativo ? '' : 'none';
     document.getElementById('vnLinha').style.display = vn.ativo ? '' : 'none';
-    document.getElementById('btnVendaNossa').textContent = 'Dar o desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)';
     document.getElementById('vnRotulo').textContent = 'Desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)';
     document.getElementById('totVendaNossa').textContent = '− ' + fmtMoeda(vn.valor);
     const corte = document.getElementById('vnCorte');

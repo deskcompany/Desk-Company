@@ -128,7 +128,7 @@ with sync_playwright() as p:
         pg.fill('[data-receb-valor="%d"]' % n, v); pg.locator('[data-receb-valor="%d"]' % n).blur(); pg.wait_for_timeout(250)
 
     def dar_pdv():
-        clica('#btnVendaNossa'); pg.wait_for_timeout(250)
+        pg.click('#btnVendaNossa', timeout=5000); pg.wait_for_timeout(250)   # clique de mouse, como o usuario (teste dele de 20/nov)
 
     # ---------------- Pedido ----------------
     def ped_campo(i, c, v):
@@ -144,7 +144,7 @@ with sync_playwright() as p:
         escolhe('inputRecebimento', forma)
 
     def dar_ped():
-        clica('#btnVendaNossa'); pg.wait_for_timeout(250)
+        pg.click('#btnVendaNossa', timeout=5000); pg.wait_for_timeout(250)
 
     # ------------------------------------------------------------------------------------------------
     if secao(1, 'O bloco VENDA NOSSA e a conta pura'):
@@ -200,9 +200,26 @@ with sync_playwright() as p:
         ok(ev("pagoDe(venda.recebimentos[0])") == 75.9 and ev("venda.recebimentos[0].valor") == 79.9, 'o Pix quita R$ 79,90 e o cliente paga R$ 75,90')
         ok('desconto da venda nossa de 5%' in txt('#listaReceb'), 'a linha do recebimento diz o desconto: %s' % txt('#listaReceb')[:160])
         ok('Pode finalizar' in txt('#faltaReceber') and 'R$ 75,90' in txt('#faltaReceber'), 'a barra de falta diz R$ 75,90 e "Pode finalizar"')
-        clica('#btnTirarVendaNossa'); pg.wait_for_timeout(200)
+        pg.click('#btnTirarVendaNossa', timeout=5000); pg.wait_for_timeout(200)
         ok(ev("venda.vendaNossaPedida") is False and not vis('#finVendaNossaLinha') and vis('#finVendaNossaOpcao') and ev("totalAPagar()") == 79.9 and not modal_aberto(),
-           '"tirar" tira na hora, sem código, e o link volta')
+           '"Tirar" tira na hora, sem código, e o "Dar" volta')
+        # --- 2a: o teste dele de 20/nov ("depois de aplicado não teve mais como tirar"; "já não consegui colocar de novo"): dar e tirar sao botoes de
+        # verdade no quadro dos Recebimentos, junto do desconto Pix/dinheiro, e o clique de mouse vai e volta, mesmo depois de trocar o item
+        ok(ev("!!document.getElementById('avisoVendaNossa') && document.getElementById('avisoVendaNossa').contains(document.getElementById('btnVendaNossa')) && document.getElementById('btnVendaNossa').tagName === 'BUTTON'"),
+           '"Dar o desconto da venda nossa" é um botão no quadro dos Recebimentos, junto do desconto Pix/dinheiro')
+        dar_pdv()
+        ok(ev("venda.vendaNossaPedida") is True and ev("!!document.getElementById('avisoVendaNossa') && document.getElementById('avisoVendaNossa').contains(document.getElementById('btnTirarVendaNossa')) && document.getElementById('btnTirarVendaNossa').tagName === 'BUTTON'"),
+           'dado, o mesmo quadro passa a ter o botão "Tirar o desconto da venda nossa"')
+        pg.click('#btnTirarVendaNossa', timeout=5000); pg.wait_for_timeout(250)
+        dar_pdv()
+        ok(ev("venda.vendaNossaPedida") is True and vis('#btnTirarVendaNossa'), 'tirar e dar de novo, com o mouse: vai e volta')
+        pg.click('#btnVoltarItens', timeout=5000); pg.wait_for_timeout(250)
+        pg.click('tr[data-item="0"]', timeout=5000); pg.wait_for_timeout(200); pg.click('#btnRemoverItem', timeout=5000); pg.wait_for_timeout(200)
+        pdv_add('FON-BT-200', '2'); pg.click('#btnContinuar', timeout=5000); pg.wait_for_timeout(300)
+        ok(vis('#btnTirarVendaNossa') and txt('#finVendaNossa') == '− R$ 24,99', 'trocado o item na volta aos itens (2 × R$ 249,90), o desconto acompanha (R$ 24,99) e o "Tirar" segue no quadro: %s' % txt('#finVendaNossa'))
+        pg.click('#btnTirarVendaNossa', timeout=5000); pg.wait_for_timeout(250)
+        ok(ev("venda.vendaNossaPedida") is False and ev("totalAPagar()") == 499.8 and vis('#btnVendaNossa'), 'e tira: o total volta a R$ 499,80, e o "Dar" volta')
+        pdv_cobra('MOB-4002', '1', 'pix')   # o passo seguinte parte da venda de R$ 79,90
         # --- 2b: com 4% em Parametros de vendas
         params(comissaoPadraoPct=4); ir(PDV)
         ok(txt('#btnVendaNossa') == 'Dar o desconto da venda nossa (4%)', 'com 4%% em Parâmetros de vendas o link diz 4%%: %s' % txt('#btnVendaNossa'))
@@ -311,7 +328,8 @@ with sync_playwright() as p:
     if secao(4, 'O Pedido de Venda'):
         limpar()
         ped_novo('MOB-4002', '1', 'pix')
-        ok(vis('#vnOpcao') and txt('#btnVendaNossa') == 'Dar o desconto da venda nossa (5%)', 'sem vendedor, sem indicação e com Pix aparece "Dar o desconto da venda nossa (5%%)": %s' % txt('#btnVendaNossa'))
+        ok(vis('#vnOpcao') and txt('#vnRotulo') == 'Desconto da venda nossa (5%)' and txt('#btnVendaNossa') == 'Dar o desconto', 'sem vendedor, sem indicação e com Pix aparece o card "Desconto da venda nossa (5%%)" com o botão "Dar o desconto": %s | %s' % (txt('#vnRotulo'), txt('#btnVendaNossa')))
+        ok(ev("['btnVendaNossa', 'btnTirarVendaNossa'].every(id => document.getElementById(id).tagName === 'BUTTON')"), 'no card, "Dar o desconto" e "Tirar" são botões de verdade (o teste dele de 20/nov)')
         ok(not vis('#vnLinha') and txt('#totGeral') == 'R$ 79,90', 'e o total da venda segue cheio (R$ 79,90) até dar o desconto')
         escolhe('inputRecebimento', 'dinheiro')
         ok(vis('#vnOpcao'), 'com dinheiro também aparece')
@@ -337,7 +355,7 @@ with sync_playwright() as p:
         ok(ev("PEDIDO.vendaNossa") == {'pct': 5, 'valor': 4, 'cortado': 0}, 'o pedido guarda vendaNossa { pct, valor, cortado }: %s' % ev("PEDIDO.vendaNossa"))
         ok([x['valor'] for x in ev("planoDeParcelas()")] == [75.9], 'o plano de parcelas (e a conta a receber) segue o total com o desconto: R$ 75,90')
         foto('pedido-totais-claro.png')
-        clica('#btnTirarVendaNossa'); pg.wait_for_timeout(200)
+        pg.click('#btnTirarVendaNossa', timeout=5000); pg.wait_for_timeout(200)   # clique de mouse
         ok(not vis('#vnLinha') and vis('#vnOpcao') and txt('#totGeral') == 'R$ 79,90' and ev("PEDIDO.vendaNossa") is None and not modal_aberto(), '"tirar" tira na hora, sem código')
         params(comissaoPadraoPct=4); ir(PEDD, '?novo=1'); escolhe('inputLoja', 1)
         ped_campo(0, 'sku', 'MOB-4002'); ped_campo(0, 'qtd', '1'); escolhe('inputRecebimento', 'pix'); dar_ped()

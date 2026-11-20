@@ -1027,8 +1027,6 @@
   /* O pedido da venda concluida e link (12/out/2026) */
   .pdv-link { color:var(--active-text); text-decoration:none; }
   .pdv-link:hover { text-decoration:underline; }
-  .pdv-link-btn { background:none; border:none; padding:0; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; }
-  .pdv-link-btn:hover { text-decoration:underline; }
   /* O link da venda no "quanto vendeu" do bloco PROMOCOES (10/nov/2026) */
   .painel-link { color:var(--active-text); font-weight:700; text-decoration:none; }
   .painel-link:hover { text-decoration:underline; }
@@ -1360,9 +1358,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           <div class="pdv-linha"><span>Desconto na venda</span><b id="finDescontoValor">R$ 0,00</b></div>
           <div class="pdv-linha" id="finAcrescimoLinha" style="display:none;"><span>Acréscimo do cartão</span><b id="finAcrescimo">R$ 0,00</b></div>
           <div class="pdv-linha" id="finDescAVistaLinha" style="display:none;"><span id="finDescAVistaRotulo">Desconto Pix/dinheiro</span><b id="finDescAVista">− R$ 0,00</b></div>
-          <div class="pdv-linha" id="finVendaNossaLinha" style="display:none;"><span><span id="finVendaNossaRotulo">Desconto da venda nossa</span> · <button type="button" class="pdv-link-btn" id="btnTirarVendaNossa">tirar</button></span><b id="finVendaNossa">− R$ 0,00</b></div>
-          <div class="field-hint" id="finVendaNossaCorte" style="display:none;"></div>
-          <div class="pdv-linha" id="finVendaNossaOpcao" style="display:none;"><button type="button" class="pdv-link-btn" id="btnVendaNossa">Dar o desconto da venda nossa (5%)</button></div>
+          <div class="pdv-linha" id="finVendaNossaLinha" style="display:none;"><span id="finVendaNossaRotulo">Desconto da venda nossa</span><b id="finVendaNossa">− R$ 0,00</b></div>
           <div class="pdv-linha forte"><span>Total</span><b id="finTotal">R$ 0,00</b></div>
         </div>
       </div>
@@ -1418,6 +1414,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </div>
           <div class="pdv-aviso-maq" id="avisoSemMaquininha" style="display:none;"></div>
           <div class="pdv-aviso-maq" id="avisoAVista" style="display:none;"></div>
+          <div class="pdv-aviso-maq" id="avisoVendaNossa" style="display:none;"></div>
           <div id="listaReceb"></div>
           <div class="pdv-falta" id="faltaReceber"></div>
         </div>
@@ -4808,14 +4805,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     mostrar('finDescAVistaLinha', desc > 0);
     texto('finDescAVistaRotulo', 'Desconto Pix/dinheiro (' + fmtNum(descontoAVistaPct()) + '%)');
     texto('finDescAVista', '− ' + moeda(desc));
-    // O desconto da venda nossa: o link quando cabe (sem vendedor, com Pix ou dinheiro), a linha depois de dado.
-    mostrar('finVendaNossaOpcao', vn.pode && !vn.ativo);
-    texto('btnVendaNossa', 'Dar o desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)');
+    // O desconto da venda nossa: no resumo, so a linha depois de dado; nos Recebimentos, o quadro com o botao de dar e o de tirar, como o do desconto a vista
+    // (teste de 20/nov: o "tirar" pequeno no resumo passou despercebido, e o usuario nao achou como tirar nem como dar de novo).
+    const pctVN = vendaNossaRotuloPct(vn.pct);
     mostrar('finVendaNossaLinha', vn.ativo);
-    texto('finVendaNossaRotulo', 'Desconto da venda nossa (' + vendaNossaRotuloPct(vn.pct) + '%)');
+    texto('finVendaNossaRotulo', 'Desconto da venda nossa (' + pctVN + '%)');
     texto('finVendaNossa', '− ' + moeda(vn.valor));
-    mostrar('finVendaNossaCorte', vn.ativo && vn.cortado > 0);
-    texto('finVendaNossaCorte', vn.cortado > 0 ? vendaNossaTextoCorte(vn.valor, vn.cortado, vn.nomes, moeda) : '');
+    const qvn = !vn.pode ? '' : vn.ativo
+      ? 'Desconto da venda nossa de <b>' + pctVN + '%</b> (venda sem vendedor: ninguém recebe a comissão): <b>− ' + moeda(vn.valor) + '</b>.' +
+        (vn.cortado > 0 ? ' <span id="finVendaNossaCorte">' + esc(vendaNossaTextoCorte(vn.valor, vn.cortado, vn.nomes, moeda)) + '</span>' : '') +
+        ' <button type="button" class="btn-secundario" id="btnTirarVendaNossa">Tirar o desconto da venda nossa</button>'
+      : '<span id="finVendaNossaOpcao">Venda sem vendedor: ninguém recebe a comissão de <b>' + pctVN + '%</b>, que pode virar desconto no Pix e no dinheiro.' +
+        ' <button type="button" class="btn-secundario" id="btnVendaNossa">Dar o desconto da venda nossa (' + pctVN + '%)</button></span>';
+    mostrar('avisoVendaNossa', !!qvn); html('avisoVendaNossa', qvn);
+    const bDarVN = document.getElementById('btnVendaNossa'), bTirarVN = document.getElementById('btnTirarVendaNossa');
+    if (bDarVN) bDarVN.addEventListener('click', darVendaNossa);
+    if (bTirarVN) bTirarVN.addEventListener('click', () => { venda.vendaNossaPedida = false; pintarFinalizar(); gravar(); });
     texto('totTroco', moeda(trocoTotal()));
     texto('totVendaFin', moeda(totalAPagar()));
     texto('finTotal', moeda(totalAPagar()));
@@ -5316,8 +5321,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnAplicarPromoExcedente').addEventListener('click', aplicarPromoExcedente);
   document.getElementById('btnRemoverItem').addEventListener('click', () => { const sku = venda.itens[itemEmEdicao].sku; venda.itens.splice(itemEmEdicao, 1); atacadoReconciliar(sku); fecharPaineis(); pintarVenda(); gravar(); });
   document.getElementById('btnContinuar').addEventListener('click', continuar);
-  document.getElementById('btnVendaNossa').addEventListener('click', darVendaNossa);
-  document.getElementById('btnTirarVendaNossa').addEventListener('click', () => { venda.vendaNossaPedida = false; pintarFinalizar(); gravar(); });
   document.getElementById('btnCancelarVenda').addEventListener('click', cancelarVenda);
   document.getElementById('finDesconto').addEventListener('change', (e) => { venda.descontoTxt = e.target.value.trim(); pintarFinalizar(); gravar(); });
   // O aviso do maximo acompanha a digitacao, como no item; gravar continua sendo no change.
