@@ -2967,10 +2967,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // ===== FIM DO BLOCO GATEWAYS: LEITURA =====
   // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
-  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 10 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
-  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma), as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
-  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado, a ficha do produto (a calculadora
-  // de preco le o custo da caixa e dos insumos) e Necessidades de Compra (lista as abaixo do minimo); teste_embalagem_pedido.py compara as copias.
+  // O cadastro de Embalagens, o registro de embalagem de cada pedido, o codigo e o movimento. Identico em todas as telas que o carregam: `grep -rl "EMBALAGENS: LEITURA (bloco comum" telas`
+  // da a lista, e teste_embalagens_estoque.py compara as copias. Nas telas que fazem a conta do pedido (bloco RESULTADO DO PEDIDO) este bloco vem ANTES dele, para o `const` ja estar inicializado.
   //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
   //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
   //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
@@ -3066,6 +3064,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
       .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
+  }
+  // A conta da entrada de embalagem, uma so para a nota (Entrada de Notas) e para a entrada sem nota (Embalagens): custo medio ponderado; saldo zerado ou negativo nao pesa e vale so o custo da entrada.
+  // Devolve o saldo e o custo de antes, se foi medio, e o saldo e o custo novos. Nao grava nada: quem chama grava o cadastro (embalagensGravar) e o movimento (embMovRegistrar).
+  function embEntradaConta(e, qtd, custoUnit) {
+    const r = (n, c) => { const f = Math.pow(10, c); return Math.round(Number(n) * f + (n < 0 ? -1e-6 : 1e-6)) / f; };
+    const saldo = Number(e.saldo) || 0, custo = Number(e.custo) || 0, medio = saldo > 0;
+    return { saldo: saldo, custoAtual: custo, medio: medio, novoSaldo: r(saldo + qtd, 4), novoCusto: medio ? r((saldo * custo + qtd * custoUnit) / (saldo + qtd), 2) : r(custoUnit, 2) };
   }
   // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
   function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }

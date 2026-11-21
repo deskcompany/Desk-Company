@@ -230,6 +230,7 @@ def audita(caminho):
              'deskEmbalagensPedido',   # 30/out: a embalagem de cada pedido (rascunho, separada, confirmada, com o custo do dia): a Separacao e a Conferencia gravam; Custos e a pagina do pedido leem
              'deskMovEmbalagens',   # 20/nov: os movimentos das embalagens (entrada, baixa no pedido, acerto, contagem): Embalagens, a Conferencia de Saida e (pacote 2) a nota e o Inventario gravam; a Movimentacao de Estoque le
              'deskEmbalagensSeq',   # 20/nov: o ultimo numero de embalagem dado (EMB-015 = 15): o cadastro guarda para nunca reaproveitar um codigo
+             'deskNotasLancadas',   # 20/nov: as notas de entrada ja lancadas (a chave e o CNPJ do fornecedor + a serie + o numero): a nota nao entra duas vezes; so a Entrada de Notas (detalhe) grava e le
              'deskCustoProduto',   # 16/nov: as linhas da aba Custos da ficha, por id do produto: a ficha grava; o PDV e o Pedido leem para o preco minimo
              'deskCalculoPreco',   # 30/out: o calculo da calculadora de preco, por id do produto (preco, margem, parcelas, caixa...): so Cadastros > Produtos (a ficha) grava e le
              'deskUsuarios',   # 10/nov: Usuarios do sistema. A pagina do usuario e a lista gravam; a pagina do perfil, Vendedores (o usuario vinculado) e as outras telas de Usuarios e Perfis leem

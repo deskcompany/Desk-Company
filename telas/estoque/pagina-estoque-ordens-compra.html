@@ -1711,13 +1711,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const numero = Number(o && o.numero);
       if (!numero || !o.fornecedor || !Array.isArray(o.itens) || ORDENS.some(x => x.numero === numero)) return;
       ORDENS.push({ id: numero, numero: numero, data: String(o.data || ''), previsto: String(o.previsto || ''), fornecedor: String(o.fornecedor),
-                    dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: 'aberto' });
+                    dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: o.situacao === 'andamento' || o.situacao === 'atendida' ? o.situacao : 'aberto' });   // a Entrada de Notas grava o recebido e a situacao
       ITENS_OC[numero] = o.itens.map(i => ({ nome: String(i.nome || ''), sku: String(i.sku || ''), qtd: Number(i.qtd) || 0,
-                                             un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: 0 }));
+                                             un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: Number(i.recebido) || 0 }));
       NUMEROS_GERADOS.push(numero);
     });
   })();
-  // shortcut: so ordem excluida ou cancelada volta para la; receber parte de uma ordem gerada ainda nao muda o que a compra enxerga. Entra com o recebimento de verdade, no banco.
+  // shortcut: so ordem excluida ou cancelada volta para la. O que a Entrada de Notas recebeu de uma ordem so de embalagens ja desconta no "chegando" das embalagens (Necessidades de Compra); o recebimento de produto entra com o banco.
   function devolverOrdensGeradas() {
     if (!NUMEROS_GERADOS.length) return;
     const viva = (numero) => ORDENS.some(o => o.numero === numero && o.situacao !== 'cancelada');

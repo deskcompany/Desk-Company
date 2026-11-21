@@ -486,8 +486,10 @@
   #painelCompra .estoque-table th, #painelCompra .estoque-table td { padding-left:5px; padding-right:5px; }
   #painelCompra .estoque-table th { letter-spacing:0; }
   #painelEmbalagens .estoque-table td.col-texto { white-space:normal; }
-  #painelEmbalagens .link-entrada { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); text-decoration:none; white-space:nowrap; }
-  #painelEmbalagens .link-entrada:hover { text-decoration:underline; }
+  #painelEmbalagens .estoque-table th.nc-col-check, #painelEmbalagens .estoque-table td.nc-col-check { width:26px; padding-right:2px; }
+  #painelEmbalagens .estoque-table th { white-space:nowrap; }   /* titulo de coluna nao quebra */
+  #painelEmbalagens .estoque-table td:nth-child(2), #painelEmbalagens .estoque-table td:nth-child(9), #painelEmbalagens .estoque-table td:nth-child(10) { white-space:nowrap; }   /* codigo, custo e total nao quebram */
+  #painelEmbalagens .nc-nota { font-size:11px; font-weight:600; color:var(--text); }
   #painelEmbalagens .emb-vazio { font-size:13px; color:var(--text); padding:6px 0 2px; }
   .col-produto { font-weight:700; }
   .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
@@ -1237,23 +1239,32 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="card" id="painelEmbalagens">
     <div class="card-title">Embalagens abaixo do mínimo</div>
-    <div class="field-hint" style="margin:3px 0 14px;">Só as embalagens ativas com saldo menor que o mínimo. Aqui não se gera ordem de compra: a entrada é dada no Cadastro de Embalagens, pelo link de cada linha.</div>
+    <div class="field-hint" style="margin:3px 0 14px;">Só as embalagens ativas com saldo menor que o mínimo. "Chegando" é o que as ordens de compra em aberto e em andamento ainda têm a receber, e já sai do que comprar. Marque as que quer repor e gere a ordem de compra; a mercadoria entra no estoque pela nota, em Entrada de Notas.</div>
     <div class="estoque-table-wrap" id="tabelaEmbalagensWrap">
       <table class="estoque-table" id="tabelaEmbalagens">
         <thead>
           <tr>
+            <th class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" id="checkTodasEmb" aria-label="Selecionar todas as embalagens da lista"></th>
+            <th class="col-texto">Código</th>
             <th class="col-texto">Embalagem</th>
             <th class="col-texto">Tipo</th>
             <th>Saldo</th>
+            <th title="O que as ordens de compra em aberto e em andamento ainda têm a receber">Chegando</th>
             <th>Mínimo</th>
-            <th title="Quanto falta para chegar ao mínimo, arredondado para cima">Comprar</th>
+            <th title="Quanto falta para chegar ao mínimo, já descontado o que está chegando, arredondado para cima">Comprar</th>
             <th>Custo da unidade</th>
             <th>Total</th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="corpoEmbalagens"></tbody>
       </table>
+    </div>
+    <div class="selecao-bar" id="barraSelecaoEmb">
+      <span class="selecao-info" id="selecaoInfoEmb">0 embalagens selecionadas</span>
+      <div class="selecao-acoes">
+        <button class="btn-primary" id="btnGerarEmb">Gerar ordem de compra</button>
+        <div class="drawer-link" id="btnCancelarSelEmb">Cancelar seleção</div>
+      </div>
     </div>
     <div class="emb-vazio" id="embVazio" style="display:none;">Nenhuma embalagem abaixo do mínimo.</div>
   </div>
@@ -1918,10 +1929,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   renderBreadcrumb();
 
   // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
-  // O cadastro de Embalagens e o registro de embalagem de cada pedido. Identico em 10 telas: Cadastros > Embalagens (que grava o cadastro), a ficha da Separacao (que
-  // escolhe a embalagem), a bancada da Conferencia de Saida (que confirma), as cinco que fazem a conta do pedido no bloco RESULTADO DO PEDIDO (Custos do E-commerce, a
-  // pagina do pedido, as duas de Comissoes e a ficha do cliente), onde este bloco vem ANTES dele para o `const` ja estar inicializado, a ficha do produto (a calculadora
-  // de preco le o custo da caixa e dos insumos) e Necessidades de Compra (lista as abaixo do minimo); teste_embalagem_pedido.py compara as copias.
+  // O cadastro de Embalagens, o registro de embalagem de cada pedido, o codigo e o movimento. Identico em todas as telas que o carregam: `grep -rl "EMBALAGENS: LEITURA (bloco comum" telas`
+  // da a lista, e teste_embalagens_estoque.py compara as copias. Nas telas que fazem a conta do pedido (bloco RESULTADO DO PEDIDO) este bloco vem ANTES dele, para o `const` ja estar inicializado.
   //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
   //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
   //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
@@ -2018,6 +2027,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
       .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
   }
+  // A conta da entrada de embalagem, uma so para a nota (Entrada de Notas) e para a entrada sem nota (Embalagens): custo medio ponderado; saldo zerado ou negativo nao pesa e vale so o custo da entrada.
+  // Devolve o saldo e o custo de antes, se foi medio, e o saldo e o custo novos. Nao grava nada: quem chama grava o cadastro (embalagensGravar) e o movimento (embMovRegistrar).
+  function embEntradaConta(e, qtd, custoUnit) {
+    const r = (n, c) => { const f = Math.pow(10, c); return Math.round(Number(n) * f + (n < 0 ? -1e-6 : 1e-6)) / f; };
+    const saldo = Number(e.saldo) || 0, custo = Number(e.custo) || 0, medio = saldo > 0;
+    return { saldo: saldo, custoAtual: custo, medio: medio, novoSaldo: r(saldo + qtd, 4), novoCusto: medio ? r((saldo * custo + qtd * custoUnit) / (saldo + qtd), 2) : r(custoUnit, 2) };
+  }
   // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
   function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
   // O CODIGO E O MOVIMENTO (20/nov/2026). Moram aqui porque o cadastro, a Conferencia de Saida e a Movimentacao de Estoque precisam dos mesmos.
@@ -2082,29 +2098,86 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
 
-  // ===== EMBALAGENS ABAIXO DO MINIMO (03/nov/2026) =====
-  // Lista so as ativas com saldo menor que o minimo, do bloco EMBALAGENS: LEITURA. Nao gera ordem de compra: na producao a entrada vem pela nota, e aqui o link leva a "Dar entrada" no cadastro.
-  (function embalagensAbaixoDoMinimo() {
+  // ===== EMBALAGENS ABAIXO DO MINIMO (03/nov/2026; ordem de compra e "chegando" em 20/nov/2026) =====
+  // Lista so as ativas com saldo menor que o minimo, do bloco EMBALAGENS: LEITURA. Cada linha tem a caixa de marcar e o "Gerar ordem de compra" abre o mesmo painel das ordens de produto
+  // (abrirOrdemEmb): a ordem nasce em `deskOrdensGeradas` so com embalagens, com o codigo no lugar do SKU, e a mercadoria entra no estoque pela Entrada de Notas.
+  // Roda ao abrir a pagina, antes de ORDENS_GERADAS e das constantes de baixo existirem: por isso le a chave direto e so usa funcoes e o que o bloco comum declara.
+  const selEmb = new Set();   // ids das embalagens marcadas
+  // O que as ordens geradas em aberto e em andamento ainda tem a receber de cada embalagem: { embId: [{ numero, qtd }] }, qtd = pedido - recebido.
+  function embChegando() {
+    let lista = [];
+    try { lista = JSON.parse(localStorage.getItem('deskOrdensGeradas') || '[]') || []; } catch (e) { lista = []; }
+    const r = {};
+    if (!Array.isArray(lista)) return r;
+    lista.forEach(o => {
+      const sit = o && o.situacao ? o.situacao : 'aberto';
+      if (!o || (sit !== 'aberto' && sit !== 'andamento') || !Array.isArray(o.itens)) return;
+      o.itens.forEach(i => {
+        if (!i || i.embId == null) return;
+        const falta = Math.round(((Number(i.qtd) || 0) - (Number(i.recebido) || 0)) * 10000) / 10000;
+        if (falta > 0) (r[i.embId] = r[i.embId] || []).push({ numero: o.numero, qtd: falta });
+      });
+    });
+    return r;
+  }
+  // A conta da compra de uma embalagem: comprar = max(0, teto(minimo - saldo - chegando)). O -1e-9 segura o erro de ponto flutuante (5 - 0,1 - 4,9 nao pede 1).
+  function embCompra(e, cheg) {
+    const ords = cheg[e.id] || [], chegando = Math.round(ords.reduce((s, o) => s + o.qtd, 0) * 10000) / 10000;
+    return { ordens: ords, chegando: chegando, comprar: Math.max(0, Math.ceil((Number(e.minimo) || 0) - (Number(e.saldo) || 0) - chegando - 1e-9)) };
+  }
+  function embalagensAbaixoDoMinimo() {
     const TIPOS = { pacote: 'Pacote / Caixa', envelope: 'Envelope', rolo: 'Rolo / Cilindro', insumo: 'Insumo' };
     const brl = (n) => 'R$ ' + (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const baixas = embalagensLer().filter(e => e.status === 'ativo' && (Number(e.saldo) || 0) < (Number(e.minimo) || 0));
+    const cheg = embChegando();
     const corpo = document.getElementById('corpoEmbalagens');
     corpo.innerHTML = '';
     baixas.forEach(e => {
-      const comprar = Math.ceil((Number(e.minimo) || 0) - (Number(e.saldo) || 0));
+      const c = embCompra(e, cheg);
+      if (c.comprar <= 0) selEmb.delete(e.id);
       const tr = document.createElement('tr');
       tr.setAttribute('data-id', String(e.id));
-      const celula = (texto, texto_col) => { const td = document.createElement('td'); if (texto_col) td.className = 'col-texto'; td.textContent = texto; tr.appendChild(td); return td; };
-      celula(e.nome, true); celula(TIPOS[e.tipo] || e.tipo, true);
-      celula(embFmtSaldo(e.saldo)); celula(embFmtSaldo(e.minimo)); celula(String(comprar)); celula(brl(e.custo)); celula(brl(comprar * (Number(e.custo) || 0)));
-      const ultima = document.createElement('td'), a = document.createElement('a');
-      a.className = 'link-entrada'; a.href = '../cadastros/pagina-cadastros-embalagens.html?entrada=' + e.id; a.textContent = 'Dar entrada';
-      ultima.appendChild(a); tr.appendChild(ultima);
+      tr.innerHTML =
+        '<td class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" data-id="' + e.id + '" aria-label="Selecionar ' + esc(e.nome) + '"' + (c.comprar > 0 ? '' : ' disabled') + (selEmb.has(e.id) ? ' checked' : '') + '></td>' +
+        '<td class="col-texto">' + esc(embCodigo(e)) + '</td>' +
+        '<td class="col-texto">' + esc(e.nome) + '</td>' +
+        '<td class="col-texto">' + esc(TIPOS[e.tipo] || e.tipo) + '</td>' +
+        '<td>' + embFmtSaldo(e.saldo) + '</td>' +
+        '<td>' + (c.chegando > 0 ? embFmtSaldo(c.chegando) + '<div class="nc-nota">ordem nº ' + c.ordens.map(o => o.numero).join(', nº ') + '</div>' : '<span class="estagio-zero">—</span>') + '</td>' +
+        '<td>' + embFmtSaldo(e.minimo) + '</td>' +
+        '<td>' + c.comprar + '</td>' +
+        '<td>' + brl(e.custo) + '</td>' +
+        '<td>' + brl(c.comprar * (Number(e.custo) || 0)) + '</td>';
+      tr.querySelector('.item-checkbox').addEventListener('change', (ev) => {
+        if (ev.target.checked) selEmb.add(e.id); else selEmb.delete(e.id);
+        atualizarBarraEmb();
+      });
       corpo.appendChild(tr);
     });
     document.getElementById('tabelaEmbalagensWrap').style.display = baixas.length ? '' : 'none';
     document.getElementById('embVazio').style.display = baixas.length ? 'none' : '';
-  })();
+    atualizarBarraEmb();
+  }
+  function atualizarBarraEmb() {
+    const lista = embalagensLer(), cheg = embChegando();
+    const marcadas = lista.filter(e => selEmb.has(e.id));
+    const total = marcadas.reduce((s, e) => s + embCompra(e, cheg).comprar * (Number(e.custo) || 0), 0);
+    document.getElementById('selecaoInfoEmb').textContent = marcadas.length + (marcadas.length === 1 ? ' embalagem selecionada' : ' embalagens selecionadas') +
+      (total > 0 ? ' · R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '');
+    document.getElementById('barraSelecaoEmb').classList.toggle('show', marcadas.length > 0);
+    const caixas = Array.from(document.querySelectorAll('#corpoEmbalagens .item-checkbox:not(:disabled)'));
+    document.getElementById('checkTodasEmb').checked = caixas.length > 0 && caixas.every(c => c.checked);
+  }
+  document.getElementById('checkTodasEmb').addEventListener('change', (ev) => {
+    document.querySelectorAll('#corpoEmbalagens .item-checkbox:not(:disabled)').forEach(c => {
+      c.checked = ev.target.checked;
+      if (ev.target.checked) selEmb.add(Number(c.getAttribute('data-id'))); else selEmb.delete(Number(c.getAttribute('data-id')));
+    });
+    atualizarBarraEmb();
+  });
+  document.getElementById('btnCancelarSelEmb').addEventListener('click', () => { selEmb.clear(); embalagensAbaixoDoMinimo(); });
+  document.getElementById('btnGerarEmb').addEventListener('click', () => abrirOrdemEmb(Array.from(selEmb)));
+  embalagensAbaixoDoMinimo();
 
   // ===== MODAL =====
   const confirmModal = document.getElementById('confirmModal');
@@ -3147,6 +3220,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const X_ICONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   const CAL_ICONE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
 
+  // Item da ordem: produto (pelo SKU) ou embalagem (pelo id, lida no cadastro). O painel le os dois do mesmo jeito: { nome, sku, unidade, custoMedio }.
+  function itemOrdem(i) {
+    if (i.embId == null) return produtoDe(i.sku);
+    const e = embalagensLer().filter(x => x.id === i.embId)[0];
+    return { nome: e ? e.nome : i.sku, sku: e ? embCodigo(e) : i.sku, unidade: 'UN', custoMedio: e ? Number(e.custo) || 0 : 0 };
+  }
+  // A ordem so de embalagens: um bloco, fornecedor ainda sem escolher (obrigatorio), a quantidade ja descontada do que esta chegando. Embalagem nao tem deposito: a ordem nasce no Geral.
+  function abrirOrdemEmb(ids) {
+    const cheg = embChegando();
+    const itens = embalagensLer().filter(e => ids.indexOf(e.id) >= 0).map(e => ({ embId: e.id, sku: embCodigo(e), qtd: embCompra(e, cheg).comprar, segurado: false, sugestao: 0 }));
+    if (!itens.length) return;
+    rascunho = { emb: true, dep: DEPOSITO_PRINCIPAL, grupos: [{ fornecedor: '', previsto: '', itens: itens }] };
+    desenharOrdem();
+  }
+
   function abrirOrdem(skus) {
     const porForn = {};
     skus.forEach(sku => {
@@ -3168,8 +3256,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const opForn = Object.keys(FORNECEDORES).map(k => ({ v: k, t: FORNECEDORES[k] }));
     const opDep = DEPOSITOS_DE_ENTREGA.map(d => ({ v: d, t: DEPOSITOS[d] }));
     abrirDrawer('Ordem de compra',
-      '<div class="form-field"><label>Depósito de entrega</label>' + dropdownHtml('ocDeposito', '', opDep, rascunho.dep) +
-        '<div class="field-hint">Vale para ' + (total === 1 ? 'a ordem' : 'todas as ordens') + ' abaixo. Preço, frete e parcelas se completam depois, na página de cada ordem.</div></div>' +
+      (rascunho.emb ? '<div class="field-hint" style="margin:0 0 12px;">Ordem só de embalagens. A mercadoria entra no estoque pela nota, em Entrada de Notas, e não há depósito. Preço, frete e parcelas se completam depois, na página da ordem.</div>'
+        : '<div class="form-field"><label>Depósito de entrega</label>' + dropdownHtml('ocDeposito', '', opDep, rascunho.dep) +
+        '<div class="field-hint">Vale para ' + (total === 1 ? 'a ordem' : 'todas as ordens') + ' abaixo. Preço, frete e parcelas se completam depois, na página de cada ordem.</div></div>') +
       rascunho.grupos.map((g, gi) =>
         '<div class="nc-grupo" data-grupo="' + gi + '">' +
           '<div class="nc-grupo-titulo">' + (total === 1 ? 'Ordem de compra' : 'Ordem ' + (gi + 1) + ' de ' + total) + '</div>' +
@@ -3181,7 +3270,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '</div>' +
           '<table class="nc-itens"><thead><tr><th>Item</th><th>Qtde</th><th>Custo</th><th>Subtotal</th><th></th></tr></thead><tbody>' +
           g.itens.map((i, ii) => {
-            const p = produtoDe(i.sku);
+            const p = itemOrdem(i);
             return '<tr><td><div class="prod-nome">' + esc(p.nome) + '</div><div class="prod-sku">' + esc(p.sku) + (i.segurado ? ' · segurado pelo giro, a conta pediria ' + fmtQtd(i.sugestao, p.unidade) : '') + '</div></td>' +
               '<td><div class="nc-comprar"><input type="text" class="nc-qtd" data-grupo="' + gi + '" data-item="' + ii + '" value="' + valorCampoQtd(i.qtd, p.unidade) + '" placeholder="0" autocomplete="off" aria-label="Quantidade de ' + esc(p.nome) + '">' +
                 '<span class="un-sufixo">' + esc(p.unidade) + '</span></div></td>' +
@@ -3199,7 +3288,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<div class="drawer-link" id="btnCancelarOrdem">Cancelar <span class="esc-hint">ESC</span></div>' +
       '</div>');
 
-    inicializarDropdownSelect(document.getElementById('ocDeposito'), (v) => { rascunho.dep = Number(v); });
+    if (!rascunho.emb) inicializarDropdownSelect(document.getElementById('ocDeposito'), (v) => { rascunho.dep = Number(v); });
     rascunho.grupos.forEach((g, gi) => {
       inicializarDropdownSelect(document.getElementById('ocForn' + gi), (v) => { g.fornecedor = v; limparErroOrdem(gi); atualizarTotaisOrdem(); });
       const campoData = document.getElementById('ocPrev' + gi);
@@ -3240,7 +3329,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!o.previsto && g.previsto) o.previsto = g.previsto;
       g.itens.forEach(i => {
         const igual = o.itens.filter(x => x.sku === i.sku)[0];
-        if (igual) igual.qtd = arred(igual.qtd + i.qtd); else o.itens.push({ sku: i.sku, qtd: i.qtd });
+        if (igual) igual.qtd = arred(igual.qtd + i.qtd); else o.itens.push({ sku: i.sku, qtd: i.qtd, embId: i.embId });
       });
     });
     return ordens;
@@ -3250,7 +3339,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     rascunho.grupos.forEach((g, gi) => {
       let total = 0;
       g.itens.forEach((i, ii) => {
-        const sub = (i.qtd > 0 ? i.qtd : 0) * produtoDe(i.sku).custoMedio;
+        const sub = (i.qtd > 0 ? i.qtd : 0) * itemOrdem(i).custoMedio;
         total += sub;
         const cel = document.querySelector('[data-sub="' + gi + '-' + ii + '"]');
         if (cel) cel.textContent = moeda(sub);
@@ -3270,7 +3359,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     rascunho.grupos.forEach((g, gi) => {
       const isoPrev = g.previsto ? lerDataBr(g.previsto) : '';
       const qtdRuim = g.itens.some(i => {
-        const un = produtoDe(i.sku).unidade;
+        const un = itemOrdem(i).unidade;
         return !(i.qtd > 0) || (!fracionavel(un) && !Number.isInteger(i.qtd));
       });
       const falha = !g.fornecedor ? 'Selecione o fornecedor desta ordem.'
@@ -3282,7 +3371,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       erro.classList.toggle('show', falha !== '');
       document.getElementById('ocCampoForn' + gi).classList.toggle('has-error', !g.fornecedor);
       document.querySelectorAll('#drawerCorpo .nc-itens .nc-qtd[data-grupo="' + gi + '"]').forEach(c => {
-        const i = g.itens[Number(c.getAttribute('data-item'))], un = produtoDe(i.sku).unidade;
+        const i = g.itens[Number(c.getAttribute('data-item'))], un = itemOrdem(i).unidade;
         c.classList.toggle('has-error', !(i.qtd > 0) || (!fracionavel(un) && !Number.isInteger(i.qtd)));
       });
       if (falha) valido = false;
@@ -3297,20 +3386,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const criar = () => {
       let numero = ORDENS_GERADAS.reduce((m, o) => Math.max(m, Number(o.numero) || 0), PRIMEIRO_NUMERO_OC - 1);
       const novas = ordens.map(o => {
-        const itens = o.itens.map(i => { const p = produtoDe(i.sku); return { nome: p.nome, sku: p.sku, qtd: i.qtd, un: p.unidade, preco: p.custoMedio, recebido: 0 }; });
+        const itens = o.itens.map(i => { const p = itemOrdem(i); const novo = { nome: p.nome, sku: p.sku, qtd: i.qtd, un: p.unidade, preco: p.custoMedio, recebido: 0 }; if (i.embId != null) novo.embId = i.embId; return novo; });
         numero++;
         return { numero: numero, data: HOJE_ISO, previsto: o.previsto ? lerDataBr(o.previsto) : '', fornecedor: FORNECEDORES[o.fornecedor], dep: rascunho.dep,
                  total: Math.round(itens.reduce((s, i) => s + i.qtd * i.preco, 0) * 100) / 100, situacao: 'aberto', itens: itens };
       });
       ORDENS_GERADAS = ORDENS_GERADAS.concat(novas);
       const gravou = gravarJson(CHAVE_ORDENS, ORDENS_GERADAS);
-      novas.forEach(o => o.itens.forEach(i => { selecionados.delete(i.sku); delete AJUSTES[i.sku]; }));
+      novas.forEach(o => o.itens.forEach(i => { selecionados.delete(i.sku); delete AJUSTES[i.sku]; if (i.embId != null) selEmb.delete(i.embId); }));
       fecharDrawer();
       renderTabela();
+      embalagensAbaixoDoMinimo();
       const lista = novas.map(o => 'nº ' + o.numero + ' para ' + o.fornecedor + ' (' + moeda(o.total) + ')');
       avisar((novas.length === 1 ? 'A ordem de compra foi criada com sucesso: ' + lista[0] + '. Ela nasceu em aberto e já aparece'
                                  : novas.length + ' ordens de compra foram criadas com sucesso: ' + lista.join('; ') + '. Elas nasceram em aberto e já aparecem') +
-        ' em Estoque → Ordens de Compra. O que foi pedido passou a contar como chegando nesta lista.' +
+        ' em Estoque → Ordens de Compra. O que foi pedido passou a contar como chegando ' + (rascunho.emb ? 'no card das embalagens.' : 'nesta lista.') +
         (gravou ? '' : ' (Este navegador bloqueou o armazenamento local, então a ordem vale só até recarregar a página.)'));
     };
     confirmarAcao('ordensCompraCriar', 'Criar ' + plural(ordens.length, 'ordem de compra', 'ordens de compra') + ' a partir de Necessidades de Compra: ' +

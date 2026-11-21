@@ -984,6 +984,13 @@
   .estoque-table .col-qtde-inv { display:none; }
   .estoque-table.mostrar-qtde .col-qtde-inv { display:table-cell; }
   .estoque-table.sem-clique tbody tr { cursor:default; }
+  /* A tabela das embalagens: sem a largura minima das outras e com quebra de linha, para nao abrir barra horizontal a 1280 */
+  #tabelaInvEmb { min-width:0; }
+  #tabelaInvEmb th, #tabelaInvEmb td { white-space:normal; }
+  #tabelaInvEmb td:nth-child(1), #tabelaInvEmb td:nth-child(4) { white-space:nowrap; }   /* o codigo e o custo nao quebram */
+  /* "Produtos / Embalagens" (mesmo par de botoes da Movimentacao de Estoque) */
+  .mv-modo { display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .mv-modo .mv-modo-rotulo { font-family:'Nunito',sans-serif; font-weight:700; font-size:12px; color:var(--text); margin-right:4px; }
   .input-qtde-inv { width:88px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; text-align:right; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; }
   .input-qtde-inv:focus { border-color:var(--chart-2); outline:2px solid var(--chart-2); outline-offset:-1px; }
   /* Só cor, sem fundo — o par .mov-entrada/.mov-saida da base é pílula com fundo
@@ -1261,7 +1268,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="caminho">
         <div class="caminho-icone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
         <div class="caminho-titulo">Gerar inventário</div>
-        <div class="caminho-texto">Monta a lista a partir dos filtros — categoria, fornecedor, com ou sem saldo — e abre em modo leitura para conferir antes de contar.</div>
+        <div class="caminho-texto">Monta a lista a partir dos filtros — categoria, fornecedor, com ou sem saldo — e abre em modo leitura para conferir antes de contar. É aqui também que se escolhe contar as <b>embalagens</b>.</div>
         <button type="button" class="btn-mini" data-caminho="gerar">Escolher filtros</button>
       </div>
 
@@ -1307,7 +1314,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
 
     <div class="card">
-      <div class="estoque-table-wrap">
+      <div class="estoque-table-wrap" id="wrapInvEmb" style="display:none;">
+        <table class="estoque-table sem-clique" id="tabelaInvEmb">
+          <thead>
+            <tr>
+              <th class="col-texto">Código</th>
+              <th class="col-texto">Embalagem</th>
+              <th class="col-texto">Tipo</th>
+              <th>Custo</th>
+              <th title="O saldo de quando o inventário foi gerado: a diferença é contra ele">Saldo na abertura</th>
+              <th class="col-qtde-inv">Qtde inventário</th>
+              <th class="col-qtde-inv">Diferença</th>
+              <th class="col-qtde-inv" title="A diferença vezes o custo">Valor da diferença</th>
+            </tr>
+          </thead>
+          <tbody id="corpoInvEmb"></tbody>
+        </table>
+      </div>
+      <div class="estoque-table-wrap" id="wrapInvProd">
         <table class="estoque-table sem-clique" id="tabelaInv">
           <thead>
             <tr>
@@ -1346,6 +1370,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="drawer-header">
     <div class="drawer-title" id="drawerTitulo">Gerar inventário</div>
     <div class="drawer-close" id="drawerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>fechar</div>
+  </div>
+
+  <div class="mv-modo" id="modoInv" role="group" aria-label="O que contar">
+    <span class="mv-modo-rotulo">Contar</span>
+    <button type="button" class="pill-btn active" data-modo="produtos">Produtos</button>
+    <button type="button" class="pill-btn" data-modo="embalagens">Embalagens</button>
   </div>
 
   <div class="form-field" id="wrapDeposito">
@@ -1500,7 +1530,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="rep-previa" id="previaFechar"></div>
 
   <div class="section-title">Confirmar que é você</div>
-  <div class="section-hint" style="margin-top:-8px;">Fechar inventário reescreve o saldo do depósito inteiro e destrava a movimentação. É permissão de perfil.</div>
+  <div class="section-hint" id="hintFecharPerfil" style="margin-top:-8px;">Fechar inventário reescreve o saldo do depósito inteiro e destrava a movimentação. É permissão de perfil.</div>
 
   <div class="senha-usuario-label">Usuário</div>
   <div class="senha-usuario-nome">Administrador Desk <span class="perfil-tag">pode fechar inventário</span></div>
@@ -2427,6 +2457,176 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
   const comercialDe = (id) => COMERCIAL[id] || { ultimaCompra:0, custoAtual:0, precoVenda:0, situacao:'ativo', fornecedor:'—', categoria:'—', tags:[] };
 
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens, o registro de embalagem de cada pedido, o codigo e o movimento. Identico em todas as telas que o carregam: `grep -rl "EMBALAGENS: LEITURA (bloco comum" telas`
+  // da a lista, e teste_embalagens_estoque.py compara as copias. Nas telas que fazem a conta do pedido (bloco RESULTADO DO PEDIDO) este bloco vem ANTES dele, para o `const` ja estar inicializado.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  //   saldo                 quanto ha em estoque, na UNIDADE DE COMPRA (a caixa, o rolo de fita): pode ser fracionario e negativo (a expedicao nunca trava por falta de saldo).
+  //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
+  //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
+  //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
+        // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
+        g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        return g;
+      }
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // Quantos pedidos uma unidade atende: so o insumo tem `rende`; caixa, envelope e rolo gastam uma unidade por uso.
+  function embRende(e) { return e && e.tipo === 'insumo' ? Math.max(1, Math.floor(Number(e.rende)) || 1) : 1; }
+  // O custo que UM pedido consome: um rolo de fita de R$ 15,00 que rende 50 custa R$ 0,30 por pedido. E este, e nao o `custo` do cadastro, que os pedidos e a calculadora leem.
+  function embCustoUso(e) { return (Number(e && e.custo) || 0) / embRende(e); }
+  // A baixa do estoque, quando a Conferencia de Saida fecha: `itens` = [{ id, qtd }]. Subtrai qtd / rende do saldo (4 casas) e devolve os avisos das que ficaram negativas ou abaixo do minimo.
+  // Falta de saldo nunca trava: so avisa. Quem chama garante que o pedido ainda nao tinha sido confirmado (senao baixaria duas vezes).
+  // Cada embalagem baixada grava UM movimento 'baixa_pedido' (embMovRegistrar), com o numero do pedido em `ref` ({ numero, texto }) e `quem` de quem chama. Sem `ref`, o movimento sai sem pedido.
+  function embBaixar(itens, ref, quem) {
+    const lista = embalagensLer(), ids = [], tirou = {};
+    itens.forEach(i => {
+      const e = lista.filter(x => x.id === i.id)[0];
+      if (!e) return;
+      const q = (Number(i.qtd) || 0) / embRende(e);
+      e.saldo = Math.round(((Number(e.saldo) || 0) - q) * 10000) / 10000;
+      tirou[e.id] = (tirou[e.id] || 0) + q;
+      if (ids.indexOf(e.id) < 0) ids.push(e.id);
+    });
+    embalagensGravar(lista);
+    ids.forEach(id => {
+      const e = lista.filter(x => x.id === id)[0], custo = Number(e.custo) || 0;
+      embMovRegistrar({ embId: id, tipo: 'baixa_pedido', qtd: -tirou[id], custoUnit: custo, custoMedio: custo,
+        ref: { tipo: 'pedido', numero: ref && ref.numero != null ? ref.numero : '', texto: ref && ref.texto ? ref.texto : '' }, quem: quem });
+    });
+    return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
+      .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
+  }
+  // A conta da entrada de embalagem, uma so para a nota (Entrada de Notas) e para a entrada sem nota (Embalagens): custo medio ponderado; saldo zerado ou negativo nao pesa e vale so o custo da entrada.
+  // Devolve o saldo e o custo de antes, se foi medio, e o saldo e o custo novos. Nao grava nada: quem chama grava o cadastro (embalagensGravar) e o movimento (embMovRegistrar).
+  function embEntradaConta(e, qtd, custoUnit) {
+    const r = (n, c) => { const f = Math.pow(10, c); return Math.round(Number(n) * f + (n < 0 ? -1e-6 : 1e-6)) / f; };
+    const saldo = Number(e.saldo) || 0, custo = Number(e.custo) || 0, medio = saldo > 0;
+    return { saldo: saldo, custoAtual: custo, medio: medio, novoSaldo: r(saldo + qtd, 4), novoCusto: medio ? r((saldo * custo + qtd * custoUnit) / (saldo + qtd), 2) : r(custoUnit, 2) };
+  }
+  // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
+  function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  // O CODIGO E O MOVIMENTO (20/nov/2026). Moram aqui porque o cadastro, a Conferencia de Saida e a Movimentacao de Estoque precisam dos mesmos.
+  //   codigo              "EMB-001": gravado na embalagem quando ela nasce (o cadastro da o proximo numero e nunca reaproveita um). Sem `codigo` (as de exemplo e as gravadas antes) vale o do id: id 1 = EMB-001
+  //   deskMovEmbalagens   a lista de movimentos: { em: 'AAAA-MM-DDTHH:MM:SS', embId, tipo, qtd, custoUnit, custoMedio, motivoId, motivo, obs, prejuizo, ref: { tipo, numero, texto }, fornecedor, quem }
+  //                       tipo: 'entrada_nota' | 'entrada_sem_nota' | 'baixa_pedido' | 'acerto' | 'contagem'. `qtd` tem sinal e 4 casas; `custoMedio` e o de DEPOIS do movimento; `prejuizo` e a falta vezes o custo (so acerto e contagem).
+  //                       O saldo de antes e o de depois NAO se gravam: a ficha da Movimentacao parte do saldo do cadastro e desfaz os movimentos de tras para a frente, e a primeira linha e o "Saldo de abertura".
+  //                       Assim a ficha nunca desmente o cadastro. Sem a chave vale o exemplo de fabrica, e o primeiro movimento gravado parte dele.
+  function embCodigo(e) { return !e ? '' : (typeof e.codigo === 'string' && e.codigo !== '' ? e.codigo : 'EMB-' + String(e.id).padStart(3, '0')); }
+  // Exemplo: [id da embalagem, [[dias atras, hora, tipo, qtd, ...]]]. n = entrada pela nota (custo da unidade, custo medio, nota), s = entrada sem nota (custo, custo medio, comprovante),
+  // p = baixa no pedido (pedido), a = acerto e c = contagem (id do motivo, motivo, observacao). O saldo de abertura de cada uma sai positivo com o cadastro de fabrica.
+  const EMB_MOV_EXEMPLO = [
+    [1, [[46, '08:40', 'n', 80, 3.4, 3.4, '8770'], [39, '15:20', 'p', -2, '2905'], [31, '11:05', 'p', -3, '2931'], [23, '16:30', 'p', -2, '2958'], [16, '10:12', 'p', -3, '2987'], [11, '09:30', 'n', 40, 3.5, 3.5, '8802'], [8, '14:48', 'p', -2, '3012'], [3, '17:10', 'p', -2, '3039']]],
+    [2, [[52, '09:05', 'n', 30, 4.6, 4.6, '8755'], [40, '14:10', 'p', -3, '2910'], [33, '10:40', 'p', -2, '2934'], [19, '09:50', 'n', 20, 4.7, 4.7, '8791'], [12, '15:15', 'p', -4, '2996'], [5, '11:25', 'p', -2, '3028'], [0, '09:15', 'a', -2, 1, 'Quebra ou avaria', 'Duas caixas amassadas na prateleira']]],
+    [3, [[50, '09:20', 'n', 20, 5.8, 5.8, '8760'], [44, '13:30', 'p', -4, '2914'], [27, '10:10', 'p', -3, '2950'], [18, '08:50', 'n', 15, 5.9, 5.9, '8788'], [6, '16:05', 'p', -3, '3021']]],
+    [5, [[35, '09:45', 'n', 20, 6.3, 6.3, '8772'], [28, '11:35', 'p', -4, '2943'], [14, '14:20', 'p', -3, '3001'], [2, '10:00', 'p', -2, '3050']]],
+    [6, [[27, '10:30', 's', 6, 12.5, 12.5, 'Recibo 118'], [13, '13:40', 'p', -1, '3003'], [3, '15:50', 'p', -1, '3041']]],
+    [7, [[48, '09:10', 'n', 200, 1.1, 1.1, '8765'], [39, '10:25', 'p', -25, '2907'], [26, '14:00', 'p', -30, '2955'], [13, '09:35', 'p', -20, '3004'], [5, '16:20', 'p', -22, '3029']]],
+    [11, [[44, '09:00', 'n', 500, 0.4, 0.4, '8768'], [31, '10:50', 'p', -40, '2932'], [19, '15:05', 'p', -35, '2977'], [8, '11:15', 'p', -45, '3013']]],
+    [12, [[42, '09:25', 'n', 100, 0.55, 0.55, '8769'], [30, '14:35', 'p', -20, '2940'], [20, '10:05', 'a', -4, 2, 'Perda', 'Caixa de tags molhada no depósito'], [16, '11:45', 'p', -15, '2985'], [9, '13:55', 'p', -18, '3018'], [7, '09:40', 'n', 100, 0.65, 0.6, '8799'], [1, '15:30', 'p', -12, '3053']]],
+    [13, [[30, '09:15', 'n', 6, 15, 15, '8780'], [22, '12:10', 'p', -0.02, '2960'], [4, '10:45', 'p', -0.02, '3036']]],
+    [14, [[40, '09:30', 'n', 300, 0.25, 0.25, '8775'], [35, '14:15', 'p', -10, '2937'], [25, '10:20', 'c', -6, 10, 'Contagem física', ''], [20, '16:00', 'p', -12, '2979'], [11, '11:30', 'p', -8, '3014'], [4, '13:25', 'p', -9, '3034']]]
+  ];
+  // Hoje, as 09:15; se a pagina abrir antes disso, 00:01, para o movimento nunca nascer no futuro.
+  function embMovExemplo() {
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0'), cedo = agora.getHours() * 60 + agora.getMinutes() < 9 * 60 + 15, lista = [];
+    const QUEM = { n: 'Carlos Mendes', s: 'Ana Souza', p: 'Marcos Vinícius', a: 'Ana Souza', c: 'Ana Souza' };
+    const TIPO = { n: 'entrada_nota', s: 'entrada_sem_nota', p: 'baixa_pedido', a: 'acerto', c: 'contagem' };
+    EMB_MOV_EXEMPLO.forEach(e => {
+      let medio = 0;
+      e[1].forEach(l => {
+        const t = l[2], d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - l[0]), entrada = t === 'n' || t === 's', ajuste = t === 'a' || t === 'c';
+        if (entrada) medio = l[5];
+        lista.push({ em: d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + (l[0] === 0 && cedo ? '00:01' : l[1]) + ':00', embId: e[0], tipo: TIPO[t], qtd: l[3],
+          custoUnit: entrada ? l[4] : medio, custoMedio: medio, motivoId: ajuste ? l[4] : null, motivo: ajuste ? l[5] : '', obs: ajuste ? l[6] : '',
+          prejuizo: ajuste && l[3] < 0 ? Math.round(-l[3] * medio * 100) / 100 : 0,
+          ref: t === 'n' ? { tipo: 'nota', numero: l[6], texto: 'nota nº ' + l[6] } : t === 's' ? { tipo: 'comprovante', numero: l[6], texto: 'comprovante ' + l[6] }
+            : t === 'p' ? { tipo: 'pedido', numero: l[4], texto: 'pedido nº ' + l[4] } : { tipo: '', numero: '', texto: '' },
+          fornecedor: t === 'n' ? 'Embalagens do Vale' : (t === 's' ? 'Papelaria Central' : ''), quem: QUEM[t] });
+      });
+    });
+    return lista.sort((a, b) => a.em < b.em ? -1 : (a.em > b.em ? 1 : 0));
+  }
+  function embMovLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskMovEmbalagens'));
+      if (Array.isArray(g)) return g.filter(m => m && typeof m.em === 'string' && typeof m.embId === 'number' && typeof m.tipo === 'string' && isFinite(Number(m.qtd)));
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no exemplo */ }
+    return embMovExemplo();
+  }
+  // Grava um movimento no fim da lista (a lista de fabrica, se a chave ainda nao existia). `quem` vem de quem chama; sem ele, "Sistema".
+  function embMovRegistrar(m) {
+    const z = (n) => String(n).padStart(2, '0'), d = new Date(), r = m.ref || {};
+    const reg = { em: m.em || d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()),
+      embId: Number(m.embId), tipo: m.tipo, qtd: Math.round((Number(m.qtd) || 0) * 10000) / 10000, custoUnit: Number(m.custoUnit) || 0, custoMedio: Number(m.custoMedio) || 0,
+      motivoId: m.motivoId == null ? null : m.motivoId, motivo: m.motivo || '', obs: m.obs || '', prejuizo: Math.round((Number(m.prejuizo) || 0) * 100) / 100,
+      ref: { tipo: r.tipo || '', numero: r.numero == null ? '' : String(r.numero), texto: r.texto || '' }, fornecedor: m.fornecedor || '', quem: m.quem || 'Sistema' };
+    const lista = embMovLer();
+    lista.push(reg);
+    try { localStorage.setItem('deskMovEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+    return reg;
+  }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
+
   // ===== ESTADO DO INVENTÁRIO =====
   // Um inventario por vez. `travado` e o que separa esta tela do Acerto: enquanto
   // estiver aberto, o deposito inteiro esta fora de circulacao.
@@ -2436,8 +2636,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   const INV = {
     aberto: false, dep: null, origem: null, base: 'custo_medio',
-    abertoEm: null, modo: 'leitura', linhas: [], recusados: []
+    abertoEm: null, modo: 'leitura', linhas: [], recusados: [],
+    tipo: 'produtos', numero: 0   // 'embalagens': linhas { eid, abertura, contado }; sem deposito e sem trava (pacote 2 das embalagens)
   };
+  let tipoGerar = 'produtos';   // o que o painel de gerar vai contar
   let caminhoAtual = 'gerar';
   let arquivoLido = null;   // { nome, tamanho, contagem:{codigo:qtd}, erro }
 
@@ -2565,6 +2767,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   function atualizarPreviaGerar() {
     const previa = document.getElementById('previaGerar');
+    if (caminhoAtual === 'gerar' && tipoGerar === 'embalagens') {
+      const ativas = embalagensLer().filter(e => e.status === 'ativo');
+      previa.classList.remove('alerta');
+      previa.innerHTML =
+        '<b>' + ativas.length + ' embalagem(ns)</b> ativa(s), insumos inclusive, valorizadas pelo custo: <b>' + money(ativas.reduce((s, e) => s + Math.max(0, Number(e.saldo) || 0) * (Number(e.custo) || 0), 0)) + '</b>.' +
+        '<br>Embalagem não tem depósito e abrir <b>não trava nada</b>: as baixas dos pedidos feitas durante a contagem continuam valendo. Por isso a diferença é contra o <b>saldo de quando o inventário é gerado</b>, e não contra o de depois.' +
+        '<br>Fechar aplica a diferença como <b>contagem física</b>; a falta vira prejuízo (a quantidade vezes o custo).';
+      return;
+    }
     const dep = valorDoCampo('campoDeposito');
     if (!dep) {
       previa.classList.add('alerta');
@@ -2607,6 +2818,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const criterio = valorDoCampo('campoValidarPor');
     const linhas = [], recusados = [];
     Object.keys(contagem).forEach(cod => {
+      if (embalagensLer().some(e => embCodigo(e).toUpperCase() === cod.trim().toUpperCase())) {
+        recusados.push({ codigo: cod, qtd: contagem[cod], motivo: 'código de embalagem: conte no inventário de embalagens' }); return;
+      }
       const alvo = PRODUTOS.find(p => {
         if (criterio === 'gtin') return p.gtin === cod;
         if (criterio === 'sku')  return p.sku.toUpperCase() === cod.toUpperCase();
@@ -2626,6 +2840,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('dropzoneTitulo').textContent = 'Arraste o arquivo ou clique para escolher';
     document.getElementById('wrapArquivo').classList.remove('has-error');
     document.getElementById('wrapDeposito').classList.remove('has-error');
+    document.getElementById('modoInv').style.display = caminho === 'gerar' ? '' : 'none';   // planilha e coletor seguem so para produtos
+    tipoGerar = 'produtos';
+    document.querySelectorAll('#modoInv .pill-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-modo') === 'produtos'));
+    document.getElementById('wrapDeposito').style.display = '';
 
     const ehArquivo = caminho !== 'gerar';
     document.getElementById('camposGerar').style.display = ehArquivo ? 'none' : '';
@@ -2652,6 +2870,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     atualizarPreviaGerar();
     drawerBackdrop.classList.add('open');
     drawer.classList.add('open');
+  }
+
+  function trocarTipoGerar(tipo) {
+    tipoGerar = tipo;
+    document.querySelectorAll('#modoInv .pill-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-modo') === tipo));
+    document.getElementById('wrapDeposito').style.display = tipo === 'embalagens' ? 'none' : '';
+    document.getElementById('camposGerar').style.display = tipo === 'embalagens' ? 'none' : '';
+    atualizarPreviaGerar();
   }
 
   function fecharDrawerAbertura() {
@@ -2737,6 +2963,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== ABRIR O INVENTÁRIO =====
   function abrirInventario() {
+    if (caminhoAtual === 'gerar' && tipoGerar === 'embalagens') { abrirInventarioEmb(); return; }
     const dep = valorDoCampo('campoDeposito');
     if (!dep) { document.getElementById('wrapDeposito').classList.add('has-error'); return; }
     if (caminhoAtual !== 'gerar') {
@@ -2744,6 +2971,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     }
 
     INV.aberto = true;
+    INV.tipo = 'produtos';
     INV.dep = dep;
     INV.origem = caminhoAtual;
     INV.abertoEm = new Date();
@@ -2800,6 +3028,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== RENDER =====
   function linhaVisivel(l) {
+    if (INV.tipo === 'embalagens') return linhaVisivelEmb(l);
     const busca = (campoBuscaInv.value || '').trim().toLowerCase();
     const prod = PRODUTOS.find(p => p.id === l.pid);
     if (!prod) return false;
@@ -2814,6 +3043,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function renderInventario() {
+    document.getElementById('wrapInvProd').style.display = INV.tipo === 'embalagens' ? 'none' : '';
+    document.getElementById('wrapInvEmb').style.display = INV.tipo === 'embalagens' ? '' : 'none';
+    campoBuscaInv.placeholder = INV.tipo === 'embalagens' ? 'Pesquise por embalagem ou código' : 'Pesquise por produto, SKU ou localização';
+    if (INV.tipo === 'embalagens') { renderInventarioEmb(); return; }
     tabelaInv.classList.toggle('mostrar-qtde', INV.modo === 'contagem');
     rotuloAcaoInv.textContent = INV.modo === 'leitura' ? 'Informar quantidades' : 'Salvar quantidades e fechar';
     document.getElementById('textoTravado').innerHTML =
@@ -2925,6 +3158,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function abrirDrawerFechar() {
+    // O inventario de embalagens nao tem deposito nem trava nada: o texto da permissao muda com ele
+    document.getElementById('hintFecharPerfil').textContent = INV.tipo === 'embalagens'
+      ? 'Fechar o inventário de embalagens aplica as diferenças ao saldo; nada fica travado. É permissão de perfil.'
+      : 'Fechar inventário reescreve o saldo do depósito inteiro e destrava a movimentação. É permissão de perfil.';
+    if (INV.tipo === 'embalagens') { abrirDrawerFecharEmb(); return; }
     const r = resumoFechamento();
     document.getElementById('resumoFechar').innerHTML =
       '<div class="section-title" style="margin-top:0;">' + escapar(DEPOSITOS[INV.dep]) + '</div>' +
@@ -3030,6 +3268,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       setTimeout(() => avisar('Seu perfil não tem a permissão "Fechar inventário de estoque". Peça para um perfil que tenha.'), 280);
       return;
     }
+    if (INV.tipo === 'embalagens') { fecharInventarioEmb(); return; }
     const r = resumoFechamento();
     aplicarContagem();
     const dep = INV.dep;
@@ -3054,7 +3293,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   function voltarParaIndice() {
-    INV.aberto = false; INV.dep = null; INV.linhas = []; INV.recusados = []; INV.modo = 'leitura';
+    INV.aberto = false; INV.dep = null; INV.linhas = []; INV.recusados = []; INV.modo = 'leitura'; INV.tipo = 'produtos';
+    campoBuscaInv.placeholder = 'Pesquise por produto, SKU ou localização';
     painelInventario.style.display = 'none';
     painelIndice.style.display = '';
     menuAcoesInv.style.display = 'none';
@@ -3063,10 +3303,142 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('subInv').textContent = 'Contagem completa de um depósito — enquanto o inventário está aberto, o saldo daquele depósito fica bloqueado';
   }
 
+  // ===== INVENTARIO DE EMBALAGENS (pacote 2 das embalagens, 20/nov/2026) =====
+  // Embalagem nao tem deposito e o inventario dela NAO trava a baixa dos pedidos. Por isso a diferenca e contra o saldo da ABERTURA (`abertura`, guardado na linha ao gerar), e nao contra o de agora:
+  // fechar soma a diferenca ao saldo de agora (as baixas feitas durante a contagem continuam valendo) e grava um movimento 'contagem' (motivo "Contagem fisica", id 10); a falta vira prejuizo (diferenca x custo).
+  // Linha nao contada nao muda nada, como em produtos. Diferenca zero nao gera movimento.
+  const TIPOS_EMB = { pacote: 'Pacote / Caixa', envelope: 'Envelope', rolo: 'Rolo / Cilindro', insumo: 'Insumo' };
+  const r4 = (n) => Math.round(Number(n) * 10000) / 10000;
+  const r2 = (n) => Math.round(Number(n) * 100 + (n < 0 ? -1e-6 : 1e-6)) / 100;
+  // inventario nº N: o proximo depois do maior ja gravado nos movimentos (sem chave nova)
+  function proximoNumeroInv() {
+    return embMovLer().filter(m => m.ref && m.ref.tipo === 'inventario').reduce((mx, m) => Math.max(mx, Number(m.ref.numero) || 0), 0) + 1;
+  }
+  function abrirInventarioEmb() {
+    INV.aberto = true; INV.tipo = 'embalagens'; INV.dep = null; INV.origem = 'gerar'; INV.abertoEm = new Date(); INV.recusados = []; INV.modo = 'leitura';
+    INV.linhas = embalagensLer().filter(e => e.status === 'ativo').map(e => ({ eid: e.id, abertura: r4(Number(e.saldo) || 0), contado: null }));
+    fecharDrawerAbertura();
+    painelIndice.style.display = 'none';
+    painelInventario.style.display = '';
+    menuAcoesInv.style.display = '';
+    btnAcaoInv.style.display = '';
+    document.getElementById('subInv').textContent = 'Inventário de embalagens — não trava nada, e a diferença é contra o saldo de quando ele foi gerado';
+    campoBuscaInv.value = '';
+    filtroLinhas.setAttribute('data-value', 'todas');
+    renderInventario();
+  }
+  function linhaVisivelEmb(l) {
+    const e = embalagensLer().filter(x => x.id === l.eid)[0];
+    if (!e) return false;
+    const busca = (campoBuscaInv.value || '').trim().toLowerCase();
+    if (busca && (e.nome + ' ' + embCodigo(e)).toLowerCase().indexOf(busca) === -1) return false;
+    const filtro = filtroLinhas.getAttribute('data-value');
+    if (filtro === 'pendentes') return l.contado === null;
+    if (filtro === 'divergentes') return l.contado !== null && r4(l.contado - l.abertura) !== 0;
+    return true;
+  }
+  function celulasDiferencaEmb(l, custo) {
+    if (l.contado === null) return ['<span class="inv-nao-contado">não contado</span>', '<span class="inv-nao-contado">—</span>'];
+    const dif = r4(l.contado - l.abertura), classe = dif > 0 ? 'inv-mais' : (dif < 0 ? 'inv-menos' : 'inv-igual'), valor = r2(dif * custo);
+    return ['<span class="' + classe + '">' + (dif > 0 ? '+' : '') + num(dif) + '</span>', '<span class="' + classe + '">' + (valor < 0 ? '−' : (valor > 0 ? '+' : '')) + money(Math.abs(valor)) + '</span>'];
+  }
+  function renderInventarioEmb() {
+    const cadastro = embalagensLer();
+    document.getElementById('tabelaInvEmb').classList.toggle('mostrar-qtde', INV.modo === 'contagem');
+    rotuloAcaoInv.textContent = INV.modo === 'leitura' ? 'Informar quantidades' : 'Salvar quantidades e fechar';
+    document.getElementById('textoTravado').innerHTML =
+      '<b>Inventário de embalagens aberto</b> às ' + INV.abertoEm.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) +
+      '. Embalagem não tem depósito e <b>nada fica travado</b>: as baixas dos pedidos continuam valendo durante a contagem. A diferença é contra o <b>saldo da abertura</b> (o de quando o inventário foi gerado), ' +
+      'e é ela que se aplica ao saldo de agora no fechamento. A falta vira prejuízo.';
+    const visiveis = INV.linhas.filter(linhaVisivelEmb);
+    document.getElementById('corpoInvEmb').innerHTML = visiveis.map(l => {
+      const e = cadastro.filter(x => x.id === l.eid)[0], custo = Number(e.custo) || 0, c = celulasDiferencaEmb(l, custo);
+      return '<tr data-eid="' + e.id + '">' +
+        '<td class="col-texto">' + escapar(embCodigo(e)) + '</td>' +
+        '<td class="col-texto">' + escapar(e.nome) + '</td>' +
+        '<td class="col-texto">' + escapar(TIPOS_EMB[e.tipo] || e.tipo) + '</td>' +
+        '<td>' + money(custo) + '</td>' +
+        '<td>' + num(l.abertura) + '</td>' +
+        '<td class="col-qtde-inv"><input type="text" class="input-qtde-inv" data-campo="qtdeInvEmb" data-eid="' + e.id + '" value="' + (l.contado === null ? '' : l.contado) + '" placeholder="—"></td>' +
+        '<td class="col-qtde-inv">' + c[0] + '</td>' +
+        '<td class="col-qtde-inv">' + c[1] + '</td>' +
+        '</tr>';
+    }).join('');
+    emptyInv.style.display = visiveis.length ? 'none' : '';
+    const resumo = () => visiveis.length + ' de ' + INV.linhas.length + ' embalagem(ns)' + (INV.modo === 'contagem' ? ' · ' + INV.linhas.filter(l => l.contado !== null).length + ' contada(s)' : '');
+    document.getElementById('resumoInv').textContent = resumo();
+    document.getElementById('totaisInv').textContent = 'Valor do estoque pelo sistema (custo): ' +
+      money(INV.linhas.reduce((s, l) => { const e = cadastro.filter(x => x.id === l.eid)[0]; return s + Math.max(0, l.abertura) * (Number(e.custo) || 0); }, 0));
+    document.querySelectorAll('#corpoInvEmb [data-campo="qtdeInvEmb"]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const linha = INV.linhas.filter(x => x.eid === Number(inp.getAttribute('data-eid')))[0], bruto = inp.value.replace(',', '.').trim();
+        linha.contado = bruto === '' ? null : (isNaN(parseFloat(bruto)) ? null : parseFloat(bruto));
+        const c = celulasDiferencaEmb(linha, Number(cadastro.filter(x => x.id === linha.eid)[0].custo) || 0), cel = inp.closest('tr').querySelectorAll('.col-qtde-inv');
+        cel[1].innerHTML = c[0]; cel[2].innerHTML = c[1];   // so as duas celulas: refazer a tabela a cada tecla tira o foco do campo
+        document.getElementById('resumoInv').textContent = INV.linhas.filter(linhaVisivelEmb).length + ' de ' + INV.linhas.length + ' embalagem(ns) · ' + INV.linhas.filter(x => x.contado !== null).length + ' contada(s)';
+      });
+    });
+  }
+  function resumoFechamentoEmb() {
+    const cadastro = embalagensLer(), contadas = INV.linhas.filter(l => l.contado !== null);
+    let sobra = 0, falta = 0, valorSobra = 0, prejuizo = 0, divergentes = 0;
+    contadas.forEach(l => {
+      const e = cadastro.filter(x => x.id === l.eid)[0], dif = r4(l.contado - l.abertura), custo = Number(e.custo) || 0;
+      if (dif === 0) return;
+      divergentes++;
+      if (dif > 0) { sobra += dif; valorSobra += dif * custo; } else { falta += -dif; prejuizo += -dif * custo; }
+    });
+    return { contadas: contadas.length, naoContadas: INV.linhas.length - contadas.length, divergentes: divergentes, sobra: r4(sobra), falta: r4(falta), valorSobra: r2(valorSobra), prejuizo: r2(prejuizo) };
+  }
+  function abrirDrawerFecharEmb() {
+    const r = resumoFechamentoEmb();
+    document.getElementById('resumoFechar').innerHTML =
+      '<div class="section-title" style="margin-top:0;">Embalagens</div>' +
+      '<div class="section-hint">' + r.contadas + ' embalagem(ns) contada(s) de ' + INV.linhas.length + (r.naoContadas ? ' · <b>' + r.naoContadas + ' sem contagem</b>' : '') + ' · ' + r.divergentes + ' divergência(s)</div>';
+    const partes = [];
+    if (r.naoContadas) partes.push('<b>' + r.naoContadas + ' embalagem(ns) não foram contadas.</b> O saldo delas fica <b>exatamente como está</b> — inventário não zera o que ninguém olhou. Se a contagem varreu tudo, feche este painel e use <b>"Zerar os não contados"</b> em Mais ações.');
+    partes.push('A diferença é <b>contra o saldo de quando o inventário foi gerado</b>, e as baixas dos pedidos feitas durante a contagem continuam valendo: o saldo novo é o saldo de agora mais a diferença.');
+    if (r.sobra) partes.push('<b>Sobra: +' + num(r.sobra) + ' un.</b> (' + money(r.valorSobra) + '). Entra no saldo como contagem física.');
+    if (r.falta) partes.push('<b>Falta: −' + num(r.falta) + ' un.</b> Sai do saldo como contagem física e vira <b>prejuízo de ' + money(r.prejuizo) + '</b> (a quantidade vezes o custo). Embalagem é material de uso: não gera nota nem pendência fiscal.');
+    if (!r.divergentes && !r.naoContadas) partes.push('<b>Nenhuma divergência.</b> O fechamento só registra a contagem.');
+    document.getElementById('previaFechar').innerHTML = partes.join('<br><br>');
+    document.getElementById('inputSenha').value = '';
+    document.getElementById('campoSenhaWrap').classList.remove('has-error');
+    document.getElementById('erroSenha').classList.remove('show');
+    aplicarExigenciaSenha('inventarioFecha');
+    fecharBackdrop.classList.add('open');
+    fecharDrawer.classList.add('open');
+  }
+  function fecharInventarioEmb() {
+    const r = resumoFechamentoEmb(), cadastro = embalagensLer(), numero = proximoNumeroInv();
+    INV.linhas.forEach(l => {
+      if (l.contado === null) return;
+      const e = cadastro.filter(x => x.id === l.eid)[0], dif = r4(l.contado - l.abertura);
+      if (!e || dif === 0) return;
+      const custo = Number(e.custo) || 0;
+      e.saldo = r4((Number(e.saldo) || 0) + dif);
+      embMovRegistrar({ embId: e.id, tipo: 'contagem', qtd: dif, custoUnit: custo, custoMedio: custo, motivoId: 10, motivo: 'Contagem física', obs: '',
+        prejuizo: dif < 0 ? r2(-dif * custo) : 0, ref: { tipo: 'inventario', numero: numero, texto: 'inventário nº ' + numero }, quem: USUARIO_SESSAO.nome });
+    });
+    embalagensGravar(cadastro);
+    fecharDrawerFechamento();
+    voltarParaIndice();
+    setTimeout(() => avisar(
+      'Inventário de embalagens nº ' + numero + ' fechado. ' + r.divergentes + ' divergência(s) aplicada(s)' +
+      (r.sobra ? ', +' + num(r.sobra) + ' un. de sobra' : '') + (r.falta ? ', −' + num(r.falta) + ' un. de falta, com prejuízo de ' + money(r.prejuizo) : '') +
+      '. Nada ficou travado: os pedidos seguem baixando normalmente.'
+    ), 280);
+  }
+
   // ===== CSV DE SAÍDA =====
   function baixarCSV() {
-    const cab = ['Produto', 'SKU', 'GTIN', 'Preco', 'UN', 'Localizacao', 'Estoque atual', 'Estoque disponivel', 'Qtde inventario'];
+    const emb = INV.tipo === 'embalagens', cadastro = emb ? embalagensLer() : null;
+    const cab = emb ? ['Codigo', 'Embalagem', 'Tipo', 'Custo', 'Saldo na abertura', 'Qtde inventario'] : ['Produto', 'SKU', 'GTIN', 'Preco', 'UN', 'Localizacao', 'Estoque atual', 'Estoque disponivel', 'Qtde inventario'];
     const linhas = INV.linhas.map(l => {
+      if (emb) {
+        const e = cadastro.filter(x => x.id === l.eid)[0];
+        return [embCodigo(e), e.nome, e.tipo, (Number(e.custo) || 0).toFixed(2), l.abertura, l.contado === null ? '' : l.contado];
+      }
       const p = PRODUTOS.find(x => x.id === l.pid);
       return [p.nome, p.sku, p.gtin, precoDe(p).toFixed(2), p.unidade, localizacaoDe(p, INV.dep),
               fisicoDe(p, INV.dep), disponivelDe(p, INV.dep), l.contado === null ? '' : l.contado];
@@ -3076,7 +3448,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'inventario-' + String(DEPOSITOS[INV.dep]).toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.csv';
+    a.download = 'inventario-' + (emb ? 'embalagens' : String(DEPOSITOS[INV.dep]).toLowerCase().replace(/[^a-z0-9]+/g, '-')) + '.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -3107,6 +3479,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   inputArquivo.addEventListener('change', () => lerArquivo(inputArquivo.files[0]));
 
+  document.querySelectorAll('#modoInv .pill-btn').forEach(b => b.addEventListener('click', () => trocarTipoGerar(b.getAttribute('data-modo'))));
   document.getElementById('btnAbrirInventario').addEventListener('click', abrirInventario);
   document.getElementById('drawerClose').addEventListener('click', fecharDrawerAbertura);
   document.getElementById('btnCancelarDrawer').addEventListener('click', fecharDrawerAbertura);
@@ -3178,16 +3551,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             () => { pendentes.forEach(l => { l.contado = 0; }); renderInventario(); }
           );
         } else if (acao === 'cancelar') {
-          const dep = DEPOSITOS[INV.dep];
+          const emb = INV.tipo === 'embalagens', dep = emb ? 'embalagens' : DEPOSITOS[INV.dep];
           const cancelar = () => {
             voltarParaIndice();
-            setTimeout(() => avisar('Inventário de ' + dep + ' cancelado. Nenhum saldo foi alterado e o depósito voltou a aceitar movimentação.'), 280);
+            setTimeout(() => avisar('Inventário de ' + dep + ' cancelado. Nenhum saldo foi alterado' + (emb ? '.' : ' e o depósito voltou a aceitar movimentação.')), 280);
           };
           // Com quantidade ja informada, cancelar joga fora a contagem: pergunta antes (segunda varredura, 14/out/2026).
           const contadas = INV.linhas.filter(l => l.contado !== null).length;
           if (!contadas) cancelar();
           else perguntar('Cancelar o inventário de ' + dep + ' descarta ' + contadas + (contadas === 1 ? ' quantidade já informada' : ' quantidades já informadas') +
-                         ' e destrava o depósito. Nenhum saldo muda. Cancelar mesmo?', () => setTimeout(cancelar, 280));
+                         (emb ? '. Nenhum saldo muda. Cancelar mesmo?' : ' e destrava o depósito. Nenhum saldo muda. Cancelar mesmo?'), () => setTimeout(cancelar, 280));
         }
       });
     });

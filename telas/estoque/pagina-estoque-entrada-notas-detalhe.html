@@ -1174,6 +1174,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <div class="dropdown-select-item" data-value="3">Nordic Home Importação</div>
             <div class="dropdown-select-item" data-value="4">Tecidos Ceará S/A</div>
             <div class="dropdown-select-item" data-value="5">Embalagens do Vale</div>
+            <div class="dropdown-select-item" data-value="6">Papelaria Central</div>
+            <div class="dropdown-select-item" data-value="7">Luminárias Brasil</div>
           </div>
         </div>
         <div class="field-error-msg" id="erroFornecedor">Selecione o fornecedor da nota.</div>
@@ -1192,7 +1194,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <div class="dropdown-select-item" data-value="11">Ordem nº 11</div>
           </div>
         </div>
-        <div class="field-hint">Vinculada, a conferência confere contra o que foi pedido.</div>
+        <div class="field-hint">Vinculada, a conferência confere contra o que foi pedido. Ordem criada em Necessidades de Compra traz o fornecedor e os itens que ainda faltam chegar.</div>
       </div>
     </div>
 
@@ -2055,6 +2057,176 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderBreadcrumb();
 
+  // ===== EMBALAGENS: LEITURA (bloco comum, 30/out/2026) =====
+  // O cadastro de Embalagens, o registro de embalagem de cada pedido, o codigo e o movimento. Identico em todas as telas que o carregam: `grep -rl "EMBALAGENS: LEITURA (bloco comum" telas`
+  // da a lista, e teste_embalagens_estoque.py compara as copias. Nas telas que fazem a conta do pedido (bloco RESULTADO DO PEDIDO) este bloco vem ANTES dele, para o `const` ja estar inicializado.
+  //   deskEmbalagens        a lista do cadastro. Vazia ou invalida, cai no padrao de fabrica abaixo
+  //   deskEmbalagensPedido  por id do pedido: { situacao: 'rascunho' | 'separada' | 'confirmada', itens: [{ id, nome, tipo, qtd, custo }], separadoPor, conferidoPor, em, trocas: [texto] }
+  //                         o `custo` so existe em 'confirmada': e o custo do cadastro NAQUELE dia, e mudar o preco depois nao mexe no pedido antigo
+  //   cap                   quantas pecas cabem (opcional; sem `cap` a embalagem nao entra na sugestao)
+  //   auto (so no insumo)   '' = o separador adiciona | 'todas' = entra sozinho em todas as lojas | '1', '2' ou '3' = so na loja (lojaId)
+  //   saldo                 quanto ha em estoque, na UNIDADE DE COMPRA (a caixa, o rolo de fita): pode ser fracionario e negativo (a expedicao nunca trava por falta de saldo).
+  //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
+  //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
+  //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  const EMBALAGENS_PADRAO = [
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+  ];
+  function embalagensLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskEmbalagens'));
+      if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
+        // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
+        g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        return g;
+      }
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
+    return JSON.parse(JSON.stringify(EMBALAGENS_PADRAO));
+  }
+  function embalagensGravar(lista) {
+    try { localStorage.setItem('deskEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  // A menor embalagem ativa (nao insumo, com `cap`) em que cabem as pecas; se nenhuma couber, a de maior `cap`, em quantas unidades forem precisas.
+  function sugerirEmbalagem(lista, pecas) {
+    const n = Math.max(1, Math.floor(Number(pecas)) || 1);
+    const caixas = lista.filter(e => e.status === 'ativo' && e.tipo !== 'insumo' && e.cap > 0).sort((a, b) => a.cap - b.cap);
+    if (!caixas.length) return null;
+    const cabe = caixas.filter(e => e.cap >= n)[0];
+    if (cabe) return { id: cabe.id, qtd: 1 };
+    const maior = caixas[caixas.length - 1];
+    return { id: maior.id, qtd: Math.ceil(n / maior.cap) };
+  }
+  // Os insumos ativos que entram sozinhos no pedido da loja (`loja` = lojaId).
+  function insumosAutomaticos(lista, loja) {
+    return lista.filter(e => e.status === 'ativo' && e.tipo === 'insumo' && (e.auto === 'todas' || e.auto === String(loja)))
+      .map(e => ({ id: e.id, nome: e.nome, tipo: 'insumo', qtd: 1 }));
+  }
+  function embPedidoTodos() {
+    try { return JSON.parse(localStorage.getItem('deskEmbalagensPedido') || '{}') || {}; } catch (e) { return {}; }
+  }
+  function embPedidoLer(id) { return embPedidoTodos()[id] || null; }
+  function embPedidoGravar(id, reg) {
+    const tudo = embPedidoTodos();
+    tudo[id] = reg;
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  function embPedidoApagar(id) {
+    const tudo = embPedidoTodos();
+    delete tudo[id];
+    try { localStorage.setItem('deskEmbalagensPedido', JSON.stringify(tudo)); } catch (e) { /* idem */ }
+  }
+  // "1 Caixa de Encomenda Flex M + 1 Tag Desk Shope + 1 Fita adesiva"
+  function embResumo(itens) { return itens.map(i => i.qtd + ' ' + i.nome).join(' + '); }
+  // Quantos pedidos uma unidade atende: so o insumo tem `rende`; caixa, envelope e rolo gastam uma unidade por uso.
+  function embRende(e) { return e && e.tipo === 'insumo' ? Math.max(1, Math.floor(Number(e.rende)) || 1) : 1; }
+  // O custo que UM pedido consome: um rolo de fita de R$ 15,00 que rende 50 custa R$ 0,30 por pedido. E este, e nao o `custo` do cadastro, que os pedidos e a calculadora leem.
+  function embCustoUso(e) { return (Number(e && e.custo) || 0) / embRende(e); }
+  // A baixa do estoque, quando a Conferencia de Saida fecha: `itens` = [{ id, qtd }]. Subtrai qtd / rende do saldo (4 casas) e devolve os avisos das que ficaram negativas ou abaixo do minimo.
+  // Falta de saldo nunca trava: so avisa. Quem chama garante que o pedido ainda nao tinha sido confirmado (senao baixaria duas vezes).
+  // Cada embalagem baixada grava UM movimento 'baixa_pedido' (embMovRegistrar), com o numero do pedido em `ref` ({ numero, texto }) e `quem` de quem chama. Sem `ref`, o movimento sai sem pedido.
+  function embBaixar(itens, ref, quem) {
+    const lista = embalagensLer(), ids = [], tirou = {};
+    itens.forEach(i => {
+      const e = lista.filter(x => x.id === i.id)[0];
+      if (!e) return;
+      const q = (Number(i.qtd) || 0) / embRende(e);
+      e.saldo = Math.round(((Number(e.saldo) || 0) - q) * 10000) / 10000;
+      tirou[e.id] = (tirou[e.id] || 0) + q;
+      if (ids.indexOf(e.id) < 0) ids.push(e.id);
+    });
+    embalagensGravar(lista);
+    ids.forEach(id => {
+      const e = lista.filter(x => x.id === id)[0], custo = Number(e.custo) || 0;
+      embMovRegistrar({ embId: id, tipo: 'baixa_pedido', qtd: -tirou[id], custoUnit: custo, custoMedio: custo,
+        ref: { tipo: 'pedido', numero: ref && ref.numero != null ? ref.numero : '', texto: ref && ref.texto ? ref.texto : '' }, quem: quem });
+    });
+    return ids.map(id => lista.filter(x => x.id === id)[0]).filter(e => e.saldo < 0 || e.saldo < (Number(e.minimo) || 0))
+      .map(e => ({ nome: e.nome, saldo: e.saldo, minimo: Number(e.minimo) || 0, negativo: e.saldo < 0 }));
+  }
+  // A conta da entrada de embalagem, uma so para a nota (Entrada de Notas) e para a entrada sem nota (Embalagens): custo medio ponderado; saldo zerado ou negativo nao pesa e vale so o custo da entrada.
+  // Devolve o saldo e o custo de antes, se foi medio, e o saldo e o custo novos. Nao grava nada: quem chama grava o cadastro (embalagensGravar) e o movimento (embMovRegistrar).
+  function embEntradaConta(e, qtd, custoUnit) {
+    const r = (n, c) => { const f = Math.pow(10, c); return Math.round(Number(n) * f + (n < 0 ? -1e-6 : 1e-6)) / f; };
+    const saldo = Number(e.saldo) || 0, custo = Number(e.custo) || 0, medio = saldo > 0;
+    return { saldo: saldo, custoAtual: custo, medio: medio, novoSaldo: r(saldo + qtd, 4), novoCusto: medio ? r((saldo * custo + qtd * custoUnit) / (saldo + qtd), 2) : r(custoUnit, 2) };
+  }
+  // Saldo e minimo na tela: numero pt-BR, ate 2 casas, com o sinal de menos tipografico ("−1").
+  function embFmtSaldo(n) { const v = Number(n) || 0; return (v < 0 ? '−' : '') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  // O CODIGO E O MOVIMENTO (20/nov/2026). Moram aqui porque o cadastro, a Conferencia de Saida e a Movimentacao de Estoque precisam dos mesmos.
+  //   codigo              "EMB-001": gravado na embalagem quando ela nasce (o cadastro da o proximo numero e nunca reaproveita um). Sem `codigo` (as de exemplo e as gravadas antes) vale o do id: id 1 = EMB-001
+  //   deskMovEmbalagens   a lista de movimentos: { em: 'AAAA-MM-DDTHH:MM:SS', embId, tipo, qtd, custoUnit, custoMedio, motivoId, motivo, obs, prejuizo, ref: { tipo, numero, texto }, fornecedor, quem }
+  //                       tipo: 'entrada_nota' | 'entrada_sem_nota' | 'baixa_pedido' | 'acerto' | 'contagem'. `qtd` tem sinal e 4 casas; `custoMedio` e o de DEPOIS do movimento; `prejuizo` e a falta vezes o custo (so acerto e contagem).
+  //                       O saldo de antes e o de depois NAO se gravam: a ficha da Movimentacao parte do saldo do cadastro e desfaz os movimentos de tras para a frente, e a primeira linha e o "Saldo de abertura".
+  //                       Assim a ficha nunca desmente o cadastro. Sem a chave vale o exemplo de fabrica, e o primeiro movimento gravado parte dele.
+  function embCodigo(e) { return !e ? '' : (typeof e.codigo === 'string' && e.codigo !== '' ? e.codigo : 'EMB-' + String(e.id).padStart(3, '0')); }
+  // Exemplo: [id da embalagem, [[dias atras, hora, tipo, qtd, ...]]]. n = entrada pela nota (custo da unidade, custo medio, nota), s = entrada sem nota (custo, custo medio, comprovante),
+  // p = baixa no pedido (pedido), a = acerto e c = contagem (id do motivo, motivo, observacao). O saldo de abertura de cada uma sai positivo com o cadastro de fabrica.
+  const EMB_MOV_EXEMPLO = [
+    [1, [[46, '08:40', 'n', 80, 3.4, 3.4, '8770'], [39, '15:20', 'p', -2, '2905'], [31, '11:05', 'p', -3, '2931'], [23, '16:30', 'p', -2, '2958'], [16, '10:12', 'p', -3, '2987'], [11, '09:30', 'n', 40, 3.5, 3.5, '8802'], [8, '14:48', 'p', -2, '3012'], [3, '17:10', 'p', -2, '3039']]],
+    [2, [[52, '09:05', 'n', 30, 4.6, 4.6, '8755'], [40, '14:10', 'p', -3, '2910'], [33, '10:40', 'p', -2, '2934'], [19, '09:50', 'n', 20, 4.7, 4.7, '8791'], [12, '15:15', 'p', -4, '2996'], [5, '11:25', 'p', -2, '3028'], [0, '09:15', 'a', -2, 1, 'Quebra ou avaria', 'Duas caixas amassadas na prateleira']]],
+    [3, [[50, '09:20', 'n', 20, 5.8, 5.8, '8760'], [44, '13:30', 'p', -4, '2914'], [27, '10:10', 'p', -3, '2950'], [18, '08:50', 'n', 15, 5.9, 5.9, '8788'], [6, '16:05', 'p', -3, '3021']]],
+    [5, [[35, '09:45', 'n', 20, 6.3, 6.3, '8772'], [28, '11:35', 'p', -4, '2943'], [14, '14:20', 'p', -3, '3001'], [2, '10:00', 'p', -2, '3050']]],
+    [6, [[27, '10:30', 's', 6, 12.5, 12.5, 'Recibo 118'], [13, '13:40', 'p', -1, '3003'], [3, '15:50', 'p', -1, '3041']]],
+    [7, [[48, '09:10', 'n', 200, 1.1, 1.1, '8765'], [39, '10:25', 'p', -25, '2907'], [26, '14:00', 'p', -30, '2955'], [13, '09:35', 'p', -20, '3004'], [5, '16:20', 'p', -22, '3029']]],
+    [11, [[44, '09:00', 'n', 500, 0.4, 0.4, '8768'], [31, '10:50', 'p', -40, '2932'], [19, '15:05', 'p', -35, '2977'], [8, '11:15', 'p', -45, '3013']]],
+    [12, [[42, '09:25', 'n', 100, 0.55, 0.55, '8769'], [30, '14:35', 'p', -20, '2940'], [20, '10:05', 'a', -4, 2, 'Perda', 'Caixa de tags molhada no depósito'], [16, '11:45', 'p', -15, '2985'], [9, '13:55', 'p', -18, '3018'], [7, '09:40', 'n', 100, 0.65, 0.6, '8799'], [1, '15:30', 'p', -12, '3053']]],
+    [13, [[30, '09:15', 'n', 6, 15, 15, '8780'], [22, '12:10', 'p', -0.02, '2960'], [4, '10:45', 'p', -0.02, '3036']]],
+    [14, [[40, '09:30', 'n', 300, 0.25, 0.25, '8775'], [35, '14:15', 'p', -10, '2937'], [25, '10:20', 'c', -6, 10, 'Contagem física', ''], [20, '16:00', 'p', -12, '2979'], [11, '11:30', 'p', -8, '3014'], [4, '13:25', 'p', -9, '3034']]]
+  ];
+  // Hoje, as 09:15; se a pagina abrir antes disso, 00:01, para o movimento nunca nascer no futuro.
+  function embMovExemplo() {
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0'), cedo = agora.getHours() * 60 + agora.getMinutes() < 9 * 60 + 15, lista = [];
+    const QUEM = { n: 'Carlos Mendes', s: 'Ana Souza', p: 'Marcos Vinícius', a: 'Ana Souza', c: 'Ana Souza' };
+    const TIPO = { n: 'entrada_nota', s: 'entrada_sem_nota', p: 'baixa_pedido', a: 'acerto', c: 'contagem' };
+    EMB_MOV_EXEMPLO.forEach(e => {
+      let medio = 0;
+      e[1].forEach(l => {
+        const t = l[2], d = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - l[0]), entrada = t === 'n' || t === 's', ajuste = t === 'a' || t === 'c';
+        if (entrada) medio = l[5];
+        lista.push({ em: d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + (l[0] === 0 && cedo ? '00:01' : l[1]) + ':00', embId: e[0], tipo: TIPO[t], qtd: l[3],
+          custoUnit: entrada ? l[4] : medio, custoMedio: medio, motivoId: ajuste ? l[4] : null, motivo: ajuste ? l[5] : '', obs: ajuste ? l[6] : '',
+          prejuizo: ajuste && l[3] < 0 ? Math.round(-l[3] * medio * 100) / 100 : 0,
+          ref: t === 'n' ? { tipo: 'nota', numero: l[6], texto: 'nota nº ' + l[6] } : t === 's' ? { tipo: 'comprovante', numero: l[6], texto: 'comprovante ' + l[6] }
+            : t === 'p' ? { tipo: 'pedido', numero: l[4], texto: 'pedido nº ' + l[4] } : { tipo: '', numero: '', texto: '' },
+          fornecedor: t === 'n' ? 'Embalagens do Vale' : (t === 's' ? 'Papelaria Central' : ''), quem: QUEM[t] });
+      });
+    });
+    return lista.sort((a, b) => a.em < b.em ? -1 : (a.em > b.em ? 1 : 0));
+  }
+  function embMovLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskMovEmbalagens'));
+      if (Array.isArray(g)) return g.filter(m => m && typeof m.em === 'string' && typeof m.embId === 'number' && typeof m.tipo === 'string' && isFinite(Number(m.qtd)));
+    } catch (e) { /* sem armazenamento ou JSON estragado: cai no exemplo */ }
+    return embMovExemplo();
+  }
+  // Grava um movimento no fim da lista (a lista de fabrica, se a chave ainda nao existia). `quem` vem de quem chama; sem ele, "Sistema".
+  function embMovRegistrar(m) {
+    const z = (n) => String(n).padStart(2, '0'), d = new Date(), r = m.ref || {};
+    const reg = { em: m.em || d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()),
+      embId: Number(m.embId), tipo: m.tipo, qtd: Math.round((Number(m.qtd) || 0) * 10000) / 10000, custoUnit: Number(m.custoUnit) || 0, custoMedio: Number(m.custoMedio) || 0,
+      motivoId: m.motivoId == null ? null : m.motivoId, motivo: m.motivo || '', obs: m.obs || '', prejuizo: Math.round((Number(m.prejuizo) || 0) * 100) / 100,
+      ref: { tipo: r.tipo || '', numero: r.numero == null ? '' : String(r.numero), texto: r.texto || '' }, fornecedor: m.fornecedor || '', quem: m.quem || 'Sistema' };
+    const lista = embMovLer();
+    lista.push(reg);
+    try { localStorage.setItem('deskMovEmbalagens', JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+    return reg;
+  }
+  // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
+
   // ===== DADOS (mock) =====
   const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
   const FORNECEDORES = {
@@ -2062,7 +2234,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     2: { nome: 'Móveis Nordeste Ltda',    cnpj: '12.345.678/0001-90', cep: '65903-270', logradouro: 'Rua Coriolano Milhomem', numero: '87', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', uf: 'MA' },
     3: { nome: 'Nordic Home Importação',  cnpj: '45.222.111/0001-33', cep: '04571-010', logradouro: 'Av. Eng. Luís Carlos Berrini', numero: '1681', bairro: 'Cidade Monções', cidade: 'São Paulo', uf: 'SP' },
     4: { nome: 'Tecidos Ceará S/A',       cnpj: '77.888.999/0001-44', cep: '60540-000', logradouro: 'Av. Bezerra de Menezes', numero: '2450', bairro: 'São Gerardo', cidade: 'Fortaleza', uf: 'CE' },
-    5: { nome: 'Embalagens do Vale',      cnpj: '55.666.777/0001-66', cep: '65915-000', logradouro: 'Rod. BR-010, km 1345', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', uf: 'MA' }
+    5: { nome: 'Embalagens do Vale',      cnpj: '55.666.777/0001-66', cep: '65915-000', logradouro: 'Rod. BR-010, km 1345', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', uf: 'MA' },
+    // 6 e 7: os mesmos de Necessidades de Compra, para a ordem gerada para eles chegar aqui (CNPJ do cadastro de Fornecedores)
+    6: { nome: 'Papelaria Central',       cnpj: '11.222.333/0001-55', cep: '65900-000', logradouro: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', uf: 'MA' },
+    7: { nome: 'Luminárias Brasil',       cnpj: '33.444.555/0001-77', cep: '30110-000', logradouro: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Belo Horizonte', uf: 'MG' }
   };
 
   const CATALOGO = [
@@ -2141,6 +2316,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (salvouUmaVez) validar();
       });
     });
+    corpo.querySelectorAll('input[data-campo="sku"]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const e = embPeloCodigo(inp.value);
+        if (!e) return;
+        const i = Number(inp.dataset.i);
+        ITENS[i].sku = embCodigo(e); ITENS[i].nome = e.nome;
+        inp.value = ITENS[i].sku;
+        inp.closest('tr').querySelector('input[data-campo="nome"]').value = e.nome;
+        if (salvouUmaVez) validar();
+      });
+    });
     corpo.querySelectorAll('[data-remover]').forEach(el => {
       el.addEventListener('click', () => {
         ITENS.splice(Number(el.dataset.remover), 1);
@@ -2192,6 +2378,95 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     blocoEndereco.classList.toggle('open');
   });
 
+  // ===== EMBALAGENS, ORDEM GERADA E A NOTA QUE NAO ENTRA DUAS VEZES (pacote 2 das embalagens, 20/nov/2026) =====
+  //   deskOrdensGeradas  as ordens criadas em Necessidades de Compra: [{ numero, fornecedor, itens: [{ nome, sku, qtd, un, preco, recebido, embId }], situacao }]. A nota soma ao `recebido` e muda a `situacao`
+  //   deskNotasLancadas  as notas salvas: [{ chave, em: 'AAAA-MM-DD', fornecedor }]. A chave e o CNPJ do fornecedor so com os digitos + a serie + o numero, separados por `|`, serie e numero sem espacos nem zeros
+  //                      a esquerda (000123 e 123 sao a mesma nota). Toda nota salva grava a chave, com embalagem ou sem
+  const CHAVE_ORDENS = 'deskOrdensGeradas', CHAVE_NOTAS = 'deskNotasLancadas';
+  function lerLista(chave) {
+    try { const l = JSON.parse(localStorage.getItem(chave) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; }
+  }
+  function gravarLista(chave, lista) {
+    try { localStorage.setItem(chave, JSON.stringify(lista)); } catch (e) { /* sem armazenamento: vale so nesta tela */ }
+  }
+  const fmtDataIso = (iso) => String(iso).slice(8, 10) + '/' + String(iso).slice(5, 7) + '/' + String(iso).slice(0, 4);
+  function embPeloCodigo(sku) {
+    const c = String(sku || '').trim().toUpperCase();
+    return c ? (embalagensLer().filter(e => embCodigo(e).toUpperCase() === c)[0] || null) : null;
+  }
+  function idDoFornecedor(nomeFornecedor) { return Object.keys(FORNECEDORES).filter(k => FORNECEDORES[k].nome === nomeFornecedor)[0] || ''; }
+  // As ordens que ainda esperam mercadoria. So as de fornecedor desta tela entram: a chave da nota precisa do CNPJ dele.
+  function ordensEsperando() {
+    return lerLista(CHAVE_ORDENS).filter(o => o && Number(o.numero) && Array.isArray(o.itens) && (!o.situacao || o.situacao === 'aberto' || o.situacao === 'andamento') && idDoFornecedor(o.fornecedor));
+  }
+  function chaveDaNota() {
+    const f = FORNECEDORES[dd('inputFornecedor')], sem = (s) => s.replace(/\s+/g, '').replace(/^0+(?=.)/, '');
+    const serie = sem(val('inputSerie')).toUpperCase(), numero = sem(val('inputNumero'));
+    return f && serie && numero ? f.cnpj.replace(/\D/g, '') + '|' + serie + '|' + numero : '';
+  }
+  function notaJaLancada() {
+    const k = chaveDaNota();
+    return k ? (lerLista(CHAVE_NOTAS).filter(n => n && n.chave === k)[0] || null) : null;
+  }
+  // Escolher uma ordem gerada preenche o fornecedor e poe os itens que ainda faltam chegar (pedido - recebido). Ordem de exemplo (2, 3 e 11) nao tem itens aqui: nada muda.
+  function escolherOrdem(numero) {
+    const o = ordensEsperando().filter(x => String(x.numero) === String(numero))[0];
+    if (!o) return;
+    const fid = idDoFornecedor(o.fornecedor), campo = document.getElementById('inputFornecedor');
+    campo.setAttribute('data-value', fid);
+    campo.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i.getAttribute('data-value') === fid));
+    campo.querySelector('.dropdown-select-label').textContent = FORNECEDORES[fid].nome;
+    preencherFornecedor(fid);
+    ITENS.splice(0, ITENS.length);
+    o.itens.forEach(i => {
+      const falta = Math.round(((Number(i.qtd) || 0) - (Number(i.recebido) || 0)) * 10000) / 10000;
+      if (falta > 0) ITENS.push({ nome: String(i.nome || ''), sku: String(i.sku || ''), un: String(i.un || 'UN'), qtd: falta, preco: Number(i.preco) || 0 });
+    });
+    renderItens();
+    if (salvouUmaVez) validar();
+  }
+  function montarMenuOrdens() {
+    const menu = document.querySelector('#inputOC .dropdown-select-menu');
+    ordensEsperando().forEach(o => {
+      const it = document.createElement('div');
+      it.className = 'dropdown-select-item'; it.setAttribute('data-value', String(o.numero)); it.textContent = 'Ordem nº ' + o.numero;
+      menu.appendChild(it);
+    });
+  }
+  // A nota completa: cada linha de embalagem soma ao saldo (a conta do bloco comum, a mesma do "Dar entrada sem nota"), grava o movimento 'entrada_nota' e soma ao `recebido` da ordem escolhida.
+  // Devolve as que entraram e a ordem atualizada (ou null). Roda DEPOIS da validacao: nada se grava com pendencia.
+  function lancarNota() {
+    const f = FORNECEDORES[dd('inputFornecedor')], serie = val('inputSerie'), numero = val('inputNumero');
+    const lista = embalagensLer(), entraram = [];
+    ITENS.forEach(it => {
+      const e = lista.filter(x => embCodigo(x).toUpperCase() === String(it.sku).trim().toUpperCase())[0];
+      if (!e) return;
+      const c = embEntradaConta(e, it.qtd, it.preco);
+      e.saldo = c.novoSaldo; e.custo = c.novoCusto;
+      embMovRegistrar({ embId: e.id, tipo: 'entrada_nota', qtd: it.qtd, custoUnit: it.preco, custoMedio: c.novoCusto,
+        ref: { tipo: 'nota', numero: numero, texto: 'nota nº ' + numero + ', série ' + serie }, fornecedor: f.nome, quem: USUARIO_SESSAO.nome });
+      entraram.push({ embId: e.id, nome: e.nome, qtd: it.qtd });
+    });
+    let ordem = null;
+    if (entraram.length) {
+      embalagensGravar(lista);
+      const ordens = lerLista(CHAVE_ORDENS);
+      ordem = ordens.filter(o => String(o.numero) === dd('inputOC'))[0] || null;
+      if (ordem) {
+        ordem.itens.forEach(oi => {
+          const chegou = entraram.filter(x => x.embId === oi.embId).reduce((s, x) => s + x.qtd, 0);
+          oi.recebido = Math.round(((Number(oi.recebido) || 0) + chegou) * 10000) / 10000;
+        });
+        ordem.situacao = ordem.itens.every(oi => (Number(oi.recebido) || 0) >= (Number(oi.qtd) || 0)) ? 'atendida' : 'andamento';
+        gravarLista(CHAVE_ORDENS, ordens);
+      }
+    }
+    const notas = lerLista(CHAVE_NOTAS);
+    notas.push({ chave: chaveDaNota(), em: _hojeIso, fornecedor: f.nome });
+    gravarLista(CHAVE_NOTAS, notas);
+    return { entraram: entraram, ordem: ordem };
+  }
+
   // ===== VALIDAÇÃO =====
   // Duas camadas na mesma passada: a marca vermelha no campo (quem está olhando
   // pro campo vê) e o bloco no topo listando tudo de uma vez (quem clicou em
@@ -2212,7 +2487,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     add('campoFornecedor', 'erroFornecedor', 'O fornecedor não foi preenchido.', dd('inputFornecedor') === '');
     add('campoSerie', 'erroSerie', 'Preencha a série da nota fiscal.', val('inputSerie') === '', 'inputSerie');
-    add('campoNumero', 'erroNumero', 'Preencha o número da nota fiscal.', val('inputNumero') === '', 'inputNumero');
+    const jaLancada = notaJaLancada();
+    document.getElementById('erroNumero').textContent = jaLancada ? 'Esta nota já foi lançada em ' + fmtDataIso(jaLancada.em) + '.' : 'Preencha o número da nota fiscal.';
+    add('campoNumero', 'erroNumero', document.getElementById('erroNumero').textContent, val('inputNumero') === '' || !!jaLancada, 'inputNumero');
 
     const chave = val('inputChave').replace(/\D/g, '');
     add('campoChave', 'erroChave',
@@ -2254,6 +2531,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     const semNome = ITENS.filter(i => !String(i.nome).trim()).length;
     if (semNome) p.push({ campo: 'itensVazio', texto: semNome + (semNome === 1 ? ' item está sem nome de produto.' : ' itens estão sem nome de produto.'), foco: null });
+
+    ITENS.filter(i => /^EMB-/i.test(String(i.sku).trim())).forEach(i => {
+      const e = embPeloCodigo(i.sku);
+      if (!e) p.push({ campo: 'itensVazio', texto: 'O código ' + String(i.sku).trim() + ' não existe no cadastro de Embalagens.', foco: null });
+      else if (e.status !== 'ativo') p.push({ campo: 'itensVazio', texto: 'A embalagem ' + embCodigo(e) + ' (' + e.nome + ') está inativa: reative no cadastro antes de dar entrada.', foco: null });
+    });
 
     const semQtd = ITENS.filter(i => !(i.qtd > 0)).length;
     if (semQtd) p.push({ campo: 'itensVazio', texto: semQtd + (semQtd === 1 ? ' item está com quantidade zerada.' : ' itens estão com quantidade zerada.'), foco: null });
@@ -2308,9 +2591,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const badge = document.getElementById('badgeSituacao');
     badge.className = 'badge-situacao bs-salva';
     badge.innerHTML = '<span class="sit-dot"></span>Salva';
-    abrirModalConfirmacao(
-      'Nota salva. Ela entra na fila de Conferência de Entrada como "aguardando entrada" — o estoque só se mexe quando a conferência fechar.',
-      1, 'primary', null, 'aviso');
+    const r = lancarNota(), produtos = ITENS.length - r.entraram.length;
+    const lista = r.entraram.map(x => x.nome + ' (+' + fmtQtd(x.qtd, 'UN') + ')').join(', ');
+    let aviso;
+    if (!r.entraram.length) aviso = 'Nota salva. Ela entra na fila de Conferência de Entrada como "aguardando entrada" — o estoque só se mexe quando a conferência fechar.';
+    else {
+      aviso = 'Nota salva. ' + (r.entraram.length === 1 ? '1 embalagem entrou no saldo' : r.entraram.length + ' embalagens entraram no saldo') + ': ' + lista +
+        '. Embalagem é material de uso e não passa pela conferência.' +
+        (produtos > 0 ? ' ' + (produtos === 1 ? 'O produto da nota entra' : 'Os ' + produtos + ' produtos da nota entram') + ' na fila de Conferência de Entrada como "aguardando entrada" — o estoque deles só se mexe quando a conferência fechar.' : ' Não sobrou nada desta nota para a Conferência de Entrada.') +
+        (r.ordem ? ' A ordem de compra nº ' + r.ordem.numero + ' ficou ' + (r.ordem.situacao === 'atendida' ? 'atendida' : 'em andamento') + '.' : '');
+    }
+    abrirModalConfirmacao(aviso, 1, 'primary', null, 'aviso');
   });
 
   document.getElementById('btnSalvarRascunho').addEventListener('click', () => {
@@ -2628,7 +2919,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('inputFornecedor'), preencherFornecedor);
   inicializarDropdownSelect(document.getElementById('inputDeposito'), () => { if (salvouUmaVez) validar(); });
   inicializarDropdownSelect(document.getElementById('inputCategoria'), () => { if (salvouUmaVez) validar(); });
-  inicializarDropdownSelect(document.getElementById('inputOC'), () => {});
+  montarMenuOrdens();
+  inicializarDropdownSelect(document.getElementById('inputOC'), escolherOrdem);
+  (function ordemDoEndereco() {
+    const n = new URLSearchParams(window.location.search).get('oc');
+    const item = n ? Array.from(document.querySelectorAll('#inputOC .dropdown-select-item')).filter(i => i.getAttribute('data-value') === n)[0] : null;
+    if (!item) return;
+    const campo = document.getElementById('inputOC');
+    campo.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i === item));
+    campo.setAttribute('data-value', n);
+    campo.querySelector('.dropdown-select-label').textContent = item.textContent;
+    escolherOrdem(n);
+  })();
 
   // ===== PLANILHA E IMPRESSAO DA TELA (bloco compartilhado, 10/out/2026) =====
   // Um componente so para todas as telas. "Baixar planilha" leva as colunas e as linhas que a

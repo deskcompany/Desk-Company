@@ -225,7 +225,7 @@ Asserções do pacote 1:
 Defeitos injetados: (a) o prejuízo sem o custo; (b) a direção desligada; (c) a ficha sem o saldo de abertura; (d) a entrada sem
 nota sem recalcular o custo médio.
 
-### Pacote 2: compra, nota e Inventário
+### Pacote 2: compra, nota e Inventário (feito em 20/nov/2026, esperando o teste dele; detalhe no §14.120)
 
 1. **Necessidades de Compra, o bloco das embalagens.**
    - Ganha a coluna Código e o "Chegando": o que as ordens geradas em aberto e em andamento ainda têm a receber

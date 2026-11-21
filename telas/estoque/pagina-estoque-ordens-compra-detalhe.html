@@ -398,6 +398,7 @@
   .field-error-msg.show { display:block; }
   .form-field.has-error input, .form-field.has-error textarea { border-color: var(--danger); }
   .field-hint { font-size:11px; color:var(--text); margin-top:5px; }
+  .item-recebido { margin-top:3px; font-weight:700; }   /* o que ja chegou, embaixo do nome do item */
 
   .drawer-footer { display:flex; align-items:center; gap:16px; margin-top:22px; }
   .drawer-link { font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--text); cursor:pointer; user-select:none; }
@@ -1923,7 +1924,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ITENS.forEach((it, idx) => {
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição do item"></td>' +
+        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição do item">' +
+          (it.recebido > 0 ? '<div class="field-hint item-recebido">recebido ' + fmtQtd(it.recebido, it.un) + ' de ' + fmtQtd(it.qtd, it.un) + '</div>' : '') + '</td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="sku" data-i="' + idx + '" value="' + it.sku + '" placeholder="SKU"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="gtin" data-i="' + idx + '" value="' + it.gtin + '" placeholder="GTIN/EAN"></td>' +
         '<td><input type="text" data-campo="qtd" data-i="' + idx + '" value="' + fmtQtd(it.qtd, it.un) + '"></td>' +
@@ -2415,7 +2417,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         menu.classList.remove('open');
         const acao = item.getAttribute('data-acao');
         // O clone leva o numero da ordem aberta: sem ele copiaria sempre a do exemplo.
-        if (DESTINOS[acao]) { window.location.href = DESTINOS[acao] + (acao === 'clonar' && ORDEM ? '&id=' + ORDEM.id : ''); return; }
+        if (DESTINOS[acao]) { window.location.href = DESTINOS[acao] + (acao === 'clonar' && ORDEM ? '&id=' + ORDEM.id : '') + (acao === 'nota' && ORDEM ? '?oc=' + ORDEM.numero : ''); return; }
         avisar(AVISOS[acao]);
       });
     });
@@ -2557,9 +2559,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       const numero = Number(o && o.numero);
       if (!numero || !o.fornecedor || !Array.isArray(o.itens) || ORDENS_DA_LISTA.some(x => x.numero === numero)) return;
       ORDENS_DA_LISTA.push({ id: numero, numero: numero, data: String(o.data || ''), previsto: String(o.previsto || ''), fornecedor: String(o.fornecedor),
-                             dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: 'aberto' });
+                             dep: DEPOSITOS[o.dep] ? Number(o.dep) : 1, total: Number(o.total) || 0, situacao: o.situacao === 'andamento' || o.situacao === 'atendida' ? o.situacao : 'aberto' });   // a Entrada de Notas grava o recebido e a situacao
       ITENS_DA_LISTA[numero] = o.itens.map(i => ({ nome: String(i.nome || ''), sku: String(i.sku || ''), qtd: Number(i.qtd) || 0,
-                                                   un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: 0 }));
+                                                   un: String(i.un || 'UN'), preco: Number(i.preco) || 0, recebido: Number(i.recebido) || 0 }));
     });
   })();
   const ID_DO_EXEMPLO = 2;
@@ -2596,7 +2598,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     SITUACAO = o.situacao;
     // Ordem sem itens no exemplo leva o mesmo item de exemplo que o painel da lista mostra, pelo total dela.
     ITENS = (ITENS_DA_LISTA[o.id] || [{ nome: 'Item de exemplo', sku: '', qtd: 1, un: 'UN', preco: o.total }]).map(i => (
-      { nome: i.nome, sku: i.sku, gtin: (CATALOGO.filter(c => c.sku === i.sku)[0] || { gtin: '' }).gtin, qtd: i.qtd, un: i.un, preco: i.preco, ipi: 0 }));
+      { nome: i.nome, sku: i.sku, gtin: (CATALOGO.filter(c => c.sku === i.sku)[0] || { gtin: '' }).gtin, qtd: i.qtd, un: i.un, preco: i.preco, ipi: 0, recebido: i.recebido || 0 }));
   })();
 
   aplicarSituacao();

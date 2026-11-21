@@ -657,11 +657,11 @@ with sync_playwright() as p:
         pg.context.close()
 
     # ================================================================ 9. copias
-    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 10 telas, o da Conferência nas 2, o pedido 4 igual nas FILAs'):
+    if secao(9, 'Blocos idênticos: EMBALAGENS: LEITURA nas 10 telas que ela conferia (as outras cópias, o teste_embalagens_estoque compara), o da Conferência nas 2, o pedido 4 igual nas FILAs'):
         IN, FIM = '  // ===== EMBALAGENS: LEITURA', '  // ===== FIM DO BLOCO EMBALAGENS: LEITURA ====='
         n5 = ['pagina-vendas-custos-ecommerce.html', PV_D, 'pagina-financas-comissoes.html', 'pagina-financas-comissoes-detalhe.html', 'pagina-cadastros-clientes-detalhe.html']
         nove = [bloco(fonte(n), IN, FIM) for n in (CAD, SEP_F, CONF_F, PROD_D, NC) + tuple(n5)]
-        ok(len(nove) == 10 and all(x == nove[0] for x in nove) and 'function sugerirEmbalagem(lista, pecas)' in nove[0] and 'function embResumo' in nove[0] and 'function embBaixar' in nove[0] and 'function embCustoUso' in nove[0] and 'Identico em 10 telas' in nove[0],
+        ok(len(nove) == 10 and all(x == nove[0] for x in nove) and 'function sugerirEmbalagem(lista, pecas)' in nove[0] and 'function embResumo' in nove[0] and 'function embBaixar' in nove[0] and 'function embCustoUso' in nove[0] and 'Identico em todas as telas que o carregam' in nove[0],
            'o bloco EMBALAGENS: LEITURA é idêntico nas 10 telas: Cadastro, Separação, Conferência, a ficha do produto, Necessidades de Compra e as 5 do RESULTADO DO PEDIDO')
         ok(all(fonte(n).index(IN) < fonte(n).index('  // ===== RESULTADO DO PEDIDO (bloco comum') for n in n5), 'e nas 5 do RESULTADO DO PEDIDO ele vem ANTES do bloco da conta (o const já está inicializado)')
         ok(fonte(CONF_F).count('function sugerirEmbalagem') == 1 and fonte(SEP_F).count('function sugerirEmbalagem') == 1, 'a sugerirEmbalagem local da bancada saiu: uma só em cada ficha')
@@ -1143,21 +1143,21 @@ with sync_playwright() as p:
         ir(pg, NC)
         linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
         cab = pg.evaluate("Array.from(document.querySelectorAll('#tabelaEmbalagens thead th')).map(th => th.textContent.trim())")
-        ok(cab == ['Embalagem', 'Tipo', 'Saldo', 'Mínimo', 'Comprar', 'Custo da unidade', 'Total', ''] and pg.inner_text('#painelEmbalagens .card-title') == 'Embalagens abaixo do mínimo', 'o card "Embalagens abaixo do mínimo" tem as colunas Embalagem, Tipo, Saldo, Mínimo, Comprar, Custo da unidade e Total: %s' % cab)
-        ok(linhas == [['Caixa de Encomenda Flex G', 'Pacote / Caixa', '32', '40', '8', 'R$ 5,90', 'R$ 47,20', 'Dar entrada'],
-                      ['Caixa de Encomenda CE-02', 'Pacote / Caixa', '18', '20', '2', 'R$ 6,30', 'R$ 12,60', 'Dar entrada'],
-                      ['Tag Desk Brands', 'Insumo', '150', '200', '50', 'R$ 0,60', 'R$ 30,00', 'Dar entrada']], 'lista as três de exemplo, com o que comprar (mínimo − saldo) e o total: %s' % linhas)
-        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens a')).map(a => a.getAttribute('href'))") == ['../cadastros/pagina-cadastros-embalagens.html?entrada=%d' % i for i in (3, 5, 12)], 'cada linha tem o link "Dar entrada" para ../cadastros/pagina-cadastros-embalagens.html?entrada=<id>')
+        ok(cab == ['', 'Código', 'Embalagem', 'Tipo', 'Saldo', 'Chegando', 'Mínimo', 'Comprar', 'Custo da unidade', 'Total'] and pg.inner_text('#painelEmbalagens .card-title') == 'Embalagens abaixo do mínimo', 'o card "Embalagens abaixo do mínimo" tem a caixa de marcar e as colunas Código, Embalagem, Tipo, Saldo, Chegando, Mínimo, Comprar, Custo da unidade e Total: %s' % cab)
+        ok(linhas == [['', 'EMB-003', 'Caixa de Encomenda Flex G', 'Pacote / Caixa', '32', '—', '40', '8', 'R$ 5,90', 'R$ 47,20'],
+                      ['', 'EMB-005', 'Caixa de Encomenda CE-02', 'Pacote / Caixa', '18', '—', '20', '2', 'R$ 6,30', 'R$ 12,60'],
+                      ['', 'EMB-012', 'Tag Desk Brands', 'Insumo', '150', '—', '200', '50', 'R$ 0,60', 'R$ 30,00']], 'lista as três de exemplo, com o que comprar (mínimo − saldo − chegando) e o total: %s' % linhas)
+        ok(pg.evaluate("document.querySelectorAll('#corpoEmbalagens a').length") == 0, 'o link "Dar entrada" saiu das linhas (a entrada vem pela nota, pela ordem de compra)')
         ok(pg.evaluate("document.getElementById('painelCompra').compareDocumentPosition(document.getElementById('painelEmbalagens')) & 4") == 4, 'o card fica abaixo do painel da compra')
-        pg.click('#corpoEmbalagens tr[data-id="12"] a'); pg.wait_for_load_state('load'); pg.wait_for_timeout(500)
-        ok('pagina-cadastros-embalagens.html' in pg.url and pg.inner_text('#entradaEmb .dropdown-select-label') == 'Tag Desk Brands' and pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"), 'o link leva à tela de Embalagens com o painel de entrada aberto na Tag Desk Brands')
+        ir(pg, CAD, '?entrada=12')
+        ok(pg.inner_text('#entradaEmb .dropdown-select-label') == 'Tag Desk Brands' and pg.evaluate("document.getElementById('entradaDrawer').classList.contains('open')"), 'o endereço ?entrada=<id> segue abrindo o painel de entrada sem nota na Tag Desk Brands')
         pg.context.close()
         pg = nova()
         ir_cad(pg)
         grava_cadastro(pg, "por(13).saldo = 3.98; por(10).saldo = -5; por(10).minimo = 5; por(3).saldo = 40; por(5).saldo = 20; por(12).saldo = 200;")
         ir(pg, NC)
-        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(0, 7).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
-        ok(linhas == [['Fita adesiva', 'Insumo', '3,98', '4', '1', 'R$ 15,00', 'R$ 15,00']], 'saldo fracionário abaixo do mínimo entra (3,98 de 4: comprar 1, arredondado para cima); inativa abaixo do mínimo fica de fora; saldo igual ao mínimo não entra: %s' % linhas)
+        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(1, 10).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
+        ok(linhas == [['EMB-013', 'Fita adesiva', 'Insumo', '3,98', '—', '4', '1', 'R$ 15,00', 'R$ 15,00']], 'saldo fracionário abaixo do mínimo entra (3,98 de 4: comprar 1, arredondado para cima); inativa abaixo do mínimo fica de fora; saldo igual ao mínimo não entra: %s' % linhas)
         grava_cadastro(pg, "por(13).saldo = 4;")
         ir(pg, NC)
         ok(pg.inner_text('#embVazio') == 'Nenhuma embalagem abaixo do mínimo.' and pg.locator('#embVazio').is_visible() and not pg.locator('#tabelaEmbalagens').is_visible(), 'sem nenhuma abaixo: "Nenhuma embalagem abaixo do mínimo."')

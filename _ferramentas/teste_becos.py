@@ -65,7 +65,7 @@ with sync_playwright() as p:
         ('pagina-estoque-ordens-compra.html', lambda: pg.click('#btnNovaOC'), 'pagina-estoque-ordens-compra-detalhe.html?novo=1'),   # 10/out: a ordem nova abre em branco
         ('pagina-estoque-ordens-compra.html', lambda: (pg.evaluate("abrirPreview(ORDENS.find(o => document.querySelector('input.item-checkbox[data-id=\"' + o.id + '\"]')).id)"), pg.wait_for_timeout(200), pg.click('#btnAbrirDetalhe')), 'pagina-estoque-ordens-compra-detalhe.html?id=1'),   # 13/out: leva o numero da ordem clicada
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: pg.click('#btnCancelar'), 'pagina-estoque-ordens-compra.html'),
-        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html'),
+        ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('nota'), 'pagina-estoque-entrada-notas-detalhe.html?oc=2'),   # a nota leva a ordem (pacote 2 das embalagens)
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('receber'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('parcial'), 'pagina-estoque-conferencia-entrada.html?receber=1'),
         ('pagina-estoque-ordens-compra-detalhe.html', lambda: menu('clonar'), 'pagina-estoque-ordens-compra-detalhe.html?clonar=1&id=2'),   # copia a ordem aberta
