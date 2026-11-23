@@ -362,6 +362,11 @@
   .embalagens-nome-row { display:flex; align-items:center; gap:8px; }
   .embalagens-nome { font-size:13.5px; font-weight:700; color:var(--text-heading); }
   .embalagens-meta { font-size:12px; color:var(--text); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  .embalagens-forn { font-size:11.5px; color:var(--text); opacity:.85; margin-top:2px; }
+  /* Campo com o botao "Gerar" ao lado (23/nov/2026): o codigo ou o SKU sugerido no padrao; pequeno e discreto. */
+  .campo-gerar { display:flex; align-items:center; gap:8px; }
+  .campo-gerar > :first-child { flex:1; min-width:0; }
+  .campo-gerar .btn-secundario { font-size:12px; padding:7px 14px; flex-shrink:0; }
   .embalagens-chevron { width:16px; height:16px; color:var(--text); flex-shrink:0; }
 
   .empty-state { display:flex; flex-direction:column; align-items:center; gap:10px; padding:52px 20px; text-align:center; }
@@ -795,7 +800,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     <div class="form-field" id="campoCodigoEmbalagem">
       <label>Código</label>
-      <div class="saldo-leitura" id="codigoEmbalagem">EMB-001</div>
+      <div class="campo-gerar"><div class="saldo-leitura" id="codigoEmbalagem">EMB-001</div><button type="button" class="btn-secundario" id="btnGerarCodigoEmb">Gerar</button></div>
       <div class="field-hint">Gerado pelo sistema.</div>
     </div>
 
@@ -870,6 +875,27 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         </div>
       </div>
       <div class="field-hint">Entra já preenchido na Separação de todos os pedidos da loja escolhida.</div>
+    </div>
+
+    <div class="form-field" id="campoFornecedorEmb">
+      <label>Fornecedor padrão</label>
+      <div class="dropdown-select" id="inputFornecedorEmb" data-value="">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Sem fornecedor padrão</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="">Sem fornecedor padrão</div>
+          <div class="dropdown-select-item" data-value="TechParts Distribuidora">TechParts Distribuidora</div>
+          <div class="dropdown-select-item" data-value="Móveis Nordeste Ltda">Móveis Nordeste Ltda</div>
+          <div class="dropdown-select-item" data-value="Nordic Home Importação">Nordic Home Importação</div>
+          <div class="dropdown-select-item" data-value="Tecidos Ceará S/A">Tecidos Ceará S/A</div>
+          <div class="dropdown-select-item" data-value="Embalagens do Vale">Embalagens do Vale</div>
+          <div class="dropdown-select-item" data-value="Papelaria Central">Papelaria Central</div>
+          <div class="dropdown-select-item" data-value="Luminárias Brasil">Luminárias Brasil</div>
+        </div>
+      </div>
+      <div class="field-hint">Quem costuma vender esta embalagem. Em Necessidades de Compra, o painel da ordem só oferece os fornecedores dos itens marcados.</div>
     </div>
 
     <div class="form-field">
@@ -1639,21 +1665,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
   //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
   //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  //   fornecedor            o nome do fornecedor padrao (um dos de Cadastros > Fornecedores), '' = sem fornecedor padrao. De fabrica, 'Embalagens do Vale'. Necessidades de Compra usa para mostrar so os fornecedores dos itens marcados
   const EMBALAGENS_PADRAO = [
-    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
-    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
-    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
-    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
-    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
-    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
-    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
-    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
-    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
-    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
-    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
-    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
-    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
-    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40, fornecedor: 'Embalagens do Vale' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30, fornecedor: 'Embalagens do Vale' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20, fornecedor: 'Embalagens do Vale' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100, fornecedor: 'Embalagens do Vale' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0, fornecedor: 'Embalagens do Vale' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300, fornecedor: 'Embalagens do Vale' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200, fornecedor: 'Embalagens do Vale' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4, fornecedor: 'Embalagens do Vale' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100, fornecedor: 'Embalagens do Vale' }
   ];
   function embalagensLer() {
     try {
@@ -1661,6 +1688,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
         // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
         g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        // Cadastro gravado antes do fornecedor padrao (23/nov/2026): ganha o do padrao de mesmo id (ou ''). Depois de gravado com o campo, vale o que a pessoa escolheu.
+        g.forEach(e => { if (!('fornecedor' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.fornecedor = p ? p.fornecedor : ''; } });
         return g;
       }
     } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
@@ -1880,6 +1909,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<div class="embalagens-info">' +
             '<div class="embalagens-nome-row"><span class="status-dot" style="background:' + corStatus + ';"></span><span class="embalagens-codigo">' + embCodigo(e) + '</span><span class="embalagens-nome">' + e.nome + '</span>' +
             '<span class="tipo-badge" style="background:' + TIPO_COR[e.tipo] + ';">' + TIPO_LABEL[e.tipo] + '</span>' + formatarSeloEstoque(e) + '</div>' +
+            (e.fornecedor ? '<div class="embalagens-forn">Fornecedor: ' + String(e.fornecedor).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</div>' : '') +
             '<div class="embalagens-meta">' + formatarMeta(e) + '</div>' +
           '</div>' +
           '<svg class="embalagens-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>' +
@@ -2140,6 +2170,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     fecharAcerto();
     atualizarDicaRende();
     setAutoDropdown('');
+    setFornecedorDropdown('');
   }
   function setSituacaoDropdown(valor) {
     const raiz = document.getElementById('inputSituacao');
@@ -2168,14 +2199,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (ativo) raiz.querySelector('.dropdown-select-label').textContent = it.textContent;
     });
   }
+  function setFornecedorDropdown(valor) {
+    const raiz = document.getElementById('inputFornecedorEmb');
+    raiz.setAttribute('data-value', valor);
+    raiz.querySelectorAll('.dropdown-select-item').forEach(it => {
+      const ativo = it.getAttribute('data-value') === valor;
+      it.classList.toggle('active', ativo);
+      if (ativo) raiz.querySelector('.dropdown-select-label').textContent = it.textContent;
+    });
+  }
   inicializarDropdownSelect(document.getElementById('inputSituacao'), setSituacaoDropdown);
+  inicializarDropdownSelect(document.getElementById('inputFornecedorEmb'), setFornecedorDropdown);
   inicializarDropdownSelect(document.getElementById('inputAuto'), setAutoDropdown);
+
+  // "Gerar": preenche o campo com o proximo codigo livre, pela mesma conta da criacao (o maior ja usado + 1: nunca repete um numero). O campo segue so de leitura.
+  document.getElementById('btnGerarCodigoEmb').addEventListener('click', () => { document.getElementById('codigoEmbalagem').textContent = embCodigo({ id: proximoNumeroEmb() }); });
 
   document.getElementById('btnNovaEmbalagem').addEventListener('click', () => {
     embalagemEmEdicaoId = null;
     document.getElementById('drawerTitulo').textContent = 'Nova Embalagem';
     limparFormulario();
     document.getElementById('codigoEmbalagem').textContent = embCodigo({ id: proximoNumeroEmb() });
+    document.getElementById('btnGerarCodigoEmb').style.display = '';
     setTipoDropdown('pacote');
     renderDimensoes('pacote');
     aplicarTipoNoForm('pacote');
@@ -2192,6 +2237,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('drawerTitulo').textContent = e.nome;
     limparFormulario();
     document.getElementById('codigoEmbalagem').textContent = embCodigo(e);
+    document.getElementById('btnGerarCodigoEmb').style.display = 'none';   // o codigo de quem ja existe nao muda
     document.getElementById('inputNomeEmbalagem').value = e.nome;
     setTipoDropdown(e.tipo);
     renderDimensoes(e.tipo, { inputLargura: e.largura, inputAltura: e.altura, inputComprimento: e.comprimento, inputDiametro: e.diametro });
@@ -2200,6 +2246,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputCap').value = e.cap > 0 ? String(e.cap) : '';
     document.getElementById('inputCusto').value = (Number(e.custo) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     setAutoDropdown(e.tipo === 'insumo' ? (e.auto || '') : '');
+    setFornecedorDropdown(e.fornecedor || '');
     setSituacaoDropdown(e.status);
     document.getElementById('inputMinimo').value = String(Number(e.minimo) || 0).replace('.', ',');
     document.getElementById('inputRende').value = e.tipo === 'insumo' ? String(embRende(e)) : '';
@@ -2263,7 +2310,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const ler = (id) => parseFloat((document.getElementById(id) ? document.getElementById(id).value : '').replace(',', '.')) || 0;
     // O saldo nao e do Salvar: so muda por entrada, acerto ou pela baixa da Conferencia de Saida. Editar mantem o que ja havia.
     const anterior = embalagemEmEdicaoId === null ? null : EMBALAGENS.find(x => x.id === embalagemEmEdicaoId);
-    const dados = { nome, tipo, peso: tipo === 'insumo' ? 0 : peso, custo, status, saldo: anterior ? (Number(anterior.saldo) || 0) : 0, minimo };
+    const dados = { nome, tipo, peso: tipo === 'insumo' ? 0 : peso, custo, status, saldo: anterior ? (Number(anterior.saldo) || 0) : 0, minimo, fornecedor: document.getElementById('inputFornecedorEmb').getAttribute('data-value') };
     if (tipo === 'insumo') dados.rende = rendeTxt === '' ? 1 : Number(rendeTxt);
     if (tipo === 'pacote') { dados.largura = ler('inputLargura'); dados.altura = ler('inputAltura'); dados.comprimento = ler('inputComprimento'); }
     if (tipo === 'envelope') { dados.largura = ler('inputLargura'); dados.comprimento = ler('inputComprimento'); }

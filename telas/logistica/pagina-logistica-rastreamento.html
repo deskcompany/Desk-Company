@@ -2941,6 +2941,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (i.value.trim()) f.push('Busca: "' + i.value.trim() + '"');
     });
     document.querySelectorAll('.main .kpi-card[aria-pressed="true"] .kpi-label').forEach(k => f.push('Indicador: ' + txt(k)));
+    // Filtros que a tela guarda fora dos controles da barra (a Movimentacao de Estoque busca um item e um periodo): ela define filtrosExtrasDaTela().
+    if (typeof filtrosExtrasDaTela === 'function') filtrosExtrasDaTela().forEach(x => f.push(x));
     return f;
   }
   function montarCabecalhoDoRelatorio() {

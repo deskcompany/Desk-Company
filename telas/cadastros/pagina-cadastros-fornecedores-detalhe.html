@@ -427,6 +427,13 @@
   .drawer-link:hover { color: var(--text-heading); }
 
   /* Botao e link de acao nunca sublinham, seja qual for a tag usada (a, div ou button) */
+  .btn-secundario { display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; padding:8px 15px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-heading); cursor:pointer; user-select:none; }
+  .btn-secundario:hover { background: rgba(120,120,140,0.08); }
+  /* Campo com o botao "Gerar" ao lado (23/nov/2026): o codigo ou o SKU sugerido no padrao; pequeno e discreto. Em modo leitura o botao some junto com o campo. */
+  .campo-gerar { display:flex; align-items:center; gap:8px; }
+  .campo-gerar > input { flex:1; min-width:0; }
+  .campo-gerar .btn-secundario { font-size:12px; padding:7px 14px; flex-shrink:0; }
+  body.modo-leitura .campo-gerar { display:none; }
   .btn-primary, .btn-secundario, .btn-secundario-topo, .btn-danger, .btn-mini,
   .drawer-link, .acao-link, .link-inline, .pill-btn, .pill-btn-sm { text-decoration: none; }
   /* ===== Campo de senha dentro do modal de confirmação compartilhado ===== */
@@ -761,7 +768,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field" style="flex:0.6;">
         <label>Código</label>
-        <input type="text" id="inputCodigo" value="FOR-0002" readonly>
+        <div class="campo-gerar"><input type="text" id="inputCodigo" value="FOR-0002" readonly><button type="button" class="btn-secundario" id="btnGerarCodigo" style="display:none;">Gerar</button></div>
       </div>
     </div>
 
@@ -2207,7 +2214,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (ta) return ta.value.trim();
     const df = ff.querySelector(':scope > .date-field input, :scope > .auto-wrap input');
     if (df) return df.value.trim();
-    const inp = ff.querySelector(':scope > input, :scope > .input-senha > input');
+    const inp = ff.querySelector(':scope > input, :scope > .input-senha > input, :scope > .campo-gerar > input');
     if (inp) {
       if (inp.type === 'password') return inp.value ? '••••••••' : '';
       if (inp.type === 'checkbox') return inp.checked ? 'Sim' : 'Não';
@@ -2288,6 +2295,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         c.value = '';
       });
       FORNECIDOS = []; renderFornecidos();
+      // O codigo e do sistema e so de leitura: no cadastro novo o campo abre vazio (antes mostrava o do exemplo) e "Gerar" poe o proximo livre.
+      const btnGerar = document.getElementById('btnGerarCodigo');
+      btnGerar.style.display = '';
+      document.getElementById('inputCodigo').value = '';
+      btnGerar.addEventListener('click', () => {
+        const maior = REGISTROS.reduce((m, r) => Math.max(m, Number((/^FOR-(\d+)$/.exec(r.codigo) || [0, 0])[1])), 0);
+        document.getElementById('inputCodigo').value = 'FOR-' + String(maior + 1).padStart(4, '0');
+        document.getElementById('inputCodigo').dispatchEvent(new Event('input', { bubbles: true }));
+      });
       const h1 = document.querySelector('.main h1');
       if (h1) h1.textContent = 'Novo fornecedor';
       const sub = document.querySelector('.main .page-header .subtitle');

@@ -551,6 +551,15 @@
 
   /* tabela de itens editavel — segue .estoque-table (§7.1), com inputs nas celulas */
   .itens-table-wrap { overflow-x:auto; overflow-y:visible; }
+  /* Sugestao ao digitar o nome do item (23/nov/2026): o componente da casa. A tabela rola para o lado e cortaria a lista, entao ela fica fixa na tela, embaixo do campo. */
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  #sugestoesItem { position:fixed; right:auto; }
   .itens-table { width:100%; border-collapse:collapse; min-width:880px; }
   /* A tabela nao ganha barra de rolagem na horizontal (usuario, 15/out/2026; varredura de 19/out/2026): cabe no cartao a partir de
      1280px. O CSS comum fixa 880px de largura minima, e abaixo de 1334px de janela isso vira barra; aqui a tabela encolhe, a
@@ -1875,12 +1884,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Catalogo consultado pela busca avancada — mostra saldo e localizacao, igual ao print
   // de referencia: quem compra precisa ver o estoque antes de pedir.
   const CATALOGO = [
-    { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', gtin: '7891234000066', un: 'UN', custo: 231.10, saldo: 40, loc: '2 locais' },
-    { nome: 'Cabo HDMI 2.1 · 2m', sku: 'CAB-HDM-009', gtin: '7891234000097', un: 'UN', custo: 32.40, saldo: 65, loc: 'Vitrine' },
-    { nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', gtin: '7891234000035', un: 'UN', custo: 138.40, saldo: 2, loc: 'Bancada 2' },
-    { nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', gtin: '7891234000011', un: 'UN', custo: 742.30, saldo: 21, loc: '2 locais' },
-    { nome: 'Chapa MDF 18mm', sku: 'MAT-MDF-007', gtin: '7891234000073', un: 'M2', custo: 214.50, saldo: 128.5, loc: 'Ala 2 — pátio' },
-    { nome: 'Fone Bluetooth Desk One', sku: 'FON-BLT-013', gtin: '7891234000134', un: 'UN', custo: 176.60, saldo: -2, loc: 'Sem localização' }
+    { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', gtin: '7891234000066', un: 'UN', custo: 231.10, saldo: 40, loc: '2 locais', fornecedor: 1 },
+    { nome: 'Cabo HDMI 2.1 · 2m', sku: 'CAB-HDM-009', gtin: '7891234000097', un: 'UN', custo: 32.40, saldo: 65, loc: 'Vitrine', fornecedor: 1 },
+    { nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', gtin: '7891234000035', un: 'UN', custo: 138.40, saldo: 2, loc: 'Bancada 2', fornecedor: 1 },
+    { nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', gtin: '7891234000011', un: 'UN', custo: 742.30, saldo: 21, loc: '2 locais', fornecedor: 2 },
+    { nome: 'Chapa MDF 18mm', sku: 'MAT-MDF-007', gtin: '7891234000073', un: 'M2', custo: 214.50, saldo: 128.5, loc: 'Ala 2 — pátio', fornecedor: 3 },
+    { nome: 'Fone Bluetooth Desk One', sku: 'FON-BLT-013', gtin: '7891234000134', un: 'UN', custo: 176.60, saldo: -2, loc: 'Sem localização', fornecedor: 1 },
+    // Os produtos do cadastro que ainda nao estavam aqui (23/nov/2026), para a digitacao do nome achar o que o usuario procura: o fornecedor e o do exemplo, entre os sete de Cadastros > Fornecedores.
+    { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', gtin: '7891234000301', un: 'UN', custo: 37.20, saldo: 0, loc: 'Sem localização', fornecedor: 1 },
+    { nome: 'Carregador USB-C 20W', sku: 'ELE-1004', gtin: '7891234000302', un: 'UN', custo: 26.85, saldo: 3, loc: 'Vitrine', fornecedor: 1 },
+    { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', gtin: '7891234000303', un: 'UN', custo: 46.08, saldo: 15, loc: 'Bancada 2', fornecedor: 7 },
+    { nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', gtin: '7891234000304', un: 'UN', custo: 10.90, saldo: 8, loc: 'Vitrine', fornecedor: 6 },
+    { nome: 'Caneta Esferográfica Caixa c/50', sku: 'PAP-3003', gtin: '7891234000305', un: 'UN', custo: 18.00, saldo: 0, loc: 'Sem localização', fornecedor: 6 },
+    { nome: 'Tecido Algodão (metro)', sku: 'VES-2004', gtin: '7891234000306', un: 'M', custo: 14.20, saldo: 200, loc: 'Ala 2 — pátio', fornecedor: 4 }
   ];
 
   const ULTIMAS_COMPRAS = {
@@ -1924,7 +1940,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ITENS.forEach((it, idx) => {
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição do item">' +
+        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + idx + '" value="' + it.nome + '" placeholder="Descrição do item" autocomplete="off">' +
           (it.recebido > 0 ? '<div class="field-hint item-recebido">recebido ' + fmtQtd(it.recebido, it.un) + ' de ' + fmtQtd(it.qtd, it.un) + '</div>' : '') + '</td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="sku" data-i="' + idx + '" value="' + it.sku + '" placeholder="SKU"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="gtin" data-i="' + idx + '" value="' + it.gtin + '" placeholder="GTIN/EAN"></td>' +
@@ -2125,10 +2141,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     abrirDrawer('Últimas compras · ' + fornecedorAtual().nome, html);
   });
 
+  // Os itens do fornecedor da ordem (23/nov/2026): a busca avancada e a sugestao ao digitar so mostram o que e dele. Sem fornecedor escolhido, mostram todos.
+  function catalogoDoFornecedor() {
+    const id = document.getElementById('inputFornecedor').getAttribute('data-value');
+    return CATALOGO.filter(p => !id || String(p.fornecedor) === String(id));
+  }
   document.getElementById('btnBuscaAvancada').addEventListener('click', () => {
-    let html = '<div class="field-hint" style="margin-bottom:14px;">O saldo e a localização aparecem aqui de propósito: quem compra precisa ver o estoque antes de pedir.</div>';
-    CATALOGO.forEach((p, i) => {
-      const critico = p.saldo <= 2;
+    const idForn = document.getElementById('inputFornecedor').getAttribute('data-value'), doForn = catalogoDoFornecedor();
+    let html = '<div class="field-hint" style="margin-bottom:14px;">O saldo e a localização aparecem aqui de propósito: quem compra precisa ver o estoque antes de pedir.' +
+      (idForn && FORNECEDORES[idForn] ? ' Mostrando só os itens de ' + FORNECEDORES[idForn].nome + ', o fornecedor da ordem.' : '') + '</div>';
+    if (!doForn.length) html += '<div class="parcelas-vazio">Nenhum item deste fornecedor no catálogo.</div>';
+    doForn.forEach((p) => {
+      const i = CATALOGO.indexOf(p), critico = p.saldo <= 2;
       html +=
         '<div class="mov-item">' +
           '<div class="mov-info"><div class="mov-tipo">' + p.nome + '</div>' +
@@ -2148,6 +2172,58 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     });
   });
+
+  // ===== SUGESTAO AO DIGITAR O NOME DO ITEM (23/nov/2026) =====
+  // Digitar no campo ITEM da tabela abre a lista de sugestoes embaixo do campo (o componente da casa, o mesmo de Cadastros > Fornecedores): filtra por nome, SKU ou GTIN, no maximo 8, so
+  // do fornecedor da ordem. Clicar ou Enter preenche a linha (nome, SKU, GTIN, unidade e o preco = o custo medio); as setas movem a marca; Escape e clique fora fecham.
+  const caixaSug = document.createElement('div');
+  caixaSug.className = 'sugestoes'; caixaSug.id = 'sugestoesItem';
+  document.body.appendChild(caixaSug);
+  let sugItens = [], sugLinha = -1;
+  const escSug = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function fecharSugestoes() { caixaSug.classList.remove('open'); caixaSug.innerHTML = ''; sugItens = []; sugLinha = -1; }
+  function sugerirItem(inp) {
+    const tm = inp.value.trim().toLowerCase();
+    if (!tm) { fecharSugestoes(); return; }
+    sugLinha = Number(inp.getAttribute('data-i'));
+    sugItens = catalogoDoFornecedor().filter(p => p.nome.toLowerCase().includes(tm) || p.sku.toLowerCase().includes(tm) || p.gtin.includes(tm)).slice(0, 8);
+    const idForn = document.getElementById('inputFornecedor').getAttribute('data-value');
+    caixaSug.innerHTML = sugItens.length
+      ? sugItens.map((p, n) => '<div class="sugestao-item' + (n === 0 ? ' ativo' : '') + '" data-sku="' + escSug(p.sku) + '"><div class="sugestao-nome">' + escSug(p.nome) + '</div>' +
+          '<div class="sugestao-meta">' + escSug(p.sku) + ' · ' + escSug(p.gtin) + ' · custo médio ' + fmtMoeda(p.custo) + '</div></div>').join('')
+      : '<div class="sugestao-vazia">Nenhum item encontrado' + (idForn ? ' para este fornecedor' : '') + '.</div>';
+    const r = inp.getBoundingClientRect();
+    caixaSug.style.left = Math.round(r.left) + 'px'; caixaSug.style.top = Math.round(r.bottom + 6) + 'px'; caixaSug.style.width = Math.max(300, Math.round(r.width)) + 'px';
+    caixaSug.classList.add('open');
+  }
+  function escolherSugestao(sku) {
+    const p = CATALOGO.filter(x => x.sku === sku)[0], i = sugLinha;
+    if (!p || !ITENS[i]) return;
+    Object.assign(ITENS[i], { nome: p.nome, sku: p.sku, gtin: p.gtin, un: p.un, preco: p.custo });
+    fecharSugestoes();
+    renderItens();
+    const qtd = document.querySelector('#corpoItens input[data-campo="qtd"][data-i="' + i + '"]');
+    if (qtd) { qtd.focus(); qtd.select(); }
+  }
+  document.getElementById('corpoItens').addEventListener('input', (e) => { if (e.target.matches('input[data-campo="nome"]')) sugerirItem(e.target); });
+  document.getElementById('corpoItens').addEventListener('keydown', (e) => {
+    if (!e.target.matches('input[data-campo="nome"]') || !caixaSug.classList.contains('open')) return;
+    const itens = Array.from(caixaSug.querySelectorAll('.sugestao-item'));
+    if (e.key === 'Escape') { e.stopPropagation(); fecharSugestoes(); return; }
+    if (!itens.length) return;
+    let a = itens.findIndex(x => x.classList.contains('ativo'));
+    if (e.key === 'Enter') { e.preventDefault(); escolherSugestao(itens[Math.max(a, 0)].getAttribute('data-sku')); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      a = e.key === 'ArrowDown' ? (a + 1) % itens.length : (a - 1 + itens.length) % itens.length;
+      itens.forEach((x, n) => x.classList.toggle('ativo', n === a));
+      itens[a].scrollIntoView({ block: 'nearest' });
+    }
+  });
+  caixaSug.addEventListener('click', (e) => { const it = e.target.closest('.sugestao-item'); if (it) escolherSugestao(it.getAttribute('data-sku')); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('#sugestoesItem') && !e.target.matches('#corpoItens input[data-campo="nome"]')) fecharSugestoes(); });
+  window.addEventListener('scroll', (e) => { if (e.target !== caixaSug) fecharSugestoes(); }, true);
+  window.addEventListener('resize', fecharSugestoes);
 
   // ===== MODAL =====
   const confirmModal = document.getElementById('confirmModal');
@@ -2746,6 +2822,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (i.value.trim()) f.push('Busca: "' + i.value.trim() + '"');
     });
     document.querySelectorAll('.main .kpi-card[aria-pressed="true"] .kpi-label').forEach(k => f.push('Indicador: ' + txt(k)));
+    // Filtros que a tela guarda fora dos controles da barra (a Movimentacao de Estoque busca um item e um periodo): ela define filtrosExtrasDaTela().
+    if (typeof filtrosExtrasDaTela === 'function') filtrosExtrasDaTela().forEach(x => f.push(x));
     return f;
   }
   function montarCabecalhoDoRelatorio() {

@@ -13,7 +13,8 @@
 #   [4] "Imprimir", no menu, imprime a lista inteira com o cabecalho pronto; o Ctrl+P tambem o monta;
 #   [5] em cada uma das 19 telas: o cabecalho no papel, a quantidade, nada de caixa de selecao, colunas
 #       alinhadas, o Ctrl+P levando a lista inteira e o CSS do relatorio igual em todas;
-#   [6] em cada lista, o filtro escolhido aparece no cabecalho.
+#   [6] em cada lista, o filtro escolhido aparece no cabecalho;
+#   [7] (23/nov/2026) a Movimentacao de Estoque: a tabela cabe na folha, o item, o tipo e o periodo aparecem no cabecalho, e o documento segue saindo sozinho.
 from playwright.sync_api import sync_playwright
 import os as _os, glob as _g, sys, datetime
 import localiza
@@ -139,8 +140,8 @@ with sync_playwright() as p:
       const linha = Array.from(tb.querySelectorAll('tbody tr')).filter(tr => !tr.querySelector('[colspan]'))[0];
       return [Array.from(tb.querySelectorAll('thead tr:last-child th')).filter(vis).length, Array.from(linha.children).filter(vis).length]; }).filter(p => p[0] && p[0] !== p[1])"""
 
-    if secao(5, 'As 29 telas com o bloco comum'):
-        ok(len(COM_BLOCO) == 29,   # 09/nov: Promoções e Encartes (a lista e a página) entrou com o bloco; 10/nov: as duas listas de Usuários e Perfis
+    if secao(5, 'As 30 telas com o bloco comum'):
+        ok(len(COM_BLOCO) == 30,   # 23/nov: a Movimentação de Estoque entrou como lista; 09/nov: Promoções e Encartes (a lista e a página) entrou com o bloco; 10/nov: as duas listas de Usuários e Perfis
            'são %d telas com o bloco comum de planilha e impressão' % len(COM_BLOCO))
         css = set(FONTES[n][FONTES[n].index(MARCA_CSS):FONTES[n].index('</style>')] if MARCA_CSS in FONTES[n] else '' for n in COM_BLOCO)
         ok(len(css) == 1 and '' not in css, 'o CSS do relatório está em todas, igual')
@@ -182,7 +183,7 @@ with sync_playwright() as p:
         # 14/out: Comissoes Afiliados (lista) e a conta do afiliado (documento) entraram com o bloco.
         # 19/out: Vale-compra (a lista e a pagina do vale) entrou com o bloco.
         # 20/out: Gateways (a lista; a pagina do gateway e um formulario e nao leva o bloco) entrou com ele.
-        ok(listas == 22 and docs == 7, 'as listas são 22 (Promoções e Encartes entrou em 09/nov, as duas de Usuários e Perfis em 10/nov) e os documentos, 7 (%d e %d)' % (listas, docs))
+        ok(listas == 23 and docs == 7, 'as listas são 23 (Promoções e Encartes entrou em 09/nov, as duas de Usuários e Perfis em 10/nov, a Movimentação de Estoque em 23/nov) e os documentos, 7 (%d e %d)' % (listas, docs))
 
     if secao(6, 'Em cada lista, o filtro escolhido aparece'):
         ruins, conferidas = [], 0
@@ -206,6 +207,56 @@ with sync_playwright() as p:
                 ruins.append('%s: escolhi "%s" e o cabeçalho diz %s' % (nome.replace('pagina-', '').replace('.html', ''), escolhido, filtros))
             pg.evaluate("window.dispatchEvent(new Event('afterprint'))")
         ok(not ruins and conferidas >= 12, 'em %d listas, o filtro escolhido (aba ou botão) aparece no cabeçalho do papel: %s' % (conferidas, ruins[:3]))
+
+    if secao(7, 'A Movimentação de Estoque: a folha cabe, o filtro da busca aparece, e o documento continua saindo sozinho'):
+        MOV = 'pagina-estoque-movimentacao.html'
+        pg.emulate_media(media='screen')
+        pg.goto(localiza.uri(MOV)); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
+        no_papel()
+        ok('Movimentação de Estoque' in pg.evaluate(CAB) and 'Filtros: nenhum, a lista inteira' in pg.evaluate(CAB) and '0 registros' in pg.evaluate(CAB), 'antes de buscar, o Ctrl+P não quebra e o cabeçalho diz 0 registros')
+        pg.evaluate("window.dispatchEvent(new Event('afterprint'))"); pg.emulate_media(media='screen')
+        # a folha A4 com margem de 12 mm tem 186 mm = 703 px: a tabela de nove colunas tem de caber nela
+        def busca(modo, termo):
+            pg.set_viewport_size({'width': 1440, 'height': 900})
+            pg.goto(localiza.uri(MOV)); pg.wait_for_load_state('load'); pg.wait_for_timeout(350)
+            if modo == 'embalagens':
+                pg.click('#modoMov [data-modo="embalagens"]'); pg.wait_for_timeout(150)
+            pg.fill('#buscaProduto', termo); pg.press('#buscaProduto', 'Enter')
+            pg.fill('#dataDe', pg.evaluate("fmtData(PRIMEIRO_DIA)"))
+            pg.click('#btnBuscar'); pg.wait_for_timeout(300)
+        for modo, termo, rotulo in (('produtos', 'TEC-MEC-006', 'Produto: Teclado Mecânico Desk'), ('embalagens', 'EMB-002', 'Embalagem: Caixa de Encomenda Flex M')):
+            busca(modo, termo)
+            esperado = pg.evaluate("linhasDaPlanilha().linhas.length")
+            pg.evaluate("PLANILHA_PAGINA.por(10, 1); PLANILHA_REFAZ()")
+            pg.set_viewport_size({'width': 703, 'height': 900})
+            no_papel()
+            cab = pg.evaluate(CAB)
+            m = pg.evaluate("""(() => { const t = document.querySelector('.main table'); return { sw: document.documentElement.scrollWidth, vw: innerWidth, direita: Math.round(t.getBoundingClientRect().right),
+                 linhas: t.querySelectorAll('tbody tr').length, ultima: Array.from(t.querySelectorAll('thead th')).pop().textContent.trim() }; })()""")
+            ok(m['sw'] <= m['vw'] and m['direita'] <= m['vw'], 'Movimentação em %s: na largura da folha (703 px) a tabela termina em %d e a página não passa de %d, então a coluna "%s" não sai cortada' % (modo, m['direita'], m['sw'], m['ultima']))
+            ok(m['linhas'] == esperado > 7 and ('%d registros' % esperado) in cab, 'e leva todas as linhas (%d), não só a página de 10: %s' % (esperado, cab.split(chr(10))[-1]))
+            ok('Filtros: ' + rotulo in cab and 'Período: ' in cab, 'o cabeçalho diz o item buscado e o período: %s' % [l for l in cab.split(chr(10)) if l.startswith('Filtros')])
+            pg.evaluate("window.dispatchEvent(new Event('afterprint'))"); pg.emulate_media(media='screen')
+        # tipo de movimento e deposito entram no cabecalho
+        busca('produtos', 'TEC-MEC-006')
+        tipo = pg.evaluate("document.querySelectorAll('#filtroTipoMov .dropdown-select-item')[1].getAttribute('data-value')")
+        nome_tipo = pg.evaluate("document.querySelectorAll('#filtroTipoMov .dropdown-select-item')[1].textContent.trim()")
+        pg.evaluate("(v) => document.querySelector('#filtroTipoMov .dropdown-select-item[data-value=\"' + v + '\"]').click()", tipo)
+        pg.evaluate("document.querySelector('#filtroDeposito .dropdown-select-item[data-value=\"2\"]').click()")
+        pg.click('#btnBuscar'); pg.wait_for_timeout(250)
+        no_papel()
+        cab = pg.evaluate(CAB)
+        ok(('Tipo: ' + nome_tipo) in cab and 'Depósito: Galpão Centro' in cab, 'com tipo de movimento e depósito escolhidos, o cabeçalho diz os dois: %s' % [l for l in cab.split(chr(10)) if l.startswith('Filtros')])
+        pg.evaluate("window.dispatchEvent(new Event('afterprint'))"); pg.emulate_media(media='screen')
+        # imprimir so o documento: o cabecalho do relatorio nao entra, e a lista some
+        busca('produtos', 'TEC-MEC-006')
+        pg.evaluate("document.querySelector('#corpoTabela tr').click()"); pg.wait_for_timeout(350)
+        pg.evaluate("document.body.classList.add('mv-imprime-doc')")
+        no_papel()
+        papel = pg.evaluate("""(() => { const v = (s) => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' && e.getClientRects().length > 0; };
+          return { doc: v('#docItens'), cabecalho: v('#relatorioCabecalho'), lista: v('#painelMov'), produto: v('#painelProduto') }; })()""")
+        ok(papel == {'doc': True, 'cabecalho': False, 'lista': False, 'produto': False}, 'o "Imprimir documento" segue saindo sozinho na folha, sem o cabeçalho de lista: %s' % papel)
+        pg.evaluate("document.body.classList.remove('mv-imprime-doc'); window.dispatchEvent(new Event('afterprint'))"); pg.emulate_media(media='screen')
 
     ok(not erros, 'nenhum erro de JavaScript em toda a suite: %s' % erros[:3])
     nav.close()

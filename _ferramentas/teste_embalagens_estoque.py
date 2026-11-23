@@ -33,6 +33,13 @@
 #           no bloco comum), grava 'entrada_nota' e soma ao recebido da ordem; a nota nao entra duas vezes (chave = CNPJ so com digitos | serie | numero, sem espacos nem zeros a esquerda, em deskNotasLancadas)
 #   Inventario: "Produtos / Embalagens" ao gerar; sem deposito e sem trava; a diferenca e contra o saldo da ABERTURA e se aplica ao saldo de agora; falta vira prejuizo; planilha e coletor recusam codigo EMB
 #   [12] Necessidades de Compra; [13] Ordens de Compra; [14] a nota que soma o saldo; [15] a nota que nao entra duas vezes; [16] o Inventario de embalagens; [17] fotos do pacote 2
+# PACOTE 3 (23/nov/2026): os ajustes que o usuario pediu depois de testar os pacotes 1 e 2. (O item da impressao da Movimentacao esta em teste_impressao.py, secao 7.)
+#   Entrada de Notas: embalagem com preco unitario >= 10 vezes o custo atual (custo > 0) ganha uma linha em vermelho no modal e o botao "Salvar mesmo assim"; produto e custo 0 nao avisam
+#   Necessidades de Compra: a embalagem que ja tem ordem aberta ou em andamento cobrindo o minimo SAI da tabela e vira o bloco "N embalagens ja pedidas" acima dela (com o link da ordem); atendida, volta
+#   Fornecedor padrao: campo da embalagem (dropdown com os 7 fornecedores), as 14 de fabrica no Vale; o painel da ordem so oferece os fornecedores dos itens marcados; a busca avancada da Ordem de Compra
+#           e a sugestao ao digitar o item (Ordem de Compra e Entrada de Notas) so mostram o que e do fornecedor da ordem/nota
+#   Inventario: Enter no campo vai ao proximo; vazio avisa em vermelho e nao pula. Botao "Gerar" o codigo: Embalagens, Produtos (SKU), Clientes e Fornecedores
+#   [18] aviso de preco; [19] fornecedor padrao; [20] painel da ordem; [21] busca avancada; [22] sugestao; [23] Enter no Inventario; [24] botao Gerar; [25] fotos do pacote 3. A secao 12 ganhou o bloco das ja pedidas.
 # Aceita o numero da secao como argumento. As fotos vao para a pasta de DESK_FOTOS.
 from playwright.sync_api import sync_playwright
 import datetime, os as _os, glob as _g, re, sys, tempfile
@@ -133,6 +140,9 @@ with sync_playwright() as p:
 
     def emb(pg, i):
         return next((e for e in (ls(pg, 'deskEmbalagens') or []) if e['id'] == i), None)
+
+    def sd(pg, i):
+        return pg.evaluate("(i) => embalagensLer().filter(e => e.id === i)[0].saldo", i)
 
     def movs(pg):
         return ls(pg, 'deskMovEmbalagens') or []
@@ -393,7 +403,7 @@ with sync_playwright() as p:
         abre_card(pg, 3); pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(120)
         escolher(pg, '#acertoMotivo', 10); pg.fill('#inputNovoSaldo', '33'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
         m = movs(pg)[-1]
-        ok(emb(pg, 3)['saldo'] == 33 and m['qtd'] == 3 and m['prejuizo'] == 0, 'e a contagem física que dá sobra não é prejuízo')
+        ok(sd(pg, 3) == 33 and m['qtd'] == 3 and m['prejuizo'] == 0, 'e a contagem física que dá sobra não é prejuízo')
         # fracionario e negativo
         abre_card(pg, 13); pg.click('#linkAcertarSaldo'); pg.wait_for_timeout(120)
         escolher(pg, '#acertoMotivo', 5); pg.fill('#inputNovoSaldo', '-1,5'); pg.click('#btnAplicarAcerto'); pg.wait_for_timeout(300)
@@ -571,7 +581,7 @@ with sync_playwright() as p:
         with pg.expect_download(timeout=5000) as d:
             pg.click('#btnPlanilha')
         csv = open(d.value.path(), encoding='utf-8-sig').read().splitlines()
-        ok(d.value.suggested_filename.startswith('movimentacao-emb-002-') and len(csv) == 9 and csv[0] == '"Data";"Hora";"Movimento";"Observação";"Registrado por";"Cliente ou fornecedor";"Saldo anterior";"Quantidade";"Saldo atual";"Valor unitário";"Custo médio";"Valor em estoque";"Prejuízo"',
+        ok(d.value.suggested_filename.startswith('movimentacao-estoque-') and len(csv) == 9 and csv[0] == '"Data";"Hora";"Movimento";"Observação";"Registrado por";"Cliente ou fornecedor";"Saldo anterior";"Quantidade";"Saldo atual";"Valor unitário";"Custo médio";"Valor em estoque";"Prejuízo"',
            'a planilha baixa o histórico inteiro com as colunas da ficha: %s, %d linhas' % (d.value.suggested_filename, len(csv)))
         ok(csv[1].split(';')[2] == '"Saldo de abertura"' and csv[1].split(';')[8] == '"48"' and csv[-1].split(';')[12] == '"9,4"' and csv[-1].split(';')[8] == '"85"', 'com a abertura na primeira linha e o prejuízo na última')
         pg.evaluate("(() => { window.__n = 0; window.print = () => { window.__n++; window.__linhas = document.querySelectorAll('#corpoTabela tr').length; }; })()")
@@ -710,6 +720,7 @@ with sync_playwright() as p:
         ok(all(t.count('function embEntradaConta(e, qtd, custoUnit)') == 1 for t in [open(c, encoding='utf-8').read() for c in com]) and 'A conta da entrada de embalagem, uma so' in blocos[0], 'a conta da entrada (embEntradaConta) mora no bloco comum, uma vez em cada cópia')
         ok('Identico em 10 telas' not in blocos[0] and 'grep -rl "EMBALAGENS: LEITURA (bloco comum" telas' in blocos[0] and 'teste_embalagens_estoque.py compara as copias' in blocos[0] and 'ANTES dele' in blocos[0], 'o cabeçalho do bloco não tem número nem lista: diz o grep, quem compara e por que vem antes do RESULTADO DO PEDIDO')
         b0 = blocos[0]
+        ok(b0.count("fornecedor: 'Embalagens do Vale' }") == 14 and "'fornecedor' in e" in b0 and 'fornecedor            o nome do fornecedor padrao' in b0, 'o bloco comum documenta o campo `fornecedor` e traz as 14 de fábrica no Vale (as cópias são idênticas pela comparação acima)')
         ok(all(x in b0 for x in ('function embCodigo(e)', 'function embMovRegistrar(m)', 'function embMovLer()', 'function embMovExemplo()', 'function embBaixar(itens, ref, quem)', "tipo: 'baixa_pedido'", "'deskMovEmbalagens'")) and b0.count('function embBaixar') == 1,
            'o bloco traz embCodigo, embMovRegistrar, embMovLer, o exemplo e o embBaixar(itens, ref, quem), uma vez cada')
         ok(all(t.count('function embCodigo') == 1 and t.count('function embMovRegistrar') == 1 for t in [open(c, encoding='utf-8').read() for c in com]), 'cada tela declara as funções uma vez só')
@@ -842,9 +853,17 @@ with sync_playwright() as p:
         ok('nº 15 para Embalagens do Vale (R$ 77,20)' in tx(pg, '#confirmModalTexto') and 'no card das embalagens' in tx(pg, '#confirmModalTexto'), 'o aviso diz a ordem e que ela já conta como chegando no card das embalagens')
         pg.keyboard.press('Escape'); pg.wait_for_timeout(200)
         linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(1, 10).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
-        ok(linhas[0] == ['EMB-003', 'Caixa de Encomenda Flex G', 'Pacote / Caixa', '32', '8 ordem nº 15', '40', '0', 'R$ 5,90', 'R$ 0,00'] and linhas[2][4] == '50 ordem nº 15' and linhas[2][6] == '0' and linhas[1][4] == '—' and linhas[1][6] == '2',
-           'o chegando desconta a sugestão: Flex G e Tag saem para comprar 0 (a ordem cobre), a CE-02 segue pedindo 2: %s' % linhas)
-        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens .item-checkbox')).map(c => c.disabled)") == [True, False, True] and not pg.evaluate("document.getElementById('barraSelecaoEmb').classList.contains('show')"), 'a linha que não tem o que comprar fica sem caixa de marcar, e a seleção foi limpa')
+        ok(linhas == [['EMB-005', 'Caixa de Encomenda CE-02', 'Pacote / Caixa', '18', '—', '20', '2', 'R$ 6,30', 'R$ 12,60']],
+           'a Flex G e a Tag, que a ordem cobre, SAEM da tabela (só fica o que ainda dá para pedir): a CE-02, com 2 a comprar: %s' % linhas)
+        ok(tx(pg, '#embPedidas .emb-pedidas-titulo') == '2 embalagens já pedidas' and vis(pg, 'embPedidas') and 'já estão pedidas' in tx(pg, '#embPedidas') and 'não precisam de compra agora' in tx(pg, '#embPedidas'),
+           'acima da tabela entra o bloco "2 embalagens já pedidas", que diz que já estão pedidas e não precisam de compra agora: %s' % tx(pg, '#embPedidas')[:120])
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#embPedidas .emb-pedida-linha')).map(l => l.innerText.replace(/\s+/g, ' ').trim())") == ['EMB-003 Caixa de Encomenda Flex G 8 a caminho ordem nº 15', 'EMB-012 Tag Desk Brands 50 a caminho ordem nº 15'],
+           'uma linha por embalagem: código, nome, quantidade a caminho e o número da ordem')
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#embPedidas a')).map(a => a.getAttribute('href'))") == ['../estoque/pagina-estoque-ordens-compra-detalhe.html?id=15'] * 2, 'cada ordem é um link para a ordem (?id=15)')
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens .item-checkbox')).map(c => c.disabled)") == [False] and not pg.evaluate("document.getElementById('barraSelecaoEmb').classList.contains('show')") and pg.evaluate("document.querySelectorAll('#corpoEmbalagens .item-checkbox[title]').length") == 0,
+           'sem caixa travada na tabela: o que sobrou tem caixa de marcar normal, e a seleção das que saíram foi limpa')
+        pg.click('#embPedidas a'); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+        ok(pg.url.endswith('pagina-estoque-ordens-compra-detalhe.html?id=15') and pg.evaluate("ITENS.map(i => i.sku)") == ['EMB-003', 'EMB-012'], 'e o link abre a ordem nº 15, com as duas embalagens')
         pg.context.close()
         # o chegando e a conta
         pg = nova()
@@ -855,6 +874,24 @@ with sync_playwright() as p:
         ok(linhas[1][4] == '—' and linhas[1][6] == '2', 'ordem com tudo recebido não é chegando (a CE-02 segue pedindo 2)')
         ok(pg.evaluate("[embCompra({ id: 9, saldo: 3.98, minimo: 4 }, {}).comprar, embCompra({ id: 9, saldo: 5, minimo: 5 }, { 9: [{ numero: 1, qtd: 4.9 }] }).comprar, embCompra({ id: 9, saldo: 0.1, minimo: 5 }, { 9: [{ numero: 1, qtd: 4.9 }] }).comprar, embCompra({ id: 9, saldo: 0, minimo: 10 }, { 9: [{ numero: 1, qtd: 99 }] }).comprar]") == [1, 0, 0, 0],
            'comprar = max(0, teto(mínimo − saldo − chegando)): 3,98 de 4 pede 1; o erro de ponto flutuante (5 − 0,1 − 4,9) não pede 1; chegando maior que a falta dá 0, nunca negativo')
+        pg.context.close()
+        # o bloco no singular, a ordem atendida (volta para a tabela), a que cobre so em parte (fica) e a lista sem pedidas (o bloco some)
+        pg = nova()
+        poe(pg, 'deskOrdensGeradas', [ordem_emb(15, [(3, 8, 5.9)])])
+        ir(pg, NC)
+        ok(tx(pg, '#embPedidas .emb-pedidas-titulo') == '1 embalagem já pedida' and pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => tr.getAttribute('data-id'))") == ['5', '12'], 'com uma só: "1 embalagem já pedida", e a Tag (sem ordem) segue na tabela junto da CE-02')
+        poe(pg, 'deskOrdensGeradas', [ordem_emb(15, [(3, 8, 5.9, 8)], 'atendida')])
+        ir(pg, NC)
+        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(1, 10).map(td => td.innerText.replace(/\s+/g, ' ').trim()))")
+        ok(not vis(pg, 'embPedidas') and [l[0] for l in linhas] == ['EMB-003', 'EMB-005', 'EMB-012'] and linhas[0][4] == '—' and linhas[0][6] == '8', 'ordem atendida: a quantidade a caminho cai a zero, o bloco some e a Flex G VOLTA para a tabela (ainda abaixo do mínimo), pedindo 8: %s' % linhas[0])
+        poe(pg, 'deskOrdensGeradas', [ordem_emb(15, [(3, 8, 5.9, 4)], 'andamento')])
+        ir(pg, NC)
+        linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(1, 10).map(td => td.innerText.replace(/\s+/g, ' ').trim()))")
+        ok(not vis(pg, 'embPedidas') and linhas[0][0] == 'EMB-003' and linhas[0][4] == '4 ordem nº 15' and linhas[0][6] == '4', 'ordem em andamento que cobre só em parte (faltam 4 de 8): a Flex G continua na tabela, com o chegando e 4 a comprar, e não vira aviso: %s' % linhas[0])
+        pg.context.close()
+        pg = nova()
+        ir(pg, NC)
+        ok(not vis(pg, 'embPedidas') and pg.evaluate("document.getElementById('embPedidas').innerHTML") == '', 'sem nenhuma ordem, o bloco não existe')
         pg.context.close()
         # sem nenhuma ordem de produto mexida
         pg = nova()
@@ -919,7 +956,7 @@ with sync_playwright() as p:
         ok(o['situacao'] == 'andamento' and o['itens'][0]['recebido'] == 3 and 'ficou em andamento' in aviso, 'chegou só parte: a ordem fica em andamento com recebido 3 de 8: %s' % [o['situacao'], o['itens'][0]['recebido']])
         ir(pg, NC)
         linhas = pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => Array.from(tr.children).slice(1, 10).map(td => td.innerText.replace(/\\s+/g, ' ').trim()))")
-        ok(linhas[0][3] == '35' and linhas[0][4] == '5 ordem nº 15' and linhas[0][6] == '0', 'em Necessidades de Compra o saldo subiu para 35, o chegando caiu para o que falta (5) e a sugestão segue em 0: %s' % linhas[0])
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#embPedidas .emb-pedida-linha')).map(l => l.innerText.replace(/\s+/g, ' ').trim())") == ['EMB-003 Caixa de Encomenda Flex G 5 a caminho ordem nº 15'] and pg.evaluate("Array.from(document.querySelectorAll('#corpoEmbalagens tr')).map(tr => tr.getAttribute('data-id'))") == ['5', '12'], 'em Necessidades de Compra o chegando caiu para o que falta (5; com o saldo em 35 ainda cobre o mínimo): a Flex G segue no aviso das já pedidas, e só a CE-02 e a Tag estão na tabela')
         pg.context.close()
         # a mesma conta nas duas telas
         pg = nova()
@@ -1058,7 +1095,7 @@ with sync_playwright() as p:
         pg.fill('#inputSenha', 'x'); pg.click('#btnConfirmarFechar'); pg.wait_for_timeout(500)
         aviso = tx(pg, '#avisoTexto')
         ok('Inventário de embalagens nº 1 fechado' in aviso and '2 divergência' not in aviso and '3 divergência(s) aplicada(s)' in aviso and 'prejuízo de R$ 31,00' in aviso, 'o aviso de fechamento: nº 1, 3 divergências (as iguais não contam), o prejuízo: %s' % aviso)
-        ok(emb(pg, 2)['saldo'] == 77 and emb(pg, 5)['saldo'] == 20 and perto(emb(pg, 13)['saldo'], 7.5) and emb(pg, 1)['saldo'] == 140 and emb(pg, 12)['saldo'] == 150 and emb(pg, 3)['saldo'] == 32,
+        ok(emb(pg, 2)['saldo'] == 77 and emb(pg, 5)['saldo'] == 20 and perto(emb(pg, 13)['saldo'], 7.5) and emb(pg, 1)['saldo'] == 140 and emb(pg, 12)['saldo'] == 150 and sd(pg, 3) == 32,
            'o saldo novo = o saldo de AGORA + a diferença: Flex M 85 − 3 (pedido) − 5 = 77; CE-02 18 + 2 = 20; fita 8 − 0,5 = 7,5; as iguais e as não contadas ficam como estão')
         mc = [m for m in movs(pg) if m['tipo'] == 'contagem' and m['ref']['tipo'] == 'inventario']
         por = {m['embId']: m for m in mc}
@@ -1177,6 +1214,395 @@ with sync_playwright() as p:
                 ok(any(r[1].startswith('Entrada pela nota nº 123') for r in rows), 'e a de EMB-003 mostra "Entrada pela nota nº 123" (%d %s): %s' % (w, t, [r[1] for r in rows][-2:]))
                 lat = lateral2(pg)
                 ok(lat[0] <= 0 and lat[1] <= 0, 'Movimentação com a nota e a contagem a %d px, tema %s: sem barra para o lado: %s' % (w, t, lat))
+                pg.context.close()
+        print('  fotos em %s (%d arquivos)' % (FOTOS, len(_g.glob(_os.path.join(FOTOS, '*.png')))))
+
+
+    # ================================================================ PACOTE 3 (23/nov/2026): os ajustes do teste das embalagens
+    PROD_D = 'pagina-cadastros-produtos-detalhe.html'
+    CLI_D = 'pagina-cadastros-clientes-detalhe.html'
+    FOR_D = 'pagina-cadastros-fornecedores-detalhe.html'
+    FORN7 = ['TechParts Distribuidora', 'Móveis Nordeste Ltda', 'Nordic Home Importação', 'Tecidos Ceará S/A', 'Embalagens do Vale', 'Papelaria Central', 'Luminárias Brasil']
+
+    def nome_dos_itens(pg, sel):
+        return pg.evaluate("(s) => Array.from(document.querySelectorAll(s)).map(e => e.textContent.trim())", sel)
+
+    # ================================================================ 18. aviso de preco fora do normal
+    if secao(18, 'Entrada de Notas: o preço muito acima do custo atual pede confirmação, em vermelho, com "Salvar mesmo assim"'):
+        pg = nova()
+        ir(pg, NOTA)
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(100)
+        pg.evaluate("Object.assign(ITENS[0], { sku: 'EMB-003', nome: 'x', qtd: 1, preco: 2304607.96 }); renderItens()")
+        preenche_nota(pg, '1', '900', '5')
+        pg.click('#btnSalvar'); pg.wait_for_timeout(400)
+        aviso = 'Atenção: o preço de Caixa de Encomenda Flex G (R$ 2.304.607,96) está muito acima do custo atual (R$ 5,90).'
+        ok(pg.evaluate("document.getElementById('confirmModal').classList.contains('open')") and tx(pg, '#confirmModalAviso') == aviso and vis(pg, 'confirmModalAviso'), 'o modal abre com a linha de aviso: "%s"' % tx(pg, '#confirmModalAviso'))
+        ok(pg.evaluate("getComputedStyle(document.getElementById('confirmModalAviso')).color") in ('rgb(185, 28, 28)', 'rgb(252, 165, 165)'), 'e ela é vermelha (a cor dos valores de saída da casa)')
+        ok(tx(pg, '#btnConfirmModalConfirmar') == 'Salvar mesmo assim' and notas(pg) == [] and sd(pg, 3) == 32 and ls(pg, 'deskMovEmbalagens') is None, 'o botão diz "Salvar mesmo assim", e até clicar nada é gravado (nem nota, nem saldo, nem movimento)')
+        pg.click('#btnConfirmModalCancelar'); pg.wait_for_timeout(250)
+        ok(notas(pg) == [] and sd(pg, 3) == 32, 'Cancelar não salva nada: o usuário volta e corrige o preço')
+        pg.click('#btnSalvar'); pg.wait_for_timeout(400); pg.click('#btnConfirmModalConfirmar'); pg.wait_for_timeout(450)
+        ok(len(notas(pg)) == 1 and sd(pg, 3) == 33 and 'Nota salva' in tx(pg, '#confirmModalTexto') and not vis(pg, 'confirmModalAviso') and tx(pg, '#btnConfirmModalConfirmar') == 'Entendi',
+           '"Salvar mesmo assim" salva a nota como sempre, e o aviso do resultado volta sem a linha vermelha')
+        pg.context.close()
+        # a regra: 10 vezes o custo, so embalagem, so com custo maior que zero
+        pg = nova()
+        ir(pg, NOTA)
+        def avisos(sku, preco):
+            return pg.evaluate("([s, p]) => { ITENS.splice(0, ITENS.length, { nome: 'x', sku: s, un: 'UN', qtd: 1, preco: p }); return avisosDePreco().length; }", [sku, preco])
+        ok(avisos('EMB-003', 59) == 1 and avisos('EMB-003', 58.99) == 0 and avisos('EMB-003', 5.9) == 0 and avisos('EMB-003', 600) == 1, 'a fronteira é 10 vezes o custo (R$ 5,90): 59,00 avisa, 58,99 não')
+        ok(avisos('emb-003', 590) == 1, 'o código digitado em minúscula também compara')
+        ok(avisos('TEC-MEC-006', 99999) == 0 and avisos('', 99999) == 0 and avisos('EMB-099', 99999) == 0, 'produto, linha sem código e código que não existe não avisam (o aviso é da embalagem)')
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].custo = 0; embalagensGravar(L); }")
+        ok(avisos('EMB-003', 99999) == 0, 'embalagem com custo 0 não tem com o que comparar: sem aviso')
+        pg.evaluate("() => { const L = embalagensLer(); delete L.filter(e => e.id === 3)[0].custo; embalagensGravar(L); }")
+        ok(avisos('EMB-003', 99999) == 0, 'e sem custo nenhum também')
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].custo = 5.9; embalagensGravar(L); }")
+        pg.evaluate("ITENS.splice(0, ITENS.length, { nome: 'a', sku: 'EMB-003', un: 'UN', qtd: 1, preco: 700 }, { nome: 'b', sku: 'EMB-012', un: 'UN', qtd: 1, preco: 9 }, { nome: 'c', sku: 'EMB-005', un: 'UN', qtd: 1, preco: 6 })")
+        ok(pg.evaluate("avisosDePreco().map(a => a.split(' (')[0])") == ['Atenção: o preço de Caixa de Encomenda Flex G', 'Atenção: o preço de Tag Desk Brands'], 'com várias linhas, uma linha de aviso por embalagem que passou do limite (a Flex G e a Tag; a CE-02 não)')
+        pg.context.close()
+
+    # ================================================================ 19. fornecedor padrao da embalagem
+    if secao(19, 'Embalagens: "Fornecedor padrão" no cadastro (dropdown da casa, 7 fornecedores), as 14 de fábrica no Vale, e o nome na lista'):
+        pg = nova()
+        ir_cad(pg)
+        ok(pg.evaluate("embalagensLer().length") == 14 and pg.evaluate("embalagensLer().every(e => e.fornecedor === 'Embalagens do Vale')"), 'as 14 embalagens de fábrica vêm com "Embalagens do Vale"')
+        ok(pg.evaluate("Array.from(document.querySelectorAll('#listaEmbalagens .embalagens-forn')).map(e => e.textContent)") == ['Fornecedor: Embalagens do Vale'] * 14, 'a lista mostra o fornecedor embaixo do nome, uma linha em cada uma das 14')
+        ok(pg.evaluate("getComputedStyle(document.querySelector('.embalagens-forn')).fontSize") == '11.5px', 'em letra pequena (11,5 px)')
+        abre_card(pg, 3)
+        ok(tx(pg, '#campoFornecedorEmb label') == 'Fornecedor padrão' and tx(pg, '#inputFornecedorEmb .dropdown-select-label') == 'Embalagens do Vale', 'o painel tem o campo "Fornecedor padrão", com o fornecedor da Flex G')
+        ok(pg.evaluate("document.querySelectorAll('#eventDrawer select').length") == 0 and nome_dos_itens(pg, '#inputFornecedorEmb .dropdown-select-item') == ['Sem fornecedor padrão'] + FORN7, 'é o dropdown da casa (não select nativo) com os 7 fornecedores do sistema e a opção de nenhum: %s' % nome_dos_itens(pg, '#inputFornecedorEmb .dropdown-select-item'))
+        escolher(pg, '#inputFornecedorEmb', 'Papelaria Central')
+        pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        ok(emb(pg, 3)['fornecedor'] == 'Papelaria Central' and tx(pg, '#listaEmbalagens .embalagens-card[data-id="3"] .embalagens-forn') == 'Fornecedor: Papelaria Central', 'trocar o fornecedor e salvar grava na embalagem, e a lista mostra o novo')
+        abre_card(pg, 3)
+        ok(tx(pg, '#inputFornecedorEmb .dropdown-select-label') == 'Papelaria Central', 'e o painel reabre com ele')
+        escolher(pg, '#inputFornecedorEmb', '')
+        pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        ok(emb(pg, 3)['fornecedor'] == '' and pg.evaluate("document.querySelectorAll('#listaEmbalagens .embalagens-card[data-id=\"3\"] .embalagens-forn').length") == 0, '"Sem fornecedor padrão" grava vazio, e a lista não mostra a linha')
+        pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
+        ok(tx(pg, '#inputFornecedorEmb .dropdown-select-label') == 'Sem fornecedor padrão', 'a embalagem nova abre sem fornecedor padrão')
+        pg.fill('#inputNomeEmbalagem', 'Caixa Z'); escolher(pg, '#inputFornecedorEmb', 'Luminárias Brasil'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        ok(emb(pg, 15)['fornecedor'] == 'Luminárias Brasil', 'a nova guarda o fornecedor escolhido: %s' % emb(pg, 15).get('fornecedor'))
+        pg.context.close()
+        # cadastro gravado antes do campo
+        pg = nova()
+        poe(pg, 'deskEmbalagens', [{'id': 5, 'nome': 'Caixa de Encomenda CE-02', 'tipo': 'pacote', 'cap': 12, 'custo': 6.3, 'status': 'ativo', 'saldo': 18, 'minimo': 20},
+                                   {'id': 99, 'nome': 'Caixa do Fornecedor', 'tipo': 'pacote', 'cap': 3, 'custo': 2, 'status': 'ativo', 'saldo': 0, 'minimo': 0}])
+        ir_cad(pg)
+        ok(pg.evaluate("embalagensLer().map(e => [e.id, e.fornecedor])") == [[5, 'Embalagens do Vale'], [99, '']], 'o cadastro gravado sem o campo ganha o do padrão de mesmo id (Vale), e o que não existe no padrão fica sem fornecedor')
+        pg.context.close()
+
+    # ================================================================ 20. o painel da ordem so mostra os fornecedores dos itens marcados
+    if secao(20, 'Necessidades de Compra: o dropdown de Fornecedor do painel da ordem mostra só os fornecedores dos itens marcados'):
+        pg = nova()
+        ir(pg, NC)
+        pg.click('#corpoEmbalagens tr[data-id="3"] .item-checkbox'); pg.click('#corpoEmbalagens tr[data-id="12"] .item-checkbox')
+        pg.click('#btnGerarEmb'); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == ['Embalagens do Vale'], 'ordem de embalagens, as duas do Vale: o dropdown só tem "Embalagens do Vale": %s' % nome_dos_itens(pg, '#ocForn0 .dropdown-select-item'))
+        ok('só aparecem os fornecedores dos itens marcados' in tx(pg, '#drawerCorpo') and 'Ordem só de embalagens' in tx(pg, '#drawerCorpo'), 'o texto do painel diz que só aparecem os fornecedores dos itens marcados')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].fornecedor = 'Papelaria Central'; embalagensGravar(L); }")
+        ir(pg, NC)
+        pg.click('#corpoEmbalagens tr[data-id="3"] .item-checkbox'); pg.click('#corpoEmbalagens tr[data-id="12"] .item-checkbox')
+        pg.click('#btnGerarEmb'); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == ['Embalagens do Vale', 'Papelaria Central'], 'itens de dois fornecedores (Papelaria Central e Vale): o dropdown mostra os dois, para o usuário escolher: %s' % nome_dos_itens(pg, '#ocForn0 .dropdown-select-item'))
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].fornecedor = ''; embalagensGravar(L); }")
+        ir(pg, NC)
+        pg.click('#corpoEmbalagens tr[data-id="3"] .item-checkbox'); pg.click('#corpoEmbalagens tr[data-id="12"] .item-checkbox')
+        pg.click('#btnGerarEmb'); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == FORN7, 'um item sem fornecedor padrão: não dá para restringir, o dropdown mostra todos os 7')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        # produtos: o fornecedor que o produto ja tem
+        pg.evaluate("abrirOrdem(['CAD-ERG-001'])"); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == ['Móveis Nordeste Ltda'] and 'só aparecem os fornecedores dos itens marcados' in tx(pg, '#drawerCorpo'), 'ordem de produto: a Cadeira Ergonômica é da Móveis Nordeste, e só ela aparece (com a linha de explicação no painel)')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.evaluate("abrirOrdem(['CAD-ERG-001', 'LUM-LED-004'])"); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == ['Móveis Nordeste Ltda', 'Luminárias Brasil'] and nome_dos_itens(pg, '#ocForn1 .dropdown-select-item') == ['Móveis Nordeste Ltda', 'Luminárias Brasil'], 'dois produtos de fornecedores diferentes: cada bloco oferece os dois')
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
+        pg.evaluate("abrirOrdem(['CAD-ERG-001', 'CAM-DKB-011'])"); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == FORN7, 'um produto sem fornecedor (a Camiseta): o dropdown não fica restrito')
+        pg.context.close()
+
+    # ================================================================ 21. busca avancada da ordem
+    if secao(21, 'Ordem de Compra: a busca avançada de itens mostra só o que é do fornecedor da ordem'):
+        pg = nova()
+        ir(pg, OCD, '?id=2')
+        pg.click('#btnBuscaAvancada'); pg.wait_for_timeout(300)
+        nomes = nome_dos_itens(pg, '#drawerCorpo .mov-tipo')
+        ok(nomes == ['Teclado Mecânico Desk', 'Cabo HDMI 2.1 · 2m', 'Suporte Monitor Duplo', 'Fone Bluetooth Desk One', 'Mouse Sem Fio Compacto', 'Carregador USB-C 20W'] and 'Mostrando só os itens de TechParts Distribuidora' in tx(pg, '#drawerCorpo'),
+           'na ordem da TechParts, a busca mostra só os 6 itens dela (e diz isso): %s' % nomes)
+        ok('saldo' in tx(pg, '#drawerCorpo') and 'custo médio R$ 231,10' in tx(pg, '#drawerCorpo') and len(nome_dos_itens(pg, '#drawerCorpo [data-add]')) == 6, 'cada item segue com SKU, saldo, custo médio e o botão "Adicionar"')
+        antes = pg.evaluate("ITENS.length")
+        pg.click('#drawerCorpo [data-add]'); pg.wait_for_timeout(300)
+        ok(pg.evaluate("ITENS.length") == antes + 1 and pg.evaluate("ITENS[ITENS.length - 1].sku") == 'TEC-MEC-006', '"Adicionar" continua colocando o item na ordem')
+        escolher(pg, '#inputFornecedor', 6)
+        pg.click('#btnBuscaAvancada'); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#drawerCorpo .mov-tipo') == ['Caderno Universitário 200 folhas', 'Caneta Esferográfica Caixa c/50'] and 'Papelaria Central' in tx(pg, '#drawerCorpo'), 'trocando o fornecedor da ordem para a Papelaria Central, a busca passa a mostrar os dois itens dela')
+        pg.click('#drawerClose'); pg.wait_for_timeout(300)
+        escolher(pg, '#inputFornecedor', 4)
+        pg.click('#btnBuscaAvancada'); pg.wait_for_timeout(300)
+        ok(nome_dos_itens(pg, '#drawerCorpo .mov-tipo') == ['Tecido Algodão (metro)'], 'e na Tecidos Ceará, só o tecido')
+        pg.context.close()
+        pg = nova()
+        ir(pg, OCD, '?novo=1')
+        pg.click('#btnBuscaAvancada'); pg.wait_for_timeout(300)
+        ok(len(nome_dos_itens(pg, '#drawerCorpo [data-add]')) == 12 and 'Mostrando só' not in tx(pg, '#drawerCorpo'), 'ordem nova, sem fornecedor escolhido: a busca mostra o catálogo inteiro (12 itens), sem restringir')
+        pg.context.close()
+        ok('Busca avançada' not in fonte(NOTA), 'a Entrada de Notas não tem busca avançada: o filtro por fornecedor dela é o da sugestão ao digitar (seção 22)')
+
+    # ================================================================ 22. sugestao ao digitar o item
+    if secao(22, 'Sugestão ao digitar o item (Ordem de Compra e Entrada de Notas): nome, SKU ou GTIN, até 8, do fornecedor, clicar ou Enter preenche'):
+        pg = nova()
+        ir(pg, OCD, '?id=2')
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        campo = '#corpoItens tr:last-child input[data-campo="nome"]'
+        pg.fill(campo, 'mou'); pg.wait_for_timeout(150)
+        ok(pg.evaluate("document.getElementById('sugestoesItem').classList.contains('open')") and nome_dos_itens(pg, '#sugestoesItem .sugestao-nome') == ['Mouse Sem Fio Compacto'], 'digitar "mou" abre a lista com o Mouse')
+        ok(tx(pg, '#sugestoesItem .sugestao-meta') == 'ELE-1003 · 7891234000301 · custo médio R$ 37,20' and pg.evaluate("document.querySelector('#sugestoesItem .sugestao-item').classList.contains('ativo')"), 'cada linha: nome e, na meta, "SKU · GTIN · custo médio R$ X"; a primeira vem marcada')
+        pos = pg.evaluate("(() => { const i = document.querySelector('#corpoItens tr:last-child input[data-campo=\"nome\"]').getBoundingClientRect(), s = document.getElementById('sugestoesItem').getBoundingClientRect(); return [Math.round(s.top - i.bottom), Math.round(s.left - i.left)]; })()")
+        ok(0 <= pos[0] <= 12 and abs(pos[1]) <= 2, 'a lista abre embaixo do próprio campo: %s' % pos)
+        pg.fill(campo, 'cane'); pg.wait_for_timeout(150)
+        ok(tx(pg, '#sugestoesItem .sugestao-vazia') == 'Nenhum item encontrado para este fornecedor.', '"cane" na ordem da TechParts: nada (a caneta é da Papelaria), e a lista diz isso')
+        escolher(pg, '#inputFornecedor', 6)
+        pg.fill(campo, 'cane'); pg.wait_for_timeout(150)
+        ok(nome_dos_itens(pg, '#sugestoesItem .sugestao-nome') == ['Caneta Esferográfica Caixa c/50'], 'trocado o fornecedor para a Papelaria Central, "cane" acha a Caneta')
+        pg.fill(campo, 'pap-30'); pg.wait_for_timeout(120)
+        a = nome_dos_itens(pg, '#sugestoesItem .sugestao-nome')
+        pg.fill(campo, '7891234000305'); pg.wait_for_timeout(120)
+        ok(len(a) == 2 and nome_dos_itens(pg, '#sugestoesItem .sugestao-nome') == ['Caneta Esferográfica Caixa c/50'], 'a busca é por nome, SKU (pap-30 acha os dois) ou GTIN (o da caneta acha só ela)')
+        pg.press(campo, 'Enter'); pg.wait_for_timeout(250)
+        it = pg.evaluate("ITENS[ITENS.length - 1]")
+        ok(it['nome'] == 'Caneta Esferográfica Caixa c/50' and it['sku'] == 'PAP-3003' and it['gtin'] == '7891234000305' and abs(it['preco'] - 18) < 0.001 and not pg.evaluate("document.getElementById('sugestoesItem').classList.contains('open')"),
+           'Enter preenche a linha: nome, SKU, GTIN e o preço (o custo médio), e a lista fecha: %s' % it)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-campo')") == 'qtd', 'e o cursor vai para a quantidade')
+        # setas, clique, Escape, clique fora
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        pg.fill(campo, 'pap-30'); pg.wait_for_timeout(120)
+        pg.press(campo, 'ArrowDown'); pg.press(campo, 'Enter'); pg.wait_for_timeout(250)
+        ok(pg.evaluate("ITENS[ITENS.length - 1].sku") == 'PAP-3003', 'a seta para baixo move a marca e o Enter pega o segundo')
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        pg.fill(campo, 'pap-30'); pg.wait_for_timeout(120)
+        pg.click('#sugestoesItem .sugestao-item:first-child'); pg.wait_for_timeout(250)
+        ok(pg.evaluate("ITENS[ITENS.length - 1].sku") == 'PAP-3001', 'clicar na sugestão também preenche')
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        pg.fill(campo, 'pap'); pg.wait_for_timeout(120)
+        pg.press(campo, 'Escape'); pg.wait_for_timeout(120)
+        ok(not pg.evaluate("document.getElementById('sugestoesItem').classList.contains('open')") and pg.evaluate("ITENS[ITENS.length - 1].nome") == 'pap', 'Escape fecha a lista sem preencher')
+        pg.fill(campo, 'pap'); pg.wait_for_timeout(120)
+        pg.click('#totProdutos'); pg.wait_for_timeout(120)
+        ok(not pg.evaluate("document.getElementById('sugestoesItem').classList.contains('open')"), 'clicar fora fecha')
+        pg.fill(campo, 'pap'); pg.wait_for_timeout(120); pg.fill(campo, ''); pg.wait_for_timeout(120)
+        ok(not pg.evaluate("document.getElementById('sugestoesItem').classList.contains('open')"), 'apagar o texto fecha')
+        pg.context.close()
+        # no maximo 8
+        pg = nova()
+        ir(pg, OCD, '?novo=1')
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        pg.fill(campo, 'a'); pg.wait_for_timeout(150)
+        ok(len(nome_dos_itens(pg, '#sugestoesItem .sugestao-item')) == 8, 'sem fornecedor escolhido a lista mostra de todos, e para em 8: %d' % len(nome_dos_itens(pg, '#sugestoesItem .sugestao-item')))
+        pg.context.close()
+        # a Entrada de Notas
+        pg = nova()
+        ir(pg, NOTA)
+        pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+        pg.fill(campo, 'flex'); pg.wait_for_timeout(150)
+        ok(nome_dos_itens(pg, '#sugestoesItem .sugestao-nome') == ['Caixa de Encomenda Flex P', 'Caixa de Encomenda Flex M', 'Caixa de Encomenda Flex G'] and tx(pg, '#sugestoesItem .sugestao-meta') == 'EMB-001 · custo médio R$ 3,50',
+           'na nota, "flex" acha as embalagens (código no lugar do SKU, o custo atual): %s' % tx(pg, '#sugestoesItem .sugestao-meta'))
+        escolher(pg, '#inputFornecedor', 1)
+        pg.fill(campo, 'flex'); pg.wait_for_timeout(150)
+        ok(tx(pg, '#sugestoesItem .sugestao-vazia') == 'Nenhum item encontrado para este fornecedor.', 'com a TechParts escolhida na nota, as embalagens (do Vale) não aparecem')
+        pg.fill(campo, 'tec'); pg.wait_for_timeout(150)
+        ok(nome_dos_itens(pg, '#sugestoesItem .sugestao-nome') == ['Teclado Mecânico Desk'], 'e os produtos da TechParts aparecem')
+        escolher(pg, '#inputFornecedor', 5)
+        pg.fill(campo, 'flex'); pg.wait_for_timeout(150)
+        pg.press(campo, 'ArrowDown'); pg.press(campo, 'ArrowDown'); pg.press(campo, 'Enter'); pg.wait_for_timeout(250)
+        it = pg.evaluate("ITENS[0]")
+        ok(it['sku'] == 'EMB-003' and it['nome'] == 'Caixa de Encomenda Flex G' and abs(it['preco'] - 5.9) < 0.001 and pg.evaluate("document.querySelector('#corpoItens input[data-campo=\"sku\"]').value") == 'EMB-003', 'com o Vale escolhido, duas setas e Enter pegam a Flex G: nome, código e o preço (o custo): %s' % it)
+        pg.fill(campo, 'cane'); pg.wait_for_timeout(120); pg.press(campo, 'Escape')
+        pg.context.close()
+
+    # ================================================================ 23. Enter no Inventario
+    if secao(23, 'Inventário: o Enter no campo "Qtde inventário" vai ao próximo; vazio não pula e avisa em vermelho'):
+        pg = nova()
+        ir(pg, INVT)
+        pg.click('[data-caminho="gerar"]'); pg.wait_for_timeout(300)
+        pg.click('#modoInv [data-modo="embalagens"]'); pg.wait_for_timeout(200)
+        pg.click('#btnAbrirInventario'); pg.wait_for_timeout(350)
+        pg.click('#btnAcaoInv'); pg.wait_for_timeout(250)
+        campos = '[data-campo="qtdeInvEmb"]'
+        ids = pg.evaluate("Array.from(document.querySelectorAll('%s')).map(c => c.getAttribute('data-eid'))" % campos)
+        ok(len(ids) == 13, 'o inventário de embalagens tem 13 campos de contagem')
+        pg.focus('[data-eid="%s"]%s' % (ids[0], campos)); pg.keyboard.type('10'); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-eid')") == ids[1], 'campo preenchido: o Enter leva ao próximo campo da coluna')
+        pg.keyboard.press('Enter'); pg.wait_for_timeout(120)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-eid')") == ids[1], 'campo vazio: o Enter NÃO pula')
+        ok(tx(pg, '[data-eid="%s"]%s ~ .inv-aviso-contagem' % (ids[1], campos)) == 'Informe a quantidade para seguir.' and pg.evaluate("getComputedStyle(document.querySelector('.inv-aviso-contagem')).color") in ('rgb(185, 28, 28)', 'rgb(252, 165, 165)'), 'e aparece, em vermelho, logo abaixo do campo e dentro da mesma célula: "Informe a quantidade para seguir."')
+        ok(pg.evaluate("document.querySelector('[data-eid=\"%s\"]%s').classList.contains('has-error')" % (ids[1], campos)) and pg.evaluate("getComputedStyle(document.querySelector('[data-eid=\"%s\"]%s')).borderColor" % (ids[1], campos)) in ('rgb(220, 38, 38)', 'rgb(239, 68, 68)'), 'o campo ganha a borda vermelha')
+        ok(pg.evaluate("INV.linhas.filter(l => l.eid === %s)[0].contado" % ids[1]) is None, 'é um empurrão e não uma trava: a linha continua "não contada" (o saldo dela não muda no fechamento)')
+        pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 1, 'Enter de novo não empilha a mensagem')
+        pg.keyboard.type('5'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 0 and not pg.evaluate("document.querySelector('[data-eid=\"%s\"]%s').classList.contains('has-error')" % (ids[1], campos)), 'a mensagem e a borda somem quando o campo recebe valor')
+        pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-eid')") == ids[2], 'com valor, o Enter segue')
+        pg.keyboard.type('0'); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-eid')") == ids[3] and pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 0, 'o zero é valor: não avisa e segue')
+        pg.focus('[data-eid="%s"]%s' % (ids[-1], campos)); pg.keyboard.type('3'); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-eid')") == ids[-1] and pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 0, 'no último campo, preenchido, o Enter não faz nada e não avisa')
+        pg.context.close()
+        # produtos
+        pg = nova()
+        ir(pg, INVT)
+        pg.click('[data-caminho="gerar"]'); pg.wait_for_timeout(300)
+        escolher(pg, '#menuDeposito', 2)
+        pg.click('#btnAbrirInventario'); pg.wait_for_timeout(450)
+        pg.click('#btnAcaoInv'); pg.wait_for_timeout(250)
+        campos = '[data-campo="qtdeInv"]'
+        pids = pg.evaluate("Array.from(document.querySelectorAll('%s')).map(c => c.getAttribute('data-pid'))" % campos)
+        ok(len(pids) >= 3, 'o inventário de produtos tem campos de contagem (%d)' % len(pids))
+        pg.focus('[data-pid="%s"]%s' % (pids[0], campos)); pg.keyboard.press('Enter'); pg.wait_for_timeout(120)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-pid')") == pids[0] and tx(pg, '.inv-aviso-contagem') == 'Informe a quantidade para seguir.', 'em produtos também: vazio não pula e avisa')
+        pg.keyboard.type('4'); pg.keyboard.press('Enter'); pg.wait_for_timeout(100)
+        ok(pg.evaluate("document.activeElement.getAttribute('data-pid')") == pids[1] and pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 0, 'com valor, segue para o próximo produto, e a mensagem some')
+        pg.context.close()
+
+    # ================================================================ 24. botao Gerar o codigo
+    if secao(24, 'Botão "Gerar" o código no padrão: Embalagens, Produtos, Clientes e Fornecedores'):
+        pg = nova()
+        ir_cad(pg)
+        pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
+        ok(vis(pg, 'btnGerarCodigoEmb') and tx(pg, '#btnGerarCodigoEmb') == 'Gerar' and tx(pg, '#codigoEmbalagem') == 'EMB-015', 'embalagem nova: o botão "Gerar" está ao lado do código (só leitura)')
+        pg.fill('#inputNomeEmbalagem', 'Caixa A'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(300)
+        pg.evaluate("document.getElementById('codigoEmbalagem').textContent = '—'")
+        pg.click('#btnGerarCodigoEmb'); pg.wait_for_timeout(100)
+        ok(tx(pg, '#codigoEmbalagem') == 'EMB-016', '"Gerar" preenche o próximo código livre (EMB-016, com a EMB-015 já criada): %s' % tx(pg, '#codigoEmbalagem'))
+        ok(pg.evaluate("document.getElementById('codigoEmbalagem').matches('input, textarea, select')") is False, 'e o campo segue só de leitura')
+        pg.fill('#inputNomeEmbalagem', 'Caixa B'); pg.click('#btnSalvarEmbalagem'); pg.wait_for_timeout(300)
+        ok(emb(pg, 16)['codigo'] == 'EMB-016', 'a embalagem grava o código gerado')
+        abre_card(pg, 3)
+        ok(not vis(pg, 'btnGerarCodigoEmb'), 'no painel de uma embalagem que já existe o botão não aparece (o código dela não muda)')
+        pg.context.close()
+        # SKU do produto
+        pg = nova()
+        ir(pg, PROD_D, '?novo=1')
+        ok(vis(pg, 'btnGerarSku') and tx(pg, '#btnGerarSku') == 'Gerar' and pg.evaluate("getComputedStyle(document.getElementById('btnGerarSku')).fontSize") == '12px', 'produto novo: o botão "Gerar" está ao lado do SKU, pequeno (12 px)')
+        ok(pg.evaluate("document.getElementById('btnGerarSku').classList.contains('btn-secundario')"), 'é o botão secundário da casa')
+        pg.click('#btnGerarSku'); pg.wait_for_timeout(100)
+        ok(pg.input_value('#inputSku') == 'PRO-1001', 'sem categoria escolhida, o prefixo é PRO: %s' % pg.input_value('#inputSku'))
+        escolher(pg, '#inputLojaDesk', 'Desk Shope')
+        pg.evaluate("porNoDropdown('inputCategoria', 'Eletrônicos')"); pg.wait_for_timeout(100)
+        pg.click('#btnGerarSku'); pg.wait_for_timeout(100)
+        ok(pg.input_value('#inputSku') == 'ELE-1005', 'categoria Eletrônicos (ELE-1001 a ELE-1004 já existem): ELE-1005 (%s)' % pg.input_value('#inputSku'))
+        pg.fill('#inputSku', 'MEU-SKU'); pg.wait_for_timeout(50)
+        ok(pg.input_value('#inputSku') == 'MEU-SKU', 'o SKU continua editável depois de gerado')
+        r = pg.evaluate("[proximoSku('Eletrônicos'), proximoSku('Mobiliário e Decoração'), proximoSku('Vestuário e Acessórios'), proximoSku('Papelaria'), proximoSku('Materiais'), proximoSku('Água e Gás'), proximoSku(''), proximoSku(undefined), prefixoDoSku('Mobiliário'), prefixoDoSku('Vestuário')]")
+        ok(r == ['ELE-1005', 'MOB-4004', 'VES-2005', 'PAP-3004', 'MAT-1001', 'AGU-1001', 'PRO-1001', 'PRO-1001', 'MOB', 'VES'], 'prefixo = 3 letras maiúsculas sem acento; a sequência é a menor livre a partir da menor já usada no prefixo (1001 se não há nenhuma); categoria fora da lista usa as 3 primeiras letras: %s' % r)
+        pg.goto(localiza.uri(PROD_D)); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+        ok(not vis(pg, 'btnGerarSku') and 'ELE-1001' in tx(pg, '.main'), 'no produto aberto em modo leitura o botão não aparece, e o SKU continua visível')
+        pg.context.close()
+        # Clientes e Fornecedores
+        for tela, pre, esperado, existente in ((CLI_D, 'CLI', 'CLI-0015', 'CLI-0003'), (FOR_D, 'FOR', 'FOR-0015', 'FOR-0002')):
+            pg = nova()
+            ir(pg, tela, '?novo=1')
+            ok(vis(pg, 'btnGerarCodigo') and tx(pg, '#btnGerarCodigo') == 'Gerar' and pg.input_value('#inputCodigo') == '' and pg.evaluate("document.getElementById('inputCodigo').readOnly"), '%s novo: o código abre vazio e só de leitura, com o botão "Gerar" ao lado' % pre)
+            pg.click('#btnGerarCodigo'); pg.wait_for_timeout(100)
+            ok(pg.input_value('#inputCodigo') == esperado and pg.evaluate("document.getElementById('inputCodigo').readOnly"), '"Gerar" preenche o próximo livre, %s (os 14 do exemplo vão até o 0014): %s' % (esperado, pg.input_value('#inputCodigo')))
+            pg.goto(localiza.uri(tela)); pg.wait_for_load_state('load'); pg.wait_for_timeout(400)
+            ok(not vis(pg, 'btnGerarCodigo') and existente in tx(pg, '.main'), '%s já existente: o botão não aparece e o código segue (%s)' % (pre, existente))
+            pg.context.close()
+
+
+    # ================================================================ 25. fotos do pacote 3
+    if secao(25, 'Fotos do pacote 3 nos dois temas, a 1280 e a 1440, sem barra de rolagem para o lado'):
+        def tema3(pg, t):
+            pg.evaluate("(t) => document.body.classList.toggle('dark', t === 'dark')", t); pg.wait_for_timeout(300)
+
+        def lateral3(pg):
+            return pg.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
+
+        def foto(pg, nome, w, t):
+            pg.screenshot(path=_os.path.join(FOTOS, '%s_%d_%s.png' % (nome, w, t)))
+
+        for w in (1280, 1440):
+            for t in ('light', 'dark'):
+                # 1. a Movimentacao: a tela e a folha (703 px = A4 com 12 mm de margem)
+                pg = nova(w, 900)
+                ir(pg, MOV); tema3(pg, t)
+                pg.fill('#buscaProduto', 'TEC-MEC-006'); pg.press('#buscaProduto', 'Enter')
+                pg.fill('#dataDe', pg.evaluate("fmtData(PRIMEIRO_DIA)")); pg.click('#btnBuscar'); pg.wait_for_timeout(300)
+                foto(pg, 'mov_tela', w, t)
+                ok(lateral3(pg) <= 0, 'Movimentação a %d px, tema %s: sem barra para o lado' % (w, t))
+                pg.set_viewport_size({'width': 703, 'height': 1000})
+                pg.evaluate("window.dispatchEvent(new Event('beforeprint'))"); pg.emulate_media(media='print'); pg.wait_for_timeout(250)
+                pg.screenshot(path=_os.path.join(FOTOS, 'mov_folha_%d_%s.png' % (w, t)), full_page=True)
+                m = pg.evaluate("(() => [document.documentElement.scrollWidth, innerWidth, Math.round(document.querySelector('.main table').getBoundingClientRect().right)])()")
+                ok(m[0] <= m[1] and m[2] <= m[1], 'a folha da Movimentação (tema %s, aberta a %d px): a tabela termina em %d de %d, nada fora da folha' % (t, w, m[2], m[1]))
+                pg.context.close()
+                # 2. a sugestao no campo de item da Ordem de Compra
+                pg = nova(w, 900)
+                ir(pg, OCD, '?id=2'); tema3(pg, t)
+                pg.click('#btnAdicionarItem'); pg.wait_for_timeout(150)
+                pg.fill('#corpoItens tr:last-child input[data-campo="nome"]', 'ca'); pg.wait_for_timeout(200)
+                foto(pg, 'oc_sugestao', w, t)
+                r = pg.evaluate("(() => { const s = document.getElementById('sugestoesItem').getBoundingClientRect(); return [Math.round(s.right), Math.round(s.bottom), innerWidth, innerHeight]; })()")
+                ok(r[0] <= r[2] and r[1] <= r[3] and lateral3(pg) <= 0, 'lista de sugestões da Ordem de Compra a %d px, tema %s: cabe na janela: %s' % (w, t, r))
+                pg.context.close()
+                # 3. o painel da ordem, com o dropdown de fornecedor aberto e filtrado; e o bloco das ja pedidas
+                pg = nova(w, 900)
+                ir(pg, NC)
+                pg.evaluate("() => { const L = embalagensLer(); L.filter(e => e.id === 3)[0].fornecedor = 'Papelaria Central'; embalagensGravar(L); }")
+                ir(pg, NC); tema3(pg, t)
+                pg.evaluate("document.getElementById('painelEmbalagens').scrollIntoView({ block: 'start' })"); pg.wait_for_timeout(150)
+                pg.click('#corpoEmbalagens tr[data-id="3"] .item-checkbox'); pg.click('#corpoEmbalagens tr[data-id="12"] .item-checkbox')
+                pg.click('#btnGerarEmb'); pg.wait_for_timeout(350)
+                pg.click('#ocForn0 .dropdown-select-btn'); pg.wait_for_timeout(200)
+                foto(pg, 'nc_fornecedor', w, t)
+                m = pg.evaluate("(() => { const d = document.getElementById('eventDrawer'), r = d.getBoundingClientRect(); return { lateral: d.scrollWidth - d.clientWidth, fora: Array.from(d.querySelectorAll('input, button, .dropdown-select-btn')).filter(e => e.getClientRects().length && e.getBoundingClientRect().right > r.right + 1).length }; })()")
+                ok(m['lateral'] <= 0 and m['fora'] == 0 and nome_dos_itens(pg, '#ocForn0 .dropdown-select-item') == ['Embalagens do Vale', 'Papelaria Central'], 'painel da ordem a %d px, tema %s: dropdown só com os dois fornecedores dos itens marcados, nada passa da borda: %s' % (w, t, m))
+                poe(pg, 'deskOrdensGeradas', [ordem_emb(15, [(3, 8, 5.9, 0)])])
+                ir(pg, NC); tema3(pg, t)
+                pg.evaluate("document.getElementById('painelEmbalagens').scrollIntoView({ block: 'start' })"); pg.wait_for_timeout(150)
+                foto(pg, 'nc_pedidas', w, t)
+                ok(vis(pg, 'embPedidas') and lateral3(pg) <= 0, 'Necessidades de Compra a %d px, tema %s: o bloco "já pedidas" aparece acima da tabela, sem barra para o lado' % (w, t))
+                pg.context.close()
+                # 4. o painel da embalagem
+                pg = nova(w, 900)
+                ir_cad(pg); tema3(pg, t)
+                pg.click('#btnNovaEmbalagem'); pg.wait_for_timeout(350)
+                foto(pg, 'emb_painel_codigo', w, t)
+                m = pg.evaluate("(() => { const d = document.getElementById('eventDrawer'), r = d.getBoundingClientRect(); const b = document.getElementById('btnGerarCodigoEmb').getBoundingClientRect(); return { lateral: d.scrollWidth - d.clientWidth, fora: Array.from(d.querySelectorAll('input, .dropdown-select-btn, .saldo-leitura, button')).filter(e => e.getBoundingClientRect().width > 0 && e.getBoundingClientRect().right > r.right - 12).length, botao: Math.round(b.height) }; })()")
+                ok(m['lateral'] <= 0 and m['fora'] == 0 and m['botao'] < 40, 'painel da embalagem nova a %d px, tema %s: o código e o botão "Gerar" na mesma linha, nada passa da borda: %s' % (w, t, m))
+                pg.evaluate("document.getElementById('campoFornecedorEmb').scrollIntoView({ block: 'center' })"); pg.wait_for_timeout(150)
+                foto(pg, 'emb_painel_fornecedor', w, t)
+                pg.evaluate("document.querySelector('#inputFornecedorEmb .dropdown-select-btn').click()"); pg.wait_for_timeout(200)
+                foto(pg, 'emb_painel_fornecedor_aberto', w, t)
+                pg.context.close()
+                # 5. o inventario com a mensagem em vermelho
+                pg = nova(w, 900)
+                ir(pg, INVT); tema3(pg, t)
+                pg.click('[data-caminho="gerar"]'); pg.wait_for_timeout(300)
+                pg.click('#modoInv [data-modo="embalagens"]'); pg.wait_for_timeout(200)
+                pg.click('#btnAbrirInventario'); pg.wait_for_timeout(350)
+                pg.click('#btnAcaoInv'); pg.wait_for_timeout(250)
+                ids = pg.evaluate("Array.from(document.querySelectorAll('[data-campo=\"qtdeInvEmb\"]')).map(c => c.getAttribute('data-eid'))")
+                pg.focus('[data-eid="%s"][data-campo="qtdeInvEmb"]' % ids[0]); pg.keyboard.type('10'); pg.keyboard.press('Enter'); pg.keyboard.press('Enter'); pg.wait_for_timeout(150)
+                foto(pg, 'inv_enter', w, t)
+                lat = pg.evaluate("[document.documentElement.scrollWidth - document.documentElement.clientWidth, Math.max.apply(null, [0].concat(Array.from(document.querySelectorAll('.estoque-table-wrap')).filter(x => x.getClientRects().length).map(x => x.scrollWidth - x.clientWidth)))]")
+                ok(lat[0] <= 0 and lat[1] <= 0 and vis(pg, 'btnAcaoInv') and pg.evaluate("document.querySelectorAll('.inv-aviso-contagem').length") == 1, 'Inventário a %d px, tema %s, com a mensagem em vermelho: sem barra para o lado, na página nem na tabela: %s' % (w, t, lat))
+                pg.context.close()
+                # 6. o modal da nota com o aviso de preco
+                pg = nova(w, 900)
+                ir(pg, NOTA); tema3(pg, t)
+                pg.click('#btnAdicionarItem'); pg.wait_for_timeout(100)
+                pg.evaluate("Object.assign(ITENS[0], { sku: 'EMB-003', nome: 'x', qtd: 1, preco: 2304607.96 }); renderItens()")
+                preenche_nota(pg, '1', '900', '5')
+                pg.click('#btnSalvar'); pg.wait_for_timeout(500)
+                foto(pg, 'nota_aviso_preco', w, t)
+                r = pg.evaluate("(() => { const m = document.getElementById('confirmModal').getBoundingClientRect(), a = document.getElementById('confirmModalAviso').getBoundingClientRect(), b = document.getElementById('btnConfirmModalConfirmar').getBoundingClientRect(); return [Math.round(a.right) <= Math.round(m.right), Math.round(b.bottom) <= innerHeight, Math.round(a.height)]; })()")
+                ok(r[0] and r[1] and r[2] > 0 and lateral3(pg) <= 0, 'modal da nota com o aviso de preço a %d px, tema %s: a linha vermelha e o botão cabem na janela: %s' % (w, t, r))
                 pg.context.close()
         print('  fotos em %s (%d arquivos)' % (FOTOS, len(_g.glob(_os.path.join(FOTOS, '*.png')))))
 

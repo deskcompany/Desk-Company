@@ -491,6 +491,14 @@
   #painelEmbalagens .estoque-table td:nth-child(2), #painelEmbalagens .estoque-table td:nth-child(9), #painelEmbalagens .estoque-table td:nth-child(10) { white-space:nowrap; }   /* codigo, custo e total nao quebram */
   #painelEmbalagens .nc-nota { font-size:11px; font-weight:600; color:var(--text); }
   #painelEmbalagens .emb-vazio { font-size:13px; color:var(--text); padding:6px 0 2px; }
+  /* O aviso das embalagens que ja tem ordem cobrindo o minimo (23/nov/2026): sai da tabela e vira este bloco, acima dela. */
+  .emb-pedidas { border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:12px; background:var(--page-bg); padding:12px 14px; margin:0 0 16px; }
+  .emb-pedidas-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:13.5px; color:#92400E; }
+  body.dark .emb-pedidas-titulo { color:#FCD34D; }
+  .emb-pedidas-texto { font-size:12.5px; color:var(--text); margin:3px 0 8px; line-height:1.45; }
+  .emb-pedida-linha { display:flex; flex-wrap:wrap; gap:4px 14px; align-items:baseline; font-size:13px; color:var(--text-heading); padding:6px 0; border-top:1px solid var(--border); }
+  .emb-pedida-linha .emb-pedida-cod { font-weight:800; min-width:64px; }
+  .emb-pedida-linha .emb-pedida-qtd { color:var(--text); }
   .col-produto { font-weight:700; }
   .col-sub { font-size:11.5px; color:var(--text); margin-top:2px; font-weight:400; }
   .col-un { font-size:11px; color:var(--text); font-weight:400; margin-left:4px; }
@@ -1239,7 +1247,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   <div class="card" id="painelEmbalagens">
     <div class="card-title">Embalagens abaixo do mínimo</div>
-    <div class="field-hint" style="margin:3px 0 14px;">Só as embalagens ativas com saldo menor que o mínimo. "Chegando" é o que as ordens de compra em aberto e em andamento ainda têm a receber, e já sai do que comprar. Marque as que quer repor e gere a ordem de compra; a mercadoria entra no estoque pela nota, em Entrada de Notas.</div>
+    <div class="field-hint" style="margin:3px 0 14px;">Só as embalagens ativas com saldo menor que o mínimo. "Chegando" é o que as ordens de compra em aberto e em andamento ainda têm a receber, e já sai do que comprar. A embalagem que já tem ordem cobrindo o mínimo sai da tabela e aparece no aviso logo abaixo; quando a ordem for atendida, ela volta se ainda estiver abaixo do mínimo. Marque as que quer repor e gere a ordem de compra; a mercadoria entra no estoque pela nota, em Entrada de Notas.</div>
+    <div class="emb-pedidas" id="embPedidas" style="display:none;"></div>
     <div class="estoque-table-wrap" id="tabelaEmbalagensWrap">
       <table class="estoque-table" id="tabelaEmbalagens">
         <thead>
@@ -1940,21 +1949,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
   //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
   //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  //   fornecedor            o nome do fornecedor padrao (um dos de Cadastros > Fornecedores), '' = sem fornecedor padrao. De fabrica, 'Embalagens do Vale'. Necessidades de Compra usa para mostrar so os fornecedores dos itens marcados
   const EMBALAGENS_PADRAO = [
-    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
-    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
-    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
-    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
-    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
-    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
-    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
-    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
-    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
-    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
-    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
-    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
-    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
-    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40, fornecedor: 'Embalagens do Vale' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30, fornecedor: 'Embalagens do Vale' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20, fornecedor: 'Embalagens do Vale' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100, fornecedor: 'Embalagens do Vale' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0, fornecedor: 'Embalagens do Vale' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300, fornecedor: 'Embalagens do Vale' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200, fornecedor: 'Embalagens do Vale' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4, fornecedor: 'Embalagens do Vale' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100, fornecedor: 'Embalagens do Vale' }
   ];
   function embalagensLer() {
     try {
@@ -1962,6 +1972,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
         // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
         g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        // Cadastro gravado antes do fornecedor padrao (23/nov/2026): ganha o do padrao de mesmo id (ou ''). Depois de gravado com o campo, vale o que a pessoa escolheu.
+        g.forEach(e => { if (!('fornecedor' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.fornecedor = p ? p.fornecedor : ''; } });
         return g;
       }
     } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
@@ -2128,8 +2140,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function embalagensAbaixoDoMinimo() {
     const TIPOS = { pacote: 'Pacote / Caixa', envelope: 'Envelope', rolo: 'Rolo / Cilindro', insumo: 'Insumo' };
     const brl = (n) => 'R$ ' + (Number(n) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const baixas = embalagensLer().filter(e => e.status === 'ativo' && (Number(e.saldo) || 0) < (Number(e.minimo) || 0));
+    const abaixo = embalagensLer().filter(e => e.status === 'ativo' && (Number(e.saldo) || 0) < (Number(e.minimo) || 0));
     const cheg = embChegando();
+    // Ja pedida: ha ordem aberta ou em andamento a caminho e ela cobre o minimo (nao ha o que comprar agora). Essas saem da tabela e vao para o aviso de cima;
+    // a que tem ordem mas ainda precisa de mais continua na tabela, com o "Chegando". Atendida ou cancelada nao conta: a embalagem volta sozinha.
+    const pedidas = abaixo.filter(e => { const c = embCompra(e, cheg); return c.chegando > 0 && c.comprar <= 0; });
+    const baixas = abaixo.filter(e => pedidas.indexOf(e) < 0);
+    pedidas.forEach(e => selEmb.delete(e.id));
+    const aviso = document.getElementById('embPedidas');
+    aviso.style.display = pedidas.length ? '' : 'none';
+    aviso.innerHTML = pedidas.length
+      ? '<div class="emb-pedidas-titulo">' + pedidas.length + (pedidas.length === 1 ? ' embalagem já pedida' : ' embalagens já pedidas') + '</div>' +
+        '<div class="emb-pedidas-texto">Estas já estão pedidas e o que está a caminho cobre o mínimo: por isso não precisam de compra agora. Quando a ordem for atendida, elas voltam para a tabela se ainda estiverem abaixo do mínimo.</div>' +
+        pedidas.map(e => {
+          const c = embCompra(e, cheg);
+          return '<div class="emb-pedida-linha" data-id="' + e.id + '"><span class="emb-pedida-cod">' + esc(embCodigo(e)) + '</span><span>' + esc(e.nome) + '</span>' +
+            '<span class="emb-pedida-qtd">' + embFmtSaldo(c.chegando) + ' a caminho</span>' +
+            '<span class="emb-pedida-qtd">ordem ' + c.ordens.map(o => '<a class="cg-link" href="../estoque/pagina-estoque-ordens-compra-detalhe.html?id=' + encodeURIComponent(o.numero) + '">nº ' + esc(o.numero) + '</a>').join(', ') + '</span></div>';
+        }).join('')
+      : '';
     const corpo = document.getElementById('corpoEmbalagens');
     corpo.innerHTML = '';
     baixas.forEach(e => {
@@ -2156,6 +2185,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
     document.getElementById('tabelaEmbalagensWrap').style.display = baixas.length ? '' : 'none';
     document.getElementById('embVazio').style.display = baixas.length ? 'none' : '';
+    document.getElementById('embVazio').textContent = pedidas.length ? 'Nada a pedir agora: as embalagens abaixo do mínimo já estão pedidas.' : 'Nenhuma embalagem abaixo do mínimo.';
     atualizarBarraEmb();
   }
   function atualizarBarraEmb() {
@@ -3251,14 +3281,31 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     desenharOrdem();
   }
 
+  // O fornecedor de cada item marcado (23/nov/2026): da embalagem, o fornecedor padrao do cadastro; do produto, o que ele ja tem na ficha. Sem fornecedor: ''.
+  function fornecedorDoItem(i) {
+    if (i.embId != null) {
+      const e = embalagensLer().filter(x => x.id === i.embId)[0], nome = e ? e.fornecedor : '';
+      return Object.keys(FORNECEDORES).filter(k => FORNECEDORES[k] === nome)[0] || '';
+    }
+    const f = FICHA[i.sku];
+    return f && f.fornecedor ? String(f.fornecedor) : '';
+  }
+  // O dropdown de Fornecedor do painel mostra so os fornecedores dos itens marcados; se algum item nao tem fornecedor, nao ha o que restringir e mostra todos.
+  function fornecedoresDoPainel() {
+    const ids = [];
+    let semForn = false;
+    rascunho.grupos.forEach(g => g.itens.forEach(i => { const f = fornecedorDoItem(i); if (!f) semForn = true; else if (ids.indexOf(f) < 0) ids.push(f); }));
+    return semForn || !ids.length ? Object.keys(FORNECEDORES) : Object.keys(FORNECEDORES).filter(k => ids.indexOf(k) >= 0);
+  }
+
   function desenharOrdem() {
     const total = rascunho.grupos.length;
-    const opForn = Object.keys(FORNECEDORES).map(k => ({ v: k, t: FORNECEDORES[k] }));
+    const opForn = fornecedoresDoPainel().map(k => ({ v: k, t: FORNECEDORES[k] }));
     const opDep = DEPOSITOS_DE_ENTREGA.map(d => ({ v: d, t: DEPOSITOS[d] }));
     abrirDrawer('Ordem de compra',
-      (rascunho.emb ? '<div class="field-hint" style="margin:0 0 12px;">Ordem só de embalagens. A mercadoria entra no estoque pela nota, em Entrada de Notas, e não há depósito. Preço, frete e parcelas se completam depois, na página da ordem.</div>'
+      (rascunho.emb ? '<div class="field-hint" style="margin:0 0 12px;">Ordem só de embalagens. A mercadoria entra no estoque pela nota, em Entrada de Notas, e não há depósito. Preço, frete e parcelas se completam depois, na página da ordem.<br>No campo Fornecedor só aparecem os fornecedores dos itens marcados (se algum item não tiver fornecedor padrão, aparecem todos).</div>'
         : '<div class="form-field"><label>Depósito de entrega</label>' + dropdownHtml('ocDeposito', '', opDep, rascunho.dep) +
-        '<div class="field-hint">Vale para ' + (total === 1 ? 'a ordem' : 'todas as ordens') + ' abaixo. Preço, frete e parcelas se completam depois, na página de cada ordem.</div></div>') +
+        '<div class="field-hint">Vale para ' + (total === 1 ? 'a ordem' : 'todas as ordens') + ' abaixo. Preço, frete e parcelas se completam depois, na página de cada ordem. No campo Fornecedor só aparecem os fornecedores dos itens marcados (se algum item não tiver fornecedor padrão, aparecem todos).</div></div>') +
       rascunho.grupos.map((g, gi) =>
         '<div class="nc-grupo" data-grupo="' + gi + '">' +
           '<div class="nc-grupo-titulo">' + (total === 1 ? 'Ordem de compra' : 'Ordem ' + (gi + 1) + ' de ' + total) + '</div>' +

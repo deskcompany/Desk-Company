@@ -982,11 +982,38 @@
   .mv-itens tfoot td { font-weight:800; }
   @media print {
     .mv-filtros, .mv-barra-acoes, .mv-links, #painelInicio { display:none !important; }
+    /* A tabela tem nove colunas e a folha, 186 mm: o que na tela nao quebra (nome do movimento, documento, titulo) quebra no papel, senao a ultima coluna sai da folha. */
+    #painelMov .estoque-table th.ordenavel, #painelMov .estoque-table td.col-texto .prod-nome, #painelMov .estoque-table td.col-texto .prod-sku { white-space:normal !important; }
     /* Imprimir o documento: a tela some do papel e o painel ocupa a folha. */
     body.mv-imprime-doc .main > *:not(#eventDrawer) { display:none !important; }
     body.mv-imprime-doc #eventDrawer { display:block !important; position:static; width:auto; max-width:none; height:auto; padding:0; border:none; box-shadow:none; overflow:visible; }
     body.mv-imprime-doc #eventDrawer, body.mv-imprime-doc #eventDrawer * { background:transparent !important; }
     body.mv-imprime-doc #eventDrawer .drawer-close, body.mv-imprime-doc #eventDrawer .drawer-footer { display:none !important; }
+  }
+  /* ===== RELATORIO NA IMPRESSAO (bloco comum, aprovado pelo usuario em 14/out/2026) =====
+     A folha leva titulo, data e quem emitiu e, nas listas, os filtros e a quantidade; nao leva o que
+     so serve na tela. O cabecalho do relatorio so existe no papel. Igual em toda tela que tem o bloco
+     de planilha e impressao; teste_impressao.py compara. */
+  .relatorio-cabecalho { display:none; border-bottom:1.5px solid #101010; padding-bottom:8px; margin-bottom:10px; }
+  .relatorio-cabecalho .rel-empresa { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+  .relatorio-cabecalho .rel-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; margin:2px 0 4px; }
+  .relatorio-cabecalho .rel-linha { font-size:10.5px; line-height:1.5; }
+  @page { margin:12mm; }
+  @media print {
+    .relatorio-cabecalho { display:block !important; }
+    body.imprime-lista .page-header, [class$="-kpis"], .selecionar-todos-row, .busca-link { display:none !important; }
+    [class$="-table-wrap"] { overflow:visible !important; }
+    .card { padding:0 !important; }
+    .main table { border-collapse:collapse !important; width:100% !important; min-width:0 !important; }
+    .main thead { display:table-header-group; }
+    .main tr { break-inside:avoid; }
+    .main th, .main td { padding:4px 6px !important; font-size:10.5px !important; background:#fff !important;
+                         border:none !important; border-bottom:1px solid #cfcfcf !important; }
+    .main th { font-weight:800 !important; border-bottom:1.5px solid #101010 !important; }
+    .main th .seta, .main .sit-dot { display:none !important; }
+    .main th:has(> .checkbox-todos), .main td:has(> .item-checkbox),
+    .main table:has(tbody td:first-child > .item-checkbox) th:first-child { display:none !important; }
+    .main [class*="badge"] { background:none !important; border:none !important; padding:0 !important; font-weight:700 !important; }
   }
 </style>
 </head>
@@ -2550,21 +2577,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
   //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
   //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  //   fornecedor            o nome do fornecedor padrao (um dos de Cadastros > Fornecedores), '' = sem fornecedor padrao. De fabrica, 'Embalagens do Vale'. Necessidades de Compra usa para mostrar so os fornecedores dos itens marcados
   const EMBALAGENS_PADRAO = [
-    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
-    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
-    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
-    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
-    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
-    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
-    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
-    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
-    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
-    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
-    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
-    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
-    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
-    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40, fornecedor: 'Embalagens do Vale' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30, fornecedor: 'Embalagens do Vale' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20, fornecedor: 'Embalagens do Vale' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100, fornecedor: 'Embalagens do Vale' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0, fornecedor: 'Embalagens do Vale' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300, fornecedor: 'Embalagens do Vale' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200, fornecedor: 'Embalagens do Vale' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4, fornecedor: 'Embalagens do Vale' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100, fornecedor: 'Embalagens do Vale' }
   ];
   function embalagensLer() {
     try {
@@ -2572,6 +2600,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
         // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
         g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        // Cadastro gravado antes do fornecedor padrao (23/nov/2026): ganha o do padrao de mesmo id (ou ''). Depois de gravado com o campo, vale o que a pessoa escolheu.
+        g.forEach(e => { if (!('fornecedor' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.fornecedor = p ? p.fornecedor : ''; } });
         return g;
       }
     } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
@@ -3015,14 +3045,6 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('btnPaginaAnterior').disabled = paginaAtual <= 1;
     document.getElementById('btnPaginaProxima').disabled = paginaAtual >= pag.totalPaginas;
   }
-  function baixarPlanilhaEmb() {
-    baixarCsv('movimentacao-' + embCodigo(consulta.e).toLowerCase(),
-      ['Data', 'Hora', 'Movimento', 'Observação', 'Registrado por', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque', 'Prejuízo'],
-      embLinhasDaConsulta().lista.map(l => l.abertura
-        ? [fmtData(diaEmb(l)), l.m.em.slice(11, 16), 'Saldo de abertura', '', '', '', '', '', numCsv(l.depois), '', '', '', '']
-        : [fmtData(diaEmb(l)), l.m.em.slice(11, 16), embRotulo(l.m), l.m.obs || '', l.m.quem || '', l.m.fornecedor || '', numCsv(l.antes), numCsv(Number(l.m.qtd)), numCsv(l.depois),
-           numCsv(dinheiro(Number(l.m.custoUnit) || 0)), numCsv(dinheiro(Number(l.m.custoMedio) || 0)), numCsv(dinheiro(Math.max(0, l.depois) * (Number(l.m.custoMedio) || 0))), numCsv(Number(l.m.prejuizo) || 0)]));
-  }
   // Produtos / Embalagens: troca o rotulo e a busca, esconde o deposito (embalagem nao tem), troca os tipos de movimento e volta a tela ao comeco.
   function trocarModo(novo) {
     modo = novo;
@@ -3076,6 +3098,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ---------- lista ----------
   function renderTabela() {
+    if (!consulta) return;   // o bloco de impressao chama aqui mesmo antes da primeira busca
     if (consulta.modo === 'embalagens') return renderTabelaEmb();
     const c = consulta, un = c.p.unidade, r = linhasDaConsulta(), pag = paginaDe(r.lista);
     const q = (n) => fmtQtd(n, un) + ' ' + esc(un);
@@ -3203,21 +3226,29 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ---------- planilha e impressao ----------
-  function baixarPlanilha() {
-    if (consulta.modo === 'embalagens') return baixarPlanilhaEmb();
-    baixarCsv('movimentacao-' + consulta.p.sku.toLowerCase(),
-      ['Data', 'Hora', 'Movimento', 'Documento', 'Depósito', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque'],
-      linhasDaConsulta().lista.map(l => [fmtData(dataHa(l.m.dias)), l.m.hora, TIPOS_MOV[l.m.tipo].rotulo, l.m.doc.numero, DEPOSITOS[l.m.dep], comQuem(l.m), numCsv(l.antes), numCsv(l.m.qtd),
-        numCsv(l.depois), numCsv(dinheiro(l.m.valor)), numCsv(dinheiro(l.m.custoMedio)), numCsv(dinheiro(Math.max(0, l.depois) * l.m.custoMedio))]));
+  // A planilha e a folha saem do bloco comum (PLANILHA E IMPRESSAO DA TELA, no fim do arquivo). Esta funcao diz o que levam: as colunas da consulta inteira, nao so a pagina, com
+  // as colunas a mais que a tela esconde (hora, documento, deposito, prejuizo). Sem consulta, nada.
+  function linhasDaPlanilha() {
+    if (!consulta) return { cabecalho: [], linhas: [] };
+    if (consulta.modo === 'embalagens') {
+      return { cabecalho: ['Data', 'Hora', 'Movimento', 'Observação', 'Registrado por', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque', 'Prejuízo'],
+        linhas: embLinhasDaConsulta().lista.map(l => l.abertura
+          ? [fmtData(diaEmb(l)), l.m.em.slice(11, 16), 'Saldo de abertura', '', '', '', '', '', numCsv(l.depois), '', '', '', '']
+          : [fmtData(diaEmb(l)), l.m.em.slice(11, 16), embRotulo(l.m), l.m.obs || '', l.m.quem || '', l.m.fornecedor || '', numCsv(l.antes), numCsv(Number(l.m.qtd)), numCsv(l.depois),
+             numCsv(dinheiro(Number(l.m.custoUnit) || 0)), numCsv(dinheiro(Number(l.m.custoMedio) || 0)), numCsv(dinheiro(Math.max(0, l.depois) * (Number(l.m.custoMedio) || 0))), numCsv(Number(l.m.prejuizo) || 0)]) };
+    }
+    return { cabecalho: ['Data', 'Hora', 'Movimento', 'Documento', 'Depósito', 'Cliente ou fornecedor', 'Saldo anterior', 'Quantidade', 'Saldo atual', 'Valor unitário', 'Custo médio', 'Valor em estoque'],
+      linhas: linhasDaConsulta().lista.map(l => [fmtData(dataHa(l.m.dias)), l.m.hora, TIPOS_MOV[l.m.tipo].rotulo, l.m.doc.numero, DEPOSITOS[l.m.dep], comQuem(l.m), numCsv(l.antes), numCsv(l.m.qtd),
+        numCsv(l.depois), numCsv(dinheiro(l.m.valor)), numCsv(dinheiro(l.m.custoMedio)), numCsv(dinheiro(Math.max(0, l.depois) * l.m.custoMedio))]) };
   }
-  // A impressao sai com a lista inteira, nao so a pagina que esta na tela.
-  function imprimir() {
-    const antes = itensPorPaginaAtual, pagina = paginaAtual;
-    itensPorPaginaAtual = 100000; paginaAtual = 1;
-    renderTabela();
-    window.print();
-    itensPorPaginaAtual = antes; paginaAtual = pagina;
-    renderTabela();
+  // O que a busca pediu, para o cabecalho da folha (o bloco comum le o resto dos controles da barra, que esta tela nao tem): o item, o deposito, o tipo de movimento e o periodo.
+  function filtrosExtrasDaTela() {
+    if (!consulta) return [];
+    const c = consulta, emb = c.modo === 'embalagens', f = [emb ? 'Embalagem: ' + c.e.nome : 'Produto: ' + c.p.nome];
+    if (!emb && c.dep !== 'todos') f.push('Depósito: ' + rotuloDeposito(c.dep));
+    if (c.tipo !== 'todos') f.push('Tipo: ' + (emb ? TIPOS_EMB[c.tipo] : TIPOS_MOV[c.tipo].rotulo));
+    f.push('Período: ' + fmtData(c.de) + ' a ' + fmtData(c.ate));
+    return f;
   }
   // Imprime so o documento aberto: a lista some do papel e o painel ocupa a folha.
   function imprimirDocumento() {
@@ -3319,8 +3350,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnBuscar').addEventListener('click', buscar);
   document.getElementById('btnLimpar').addEventListener('click', limpar);
   document.getElementById('btnResumo').addEventListener('click', abrirResumo);
-  document.getElementById('btnImprimir').addEventListener('click', imprimir);
-  document.getElementById('btnPlanilha').addEventListener('click', baixarPlanilha);
+  document.getElementById('btnImprimir').addEventListener('click', imprimirTela);
+  document.getElementById('btnPlanilha').addEventListener('click', baixarPlanilhaDaTela);
   document.querySelectorAll('#modoMov .pill-btn').forEach(b => b.addEventListener('click', () => { if (b.getAttribute('data-modo') !== modo) trocarModo(b.getAttribute('data-modo')); }));
 
   montarFiltro('filtroDeposito', 'Todos os depósitos', Object.keys(DEPOSITOS).map(k => ({ v: k, t: DEPOSITOS[k] })), () => {});
@@ -3385,6 +3416,136 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     escolherProduto(p);
     buscar();
   })();
+
+  // ===== PLANILHA E IMPRESSAO DA TELA (bloco compartilhado, 10/out/2026) =====
+  // Um componente so para todas as telas. "Baixar planilha" leva as colunas e as linhas que a
+  // tela esta mostrando: filtros e aba respeitados, todas as paginas. "Imprimir" manda a lista
+  // inteira para o papel. Ate esta data esses itens so abriam um aviso ("entra junto com
+  // Relatorios") ou nao faziam nada. O bloco e identico em todas as telas; mudam as tres linhas
+  // abaixo e, nas telas sem tabela, a funcao que diz o que exportar.
+  // No menu "Mais acoes": data-acao="planilha" e data-acao="imprimir".
+  const PLANILHA_NOME = 'movimentacao-estoque';
+  const PLANILHA_REFAZ = renderTabela;   // como a lista se redesenha; null em tela que nao e lista
+  const PLANILHA_PAGINA = { ler: () => [itensPorPaginaAtual, paginaAtual], por: (n, p) => { itensPorPaginaAtual = n; paginaAtual = p; } };   // onde esta tela guarda a paginacao; null quando nao pagina
+  // Redesenha a lista com todas as paginas, faz o que foi pedido e devolve a pagina como estava.
+  function comListaInteira(fazer) {
+    const paginada = !!PLANILHA_REFAZ && !!PLANILHA_PAGINA;
+    let antes;
+    if (paginada) { antes = PLANILHA_PAGINA.ler(); PLANILHA_PAGINA.por(100000, 1); PLANILHA_REFAZ(); }
+    try { fazer(); }
+    finally { if (paginada) { PLANILHA_PAGINA.por(antes[0], antes[1]); PLANILHA_REFAZ(); } }
+  }
+  // O que vai para a planilha: a tabela que esta na tela, sem as colunas sem titulo (selecao e acoes).
+  function tabelaDaTela() {
+    if (typeof linhasDaPlanilha === 'function') return linhasDaPlanilha();
+    const tabela = Array.from(document.querySelectorAll('.main table')).filter(e => e.offsetParent !== null)[0];
+    if (!tabela) return null;
+    const limpa = (e) => ((e && e.innerText) || '').replace(/[▲▼]/g, '').replace(/\s+/g, ' ').trim();
+    const titulos = Array.from(tabela.querySelectorAll('thead th')).map((th) => th.dataset.nome || limpa(th));   // titulo encurtado na tela: a planilha leva o nome inteiro
+    const usar = titulos.map((t, i) => (t ? i : -1)).filter(i => i >= 0);
+    return { cabecalho: usar.map(i => titulos[i]),
+             linhas: Array.from(tabela.querySelectorAll('tbody tr')).map(tr => usar.map(i => limpa(tr.children[i]))) };
+  }
+  function baixarPlanilhaDaTela() {
+    comListaInteira(() => {
+      const dados = tabelaDaTela();
+      if (!dados || dados.linhas.length === 0) { avisar('Não há linha para exportar com os filtros atuais.'); return; }
+      const csv = [dados.cabecalho].concat(dados.linhas).map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+      const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }));
+      const hoje = new Date();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = PLANILHA_NOME + '-' + hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0') + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  }
+  function imprimirTela() { comListaInteira(() => window.print()); }
+  // Na fase de captura, no proprio menu: o tratador antigo de cada tela nao conhece estas duas acoes.
+  (function ligarPlanilhaEImpressao() {
+    const menu = document.querySelector('#menuMaisAcoes .dropdown-select-menu');
+    if (!menu) return;
+    menu.addEventListener('click', (e) => {
+      const item = e.target.closest ? e.target.closest('.dropdown-select-item') : null;
+      const acao = item ? item.getAttribute('data-acao') : '';
+      if (acao !== 'planilha' && acao !== 'imprimir') return;
+      e.stopPropagation();
+      menu.classList.remove('open');
+      if (acao === 'planilha') baixarPlanilhaDaTela(); else imprimirTela();
+    }, true);
+  })();
+
+  // Impressao em formato de relatorio (P1: piloto em Ordens de Compra, aprovado pelo usuario em
+  // 14/out/2026). Na hora de imprimir, a tela poe no topo um cabecalho que so aparece no papel:
+  // titulo, data e quem emitiu e, nas listas, os filtros que estao valendo e a quantidade. Os filtros
+  // sao lidos da propria tela (abas, botoes, dropdowns e busca da barra, periodo, indicador clicado),
+  // para o mesmo codigo servir em toda lista. Pagina de documento (PLANILHA_REFAZ nulo) nao tem filtro
+  // nem quantidade, e mantem o proprio titulo. Vale pelo menu ("Imprimir") e pelo Ctrl+P.
+  function filtrosDaTela() {
+    const txt = (e) => (e ? e.textContent : '').replace(/[0-9]+$/, '').replace(/\s+/g, ' ').trim();
+    const semFiltro = (s) => !s || /\b(todos|todas)\b|^sem filtro|^qualquer|^ordenar/i.test(s);
+    const f = [];
+    const aba = document.querySelector('.main [class*="abas"] .active');
+    if (aba) {
+      const copia = aba.cloneNode(true);
+      copia.querySelectorAll('[class*="contador"]').forEach(x => x.remove());
+      if (!semFiltro(txt(copia))) f.push('Situação: ' + txt(copia));
+    }
+    document.querySelectorAll('.main [class$="-toolbar"] [data-filtro].active').forEach(b => { if (!semFiltro(txt(b))) f.push(txt(b)); });
+    document.querySelectorAll('.main [class$="-toolbar"] .dropdown-select').forEach(d => {
+      const ativo = d.querySelector('.dropdown-select-item.active');
+      if (ativo && !semFiltro(txt(ativo))) f.push(txt(ativo));
+    });
+    const periodo = document.querySelector('.main .periodo-op.active');
+    if (periodo && !semFiltro(txt(periodo))) f.push('Período: ' + txt(periodo));
+    document.querySelectorAll('.main [class$="-toolbar"] input[type="text"]').forEach(i => {
+      if (i.value.trim()) f.push('Busca: "' + i.value.trim() + '"');
+    });
+    document.querySelectorAll('.main .kpi-card[aria-pressed="true"] .kpi-label').forEach(k => f.push('Indicador: ' + txt(k)));
+    // Filtros que a tela guarda fora dos controles da barra (a Movimentacao de Estoque busca um item e um periodo): ela define filtrosExtrasDaTela().
+    if (typeof filtrosExtrasDaTela === 'function') filtrosExtrasDaTela().forEach(x => f.push(x));
+    return f;
+  }
+  function montarCabecalhoDoRelatorio() {
+    const lista = !!PLANILHA_REFAZ;
+    document.body.classList.toggle('imprime-lista', lista);
+    let cab = document.getElementById('relatorioCabecalho');
+    if (!cab) {
+      cab = document.createElement('div');
+      cab.id = 'relatorioCabecalho';
+      cab.className = 'relatorio-cabecalho';
+      document.querySelector('.main').insertBefore(cab, document.querySelector('.main').firstChild);
+    }
+    const agora = new Date(), z = (n) => String(n).padStart(2, '0');
+    const quem = typeof USUARIO_SESSAO !== 'undefined' ? ', por ' + USUARIO_SESSAO.nome : '';
+    let corpo = '<div class="rel-empresa">Desk Company · ERP System</div>';
+    if (lista) corpo += '<div class="rel-titulo">' + document.querySelector('.main h1').textContent.trim() + '</div>';
+    corpo += '<div class="rel-linha">Emitido em ' + z(agora.getDate()) + '/' + z(agora.getMonth() + 1) + '/' + agora.getFullYear() +
+             ' às ' + z(agora.getHours()) + ':' + z(agora.getMinutes()) + quem + '</div>';
+    if (lista) {
+      const filtros = filtrosDaTela(), dados = tabelaDaTela();
+      // A linha de "nenhum registro" ocupa uma celula so; nao e registro.
+      const n = dados ? dados.linhas.filter(l => l.length === dados.cabecalho.length).length : 0;
+      corpo += '<div class="rel-linha">Filtros: ' + (filtros.length ? filtros.join(' · ') : 'nenhum, a lista inteira') + '</div>' +
+               '<div class="rel-linha">' + (n === 1 ? '1 registro' : n + ' registros') + '</div>';
+    }
+    cab.innerHTML = corpo;
+  }
+  // O Ctrl+P nao passa pelo menu: sem isto ele imprimiria so a pagina aberta da lista, e as duas vias
+  // dariam folhas diferentes. Pelo menu a lista ja chega inteira, e nada muda.
+  let paginaAntesDaImpressao = null;
+  window.addEventListener('beforeprint', () => {
+    if (PLANILHA_REFAZ && PLANILHA_PAGINA && PLANILHA_PAGINA.ler()[0] < 100000) {
+      paginaAntesDaImpressao = PLANILHA_PAGINA.ler();
+      PLANILHA_PAGINA.por(100000, 1); PLANILHA_REFAZ();
+    }
+    montarCabecalhoDoRelatorio();
+  });
+  window.addEventListener('afterprint', () => {
+    if (!paginaAntesDaImpressao) return;
+    PLANILHA_PAGINA.por(paginaAntesDaImpressao[0], paginaAntesDaImpressao[1]); PLANILHA_REFAZ();
+    paginaAntesDaImpressao = null;
+  });
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

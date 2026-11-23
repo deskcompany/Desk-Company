@@ -388,7 +388,7 @@ with sync_playwright() as p:
         pg.evaluate("document.body.classList.remove('mv-imprime-doc')"); pg.wait_for_timeout(100)
         papel = pg.evaluate("""(() => { const v = (s) => { const e = document.querySelector(s); return !!e && getComputedStyle(e).display !== 'none' && e.getClientRects().length > 0; };
           return [v('#painelMov'), v('#painelProduto'), v('#kpiAtual'), v('#painelFiltros'), v('#btnPlanilha'), v('#docItens')]; })()""")
-        ok(papel == [True, True, True, False, False, False], 'e imprimir a lista manda produto, indicadores e movimentos, sem os filtros, os botões e o painel: %s' % papel)
+        ok(papel == [True, True, False, False, False, False], 'e imprimir a lista manda o produto e os movimentos, sem os indicadores (regra das listas), os filtros, os botões e o painel: %s' % papel)
         pg.emulate_media(media='screen'); pg.wait_for_timeout(150)
         pg.keyboard.press('Escape'); pg.wait_for_timeout(250)
         ok(not pg.evaluate("document.getElementById('eventDrawer').classList.contains('open')"), 'Esc fecha o documento')
@@ -430,7 +430,7 @@ with sync_playwright() as p:
         with pg.expect_download(timeout=5000) as d:
             clic('#btnPlanilha')
         csv = open(d.value.path(), encoding='utf-8-sig').read().splitlines()
-        ok(d.value.suggested_filename.startswith('movimentacao-tec-mec-006-') and d.value.suggested_filename.endswith('.csv') and len(csv) - 1 == esperado == 62,
+        ok(d.value.suggested_filename.startswith('movimentacao-estoque-') and d.value.suggested_filename.endswith('.csv') and len(csv) - 1 == esperado == 62,
            'a planilha baixa com o histórico inteiro, não só a página: %d linhas em %s' % (len(csv) - 1, d.value.suggested_filename))
         ok(csv[0] == '"Data";"Hora";"Movimento";"Documento";"Depósito";"Cliente ou fornecedor";"Saldo anterior";"Quantidade";"Saldo atual";"Valor unitário";"Custo médio";"Valor em estoque"'
            and csv[-1].split(';')[8] == '"40"' and csv[-1].split(';')[10] == '"231,1"', 'com as colunas da tela e a última linha no saldo de hoje: %s' % csv[-1][:80])

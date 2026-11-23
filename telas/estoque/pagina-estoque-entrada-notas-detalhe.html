@@ -411,7 +411,20 @@
   .modal-card { position:fixed; left:0; right:0; bottom:0; background:var(--card-bg); border-top:1px solid var(--border); border-radius:20px 20px 0 0; padding:48px; z-index:60; box-shadow:0 -20px 60px rgba(0,0,0,0.35); transform:translateY(100%); transition:transform .25s ease; max-height:55vh; overflow-y:auto; }
   .modal-card.open { transform:translateY(0); }
   .confirm-titulo { font-family:'Nunito',sans-serif; font-weight:800; font-size:26px; color:var(--text-heading); margin-bottom:16px; }
+  /* Sugestao ao digitar o nome do item (23/nov/2026): o componente da casa. A tabela pode rolar para o lado e cortaria a lista, entao ela fica fixa na tela, embaixo do campo. */
+  .sugestoes { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:30; max-height:280px; overflow-y:auto; }
+  .sugestoes.open { display:block; }
+  .sugestao-item { padding:9px 11px; border-radius:9px; cursor:pointer; }
+  .sugestao-item:hover, .sugestao-item.ativo { background:var(--active-bg); }
+  .sugestao-nome { font-family:'Nunito',sans-serif; font-weight:700; font-size:13.5px; color:var(--text-heading); }
+  .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
+  .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
+  #sugestoesItem { position:fixed; right:auto; }
   .confirm-texto { font-size:15px; color:var(--text-heading); line-height:1.5; margin-bottom:26px; }
+  /* O aviso em vermelho do modal (preco fora do normal na nota, 23/nov/2026): uma linha por item, entre o texto e os botoes. */
+  .confirm-aviso { display:none; margin:-14px 0 24px; font-size:14px; font-weight:700; line-height:1.5; color:#B91C1C; }
+  .confirm-aviso.on { display:block; }
+  body.dark .confirm-aviso { color:#FCA5A5; }
   .confirm-ciente-row { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-heading); font-weight:600; font-family:'Nunito',sans-serif; margin-bottom:26px; cursor:pointer; }
   .confirm-ciente-row input.item-checkbox { width:17px; height:17px; }
   .confirm-acoes { display:flex; align-items:center; gap:20px; }
@@ -1350,6 +1363,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 <div class="modal-card" id="confirmModal">
   <div class="confirm-titulo">Confirmação</div>
   <div class="confirm-texto" id="confirmModalTexto">Confirma esta ação?</div>
+  <div class="confirm-aviso" id="confirmModalAviso"></div>
   <label class="confirm-ciente-row" id="confirmCienteRow" style="display:none;">
     <input type="checkbox" class="item-checkbox" id="confirmCienteCheckbox">
     Estou ciente destas ações e desejo continuar.
@@ -2069,21 +2083,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   //                         A entrada e o acerto moram no Cadastro de Embalagens; a baixa e embBaixar, chamada so quando a Conferencia de Saida fecha (03/nov/2026)
   //   minimo                numero >= 0; saldo abaixo dele avisa na lista e entra em Necessidades de Compra
   //   rende (so no insumo)  inteiro >= 1, de fabrica 1: quantos pedidos uma unidade atende. O custo que UM pedido consome e custo / rende (embCustoUso)
+  //   fornecedor            o nome do fornecedor padrao (um dos de Cadastros > Fornecedores), '' = sem fornecedor padrao. De fabrica, 'Embalagens do Vale'. Necessidades de Compra usa para mostrar so os fornecedores dos itens marcados
   const EMBALAGENS_PADRAO = [
-    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50 },
-    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50 },
-    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40 },
-    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30 },
-    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20 },
-    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5 },
-    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100 },
-    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50 },
-    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5 },
-    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0 },
-    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300 },
-    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200 },
-    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4 },
-    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100 }
+    { id: 1, nome: 'Caixa de Encomenda Flex P', tipo: 'pacote', largura: 26, altura: 21, comprimento: 1, peso: 0.09, cap: 2, custo: 3.5, status: 'ativo', saldo: 140, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 2, nome: 'Caixa de Encomenda Flex M', tipo: 'pacote', largura: 26, altura: 21, comprimento: 4, peso: 0.36, cap: 5, custo: 4.7, status: 'ativo', saldo: 85, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 3, nome: 'Caixa de Encomenda Flex G', tipo: 'pacote', largura: 26, altura: 21, comprimento: 6, peso: 0.55, cap: 9, custo: 5.9, status: 'ativo', saldo: 32, minimo: 40, fornecedor: 'Embalagens do Vale' },
+    { id: 4, nome: 'Caixa de Encomenda CE-01', tipo: 'pacote', largura: 18, altura: 13.5, comprimento: 9, peso: 0.36, cap: 4, custo: 4.2, status: 'ativo', saldo: 60, minimo: 30, fornecedor: 'Embalagens do Vale' },
+    { id: 5, nome: 'Caixa de Encomenda CE-02', tipo: 'pacote', largura: 27, altura: 18, comprimento: 9, peso: 0.73, cap: 12, custo: 6.3, status: 'ativo', saldo: 18, minimo: 20, fornecedor: 'Embalagens do Vale' },
+    { id: 6, nome: 'Caixa para Eletrônicos', tipo: 'pacote', largura: 40, altura: 30, comprimento: 30, peso: 1.2, cap: 25, custo: 12.5, status: 'ativo', saldo: 6, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 7, nome: 'Envelope de Segurança Pequeno', tipo: 'envelope', largura: 18, comprimento: 24, peso: 0.02, cap: 1, custo: 1.1, status: 'ativo', saldo: 300, minimo: 100, fornecedor: 'Embalagens do Vale' },
+    { id: 8, nome: 'Envelope de Segurança Grande', tipo: 'envelope', largura: 24, comprimento: 34, peso: 0.05, cap: 3, custo: 1.8, status: 'ativo', saldo: 120, minimo: 50, fornecedor: 'Embalagens do Vale' },
+    { id: 9, nome: 'Rolo para Pôster', tipo: 'rolo', comprimento: 90, diametro: 8, peso: 0.2, custo: 4.5, status: 'ativo', saldo: 12, minimo: 5, fornecedor: 'Embalagens do Vale' },
+    { id: 10, nome: 'Rolo para Tecido', tipo: 'rolo', comprimento: 120, diametro: 12, peso: 0.45, custo: 7, status: 'inativo', saldo: 0, minimo: 0, fornecedor: 'Embalagens do Vale' },
+    { id: 11, nome: 'Tag Desk Shope', tipo: 'insumo', peso: 0, custo: 0.4, auto: '1', status: 'ativo', saldo: 800, minimo: 300, fornecedor: 'Embalagens do Vale' },
+    { id: 12, nome: 'Tag Desk Brands', tipo: 'insumo', peso: 0, custo: 0.6, auto: '2', status: 'ativo', saldo: 150, minimo: 200, fornecedor: 'Embalagens do Vale' },
+    { id: 13, nome: 'Fita adesiva', tipo: 'insumo', peso: 0, custo: 15, rende: 50, auto: 'todas', status: 'ativo', saldo: 8, minimo: 4, fornecedor: 'Embalagens do Vale' },
+    { id: 14, nome: 'Saco plástico', tipo: 'insumo', peso: 0, custo: 0.25, auto: '', status: 'ativo', saldo: 400, minimo: 100, fornecedor: 'Embalagens do Vale' }
   ];
   function embalagensLer() {
     try {
@@ -2091,6 +2106,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (Array.isArray(g) && g.length && g.every(e => e && typeof e.id === 'number' && typeof e.nome === 'string' && typeof e.tipo === 'string')) {
         // Cadastro gravado antes do estoque (03/nov/2026): ganha saldo e minimo do padrao de mesmo id (ou 0). `custo` e `rende` nunca vem do padrao: a fita gravada a 0,30 viraria 0,006 por pedido.
         g.forEach(e => { if (!('saldo' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.saldo = p ? p.saldo : 0; e.minimo = p ? p.minimo : 0; } });
+        // Cadastro gravado antes do fornecedor padrao (23/nov/2026): ganha o do padrao de mesmo id (ou ''). Depois de gravado com o campo, vale o que a pessoa escolheu.
+        g.forEach(e => { if (!('fornecedor' in e)) { const p = EMBALAGENS_PADRAO.filter(x => x.id === e.id)[0]; e.fornecedor = p ? p.fornecedor : ''; } });
         return g;
       }
     } catch (e) { /* sem armazenamento ou JSON estragado: cai no padrao */ }
@@ -2241,9 +2258,20 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   };
 
   const CATALOGO = [
-    { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', un: 'UN', preco: 231.10 },
-    { nome: 'Cabo HDMI 2.1 · 2m',    sku: 'CAB-HDM-009', un: 'UN', preco: 9.50 },
-    { nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', un: 'UN', preco: 89.00 }
+    { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', un: 'UN', preco: 231.10, gtin: '7891234000066', custo: 231.10, fornecedor: 1 },
+    { nome: 'Cabo HDMI 2.1 · 2m',    sku: 'CAB-HDM-009', un: 'UN', preco: 9.50, gtin: '7891234000097', custo: 32.40, fornecedor: 1 },
+    { nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', un: 'UN', preco: 89.00, gtin: '7891234000035', custo: 138.40, fornecedor: 1 },
+    // Daqui para baixo (23/nov/2026) so a digitacao do nome le: o "Adicionar item" segue pelos tres de cima. `custo` e o custo medio do produto, o preco que a sugestao poe na linha;
+    // `fornecedor` e o id de FORNECEDORES. Mesmos produtos e fornecedores da busca avancada da Ordem de Compra.
+    { nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', un: 'UN', preco: 742.30, gtin: '7891234000011', custo: 742.30, fornecedor: 2 },
+    { nome: 'Chapa MDF 18mm', sku: 'MAT-MDF-007', un: 'M2', preco: 214.50, gtin: '7891234000073', custo: 214.50, fornecedor: 3 },
+    { nome: 'Fone Bluetooth Desk One', sku: 'FON-BLT-013', un: 'UN', preco: 176.60, gtin: '7891234000134', custo: 176.60, fornecedor: 1 },
+    { nome: 'Mouse Sem Fio Compacto', sku: 'ELE-1003', un: 'UN', preco: 37.20, gtin: '7891234000301', custo: 37.20, fornecedor: 1 },
+    { nome: 'Carregador USB-C 20W', sku: 'ELE-1004', un: 'UN', preco: 26.85, gtin: '7891234000302', custo: 26.85, fornecedor: 1 },
+    { nome: 'Luminária de Mesa LED', sku: 'MOB-4002', un: 'UN', preco: 46.08, gtin: '7891234000303', custo: 46.08, fornecedor: 7 },
+    { nome: 'Caderno Universitário 200 folhas', sku: 'PAP-3001', un: 'UN', preco: 10.90, gtin: '7891234000304', custo: 10.90, fornecedor: 6 },
+    { nome: 'Caneta Esferográfica Caixa c/50', sku: 'PAP-3003', un: 'UN', preco: 18.00, gtin: '7891234000305', custo: 18.00, fornecedor: 6 },
+    { nome: 'Tecido Algodão (metro)', sku: 'VES-2004', un: 'M', preco: 14.20, gtin: '7891234000306', custo: 14.20, fornecedor: 4 }
   ];
 
   const ITENS = [];
@@ -2293,7 +2321,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     ITENS.forEach((it, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML =
-        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + i + '" value="' + it.nome + '" placeholder="Nome do produto"></td>' +
+        '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="nome" data-i="' + i + '" value="' + it.nome + '" placeholder="Nome do produto" autocomplete="off"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="sku" data-i="' + i + '" value="' + it.sku + '" placeholder="SKU"></td>' +
         '<td><input type="text" data-campo="qtd" data-i="' + i + '" value="' + fmtQtd(it.qtd, it.un) + '"></td>' +
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="un" data-i="' + i + '" value="' + it.un + '"></td>' +
@@ -2581,6 +2609,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return problemas;
   }
 
+  // Preco fora do normal (pedido do usuario em 21/nov/2026, depois de a Flex G entrar a R$ 2.304.607,96: o preco foi digitado em centavos e o custo medio do cadastro ficou com esse valor para sempre).
+  // So a linha de EMBALAGEM com custo atual maior que zero: preco unitario de 10 vezes o custo, ou mais, vira uma linha em vermelho no modal. Sem custo para comparar, nao ha aviso. Produto segue como esta.
+  function avisosDePreco() {
+    const lista = embalagensLer(), avisos = [];
+    ITENS.forEach(it => {
+      const e = lista.filter(x => embCodigo(x).toUpperCase() === String(it.sku).trim().toUpperCase())[0], custo = e ? Number(e.custo) || 0 : 0;
+      if (e && custo > 0 && it.preco >= Math.round(custo * 1000) / 100) avisos.push('Atenção: o preço de ' + e.nome + ' (' + fmtMoeda(it.preco) + ') está muito acima do custo atual (' + fmtMoeda(custo) + ').');
+    });
+    return avisos;
+  }
   document.getElementById('btnSalvar').addEventListener('click', () => {
     salvouUmaVez = true;
     const problemas = validar();
@@ -2588,6 +2626,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       document.getElementById('blocoErros').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    const avisosPreco = avisosDePreco();
+    if (avisosPreco.length) { abrirModalConfirmacao('Confira o preço antes de salvar. Salvar lança as embalagens no estoque e refaz o custo médio delas.', 1, 'primary', salvarNota, 'salvar', avisosPreco); return; }
+    salvarNota();
+  });
+  function salvarNota() {
     const badge = document.getElementById('badgeSituacao');
     badge.className = 'badge-situacao bs-salva';
     badge.innerHTML = '<span class="sit-dot"></span>Salva';
@@ -2602,7 +2645,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         (r.ordem ? ' A ordem de compra nº ' + r.ordem.numero + ' ficou ' + (r.ordem.situacao === 'atendida' ? 'atendida' : 'em andamento') + '.' : '');
     }
     abrirModalConfirmacao(aviso, 1, 'primary', null, 'aviso');
-  });
+  }
 
   document.getElementById('btnSalvarRascunho').addEventListener('click', () => {
     avisar('Rascunho salvo. Rascunho não valida campo nenhum e não entra na fila de conferência — serve para não perder o que já foi digitado.');
@@ -2636,6 +2679,64 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderItens();
 
+  // ===== SUGESTAO AO DIGITAR O NOME DO ITEM (23/nov/2026) =====
+  // Digitar no campo da tabela abre a lista de sugestoes embaixo do campo (o componente da casa, o mesmo de Cadastros > Fornecedores): filtra por nome, SKU ou GTIN, no maximo 8, so do
+  // fornecedor escolhido na nota (sem fornecedor escolhido, de todos). Alem dos produtos, entram as embalagens ativas (codigo no lugar do SKU, o custo atual como preco, o fornecedor padrao delas).
+  // Clicar ou Enter preenche a linha (nome, SKU, unidade e o preco = o custo medio); as setas movem a marca; Escape e clique fora fecham.
+  const caixaSug = document.createElement('div');
+  caixaSug.className = 'sugestoes'; caixaSug.id = 'sugestoesItem';
+  document.body.appendChild(caixaSug);
+  let sugLinha = -1, sugAchados = [];
+  const escSug = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function itensDoFornecedor() {
+    const id = dd('inputFornecedor');
+    const embs = embalagensLer().filter(e => e.status === 'ativo').map(e => ({ nome: e.nome, sku: embCodigo(e), gtin: '', un: 'UN', custo: Number(e.custo) || 0, fornecedor: idDoFornecedor(e.fornecedor) }));
+    return CATALOGO.concat(embs).filter(p => !id || String(p.fornecedor) === String(id));
+  }
+  function fecharSugestoes() { caixaSug.classList.remove('open'); caixaSug.innerHTML = ''; sugAchados = []; sugLinha = -1; }
+  function sugerirItem(inp) {
+    const tm = inp.value.trim().toLowerCase();
+    if (!tm) { fecharSugestoes(); return; }
+    sugLinha = Number(inp.dataset.i);
+    sugAchados = itensDoFornecedor().filter(p => p.nome.toLowerCase().includes(tm) || p.sku.toLowerCase().includes(tm) || p.gtin.includes(tm)).slice(0, 8);
+    caixaSug.innerHTML = sugAchados.length
+      ? sugAchados.map((p, n) => '<div class="sugestao-item' + (n === 0 ? ' ativo' : '') + '" data-n="' + n + '"><div class="sugestao-nome">' + escSug(p.nome) + '</div>' +
+          '<div class="sugestao-meta">' + [escSug(p.sku), escSug(p.gtin), 'custo médio ' + fmtMoeda(p.custo)].filter(Boolean).join(' · ') + '</div></div>').join('')
+      : '<div class="sugestao-vazia">Nenhum item encontrado' + (dd('inputFornecedor') ? ' para este fornecedor' : '') + '.</div>';
+    const r = inp.getBoundingClientRect();
+    caixaSug.style.left = Math.round(r.left) + 'px'; caixaSug.style.top = Math.round(r.bottom + 6) + 'px'; caixaSug.style.width = Math.max(300, Math.round(r.width)) + 'px';
+    caixaSug.classList.add('open');
+  }
+  function escolherSugestao(n) {
+    const p = sugAchados[n], i = sugLinha;
+    if (!p || !ITENS[i]) return;
+    Object.assign(ITENS[i], { nome: p.nome, sku: p.sku, un: p.un, preco: p.custo });
+    fecharSugestoes();
+    renderItens();
+    if (salvouUmaVez) validar();
+    const qtd = document.querySelector('#corpoItens input[data-campo="qtd"][data-i="' + i + '"]');
+    if (qtd) { qtd.focus(); qtd.select(); }
+  }
+  document.getElementById('corpoItens').addEventListener('input', (e) => { if (e.target.matches('input[data-campo="nome"]')) sugerirItem(e.target); });
+  document.getElementById('corpoItens').addEventListener('keydown', (e) => {
+    if (!e.target.matches('input[data-campo="nome"]') || !caixaSug.classList.contains('open')) return;
+    const itens = Array.from(caixaSug.querySelectorAll('.sugestao-item'));
+    if (e.key === 'Escape') { e.stopPropagation(); fecharSugestoes(); return; }
+    if (!itens.length) return;
+    let a = itens.findIndex(x => x.classList.contains('ativo'));
+    if (e.key === 'Enter') { e.preventDefault(); escolherSugestao(Number(itens[Math.max(a, 0)].getAttribute('data-n'))); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      a = e.key === 'ArrowDown' ? (a + 1) % itens.length : (a - 1 + itens.length) % itens.length;
+      itens.forEach((x, n) => x.classList.toggle('ativo', n === a));
+      itens[a].scrollIntoView({ block: 'nearest' });
+    }
+  });
+  caixaSug.addEventListener('click', (e) => { const it = e.target.closest('.sugestao-item'); if (it) escolherSugestao(Number(it.getAttribute('data-n'))); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('#sugestoesItem') && !e.target.matches('#corpoItens input[data-campo="nome"]')) fecharSugestoes(); });
+  window.addEventListener('scroll', (e) => { if (e.target !== caixaSug) fecharSugestoes(); }, true);
+  window.addEventListener('resize', fecharSugestoes);
+
   // ===== MODAL =====
   const confirmModal = document.getElementById('confirmModal');
   const confirmModalBackdrop = document.getElementById('confirmModalBackdrop');
@@ -2644,11 +2745,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const btnConfirmar = document.getElementById('btnConfirmModalConfirmar');
   let acaoConfirmada = null;
 
-  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo) {
+  function abrirModalConfirmacao(texto, qtd, cor, aoConfirmar, modo, avisos) {
     document.getElementById('confirmModalTexto').textContent = texto;
+    // As linhas em vermelho (so o modo 'salvar' as usa): o botao diz "Salvar mesmo assim" quando ha aviso e "Salvar" quando nao ha.
+    const caixaAviso = document.getElementById('confirmModalAviso'), linhasAviso = avisos || [];
+    caixaAviso.innerHTML = '';
+    linhasAviso.forEach(a => { const d = document.createElement('div'); d.textContent = a; caixaAviso.appendChild(d); });
+    caixaAviso.classList.toggle('on', linhasAviso.length > 0);
     acaoConfirmada = aoConfirmar || null;
     btnConfirmar.className = cor === 'danger' ? 'btn-danger' : 'btn-primary';
-    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : 'Confirmar';
+    btnConfirmar.textContent = modo === 'aviso' ? 'Entendi' : (modo === 'salvar' ? (linhasAviso.length ? 'Salvar mesmo assim' : 'Salvar') : 'Confirmar');
     const precisaCiente = qtd >= 2 && modo !== 'aviso';
     confirmCienteRow.style.display = precisaCiente ? 'flex' : 'none';
     confirmCienteCheckbox.checked = false;
@@ -3017,6 +3123,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (i.value.trim()) f.push('Busca: "' + i.value.trim() + '"');
     });
     document.querySelectorAll('.main .kpi-card[aria-pressed="true"] .kpi-label').forEach(k => f.push('Indicador: ' + txt(k)));
+    // Filtros que a tela guarda fora dos controles da barra (a Movimentacao de Estoque busca um item e um periodo): ela define filtrosExtrasDaTela().
+    if (typeof filtrosExtrasDaTela === 'function') filtrosExtrasDaTela().forEach(x => f.push(x));
     return f;
   }
   function montarCabecalhoDoRelatorio() {
