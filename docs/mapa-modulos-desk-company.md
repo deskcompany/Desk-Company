@@ -1,6 +1,8 @@
 # Mapa dos módulos — ERP Desk Company
 *Gerado em 02/out/2026, atualizado em 05/out com a Separação e a Conferência de Saída, em 06/out com a Expedição e o cadastro de Transportadoras em 09/out com o PDV, o CRM e Tratamento de Perdas e em 10/out com Necessidades de Compra e Giro de Estoque e com a primeira leva de melhorias dos módulos prontos, em 12/out com o retorno do usuário sobre ela, e em 13/out com a Movimentação de Estoque e com a ordem nova do menu, por sequência de trabalho. Lido do próprio menu do sistema (não de uma lista escrita à mão).*
 
+*Em 24/nov/2026: a tela nova **Condições de pagamento**, em Configurações (§14.122): a condição de pagamento deixa de ser texto digitado ("30 60 90", "3x") e vira lista, na nota de entrada, na ordem de compra, no PDV e nos cadastros de cliente e fornecedor. Outros campos de texto livre que tinham cadastro também viraram lista (transportador, vendedor padrão, comprador, fornecedor da entrada sem nota, unidade do produto, categoria financeira). 46 de 56 itens de menu com tela, em 97 telas.*
+
 *Em 15/out/2026: Comissões Afiliados (lista e conta do afiliado) e a venda por link como filtro de Pedidos de Venda; 43 de 55 itens de menu com tela.*
 
 *Em 30/out/2026 (depois da entrega 3): Custos do E-commerce, entrega 4, a embalagem automática: Cadastros › Embalagens ganhou custo e o tipo Insumo; a Separação escolhe a embalagem do pedido, a Conferência de Saída confirma, e Custos e a página do pedido leem o que foi confirmado, com o custo do dia. Nenhuma tela nova: 45 de 55 itens de menu com tela, em 90 telas (§14.99).*
@@ -19,7 +21,7 @@
 
 *Em 19/out/2026: Vale-compra, entrega 1 (a lista, a página do vale e a aba Vale-compra do cadastro do cliente), em Finanças. **O Vale-compra é fora da contagem de 55 itens**: ele não era um dos itens que faltavam, é um submódulo extra decidido em 14/out. Por isso os números abaixo seguem 43 de 55; o que sobe é o total de telas, de 84 para 86.*
 
-**96 telas construídas** · ✅ tem tela · ❌ não existe ainda
+**97 telas construídas** · ✅ tem tela · ❌ não existe ainda
 
 > **A ordem das tabelas é a do menu** (desde 13/out/2026): primeiro a tela de consulta do módulo, depois as telas na ordem em que o trabalho acontece, depois a análise, e Relatórios por último. Módulo ou item novo entra na posição da função dele. A regra está no §4 do design system, e a seção 11 de `teste_menu.py` guarda a ordem.
 >
@@ -138,14 +140,14 @@
 | ❌ | Emissão de Notas Fiscais |
 | ❌ | Relatórios de Integrações |
 
-## ⚙️ Configurações — 24 telas, abertas pelo hub
+## ⚙️ Configurações — 25 telas, abertas pelo hub
 | | Submódulo |
 |---|---|
 | ✅ | Hub de Configurações |
 | ✅ | Usuários do sistema *(10/nov: a lista com indicadores que filtram, o painel e a página do usuário: acesso, perfil e permissões avulsas, desconto sem senha, código de autorização, senha e restrições)* · Permissões de usuários *(10/nov: a lista de perfis e a página do perfil, com a grade de permissões: as abas são os módulos do menu, cada tela com as funções dela e as ações que pedem autorização; só o Owner altera)* |
 | ✅ | Parâmetros de estoque · Parâmetros de logística *(nasceu em 13/out, da divisão da tela de estoque)* · Parâmetros de vendas *(nasceu em 30/out: o imposto padrão e a margem mínima)* · Interface do usuário · Confirmações por senha · Registro de atividades |
 | ✅ | Configurações da conferência · do cadastro de produtos · do cadastro de clientes |
-| ✅ | Contas financeiras · Contas bancárias · Categorias financeiras |
+| ✅ | Contas financeiras · Contas bancárias · Categorias financeiras · Condições de pagamento *(24/nov: em quantos dias vence cada parcela; a nota de entrada, a ordem de compra, o PDV e os cadastros de cliente e fornecedor escolhem daqui)* |
 | ✅ | Nomes do sistema |
 | ✅ | Transportadoras · Motivos de Devolução *(de quem é a conta e qual o destino sugerido no estoque)* · Motivos de Perda *(em que movimento vale e o que a baixa obriga)* — vieram de Operacional em 08/out |
 | ✅ | Formas de recebimento *(08/out: para que a forma vale, se vira título ou entra direto na conta, taxa e limite de crédito; o Pedido, Contas a Receber e Contas a Pagar leem daqui. 09/out: forma com prazo fixo da operadora, que é o cartão, guarda em quantos dias úteis cai, até quantas parcelas aceita, a taxa de cada parcela e se a taxa é repassada ao cliente)* |
@@ -170,9 +172,9 @@
 | **Logística** | **5** | **1** |
 | Finanças | 4 | 1 |
 | Integrações | 1 | 3 |
-| Configurações | 1 item de menu, 24 telas | 0 |
-| **Total** | **46 itens de menu com tela · 96 telas** | **10** |
+| Configurações | 1 item de menu, 25 telas | 0 |
+| **Total** | **46 itens de menu com tela · 97 telas** | **10** |
 
-*Contado no menu em 10/nov/2026: **56 itens, 46 com destino e 10 sem**, em 96 telas: Usuários do sistema e Permissões de usuários ganharam as quatro telas, em Configurações, sem mudar o menu. Contado no menu em 09/nov/2026: **56 itens, 46 com destino e 10 sem**, em 92 telas: Promoções e Encartes entrou em Vendas, logo depois do PDV, com a lista e a página da promoção. Contado no menu em 30/out/2026: **55 itens, 45 com destino e 10 sem**, em 90 telas: Parâmetros de vendas nasceu em Configurações, sem mudar o menu. Em 22/out/2026: **55 itens, 45 com destino e 10 sem**, em 89 telas: Custos do E-commerce ganhou a tela. Em 20/out/2026: **55 itens, 44 com destino e 11 sem**, em 88 telas: Gateways de Pagamento ganhou a lista e a página. Em 19/out/2026: **55 itens, 43 com destino e 12 sem**, em 86 telas. O item Vale-compra, de Finanças, não entra na conta (é o submódulo extra de 14/out, fora dos 55); as duas telas novas são a lista e a página do vale. Em 15/out/2026: **55 itens, 43 com destino e 12 sem**, em 84 telas: Vendas Afiliados saiu do menu (abria a mesma tela de Pedidos de Venda), e Comissões Afiliados nasceu, com a conta do afiliado. Em 13/out/2026 eram **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
+*Contado no menu em 24/nov/2026: **56 itens, 46 com destino e 10 sem**, em 97 telas: Condições de pagamento nasceu em Configurações, sem mudar o menu. Contado no menu em 10/nov/2026: **56 itens, 46 com destino e 10 sem**, em 96 telas: Usuários do sistema e Permissões de usuários ganharam as quatro telas, em Configurações, sem mudar o menu. Contado no menu em 09/nov/2026: **56 itens, 46 com destino e 10 sem**, em 92 telas: Promoções e Encartes entrou em Vendas, logo depois do PDV, com a lista e a página da promoção. Contado no menu em 30/out/2026: **55 itens, 45 com destino e 10 sem**, em 90 telas: Parâmetros de vendas nasceu em Configurações, sem mudar o menu. Em 22/out/2026: **55 itens, 45 com destino e 10 sem**, em 89 telas: Custos do E-commerce ganhou a tela. Em 20/out/2026: **55 itens, 44 com destino e 11 sem**, em 88 telas: Gateways de Pagamento ganhou a lista e a página. Em 19/out/2026: **55 itens, 43 com destino e 12 sem**, em 86 telas. O item Vale-compra, de Finanças, não entra na conta (é o submódulo extra de 14/out, fora dos 55); as duas telas novas são a lista e a página do vale. Em 15/out/2026: **55 itens, 43 com destino e 12 sem**, em 84 telas: Vendas Afiliados saiu do menu (abria a mesma tela de Pedidos de Venda), e Comissões Afiliados nasceu, com a conta do afiliado. Em 13/out/2026 eram **56 itens, 42 com destino e 14 sem**, em 82 telas: a Movimentação de Estoque entrou no menu, e Parâmetros de logística nasceu em Configurações, sem mudar o menu. Em 12/out eram 55 itens, 41 com destino, em 80 telas (tinham sido 81: Performance de Vendas virou parte de Metas e Performance). Na primeira leva de melhorias nenhuma tela tinha saído: o menu perdeu os três atalhos de cadastro que se repetiam em Integrações, e Metas e Performance de Vendas viraram um item só. Antes da leva, já com Necessidades de Compra e Giro de Estoque, eram 59 itens, 45 com destino e 14 sem. Em 09/out, com o CRM e Tratamento de Perdas, eram 43 e 16. O "41 entradas" que estava aqui antes do PDV somava de outro jeito; pelo menu eram 40.*
 
 **Fases:** F2 (Cadastros) e F5 (Estoque + Financeiro) fechadas. **F4 — Logística fechada em 07/out**: Separação, Conferência de Saída, Expedição, Rastreamento de Pedidos e Devolução, mais o cadastro de **Motivos de Devolução** em Operacional. Falta só **Relatórios de Logística**, que entra com os relatórios dos outros módulos.

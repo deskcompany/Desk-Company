@@ -1032,13 +1032,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field">
         <label>Vendedor padrão</label>
-        <input type="text" id="inputVendedor" placeholder="Nome do vendedor responsável">
+        <div class="dropdown-select" id="inputVendedor" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Sem vendedor</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
       </div>
     </div>
     <div class="form-row">
       <div class="form-field">
         <label>Prazo de pagamento padrão</label>
-        <input type="text" id="inputPrazoPagamento" placeholder="Ex: 30 60, 3x ou 15+2x">
+        <div class="dropdown-select" id="inputPrazoPagamento" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Sem prazo padrão</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
       </div>
     </div>
 
@@ -3473,6 +3485,65 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   renderContatos();
   renderAnexos();
+
+  // ===== LISTAS NO LUGAR DO TEXTO LIVRE (24/nov/2026) =====
+  // O vendedor padrao e o prazo de pagamento padrao do cliente (opcionais) saem de listas: os vendedores ativos de Cadastros > Vendedores (o espelho VENDEDORES_C, acima)
+  // e as condicoes de pagamento ativas que valem para receber (Configuracoes > Condicoes de pagamento).
+  // ===== CONDICOES DE PAGAMENTO: LEITURA (bloco comum, 24/nov/2026) =====
+  // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
+  // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
+  const COND_FABRICA = [
+    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+  ];
+  function condLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+    } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
+    return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
+  }
+  // So as ativas que valem para o uso ('receber' ou 'pagar'), na ordem do cadastro.
+  function condAtivas(uso) { return condLer().filter(c => c.ativo && (c.uso === 'ambos' || c.uso === uso)); }
+  function condPorId(id) { return condLer().filter(c => String(c.id) === String(id))[0] || null; }
+  // "3 parcelas: 30, 60 e 90 dias". Um prazo 0 sozinho e a vista.
+  function condTexto(c) {
+    const p = (c && c.prazos) || [];
+    if (!p.length) return '';
+    if (p.length === 1 && p[0] === 0) return 'à vista, 1 parcela';
+    const lista = p.length === 1 ? String(p[0]) : p.slice(0, -1).join(', ') + ' e ' + p[p.length - 1];
+    return p.length + (p.length === 1 ? ' parcela: ' : ' parcelas: ') + lista + (p.length === 1 && p[0] === 1 ? ' dia' : ' dias');
+  }
+  // ===== FIM DO BLOCO CONDICOES DE PAGAMENTO: LEITURA =====
+
+  // Lista de escolha no lugar do texto livre (24/nov/2026): monta o menu de um dropdown da casa. `itens` = [{ valor, rotulo }].
+  // `atual` e o valor ja guardado: se ele nao esta na lista (dado antigo, item que saiu), o rotulo mostra `textoAntigo` ate a pessoa escolher, e o valor antigo nao se perde. Sem `atual`, vale o `vazio` (o rotulo de nada escolhido).
+  function listaMontar(idRaiz, itens, atual, textoAntigo, vazio) {
+    const raiz = document.getElementById(idRaiz);
+    const menu = raiz.querySelector('.dropdown-select-menu'), rotulo = raiz.querySelector('.dropdown-select-label');
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    menu.innerHTML = itens.map(i => '<div class="dropdown-select-item" data-value="' + esc(i.valor) + '">' + esc(i.rotulo) + '</div>').join('');
+    const chave = (atual === null || atual === undefined) ? '' : String(atual);
+    const achado = itens.filter(i => String(i.valor) === chave)[0];
+    if (achado) raiz.setAttribute('data-value', String(achado.valor));
+    else raiz.setAttribute('data-value', textoAntigo ? chave : '');
+    rotulo.textContent = achado ? achado.rotulo : (textoAntigo || vazio || '');
+    menu.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!achado && it.getAttribute('data-value') === String(achado.valor)));
+  }
+  listaMontar('inputVendedor', [{ valor: '', rotulo: 'Sem vendedor' }].concat(VENDEDORES_C.filter(v => v.situacao !== 'inativo').map(v => ({ valor: String(v.id), rotulo: v.nome })).sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR'))), '', '', 'Sem vendedor');
+  inicializarDropdownSelect(document.getElementById('inputVendedor'));
+  listaMontar('inputPrazoPagamento', [{ valor: '', rotulo: 'Sem prazo padrão' }].concat(condAtivas('receber').map(c => ({ valor: String(c.id), rotulo: c.nome }))), '', '', 'Sem prazo padrão');
+  inicializarDropdownSelect(document.getElementById('inputPrazoPagamento'));
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
   // Texto branco sobre fundo claro foi bug recorrente aqui (avatares, badges,

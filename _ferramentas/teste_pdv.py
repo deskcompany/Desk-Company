@@ -122,6 +122,13 @@ def cliente(pg, texto):
     clic(pg, '#listaClientes .pdv-cli'); pg.wait_for_timeout(300)
 
 
+def condicao(pg, i, id_):
+    """Escolhe a condicao de pagamento (a lista de Configuracoes > Condicoes de pagamento) da forma que vira titulo, no recebimento i."""
+    pg.evaluate("([i, n]) => { const r = document.querySelector('[data-receb-cond=\"' + i + '\"]'); r.querySelector('.dropdown-select-btn').click();"
+                " r.querySelector('.dropdown-select-item[data-value=\"' + n + '\"]').click(); }", [i, str(id_)])
+    pg.wait_for_timeout(250)
+
+
 def vezes(pg, i, n):
     """Escolhe o numero de parcelas do cartao no recebimento i."""
     pg.evaluate("([i, n]) => { const r = document.querySelector('[data-receb-vezes=\"' + i + '\"]'); r.querySelector('.dropdown-select-btn').click();"
@@ -351,7 +358,7 @@ with sync_playwright() as p:
     ok('Passar no cartão do cliente' in lr and 'R$ 449,70' in lr, 'sem repasse, o valor a passar no cartao e o valor da venda')
     util = prox_util(datetime.date.today(), 1).strftime('%d/%m/%Y')
     ok(('A loja recebe em ' + util) in lr and '(1 dia útil)' in lr, 'e a loja recebe em 1 dia util, pelo prazo do gateway: %s' % util)
-    ok(pg.locator('[data-receb-expr="1"]').count() == 0 and pg.locator('[data-parc-dias^="1:"]').count() == 0 and pg.locator('[data-parc-valor^="1:"]').count() == 0,
+    ok(pg.locator('[data-receb-cond="1"]').count() == 0 and pg.locator('[data-parc-dias^="1:"]').count() == 0 and pg.locator('[data-parc-valor^="1:"]').count() == 0,
        'no cartao nao ha campo de dias nem de valor de parcela para digitar')
     ok('limite de crédito' not in lr, 'e o cartao NAO confere o limite de credito do cliente')
     ok([pg.evaluate("diaUtil(new Date(%s))" % d) for d in ('2026, 9, 9', '2026, 9, 10', '2026, 9, 11', '2026, 9, 12', '2026, 9, 13')] == [True, False, False, False, True],
@@ -389,15 +396,18 @@ with sync_playwright() as p:
     ok(pg.evaluate('venda.recebimentos[2].valor') == 200, 'a terceira forma ja vem com o que falta')
     lr = pg.inner_text('#listaReceb')
     ok('Taxa de R$ 2,90' in lr and 'Líquido' in lr and 'limite de crédito' in lr, 'boleto mostra a taxa fixa, o liquido e avisa que confere o limite')
-    pg.fill('[data-receb-expr="2"]', '3x'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
+    condicao(pg, 2, 9)   # 30/60/90 (a lista de fabrica; o "3x" de antes)
     parc = pg.evaluate('venda.recebimentos[2].parcelas')
     ok([x['dias'] for x in parc] == [30, 60, 90] and round(sum(x['valor'] for x in parc), 2) == 200,
-       '"3x" gera tres parcelas de 30 em 30 que somam o valor: %s' % parc)
-    pg.fill('[data-receb-expr="2"]', '15 45'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
-    ok([x['dias'] for x in pg.evaluate('venda.recebimentos[2].parcelas')] == [15, 45], '"15 45" gera as parcelas nos dias pedidos')
+       'a condicao 30/60/90 gera tres parcelas de 30 em 30 que somam o valor: %s' % parc)
+    # uma condicao 15/45 nasce no cadastro (o "15 45" digitado de antes): a lista de escolha a oferece na proxima pintura
+    pg.evaluate("localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.concat([{ id: 101, nome: '15/45', prazos: [15, 45], uso: 'receber', ativo: true }])))")
+    pg.evaluate("pintarFinalizar()"); pg.wait_for_timeout(200)
+    condicao(pg, 2, 101)
+    ok([x['dias'] for x in pg.evaluate('venda.recebimentos[2].parcelas')] == [15, 45], 'a condicao 15/45 gera as parcelas nos dias pedidos')
     pg.fill('[data-parc-valor="2:0"]', '50'); pg.locator('[data-parc-valor="2:0"]').blur(); pg.wait_for_timeout(250)
     ok('as parcelas somam' in pg.inner_text('#faltaReceber'), 'parcela mexida a mao que nao fecha a soma e barrada, com os numeros')
-    pg.fill('[data-receb-expr="2"]', '2x'); pg.locator('[data-receb-expr="2"]').blur(); pg.wait_for_timeout(250)
+    condicao(pg, 2, 8)   # 30/60 (o "2x" de antes)
     ok('Pode finalizar' in pg.inner_text('#faltaReceber'), 'com tudo fechando, a tela diz que pode finalizar')
     clic(pg, '#btnClienteFin'); pg.wait_for_timeout(300); clic(pg, '#btnConsumidorFinal'); pg.wait_for_timeout(300)
     f = pg.inner_text('#faltaReceber')

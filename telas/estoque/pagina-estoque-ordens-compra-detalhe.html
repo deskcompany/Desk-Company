@@ -1134,8 +1134,14 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row">
       <div class="form-field" style="flex:1.4;">
         <label>Condição de pagamento</label>
-        <input type="text" id="inputCondicaoPagamento" placeholder="Ex: 30 60 90, 3x, ou 15 +2x">
-        <div class="field-hint">Número de parcelas ou prazos em dias, separados por espaço.</div>
+        <div class="dropdown-select" id="inputCondicaoPagamento" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Selecione a condição de pagamento</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
+        <div class="field-hint" id="hintCondicaoPagamento">Cada prazo da condição vira uma parcela: escolha e clique em "Gerar parcelas".</div>
       </div>
       <div class="form-field">
         <label>Categoria financeira</label>
@@ -1146,7 +1152,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </button>
           <div class="dropdown-select-menu" id="menuCategoriaOC"></div>
         </div>
-        <div class="field-hint">Vem de Configurações → Categorias financeiras. A ordem de compra gera conta a pagar, então só entram categorias de saída.</div>
+        <div class="field-hint">Vem de Configurações → Categorias financeiras: só as categorias ativas.</div>
       </div>
     </div>
     <div class="itens-acoes" style="margin-top:0; margin-bottom:14px;">
@@ -1167,14 +1173,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </thead>
       <tbody id="corpoParcelas"></tbody>
     </table>
-    <div class="parcelas-vazio" id="parcelasVazio">Nenhuma parcela gerada. Informe a condição de pagamento e clique em "Gerar parcelas".</div>
+    <div class="parcelas-vazio" id="parcelasVazio">Nenhuma parcela gerada. Escolha a condição de pagamento e clique em "Gerar parcelas".</div>
 
     <div class="section-title">Transportador</div>
     <div class="form-row">
       <div class="form-field" style="flex:1.4;">
         <label>Nome do transportador</label>
-        <input type="text" id="inputTransportador" placeholder="Ex: Correios, Melhor Envio, transportadora do fornecedor">
-        <div class="field-hint">Texto livre por enquanto — vira vínculo com o cadastro de Transportadora quando ele existir.</div>
+        <div class="dropdown-select" id="inputTransportador" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Sem transportador</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
       </div>
       <div class="form-field">
         <label>Frete por conta</label>
@@ -2008,18 +2019,88 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
 
   // ===== PARCELAS =====
-  // Aceita "30 60 90" (prazos em dias) ou "3x" (parcelas iguais a cada 30 dias).
-  function interpretarCondicao(txt) {
-    const t = String(txt || '').trim().toLowerCase();
-    if (t === '') return [];
-    const mx = t.match(/^(\d+)\s*x$/);
-    if (mx) {
-      const n = parseInt(mx[1], 10);
-      if (!n || n > 36) return [];
-      return Array.from({ length: n }, (_, i) => (i + 1) * 30);
-    }
-    const dias = t.split(/[\s,]+/).map(p => parseInt(p, 10)).filter(n => !isNaN(n) && n >= 0);
-    return dias.length ? dias : [];
+  // Cada prazo da condicao escolhida vira uma parcela (a condicao e do cadastro de Configuracoes > Condicoes de pagamento; o texto "30 60 90" e "3x" deixou de existir em 24/nov/2026).
+
+  // ===== CONDICOES DE PAGAMENTO: LEITURA (bloco comum, 24/nov/2026) =====
+  // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
+  // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
+  const COND_FABRICA = [
+    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+  ];
+  function condLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+    } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
+    return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
+  }
+  // So as ativas que valem para o uso ('receber' ou 'pagar'), na ordem do cadastro.
+  function condAtivas(uso) { return condLer().filter(c => c.ativo && (c.uso === 'ambos' || c.uso === uso)); }
+  function condPorId(id) { return condLer().filter(c => String(c.id) === String(id))[0] || null; }
+  // "3 parcelas: 30, 60 e 90 dias". Um prazo 0 sozinho e a vista.
+  function condTexto(c) {
+    const p = (c && c.prazos) || [];
+    if (!p.length) return '';
+    if (p.length === 1 && p[0] === 0) return 'à vista, 1 parcela';
+    const lista = p.length === 1 ? String(p[0]) : p.slice(0, -1).join(', ') + ' e ' + p[p.length - 1];
+    return p.length + (p.length === 1 ? ' parcela: ' : ' parcelas: ') + lista + (p.length === 1 && p[0] === 1 ? ' dia' : ' dias');
+  }
+  // ===== FIM DO BLOCO CONDICOES DE PAGAMENTO: LEITURA =====
+
+  // Lista de escolha no lugar do texto livre (24/nov/2026): monta o menu de um dropdown da casa. `itens` = [{ valor, rotulo }].
+  // `atual` e o valor ja guardado: se ele nao esta na lista (dado antigo, item que saiu), o rotulo mostra `textoAntigo` ate a pessoa escolher, e o valor antigo nao se perde. Sem `atual`, vale o `vazio` (o rotulo de nada escolhido).
+  function listaMontar(idRaiz, itens, atual, textoAntigo, vazio) {
+    const raiz = document.getElementById(idRaiz);
+    const menu = raiz.querySelector('.dropdown-select-menu'), rotulo = raiz.querySelector('.dropdown-select-label');
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    menu.innerHTML = itens.map(i => '<div class="dropdown-select-item" data-value="' + esc(i.valor) + '">' + esc(i.rotulo) + '</div>').join('');
+    const chave = (atual === null || atual === undefined) ? '' : String(atual);
+    const achado = itens.filter(i => String(i.valor) === chave)[0];
+    if (achado) raiz.setAttribute('data-value', String(achado.valor));
+    else raiz.setAttribute('data-value', textoAntigo ? chave : '');
+    rotulo.textContent = achado ? achado.rotulo : (textoAntigo || vazio || '');
+    menu.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!achado && it.getAttribute('data-value') === String(achado.valor)));
+  }
+
+  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome), em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
+  const TRANSPORTADORAS_ATIVAS = [
+    { id: 1, nome: 'Correios · PAC' },
+    { id: 2, nome: 'Correios · SEDEX' },
+    { id: 3, nome: 'RotaSul Transportes' },
+    { id: 4, nome: 'Jaguar Cargas' },
+    { id: 6, nome: 'Moto Express Capital' },
+    { id: 7, nome: 'Frota Desk' },
+    { id: 8, nome: 'Frota Desk · Sul' },
+    { id: 9, nome: 'Retirada no balcão' }
+  ];
+  function itensTransportador() {
+    return [{ valor: '', rotulo: 'Sem transportador' }, { valor: 'fornecedor', rotulo: 'Por conta do fornecedor' }]
+      .concat(TRANSPORTADORAS_ATIVAS.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(t => ({ valor: String(t.id), rotulo: t.nome })));
+  }
+
+  // A condicao da ordem: o id guardado ou o texto de uma ordem antiga. Texto que bate com o nome de uma condicao escolhe ela; o que nao bate (ou a condicao que foi inativada) fica no rotulo ate a pessoa escolher: o dado antigo nao se perde.
+  function condicaoNaOrdem(guardado) {
+    const itens = condAtivas('pagar').map(c => ({ valor: String(c.id), rotulo: c.nome }));
+    const txt = String(guardado === null || guardado === undefined ? '' : guardado).trim();
+    const achada = condPorId(txt) || (txt ? condLer().filter(c => c.nome.trim().toLowerCase() === txt.toLowerCase())[0] : null) || null;
+    if (achada) listaMontar('inputCondicaoPagamento', itens, achada.id, achada.nome, '');
+    else listaMontar('inputCondicaoPagamento', itens, txt, txt, 'Selecione a condição de pagamento');
+    atualizarHintCondicao();
+  }
+  function atualizarHintCondicao() {
+    const c = condPorId(document.getElementById('inputCondicaoPagamento').getAttribute('data-value'));
+    document.getElementById('hintCondicaoPagamento').textContent = (c ? condTexto(c) + '. ' : '') + 'Cada prazo da condição vira uma parcela: escolha e clique em "Gerar parcelas".';
   }
 
   function dataMais(dias) {
@@ -2054,9 +2135,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   document.getElementById('btnGerarParcelas').addEventListener('click', () => {
-    const dias = interpretarCondicao(document.getElementById('inputCondicaoPagamento').value);
+    const cond = condPorId(document.getElementById('inputCondicaoPagamento').getAttribute('data-value'));
+    const dias = cond ? cond.prazos.slice() : [];
     if (dias.length === 0) {
-      avisar('Informe a condição de pagamento antes de gerar as parcelas. Aceita prazos em dias ("30 60 90") ou número de parcelas ("3x", que vira 30/60/90).');
+      avisar('Escolha a condição de pagamento antes de gerar as parcelas: cada prazo dela vira uma parcela.');
       return;
     }
     const geral = recalcularTotais();
@@ -2517,8 +2599,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
     { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
     { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:19, nome:'Descontos concedidos',              grupo:'Receitas de vendas' , comp:'vencimento' },
     { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
     { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:6,  nome:'Devolução de compra',               grupo:'Custos e fornecedores' , comp:'emissao' },
     { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
     { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
     { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
@@ -2527,11 +2611,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:14, nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
     { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
+    { id:16, nome:'ICMS-ST',                           grupo:'Impostos e taxas' , comp:'vencimento' },
     { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
     { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
+    { id:24, nome:'Rendimento de aplicação',           grupo:'', comp:'vencimento' },
+    { id:22, nome:'Categoria de teste',                grupo:'', comp:'' },
     { id:0,  nome:'Sem categoria',                     grupo:'' }
   ];
   (function montarCategorias() {
@@ -2554,6 +2642,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   })();
   inicializarDropdownSelect(document.getElementById('inputCategoria'));
   inicializarDropdownSelect(document.getElementById('inputFretePorConta'));
+  // Listas no lugar do texto livre (24/nov/2026): a condicao (so as ativas que valem para pagar) e o transportador (as transportadoras ativas do cadastro) vem dos cadastros.
+  condicaoNaOrdem('');
+  inicializarDropdownSelect(document.getElementById('inputCondicaoPagamento'), () => atualizarHintCondicao());
+  listaMontar('inputTransportador', itensTransportador(), '', '', 'Sem transportador');
+  inicializarDropdownSelect(document.getElementById('inputTransportador'), () => {});
 
   // ===== SALVAR / EXCLUIR =====
   document.getElementById('btnSalvar').addEventListener('click', () => {
@@ -2671,6 +2764,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputDesconto').value = fmtNum(o.desconto || 0);
     porNoDropdown('inputFornecedor', o.fornecedor);
     porNoDropdown('inputDeposito', o.dep);
+    if (o.condicaoId !== undefined || o.condicao !== undefined) condicaoNaOrdem(o.condicaoId !== undefined ? o.condicaoId : o.condicao);   // ordem com condicao gravada: o id, ou o texto de antes das listas
     SITUACAO = o.situacao;
     // Ordem sem itens no exemplo leva o mesmo item de exemplo que o painel da lista mostra, pelo total dela.
     ITENS = (ITENS_DA_LISTA[o.id] || [{ nome: 'Item de exemplo', sku: '', qtd: 1, un: 'UN', preco: o.total }]).map(i => (
@@ -2719,8 +2813,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const h = new Date();
     document.getElementById('inputDataCompra').value =
       String(h.getDate()).padStart(2, '0') + '/' + String(h.getMonth() + 1).padStart(2, '0') + '/' + h.getFullYear();
-    ['inputDataPrevista', 'inputNumeroFornecedor', 'inputCondicaoPagamento', 'inputTransportador', 'inputObservacoes', 'inputObsInternas']
+    ['inputDataPrevista', 'inputNumeroFornecedor', 'inputObservacoes', 'inputObsInternas']
       .forEach(id => { document.getElementById(id).value = ''; });
+    condicaoNaOrdem('');
+    listaMontar('inputTransportador', itensTransportador(), '', '', 'Sem transportador');
     const forn = document.getElementById('inputFornecedor');
     forn.setAttribute('data-value', '');
     forn.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.remove('active'));

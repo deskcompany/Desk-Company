@@ -1004,7 +1004,13 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
     <div class="form-field">
       <label>Fornecedor (opcional)</label>
-      <input type="text" id="entradaFornecedor" maxlength="60" placeholder="Ex: Papelaria Central">
+      <div class="dropdown-select" id="entradaFornecedor" data-value="">
+        <button type="button" class="dropdown-select-btn form-style">
+          <span class="dropdown-select-label">Sem fornecedor</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-select-menu"></div>
+      </div>
     </div>
     <div class="form-field">
       <label>Comprovante (opcional)</label>
@@ -2468,9 +2474,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     raiz.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!e && it.getAttribute('data-value') === String(e.id)));
     raiz.querySelector('.dropdown-select-label').textContent = e ? e.nome : 'Escolha a embalagem';
     if (e) { document.getElementById('campoEntradaEmb').classList.remove('has-error'); document.getElementById('erroEntradaEmb').classList.remove('show'); }
+    setEntradaFornecedor(e ? e.fornecedor : '');   // ja vem escolhido o fornecedor padrao da embalagem
     previaEntrada();
   }
   inicializarDropdownSelect(document.getElementById('entradaEmb'), (valor) => setEntradaEmb(Number(valor)));
+  // O fornecedor da entrada sem nota (24/nov/2026): lista de escolha no lugar do texto livre. Sao os mesmos fornecedores do campo "Fornecedor padrao" (lidos do proprio menu dele, em ordem alfabetica), mais "Sem fornecedor".
+  // O movimento grava o NOME do fornecedor, no mesmo campo e formato de sempre, para a Movimentacao continuar mostrando. Fornecedor padrao que nao esta na lista (cadastro antigo) fica no rotulo.
+  inicializarDropdownSelect(document.getElementById('entradaFornecedor'));
+  function montarMenuEntradaFornecedor() {
+    const nomes = Array.from(document.querySelectorAll('#inputFornecedorEmb .dropdown-select-item')).map(i => i.getAttribute('data-value')).filter(v => v !== '').sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    document.querySelector('#entradaFornecedor .dropdown-select-menu').innerHTML =
+      ['', ...nomes].map(n => '<div class="dropdown-select-item" data-value="' + esc(n) + '">' + (n === '' ? 'Sem fornecedor' : esc(n)) + '</div>').join('');
+  }
+  function setEntradaFornecedor(nome) {
+    const raiz = document.getElementById('entradaFornecedor'), v = nome || '';
+    const item = Array.from(raiz.querySelectorAll('.dropdown-select-item')).filter(i => i.getAttribute('data-value') === v)[0] || null;
+    raiz.setAttribute('data-value', v);
+    raiz.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i === item));
+    raiz.querySelector('.dropdown-select-label').textContent = item ? item.textContent : v;
+  }
   // O que a entrada faria com o cadastro: custo medio ponderado; saldo zerado ou negativo nao pesa, vale so o custo da entrada. `ok` = os tres campos estao validos.
   function entradaCalc() {
     const e = EMBALAGENS.find(x => x.id === entradaEmbId) || null;
@@ -2494,7 +2517,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       it.className = 'dropdown-select-item'; it.setAttribute('data-value', String(e.id)); it.textContent = e.nome;
       menu.appendChild(it);
     });
-    ['entradaQtd', 'entradaCusto', 'entradaFornecedor', 'entradaNota'].forEach(i => { document.getElementById(i).value = ''; });
+    ['entradaQtd', 'entradaCusto', 'entradaNota'].forEach(i => { document.getElementById(i).value = ''; });
+    montarMenuEntradaFornecedor();
     ['campoEntradaEmb', 'campoEntradaQtd', 'campoEntradaCusto'].forEach(id => document.getElementById(id).classList.remove('has-error'));
     ['erroEntradaEmb', 'erroEntradaQtd', 'erroEntradaCusto'].forEach(id => document.getElementById(id).classList.remove('show'));
     setEntradaEmb(idPre === undefined ? null : idPre);
@@ -2517,7 +2541,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoEntradaQtd').classList.toggle('has-error', semQtd); document.getElementById('erroEntradaQtd').classList.toggle('show', semQtd);
     document.getElementById('campoEntradaCusto').classList.toggle('has-error', semCusto); document.getElementById('erroEntradaCusto').classList.toggle('show', semCusto);
     if (!c.ok) return;
-    const forn = document.getElementById('entradaFornecedor').value.trim(), nota = document.getElementById('entradaNota').value.trim();
+    const forn = document.getElementById('entradaFornecedor').getAttribute('data-value') || '', nota = document.getElementById('entradaNota').value.trim();
     const texto = 'Entrada sem nota de ' + embFmtSaldo(c.qtd) + ' ' + c.e.nome + ' a ' + brl(c.custoEnt) + ' a unidade.' + (forn ? ' Fornecedor: ' + forn + '.' : '') + (nota ? ' Comprovante: ' + nota + '.' : '') +
       ' Saldo ' + embFmtSaldo(c.saldo) + ' → ' + embFmtSaldo(c.novoSaldo) + '; custo ' + brl(c.custoAtual) + ' → ' + brl(c.novoCusto) + '.';
     confirmarAcao('embalagensEditar', texto, () => {

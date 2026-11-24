@@ -627,7 +627,7 @@ with sync_playwright() as p:
         ok('Compra com nota fiscal entra pela Entrada de Notas' in tx(pg, '#entradaDrawer .form-field:nth-of-type(5)') and pg.locator('#entradaDrawer .form-field a').get_attribute('href') == '../estoque/pagina-estoque-entrada-notas.html', 'a dica diz que compra com nota entra pela Entrada de Notas, com o link ../estoque/pagina-estoque-entrada-notas.html')
         ok(pg.get_attribute('#entradaNota', 'placeholder') == 'Ex: Recibo 118', 'o exemplo do campo é um recibo, não uma NF')
         escolher(pg, '#entradaEmb', 13)
-        pg.fill('#entradaQtd', '2'); pg.fill('#entradaCusto', '17,00'); pg.fill('#entradaFornecedor', 'Papelaria Central'); pg.fill('#entradaNota', 'Recibo 9'); pg.wait_for_timeout(150)
+        pg.fill('#entradaQtd', '2'); pg.fill('#entradaCusto', '17,00'); escolher(pg, '#entradaFornecedor', 'Papelaria Central'); pg.fill('#entradaNota', 'Recibo 9'); pg.wait_for_timeout(150)
         ok(pg.inner_text('#entradaPrevia') == 'Saldo 8 → 10 · custo R$ 15,00 → R$ 15,40 (médio)', 'a prévia mostra saldo e custo médio: %s' % pg.inner_text('#entradaPrevia'))
         pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
         f = emb(pg, 13)
@@ -641,6 +641,7 @@ with sync_playwright() as p:
         # saldo zerado: vale o custo da entrada
         pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
         escolher(pg, '#entradaEmb', 9)
+        escolher(pg, '#entradaFornecedor', '')   # o fornecedor padrao vem escolhido (24/nov/2026): aqui a entrada e sem fornecedor de proposito
         pg.fill('#entradaQtd', '3'); pg.fill('#entradaCusto', '5,00'); pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
         m = movs(pg)[-1]
         ok(emb(pg, 9)['saldo'] == 15 and perto(emb(pg, 9)['custo'], 4.6) and perto(m['custoMedio'], 4.6) and m['ref'] == {'tipo': 'comprovante', 'numero': '', 'texto': ''} and m['fornecedor'] == '', 'sem comprovante nem fornecedor o movimento sai com os campos vazios e a média certa ((12 × 4,50 + 3 × 5,00) ÷ 15 = 4,60)')
@@ -649,7 +650,7 @@ with sync_playwright() as p:
         pg = nova()
         ir_cad(pg)
         pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
-        escolher(pg, '#entradaEmb', 6); pg.fill('#entradaQtd', '4'); pg.fill('#entradaCusto', '13,00'); pg.fill('#entradaNota', 'Recibo 77'); pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
+        escolher(pg, '#entradaEmb', 6); escolher(pg, '#entradaFornecedor', ''); pg.fill('#entradaQtd', '4'); pg.fill('#entradaCusto', '13,00'); pg.fill('#entradaNota', 'Recibo 77'); pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
         ir(pg, MOV, '?ver=embalagens&busca=EMB-006')
         pg.fill('#dataDe', pg.evaluate("fmtData(PRIMEIRO_DIA)")); pg.evaluate("document.getElementById('btnBuscar').click()"); pg.wait_for_timeout(250)
         rows = linhas_mov(pg)
@@ -805,7 +806,7 @@ with sync_playwright() as p:
         if forn:
             escolher(pg, '#inputFornecedor', forn)
         pg.fill('#inputSerie', serie); pg.fill('#inputNumero', numero); pg.fill('#inputEmissao', '29/10/2026'); pg.fill('#inputEntrada', '30/10/2026')
-        pg.fill('#inputNatureza', 'Compra'); pg.fill('#inputCondicao', '30 dias')
+        pg.fill('#inputNatureza', 'Compra'); escolher(pg, '#inputCondicao', 6)   # 6 = a condicao de 30 dias do cadastro (lista de fabrica)
         escolher(pg, '#inputDeposito', 1)
         pg.evaluate("document.querySelector('#inputCategoria .dropdown-select-item').click()")
 

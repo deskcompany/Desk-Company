@@ -4528,7 +4528,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (novo === r.valor) return;
       r.valor = novo;
       const f = formaDe(r.chave);
-      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.condId);
     });
     venda.recebimentos.forEach(acertarTitulo);
   }
@@ -4537,16 +4537,57 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     return Math.max(0, arred(r.recebido - pagoDe(r)));   // o troco e sobre o que o cliente paga, ja com o desconto a vista
   }
   function trocoTotal() { return arred(venda.recebimentos.reduce((s, r) => s + trocoDe(r), 0)); }
-  // "30 60 90" sao vencimentos em dias; "3x" sao tres parcelas de 30 em 30.
-  function gerarParcelas(r, expr) {
-    const t = String(expr || '').trim().toLowerCase();
-    let dias = [];
-    const vezes = t.match(/^(\d{1,2})\s*x$/);
-    if (vezes) { for (let i = 1; i <= Number(vezes[1]); i++) dias.push(i * 30); }
-    else dias = t.split(/[\s,;]+/).filter(x => x !== '').map(Number);
-    if (dias.length === 0 || dias.some(d => !isFinite(d) || d < 0) || dias.length > 24) return false;
+  // ===== CONDICAO DE PAGAMENTO DA FORMA QUE VIRA TITULO (24/nov/2026) =====
+  // Era um campo de texto ("30 60 90", "3x"); agora e uma lista de escolha, e as parcelas saem dos prazos da condicao: um prazo, um titulo, valor igual (a sobra dos centavos fica no ultimo).
+  // ===== CONDICOES DE PAGAMENTO: LEITURA (bloco comum, 24/nov/2026) =====
+  // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
+  // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
+  const COND_FABRICA = [
+    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+  ];
+  function condLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+    } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
+    return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
+  }
+  // So as ativas que valem para o uso ('receber' ou 'pagar'), na ordem do cadastro.
+  function condAtivas(uso) { return condLer().filter(c => c.ativo && (c.uso === 'ambos' || c.uso === uso)); }
+  function condPorId(id) { return condLer().filter(c => String(c.id) === String(id))[0] || null; }
+  // "3 parcelas: 30, 60 e 90 dias". Um prazo 0 sozinho e a vista.
+  function condTexto(c) {
+    const p = (c && c.prazos) || [];
+    if (!p.length) return '';
+    if (p.length === 1 && p[0] === 0) return 'à vista, 1 parcela';
+    const lista = p.length === 1 ? String(p[0]) : p.slice(0, -1).join(', ') + ' e ' + p[p.length - 1];
+    return p.length + (p.length === 1 ? ' parcela: ' : ' parcelas: ') + lista + (p.length === 1 && p[0] === 1 ? ' dia' : ' dias');
+  }
+  // ===== FIM DO BLOCO CONDICOES DE PAGAMENTO: LEITURA =====
+
+  // Sem condicao escolhida (ou guardada com defeito) vale a padrao: a de 30 dias, que era o "1x" de antes; sem ela, a primeira que vale para receber.
+  function condPadraoReceber() {
+    const a = condAtivas('receber');
+    return a.filter(c => c.prazos.length === 1 && c.prazos[0] === 30)[0] || a[0] || null;
+  }
+  function gerarParcelas(r, id) {
+    const c = condPorId(id) || condPadraoReceber();
+    const dias = c ? c.prazos.slice() : [];
+    if (dias.length === 0) return false;
     const base = Math.floor((r.valor || 0) / dias.length * 100) / 100;
     r.parcelas = dias.map((d, i) => ({ dias: d, valor: i === dias.length - 1 ? arred((r.valor || 0) - base * (dias.length - 1)) : base }));
+    r.condId = String(c.id);
     return true;
   }
   // ----- vale-compra do cliente (entrega 2, 19/out/2026) -----
@@ -4593,7 +4634,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (n === null || !(n > 0)) { pintarQuadroVale(falta <= 0 ? 'A venda já está paga: não falta nada para o vale cobrir.' : 'Informe o valor do vale com números, usando vírgula para os centavos.'); return; }
     if (n > saldo + 0.005) { pintarQuadroVale('O cliente tem ' + moeda(saldo) + ' de vale nesta loja.'); return; }
     if (n > falta + 0.005) { pintarQuadroVale('A venda só precisa de mais ' + moeda(falta) + '. O resto continua no vale.'); return; }
-    venda.recebimentos.push({ chave: 'valetroca', valor: arred(n), digitado: true, recebido: null, parcelas: [], expr: '1x', vezes: 1, repassa: false });
+    venda.recebimentos.push({ chave: 'valetroca', valor: arred(n), digitado: true, recebido: null, parcelas: [], condId: '', vezes: 1, repassa: false });
     valeTxt = null;
     pintarFinalizar(); gravar();
   }
@@ -4603,7 +4644,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     // Nasce sem valor: quem preenche o que falta e acertarRecebimentos, na pintura.
     if (ehCartao(f) && maquininhasDoTurno().length === 0) { avisar(f.nome + ': não há maquininha habilitada nesta loja. Habilite ou inclua uma em Integrações → Gateways de Pagamento.'); return; }
     // Cartao: a maquininha e a bandeira nascem pelo acertarCartao (as padrao); o repasse segue a regra do gateway e o switch, quando livre, nasce desligado.
-    const r = { chave, valor: 0, digitado: false, recebido: null, parcelas: [], expr: '1x', vezes: 1, repassa: false, gatewayId: null, bandeira: null };
+    const r = { chave, valor: 0, digitado: false, recebido: null, parcelas: [], condId: '', vezes: 1, repassa: false, gatewayId: null, bandeira: null };
     venda.recebimentos.push(r);
     pintarFinalizar(); gravar();
   }
@@ -4736,7 +4777,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + rotuloVezes(r.vezes) + '</span>' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
           '<div class="dropdown-select-menu">' + itens + '</div></div></div>';
-      } else if (f.destino === 'titulo' && !fixo) corpo += '<div class="form-field"><label>Parcelas</label><input type="text" data-receb-expr="' + i + '" placeholder="Ex: 30 60 ou 3x" value="' + esc(r.expr || '') + '"></div>';
+      } else if (f.destino === 'titulo' && !fixo) {
+        // A condicao de pagamento e lista de escolha (24/nov/2026): so as ativas que valem para receber; a da venda que depois foi inativada continua na lista.
+        const atual = condPorId(r.condId) || condPadraoReceber(), ativas = condAtivas('receber');
+        if (atual && !ativas.some(c => c.id === atual.id)) ativas.push(atual);
+        let itensC = '';
+        ativas.forEach(c => { itensC += '<div class="dropdown-select-item' + (atual && c.id === atual.id ? ' active' : '') + '" data-value="' + c.id + '">' + esc(c.nome) + '</div>'; });
+        corpo += '<div class="form-field"><label>Parcelas</label><div class="dropdown-select" data-receb-cond="' + i + '" data-value="' + (atual ? atual.id : '') + '">' +
+          '<button type="button" class="dropdown-select-btn form-style"><span class="dropdown-select-label">' + esc(atual ? atual.nome : 'Escolha a condição') + '</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>' +
+          '<div class="dropdown-select-menu">' + itensC + '</div></div></div>';
+      }
       corpo += '</div>';
       const dsc = [];
       if (descontoDe(r) > 0) dsc.push('o desconto à vista de <b>' + fmtNum(descontoAVistaPct()) + '%</b>');
@@ -4844,7 +4895,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       // Campo apagado volta a ser "sem valor digitado": na pintura ele recebe de novo o que faltar.
       r.digitado = r.valor > 0;
       const f = formaDe(r.chave);
-      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.expr) || gerarParcelas(r, '30');
+      if (f.destino === 'titulo' && !ehCartao(f)) gerarParcelas(r, r.condId);
       pintarFinalizar(); gravar();
     }));
     // Trocar a maquininha ou a bandeira recalcula tudo, como mudar as parcelas: a taxa, a tarifa, o prazo e o repasse saem da condicao nova.
@@ -4882,10 +4933,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       r.recebido = n === null || n < 0 ? null : arred(n);
       pintarFinalizar(); gravar();
     }));
-    cx.querySelectorAll('[data-receb-expr]').forEach(inp => inp.addEventListener('change', () => {
-      const r = venda.recebimentos[Number(inp.getAttribute('data-receb-expr'))];
-      if (gerarParcelas(r, inp.value)) r.expr = inp.value.trim();
-      else avisar('Não entendi as parcelas. Escreva os vencimentos em dias (30 60 90) ou o número de vezes (3x).');
+    cx.querySelectorAll('[data-receb-cond]').forEach(raiz => inicializarDropdownSelect(raiz, (v) => {
+      const r = venda.recebimentos[Number(raiz.getAttribute('data-receb-cond'))];
+      gerarParcelas(r, v);
       pintarFinalizar(); gravar();
     }));
     cx.querySelectorAll('[data-parc-dias]').forEach(inp => inp.addEventListener('change', () => {

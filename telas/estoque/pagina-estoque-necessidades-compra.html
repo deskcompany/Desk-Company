@@ -490,6 +490,7 @@
   #painelEmbalagens .estoque-table th { white-space:nowrap; }   /* titulo de coluna nao quebra */
   #painelEmbalagens .estoque-table td:nth-child(2), #painelEmbalagens .estoque-table td:nth-child(9), #painelEmbalagens .estoque-table td:nth-child(10) { white-space:nowrap; }   /* codigo, custo e total nao quebram */
   #painelEmbalagens .nc-nota { font-size:11px; font-weight:600; color:var(--text); }
+  #painelEmbalagens .emb-a-caminho { margin-top:3px; }   /* a ordem que cobre so parte (24/nov/2026): pequena e apagada, embaixo do nome */
   #painelEmbalagens .emb-vazio { font-size:13px; color:var(--text); padding:6px 0 2px; }
   /* O aviso das embalagens que ja tem ordem cobrindo o minimo (23/nov/2026): sai da tabela e vira este bloco, acima dela. */
   .emb-pedidas { border:1px solid var(--border); border-left:3px solid var(--warning); border-radius:12px; background:var(--page-bg); padding:12px 14px; margin:0 0 16px; }
@@ -2169,7 +2170,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       tr.innerHTML =
         '<td class="col-texto nc-col-check"><input type="checkbox" class="item-checkbox" data-id="' + e.id + '" aria-label="Selecionar ' + esc(e.nome) + '"' + (c.comprar > 0 ? '' : ' disabled') + (selEmb.has(e.id) ? ' checked' : '') + '></td>' +
         '<td class="col-texto">' + esc(embCodigo(e)) + '</td>' +
-        '<td class="col-texto">' + esc(e.nome) + '</td>' +
+        '<td class="col-texto">' + esc(e.nome) + (c.chegando > 0 && c.comprar > 0
+          ? '<div class="nc-nota emb-a-caminho">' + embFmtSaldo(c.chegando) + ' a caminho ' + (c.ordens.length === 1 ? 'na ordem ' : 'nas ordens ') +
+            c.ordens.map(o => '<a class="cg-link" href="../estoque/pagina-estoque-ordens-compra-detalhe.html?id=' + encodeURIComponent(o.numero) + '">nº ' + esc(o.numero) + '</a>').join(', ') + '</div>'   // a ordem que cobre so parte (24/nov/2026): o que vem e em qual ordem, embaixo do nome
+          : '') + '</td>' +
         '<td class="col-texto">' + esc(TIPOS[e.tipo] || e.tipo) + '</td>' +
         '<td>' + embFmtSaldo(e.saldo) + '</td>' +
         '<td>' + (c.chegando > 0 ? embFmtSaldo(c.chegando) + '<div class="nc-nota">ordem nº ' + c.ordens.map(o => o.numero).join(', nº ') + '</div>' : '<span class="estagio-zero">—</span>') + '</td>' +

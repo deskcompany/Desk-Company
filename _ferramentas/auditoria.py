@@ -215,6 +215,7 @@ def audita(caminho):
     OK_LS = {'deskParametros', 'deskLog', 'deskCaixaExtras', 'deskAvisos', 'deskNomes', 'deskPdv', 'deskCrm', 'deskBloqueados', 'deskBloqueiosEntrada',
              'deskMinMax', 'deskOrdensGeradas',
              'deskMotivosPerda',   # 13/out: o cadastro de motivos de perda, que a baixa de Tratamento de Perdas le
+             'deskCondicoesPagamento',   # 24/nov: o cadastro de Condicoes de pagamento (em quantos dias vence cada parcela): a tela de Configuracoes grava; a nota de entrada, a ordem de compra, o PDV e os cadastros leem
              'deskTransferencias',   # 12/out: o que a conferencia da chegada apurou da transferencia; a lista, a fila e a contagem leem
              'deskSeparacao',   # 10/out: o que a ficha da Separacao fez com o pedido (concluiu, guardou, devolveu); a fila le
              # 14/out: Comissoes Afiliados. Aprovar, recusar, incluir e suspender afiliado; ajustar comissao; lancar

@@ -940,7 +940,8 @@ with sync_playwright() as p:
 
         def preencher_entrada(pg, qtd, custo, forn='', nota=''):
             pg.fill('#entradaQtd', qtd); pg.fill('#entradaCusto', custo)
-            if forn: pg.fill('#entradaFornecedor', forn)
+            # o fornecedor e lista de escolha (24/nov/2026) e ja vem com o padrao da embalagem: sem `forn`, a suite escolhe "Sem fornecedor" de proposito, como era quando o campo abria vazio
+            pg.evaluate("(v) => document.querySelector('#entradaFornecedor .dropdown-select-item[data-value=\"' + v + '\"]').click()", forn)
             if nota: pg.fill('#entradaNota', nota)
             pg.wait_for_timeout(150)
 
@@ -983,7 +984,7 @@ with sync_playwright() as p:
            and 'Saldo 8 → 10' in lg[0]['detalhe'] and 'R$ 15,00 → R$ 15,40' in lg[0]['detalhe'], 'a entrada vai para o Registro de atividades como "Editar · Embalagens", com quantidade, custo, fornecedor, nota e o antes e depois: %s' % (lg and lg[0]['detalhe']))
         # a segunda entrada pondera de novo: (10 x 15,40 + 10 x 20,00) / 20 = 17,70
         pg.click('#btnDarEntrada'); pg.wait_for_timeout(300)
-        ok(pg.evaluate("document.getElementById('entradaFornecedor').value + document.getElementById('entradaNota').value + document.getElementById('entradaQtd').value") == '' and pg.evaluate("document.getElementById('entradaEmb').getAttribute('data-value')") == '', 'o painel abre limpo da vez seguinte')
+        ok(pg.evaluate("document.getElementById('entradaFornecedor').getAttribute('data-value') + document.getElementById('entradaNota').value + document.getElementById('entradaQtd').value") == '' and pg.evaluate("document.getElementById('entradaEmb').getAttribute('data-value')") == '', 'o painel abre limpo da vez seguinte')
         escolher(pg, '#entradaEmb', 13); preencher_entrada(pg, '10', '20,00')
         pg.click('#btnSalvarEntrada'); pg.wait_for_timeout(300)
         f = emb(pg, 13)

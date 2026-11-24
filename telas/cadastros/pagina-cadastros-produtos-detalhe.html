@@ -935,7 +935,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
       <div class="form-field">
         <label>Unidade de medida</label>
-        <input type="text" id="inputUnidadeMedida" placeholder="Ex: Un, Kg, Cx" value="Un">
+        <div class="dropdown-select" id="inputUnidadeMedida" data-value="UN">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">UN (Unidade)</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu">
+          <div class="dropdown-select-item active" data-value="UN">UN (Unidade)</div>
+          <div class="dropdown-select-item" data-value="PC">PC (Peça)</div>
+          <div class="dropdown-select-item" data-value="PAR">PAR</div>
+          <div class="dropdown-select-item" data-value="KIT">KIT</div>
+          <div class="dropdown-select-item" data-value="CX">CX (Caixa)</div>
+          <div class="dropdown-select-item" data-value="FD">FD (Fardo)</div>
+          <div class="dropdown-select-item" data-value="RL">RL (Rolo)</div>
+          <div class="dropdown-select-item" data-value="KG">KG</div>
+          <div class="dropdown-select-item" data-value="G">G</div>
+          <div class="dropdown-select-item" data-value="L">L</div>
+          <div class="dropdown-select-item" data-value="ML">ML</div>
+          <div class="dropdown-select-item" data-value="M">M</div>
+          <div class="dropdown-select-item" data-value="M²">M²</div>
+          <div class="dropdown-select-item" data-value="M³">M³</div>
+          </div>
+        </div>
       </div>
       <div class="form-field">
         <label>NCM</label>
@@ -3438,6 +3459,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : String.fromCharCode(160);
     if (item && d._aoMudarDropdown) d._aoMudarDropdown(item.getAttribute('data-value'));
   }
+  // Unidade de medida e lista fixa (24/nov/2026). O produto gravado antes dela guardava o texto digitado ("Un", "un", "Kg"): cai na opcao certa sem diferenciar maiusculas.
+  // Valor que a lista nao conhece fica no rotulo, com o valor guardado, ate a pessoa escolher outra; sem valor nenhum vale o padrao, UN.
+  function unidadeNoProduto(valor) {
+    const d = document.getElementById('inputUnidadeMedida'), itens = Array.from(d.querySelectorAll('.dropdown-select-item'));
+    const txt = String(valor === null || valor === undefined ? '' : valor).trim();
+    const item = txt === '' ? itens[0] : (itens.filter(i => i.getAttribute('data-value').toLowerCase() === txt.toLowerCase())[0] || null);
+    itens.forEach(i => i.classList.toggle('active', i === item));
+    d.setAttribute('data-value', item ? item.getAttribute('data-value') : txt);
+    d.querySelector('.dropdown-select-label').textContent = item ? item.textContent : txt;
+  }
   (function abrirRegistro() {
     const r = REGISTRO;
     if (!r || r.id !== ID_DO_EXEMPLO) {
@@ -3463,6 +3494,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (!document.getElementById('inputEmbalagem').getAttribute('data-value')) porNoDropdown('inputEmbalagem', 'customizada');
     }
   })();
+  unidadeNoProduto((REGISTRO && REGISTRO.unidade) || 'Un');   // o texto "Un" de antes da lista cai em UN
 
   // ===== PRECO MINIMO: A CONTA DA CALCULADORA (bloco comum, 09/nov/2026) =====
   // A conta do preco minimo e UMA so: a calculadora de preco da ficha do produto (Cadastros > Produtos) a usa para sugerir o preco, e Promocoes e Encartes

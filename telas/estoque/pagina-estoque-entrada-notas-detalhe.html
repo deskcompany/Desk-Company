@@ -1306,9 +1306,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="form-row" style="margin-top:18px;">
       <div class="form-field" style="flex:1.2;" id="campoCondicao">
         <label>Condição de pagamento</label>
-        <input type="text" id="inputCondicao" placeholder="30 60 90, ou 3x">
-        <div class="field-error-msg" id="erroCondicao">Informe a condição de pagamento.</div>
-        <div class="field-hint">As parcelas nascem em Contas a Pagar quando a nota for lançada.</div>
+        <div class="dropdown-select" id="inputCondicao" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Selecione a condição de pagamento</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
+        <div class="field-error-msg" id="erroCondicao">Escolha a condição de pagamento.</div>
+        <div class="field-hint" id="hintCondicao">As parcelas nascem em Contas a Pagar quando a nota for lançada, uma por prazo da condição.</div>
       </div>
       <div class="form-field" style="flex:1.2;" id="campoCategoria">
         <label>Categoria financeira</label>
@@ -1317,19 +1323,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
             <span class="dropdown-select-label">Selecione a categoria</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div class="dropdown-select-menu">
-            <div class="dropdown-select-item" data-value="compras">Compras</div>
-            <div class="dropdown-select-item" data-value="impostos">Impostos e taxas</div>
-            <div class="dropdown-select-item" data-value="servicos">Serviços gerais</div>
-            <div class="dropdown-select-item" data-value="veiculos">Veículos</div>
-          </div>
+          <div class="dropdown-select-menu"></div>
         </div>
-        <div class="field-hint">Lista mocada até Finanças ganhar o cadastro de Categorias.</div>
       </div>
       <div class="form-field" style="flex:1.4;">
         <label>Transportador</label>
-        <input type="text" id="inputTransportador" placeholder="Nome do transportador">
-        <div class="field-hint">Texto livre por enquanto — vira vínculo quando o cadastro de Transportadora existir.</div>
+        <div class="dropdown-select" id="inputTransportador" data-value="">
+          <button type="button" class="dropdown-select-btn form-style">
+            <span class="dropdown-select-label">Sem transportador</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dropdown-select-menu"></div>
+        </div>
       </div>
     </div>
 
@@ -2244,6 +2249,110 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   // ===== FIM DO BLOCO EMBALAGENS: LEITURA =====
 
+  // ===== CONDICOES DE PAGAMENTO: LEITURA (bloco comum, 24/nov/2026) =====
+  // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
+  // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
+  const COND_FABRICA = [
+    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+  ];
+  function condLer() {
+    try {
+      const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+    } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
+    return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
+  }
+  // So as ativas que valem para o uso ('receber' ou 'pagar'), na ordem do cadastro.
+  function condAtivas(uso) { return condLer().filter(c => c.ativo && (c.uso === 'ambos' || c.uso === uso)); }
+  function condPorId(id) { return condLer().filter(c => String(c.id) === String(id))[0] || null; }
+  // "3 parcelas: 30, 60 e 90 dias". Um prazo 0 sozinho e a vista.
+  function condTexto(c) {
+    const p = (c && c.prazos) || [];
+    if (!p.length) return '';
+    if (p.length === 1 && p[0] === 0) return 'à vista, 1 parcela';
+    const lista = p.length === 1 ? String(p[0]) : p.slice(0, -1).join(', ') + ' e ' + p[p.length - 1];
+    return p.length + (p.length === 1 ? ' parcela: ' : ' parcelas: ') + lista + (p.length === 1 && p[0] === 1 ? ' dia' : ' dias');
+  }
+  // ===== FIM DO BLOCO CONDICOES DE PAGAMENTO: LEITURA =====
+
+  // Lista de escolha no lugar do texto livre (24/nov/2026): monta o menu de um dropdown da casa. `itens` = [{ valor, rotulo }].
+  // `atual` e o valor ja guardado: se ele nao esta na lista (dado antigo, item que saiu), o rotulo mostra `textoAntigo` ate a pessoa escolher, e o valor antigo nao se perde. Sem `atual`, vale o `vazio` (o rotulo de nada escolhido).
+  function listaMontar(idRaiz, itens, atual, textoAntigo, vazio) {
+    const raiz = document.getElementById(idRaiz);
+    const menu = raiz.querySelector('.dropdown-select-menu'), rotulo = raiz.querySelector('.dropdown-select-label');
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    menu.innerHTML = itens.map(i => '<div class="dropdown-select-item" data-value="' + esc(i.valor) + '">' + esc(i.rotulo) + '</div>').join('');
+    const chave = (atual === null || atual === undefined) ? '' : String(atual);
+    const achado = itens.filter(i => String(i.valor) === chave)[0];
+    if (achado) raiz.setAttribute('data-value', String(achado.valor));
+    else raiz.setAttribute('data-value', textoAntigo ? chave : '');
+    rotulo.textContent = achado ? achado.rotulo : (textoAntigo || vazio || '');
+    menu.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!achado && it.getAttribute('data-value') === String(achado.valor)));
+  }
+
+  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome), em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
+  const TRANSPORTADORAS_ATIVAS = [
+    { id: 1, nome: 'Correios · PAC' },
+    { id: 2, nome: 'Correios · SEDEX' },
+    { id: 3, nome: 'RotaSul Transportes' },
+    { id: 4, nome: 'Jaguar Cargas' },
+    { id: 6, nome: 'Moto Express Capital' },
+    { id: 7, nome: 'Frota Desk' },
+    { id: 8, nome: 'Frota Desk · Sul' },
+    { id: 9, nome: 'Retirada no balcão' }
+  ];
+  function itensTransportador() {
+    return [{ valor: '', rotulo: 'Sem transportador' }, { valor: 'fornecedor', rotulo: 'Por conta do fornecedor' }]
+      .concat(TRANSPORTADORAS_ATIVAS.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(t => ({ valor: String(t.id), rotulo: t.nome })));
+  }
+
+  // Categorias financeiras ativas de Configuracoes > Categorias financeiras (mesmo id, mesmo nome), em ordem alfabetica. O cadastro nao separa receita de despesa, entao entram todas.
+  const CATEGORIAS_FIN = [
+    { id: 1, nome: 'Venda de mercadorias' },
+    { id: 2, nome: 'Venda em marketplace' },
+    { id: 3, nome: 'Frete cobrado do cliente' },
+    { id: 4, nome: 'Compra de mercadoria para revenda' },
+    { id: 5, nome: 'Frete de compra' },
+    { id: 6, nome: 'Devolução de compra' },
+    { id: 7, nome: 'Aluguel do galpão' },
+    { id: 8, nome: 'Energia elétrica' },
+    { id: 9, nome: 'Internet e telefonia' },
+    { id: 10, nome: 'Salários e encargos' },
+    { id: 11, nome: 'Embalagens e material de expedição' },
+    { id: 12, nome: 'Frete de entrega' },
+    { id: 13, nome: 'Comissão de marketplace' },
+    { id: 25, nome: 'Comissões de vendedores e afiliados' },
+    { id: 14, nome: 'Anúncios e mídia paga' },
+    { id: 15, nome: 'Simples Nacional (DAS)' },
+    { id: 16, nome: 'ICMS-ST' },
+    { id: 17, nome: 'Taxa de cartão e gateway' },
+    { id: 18, nome: 'Tarifas bancárias' },
+    { id: 19, nome: 'Descontos concedidos' },
+    { id: 20, nome: 'Juros e multas pagos' },
+    { id: 21, nome: 'Juros e multas recebidos' },
+    { id: 24, nome: 'Rendimento de aplicação' },
+    { id: 22, nome: 'Categoria de teste' }
+  ];
+  // Valor antigo da lista de exemplo (guardado antes do cadastro) -> a categoria de nome equivalente. As outras (impostos, servicos, veiculos) nao tem equivalente: o texto antigo fica no rotulo.
+  const CATEGORIA_ANTIGA = { compras: 4 };
+  const CATEGORIA_ANTIGA_ROTULO = { compras: 'Compras', impostos: 'Impostos e taxas', servicos: 'Serviços gerais', veiculos: 'Veículos' };
+  function itensCategoria() {
+    return CATEGORIAS_FIN.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(c => ({ valor: String(c.id), rotulo: c.nome }));
+  }
+  // O valor que a lista entende: o id (como texto) ou, para o valor antigo, o id da equivalente; o que nao tiver equivalente segue como esta.
+  function categoriaDoValor(v) { return Object.prototype.hasOwnProperty.call(CATEGORIA_ANTIGA, v) ? String(CATEGORIA_ANTIGA[v]) : String(v == null ? '' : v); }
+
   // ===== DADOS (mock) =====
   const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
   const FORNECEDORES = {
@@ -2549,7 +2658,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     add('campoCidade', 'erroCidade', 'Informe a cidade do fornecedor.', val('inputCidade') === '', 'inputCidade');
     add('campoUF', 'erroUF', 'Informe a UF do fornecedor.', val('inputUF') === '', 'inputUF');
 
-    add('campoCondicao', 'erroCondicao', 'Informe a condição de pagamento.', val('inputCondicao') === '', 'inputCondicao');
+    add('campoCondicao', 'erroCondicao', 'Escolha a condição de pagamento.', dd('inputCondicao') === '');
     add('campoCategoria', 'erroCategoria', 'Escolha a categoria financeira.', dd('inputCategoria') === '');
 
     const semItem = ITENS.length === 0;
@@ -2661,8 +2770,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Revalida ao vivo depois da primeira tentativa: quem está corrigindo precisa
   // ver a lista encolher, não esperar clicar em salvar de novo.
   ['inputSerie', 'inputNumero', 'inputChave', 'inputEmissao', 'inputEntrada', 'inputNatureza',
-   'inputCEP', 'inputLogradouro', 'inputNumeroEnd', 'inputBairro', 'inputCidade', 'inputUF',
-   'inputCondicao'].forEach(id => {
+   'inputCEP', 'inputLogradouro', 'inputNumeroEnd', 'inputBairro', 'inputCidade', 'inputUF'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => { if (salvouUmaVez) validar(); });
   });
 
@@ -3023,7 +3131,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   });
   inicializarDropdownSelect(document.getElementById('inputFornecedor'), preencherFornecedor);
   inicializarDropdownSelect(document.getElementById('inputDeposito'), () => { if (salvouUmaVez) validar(); });
+  // Listas no lugar do texto livre (24/nov/2026): a condicao (so as ativas que valem para pagar), a categoria financeira e o transportador vem dos cadastros.
+  // As parcelas que nascem em Contas a Pagar saem dos prazos da condicao escolhida: um prazo, uma parcela.
+  listaMontar('inputCondicao', condAtivas('pagar').map(c => ({ valor: String(c.id), rotulo: c.nome })), '', '', 'Selecione a condição de pagamento');
+  inicializarDropdownSelect(document.getElementById('inputCondicao'), (v) => {
+    const c = condPorId(v);
+    document.getElementById('hintCondicao').textContent = (c ? condTexto(c) + '. ' : '') + 'As parcelas nascem em Contas a Pagar quando a nota for lançada, uma por prazo da condição.';
+    if (salvouUmaVez) validar();
+  });
+  listaMontar('inputCategoria', itensCategoria(), '', '', 'Selecione a categoria');
   inicializarDropdownSelect(document.getElementById('inputCategoria'), () => { if (salvouUmaVez) validar(); });
+  listaMontar('inputTransportador', itensTransportador(), '', '', 'Sem transportador');
+  inicializarDropdownSelect(document.getElementById('inputTransportador'), () => {});
   montarMenuOrdens();
   inicializarDropdownSelect(document.getElementById('inputOC'), escolherOrdem);
   (function ordemDoEndereco() {
