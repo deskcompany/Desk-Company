@@ -942,23 +942,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
   // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
   const COND_FABRICA = [
-    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
-    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
-    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
-    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
-    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
-    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
-    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
-    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
-    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
-    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
-    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
-    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+    { id:1,  nome:'À vista',               prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',                prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',               prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',               prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',               prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',               prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',               prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'2x (30/60)',            prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'3x (30/60/90)',         prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'4x (30/60/90/120)',     prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'3x (28/56/84)',         prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 2x (30/60)',  prazos:[0, 30, 60],    uso:'ambos', ativo:true },
+    { id:13, nome:'5x (30 a 150)',         prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
+    { id:14, nome:'6x (30 a 180)',         prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
   ];
+  // Migracao de uma vez so (24/nov/2026, nomes no formato "3x (30/60/90)" e as condicoes 13 e 14): quem ja tem a lista guardada
+  // no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta),
+  // e as duas condicoes novas, se nao existirem. A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do
+  // guardado, porque o guardado e uma lista e cada item pode ser apagado: com a marca fora, apagar a 13 depois da migracao
+  // nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
+  const COND_VERSAO = 2;
+  const COND_CHAVE_VERSAO = 'deskCondicoesPagamentoV';
+  const COND_NOMES_ANTIGOS = { 8:'30/60', 9:'30/60/90', 10:'30/60/90/120', 11:'28/56/84', 12:'Entrada + 30/60' };
+  function condMigrar(lista) {
+    COND_FABRICA.forEach(f => {
+      const c = lista.filter(x => x.id === f.id)[0];
+      if (c && COND_NOMES_ANTIGOS[f.id] && c.nome === COND_NOMES_ANTIGOS[f.id]) c.nome = f.nome;
+      if (!c && f.id > 12) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() }));
+    });
+    return lista;
+  }
   function condLer() {
     try {
       const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
-      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) {
+        if ((Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1) < COND_VERSAO) {
+          condMigrar(g);
+          try { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(g)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* sem gravar: migra de novo na proxima leitura */ }
+        }
+        return g;
+      }
     } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
     return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
   }
@@ -1533,7 +1557,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const CHAVE_CONDICOES = 'deskCondicoesPagamento';
   const CONDICOES = condLer();
   function guardarCondicoes() {
-    try { localStorage.setItem(CHAVE_CONDICOES, JSON.stringify(CONDICOES)); } catch (e) { /* armazenamento bloqueado: vale ate recarregar */ }
+    // A marca da migracao vai junto: lista gravada por aqui ja esta na versao atual (o que a pessoa apagar nao volta).
+    try { localStorage.setItem(CHAVE_CONDICOES, JSON.stringify(CONDICOES)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* armazenamento bloqueado: vale ate recarregar */ }
   }
 
   let buscaAtual = '';

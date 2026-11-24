@@ -1152,7 +1152,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           </button>
           <div class="dropdown-select-menu" id="menuCategoriaOC"></div>
         </div>
-        <div class="field-hint">Vem de Configurações → Categorias financeiras: só as categorias ativas.</div>
+        <div class="field-hint">Vem de Configurações → Categorias financeiras: só as categorias ativas do tipo despesa.</div>
       </div>
     </div>
     <div class="itens-acoes" style="margin-top:0; margin-bottom:14px;">
@@ -1879,16 +1879,17 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   const SITUACAO_LABEL = { aberto: 'Em aberto', andamento: 'Em andamento', atendida: 'Atendida', cancelada: 'Cancelada' };
   const SITUACAO_CLASSE = { aberto: 'bs-aberto', andamento: 'bs-andamento', atendida: 'bs-atendida', cancelada: 'bs-cancelada' };
 
+  // `condicaoId`: a condicao de pagamento padrao do fornecedor, a mesma de Cadastros > Fornecedores (aqui o id do fornecedor e outro: TechParts e 1, la e 2). Opcional.
   const FORNECEDORES = {
-    1: { nome: 'TechParts Distribuidora', tipo: 'Jurídica', doc: '12.345.678/0001-90', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE',
+    1: { nome: 'TechParts Distribuidora', condicaoId: 9, tipo: 'Jurídica', doc: '12.345.678/0001-90', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE',
          contatos: [{ nome: 'Renata Alves', cargo: 'Comercial', fone: '(85) 98888-1010' }, { nome: 'Diego Moura', cargo: 'Financeiro', fone: '(85) 98888-2020' }] },
     2: { nome: 'Móveis Nordeste Ltda', tipo: 'Jurídica', doc: '98.765.432/0001-10', contribuinte: 'Contribuinte ICMS', cidade: 'Sobral/CE', contatos: [] },
     3: { nome: 'Nordic Home Importação', tipo: 'Jurídica', doc: '11.222.333/0001-44', contribuinte: 'Não contribuinte', cidade: 'Itajaí/SC',
          contatos: [{ nome: 'Karin Lund', cargo: 'Exportação', fone: '(47) 3344-5566' }] },
     4: { nome: 'Tecidos Ceará S/A', tipo: 'Jurídica', doc: '55.666.777/0001-88', contribuinte: 'Contribuinte ICMS', cidade: 'Maracanaú/CE', contatos: [] },
-    5: { nome: 'Embalagens do Vale', tipo: 'Jurídica', doc: '44.555.666/0001-22', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE', contatos: [] },
+    5: { nome: 'Embalagens do Vale', condicaoId: 5, tipo: 'Jurídica', doc: '44.555.666/0001-22', contribuinte: 'Contribuinte ICMS', cidade: 'Fortaleza/CE', contatos: [] },
     // Os dois que a lista de ordens tem e aqui faltavam; documento e cidade sao os de Cadastros > Fornecedores.
-    6: { nome: 'Papelaria Central', tipo: 'Jurídica', doc: '11.222.333/0001-55', contribuinte: 'Contribuinte ICMS', cidade: 'Imperatriz/MA', contatos: [] },
+    6: { nome: 'Papelaria Central', condicaoId: 6, tipo: 'Jurídica', doc: '11.222.333/0001-55', contribuinte: 'Contribuinte ICMS', cidade: 'Imperatriz/MA', contatos: [] },
     7: { nome: 'Luminárias Brasil', tipo: 'Jurídica', doc: '33.444.555/0001-77', contribuinte: 'Contribuinte ICMS', cidade: 'Belo Horizonte/MG', contatos: [] }
   };
 
@@ -2025,23 +2026,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
   // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
   const COND_FABRICA = [
-    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
-    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
-    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
-    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
-    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
-    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
-    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
-    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
-    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
-    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
-    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
-    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+    { id:1,  nome:'À vista',               prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',                prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',               prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',               prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',               prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',               prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',               prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'2x (30/60)',            prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'3x (30/60/90)',         prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'4x (30/60/90/120)',     prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'3x (28/56/84)',         prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 2x (30/60)',  prazos:[0, 30, 60],    uso:'ambos', ativo:true },
+    { id:13, nome:'5x (30 a 150)',         prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
+    { id:14, nome:'6x (30 a 180)',         prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
   ];
+  // Migracao de uma vez so (24/nov/2026, nomes no formato "3x (30/60/90)" e as condicoes 13 e 14): quem ja tem a lista guardada
+  // no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta),
+  // e as duas condicoes novas, se nao existirem. A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do
+  // guardado, porque o guardado e uma lista e cada item pode ser apagado: com a marca fora, apagar a 13 depois da migracao
+  // nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
+  const COND_VERSAO = 2;
+  const COND_CHAVE_VERSAO = 'deskCondicoesPagamentoV';
+  const COND_NOMES_ANTIGOS = { 8:'30/60', 9:'30/60/90', 10:'30/60/90/120', 11:'28/56/84', 12:'Entrada + 30/60' };
+  function condMigrar(lista) {
+    COND_FABRICA.forEach(f => {
+      const c = lista.filter(x => x.id === f.id)[0];
+      if (c && COND_NOMES_ANTIGOS[f.id] && c.nome === COND_NOMES_ANTIGOS[f.id]) c.nome = f.nome;
+      if (!c && f.id > 12) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() }));
+    });
+    return lista;
+  }
   function condLer() {
     try {
       const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
-      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) {
+        if ((Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1) < COND_VERSAO) {
+          condMigrar(g);
+          try { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(g)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* sem gravar: migra de novo na proxima leitura */ }
+        }
+        return g;
+      }
     } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
     return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
   }
@@ -2073,17 +2098,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     menu.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!achado && it.getAttribute('data-value') === String(achado.valor)));
   }
 
-  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome), em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
+  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome) que servem a uma compra, em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
   const TRANSPORTADORAS_ATIVAS = [
     { id: 1, nome: 'Correios · PAC' },
     { id: 2, nome: 'Correios · SEDEX' },
     { id: 3, nome: 'RotaSul Transportes' },
     { id: 4, nome: 'Jaguar Cargas' },
-    { id: 6, nome: 'Moto Express Capital' },
-    { id: 7, nome: 'Frota Desk' },
-    { id: 8, nome: 'Frota Desk · Sul' },
-    { id: 9, nome: 'Retirada no balcão' }
+    { id: 6, nome: 'Moto Express Capital' }
   ];
+  // Frota Desk (7), Frota Desk · Sul (8) e Retirada no balcao (9) saíram desta lista em 24/nov/2026: sao da expedicao de vendas, nao de compra.
+  // Nota ou ordem gravada com um deles mostra o nome no rotulo e o valor nao se perde.
+  const TRANSPORTADORA_DE_VENDA_ROTULO = { '7': 'Frota Desk', '8': 'Frota Desk · Sul', '9': 'Retirada no balcão' };
+  function transportadorNaTela(guardado) {
+    const g = guardado === null || guardado === undefined ? '' : String(guardado);
+    listaMontar('inputTransportador', itensTransportador(), g, TRANSPORTADORA_DE_VENDA_ROTULO[g] || g, 'Sem transportador');
+  }
   function itensTransportador() {
     return [{ valor: '', rotulo: 'Sem transportador' }, { valor: 'fornecedor', rotulo: 'Por conta do fornecedor' }]
       .concat(TRANSPORTADORAS_ATIVAS.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(t => ({ valor: String(t.id), rotulo: t.nome })));
@@ -2098,9 +2127,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     else listaMontar('inputCondicaoPagamento', itens, txt, txt, 'Selecione a condição de pagamento');
     atualizarHintCondicao();
   }
+  // Condicao padrao do fornecedor (24/nov/2026): ao escolher o fornecedor, o campo vazio vem preenchido com a condicao padrao dele, se ela estiver ativa e valer para pagar.
+  // A que a pessoa escolheu nao e sobrescrita. `condicaoAutomatica` guarda o id da que veio sozinha: trocando de fornecedor, so essa e trocada (ou esvaziada, se o novo nao tem padrao).
+  let condicaoAutomatica = null;
+  function condicaoPadraoDoFornecedor(idForn) {
+    const atual = document.getElementById('inputCondicaoPagamento').getAttribute('data-value') || '';
+    if (atual !== '' && atual !== condicaoAutomatica) return;
+    const f = FORNECEDORES[idForn];
+    const c = f && f.condicaoId ? condAtivas('pagar').filter(x => String(x.id) === String(f.condicaoId))[0] : null;
+    condicaoAutomatica = c ? String(c.id) : null;
+    condicaoNaOrdem(c ? c.id : '');
+  }
   function atualizarHintCondicao() {
-    const c = condPorId(document.getElementById('inputCondicaoPagamento').getAttribute('data-value'));
-    document.getElementById('hintCondicaoPagamento').textContent = (c ? condTexto(c) + '. ' : '') + 'Cada prazo da condição vira uma parcela: escolha e clique em "Gerar parcelas".';
+    const v = document.getElementById('inputCondicaoPagamento').getAttribute('data-value');
+    const c = condPorId(v);
+    document.getElementById('hintCondicaoPagamento').textContent = (c && v === condicaoAutomatica ? 'Padrão do fornecedor. ' : '') + (c ? condTexto(c) + '. ' : '') + 'Cada prazo da condição vira uma parcela: escolha e clique em "Gerar parcelas".';
   }
 
   function dataMais(dias) {
@@ -2581,8 +2622,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     });
   })();
 
-  inicializarDropdownSelect(document.getElementById('inputFornecedor'), () => {
+  let carregandoOrdem = false;   // a ordem gravada poe o fornecedor sem passar pelo padrao dele: o que esta gravado nao muda sozinho
+  inicializarDropdownSelect(document.getElementById('inputFornecedor'), (v) => {
     preencherDadosFornecedor();
+    if (!carregandoOrdem) condicaoPadraoDoFornecedor(v);
     document.getElementById('campoFornecedor').classList.remove('has-error');
     document.getElementById('erroFornecedor').classList.remove('show');
   });
@@ -2596,30 +2639,30 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // `categorias_financeiras`; aqui o espelho e o que mantem as telas falando a mesma
   // lingua — lista provisoria em duas telas diverge em semanas.
   const CATS_FIN = [
-    { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
-    { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:19, nome:'Descontos concedidos',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:6,  nome:'Devolução de compra',               grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
-    { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
-    { id:10, nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
-    { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:14, nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
-    { id:16, nome:'ICMS-ST',                           grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
-    { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
-    { id:24, nome:'Rendimento de aplicação',           grupo:'', comp:'vencimento' },
-    { id:22, nome:'Categoria de teste',                grupo:'', comp:'' },
+    { id:1,  tipo:'receita', nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:2,  tipo:'receita', nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
+    { id:3,  tipo:'receita', nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:19, tipo:'despesa', nome:'Descontos concedidos',              grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:4,  tipo:'despesa', nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:5,  tipo:'despesa', nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:6,  tipo:'despesa', nome:'Devolução de compra',               grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:7,  tipo:'despesa', nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:8,  tipo:'despesa', nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
+    { id:9,  tipo:'despesa', nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
+    { id:10, tipo:'despesa', nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:11, tipo:'despesa', nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
+    { id:12, tipo:'despesa', nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:13, tipo:'despesa', nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:25, tipo:'despesa', nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:14, tipo:'despesa', nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:17, tipo:'despesa', nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:18, tipo:'despesa', nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:15, tipo:'despesa', nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
+    { id:16, tipo:'despesa', nome:'ICMS-ST',                           grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:20, tipo:'despesa', nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
+    { id:21, tipo:'receita', nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
+    { id:24, tipo:'receita', nome:'Rendimento de aplicação',           grupo:'', comp:'vencimento' },
+    { id:22, tipo:'despesa', nome:'Categoria de teste',                grupo:'', comp:'' },
     { id:0,  nome:'Sem categoria',                     grupo:'' }
   ];
   (function montarCategorias() {
@@ -2627,24 +2670,34 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     if (!menu) return;
     const atual = document.getElementById('inputCategoria').getAttribute('data-value');
     const grupos = [];
-    CATS_FIN.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
+    const cats = CATS_FIN.filter(c => c.tipo !== 'receita');   // a ordem e compra: so categoria de despesa (24/nov/2026); a "Sem categoria" (sem tipo) fica
+    cats.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
     let html = '';
     grupos.forEach(g => {
       html += '<div class="dropdown-grupo">' + g + '</div>';
-      CATS_FIN.filter(c => c.grupo === g).forEach(c => {
+      cats.filter(c => c.grupo === g).forEach(c => {
         html += '<div class="dropdown-select-item' + (String(c.id) === atual ? ' active' : '') + '" data-value="' + c.id + '">' + c.nome + '</div>';
       });
     });
-    CATS_FIN.filter(c => !c.grupo).forEach(c => {
+    cats.filter(c => !c.grupo).forEach(c => {
       html += '<div class="dropdown-select-item' + (String(c.id) === atual ? ' active' : '') + '" data-value="' + c.id + '">' + c.nome + '</div>';
     });
     menu.innerHTML = html;
   })();
+  // Ordem gravada com uma categoria que o menu nao oferece (de receita): o nome fica no rotulo e o valor nao se perde.
+  function categoriaNaOrdem(guardado) {
+    const c = CATS_FIN.filter(x => String(x.id) === String(guardado))[0];
+    if (!c) return;
+    const d = document.getElementById('inputCategoria');
+    d.setAttribute('data-value', String(c.id));
+    d.querySelector('.dropdown-select-label').textContent = c.nome;
+    d.querySelectorAll('.dropdown-select-item').forEach(i => i.classList.toggle('active', i.getAttribute('data-value') === String(c.id)));
+  }
   inicializarDropdownSelect(document.getElementById('inputCategoria'));
   inicializarDropdownSelect(document.getElementById('inputFretePorConta'));
   // Listas no lugar do texto livre (24/nov/2026): a condicao (so as ativas que valem para pagar) e o transportador (as transportadoras ativas do cadastro) vem dos cadastros.
   condicaoNaOrdem('');
-  inicializarDropdownSelect(document.getElementById('inputCondicaoPagamento'), () => atualizarHintCondicao());
+  inicializarDropdownSelect(document.getElementById('inputCondicaoPagamento'), () => { condicaoAutomatica = null; atualizarHintCondicao(); });   // escolheu a pessoa: o fornecedor novo nao a troca mais
   listaMontar('inputTransportador', itensTransportador(), '', '', 'Sem transportador');
   inicializarDropdownSelect(document.getElementById('inputTransportador'), () => {});
 
@@ -2762,8 +2815,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputDataPrevista').value = brDeIso(o.previsto);
     document.getElementById('inputFrete').value = fmtNum(o.frete || 0);
     document.getElementById('inputDesconto').value = fmtNum(o.desconto || 0);
-    porNoDropdown('inputFornecedor', o.fornecedor);
+    carregandoOrdem = true; porNoDropdown('inputFornecedor', o.fornecedor); carregandoOrdem = false;
     porNoDropdown('inputDeposito', o.dep);
+    if (o.categoria !== undefined) categoriaNaOrdem(o.categoria);   // ordem com categoria gravada
+    if (o.transportador !== undefined) transportadorNaTela(o.transportador);   // ordem com transportador gravado
     if (o.condicaoId !== undefined || o.condicao !== undefined) condicaoNaOrdem(o.condicaoId !== undefined ? o.condicaoId : o.condicao);   // ordem com condicao gravada: o id, ou o texto de antes das listas
     SITUACAO = o.situacao;
     // Ordem sem itens no exemplo leva o mesmo item de exemplo que o painel da lista mostra, pelo total dela.

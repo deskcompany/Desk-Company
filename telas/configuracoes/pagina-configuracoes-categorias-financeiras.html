@@ -788,6 +788,18 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       </div>
     </div>
 
+    <div class="dropdown-select" id="filtroTipo" data-value="todos">
+      <button type="button" class="dropdown-select-btn pill">
+        <span class="dropdown-select-label">Receitas e despesas</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item active" data-value="todos">Receitas e despesas</div>
+        <div class="dropdown-select-item" data-value="receita">Só receitas</div>
+        <div class="dropdown-select-item" data-value="despesa">Só despesas</div>
+      </div>
+    </div>
+
     <div class="dropdown-select" id="filtroDre" data-value="todos">
       <button type="button" class="dropdown-select-btn pill">
         <span class="dropdown-select-label">Qualquer posição no DRE</span>
@@ -865,6 +877,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <label>Descrição</label>
     <input type="text" id="inputDescricao" placeholder="Ex: comissão de marketplace">
     <div class="field-error-msg" id="erroDescricao">Informe a descrição da categoria.</div>
+  </div>
+
+  <div class="form-field" id="campoTipo">
+    <label>Tipo</label>
+    <div class="dropdown-select" id="ddTipo" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Selecione o tipo</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item" data-value="receita">Receita</div>
+        <div class="dropdown-select-item" data-value="despesa">Despesa</div>
+      </div>
+    </div>
+    <div class="field-hint">Receita aparece na escolha de categoria de <b>Contas a Receber</b>; despesa, na de <b>Contas a Pagar</b>, da <b>Entrada de Notas</b> e da <b>Ordem de Compra</b>.</div>
+    <div class="field-error-msg" id="erroTipo">Escolha se a categoria é receita ou despesa.</div>
   </div>
 
   <div class="form-field">
@@ -1734,32 +1762,34 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // exclusao pode acontecer. Precisa existir pelo menos uma categoria com uso
   // zero, senao a trava nunca deixa passar e ninguem consegue testar a exclusao.
   const CATEGORIAS = [
-    { id:1,  descricao:'Venda de mercadorias',                grupoId:1, dre:'nao',          comp:'vencimento', usos:412,  ativo:true,  padraoVenda:true,  padraoCompra:false },
-    { id:2,  descricao:'Venda em marketplace',                grupoId:1, dre:'nao',          comp:'emissao',    usos:1184, ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:3,  descricao:'Frete cobrado do cliente',            grupoId:1, dre:'outras',       comp:'vencimento', usos:96,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:4,  descricao:'Compra de mercadoria para revenda',   grupoId:2, dre:'nao',          comp:'emissao',    usos:203,  ativo:true,  padraoVenda:false, padraoCompra:true  },
-    { id:5,  descricao:'Frete de compra',                     grupoId:2, dre:'operacionais', comp:'emissao',    usos:58,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:6,  descricao:'Devolução de compra',                grupoId:2, dre:'nao',          comp:'emissao',    usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:7,  descricao:'Aluguel do galpão',                   grupoId:3, dre:'operacionais', comp:'vencimento', usos:36,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:8,  descricao:'Energia elétrica',                    grupoId:3, dre:'operacionais', comp:'anterior',   usos:36,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:9,  descricao:'Internet e telefonia',                grupoId:3, dre:'operacionais', comp:'anterior',   usos:35,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:10, descricao:'Salários e encargos',                 grupoId:3, dre:'operacionais', comp:'vencimento', usos:72,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:11, descricao:'Embalagens e material de expedição', grupoId:4, dre:'operacionais', comp:'emissao',    usos:64,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:12, descricao:'Frete de entrega',                    grupoId:4, dre:'operacionais', comp:'vencimento', usos:141,  ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:13, descricao:'Comissão de marketplace',             grupoId:4, dre:'taxas',        comp:'vencimento', usos:1184, ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:25, descricao:'Comissões de vendedores e afiliados',  grupoId:4, dre:'operacionais', comp:'vencimento', usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:14, descricao:'Anúncios e mídia paga',               grupoId:4, dre:'operacionais', comp:'vencimento', usos:29,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:15, descricao:'Simples Nacional (DAS)',              grupoId:5, dre:'tributos',     comp:'anterior',   usos:12,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:16, descricao:'ICMS-ST',                             grupoId:5, dre:'tributos',     comp:'vencimento', usos:8,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:17, descricao:'Taxa de cartão e gateway',            grupoId:5, dre:'taxas',        comp:'vencimento', usos:307,  ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:18, descricao:'Tarifas bancárias',                   grupoId:5, dre:'taxas',        comp:'vencimento', usos:44,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:19, descricao:'Descontos concedidos',                grupoId:1, dre:'deducoes',     comp:'vencimento', usos:73,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:20, descricao:'Juros e multas pagos',                grupoId:0, dre:'outras',       comp:'vencimento', usos:11,   ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:21, descricao:'Juros e multas recebidos',            grupoId:0, dre:'outras',       comp:'vencimento', usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:24, descricao:'Rendimento de aplicação',            grupoId:0, dre:'outras',       comp:'vencimento', usos:5,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:22, descricao:'Categoria de teste',                  grupoId:0, dre:'nao',          comp:'',           usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
-    { id:23, descricao:'Cartão antigo (encerrado)',           grupoId:5, dre:'taxas',        comp:'vencimento', usos:3,    ativo:false, padraoVenda:false, padraoCompra:false }
+    { id:1,  descricao:'Venda de mercadorias',                tipo:'receita', grupoId:1, dre:'nao',          comp:'vencimento', usos:412,  ativo:true,  padraoVenda:true,  padraoCompra:false },
+    { id:2,  descricao:'Venda em marketplace',                tipo:'receita', grupoId:1, dre:'nao',          comp:'emissao',    usos:1184, ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:3,  descricao:'Frete cobrado do cliente',            tipo:'receita', grupoId:1, dre:'outras',       comp:'vencimento', usos:96,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:4,  descricao:'Compra de mercadoria para revenda',   tipo:'despesa', grupoId:2, dre:'nao',          comp:'emissao',    usos:203,  ativo:true,  padraoVenda:false, padraoCompra:true  },
+    { id:5,  descricao:'Frete de compra',                     tipo:'despesa', grupoId:2, dre:'operacionais', comp:'emissao',    usos:58,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:6,  descricao:'Devolução de compra',                tipo:'despesa', grupoId:2, dre:'nao',          comp:'emissao',    usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:7,  descricao:'Aluguel do galpão',                   tipo:'despesa', grupoId:3, dre:'operacionais', comp:'vencimento', usos:36,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:8,  descricao:'Energia elétrica',                    tipo:'despesa', grupoId:3, dre:'operacionais', comp:'anterior',   usos:36,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:9,  descricao:'Internet e telefonia',                tipo:'despesa', grupoId:3, dre:'operacionais', comp:'anterior',   usos:35,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:10, descricao:'Salários e encargos',                 tipo:'despesa', grupoId:3, dre:'operacionais', comp:'vencimento', usos:72,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:11, descricao:'Embalagens e material de expedição', tipo:'despesa', grupoId:4, dre:'operacionais', comp:'emissao',    usos:64,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:12, descricao:'Frete de entrega',                    tipo:'despesa', grupoId:4, dre:'operacionais', comp:'vencimento', usos:141,  ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:13, descricao:'Comissão de marketplace',             tipo:'despesa', grupoId:4, dre:'taxas',        comp:'vencimento', usos:1184, ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:25, descricao:'Comissões de vendedores e afiliados',  tipo:'despesa', grupoId:4, dre:'operacionais', comp:'vencimento', usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:14, descricao:'Anúncios e mídia paga',               tipo:'despesa', grupoId:4, dre:'operacionais', comp:'vencimento', usos:29,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:15, descricao:'Simples Nacional (DAS)',              tipo:'despesa', grupoId:5, dre:'tributos',     comp:'anterior',   usos:12,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:16, descricao:'ICMS-ST',                             tipo:'despesa', grupoId:5, dre:'tributos',     comp:'vencimento', usos:8,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:17, descricao:'Taxa de cartão e gateway',            tipo:'despesa', grupoId:5, dre:'taxas',        comp:'vencimento', usos:307,  ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:18, descricao:'Tarifas bancárias',                   tipo:'despesa', grupoId:5, dre:'taxas',        comp:'vencimento', usos:44,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:19, descricao:'Descontos concedidos',                tipo:'despesa', grupoId:1, dre:'deducoes',     comp:'vencimento', usos:73,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:20, descricao:'Juros e multas pagos',                tipo:'despesa', grupoId:0, dre:'outras',       comp:'vencimento', usos:11,   ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:21, descricao:'Juros e multas recebidos',            tipo:'receita', grupoId:0, dre:'outras',       comp:'vencimento', usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:24, descricao:'Rendimento de aplicação',            tipo:'receita', grupoId:0, dre:'outras',       comp:'vencimento', usos:5,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:22, descricao:'Categoria de teste',                  tipo:'despesa', grupoId:0, dre:'nao',          comp:'',           usos:0,    ativo:true,  padraoVenda:false, padraoCompra:false },
+    { id:23, descricao:'Cartão antigo (encerrado)',           tipo:'despesa', grupoId:5, dre:'taxas',        comp:'vencimento', usos:3,    ativo:false, padraoVenda:false, padraoCompra:false }
   ];
+
+  const TIPO_LABEL = { receita:'Receita', despesa:'Despesa' };
 
   const DRE_LABEL = {
     nao:'Não considera',
@@ -1800,6 +1830,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   let buscaAtual = '';
   let filtroSituacaoAtual = 'ativo';
   let filtroDreAtual = 'todos';
+  let filtroTipoAtual = 'todos';
   let selecionadas = [];
 
   const semAcento = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -1812,9 +1843,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function listaFiltrada() {
     const b = semAcento(buscaAtual);
     return CATEGORIAS.filter(c => {
-      const alvo = semAcento(c.descricao + ' ' + nomeGrupo(c.grupoId) + ' ' + DRE_LABEL[c.dre]);
+      const alvo = semAcento(c.descricao + ' ' + nomeGrupo(c.grupoId) + ' ' + DRE_LABEL[c.dre] + ' ' + TIPO_LABEL[c.tipo]);
       return (filtroSituacaoAtual === 'todos' || (filtroSituacaoAtual === 'ativo' ? c.ativo : !c.ativo)) &&
              (filtroDreAtual === 'todos' || c.dre === filtroDreAtual) &&
+             (filtroTipoAtual === 'todos' || c.tipo === filtroTipoAtual) &&
              (b === '' || alvo.indexOf(b) !== -1);
     }).sort((a, b2) => {
       // "Sem grupo" por ultimo; dentro do grupo, ordem alfabetica.
@@ -1867,7 +1899,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       lista.forEach(c => {
         if (c.grupoId !== grupoCorrente) {
           grupoCorrente = c.grupoId;
-          corpo += '<tr class="cat-grupo-row"><td colspan="5">' + nomeGrupo(c.grupoId) +
+          corpo += '<tr class="cat-grupo-row"><td colspan="6">' + nomeGrupo(c.grupoId) +
                    ' <span style="opacity:0.7;">· ' + catsDoGrupo(c.grupoId).length + ' no total</span></td></tr>';
         }
         const chips = [];
@@ -1877,6 +1909,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
           '<td class="col-texto col-check">' + caixa(c.id, selecionadas.indexOf(c.id) !== -1) + '</td>' +
           '<td class="col-texto"><div class="cat-nome">' + c.descricao + '</div>' +
             '<div class="cat-sub"><span>' + fmtUsos(c.usos) + '</span>' + chips.join('') + '</div></td>' +
+          '<td class="col-texto">' + TIPO_LABEL[c.tipo] + '</td>' +
           '<td class="col-texto"><span class="cat-dre' + (c.dre === 'nao' ? ' nao' : '') + '">' + DRE_LABEL[c.dre] + '</span></td>' +
           '<td class="col-texto">' + (c.comp ? COMP_LABEL[c.comp] : '<span class="cf-vazio">' + COMP_LABEL[''] + '</span>') + '</td>' +
           '<td class="col-texto">' + (c.ativo ? 'Ativa' : 'Inativa') + '</td>' +
@@ -1886,9 +1919,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<div class="estoque-table-wrap"><table class="estoque-table"><thead><tr>' +
           '<th class="col-texto col-check"><input type="checkbox" class="checkbox-todos" id="chkTodos"' + (todasMarcadas ? ' checked' : '') + '></th>' +
           '<th class="col-texto">Descrição</th>' +
-          '<th class="col-texto" style="width:250px;">Considera no DRE</th>' +
-          '<th class="col-texto" style="width:210px;">Competência padrão</th>' +
-          '<th class="col-texto" style="width:100px;">Situação</th>' +
+          '<th class="col-texto" style="width:80px;">Tipo</th>' +
+          '<th class="col-texto" style="width:200px;">Considera no DRE</th>' +
+          '<th class="col-texto" style="width:200px;">Competência padrão</th>' +
+          '<th class="col-texto" style="width:84px;">Situação</th>' +
         '</tr></thead><tbody>' + corpo + '</tbody></table></div>';
 
       cx.querySelectorAll('tbody tr[data-id]').forEach(tr => {
@@ -2079,6 +2113,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('drawerTitulo').textContent = c ? 'Editar categoria' : 'Nova categoria';
     montarMenuGrupos();
     document.getElementById('inputDescricao').value = c ? c.descricao : '';
+    rotuloDropdown('ddTipo', c ? TIPO_LABEL[c.tipo] : 'Selecione o tipo', c ? c.tipo : '');
+    marcarErro('campoTipo', 'erroTipo', false);
     rotuloDropdown('ddGrupo', c ? nomeGrupo(c.grupoId) : 'Sem grupo', c ? c.grupoId : 0);
     rotuloDropdown('ddDre', DRE_LABEL[c ? c.dre : 'nao'], c ? c.dre : 'nao');
     rotuloDropdown('ddComp', COMP_LABEL[c ? c.comp : ''], c ? c.comp : '');
@@ -2136,6 +2172,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('grupoClose').addEventListener('click', fecharDrawers);
   drawerBackdrop.addEventListener('click', fecharDrawers);
 
+  inicializarDropdownSelect(document.getElementById('ddTipo'), () => marcarErro('campoTipo', 'erroTipo', false));
   inicializarDropdownSelect(document.getElementById('ddDre'), () => atualizarHints());
   inicializarDropdownSelect(document.getElementById('ddComp'), () => atualizarHints());
 
@@ -2163,8 +2200,10 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const padraoVenda = document.getElementById('swPadraoVenda').classList.contains('on');
     const padraoCompra = document.getElementById('swPadraoCompra').classList.contains('on');
 
+    const tipo = document.getElementById('ddTipo').getAttribute('data-value') || '';
     marcarErro('campoDescricao', 'erroDescricao', descricao === '');
-    if (descricao === '') return;
+    marcarErro('campoTipo', 'erroTipo', tipo === '');
+    if (descricao === '' || tipo === '') return;
 
     const editando = !!catEmEdicaoId;
     confirmarAcao(
@@ -2175,9 +2214,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         if (padraoCompra) CATEGORIAS.forEach(x => { x.padraoCompra = false; });
         if (editando) {
           const c = catPorId(catEmEdicaoId);
-          Object.assign(c, { descricao, grupoId, dre, comp, padraoVenda, padraoCompra });
+          Object.assign(c, { descricao, tipo, grupoId, dre, comp, padraoVenda, padraoCompra });
         } else {
-          CATEGORIAS.push({ id: Date.now(), descricao, grupoId, dre, comp, usos:0, ativo:true, padraoVenda, padraoCompra });
+          CATEGORIAS.push({ id: Date.now(), descricao, tipo, grupoId, dre, comp, usos:0, ativo:true, padraoVenda, padraoCompra });
         }
         render(); fecharDrawers();
       });
@@ -2270,6 +2309,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('campoBusca').placeholder = v === 'categorias' ? 'Buscar por descrição ou grupo...' : 'Buscar grupo...';
     document.getElementById('filtroSituacao').style.display = v === 'categorias' ? '' : 'none';
     document.getElementById('filtroDre').style.display = v === 'categorias' ? '' : 'none';
+    document.getElementById('filtroTipo').style.display = v === 'categorias' ? '' : 'none';
     render();
   }
   document.querySelectorAll('.visao-tab').forEach(t => {
@@ -2280,6 +2320,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('campoBusca').addEventListener('input', (e) => { buscaAtual = e.target.value; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('filtroSituacao'), (v) => { filtroSituacaoAtual = v; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('filtroDre'), (v) => { filtroDreAtual = v; paginaAtual = 1; render(); });
+  inicializarDropdownSelect(document.getElementById('filtroTipo'), (v) => { filtroTipoAtual = v; paginaAtual = 1; render(); });
   inicializarDropdownSelect(document.getElementById('itensPorPagina'), (v) => { itensPorPaginaAtual = Number(v); paginaAtual = 1; render(); });
   document.getElementById('btnPaginaAnterior').addEventListener('click', () => { if (paginaAtual > 1) { paginaAtual--; render(); } });
   document.getElementById('btnPaginaProxima').addEventListener('click', () => { paginaAtual++; render(); });

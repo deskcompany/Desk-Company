@@ -2086,24 +2086,24 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // Espelho de Configuracoes > Categorias financeiras (mesmos ids e grupos).
   const CATS_FIN = [
-    { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
-    { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
-    { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
-    { id:10, nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
-    { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
-    { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
-    { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
+    { id:1,  tipo:'receita', nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:2,  tipo:'receita', nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
+    { id:3,  tipo:'receita', nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:4,  tipo:'despesa', nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:5,  tipo:'despesa', nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:7,  tipo:'despesa', nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:8,  tipo:'despesa', nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
+    { id:9,  tipo:'despesa', nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
+    { id:10, tipo:'despesa', nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:11, tipo:'despesa', nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
+    { id:12, tipo:'despesa', nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:13, tipo:'despesa', nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:25, tipo:'despesa', nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:17, tipo:'despesa', nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:18, tipo:'despesa', nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:15, tipo:'despesa', nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
+    { id:20, tipo:'despesa', nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
+    { id:21, tipo:'receita', nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
     { id:0,  nome:'Sem categoria',                     grupo:'' }
   ];
 
@@ -2559,15 +2559,16 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // Menu de categorias agrupado — o mesmo do Caixa.
   function itensCategoria(incluirTodas, incluirSem) {
     const grupos = [];
-    CATS_FIN.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
+    const cats = CATS_FIN.filter(c => c.tipo !== 'despesa');   // so o tipo desta tela (24/nov/2026)
+    cats.forEach(c => { if (c.grupo && grupos.indexOf(c.grupo) === -1) grupos.push(c.grupo); });
     let html = incluirTodas ? '<div class="dropdown-select-item" data-value="todos">Todas as categorias</div>' : '';
     grupos.forEach(g => {
       html += '<div class="dropdown-grupo">' + g + '</div>';
-      CATS_FIN.filter(c => c.grupo === g).forEach(c => {
+      cats.filter(c => c.grupo === g).forEach(c => {
         html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
       });
     });
-    CATS_FIN.filter(c => !c.grupo && c.id !== 0).forEach(c => {
+    cats.filter(c => !c.grupo && c.id !== 0).forEach(c => {
       html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
     });
     if (incluirSem) html += '<div class="dropdown-select-item" data-value="0">Sem categoria</div>';

@@ -2253,23 +2253,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
   // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
   const COND_FABRICA = [
-    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
-    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
-    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
-    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
-    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
-    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
-    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
-    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
-    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
-    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
-    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
-    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+    { id:1,  nome:'À vista',               prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',                prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',               prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',               prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',               prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',               prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',               prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'2x (30/60)',            prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'3x (30/60/90)',         prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'4x (30/60/90/120)',     prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'3x (28/56/84)',         prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 2x (30/60)',  prazos:[0, 30, 60],    uso:'ambos', ativo:true },
+    { id:13, nome:'5x (30 a 150)',         prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
+    { id:14, nome:'6x (30 a 180)',         prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
   ];
+  // Migracao de uma vez so (24/nov/2026, nomes no formato "3x (30/60/90)" e as condicoes 13 e 14): quem ja tem a lista guardada
+  // no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta),
+  // e as duas condicoes novas, se nao existirem. A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do
+  // guardado, porque o guardado e uma lista e cada item pode ser apagado: com a marca fora, apagar a 13 depois da migracao
+  // nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
+  const COND_VERSAO = 2;
+  const COND_CHAVE_VERSAO = 'deskCondicoesPagamentoV';
+  const COND_NOMES_ANTIGOS = { 8:'30/60', 9:'30/60/90', 10:'30/60/90/120', 11:'28/56/84', 12:'Entrada + 30/60' };
+  function condMigrar(lista) {
+    COND_FABRICA.forEach(f => {
+      const c = lista.filter(x => x.id === f.id)[0];
+      if (c && COND_NOMES_ANTIGOS[f.id] && c.nome === COND_NOMES_ANTIGOS[f.id]) c.nome = f.nome;
+      if (!c && f.id > 12) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() }));
+    });
+    return lista;
+  }
   function condLer() {
     try {
       const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
-      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) {
+        if ((Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1) < COND_VERSAO) {
+          condMigrar(g);
+          try { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(g)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* sem gravar: migra de novo na proxima leitura */ }
+        }
+        return g;
+      }
     } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
     return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
   }
@@ -2301,68 +2325,79 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     menu.querySelectorAll('.dropdown-select-item').forEach(it => it.classList.toggle('active', !!achado && it.getAttribute('data-value') === String(achado.valor)));
   }
 
-  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome), em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
+  // Transportadoras ativas de Configuracoes > Transportadoras (mesmo id, mesmo nome) que servem a uma compra, em ordem alfabetica, depois de "Sem transportador" e "Por conta do fornecedor".
   const TRANSPORTADORAS_ATIVAS = [
     { id: 1, nome: 'Correios · PAC' },
     { id: 2, nome: 'Correios · SEDEX' },
     { id: 3, nome: 'RotaSul Transportes' },
     { id: 4, nome: 'Jaguar Cargas' },
-    { id: 6, nome: 'Moto Express Capital' },
-    { id: 7, nome: 'Frota Desk' },
-    { id: 8, nome: 'Frota Desk · Sul' },
-    { id: 9, nome: 'Retirada no balcão' }
+    { id: 6, nome: 'Moto Express Capital' }
   ];
+  // Frota Desk (7), Frota Desk · Sul (8) e Retirada no balcao (9) saíram desta lista em 24/nov/2026: sao da expedicao de vendas, nao de compra.
+  // Nota ou ordem gravada com um deles mostra o nome no rotulo e o valor nao se perde.
+  const TRANSPORTADORA_DE_VENDA_ROTULO = { '7': 'Frota Desk', '8': 'Frota Desk · Sul', '9': 'Retirada no balcão' };
+  function transportadorNaTela(guardado) {
+    const g = guardado === null || guardado === undefined ? '' : String(guardado);
+    listaMontar('inputTransportador', itensTransportador(), g, TRANSPORTADORA_DE_VENDA_ROTULO[g] || g, 'Sem transportador');
+  }
   function itensTransportador() {
     return [{ valor: '', rotulo: 'Sem transportador' }, { valor: 'fornecedor', rotulo: 'Por conta do fornecedor' }]
       .concat(TRANSPORTADORAS_ATIVAS.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(t => ({ valor: String(t.id), rotulo: t.nome })));
   }
 
-  // Categorias financeiras ativas de Configuracoes > Categorias financeiras (mesmo id, mesmo nome), em ordem alfabetica. O cadastro nao separa receita de despesa, entao entram todas.
+  // Categorias financeiras ativas de Configuracoes > Categorias financeiras (mesmo id, mesmo nome), em ordem alfabetica. Desde 24/nov/2026 o cadastro tem o tipo (receita ou despesa), e a nota, que e compra, lista so as de despesa; a gravada com categoria de receita mostra o nome no rotulo (categoriaNaTela).
   const CATEGORIAS_FIN = [
-    { id: 1, nome: 'Venda de mercadorias' },
-    { id: 2, nome: 'Venda em marketplace' },
-    { id: 3, nome: 'Frete cobrado do cliente' },
-    { id: 4, nome: 'Compra de mercadoria para revenda' },
-    { id: 5, nome: 'Frete de compra' },
-    { id: 6, nome: 'Devolução de compra' },
-    { id: 7, nome: 'Aluguel do galpão' },
-    { id: 8, nome: 'Energia elétrica' },
-    { id: 9, nome: 'Internet e telefonia' },
-    { id: 10, nome: 'Salários e encargos' },
-    { id: 11, nome: 'Embalagens e material de expedição' },
-    { id: 12, nome: 'Frete de entrega' },
-    { id: 13, nome: 'Comissão de marketplace' },
-    { id: 25, nome: 'Comissões de vendedores e afiliados' },
-    { id: 14, nome: 'Anúncios e mídia paga' },
-    { id: 15, nome: 'Simples Nacional (DAS)' },
-    { id: 16, nome: 'ICMS-ST' },
-    { id: 17, nome: 'Taxa de cartão e gateway' },
-    { id: 18, nome: 'Tarifas bancárias' },
-    { id: 19, nome: 'Descontos concedidos' },
-    { id: 20, nome: 'Juros e multas pagos' },
-    { id: 21, nome: 'Juros e multas recebidos' },
-    { id: 24, nome: 'Rendimento de aplicação' },
-    { id: 22, nome: 'Categoria de teste' }
+    { id: 1, tipo:'receita', nome: 'Venda de mercadorias' },
+    { id: 2, tipo:'receita', nome: 'Venda em marketplace' },
+    { id: 3, tipo:'receita', nome: 'Frete cobrado do cliente' },
+    { id: 4, tipo:'despesa', nome: 'Compra de mercadoria para revenda' },
+    { id: 5, tipo:'despesa', nome: 'Frete de compra' },
+    { id: 6, tipo:'despesa', nome: 'Devolução de compra' },
+    { id: 7, tipo:'despesa', nome: 'Aluguel do galpão' },
+    { id: 8, tipo:'despesa', nome: 'Energia elétrica' },
+    { id: 9, tipo:'despesa', nome: 'Internet e telefonia' },
+    { id: 10, tipo:'despesa', nome: 'Salários e encargos' },
+    { id: 11, tipo:'despesa', nome: 'Embalagens e material de expedição' },
+    { id: 12, tipo:'despesa', nome: 'Frete de entrega' },
+    { id: 13, tipo:'despesa', nome: 'Comissão de marketplace' },
+    { id: 25, tipo:'despesa', nome: 'Comissões de vendedores e afiliados' },
+    { id: 14, tipo:'despesa', nome: 'Anúncios e mídia paga' },
+    { id: 15, tipo:'despesa', nome: 'Simples Nacional (DAS)' },
+    { id: 16, tipo:'despesa', nome: 'ICMS-ST' },
+    { id: 17, tipo:'despesa', nome: 'Taxa de cartão e gateway' },
+    { id: 18, tipo:'despesa', nome: 'Tarifas bancárias' },
+    { id: 19, tipo:'despesa', nome: 'Descontos concedidos' },
+    { id: 20, tipo:'despesa', nome: 'Juros e multas pagos' },
+    { id: 21, tipo:'receita', nome: 'Juros e multas recebidos' },
+    { id: 24, tipo:'receita', nome: 'Rendimento de aplicação' },
+    { id: 22, tipo:'despesa', nome: 'Categoria de teste' }
   ];
   // Valor antigo da lista de exemplo (guardado antes do cadastro) -> a categoria de nome equivalente. As outras (impostos, servicos, veiculos) nao tem equivalente: o texto antigo fica no rotulo.
   const CATEGORIA_ANTIGA = { compras: 4 };
   const CATEGORIA_ANTIGA_ROTULO = { compras: 'Compras', impostos: 'Impostos e taxas', servicos: 'Serviços gerais', veiculos: 'Veículos' };
   function itensCategoria() {
-    return CATEGORIAS_FIN.slice().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(c => ({ valor: String(c.id), rotulo: c.nome }));
+    return CATEGORIAS_FIN.filter(c => c.tipo === 'despesa').sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(c => ({ valor: String(c.id), rotulo: c.nome }));
   }
   // O valor que a lista entende: o id (como texto) ou, para o valor antigo, o id da equivalente; o que nao tiver equivalente segue como esta.
+  // Nota gravada com uma categoria que a lista nao oferece (de receita, ou o valor de antes do cadastro): o nome fica no rotulo e o valor nao se perde.
+  function categoriaNaTela(guardado) {
+    const g = categoriaDoValor(guardado);
+    const c = CATEGORIAS_FIN.filter(x => String(x.id) === g)[0];
+    listaMontar('inputCategoria', itensCategoria(), g, c ? c.nome : (CATEGORIA_ANTIGA_ROTULO[guardado] || g), 'Selecione a categoria');
+  }
   function categoriaDoValor(v) { return Object.prototype.hasOwnProperty.call(CATEGORIA_ANTIGA, v) ? String(CATEGORIA_ANTIGA[v]) : String(v == null ? '' : v); }
 
   // ===== DADOS (mock) =====
   const DEPOSITOS = { 1: 'Geral', 2: 'Galpão Centro', 3: 'Loja Física Aldeota', 4: 'Bancada Desk Tech' };
+  // `condicaoId`: a condicao de pagamento padrao do fornecedor, a mesma de Cadastros > Fornecedores (aqui o id do fornecedor e outro: TechParts e 1, la e 2). Opcional.
   const FORNECEDORES = {
-    1: { nome: 'TechParts Distribuidora', cnpj: '98.765.432/0001-10', cep: '65900-000', logradouro: 'Av. Bernardo Sayão', numero: '1450', bairro: 'Centro', cidade: 'Imperatriz', uf: 'MA' },
+    1: { nome: 'TechParts Distribuidora', condicaoId: 9, cnpj: '98.765.432/0001-10', cep: '65900-000', logradouro: 'Av. Bernardo Sayão', numero: '1450', bairro: 'Centro', cidade: 'Imperatriz', uf: 'MA' },
     2: { nome: 'Móveis Nordeste Ltda',    cnpj: '12.345.678/0001-90', cep: '65903-270', logradouro: 'Rua Coriolano Milhomem', numero: '87', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', uf: 'MA' },
     3: { nome: 'Nordic Home Importação',  cnpj: '45.222.111/0001-33', cep: '04571-010', logradouro: 'Av. Eng. Luís Carlos Berrini', numero: '1681', bairro: 'Cidade Monções', cidade: 'São Paulo', uf: 'SP' },
     4: { nome: 'Tecidos Ceará S/A',       cnpj: '77.888.999/0001-44', cep: '60540-000', logradouro: 'Av. Bezerra de Menezes', numero: '2450', bairro: 'São Gerardo', cidade: 'Fortaleza', uf: 'CE' },
-    5: { nome: 'Embalagens do Vale',      cnpj: '55.666.777/0001-66', cep: '65915-000', logradouro: 'Rod. BR-010, km 1345', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', uf: 'MA' },
+    5: { nome: 'Embalagens do Vale',      condicaoId: 5, cnpj: '55.666.777/0001-66', cep: '65915-000', logradouro: 'Rod. BR-010, km 1345', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', uf: 'MA' },
     // 6 e 7: os mesmos de Necessidades de Compra, para a ordem gerada para eles chegar aqui (CNPJ do cadastro de Fornecedores)
-    6: { nome: 'Papelaria Central',       cnpj: '11.222.333/0001-55', cep: '65900-000', logradouro: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', uf: 'MA' },
+    6: { nome: 'Papelaria Central',       condicaoId: 6, cnpj: '11.222.333/0001-55', cep: '65900-000', logradouro: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', uf: 'MA' },
     7: { nome: 'Luminárias Brasil',       cnpj: '33.444.555/0001-77', cep: '30110-000', logradouro: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Belo Horizonte', uf: 'MG' }
   };
 
@@ -2506,7 +2541,25 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('inputBairro').value = f.bairro;
     document.getElementById('inputCidade').value = f.cidade;
     document.getElementById('inputUF').value = f.uf;
+    condicaoPadraoDoFornecedor(v);
     if (salvouUmaVez) validar();
+  }
+  // Condicao padrao do fornecedor (24/nov/2026): ao escolher o fornecedor, o campo vazio vem preenchido com a condicao padrao dele, se ela estiver ativa e valer para pagar.
+  // A que a pessoa escolheu nao e sobrescrita. `condicaoAutomatica` guarda o id da que veio sozinha: trocando de fornecedor, so essa e trocada (ou esvaziada, se o novo nao tem padrao).
+  function condicaoPadraoDoFornecedor(idForn) {
+    const campo = document.getElementById('inputCondicao');
+    const atual = campo.getAttribute('data-value') || '';
+    if (atual !== '' && atual !== condicaoAutomatica) return;
+    const f = FORNECEDORES[idForn];
+    const c = f && f.condicaoId ? condAtivas('pagar').filter(x => String(x.id) === String(f.condicaoId))[0] : null;
+    condicaoAutomatica = c ? String(c.id) : null;
+    listaMontar('inputCondicao', condAtivas('pagar').map(x => ({ valor: String(x.id), rotulo: x.nome })), c ? c.id : '', '', 'Selecione a condição de pagamento');
+    atualizarHintCondicao();
+  }
+  function atualizarHintCondicao() {
+    const v = document.getElementById('inputCondicao').getAttribute('data-value');
+    const c = condPorId(v);
+    document.getElementById('hintCondicao').textContent = (c && v === condicaoAutomatica ? 'Padrão do fornecedor. ' : '') + (c ? condTexto(c) + '. ' : '') + 'As parcelas nascem em Contas a Pagar quando a nota for lançada, uma por prazo da condição.';
   }
 
   const blocoEndereco = document.getElementById('blocoEndereco');
@@ -3133,10 +3186,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   inicializarDropdownSelect(document.getElementById('inputDeposito'), () => { if (salvouUmaVez) validar(); });
   // Listas no lugar do texto livre (24/nov/2026): a condicao (so as ativas que valem para pagar), a categoria financeira e o transportador vem dos cadastros.
   // As parcelas que nascem em Contas a Pagar saem dos prazos da condicao escolhida: um prazo, uma parcela.
+  let condicaoAutomatica = null;   // id da condicao que o sistema pos sozinho a partir do fornecedor; null = o campo esta vazio ou foi escolhido pela pessoa
   listaMontar('inputCondicao', condAtivas('pagar').map(c => ({ valor: String(c.id), rotulo: c.nome })), '', '', 'Selecione a condição de pagamento');
-  inicializarDropdownSelect(document.getElementById('inputCondicao'), (v) => {
-    const c = condPorId(v);
-    document.getElementById('hintCondicao').textContent = (c ? condTexto(c) + '. ' : '') + 'As parcelas nascem em Contas a Pagar quando a nota for lançada, uma por prazo da condição.';
+  inicializarDropdownSelect(document.getElementById('inputCondicao'), () => {
+    condicaoAutomatica = null;   // escolheu a pessoa: o fornecedor novo nao a troca mais
+    atualizarHintCondicao();
     if (salvouUmaVez) validar();
   });
   listaMontar('inputCategoria', itensCategoria(), '', '', 'Selecione a categoria');

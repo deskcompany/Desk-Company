@@ -1857,20 +1857,21 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // REGISTROS e ESPELHO de Cadastros > Fornecedores (FORNECEDORES). Mudou la, muda aqui; teste_cad_detalhe.py compara.
   const REGISTROS = [
     { id: 1, codigo: 'FOR-0001', tipo: 'juridica', nome: 'Móveis Nordeste Ltda', documento: '12.345.678/0001-90', email: 'compras@moveisnordeste.com.br', telefone: '(85) 3261-4401', endereco: 'Rua das Acácias', numero: '120', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-1)', fornecePara: ['Desk Shope'], fornecedorDesde: '14/03/2025' },
-    { id: 2, codigo: 'FOR-0002', tipo: 'juridica', nome: 'TechParts Distribuidora', documento: '98.765.432/0001-10', email: 'vendas@techparts.com.br', telefone: '(11) 3524-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'São Paulo', estado: 'SP', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '02/07/2025' },
+    { id: 2, codigo: 'FOR-0002', condicaoId: 9, tipo: 'juridica', nome: 'TechParts Distribuidora', documento: '98.765.432/0001-10', email: 'vendas@techparts.com.br', telefone: '(11) 3524-5502', endereco: 'Av. Getúlio Vargas', numero: '845', bairro: 'Juçara', cidade: 'São Paulo', estado: 'SP', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '02/07/2025' },
     { id: 3, codigo: 'FOR-0003', tipo: 'juridica', nome: 'Distribuidora Nordeste Ltda', documento: '41.223.556/0001-09', email: 'contato@distnordeste.com.br', telefone: '(99) 3524-1180', endereco: 'Rod. BR-010', numero: 's/n', bairro: 'Distrito Industrial', cidade: 'Imperatriz', estado: 'MA', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--chart-3)', fornecePara: ['Desk Tech', 'Desk Brands'], fornecedorDesde: '03/09/2026' },
     { id: 4, codigo: 'FOR-0004', tipo: 'juridica', nome: 'Nordic Home Importação', documento: '45.222.111/0001-33', email: 'comercial@nordichome.com.br', telefone: '(11) 4191-7704', endereco: 'Rua São Francisco', numero: '58', bairro: 'Nova Imperatriz', cidade: 'Barueri', estado: 'SP', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--warning)', fornecedorDesde: '21/11/2024' },
     { id: 5, codigo: 'FOR-0005', tipo: 'juridica', nome: 'Tech Solutions Imperatriz Ltda', documento: '52.998.104/0001-77', email: 'suporte@techsolutions.com.br', telefone: '(99) 3524-7788', endereco: 'Av. Bernardo Sayão', numero: '410', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '09/01/2025' },
     { id: 6, codigo: 'FOR-0006', tipo: 'juridica', nome: 'Tecidos Ceará S/A', documento: '77.888.999/0001-44', email: 'pedidos@tecidosceara.com.br', telefone: '(85) 3477-2206', endereco: 'Rua Urbano Santos', numero: '77', bairro: 'Centro', cidade: 'Fortaleza', estado: 'CE', categoria: 'Distribuição/Atacado', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '30/05/2024' },
-    { id: 7, codigo: 'FOR-0007', tipo: 'juridica', nome: 'Embalagens do Vale', documento: '55.666.777/0001-66', email: 'vendas@embalagensdovale.com.br', telefone: '(88) 3512-9907', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Juazeiro do Norte', estado: 'CE', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '17/02/2025' },
+    { id: 7, codigo: 'FOR-0007', condicaoId: 5, tipo: 'juridica', nome: 'Embalagens do Vale', documento: '55.666.777/0001-66', email: 'vendas@embalagensdovale.com.br', telefone: '(88) 3512-9907', endereco: 'Rua Ceará', numero: '234', bairro: 'Vila Lobão', cidade: 'Juazeiro do Norte', estado: 'CE', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '17/02/2025' },
     { id: 8, codigo: 'FOR-0008', tipo: 'juridica', nome: 'Móveis Bom Preço Ltda', documento: '38.114.220/0001-15', email: 'compras@moveisbompreco.com.br', telefone: '(99) 3524-9910', endereco: 'Av. Tancredo Neves', numero: '1520', bairro: 'Boa Esperança', cidade: 'Imperatriz', estado: 'MA', categoria: 'Mobiliário', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '12/08/2025' },
     { id: 9, codigo: 'FOR-0009', tipo: 'juridica', nome: 'Luminárias Brasil', documento: '33.444.555/0001-77', email: 'comercial@luminariasbrasil.com.br', telefone: '(31) 3290-1109', endereco: 'Rua Coração de Jesus', numero: '312', bairro: 'Centro', cidade: 'Belo Horizonte', estado: 'MG', categoria: 'Eletrônicos e Componentes', status: 'ativo', cor: 'var(--chart-3)', fornecedorDesde: '05/04/2025' },
     { id: 10, codigo: 'FOR-0010', tipo: 'fisica', nome: 'Larissa Monteiro', documento: '789.012.345-66', email: 'larissa.monteiro@gmail.com', telefone: '(99) 98234-5510', endereco: 'Rua Duque de Caxias', numero: '99', bairro: 'Centro', cidade: 'Estreito', estado: 'MA', categoria: 'Prestação de Serviços', status: 'inativo', cor: 'var(--warning)', fornecedorDesde: '19/10/2024' },
     { id: 11, codigo: 'FOR-0011', tipo: 'juridica', nome: 'Auto Peças Imperatriz Ltda', documento: '29.887.501/0001-22', email: 'contato@autopecasimp.com.br', telefone: '(99) 3524-3320', endereco: 'Av. JK', numero: '670', bairro: 'Nova Imperatriz', cidade: 'Imperatriz', estado: 'MA', categoria: 'Autopeças', status: 'ativo', cor: 'var(--success)', fornecedorDesde: '25/06/2025' },
     { id: 12, codigo: 'FOR-0012', tipo: 'fisica', nome: 'Bruno Carvalho', documento: '890.123.456-77', email: 'bruno.carvalho@hotmail.com', telefone: '(99) 98234-5512', endereco: 'Rua Simplício Moreira', numero: '43', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--danger)', fornecedorDesde: '08/12/2024' },
     { id: 13, codigo: 'FOR-0013', tipo: 'fisica', nome: 'Patrícia Farias', documento: '901.234.567-88', email: 'patricia.farias@gmail.com', telefone: '(99) 98234-5513', endereco: 'Rua Pernambuco', numero: '187', bairro: 'Vila Lobão', cidade: 'Açailândia', estado: 'MA', categoria: 'Prestação de Serviços', status: 'ativo', cor: 'var(--chart-1)', fornecedorDesde: '02/02/2025' },
-    { id: 14, codigo: 'FOR-0014', tipo: 'juridica', nome: 'Papelaria Central', documento: '11.222.333/0001-55', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '14/09/2024' }
+    { id: 14, codigo: 'FOR-0014', condicaoId: 6, tipo: 'juridica', nome: 'Papelaria Central', documento: '11.222.333/0001-55', email: 'vendas@papelariacentral.com.br', telefone: '(99) 3524-6644', endereco: 'Rua Frei Manoel Procópio', numero: '55', bairro: 'Centro', cidade: 'Imperatriz', estado: 'MA', categoria: 'Papelaria e Embalagens', status: 'ativo', cor: 'var(--chart-2)', fornecedorDesde: '14/09/2024' }
   ];
+  // `condicaoId` e a condicao de pagamento padrao do fornecedor (id de Configuracoes > Condicoes de pagamento); a Entrada de Notas e a Ordem de Compra a leem. Opcional: sem ela, o campo fica vazio.
   const ID_DO_EXEMPLO = 2;
   // shortcut: nome que o cadastro nao tem abre o exemplo, como antes; acaba quando Financas e o cadastro tiverem os mesmos nomes (X6).
   const REGISTRO = (() => {
@@ -2171,23 +2172,47 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   // O cadastro de Configuracoes > Condicoes de pagamento (`deskCondicoesPagamento`): em quantos dias vence cada parcela. Identico em todas as telas que o carregam; o teste_condicoes_pagamento.py compara as copias.
   // Sem nada guardado, ou com o guardado com defeito, vale a lista de fabrica. `uso` e 'ambos', 'receber' ou 'pagar'; `prazos` sao dias de 0 a 365, em ordem crescente (0 e a vista).
   const COND_FABRICA = [
-    { id:1,  nome:'À vista',           prazos:[0],            uso:'ambos', ativo:true },
-    { id:2,  nome:'7 dias',            prazos:[7],            uso:'ambos', ativo:true },
-    { id:3,  nome:'14 dias',           prazos:[14],           uso:'ambos', ativo:true },
-    { id:4,  nome:'21 dias',           prazos:[21],           uso:'ambos', ativo:true },
-    { id:5,  nome:'28 dias',           prazos:[28],           uso:'ambos', ativo:true },
-    { id:6,  nome:'30 dias',           prazos:[30],           uso:'ambos', ativo:true },
-    { id:7,  nome:'45 dias',           prazos:[45],           uso:'ambos', ativo:true },
-    { id:8,  nome:'30/60',             prazos:[30, 60],       uso:'ambos', ativo:true },
-    { id:9,  nome:'30/60/90',          prazos:[30, 60, 90],   uso:'ambos', ativo:true },
-    { id:10, nome:'30/60/90/120',      prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
-    { id:11, nome:'28/56/84',          prazos:[28, 56, 84],   uso:'ambos', ativo:true },
-    { id:12, nome:'Entrada + 30/60',   prazos:[0, 30, 60],    uso:'ambos', ativo:true }
+    { id:1,  nome:'À vista',               prazos:[0],            uso:'ambos', ativo:true },
+    { id:2,  nome:'7 dias',                prazos:[7],            uso:'ambos', ativo:true },
+    { id:3,  nome:'14 dias',               prazos:[14],           uso:'ambos', ativo:true },
+    { id:4,  nome:'21 dias',               prazos:[21],           uso:'ambos', ativo:true },
+    { id:5,  nome:'28 dias',               prazos:[28],           uso:'ambos', ativo:true },
+    { id:6,  nome:'30 dias',               prazos:[30],           uso:'ambos', ativo:true },
+    { id:7,  nome:'45 dias',               prazos:[45],           uso:'ambos', ativo:true },
+    { id:8,  nome:'2x (30/60)',            prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'3x (30/60/90)',         prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'4x (30/60/90/120)',     prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:11, nome:'3x (28/56/84)',         prazos:[28, 56, 84],   uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 2x (30/60)',  prazos:[0, 30, 60],    uso:'ambos', ativo:true },
+    { id:13, nome:'5x (30 a 150)',         prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
+    { id:14, nome:'6x (30 a 180)',         prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
   ];
+  // Migracao de uma vez so (24/nov/2026, nomes no formato "3x (30/60/90)" e as condicoes 13 e 14): quem ja tem a lista guardada
+  // no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta),
+  // e as duas condicoes novas, se nao existirem. A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do
+  // guardado, porque o guardado e uma lista e cada item pode ser apagado: com a marca fora, apagar a 13 depois da migracao
+  // nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
+  const COND_VERSAO = 2;
+  const COND_CHAVE_VERSAO = 'deskCondicoesPagamentoV';
+  const COND_NOMES_ANTIGOS = { 8:'30/60', 9:'30/60/90', 10:'30/60/90/120', 11:'28/56/84', 12:'Entrada + 30/60' };
+  function condMigrar(lista) {
+    COND_FABRICA.forEach(f => {
+      const c = lista.filter(x => x.id === f.id)[0];
+      if (c && COND_NOMES_ANTIGOS[f.id] && c.nome === COND_NOMES_ANTIGOS[f.id]) c.nome = f.nome;
+      if (!c && f.id > 12) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() }));
+    });
+    return lista;
+  }
   function condLer() {
     try {
       const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
-      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) return g;
+      if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) {
+        if ((Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1) < COND_VERSAO) {
+          condMigrar(g);
+          try { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(g)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* sem gravar: migra de novo na proxima leitura */ }
+        }
+        return g;
+      }
     } catch (e) { /* guardado ilegivel: vale a lista de fabrica */ }
     return COND_FABRICA.map(c => Object.assign({}, c, { prazos: c.prazos.slice() }));
   }
@@ -2220,7 +2245,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
   listaMontar('inputVendedor', [{ valor: '', rotulo: 'Sem comprador' }].concat(autoUsuarios().filter(u => u.situacao === 'ativo').map(u => ({ valor: String(u.id), rotulo: u.nome })).sort((a, b) => a.rotulo.localeCompare(b.rotulo, 'pt-BR'))), '', '', 'Sem comprador');
   inicializarDropdownSelect(document.getElementById('inputVendedor'));
-  listaMontar('inputPrazoPagamento', [{ valor: '', rotulo: 'Sem condição padrão' }].concat(condAtivas('pagar').map(c => ({ valor: String(c.id), rotulo: c.nome }))), '', '', 'Sem condição padrão');
+  // Abre com a condicao gravada no cadastro; se ela foi inativada ou nao vale mais para pagar, o nome fica no rotulo e o valor nao se perde.
+  const CONDICAO_DO_FORNECEDOR = REGISTRO && REGISTRO.condicaoId ? String(REGISTRO.condicaoId) : '';
+  listaMontar('inputPrazoPagamento', [{ valor: '', rotulo: 'Sem condição padrão' }].concat(condAtivas('pagar').map(c => ({ valor: String(c.id), rotulo: c.nome }))), CONDICAO_DO_FORNECEDOR, (condPorId(CONDICAO_DO_FORNECEDOR) || {}).nome || '', 'Sem condição padrão');
   inicializarDropdownSelect(document.getElementById('inputPrazoPagamento'));
 
   // ===== TINTA AUTOMÁTICA DE CONTRASTE =====
