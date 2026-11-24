@@ -14,7 +14,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -51,7 +51,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -100,12 +100,12 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "script_sha": "57c0174e6890d98b",
-   "selado_em": "2026-11-23"
+   "selado_em": "2026-11-24"
   },
   "oficial": {
-   "conjunto": "5e259789e386c1dd",
+   "conjunto": "da9ed6ccfe1edbe0",
    "script_sha": "9cf9eea6ed84596a",
-   "selado_em": "2026-11-23"
+   "selado_em": "2026-11-24"
   }
  },
  "suites": {
@@ -125,7 +125,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -162,7 +162,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -211,7 +211,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "493362e11ae353b8"
   },
   "teste_agenda_aviso.py": {
@@ -227,9 +227,9 @@
   },
   "teste_atacado.py": {
    "asseracoes": 133,
-   "asseracoes_de": "rodada completa 23/11",
+   "asseracoes_de": "rodada completa 24/11",
    "cobertura": {
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-vendas-pdv.html": "5ab33346a773b5d6",
     "pagina-vendas-pedidos-detalhe.html": "859ccde42aeb93e2",
@@ -237,7 +237,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "3b3079c229cf244d"
   },
   "teste_barra_tabelas.py": {
@@ -256,7 +256,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -293,7 +293,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -342,7 +342,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "a357036891cfb9b1"
   },
   "teste_becos.py": {
@@ -361,7 +361,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -398,7 +398,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -447,7 +447,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "4ab23511408d51b0"
   },
   "teste_bloqueados.py": {
@@ -466,7 +466,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -503,7 +503,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -552,7 +552,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "078146fa4bcd43e0"
   },
   "teste_busca_setas.py": {
@@ -571,7 +571,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -608,7 +608,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -657,7 +657,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "ed2048cc3ccede59"
   },
   "teste_cad_detalhe.py": {
@@ -719,7 +719,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -756,7 +756,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -805,7 +805,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "1c3f50aa5c6910d1"
   },
   "teste_caminho.py": {
@@ -824,7 +824,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -861,7 +861,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -910,7 +910,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "04d548703975b756"
   },
   "teste_comissoes.py": {
@@ -929,7 +929,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -966,7 +966,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1015,7 +1015,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "1db2aa164d3a0163"
   },
   "teste_compra_giro.py": {
@@ -1034,7 +1034,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1071,7 +1071,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1120,7 +1120,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "f7058feb931531d3"
   },
   "teste_conferencia_saida.py": {
@@ -1157,7 +1157,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1194,7 +1194,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1243,7 +1243,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "ee52b28836e2c897"
   },
   "teste_cp.py": {
@@ -1306,7 +1306,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1343,7 +1343,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1392,7 +1392,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "7189397407946130"
   },
   "teste_datas.py": {
@@ -1411,7 +1411,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1448,7 +1448,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1497,7 +1497,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "0e143cc1c61efa4b"
   },
   "teste_devolucao.py": {
@@ -1550,7 +1550,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1587,7 +1587,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1636,16 +1636,16 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "b23e651ef2b5a85c"
   },
   "teste_embalagem_pedido.py": {
    "asseracoes": 299,
-   "asseracoes_de": "rodada completa 23/11",
+   "asseracoes_de": "rodada completa 24/11",
    "cobertura": {
     "pagina-cadastros-clientes-detalhe.html": "9e28a15b17f32531",
     "pagina-cadastros-embalagens.html": "ad0086ee2d2358b2",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-estoque-necessidades-compra.html": "f9221bad969fcebb",
     "pagina-financas-comissoes-detalhe.html": "f66c6a2f02ecfd7c",
     "pagina-financas-comissoes.html": "f76fc05148969faf",
@@ -1657,12 +1657,12 @@
     "pagina-vendas-pedidos-detalhe.html": "859ccde42aeb93e2"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "4959a869737a8792"
   },
   "teste_embalagens_estoque.py": {
-   "asseracoes": 442,
-   "asseracoes_de": "rodada completa 23/11",
+   "asseracoes": 445,
+   "asseracoes_de": "rodada completa 24/11",
    "cobertura": {
     "pagina-cadastros-categorias.html": "f3b61e4880290582",
     "pagina-cadastros-clientes-detalhe.html": "9e28a15b17f32531",
@@ -1676,7 +1676,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1713,7 +1713,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1762,8 +1762,8 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
-   "teste_sha": "ab25c221f1133765"
+   "selado_em": "2026-11-24",
+   "teste_sha": "79f475fec3679692"
   },
   "teste_esc_dropdown.py": {
    "asseracoes": 225,
@@ -1781,7 +1781,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1818,7 +1818,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1867,7 +1867,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "d7a0233ea7b2f8a8"
   },
   "teste_esc_painel.py": {
@@ -1886,7 +1886,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -1923,7 +1923,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -1972,7 +1972,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "9b0c8190f66b6860"
   },
   "teste_estoque_melhorias.py": {
@@ -1991,7 +1991,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2028,7 +2028,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2077,7 +2077,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "6dae54201902f4f7"
   },
   "teste_expedicao.py": {
@@ -2096,7 +2096,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2133,7 +2133,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2182,7 +2182,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "368d1686040fdac2"
   },
   "teste_fin_melhorias.py": {
@@ -2239,7 +2239,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2276,7 +2276,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2325,7 +2325,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "43a4b002c0fc7fcc"
   },
   "teste_gateways.py": {
@@ -2344,7 +2344,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2381,7 +2381,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2430,7 +2430,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "afb0d148b9888417"
   },
   "teste_impressao.py": {
@@ -2449,7 +2449,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2486,7 +2486,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2535,7 +2535,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "b8a926fdfbdeec6f"
   },
   "teste_integra.py": {
@@ -2562,18 +2562,18 @@
   },
   "teste_mais_acoes.py": {
    "asseracoes": 159,
-   "asseracoes_de": "rodada completa 23/11",
+   "asseracoes_de": "rodada completa 24/11",
    "cobertura": {
     "pagina-cadastros-clientes.html": "9108addf5d494206",
     "pagina-cadastros-fornecedores.html": "fbcf20ad41485c0e",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
     "pagina-estoque-conferencia-entrada.html": "539a880b1acf3e5a",
     "pagina-estoque-conferencia.html": "3b31267e058edba8",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
     "pagina-estoque-itens-bloqueados.html": "57c01e354c33baf8",
@@ -2586,7 +2586,7 @@
     "pagina-vendas-pdv.html": "5ab33346a773b5d6"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "cf02e76eb2523558"
   },
   "teste_mascara.py": {
@@ -2605,7 +2605,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2642,7 +2642,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2691,7 +2691,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "32b847b506a90ef2"
   },
   "teste_menu.py": {
@@ -2710,7 +2710,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2747,7 +2747,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2796,7 +2796,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "7eaed7d38e635138"
   },
   "teste_metas.py": {
@@ -2815,7 +2815,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2852,7 +2852,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -2901,7 +2901,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "c55d698ecc023ef6"
   },
   "teste_motivos_devolucao.py": {
@@ -2946,7 +2946,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -2983,7 +2983,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3032,7 +3032,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "d331293b85d740dc"
   },
   "teste_nomes_sistema.py": {
@@ -3064,7 +3064,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3101,7 +3101,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3150,7 +3150,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "36985ad8c90b3834"
   },
   "teste_pacote_c.py": {
@@ -3169,7 +3169,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3206,7 +3206,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3255,7 +3255,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "c23a23b24a478458"
   },
   "teste_parametros.py": {
@@ -3274,7 +3274,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3311,7 +3311,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3360,7 +3360,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "a6f27a7ac4f01255"
   },
   "teste_pdv.py": {
@@ -3379,7 +3379,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3416,7 +3416,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3465,7 +3465,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "7b2e3f2612357d0e"
   },
   "teste_pedido_cartao.py": {
@@ -3520,7 +3520,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3557,7 +3557,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3606,7 +3606,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "2690f31d2bb9157c"
   },
   "teste_pos.py": {
@@ -3636,7 +3636,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3673,7 +3673,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3722,7 +3722,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "04138f525c16893b"
   },
   "teste_rastreamento.py": {
@@ -3752,7 +3752,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3789,7 +3789,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3838,7 +3838,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "ab245ec81b300514"
   },
   "teste_recibo_clone.py": {
@@ -3877,7 +3877,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -3914,7 +3914,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -3963,7 +3963,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "d48ce9baec7f4f7a"
   },
   "teste_rodape.py": {
@@ -3982,7 +3982,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -4019,7 +4019,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -4068,7 +4068,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "15b79b4e1e462c60"
   },
   "teste_separacao.py": {
@@ -4115,7 +4115,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -4152,7 +4152,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -4201,7 +4201,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "8c56f6a7f98a1525"
   },
   "teste_trilha.py": {
@@ -4220,7 +4220,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -4257,7 +4257,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -4306,7 +4306,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "3fd41eb9b3bde4dd"
   },
   "teste_usuarios.py": {
@@ -4325,7 +4325,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -4362,7 +4362,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -4411,7 +4411,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "ebd9a25807e48539"
   },
   "teste_vale_compra.py": {
@@ -4430,7 +4430,7 @@
     "pagina-cadastros-lojas-desk-detalhe.html": "31e23393351172d2",
     "pagina-cadastros-lojas-desk.html": "1d221e3be8a25d7e",
     "pagina-cadastros-marcas.html": "e382fbee00688a82",
-    "pagina-cadastros-produtos-detalhe.html": "194b66f4e7ad584a",
+    "pagina-cadastros-produtos-detalhe.html": "d289d20eab607742",
     "pagina-cadastros-produtos.html": "2b4c37e9cc582aad",
     "pagina-cadastros-secao-produtos.html": "adc8ce934b1e9419",
     "pagina-cadastros-vendedores-detalhe.html": "f776d00765a1aaa3",
@@ -4467,7 +4467,7 @@
     "pagina-estoque-controle-estoques-detalhe.html": "ef66208f4ca05662",
     "pagina-estoque-controle-estoques.html": "a00e643a747f27a1",
     "pagina-estoque-enderecamento.html": "dba0263a2a24235e",
-    "pagina-estoque-entrada-notas-detalhe.html": "ef7783636aa8f366",
+    "pagina-estoque-entrada-notas-detalhe.html": "85a359d33f9842e1",
     "pagina-estoque-entrada-notas.html": "0d7167321893a628",
     "pagina-estoque-giro-estoque.html": "216a287817522752",
     "pagina-estoque-inventario.html": "36076a18c74efa82",
@@ -4516,7 +4516,7 @@
     "pagina-vendas-promocoes.html": "860a7d4083fc519a"
    },
    "ferramenta_sha": "2fbf40b41555189d+d2b2bdcb9fbfb021",
-   "selado_em": "2026-11-23",
+   "selado_em": "2026-11-24",
    "teste_sha": "741e3745973abd59"
   },
   "teste_vale_origem.py": {

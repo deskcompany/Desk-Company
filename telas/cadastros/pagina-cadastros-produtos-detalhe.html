@@ -2577,7 +2577,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
 
   // ===== O BOTAO "GERAR" DO SKU (23/nov/2026) =====
   // Sugere o proximo SKU no padrao: o prefixo da categoria (3 primeiras letras, maiusculas, sem acento: Eletronicos = ELE, Mobiliario = MOB, Materiais = MAT, Vestuario = VES; sem categoria, PRO) + "-" + a
-  // menor sequencia de 4 digitos livre, a partir da menor ja usada com esse prefixo (ELE-1001 a ELE-1004 existem: ELE-1005; sem nenhuma, 1001). So preenche: o SKU segue editavel e a gravacao e a de sempre.
+  // maior sequencia de 4 digitos ja usada com esse prefixo + 1 (decisao de 24/nov/2026: sempre o seguinte ao ultimo, sem preencher buraco). ELE-1001 a ELE-1004 existem: ELE-1005; VES-2001 e VES-2005: VES-2006; sem nenhum, 0001
+  // (PRO-0001). So preenche: o SKU segue editavel e a gravacao e a de sempre.
   function prefixoDoSku(categoria) {
     const letras = String(categoria || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
     return letras || 'PRO';
@@ -2585,8 +2586,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function proximoSku(categoria) {
     const pre = prefixoDoSku(categoria), usados = new Set();
     REGISTROS.concat(PROMO_PRODUTOS).forEach(r => { const m = new RegExp('^' + pre + '-(\\d{4})$').exec(String(r.sku || '').toUpperCase()); if (m) usados.add(Number(m[1])); });
-    let n = usados.size ? Math.min.apply(null, Array.from(usados)) : 1001;
-    while (usados.has(n)) n++;
+    const n = usados.size ? Math.max.apply(null, Array.from(usados)) + 1 : 1;
     return pre + '-' + String(n).padStart(4, '0');
   }
   document.getElementById('btnGerarSku').addEventListener('click', () => {

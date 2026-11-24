@@ -2261,7 +2261,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { nome: 'Teclado Mecânico Desk', sku: 'TEC-MEC-006', un: 'UN', preco: 231.10, gtin: '7891234000066', custo: 231.10, fornecedor: 1 },
     { nome: 'Cabo HDMI 2.1 · 2m',    sku: 'CAB-HDM-009', un: 'UN', preco: 9.50, gtin: '7891234000097', custo: 32.40, fornecedor: 1 },
     { nome: 'Suporte Monitor Duplo', sku: 'SUP-MON-003', un: 'UN', preco: 89.00, gtin: '7891234000035', custo: 138.40, fornecedor: 1 },
-    // Daqui para baixo (23/nov/2026) so a digitacao do nome le: o "Adicionar item" segue pelos tres de cima. `custo` e o custo medio do produto, o preco que a sugestao poe na linha;
+    // O catalogo so alimenta a sugestao ao digitar o nome (desde 24/nov/2026 o "Adicionar item" nasce com a linha vazia e nao copia mais produto daqui). `custo` e o custo medio do produto, o preco que a sugestao poe na linha;
     // `fornecedor` e o id de FORNECEDORES. Mesmos produtos e fornecedores da busca avancada da Ordem de Compra.
     { nome: 'Cadeira Ergonômica Pro', sku: 'CAD-ERG-001', un: 'UN', preco: 742.30, gtin: '7891234000011', custo: 742.30, fornecedor: 2 },
     { nome: 'Chapa MDF 18mm', sku: 'MAT-MDF-007', un: 'M2', preco: 214.50, gtin: '7891234000073', custo: 214.50, fornecedor: 3 },
@@ -2376,8 +2376,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   document.getElementById('btnAdicionarItem').addEventListener('click', () => {
-    const base = CATALOGO[ITENS.length % CATALOGO.length];
-    ITENS.push({ nome: base.nome, sku: base.sku, un: base.un, qtd: 1, preco: base.preco });
+    ITENS.push({ nome: '', sku: '', un: 'UN', qtd: 1, preco: 0 });
     renderItens();
     const ultimo = document.querySelector('#corpoItens tr:last-child input[data-campo="nome"]');
     if (ultimo) ultimo.focus();
