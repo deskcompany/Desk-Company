@@ -949,36 +949,49 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:5,  nome:'28 dias',               prazos:[28],           uso:'ambos', ativo:true },
     { id:6,  nome:'30 dias',               prazos:[30],           uso:'ambos', ativo:true },
     { id:7,  nome:'45 dias',               prazos:[45],           uso:'ambos', ativo:true },
-    { id:8,  nome:'2x (30/60)',            prazos:[30, 60],       uso:'ambos', ativo:true },
-    { id:9,  nome:'3x (30/60/90)',         prazos:[30, 60, 90],   uso:'ambos', ativo:true },
-    { id:10, nome:'4x (30/60/90/120)',     prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
-    { id:11, nome:'3x (28/56/84)',         prazos:[28, 56, 84],   uso:'ambos', ativo:true },
-    { id:12, nome:'Entrada + 2x (30/60)',  prazos:[0, 30, 60],    uso:'ambos', ativo:true },
-    { id:13, nome:'5x (30 a 150)',         prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
-    { id:14, nome:'6x (30 a 180)',         prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
+    { id:8,  nome:'2x',                    prazos:[30, 60],       uso:'ambos', ativo:true },
+    { id:9,  nome:'3x',                    prazos:[30, 60, 90],   uso:'ambos', ativo:true },
+    { id:10, nome:'4x',                    prazos:[30, 60, 90, 120], uso:'ambos', ativo:true },
+    { id:12, nome:'Entrada + 2x',          prazos:[0, 30, 60],    uso:'ambos', ativo:true },
+    { id:13, nome:'5x',                    prazos:[30, 60, 90, 120, 150], uso:'ambos', ativo:true },
+    { id:14, nome:'6x',                    prazos:[30, 60, 90, 120, 150, 180], uso:'ambos', ativo:true }
   ];
-  // Migracao de uma vez so (24/nov/2026, nomes no formato "3x (30/60/90)" e as condicoes 13 e 14): quem ja tem a lista guardada
-  // no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta),
-  // e as duas condicoes novas, se nao existirem. A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do
-  // guardado, porque o guardado e uma lista e cada item pode ser apagado: com a marca fora, apagar a 13 depois da migracao
-  // nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
-  const COND_VERSAO = 2;
+  // Migracao de uma vez so. Versao 2 (24/nov/2026): nomes no formato "3x (30/60/90)" e as condicoes 13 e 14. Versao 3 (24/nov/2026): nomes so "2x", "3x"..., e a 11 (3x 28/56/84) sai da fabrica.
+  // Quem ja tem a lista guardada no navegador recebe os nomes novos, mas so onde o nome ainda e o de fabrica antigo (o que a pessoa editou fica como esta).
+  // A marca fica numa chave irma (`deskCondicoesPagamentoV`) e nao dentro do guardado, porque o guardado e uma lista e cada item pode ser apagado:
+  // com a marca fora, apagar a 13 depois da migracao nao a traz de volta, e a tela de cadastro grava a marca junto com a lista.
+  const COND_VERSAO = 3;
   const COND_CHAVE_VERSAO = 'deskCondicoesPagamentoV';
-  const COND_NOMES_ANTIGOS = { 8:'30/60', 9:'30/60/90', 10:'30/60/90/120', 11:'28/56/84', 12:'Entrada + 30/60' };
-  function condMigrar(lista) {
+  // Os nomes de fabrica das versoes 1 e 2, por id: so o nome que ainda e um deles e trocado.
+  const COND_NOMES_ANTIGOS = {
+    8:  ['30/60', '2x (30/60)'],
+    9:  ['30/60/90', '3x (30/60/90)'],
+    10: ['30/60/90/120', '4x (30/60/90/120)'],
+    11: ['28/56/84', '3x (28/56/84)'],
+    12: ['Entrada + 30/60', 'Entrada + 2x (30/60)'],
+    13: ['5x (30 a 150)'],
+    14: ['6x (30 a 180)']
+  };
+  function condMigrar(lista, deVersao) {
+    // Renomeia so o nome de fabrica antigo: um nome que a pessoa editou nao e tocado.
     COND_FABRICA.forEach(f => {
       const c = lista.filter(x => x.id === f.id)[0];
-      if (c && COND_NOMES_ANTIGOS[f.id] && c.nome === COND_NOMES_ANTIGOS[f.id]) c.nome = f.nome;
-      if (!c && f.id > 12) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() }));
+      if (c && (COND_NOMES_ANTIGOS[f.id] || []).indexOf(c.nome) >= 0) c.nome = f.nome;
     });
+    // A 11 saiu da fabrica (teria o mesmo nome "3x" da 9); sai da lista guardada so se ninguem a editou.
+    const i11 = lista.findIndex(x => x.id === 11 && COND_NOMES_ANTIGOS[11].indexOf(x.nome) >= 0);
+    if (i11 >= 0) lista.splice(i11, 1);
+    // A 13 e a 14 nasceram na versao 2: quem ja esta nela (e apagou uma) nao a recebe de volta.
+    if (deVersao < 2) COND_FABRICA.forEach(f => { if (f.id > 12 && !lista.some(x => x.id === f.id)) lista.push(Object.assign({}, f, { prazos: f.prazos.slice() })); });
     return lista;
   }
   function condLer() {
     try {
       const g = JSON.parse(localStorage.getItem('deskCondicoesPagamento') || 'null');
       if (Array.isArray(g) && g.length && g.every(c => c && typeof c.nome === 'string' && Array.isArray(c.prazos) && c.prazos.length && c.prazos.every(p => Number.isInteger(p) && p >= 0 && p <= 365))) {
-        if ((Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1) < COND_VERSAO) {
-          condMigrar(g);
+        const versaoGravada = Number(localStorage.getItem(COND_CHAVE_VERSAO)) || 1;
+        if (versaoGravada < COND_VERSAO) {
+          condMigrar(g, versaoGravada);
           try { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(g)); localStorage.setItem(COND_CHAVE_VERSAO, String(COND_VERSAO)); } catch (e) { /* sem gravar: migra de novo na proxima leitura */ }
         }
         return g;

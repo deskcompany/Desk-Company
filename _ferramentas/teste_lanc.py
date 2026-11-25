@@ -47,7 +47,7 @@ with sync_playwright() as p:
         pg.click('#menuCategoria .dropdown-select-item[data-value="%s"]' % idcat); pg.wait_for_timeout(250)
     mes_atual = pg.evaluate("compDaData(iso(HOJE),0)")
     mes_ant = pg.evaluate("compDaData(iso(HOJE),-1)")
-    escolher_cat(1)   # Venda de mercadorias -> mes do vencimento
+    escolher_cat(7)   # Aluguel do galpao -> mes do vencimento (despesa: o lancamento abre em Saida, que so lista despesa desde 25/nov/2026)
     pg.click('.tab-item[data-tab="competencia"]'); pg.wait_for_timeout(200)
     ok(pg.text_content('#compValor').strip() == mes_atual[5:] + '/' + mes_atual[:4], 'categoria "mes do vencimento" -> mes da data (%s)' % pg.text_content('#compValor'))
     escolher_cat(8)   # Energia eletrica -> mes anterior
@@ -60,7 +60,7 @@ with sync_playwright() as p:
     pg.click('#btnCompAnterior'); pg.wait_for_timeout(250)
     ok('à mão' in pg.text_content('#notaCompetencia'), 'a nota avisa que foi definida a mao')
     antes = pg.text_content('#compValor')
-    escolher_cat(1)
+    escolher_cat(7)
     pg.click('.tab-item[data-tab="competencia"]'); pg.wait_for_timeout(250)
     ok(pg.text_content('#compValor') == antes, 'trocar a categoria nao mexe mais na competencia')
 
@@ -92,7 +92,7 @@ with sync_playwright() as p:
     pg.evaluate("localStorage.setItem('deskParametros', JSON.stringify({fechamentoFinanceiro: iso(HOJE)}))")
     pg.goto(BASE); pg.wait_for_timeout(500)
     pg.click('#ddCategoria .dropdown-select-btn'); pg.wait_for_timeout(150)
-    pg.click('#menuCategoria .dropdown-select-item[data-value="1"]'); pg.wait_for_timeout(150)
+    pg.click('#menuCategoria .dropdown-select-item[data-value="7"]'); pg.wait_for_timeout(150)
     pg.fill('#inputValor', '150,00')
     pg.fill('#inputHistorico', 'teste novo')
     nm = pg.evaluate("MOVIMENTOS.length")

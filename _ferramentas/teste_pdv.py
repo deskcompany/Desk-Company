@@ -396,10 +396,10 @@ with sync_playwright() as p:
     ok(pg.evaluate('venda.recebimentos[2].valor') == 200, 'a terceira forma ja vem com o que falta')
     lr = pg.inner_text('#listaReceb')
     ok('Taxa de R$ 2,90' in lr and 'Líquido' in lr and 'limite de crédito' in lr, 'boleto mostra a taxa fixa, o liquido e avisa que confere o limite')
-    condicao(pg, 2, 9)   # 3x (30/60/90), a lista de fabrica
+    condicao(pg, 2, 9)   # 3x, a lista de fabrica
     parc = pg.evaluate('venda.recebimentos[2].parcelas')
     ok([x['dias'] for x in parc] == [30, 60, 90] and round(sum(x['valor'] for x in parc), 2) == 200,
-       'a condicao 3x (30/60/90) gera tres parcelas de 30 em 30 que somam o valor: %s' % parc)
+       'a condicao 3x gera tres parcelas de 30 em 30 que somam o valor: %s' % parc)
     # uma condicao 15/45 nasce no cadastro (o "15 45" digitado de antes): a lista de escolha a oferece na proxima pintura
     pg.evaluate("localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.concat([{ id: 101, nome: '15/45', prazos: [15, 45], uso: 'receber', ativo: true }])))")
     pg.evaluate("pintarFinalizar()"); pg.wait_for_timeout(200)
@@ -407,7 +407,7 @@ with sync_playwright() as p:
     ok([x['dias'] for x in pg.evaluate('venda.recebimentos[2].parcelas')] == [15, 45], 'a condicao 15/45 gera as parcelas nos dias pedidos')
     pg.fill('[data-parc-valor="2:0"]', '50'); pg.locator('[data-parc-valor="2:0"]').blur(); pg.wait_for_timeout(250)
     ok('as parcelas somam' in pg.inner_text('#faltaReceber'), 'parcela mexida a mao que nao fecha a soma e barrada, com os numeros')
-    condicao(pg, 2, 8)   # 2x (30/60)
+    condicao(pg, 2, 8)   # 2x
     ok('Pode finalizar' in pg.inner_text('#faltaReceber'), 'com tudo fechando, a tela diz que pode finalizar')
     clic(pg, '#btnClienteFin'); pg.wait_for_timeout(300); clic(pg, '#btnConsumidorFinal'); pg.wait_for_timeout(300)
     f = pg.inner_text('#faltaReceber')

@@ -10,7 +10,8 @@
 #   [6] Necessidades de Compra: a ordem que cobre so parte ganha a linha "N a caminho na ordem nº X" embaixo do nome;
 #   [7] (depois do teste de 24/nov) o transportador de compra sem Frota Desk e sem Retirada no balcao; o prazo do cliente com a largura de uma coluna;
 #   [8] a categoria financeira ganha o tipo (receita ou despesa): o cadastro, e quem lista so o tipo certo;
-#   [9] a condicao de pagamento padrao do fornecedor preenche a nota e a ordem (os cinco casos).
+#   [9] a condicao de pagamento padrao do fornecedor preenche a nota e a ordem (os cinco casos);
+#   [10] (25/nov/2026) no Lancamento do Caixa a categoria segue o sentido: Entrada so receita, Saida so despesa, Saldo todas; a troca limpa a incompativel.
 # Cada lista e conferida contra a tela de ORIGEM: copia que diverge do cadastro e o defeito que esta suite existe para pegar.
 from playwright.sync_api import sync_playwright
 import os, json
@@ -345,7 +346,7 @@ with sync_playwright() as p:
 
     print('\n[9] A condicao de pagamento padrao do fornecedor preenche a nota e a ordem')
     pg = nova(); ir(pg, 'pagina-cadastros-fornecedores-detalhe.html', '?id=2')
-    ok(valor(pg, '#inputPrazoPagamento') == '9' and rotulo(pg, '#inputPrazoPagamento') == '3x (30/60/90)', 'fornecedor TechParts (detalhe): o dropdown abre com a condicao gravada, 3x (30/60/90): %s' % rotulo(pg, '#inputPrazoPagamento'))
+    ok(valor(pg, '#inputPrazoPagamento') == '9' and rotulo(pg, '#inputPrazoPagamento') == '3x', 'fornecedor TechParts (detalhe): o dropdown abre com a condicao gravada, 3x: %s' % rotulo(pg, '#inputPrazoPagamento'))
     pg.context.close()
     for fid, cid, nome in ((7, '5', '28 dias'), (14, '6', '30 dias')):
         pg = nova(); ir(pg, 'pagina-cadastros-fornecedores-detalhe.html', '?id=%d' % fid)
@@ -353,16 +354,16 @@ with sync_playwright() as p:
         pg.context.close()
     pg = nova(); ir(pg, 'pagina-cadastros-fornecedores-detalhe.html', '?id=1')
     ok(valor(pg, '#inputPrazoPagamento') == '' and rotulo(pg, '#inputPrazoPagamento') == 'Sem condição padrão', 'fornecedor sem condicao (detalhe): abre em "Sem condicao padrao" (o campo e opcional)')
-    pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { ativo: c.id !== 9 })))); localStorage.setItem('deskCondicoesPagamentoV', '2'); })()")
+    pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { ativo: c.id !== 9 })))); localStorage.setItem('deskCondicoesPagamentoV', '3'); })()")
     ir(pg, 'pagina-cadastros-fornecedores-detalhe.html', '?id=2')
-    ok(valor(pg, '#inputPrazoPagamento') == '9' and rotulo(pg, '#inputPrazoPagamento') == '3x (30/60/90)' and '9' not in [v for v, r in itens(pg, '#inputPrazoPagamento')], 'se a condicao gravada foi inativada, o nome fica no rotulo, o valor segue 9 e ela sai da lista')
+    ok(valor(pg, '#inputPrazoPagamento') == '9' and rotulo(pg, '#inputPrazoPagamento') == '3x' and '9' not in [v for v, r in itens(pg, '#inputPrazoPagamento')], 'se a condicao gravada foi inativada, o nome fica no rotulo, o valor segue 9 e ela sai da lista')
     pg.context.close()
 
     for tela, q, campo, hint in ((NOTA, '', '#inputCondicao', '#hintCondicao'), (OC, '?novo=1', '#inputCondicaoPagamento', '#hintCondicaoPagamento')):
         n = tela.replace('pagina-estoque-', '').replace('-detalhe.html', '')
         pg = nova(); ir(pg, tela, q)
         escolher(pg, '#inputFornecedor', 1)
-        ok(valor(pg, campo) == '9' and rotulo(pg, campo) == '3x (30/60/90)', '%s: campo vazio + fornecedor com padrao: a condicao vem preenchida (TechParts: 3x (30/60/90)): %s' % (n, rotulo(pg, campo)))
+        ok(valor(pg, campo) == '9' and rotulo(pg, campo) == '3x', '%s: campo vazio + fornecedor com padrao: a condicao vem preenchida (TechParts: 3x): %s' % (n, rotulo(pg, campo)))
         ok('Padrão do fornecedor' in pg.inner_text(hint) and '3 parcelas: 30, 60 e 90 dias' in pg.inner_text(hint), '%s: a dica embaixo diz "Padrão do fornecedor" e as parcelas: %s' % (n, pg.inner_text(hint)[:60]))
         # trocar de fornecedor com a condicao que veio sozinha: troca pela do novo
         escolher(pg, '#inputFornecedor', 5)
@@ -388,14 +389,14 @@ with sync_playwright() as p:
         pg.context.close()
         # condicao padrao inativa nao preenche
         pg = nova(); ir(pg, tela, q)
-        pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { ativo: c.id !== 9 })))); localStorage.setItem('deskCondicoesPagamentoV', '2'); })()")
+        pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { ativo: c.id !== 9 })))); localStorage.setItem('deskCondicoesPagamentoV', '3'); })()")
         ir(pg, tela, q)
         escolher(pg, '#inputFornecedor', 1)
         ok(valor(pg, campo) == '' and 'Padrão do fornecedor' not in pg.inner_text(hint), '%s: condicao padrao inativa nao preenche' % n)
         pg.context.close()
         # so pagar: uma condicao so de receber nao vale
         pg = nova(); ir(pg, tela, q)
-        pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { uso: c.id === 9 ? 'receber' : c.uso })))); localStorage.setItem('deskCondicoesPagamentoV', '2'); })()")
+        pg.evaluate("(() => { localStorage.setItem('deskCondicoesPagamento', JSON.stringify(COND_FABRICA.map(c => Object.assign({}, c, { uso: c.id === 9 ? 'receber' : c.uso })))); localStorage.setItem('deskCondicoesPagamentoV', '3'); })()")
         ir(pg, tela, q)
         escolher(pg, '#inputFornecedor', 1)
         ok(valor(pg, campo) == '', '%s: condicao padrao que so vale para receber nao preenche' % n)
@@ -403,6 +404,110 @@ with sync_playwright() as p:
     # a ordem gravada nao muda sozinha ao abrir
     pg = nova(); ir(pg, OC, '?id=2')
     ok(valor(pg, '#inputCondicaoPagamento') == '' and 'Padrão do fornecedor' not in pg.inner_text('#hintCondicaoPagamento'), 'ordem de compra gravada (nº 2, TechParts, sem condicao): abrir nao preenche sozinho, o dado gravado fica como esta')
+    pg.context.close()
+
+    print('\n[10] Lancamento do Caixa: a categoria segue o sentido (Entrada so receita, Saida so despesa, Saldo todas)')
+    LANC = 'pagina-financas-caixa-lancamento.html'
+    CPAG = 'pagina-financas-contas-pagar-detalhe.html'
+    pg = nova(); ir(pg, CPAG, '?novo=1')
+    espelho_cp = pg.evaluate("CATS_FIN.map(c => [c.id, c.nome, c.tipo || ''])")
+    pg.context.close()
+    pg = nova(); ir(pg, LANC, '?novo=1')
+    ok(pg.evaluate("CATS_FIN.map(c => [c.id, c.nome, c.tipo || ''])") == espelho_cp, 'o espelho de categorias do lancamento tem os mesmos id, nome e tipo do da Contas a Pagar (%d linhas)' % len(espelho_cp))
+    tipo_cat = {str(i): t for i, n, t in espelho_cp}
+    rec_ids = [k for k, t in tipo_cat.items() if t == 'receita']
+    des_ids = [k for k, t in tipo_cat.items() if t == 'despesa']
+
+    def lista_cat(pg):
+        return [v for v, r in itens(pg, '#menuCategoria') if v not in ('0', 'nova')]
+
+    ok(valor(pg, '#ddTipo') == 'saida', 'o lancamento novo abre em Saida')
+    ls = lista_cat(pg)
+    ok(ls and not any(tipo_cat[v] == 'receita' for v in ls) and '4' in ls and '14' in ls, 'Saida: a categoria so lista despesa: %s' % ls)
+    ok('Receitas de vendas' not in pg.inner_text('#menuCategoria'), 'Saida: o grupo "Receitas de vendas", que ficaria vazio, nao aparece')
+    ok(['0', 'nova'] == [v for v, r in itens(pg, '#menuCategoria') if v in ('0', 'nova')], 'Saida: "Sem categoria" e "Adicionar nova categoria" seguem no menu')
+    escolher(pg, '#ddTipo', 'entrada')
+    le = lista_cat(pg)
+    ok(le and not any(tipo_cat[v] == 'despesa' for v in le) and '1' in le and '2' in le, 'Entrada: a categoria so lista receita: %s' % le)
+    ok('Despesas fixas' not in pg.inner_text('#menuCategoria') and 'Impostos e taxas' not in pg.inner_text('#menuCategoria'), 'Entrada: nenhum grupo de despesa aparece')
+    escolher(pg, '#ddTipo', 'saldo')
+    lsd = lista_cat(pg)
+    ok(any(tipo_cat[v] == 'receita' for v in lsd) and any(tipo_cat[v] == 'despesa' for v in lsd) and '1' in lsd and '4' in lsd, 'Saldo: a categoria lista receita e despesa (o sentido so se sabe ao salvar): %d itens' % len(lsd))
+    ok('Receitas de vendas' in pg.inner_text('#menuCategoria') and 'Despesas fixas' in pg.inner_text('#menuCategoria'), 'Saldo: os grupos de receita e de despesa aparecem')
+    pg.context.close()
+
+    # trocar o sentido limpa a categoria incompativel e mostra a dica
+    pg = nova(); ir(pg, LANC, '?novo=1')
+    escolher(pg, '#ddCategoria', 4)   # despesa, em Saida
+    escolher(pg, '#ddTipo', 'entrada')
+    ok(valor(pg, '#ddCategoria') == '' and rotulo(pg, '#ddCategoria') == 'Selecione a categoria', 'Saida -> Entrada com uma despesa escolhida: a categoria volta para vazia')
+    ok('Categoria limpa' in pg.inner_text('#hintCategoria') and 'despesa' in pg.inner_text('#hintCategoria') and 'entrada' in pg.inner_text('#hintCategoria'), 'e a dica diz o que aconteceu: %s' % pg.inner_text('#hintCategoria'))
+    escolher(pg, '#ddCategoria', 1)
+    ok('Categoria limpa' not in pg.inner_text('#hintCategoria') and rotulo(pg, '#ddCategoria') == 'Venda de mercadorias', 'escolher outra categoria tira a dica')
+    escolher(pg, '#ddTipo', 'saida')
+    ok(valor(pg, '#ddCategoria') == '' and 'receita' in pg.inner_text('#hintCategoria') and 'saída' in pg.inner_text('#hintCategoria'), 'Entrada -> Saida com uma receita escolhida: limpa, e a dica diz "receita" e "saida"')
+    pg.context.close()
+
+    # trocar o sentido mantem a compativel
+    pg = nova(); ir(pg, LANC, '?novo=1')
+    escolher(pg, '#ddCategoria', 4)
+    escolher(pg, '#ddTipo', 'saida')   # o mesmo sentido
+    ok(valor(pg, '#ddCategoria') == '4' and rotulo(pg, '#ddCategoria') == 'Compra de mercadoria para revenda' and 'Categoria limpa' not in pg.inner_text('#hintCategoria'), 'reescolher o mesmo sentido mantem a categoria')
+    escolher(pg, '#ddTipo', 'saldo')
+    ok(valor(pg, '#ddCategoria') == '4' and 'Categoria limpa' not in pg.inner_text('#hintCategoria'), 'Saida -> Saldo: a categoria fica, sem dica')
+    ok('active' in (pg.get_attribute('#menuCategoria .dropdown-select-item[data-value="4"]', 'class') or ''), 'e o menu refeito marca a categoria que ficou')
+    escolher(pg, '#ddTipo', 'saida')
+    ok(valor(pg, '#ddCategoria') == '4', 'Saldo -> Saida com uma despesa: a categoria fica')
+    # Saida -> Saldo -> Entrada limpa a despesa no fim
+    escolher(pg, '#ddTipo', 'saldo'); escolher(pg, '#ddTipo', 'entrada')
+    ok(valor(pg, '#ddCategoria') == '' and 'Categoria limpa' in pg.inner_text('#hintCategoria'), 'Saida -> Saldo -> Entrada: a despesa so e limpa no fim, ao chegar em Entrada')
+    pg.context.close()
+    pg = nova(); ir(pg, LANC, '?novo=1')
+    escolher(pg, '#ddTipo', 'entrada'); escolher(pg, '#ddCategoria', 2)
+    escolher(pg, '#ddTipo', 'saldo')
+    ok(valor(pg, '#ddCategoria') == '2', 'Entrada -> Saldo com uma receita: a categoria fica')
+    escolher(pg, '#ddTipo', 'entrada')
+    ok(valor(pg, '#ddCategoria') == '2' and rotulo(pg, '#ddCategoria') == 'Venda em marketplace', 'Saldo -> Entrada com uma receita: a categoria fica')
+    pg.context.close()
+
+    # lancamento gravado: abre no sentido dele; o do outro tipo mostra o nome e nao perde o dado
+    pg = nova(); ir(pg, LANC, '?id=1')
+    ok(valor(pg, '#ddTipo') == 'entrada' and valor(pg, '#ddCategoria') == '1' and rotulo(pg, '#ddCategoria') == 'Venda de mercadorias', 'lancamento gravado (entrada, venda): abre com o nome da categoria')
+    ok(not any(tipo_cat[v] == 'despesa' for v in lista_cat(pg)), 'e a lista dele ja e so de receita')
+    pg.context.close()
+    corpo = open(localiza.onde(LANC), encoding='utf-8').read()
+    alvo = "catId:1,  tipo:'entrada', valor:1250.00"
+    assert corpo.count(alvo) == 1
+    pg = nova()
+    pg.route('**/' + LANC + '*', lambda r: r.fulfill(body=corpo.replace(alvo, "catId:4,  tipo:'entrada', valor:1250.00"), content_type='text/html'))
+    ir(pg, LANC, '?id=1')
+    ok(valor(pg, '#ddCategoria') == '4' and rotulo(pg, '#ddCategoria') == 'Compra de mercadoria para revenda' and valor(pg, '#ddTipo') == 'entrada', 'entrada gravada com uma despesa (id 4): o nome fica no rotulo e o valor segue 4')
+    ok('4' not in lista_cat(pg), 'e a lista dela continua so de receita (a despesa nao entra)')
+    pg.context.close()
+
+    # categoria nova nasce com o tipo do sentido
+    for sentido, esperado in (('saida', 'despesa'), ('entrada', 'receita')):
+        pg = nova(); ir(pg, LANC, '?novo=1')
+        escolher(pg, '#ddTipo', sentido)
+        escolher(pg, '#ddCategoria', 'nova'); pg.wait_for_timeout(300)
+        ok(not pg.is_visible('#campoNovaCatTipo'), '%s: o painel de categoria nova nao mostra o campo Tipo' % sentido)
+        pg.fill('#inputNovaCatDesc', 'Categoria de teste do caixa')
+        clic(pg, '#btnSalvarNovaCat'); pg.wait_for_timeout(300)
+        pg.wait_for_timeout(300)
+        ok(pg.evaluate("CATS_FIN.some(c => c.nome === 'Categoria de teste do caixa' && c.tipo === '%s')" % esperado), '%s: a categoria criada nasce %s' % (sentido, esperado))
+        pg.context.close()
+    pg = nova(); ir(pg, LANC, '?novo=1')
+    escolher(pg, '#ddTipo', 'saldo')
+    escolher(pg, '#ddCategoria', 'nova'); pg.wait_for_timeout(300)
+    ok(pg.is_visible('#campoNovaCatTipo') and rotulo(pg, '#ddNovaCatTipo') == 'Selecione o tipo', 'Saldo: o painel de categoria nova mostra o campo Tipo, vazio')
+    pg.fill('#inputNovaCatDesc', 'Categoria de saldo')
+    clic(pg, '#btnSalvarNovaCat'); pg.wait_for_timeout(300)
+    ok(pg.evaluate("document.getElementById('erroNovaCatTipo').classList.contains('show')") and not pg.evaluate("CATS_FIN.some(c => c.nome === 'Categoria de saldo')"), 'Saldo: salvar sem o tipo mostra o erro e nao cria a categoria')
+    escolher(pg, '#ddNovaCatTipo', 'receita')
+    ok(not pg.evaluate("document.getElementById('erroNovaCatTipo').classList.contains('show')"), 'escolher o tipo tira o erro')
+    clic(pg, '#btnSalvarNovaCat'); pg.wait_for_timeout(300)
+    pg.wait_for_timeout(300)
+    ok(pg.evaluate("CATS_FIN.some(c => c.nome === 'Categoria de saldo' && c.tipo === 'receita')"), 'Saldo: a categoria criada nasce com o tipo escolhido (receita)')
     pg.context.close()
 
     ok(not erros, 'sem erro de JS em toda a suite: %s' % erros[:3])

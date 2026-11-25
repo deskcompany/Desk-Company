@@ -1086,6 +1086,22 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     <div class="field-error-msg" id="erroNovaCatDesc">Informe a descrição da categoria.</div>
   </div>
 
+  <div class="form-field" id="campoNovaCatTipo" style="display:none;">
+    <label>Tipo</label>
+    <div class="dropdown-select" id="ddNovaCatTipo" data-value="">
+      <button type="button" class="dropdown-select-btn form-style">
+        <span class="dropdown-select-label">Selecione o tipo</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dropdown-select-menu">
+        <div class="dropdown-select-item" data-value="receita">Receita</div>
+        <div class="dropdown-select-item" data-value="despesa">Despesa</div>
+      </div>
+    </div>
+    <div class="field-hint">No lançamento de saldo o sentido só se sabe ao salvar, então aqui você diz se a categoria é receita ou despesa. Em entrada ela nasce receita; em saída, despesa.</div>
+    <div class="field-error-msg" id="erroNovaCatTipo">Escolha se a categoria é receita ou despesa.</div>
+  </div>
+
   <div class="form-field">
     <label>Grupo</label>
     <div class="dropdown-select" id="ddNovaCatGrupo" data-value="">
@@ -2094,26 +2110,28 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     { id:6, nome:'Conta teste',                saldoAbertura: 0.00,     ativo:true,  foraFluxo:false, sistema:false }
   ];
 
-  // Espelho de Configuracoes > Categorias financeiras (mesmos ids e grupos).
+  // Espelho de Configuracoes > Categorias financeiras (mesmos ids, nomes, grupos e TIPO), copiado de
+  // ../financas/pagina-financas-contas-pagar-detalhe.html (25/nov/2026): o tipo manda na lista de categoria do sentido.
   const CATS_FIN = [
-    { id:1,  nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:2,  nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
-    { id:3,  nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
-    { id:4,  nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:5,  nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
-    { id:7,  nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:8,  nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
-    { id:9,  nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
-    { id:10, nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
-    { id:11, nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
-    { id:12, nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:13, nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:25, nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
-    { id:17, nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:18, nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
-    { id:15, nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
-    { id:20, nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
-    { id:21, nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
+    { id:1,  tipo:'receita', nome:'Venda de mercadorias',              grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:2,  tipo:'receita', nome:'Venda em marketplace',              grupo:'Receitas de vendas' , comp:'emissao' },
+    { id:3,  tipo:'receita', nome:'Frete cobrado do cliente',          grupo:'Receitas de vendas' , comp:'vencimento' },
+    { id:4,  tipo:'despesa', nome:'Compra de mercadoria para revenda', grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:5,  tipo:'despesa', nome:'Frete de compra',                   grupo:'Custos e fornecedores' , comp:'emissao' },
+    { id:7,  tipo:'despesa', nome:'Aluguel do galpão',                 grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:8,  tipo:'despesa', nome:'Energia elétrica',                  grupo:'Despesas fixas' , comp:'anterior' },
+    { id:9,  tipo:'despesa', nome:'Internet e telefonia',              grupo:'Despesas fixas' , comp:'anterior' },
+    { id:10, tipo:'despesa', nome:'Salários e encargos',               grupo:'Despesas fixas' , comp:'vencimento' },
+    { id:11, tipo:'despesa', nome:'Embalagens e material de expedição', grupo:'Despesas variáveis' , comp:'emissao' },
+    { id:12, tipo:'despesa', nome:'Frete de entrega',                  grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:13, tipo:'despesa', nome:'Comissão de marketplace',           grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:25, tipo:'despesa', nome:'Comissões de vendedores e afiliados', grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:14, tipo:'despesa', nome:'Anúncios e mídia paga',             grupo:'Despesas variáveis' , comp:'vencimento' },
+    { id:17, tipo:'despesa', nome:'Taxa de cartão e gateway',          grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:18, tipo:'despesa', nome:'Tarifas bancárias',                 grupo:'Impostos e taxas' , comp:'vencimento' },
+    { id:15, tipo:'despesa', nome:'Simples Nacional (DAS)',            grupo:'Impostos e taxas' , comp:'anterior' },
+    { id:20, tipo:'despesa', nome:'Juros e multas pagos',            grupo:'', comp:'vencimento' },
+    { id:21, tipo:'receita', nome:'Juros e multas recebidos',          grupo:'', comp:'vencimento' },
     { id:0,  nome:'Sem categoria',                     grupo:'' }
   ];
 
@@ -2266,11 +2284,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('tituloLanc').textContent = lancAtual ? (modoLeitura ? 'Lançamento' : 'Editar lançamento') : 'Novo lançamento';
   }
 
+  // A categoria segue o sentido do lancamento (25/nov/2026): Entrada so receita, Saida so despesa, Saldo todas
+  // (o sentido do ajuste so se sabe ao salvar). Mesmo criterio de Contas a Pagar e a Receber.
+  const sentidoAtual = () => document.getElementById('ddTipo').getAttribute('data-value');
+  const catDoSentido = (c, s) => s === 'entrada' ? c.tipo !== 'despesa' : s === 'saida' ? c.tipo !== 'receita' : true;
+  let avisoCat = '';
   function menuCategorias() {
     let html = '';
+    const sentido = sentidoAtual();
     GRUPOS_CAT.forEach(g => {
+      const doGrupo = CATS_FIN.filter(c => c.grupo === g && catDoSentido(c, sentido));   // grupo sem nenhuma fica de fora
+      if (!doGrupo.length) return;
       html += '<div class="dropdown-grupo">' + g + '</div>';
-      CATS_FIN.filter(c => c.grupo === g).forEach(c => {
+      doGrupo.forEach(c => {
         html += '<div class="dropdown-select-item" data-value="' + c.id + '">' + c.nome + '</div>';
       });
     });
@@ -2282,6 +2308,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     document.getElementById('menuCategoria').innerHTML = html;
     inicializarDropdownSelect(document.getElementById('ddCategoria'), (v) => {
       if (v === 'nova') { abrirDrawerCategoria(); return; }
+      avisoCat = '';
       const c = catDe(Number(v));
       document.getElementById('roCategoria').textContent = c.nome;
       atualizarCompetencia();
@@ -2293,8 +2320,26 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     const v = document.getElementById('ddCategoria').getAttribute('data-value');
     const c = v === '' || v === 'nova' ? null : catDe(Number(v));
     const el = document.getElementById('hintCategoria');
-    if (!c || !c.id) { el.innerHTML = 'É ela que leva o valor para a linha certa do DRE e define de que mês ele é.'; return; }
+    if (!c || !c.id) { el.innerHTML = (!c && avisoCat) || 'É ela que leva o valor para a linha certa do DRE e define de que mês ele é.'; return; }
     el.innerHTML = 'Regra de competência desta categoria: <b>' + COMP_LABEL[c.comp || ''] + '</b>.';
+  }
+
+  // Trocou o Tipo: a lista de categoria muda, e a escolhida do outro tipo volta para vazia (com a dica).
+  function aplicarSentidoNaCategoria() {
+    const sentido = sentidoAtual();
+    const v = document.getElementById('ddCategoria').getAttribute('data-value');
+    const c = (v === '' || v === 'nova') ? null : catDe(Number(v));
+    avisoCat = '';
+    menuCategorias();
+    if (c && !catDoSentido(c, sentido)) {
+      avisoCat = 'Categoria limpa: ela é de ' + c.tipo + ' e o lançamento agora é de ' + (sentido === 'entrada' ? 'entrada' : 'saída') + '.';
+      rotuloDropdown('ddCategoria', 'Selecione a categoria', '');
+      document.getElementById('roCategoria').textContent = '—';
+      atualizarCompetencia();
+    } else if (c) {
+      rotuloDropdown('ddCategoria', c.nome, c.id);
+    }
+    atualizarHintCategoria();
   }
 
   function menuContasLanc() {
@@ -2465,6 +2510,9 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     rotuloDropdown('ddCategoria', 'Selecione a categoria', '');
     document.getElementById('inputNovaCatDesc').value = '';
     rotuloDropdown('ddNovaCatGrupo', 'Sem grupo', '');
+    rotuloDropdown('ddNovaCatTipo', 'Selecione o tipo', '');
+    document.getElementById('campoNovaCatTipo').style.display = sentidoAtual() === 'saldo' ? '' : 'none';   // so no Saldo se escolhe o tipo
+    marcarErro('campoNovaCatTipo', 'erroNovaCatTipo', false);
     rotuloDropdown('ddNovaCatDre', 'Não considera', 'nao');
     rotuloDropdown('ddNovaCatComp', 'Sem competência padrão', '');
     marcarErro('campoNovaCatDesc', 'erroNovaCatDesc', false);
@@ -2482,11 +2530,15 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   document.getElementById('btnSalvarNovaCat').addEventListener('click', () => {
     const desc = document.getElementById('inputNovaCatDesc').value.trim();
     marcarErro('campoNovaCatDesc', 'erroNovaCatDesc', desc === '');
-    if (desc === '') return;
+    const sentido = sentidoAtual();
+    const tipoNova = sentido === 'entrada' ? 'receita' : sentido === 'saida' ? 'despesa' : document.getElementById('ddNovaCatTipo').getAttribute('data-value');
+    marcarErro('campoNovaCatTipo', 'erroNovaCatTipo', !tipoNova);
+    if (desc === '' || !tipoNova) return;
     const grupo = document.getElementById('ddNovaCatGrupo').getAttribute('data-value') || '';
     const comp = document.getElementById('ddNovaCatComp').getAttribute('data-value') || '';
     confirmarAcao('categoriasFinanceirasCriar', 'Confirma o cadastro da categoria "' + desc + '"?', () => {
-      const nova = { id: Date.now(), nome: desc, grupo: grupo, comp: comp };
+      const nova = { id: Date.now(), tipo: tipoNova, nome: desc, grupo: grupo, comp: comp };
+      avisoCat = '';
       CATS_FIN.splice(CATS_FIN.length - 1, 0, nova);
       if (grupo && GRUPOS_CAT.indexOf(grupo) === -1) GRUPOS_CAT.push(grupo);
       menuCategorias();
@@ -2614,7 +2666,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   menuContasLanc();
   menuCategorias();
   menuGruposNovaCat();
-  inicializarDropdownSelect(document.getElementById('ddTipo'), () => atualizarNotaSaldo());
+  inicializarDropdownSelect(document.getElementById('ddTipo'), () => { atualizarNotaSaldo(); aplicarSentidoNaCategoria(); });
+  inicializarDropdownSelect(document.getElementById('ddNovaCatTipo'), () => marcarErro('campoNovaCatTipo', 'erroNovaCatTipo', false));
   inicializarDropdownSelect(document.getElementById('ddNovaCatDre'), () => {});
   inicializarDropdownSelect(document.getElementById('ddNovaCatComp'), () => {});
   document.getElementById('inputData').addEventListener('input', () => { atualizarCompetencia(); atualizarNotaSaldo(); });
@@ -2625,6 +2678,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     rotuloDropdown('ddConta', c ? c.nome : '—', lancAtual.contaId);
     rotuloDropdown('ddCategoria', cat.nome, lancAtual.catId);
     rotuloDropdown('ddTipo', lancAtual.tipo === 'entrada' ? 'Entrada' : 'Saída', lancAtual.tipo);
+    menuCategorias();
+    rotuloDropdown('ddCategoria', cat.nome, lancAtual.catId);
     document.getElementById('inputData').value = fmtData(lancAtual.data);
     document.getElementById('inputValor').value = fmtDin(lancAtual.valor);
     document.getElementById('inputHistorico').value = lancAtual.hist;
