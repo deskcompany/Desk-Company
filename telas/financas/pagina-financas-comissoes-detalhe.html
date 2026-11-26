@@ -349,7 +349,7 @@
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
   .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
   .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; overscroll-behavior:contain; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
@@ -915,7 +915,7 @@
   .date-dia.vazio:hover { background:transparent; }
   .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
   .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
-  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; }
   .date-dia.off:hover { background:transparent; }
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
@@ -1185,7 +1185,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="form-field" id="campoDataIni">
         <label>Data inicial</label>
         <div class="date-field" id="dfIni">
-          <input type="text" id="dataIni" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data inicial">
+          <input type="text" id="dataIni" placeholder="DD/MM/AAAA" autocomplete="off" aria-label="Data inicial">
           <button type="button" class="date-btn" aria-label="abrir calendário da data inicial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
           <div class="date-pop"></div>
         </div>
@@ -1193,7 +1193,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="form-field" id="campoDataFim">
         <label>Data final</label>
         <div class="date-field" id="dfFim">
-          <input type="text" id="dataFim" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Data final">
+          <input type="text" id="dataFim" placeholder="DD/MM/AAAA" autocomplete="off" aria-label="Data final">
           <button type="button" class="date-btn" aria-label="abrir calendário da data final"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
           <div class="date-pop"></div>
         </div>
@@ -1361,11 +1361,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="form-field" id="campoRpVenc">
     <label>Novo vencimento</label>
     <div class="date-field" id="dfRpVenc">
-      <input type="text" id="rpVenc" placeholder="dd/mm/aaaa" autocomplete="off" aria-label="Novo vencimento">
+      <input type="text" id="rpVenc" placeholder="DD/MM/AAAA" autocomplete="off" aria-label="Novo vencimento">
       <button type="button" class="date-btn" aria-label="abrir calendário do novo vencimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
       <div class="date-pop"></div>
     </div>
-    <div class="field-error-msg" id="erroRpVenc">Data no formato dd/mm/aaaa, de hoje em diante.</div>
+    <div class="field-error-msg" id="erroRpVenc">Data no formato DD/MM/AAAA, de hoje em diante.</div>
   </div>
   <div class="drawer-footer">
     <button class="btn-primary" id="btnRpSalvar">Reprogramar</button>
@@ -1389,8 +1389,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
     </div>
     <div class="form-field" id="campoPgVenc">
       <label>Vencimento</label>
-      <input type="text" id="pgVenc" placeholder="dd/mm/aaaa">
-      <div class="field-error-msg" id="erroPgVenc">Data no formato dd/mm/aaaa, de hoje em diante.</div>
+      <input type="text" id="pgVenc" placeholder="DD/MM/AAAA">
+      <div class="field-error-msg" id="erroPgVenc">Data no formato DD/MM/AAAA, de hoje em diante.</div>
     </div>
   </div>
   <div class="form-field">
@@ -1426,8 +1426,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   <div class="form-row">
     <div class="form-field" id="campoAjData">
       <label>Prevista para</label>
-      <input type="text" id="ajData" placeholder="dd/mm/aaaa">
-      <div class="field-error-msg" id="erroAjData">Data no formato dd/mm/aaaa.</div>
+      <input type="text" id="ajData" placeholder="DD/MM/AAAA">
+      <div class="field-error-msg" id="erroAjData">Data no formato DD/MM/AAAA.</div>
     </div>
     <div class="form-field" id="campoAjValor">
       <label>Valor da comissão</label>
@@ -3570,6 +3570,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
+
+  // Lista suspensa aberta trava a rolagem da pagina (revisao de 26/nov/2026): a roda e o toque fora do menu nao rolam o fundo.
+  // Dentro do menu a rolagem funciona e, nas pontas, nao passa para a pagina. Sem overflow:hidden no body: a barra nao some e a tela nao pula.
+  function travarRolagemComListaAberta(e) {
+    if (!e.cancelable) return;
+    const abertos = Array.prototype.filter.call(document.querySelectorAll('.dropdown-select-menu.open'), m => m.getClientRects().length);
+    if (!abertos.length) return;
+    const menu = e.target.closest ? e.target.closest('.dropdown-select-menu.open') : null;
+    if (!menu) { e.preventDefault(); return; }
+    if (e.type === 'wheel' && ((e.deltaY < 0 && menu.scrollTop <= 0) || (e.deltaY > 0 && menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1))) e.preventDefault();
+  }
+  document.addEventListener('wheel', travarRolagemComListaAberta, { passive: false });
+  document.addEventListener('touchmove', travarRolagemComListaAberta, { passive: false });
   document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
   });
@@ -4085,7 +4098,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   function mostrarPeriodo() { campoIni.value = brDe(ini); campoFim.value = brDe(fim); ['campoDataIni', 'campoDataFim'].forEach(c => document.getElementById(c).classList.remove('has-error')); texto('erroPeriodo', ''); document.getElementById('erroPeriodo').classList.remove('show'); }
   function aplicarPeriodo() {
     const i = isoDoBr(campoIni.value), f = isoDoBr(campoFim.value);
-    const msg = (!i || !f) ? 'Use o formato dd/mm/aaaa nas duas datas.' : (i > f ? 'A data inicial é depois da final.' : '');
+    const msg = (!i || !f) ? 'Use o formato DD/MM/AAAA nas duas datas.' : (i > f ? 'A data inicial é depois da final.' : '');
     document.getElementById('campoDataIni').classList.toggle('has-error', !i || (!!f && i > f));
     document.getElementById('campoDataFim').classList.toggle('has-error', !f || (!!i && i > f));
     texto('erroPeriodo', msg); document.getElementById('erroPeriodo').classList.toggle('show', !!msg);

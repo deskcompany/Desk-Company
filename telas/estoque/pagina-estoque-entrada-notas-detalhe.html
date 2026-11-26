@@ -312,7 +312,7 @@
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
   .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
   .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; overscroll-behavior:contain; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
@@ -575,8 +575,13 @@
   .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
   .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .itens-table input.col-texto-input { text-align:left; }
-  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
-  .item-remover:hover { opacity:0.75; }
+  /* Acao de linha de tabela de itens: botao de icone 28x28, nunca texto solto (revisao de 26/nov/2026, design system 9.8) */
+  .acoes-linha { display:inline-flex; align-items:center; gap:2px; white-space:nowrap; }
+  .btn-icone-linha { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:none; border-radius:7px; background:transparent; color:var(--text); cursor:pointer; flex-shrink:0; }
+  .btn-icone-linha:hover { background:rgba(120,120,140,0.14); color:var(--text-heading); }
+  .btn-icone-linha.perigo:hover { background:rgba(220,38,38,0.1); color:var(--danger); }
+  .btn-icone-linha:focus-visible { outline:2px solid var(--active-text); outline-offset:1px; }
+  .btn-icone-linha svg { width:14px; height:14px; }
   .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
   .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
   .acao-link:hover { text-decoration:underline; }
@@ -780,7 +785,7 @@
   .date-dia.vazio:hover { background:transparent; }
   .date-dia.hoje { font-weight:800; box-shadow: inset 0 0 0 1px var(--border); }
   .date-dia.sel { background: var(--brand-blue); color:#fff; font-weight:800; }
-  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; text-decoration:line-through; }
+  .date-dia.off { color:var(--text); opacity:0.32; cursor:not-allowed; }
   .date-dia.off:hover { background:transparent; }
   .date-rodape { margin-top:8px; padding-top:8px; border-top:1px solid var(--border); font-size:11px; color:var(--text); }
   .date-rodape b { color:var(--text-heading); }
@@ -1128,7 +1133,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="form-field" style="flex:1;" id="campoEmissao">
         <label>Data de emissão</label>
         <div class="date-field" id="dfEmissao">
-        <input type="text" id="inputEmissao" placeholder="dd/mm/aaaa" autocomplete="off">
+        <input type="text" id="inputEmissao" placeholder="DD/MM/AAAA" autocomplete="off">
         <button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
         <div class="date-pop"></div>
       </div>
@@ -1137,7 +1142,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       <div class="form-field" style="flex:1;" id="campoEntrada">
         <label>Data de entrada</label>
         <div class="date-field" id="dfEntrada">
-        <input type="text" id="inputEntrada" placeholder="dd/mm/aaaa" autocomplete="off">
+        <input type="text" id="inputEntrada" placeholder="DD/MM/AAAA" autocomplete="off">
         <button type="button" class="date-btn" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
         <div class="date-pop"></div>
       </div>
@@ -2472,6 +2477,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ===== ITENS =====
+  const IC_LIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+
   function renderItens() {
     const corpo = document.getElementById('corpoItens');
     corpo.innerHTML = '';
@@ -2484,7 +2491,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="col-texto"><input type="text" class="col-texto-input" data-campo="un" data-i="' + i + '" value="' + it.un + '"></td>' +
         '<td><input data-mascara="dinheiro" inputmode="decimal" type="text" data-campo="preco" data-i="' + i + '" value="' + fmtNum(it.preco) + '"></td>' +
         '<td><b>' + fmtMoeda(it.qtd * it.preco) + '</b></td>' +
-        '<td class="col-texto"><span class="item-remover" data-remover="' + i + '">remover</span></td>';
+        '<td class="col-texto"><span class="acoes-linha"><button type="button" class="btn-icone-linha perigo" data-remover="' + i + '" title="Remover item" aria-label="Remover item">' + IC_LIXO + '</button></span></td>';
       corpo.appendChild(tr);
     });
 
@@ -2701,11 +2708,11 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       chave.length > 0 && !chaveValida(chave), 'inputChave');
 
     const emissao = dataValida(val('inputEmissao'));
-    add('campoEmissao', 'erroEmissao', 'Informe uma data de emissão válida (dd/mm/aaaa).', !emissao, 'inputEmissao');
+    add('campoEmissao', 'erroEmissao', 'Informe uma data de emissão válida (DD/MM/AAAA).', !emissao, 'inputEmissao');
 
     const entrada = dataValida(val('inputEntrada'));
     let entradaRuim = !entrada;
-    let textoEntrada = 'Informe uma data de entrada válida (dd/mm/aaaa).';
+    let textoEntrada = 'Informe uma data de entrada válida (DD/MM/AAAA).';
     if (entrada && emissao && entrada < emissao) {
       entradaRuim = true;
       textoEntrada = 'A data de entrada não pode ser anterior à data de emissão.';
@@ -3009,6 +3016,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
+
+  // Lista suspensa aberta trava a rolagem da pagina (revisao de 26/nov/2026): a roda e o toque fora do menu nao rolam o fundo.
+  // Dentro do menu a rolagem funciona e, nas pontas, nao passa para a pagina. Sem overflow:hidden no body: a barra nao some e a tela nao pula.
+  function travarRolagemComListaAberta(e) {
+    if (!e.cancelable) return;
+    const abertos = Array.prototype.filter.call(document.querySelectorAll('.dropdown-select-menu.open'), m => m.getClientRects().length);
+    if (!abertos.length) return;
+    const menu = e.target.closest ? e.target.closest('.dropdown-select-menu.open') : null;
+    if (!menu) { e.preventDefault(); return; }
+    if (e.type === 'wheel' && ((e.deltaY < 0 && menu.scrollTop <= 0) || (e.deltaY > 0 && menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1))) e.preventDefault();
+  }
+  document.addEventListener('wheel', travarRolagemComListaAberta, { passive: false });
+  document.addEventListener('touchmove', travarRolagemComListaAberta, { passive: false });
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
   // ===== COMPONENTE: campo de data com mini calendário =====

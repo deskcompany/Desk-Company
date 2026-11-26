@@ -312,7 +312,7 @@
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
   .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
   .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; overscroll-behavior:contain; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
@@ -559,8 +559,13 @@
   .itens-table input[type="text"] { width:100%; font-family:'Nunito',sans-serif; font-size:13px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:8px; padding:6px 8px; outline:none; text-align:right; }
   .itens-table input[type="text"]:focus { border-color: var(--chart-2); outline: 2px solid var(--chart-2); outline-offset: -1px; }
   .itens-table input.col-texto-input { text-align:left; }
-  .item-remover { color:var(--danger); cursor:pointer; font-weight:700; font-size:12px; user-select:none; white-space:nowrap; }
-  .item-remover:hover { opacity:0.75; }
+  /* Acao de linha de tabela de itens: botao de icone 28x28, nunca texto solto (revisao de 26/nov/2026, design system 9.8) */
+  .acoes-linha { display:inline-flex; align-items:center; gap:2px; white-space:nowrap; }
+  .btn-icone-linha { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:none; border-radius:7px; background:transparent; color:var(--text); cursor:pointer; flex-shrink:0; }
+  .btn-icone-linha:hover { background:rgba(120,120,140,0.14); color:var(--text-heading); }
+  .btn-icone-linha.perigo:hover { background:rgba(220,38,38,0.1); color:var(--danger); }
+  .btn-icone-linha:focus-visible { outline:2px solid var(--active-text); outline-offset:1px; }
+  .btn-icone-linha svg { width:14px; height:14px; }
   .itens-acoes { display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap; }
   .acao-link { display:flex; align-items:center; gap:6px; font-family:'Nunito',sans-serif; font-weight:700; font-size:13px; color:var(--active-text); cursor:pointer; user-select:none; }
   .acao-link:hover { text-decoration:underline; }
@@ -1948,6 +1953,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       '</span></span>';
   }
 
+  const IC_VOLTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
+
   function renderItens() {
     const corpo = document.getElementById('corpoItens');
     corpo.innerHTML = '';
@@ -1959,7 +1966,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td><input type="text" class="qtd-input" data-i="' + i + '" placeholder="contar" value="' + (contado(it) ? fmtQtd(it.conferida, it.un) : '') + '"></td>' +
         '<td class="cel-dif" data-i="' + i + '"></td>' +
         '<td class="col-texto cel-motivo" data-i="' + i + '"><span class="motivo-vazio">—</span>' + blocoValidacao(i) + menuMotivo(i) + menuDestino(i) + '</td>' +
-        '<td class="col-texto"><span class="item-remover" data-limpar="' + i + '">limpar</span></td>';
+        '<td class="col-texto"><span class="acoes-linha"><button type="button" class="btn-icone-linha" data-limpar="' + i + '" title="Limpar a contagem do item" aria-label="Limpar a contagem do item">' + IC_VOLTA + '</button></span></td>';
       corpo.appendChild(tr);
     });
 
@@ -2402,7 +2409,7 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       if (b.closest('#menuAcoes')) return;
       b.disabled = true;
     });
-    document.querySelectorAll('.item-remover').forEach(e => e.remove());
+    document.querySelectorAll('[data-limpar]').forEach(e => e.remove());
     switchCego.classList.add('travado');
 
     const barra = document.querySelector('.barra-salvar');
@@ -2581,6 +2588,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
+
+  // Lista suspensa aberta trava a rolagem da pagina (revisao de 26/nov/2026): a roda e o toque fora do menu nao rolam o fundo.
+  // Dentro do menu a rolagem funciona e, nas pontas, nao passa para a pagina. Sem overflow:hidden no body: a barra nao some e a tela nao pula.
+  function travarRolagemComListaAberta(e) {
+    if (!e.cancelable) return;
+    const abertos = Array.prototype.filter.call(document.querySelectorAll('.dropdown-select-menu.open'), m => m.getClientRects().length);
+    if (!abertos.length) return;
+    const menu = e.target.closest ? e.target.closest('.dropdown-select-menu.open') : null;
+    if (!menu) { e.preventDefault(); return; }
+    if (e.type === 'wheel' && ((e.deltaY < 0 && menu.scrollTop <= 0) || (e.deltaY > 0 && menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1))) e.preventDefault();
+  }
+  document.addEventListener('wheel', travarRolagemComListaAberta, { passive: false });
+  document.addEventListener('touchmove', travarRolagemComListaAberta, { passive: false });
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
   // Menu ancorado no botao nao acompanha a rolagem: rolar a tela (nao o proprio menu) fecha.
   window.addEventListener('scroll', (e) => {

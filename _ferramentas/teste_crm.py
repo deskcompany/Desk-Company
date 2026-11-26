@@ -257,7 +257,7 @@ with sync_playwright() as p:
     pg.click('#novaDf .date-btn'); pg.wait_for_timeout(250); pg.click('#novaDf .date-dia[data-iso]'); pg.wait_for_timeout(250)
     ok(pg.input_value('#novaData')[:3] == '01/' and pg.locator('#novaDf .date-pop.open').count() == 0, 'escolher o dia preenche a data e fecha: %s' % pg.input_value('#novaData'))
     pg.fill('#novaData', '31/02/2027'); clic(pg, '#btnSalvarNova'); pg.wait_for_timeout(250)
-    ok(visivel(pg, '#novaErro') and 'dd/mm/aaaa' in pg.inner_text('#novaErro'), 'data que nao existe e barrada')
+    ok(visivel(pg, '#novaErro') and 'DD/MM/AAAA' in pg.inner_text('#novaErro'), 'data que nao existe e barrada')
     escolher(pg, 'novaPrevisto', 'quantoantes')
     ok(not visivel(pg, '#novaBlocoData'), '"quanto antes" esconde data e horario: campo que nao se aplica some')
     escolher(pg, 'novaPrevisto', 'data')

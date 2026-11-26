@@ -267,7 +267,7 @@ with sync_playwright() as p:
     erros_periodo = []
     for de, ate in [('', ''), ('31/02/2026', ''), (dma(1), dma(6))]:
         entre(de, ate); erros_periodo.append(pg.inner_text('#erroPeriodo') if visivel(pg, '#erroPeriodo') else '')
-    ok(erros_periodo == ['Informe a data inicial, a final, ou as duas.', 'Use o formato dd/mm/aaaa.', 'A data inicial é depois da final.'] and pg.locator('#periodoMenu.open').count() == 1 and len(skus(pg)) == 7,
+    ok(erros_periodo == ['Informe a data inicial, a final, ou as duas.', 'Use o formato DD/MM/AAAA.', 'A data inicial é depois da final.'] and pg.locator('#periodoMenu.open').count() == 1 and len(skus(pg)) == 7,
        'sem data, data que nao existe e inicio depois do fim nao filtram: %s' % erros_periodo)
     entre(dma(6), dma(1))
     ok(pg.inner_text('#rotuloPeriodo') == dma(6) + ' a ' + dma(1) and sorted(skus(pg)) == ['CAB-HDM-009', 'KIT-HOF-005', 'MAT-TEC-008', 'POL-ALM-040', 'TEC-MEC-006']

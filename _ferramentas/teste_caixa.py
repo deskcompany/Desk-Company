@@ -165,12 +165,12 @@ with sync_playwright() as p:
     ok(pg.eval_on_selector('#dfTransfData .date-pop', "e => e.classList.contains('open')"), 'o calendario abre no icone')
     dias = pg.eval_on_selector_all('#dfTransfData .date-dia:not(.vazio)', 'e => e.length')
     ok(dias >= 28 and dias <= 31, 'o mes tem %d dias desenhados' % dias)
-    riscados = pg.eval_on_selector_all('#dfTransfData .date-dia.off', 'e => e.length')
-    ok(riscados > 0, 'com periodo fechado, os dias travados aparecem riscados: %d' % riscados)
+    travados = pg.eval_on_selector_all('#dfTransfData .date-dia.off', 'e => e.length')
+    ok(travados > 0, 'com periodo fechado, os dias travados aparecem apagados: %d' % travados)
     sem_clique = pg.eval_on_selector_all('#dfTransfData .date-dia.off[data-iso]', 'e => e.length')
-    ok(sem_clique == 0, 'dia riscado nao e clicavel')
+    ok(sem_clique == 0, 'dia travado nao e clicavel')
     motivo = pg.eval_on_selector('#dfTransfData .date-dia.off', "e => e.getAttribute('title')")
-    ok('fechado' in (motivo or ''), 'o dia riscado diz o motivo: "%s"' % motivo)
+    ok('fechado' in (motivo or ''), 'o dia travado diz o motivo: "%s"' % motivo)
     ok('Fechado at' in pg.text_content('#dfTransfData .date-rodape'), 'o rodape do calendario repete a trava')
     # O periodo foi fechado HOJE, entao o mes corrente pode nao ter NENHUM dia
     # livre — e no ultimo dia do mes ele nunca tem. Quem transfere avanca um mes,

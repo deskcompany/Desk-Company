@@ -150,8 +150,11 @@ with sync_playwright() as pw:
                  toca: itens.every(it => { const r = it.getBoundingClientRect(); const e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e === it || it.contains(e); }) }; }""")
     ok(alcance['aberto'] and alcance['itens'] >= 2 and alcance['toca'] and alcance['rola'] <= 1,
        'o menu do motivo abre inteiro, por cima da tabela, sem barra de rolagem dentro dela: %s' % alcance)
-    pg.mouse.wheel(0, 120); pg.wait_for_timeout(250)
-    ok(pg.locator('#motivo-1 .dropdown-select-menu.open').count() == 0, 'e rolar a tela fecha o menu, para ele nao ficar solto')
+    # 26/nov: com a lista aberta a roda nao rola mais a pagina (a lista fica no lugar); rolar por outro caminho (teclado, barra) ainda fecha
+    y0 = pg.evaluate('window.scrollY'); pg.mouse.move(640, 300); pg.mouse.wheel(0, 120); pg.wait_for_timeout(250)
+    ok(pg.evaluate('window.scrollY') == y0 and pg.locator('#motivo-1 .dropdown-select-menu.open').count() == 1, 'com a lista aberta a roda nao rola a pagina, e a lista fica no lugar')
+    pg.evaluate('window.scrollBy(0, 120)'); pg.wait_for_timeout(250)
+    ok(pg.locator('#motivo-1 .dropdown-select-menu.open').count() == 0, 'e rolar a tela por outro caminho fecha o menu, para ele nao ficar solto')
     pg.evaluate('window.scrollTo(0, 0)'); pg.wait_for_timeout(150)
 
     # ---------------------------------------------------------------- 7

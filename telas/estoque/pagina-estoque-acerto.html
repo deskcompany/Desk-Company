@@ -312,7 +312,7 @@
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
   .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
   .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; overscroll-behavior:contain; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
   .dropdown-select-item { padding:8px 12px; border-radius:8px; font-size:13px; color:var(--text-heading); cursor:pointer; font-family:'Nunito',sans-serif; font-weight:600; white-space:nowrap; }
@@ -640,8 +640,13 @@
   .sugestao-meta { font-size:11.5px; color:var(--text); margin-top:2px; }
   .sugestao-vazia { padding:12px; font-size:12.5px; color:var(--text); }
   .linha-montada { cursor:default; }
-  .remover-linha { font-size:11.5px; font-weight:700; color:var(--danger); cursor:pointer; user-select:none; white-space:nowrap; }
-  .remover-linha:hover { text-decoration:underline; }
+  /* Acao de linha de tabela de itens: botao de icone 28x28, nunca texto solto (revisao de 26/nov/2026, design system 9.8) */
+  .acoes-linha { display:inline-flex; align-items:center; gap:2px; white-space:nowrap; }
+  .btn-icone-linha { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:none; border-radius:7px; background:transparent; color:var(--text); cursor:pointer; flex-shrink:0; }
+  .btn-icone-linha:hover { background:rgba(120,120,140,0.14); color:var(--text-heading); }
+  .btn-icone-linha.perigo:hover { background:rgba(220,38,38,0.1); color:var(--danger); }
+  .btn-icone-linha:focus-visible { outline:2px solid var(--active-text); outline-offset:1px; }
+  .btn-icone-linha svg { width:14px; height:14px; }
   .qtd-entrada { color:#166534; font-weight:800; }
   body.dark .qtd-entrada { color:#4ADE80; }
   .qtd-saida { color:#B91C1C; font-weight:800; }
@@ -2170,6 +2175,8 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
   }
 
   // ===== TABELA DE LINHAS =====
+  const IC_LIXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+
   function renderLinhas() {
     const corpo = document.getElementById('corpoLinhas');
     const empty = document.getElementById('emptyLinhas');
@@ -2199,12 +2206,12 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
         '<td class="' + (l.tipo === 'saida' ? 'qtd-saida' : 'qtd-entrada') + '">' +
           (l.tipo === 'saida' ? '−' : (l.tipo === 'entrada' ? '+' : '=')) + fmtQtd(l.qtd, l.unidade) +
           '<span class="col-un">' + l.unidade + '</span></td>' +
-        '<td><span class="remover-linha" data-i="' + i + '" title="Remover esta linha">remover</span></td>';
+        '<td><span class="acoes-linha"><button type="button" class="btn-icone-linha perigo" data-remover="' + i + '" title="Remover esta linha" aria-label="Remover esta linha">' + IC_LIXO + '</button></span></td>';
       corpo.appendChild(tr);
     });
-    corpo.querySelectorAll('.remover-linha').forEach(el => el.addEventListener('click', (e) => {
+    corpo.querySelectorAll('[data-remover]').forEach(el => el.addEventListener('click', (e) => {
       e.stopPropagation();
-      LINHAS.splice(Number(el.getAttribute('data-i')), 1);
+      LINHAS.splice(Number(el.getAttribute('data-remover')), 1);
       renderLinhas();
     }));
   }
@@ -2418,6 +2425,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
+
+  // Lista suspensa aberta trava a rolagem da pagina (revisao de 26/nov/2026): a roda e o toque fora do menu nao rolam o fundo.
+  // Dentro do menu a rolagem funciona e, nas pontas, nao passa para a pagina. Sem overflow:hidden no body: a barra nao some e a tela nao pula.
+  function travarRolagemComListaAberta(e) {
+    if (!e.cancelable) return;
+    const abertos = Array.prototype.filter.call(document.querySelectorAll('.dropdown-select-menu.open'), m => m.getClientRects().length);
+    if (!abertos.length) return;
+    const menu = e.target.closest ? e.target.closest('.dropdown-select-menu.open') : null;
+    if (!menu) { e.preventDefault(); return; }
+    if (e.type === 'wheel' && ((e.deltaY < 0 && menu.scrollTop <= 0) || (e.deltaY > 0 && menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1))) e.preventDefault();
+  }
+  document.addEventListener('wheel', travarRolagemComListaAberta, { passive: false });
+  document.addEventListener('touchmove', travarRolagemComListaAberta, { passive: false });
   document.addEventListener('click', () => document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open')));
 
   // "Mais ações" e MENU DE AÇÕES, nao dropdown de valor (§9): bind proprio, sem

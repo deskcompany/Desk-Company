@@ -282,6 +282,19 @@ def audita(caminho):
             sem_mascara.append(ide.group(1) if ide else tag[:40])
     if sem_mascara: probs.append('13 campo de reais ou de peso sem data-mascara: ' + ', '.join(sem_mascara[:6]))
 
+    # 14 a data escrita em minusculo (26/nov/2026, revisao geral). O usuario pediu o formato em maiusculas em todo campo e mensagem:
+    # DD/MM/AAAA. Olha o texto sem comentario, entao placeholder, dica e mensagem de erro entram, e a explicacao no codigo nao.
+    if 'dd/mm/aaaa' in limpo: probs.append('14 data escrita "dd/mm/aaaa" em minusculo: use DD/MM/AAAA (%d vez(es))' % limpo.count('dd/mm/aaaa'))
+
+    # 15 dia bloqueado do calendario com risco no meio (26/nov/2026): ele fica so apagado e sem clique, nunca riscado.
+    for m in re.finditer(r'\.date-dia\.off\s*\{[^}]*\}', limpo):
+        if 'line-through' in m.group(0): probs.append('15 .date-dia.off com text-decoration:line-through: o dia bloqueado fica so apagado')
+
+    # 16 acao de linha em texto solto (26/nov/2026): "editar" e "remover" escritos num span/div/a. Acao de linha de tabela e botao de
+    # icone (.btn-icone-linha, com title e aria-label). Pega o span que carrega item-remover, remover-linha ou data-editar.
+    soltas = re.findall(r'<(?:span|div|a)\b[^>]*(?:\bitem-remover\b|\bremover-linha\b|\bdata-editar=)[^>]*>', limpo)
+    if soltas: probs.append('16 acao de linha em texto solto (%d): troque por <button class="btn-icone-linha"> com title e aria-label' % len(soltas))
+
     # 9 botoes/links com id e sem listener
     with_id = set(re.findall(r'<(?:button|div|a)[^>]*\sid="(btn[^"]+|link[^"]+)"', limpo))
     # Link com destino real NAVEGA: nao precisa de listener nenhum. Antes o

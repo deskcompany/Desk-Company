@@ -463,7 +463,7 @@ with sync_playwright() as p:
         ok(pg.evaluate("document.getElementById('erroPeriodo').classList.contains('show')") and 'depois da final' in pg.inner_text('#erroPeriodo')
            and pg.evaluate("document.getElementById('campoDataIni').classList.contains('has-error')"), 'data inicial depois da final diz o erro e marca o campo')
         pg.fill('#dataIni', '32/13/2026'); pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
-        ok('formato dd/mm/aaaa' in pg.inner_text('#erroPeriodo'), 'data que não existe diz o formato')
+        ok('formato DD/MM/AAAA' in pg.inner_text('#erroPeriodo'), 'data que não existe diz o formato')
         pg.evaluate("document.getElementById('btnMesAtual').click()"); pg.wait_for_timeout(250)
         ok(pg.input_value('#dataIni') == br(ini) and pg.input_value('#dataFim') == br(fim) and not pg.evaluate("document.getElementById('erroPeriodo').classList.contains('show')"),
            '"Mês atual" volta ao mês inteiro e limpa o erro')

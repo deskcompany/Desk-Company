@@ -1,4 +1,4 @@
-*Atualizado em 25/nov/2026: os ajustes que ele pediu ao testar o pacote das listas (nomes das condições em 2x, 3x..., o tipo Receita ou Despesa das categorias, a condição padrão do fornecedor e o Caixa seguindo o tipo) foram testados e aprovados por ele e foram para o HISTORICO.md. Nada espera teste agora. O "Gerar encarte" segue segurado por ele.*
+*Atualizado em 26/nov/2026: a revisão geral (os 4 itens que ele deixou na lista) foi feita e espera o teste dele: as datas em DD/MM/AAAA, o dia bloqueado do calendário sem o risco, as ações das linhas de itens em botões de ícone e a lista suspensa que trava a rolagem da página. A lista "Para a próxima revisão geral" está vazia até o próximo pedido dele. O "Gerar encarte" segue segurado por ele.*
 
 Esta página diz **só onde o projeto está hoje**: onde paramos, os números, o próximo da fila, o que está decidido e o
 que espera decisão. É **reescrita a cada entrega**, no mesmo commit, e fica curta: quando uma entrega é testada e
@@ -7,6 +7,15 @@ aprovada, o texto dela sai daqui e vai para o começo do [HISTORICO.md](HISTORIC
 As regras do projeto ficam no `CLAUDE.md`, e o detalhe técnico no §14 do design system.
 
 ## Onde paramos
+
+**Revisão geral de 26/nov/2026, esperando o teste dele.** Os quatro itens da lista, feitos de uma vez em todas as telas (§14.123; botão de ícone no §9.5). O que conferir, nesta ordem:
+
+1. **As datas em maiúsculas.** Abra [Movimentação de Estoque](http://localhost:3000/estoque/pagina-estoque-movimentacao.html): os campos de data mostram "DD/MM/AAAA". Digite "2026-01-01" na data inicial e clique em Buscar: a mensagem também diz "Use o formato DD/MM/AAAA nas datas".
+2. **O dia bloqueado sem o risco.** Na mesma tela, abra o calendário da data inicial: os dias depois de hoje ficam só apagados, sem o traço no meio, e não respondem ao clique.
+3. **As ações das linhas viram botões.** Abra o [Pedido de Venda](http://localhost:3000/vendas/pagina-vendas-pedidos-detalhe.html), clique em Editar registro e olhe a tabela de itens: no lugar de "editar remover" há o lápis e a lixeira. Passe o mouse na lixeira (fica vermelha), use o Tab (aparece o contorno) e remova um item. O mesmo na [Entrada de Notas](http://localhost:3000/estoque/pagina-estoque-entrada-notas-detalhe.html) (clique em Adicionar item), na [Ordem de Compra](http://localhost:3000/estoque/pagina-estoque-ordens-compra-detalhe.html?id=1), na [Conferência de Estoque](http://localhost:3000/estoque/pagina-estoque-conferencia.html) (o botão de voltar limpa a contagem do item) e no [Acerto de Estoque](http://localhost:3000/estoque/pagina-estoque-acerto.html) (depois de lançar uma linha).
+4. **A lista suspensa trava a página.** No [Caixa](http://localhost:3000/financas/pagina-financas-caixa.html), abra o filtro "Categoria" (lista comprida) e gire a roda: com o mouse fora da lista a página não anda; sobre a lista, ela rola por dentro e não passa para a página. Feche a lista (clique fora ou Esc): a roda volta a rolar a página.
+
+O que ficou de fora de propósito: a lista de sugestão ao digitar e o calendário **têm o mesmo problema** da rolagem (testado no calendário), e os "editar" e "excluir" em texto de Comissões Afiliados seguem como estão. Está tudo no §14.123.
 
 **Os ajustes depois do teste das listas (24-25/nov/2026): testados e aprovados por ele em 25/nov** ("testei tudo, passou"). O texto foi para o HISTORICO.md, e o detalhe está no §14.122 (parágrafo "Depois do teste").
 
@@ -199,20 +208,9 @@ na Entrada de Notas, que é o item E3); e as cópias do número da meta (R6), qu
 ## Para a próxima revisão geral
 
 A revisão geral de 16-18/nov/2026 fez os 19 itens em cinco pacotes (§14.113 a §14.117; o plano em
-[docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md)) e foi aprovada por ele. O que ele pedir
+[docs/plano-revisao-geral-16nov.md](docs/plano-revisao-geral-16nov.md)) e foi aprovada por ele. A de 26/nov/2026 fez os 4 pedidos
+que ele tinha deixado (§14.123) e espera o teste dele. **A lista está vazia até o próximo pedido dele.** O que ele pedir
 "para a próxima revisão" entra aqui, e não se conserta antes de ele mandar.
-
-Pedidos dele de 20/nov/2026 (itens 1 a 3) e de 24/nov/2026 (item 4):
-
-1. **Datas em DD/MM/AAAA, maiúsculo.** Todo campo de data, obrigatório ou não, mostra o formato em maiúsculas.
-   Hoje são 21 telas com "dd/mm/aaaa" (66 ocorrências).
-2. **Dia bloqueado do calendário sem o risco.** O dia que não pode ser escolhido fica só apagado, sem o traço no
-   meio: sai o `text-decoration:line-through` de `.date-dia.off`, nas 29 telas que têm o calendário.
-3. **Pedido de Venda: o "editar / remover" das linhas dos itens.** Ele achou estranho: virar botões de verdade ou
-   outra organização. Barganhar o formato com ele antes de mexer.
-4. **Lista suspensa de seleção: travar a rolagem da tela.** Ao abrir uma lista suspensa de seleção, a página rola por baixo e atrapalha na hora de selecionar (pedido de 24/nov/2026).
-
-As telas novas já nascem com os itens 1 e 2 (design system, §9.2).
 
 ## Esperando decisão do usuário
 

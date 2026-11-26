@@ -319,7 +319,7 @@ with sync_playwright() as p:
         buscar(de='31/12/2026', ate='01/01/2026')
         ok(texto('#erroBusca') == 'A data inicial é depois da final.' and visivel('#erroBusca'), 'data inicial depois da final é barrada')
         buscar(de='2026-01-01', ate=todas[30]['data'])
-        ok(texto('#erroBusca') == 'Use o formato dd/mm/aaaa nas datas.', 'data fora do formato é barrada')
+        ok(texto('#erroBusca') == 'Use o formato DD/MM/AAAA nas datas.', 'data fora do formato é barrada')
         meio = todas[20]['data']
         buscar(de=meio, ate=todas[30]['data'])
         ls = linhas()

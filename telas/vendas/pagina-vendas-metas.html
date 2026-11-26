@@ -349,7 +349,7 @@
   .dropdown-select-btn.form-style { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:'Nunito',sans-serif; font-size:13.5px; color:var(--text-heading); background:var(--page-bg); border:1px solid var(--border); border-radius:9px; padding:9px 11px; cursor:pointer; }
   .dropdown-select-btn.form-style:disabled, .dropdown-select.disabled .dropdown-select-btn.form-style { opacity:0.55; cursor:not-allowed; }
   .dropdown-select-btn svg { width:12px; height:12px; color:var(--text); flex-shrink:0; }
-  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; }
+  .dropdown-select-menu { display:none; position:absolute; top:calc(100% + 6px); left:0; min-width:100%; background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:6px; box-shadow:0 12px 28px rgba(0,0,0,0.22); z-index:25; max-height:240px; overflow-y:auto; overscroll-behavior:contain; }
   .dropdown-select-menu.open { display:block; }
   .dropdown-select-menu.abrir-para-cima { top:auto; bottom:calc(100% + 6px); }
   /* Excecao a regra "dropdown abre para baixo" (usuario, 02/nov/2026): o "Por pagina" do rodape abre SEMPRE para cima, em qualquer posicao da pagina. */
@@ -2317,6 +2317,19 @@ try{var _dp=JSON.parse(localStorage.getItem("deskParametros")||"{}");if(_dp.tema
       });
     }
   }
+
+  // Lista suspensa aberta trava a rolagem da pagina (revisao de 26/nov/2026): a roda e o toque fora do menu nao rolam o fundo.
+  // Dentro do menu a rolagem funciona e, nas pontas, nao passa para a pagina. Sem overflow:hidden no body: a barra nao some e a tela nao pula.
+  function travarRolagemComListaAberta(e) {
+    if (!e.cancelable) return;
+    const abertos = Array.prototype.filter.call(document.querySelectorAll('.dropdown-select-menu.open'), m => m.getClientRects().length);
+    if (!abertos.length) return;
+    const menu = e.target.closest ? e.target.closest('.dropdown-select-menu.open') : null;
+    if (!menu) { e.preventDefault(); return; }
+    if (e.type === 'wheel' && ((e.deltaY < 0 && menu.scrollTop <= 0) || (e.deltaY > 0 && menu.scrollTop + menu.clientHeight >= menu.scrollHeight - 1))) e.preventDefault();
+  }
+  document.addEventListener('wheel', travarRolagemComListaAberta, { passive: false });
+  document.addEventListener('touchmove', travarRolagemComListaAberta, { passive: false });
   document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown-select-menu.open').forEach(m => m.classList.remove('open'));
   });
